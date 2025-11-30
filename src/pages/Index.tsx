@@ -8,13 +8,37 @@ import { Package2, Search, ShoppingBag, MessageSquare } from 'lucide-react';
 const Index = () => {
   const navigate = useNavigate();
 
+  const categories = [
+    { name: 'Auto Vehicle & Accessories', icon: '🚗' },
+    { name: 'Beauty & Personal Care', icon: '💄' },
+    { name: 'Consumer Electronics', icon: '📱' },
+    { name: 'Electronic Components', icon: '🔌' },
+    { name: 'Fashion Accessories & Footwear', icon: '👟' },
+    { name: 'Fashion Apparel & Fabrics', icon: '👔' },
+    { name: 'Food & Beverages', icon: '🍽️' },
+    { name: 'Furniture & Home Decor', icon: '🛋️' },
+    { name: 'Gifts & Festival Products', icon: '🎁' },
+    { name: 'Hardware & Tools', icon: '🔧' },
+    { name: 'Health Care Products', icon: '🏥' },
+    { name: 'Home Appliances', icon: '🏠' },
+    { name: 'Household & Pets', icon: '🐕' },
+    { name: 'Industrial Supplies', icon: '🏭' },
+    { name: 'Machinery & Equipment', icon: '⚙️' },
+    { name: 'Mobile Electronics', icon: '📲' },
+    { name: 'Mother, Kids & Toys', icon: '🧸' },
+    { name: 'Printing & Packaging', icon: '📦' },
+    { name: 'School & Office Supplies', icon: '✏️' },
+    { name: 'Sports & Outdoor', icon: '⚽' },
+    { name: 'Telecommunication', icon: '📡' },
+  ];
+
   const popularSearches = [
-    'Industrial Equipment',
     'Electronics',
-    'Chemicals',
-    'Textiles',
-    'Construction Materials',
-    'Food Products',
+    'Machinery',
+    'Apparel',
+    'Auto Parts',
+    'Hardware',
+    'Home Appliances',
   ];
 
   return (
@@ -208,6 +232,50 @@ const Index = () => {
               while maintaining transparency.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            Browse by Category
+          </h2>
+          <p className="text-center text-muted-foreground mb-12">
+            Explore our comprehensive range of product categories
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+            {categories.map((category) => (
+              <Card 
+                key={category.name} 
+                className="hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer group"
+              >
+                <CardContent className="p-4 text-center">
+                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">
+                    {category.icon}
+                  </div>
+                  <h3 className="font-medium text-xs leading-tight">
+                    {category.name}
+                  </h3>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-muted/30 py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Transform Your Business?
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Join ProcureSaathi today and experience the future of B2B procurement
+          </p>
+          <Button size="lg" onClick={() => navigate('/auth')}>
+            Start Free Trial
+          </Button>
         </div>
       </section>
 
