@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package2, Search, ShoppingBag, MessageSquare } from 'lucide-react';
+import { Search, ShoppingBag, MessageSquare } from 'lucide-react';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -57,10 +58,11 @@ const Index = () => {
       <header className="bg-card border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Package2 className="h-8 w-8 text-primary" />
-            <div>
-              <span className="text-2xl font-bold text-primary block leading-none">ProcureSaathi</span>
-            </div>
+            <img 
+              src={procureSaathiLogo} 
+              alt="ProcureSaathi Logo" 
+              className="h-12 w-auto object-contain"
+            />
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Button variant="ghost">About Us</Button>
