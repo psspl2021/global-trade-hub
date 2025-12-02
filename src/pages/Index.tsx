@@ -175,7 +175,7 @@ const Index = () => {
             <Card className="bg-success/10 border-success/20">
               <CardContent className="p-8 text-center">
                 <ShoppingBag className="h-12 w-12 text-success mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-4 text-success-foreground">
+                <h3 className="text-2xl font-bold mb-4 text-foreground">
                   If you're Sourcing or to Connect with Suppliers, it's FREE, Forever!
                 </h3>
                 <p className="text-muted-foreground mb-6">
@@ -196,7 +196,7 @@ const Index = () => {
             <Card className="bg-warning/10 border-warning/20">
               <CardContent className="p-8 text-center">
                 <MessageSquare className="h-12 w-12 text-warning mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-4 text-warning-foreground">
+                <h3 className="text-2xl font-bold mb-4 text-foreground">
                   For Manufacturers, Join & List your company & start connecting with Global buyers now!
                 </h3>
                 <p className="text-muted-foreground mb-6">
