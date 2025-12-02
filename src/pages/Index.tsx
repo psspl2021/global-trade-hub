@@ -61,7 +61,7 @@ const Index = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-12 w-auto object-contain"
+              className="h-20 w-auto object-contain"
             />
           </div>
           <nav className="hidden md:flex items-center gap-6">
