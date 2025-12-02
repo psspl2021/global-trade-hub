@@ -1,15 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package2, LogOut, Loader2 } from 'lucide-react';
+import { LogOut, Loader2 } from 'lucide-react';
+import { CreateRequirementForm } from '@/components/CreateRequirementForm';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
+  const [showRequirementForm, setShowRequirementForm] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -31,8 +34,11 @@ const Dashboard = () => {
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Package2 className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold text-primary">ProcureSaathi</span>
+            <img 
+              src={procureSaathiLogo} 
+              alt="ProcureSaathi Logo" 
+              className="h-16 w-auto object-contain"
+            />
           </div>
           <Button variant="outline" onClick={signOut}>
             <LogOut className="h-4 w-4 mr-2" />
@@ -63,7 +69,9 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Create a new procurement requirement and get competitive bids
                   </p>
-                  <Button className="w-full">Create Requirement</Button>
+                  <Button className="w-full" onClick={() => setShowRequirementForm(true)}>
+                    Create Requirement
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -143,6 +151,15 @@ const Dashboard = () => {
             </>
           )}
         </div>
+
+        {/* Create Requirement Form */}
+        {user && (
+          <CreateRequirementForm
+            open={showRequirementForm}
+            onOpenChange={setShowRequirementForm}
+            userId={user.id}
+          />
+        )}
       </main>
     </div>
   );
