@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogOut, Loader2 } from 'lucide-react';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
+import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -58,9 +60,9 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {role === 'buyer' && (
-            <>
+        {role === 'buyer' && (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Post Requirement</CardTitle>
@@ -74,83 +76,64 @@ const Dashboard = () => {
                   </Button>
                 </CardContent>
               </Card>
+            </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Requirements</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-primary mb-2">0</div>
-                  <p className="text-sm text-muted-foreground">Requirements posted</p>
-                </CardContent>
-              </Card>
+            {/* Requirements List with Bid Details */}
+            {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
+          </div>
+        )}
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Browse Suppliers</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Explore supplier catalogs and check stock availability
-                  </p>
-                  <Button variant="outline" className="w-full">View Suppliers</Button>
-                </CardContent>
-              </Card>
-            </>
-          )}
+        {role === 'supplier' && (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>Manage Products</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add or update your product catalog
+                </p>
+                <Button className="w-full">Manage Catalog</Button>
+              </CardContent>
+            </Card>
 
-          {role === 'supplier' && (
-            <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Manage Products</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Add or update your product catalog
-                  </p>
-                  <Button className="w-full">Manage Catalog</Button>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Stock Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Update inventory and import from Tally/Busy
+                </p>
+                <Button variant="outline" className="w-full">Update Stock</Button>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Stock Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Update inventory and import from Tally/Busy
-                  </p>
-                  <Button variant="outline" className="w-full">Update Stock</Button>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Browse Requirements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Find active requirements and submit bids
+                </p>
+                <Button variant="outline" className="w-full">View Requirements</Button>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Browse Requirements</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Find active requirements and submit bids
-                  </p>
-                  <Button variant="outline" className="w-full">View Requirements</Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Subscription</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm text-muted-foreground mb-2">Free Plan</div>
-                  <div className="text-2xl font-bold text-primary mb-2">0/5</div>
-                  <p className="text-sm text-muted-foreground mb-4">Bids used this month</p>
-                  <Button variant="outline" className="w-full">Upgrade to Premium</Button>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscription</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-muted-foreground mb-2">Free Plan</div>
+                <div className="text-2xl font-bold text-primary mb-2">0/5</div>
+                <p className="text-sm text-muted-foreground mb-4">Bids used this month</p>
+                <Button variant="outline" className="w-full">Upgrade to Premium</Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Create Requirement Form */}
         {user && (
@@ -158,6 +141,7 @@ const Dashboard = () => {
             open={showRequirementForm}
             onOpenChange={setShowRequirementForm}
             userId={user.id}
+            onSuccess={() => setRefreshKey(k => k + 1)}
           />
         )}
       </main>
