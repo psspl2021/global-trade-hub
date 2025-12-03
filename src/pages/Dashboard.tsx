@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogOut, Loader2 } from 'lucide-react';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
+import { SupplierCatalog } from '@/components/SupplierCatalog';
+import { StockManagement } from '@/components/StockManagement';
+import { BrowseRequirements } from '@/components/BrowseRequirements';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -15,6 +18,9 @@ const Dashboard = () => {
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [showStock, setShowStock] = useState(false);
+  const [showRequirements, setShowRequirements] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -84,55 +90,65 @@ const Dashboard = () => {
         )}
 
         {role === 'supplier' && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Manage Products</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Add or update your product catalog
-                </p>
-                <Button className="w-full">Manage Catalog</Button>
-              </CardContent>
-            </Card>
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Manage Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add or update your product catalog
+                  </p>
+                  <Button className="w-full" onClick={() => setShowCatalog(true)}>Manage Catalog</Button>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Stock Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Update inventory and import from Tally/Busy
-                </p>
-                <Button variant="outline" className="w-full">Update Stock</Button>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Stock Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Update inventory and import from Tally/Busy
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowStock(true)}>Update Stock</Button>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Browse Requirements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Find active requirements and submit bids
-                </p>
-                <Button variant="outline" className="w-full">View Requirements</Button>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Browse Requirements</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Find active requirements and submit bids
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowRequirements(true)}>View Requirements</Button>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Subscription</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground mb-2">Free Plan</div>
-                <div className="text-2xl font-bold text-primary mb-2">0/5</div>
-                <p className="text-sm text-muted-foreground mb-4">Bids used this month</p>
-                <Button variant="outline" className="w-full">Upgrade to Premium</Button>
-              </CardContent>
-            </Card>
-          </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Subscription</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-muted-foreground mb-2">Free Plan</div>
+                  <div className="text-2xl font-bold text-primary mb-2">0/5</div>
+                  <p className="text-sm text-muted-foreground mb-4">Bids used this month</p>
+                  <Button variant="outline" className="w-full">Upgrade to Premium</Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {user && (
+              <>
+                <SupplierCatalog open={showCatalog} onOpenChange={setShowCatalog} userId={user.id} />
+                <StockManagement open={showStock} onOpenChange={setShowStock} userId={user.id} />
+                <BrowseRequirements open={showRequirements} onOpenChange={setShowRequirements} userId={user.id} />
+              </>
+            )}
+          </>
         )}
 
         {/* Create Requirement Form */}
