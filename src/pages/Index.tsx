@@ -56,6 +56,16 @@ const Index = () => {
     { term: 'Building Material', category: 'Industrial Supplies' },
   ];
 
+  // Open Google search with fallback for blocked popups
+  const openGoogleSearch = (query: string) => {
+    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    // Fallback if popup is blocked
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      window.location.href = url;
+    }
+  };
+
   // Handle Google search for suppliers
   const handleSearchSuppliers = () => {
     const keyword = searchKeyword.trim();
@@ -70,14 +80,13 @@ const Index = () => {
     query += ' suppliers manufacturers wholesalers';
     if (countryName) query += ` in ${countryName}`;
     
-    // Open Google search in new tab
-    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+    openGoogleSearch(query);
   };
 
   // Handle top search click - directly search Google
   const handleTopSearchClick = (term: string, category: string) => {
     const query = `${term} ${category} suppliers manufacturers wholesalers B2B`;
-    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+    openGoogleSearch(query);
   };
 
   // Handle Enter key in search input
