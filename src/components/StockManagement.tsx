@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Package, Save, Upload, FileSpreadsheet, AlertCircle } from 'lucide-react';
+import { Loader2, Package, Save, Upload, FileSpreadsheet, AlertCircle, Download, Link2, Info } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import * as XLSX from 'xlsx';
 
 interface ProductWithStock {
   id: string;
@@ -119,11 +120,11 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     
     const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
     const nameIndex = headers.findIndex(h => h.includes('product') || h.includes('name') || h.includes('item'));
-    const qtyIndex = headers.findIndex(h => h.includes('quantity') || h.includes('qty') || h.includes('stock'));
+    const qtyIndex = headers.findIndex(h => h.includes('quantity') || h.includes('qty') || h.includes('stock') || h.includes('closing'));
     const unitIndex = headers.findIndex(h => h.includes('unit'));
 
     if (nameIndex === -1 || qtyIndex === -1) {
-      throw new Error('CSV must have columns for product name and quantity');
+      throw new Error('File must have columns for product name and quantity/stock');
     }
 
     return lines.slice(1).map(line => {
@@ -136,6 +137,41 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     }).filter(row => row.productName && row.quantity >= 0);
   };
 
+  const parseExcel = (data: ArrayBuffer): ParsedStockRow[] => {
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { defval: '' });
+
+    if (jsonData.length === 0) return [];
+
+    // Find column headers (case-insensitive)
+    const firstRow = jsonData[0];
+    const headers = Object.keys(firstRow).map(h => h.toLowerCase());
+    
+    const nameKey = Object.keys(firstRow).find(k => {
+      const lk = k.toLowerCase();
+      return lk.includes('product') || lk.includes('name') || lk.includes('item') || lk.includes('particulars');
+    });
+    
+    const qtyKey = Object.keys(firstRow).find(k => {
+      const lk = k.toLowerCase();
+      return lk.includes('quantity') || lk.includes('qty') || lk.includes('stock') || lk.includes('closing');
+    });
+    
+    const unitKey = Object.keys(firstRow).find(k => k.toLowerCase().includes('unit'));
+
+    if (!nameKey || !qtyKey) {
+      throw new Error('Excel file must have columns for product name and quantity/stock');
+    }
+
+    return jsonData.map(row => ({
+      productName: String(row[nameKey] || '').trim(),
+      quantity: parseInt(String(row[qtyKey])) || 0,
+      unit: unitKey ? String(row[unitKey]).trim() : undefined,
+    })).filter(row => row.productName && row.quantity >= 0);
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -144,8 +180,16 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     setUploadPreview([]);
 
     try {
-      const text = await file.text();
-      const parsed = parseCSV(text);
+      const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
+      let parsed: ParsedStockRow[];
+
+      if (isExcel) {
+        const buffer = await file.arrayBuffer();
+        parsed = parseExcel(buffer);
+      } else {
+        const text = await file.text();
+        parsed = parseCSV(text);
+      }
       
       if (parsed.length === 0) {
         setUploadErrors(['No valid data found in file']);
@@ -231,9 +275,65 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     });
   };
 
+  const downloadCSVTemplate = () => {
+    const csvContent = `Product Name,Quantity,Unit
+Steel Rods,500,kg
+Copper Wire,200,meters
+Plastic Sheets,1000,pieces`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stock_template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadExcelTemplate = () => {
+    // Tally/Busy compatible format
+    const wsData = [
+      ['Product Name', 'Closing Stock', 'Unit', 'Godown/Location'],
+      ['Steel Rods', 500, 'kg', 'Main Warehouse'],
+      ['Copper Wire', 200, 'meters', 'Main Warehouse'],
+      ['Plastic Sheets', 1000, 'pieces', 'Main Warehouse'],
+    ];
+    
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Stock Report');
+    
+    // Set column widths
+    ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 20 }];
+    
+    XLSX.writeFile(wb, 'stock_template_tally_busy.xlsx');
+  };
+
+  const downloadCurrentStock = () => {
+    if (products.length === 0) return;
+
+    const wsData = [
+      ['Product Name', 'Current Stock', 'Unit', 'Category'],
+      ...products.map(p => [
+        p.name,
+        p.stock_inventory?.quantity ?? 0,
+        p.stock_inventory?.unit ?? 'units',
+        p.category
+      ])
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Current Stock');
+    
+    ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 10 }, { wch: 20 }];
+    
+    XLSX.writeFile(wb, `stock_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Stock Management</DialogTitle>
         </DialogHeader>
@@ -247,14 +347,22 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
           </div>
         ) : (
           <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="upload">
                 <Upload className="h-4 w-4 mr-2" />
-                Upload Stock Report
+                Import
+              </TabsTrigger>
+              <TabsTrigger value="templates">
+                <Download className="h-4 w-4 mr-2" />
+                Templates
               </TabsTrigger>
               <TabsTrigger value="manual">
                 <Save className="h-4 w-4 mr-2" />
-                Manual Update
+                Manual
+              </TabsTrigger>
+              <TabsTrigger value="integration">
+                <Link2 className="h-4 w-4 mr-2" />
+                API
               </TabsTrigger>
             </TabsList>
 
@@ -263,16 +371,16 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
                 <CardContent className="p-4 space-y-4">
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
-                      <Label htmlFor="stock-file" className="text-sm font-medium">Upload CSV File</Label>
+                      <Label htmlFor="stock-file" className="text-sm font-medium">Upload Stock Report</Label>
                       <p className="text-xs text-muted-foreground mt-1">
-                        CSV should have columns: Product Name, Quantity (optional: Unit)
+                        Supports CSV, Excel (.xlsx, .xls) • Tally/Busy exports compatible
                       </p>
                     </div>
                     <div>
                       <Input
                         id="stock-file"
                         type="file"
-                        accept=".csv"
+                        accept=".csv,.xlsx,.xls"
                         ref={fileInputRef}
                         onChange={handleFileUpload}
                         className="w-auto"
@@ -280,16 +388,12 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
                     </div>
                   </div>
 
-                  <div className="bg-muted/50 p-3 rounded-md">
-                    <p className="text-xs font-medium mb-2 flex items-center gap-1">
-                      <FileSpreadsheet className="h-3 w-3" /> Sample Format:
-                    </p>
-                    <code className="text-xs text-muted-foreground">
-                      Product Name,Quantity,Unit<br />
-                      Steel Rods,500,kg<br />
-                      Copper Wire,200,meters
-                    </code>
-                  </div>
+                  <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      <strong>Supported columns:</strong> Product Name/Item/Particulars, Quantity/Qty/Stock/Closing Stock, Unit (optional)
+                    </AlertDescription>
+                  </Alert>
 
                   {uploadErrors.length > 0 && (
                     <Alert variant="destructive">
@@ -334,6 +438,72 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="templates" className="space-y-4 mt-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <FileSpreadsheet className="h-4 w-4" />
+                      CSV Template
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Simple format for basic stock updates
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" size="sm" className="w-full" onClick={downloadCSVTemplate}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Download CSV
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <FileSpreadsheet className="h-4 w-4 text-green-600" />
+                      Excel Template (Tally/Busy)
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Compatible with Tally & Busy accounting software
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" size="sm" className="w-full" onClick={downloadExcelTemplate}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="md:col-span-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Download className="h-4 w-4 text-primary" />
+                      Export Current Stock
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Download your current stock data as Excel
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="secondary" size="sm" onClick={downloadCurrentStock}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export Stock Report
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  <strong>Tally Export:</strong> Go to Gateway of Tally → Display → Inventory Books → Stock Summary → Export (Alt+E)<br />
+                  <strong>Busy Export:</strong> Go to Display → Stock Reports → Closing Stock → Export to Excel
+                </AlertDescription>
+              </Alert>
             </TabsContent>
 
             <TabsContent value="manual" className="space-y-4 mt-4">
@@ -381,6 +551,76 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
                   </Card>
                 );
               })}
+            </TabsContent>
+
+            <TabsContent value="integration" className="space-y-4 mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">API Integration (Coming Soon)</CardTitle>
+                  <CardDescription className="text-xs">
+                    Automatically sync stock levels from your accounting software
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="border rounded-lg p-4 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold">T</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">Tally Prime</p>
+                          <p className="text-xs text-muted-foreground">TDL-based integration</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Connect via Tally ODBC or REST API for real-time stock sync
+                      </p>
+                      <Button variant="outline" size="sm" disabled className="w-full">
+                        Coming Soon
+                      </Button>
+                    </div>
+
+                    <div className="border rounded-lg p-4 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold">B</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">Busy Accounting</p>
+                          <p className="text-xs text-muted-foreground">Direct database sync</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Auto-sync closing stock from Busy software daily
+                      </p>
+                      <Button variant="outline" size="sm" disabled className="w-full">
+                        Coming Soon
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      <strong>Current Workflow:</strong> Export stock reports from Tally/Busy as Excel/CSV and upload them here. 
+                      API integration will automate this process.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                    <p className="text-sm font-medium">API Endpoint (Preview)</p>
+                    <code className="text-xs bg-background p-2 rounded block">
+                      POST /api/stock/sync<br />
+                      Authorization: Bearer YOUR_API_KEY<br />
+                      Content-Type: application/json
+                    </code>
+                    <p className="text-xs text-muted-foreground">
+                      Request early access to API integration by contacting support.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         )}
