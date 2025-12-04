@@ -730,18 +730,21 @@ Plastic Sheets,1000,pieces,Packaging`;
                                 type="number"
                                 min="0"
                                 className="w-24"
-                                value={stockUpdates[product.id] ?? ''}
-                                onChange={(e) => setStockUpdates(prev => ({ 
-                                  ...prev, 
-                                  [product.id]: parseInt(e.target.value) || 0 
-                                }))}
+                                value={stockUpdates[product.id] !== undefined ? stockUpdates[product.id] : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setStockUpdates(prev => ({ 
+                                    ...prev, 
+                                    [product.id]: val === '' ? undefined : parseInt(val)
+                                  }));
+                                }}
                                 placeholder={String(currentStock)}
                               />
                             </div>
                             <Button
                               size="sm"
                               onClick={() => handleStockUpdate(product)}
-                              disabled={saving === product.id || stockUpdates[product.id] === undefined}
+                              disabled={saving === product.id || stockUpdates[product.id] === undefined || isNaN(stockUpdates[product.id] as number)}
                             >
                               {saving === product.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                             </Button>
