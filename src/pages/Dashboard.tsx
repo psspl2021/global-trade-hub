@@ -13,6 +13,7 @@ import { SupplierCatalog } from '@/components/SupplierCatalog';
 import { StockManagement } from '@/components/StockManagement';
 import { BrowseRequirements } from '@/components/BrowseRequirements';
 import { SupplierCRM } from '@/components/crm/SupplierCRM';
+import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -199,6 +200,9 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Accepted Bids Section */}
+            {user && <SupplierAcceptedBids userId={user.id} />}
 
             {user && (
               <>
