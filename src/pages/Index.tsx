@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,9 +11,14 @@ import {
   Package, Trophy, Users, Shield, Target, Eye 
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import { countries } from '@/data/countries';
 
 const Index = () => {
   const navigate = useNavigate();
+  
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
+  const [searchCountry, setSearchCountry] = useState('');
 
   const categories = [
     { name: 'Auto Vehicle & Accessories', icon: '🚗' },
@@ -41,13 +47,45 @@ const Index = () => {
   ];
 
   const popularSearches = [
-    'Electronics',
-    'Machinery',
-    'Apparel',
-    'Auto Parts',
-    'Hardware',
-    'Home Appliances',
+    { term: 'Electronics', category: 'Consumer Electronics' },
+    { term: 'Machinery', category: 'Machinery & Equipment' },
+    { term: 'Apparel', category: 'Fashion Apparel & Fabrics' },
+    { term: 'Auto Parts', category: 'Auto Vehicle & Accessories' },
+    { term: 'Hardware', category: 'Hardware & Tools' },
+    { term: 'Home Appliances', category: 'Home Appliances' },
+    { term: 'Building Material', category: 'Industrial Supplies' },
   ];
+
+  // Handle Google search for suppliers
+  const handleSearchSuppliers = () => {
+    const keyword = searchKeyword.trim();
+    const categoryName = searchCategory || '';
+    const countryName = searchCountry 
+      ? countries.find(c => c.code === searchCountry)?.name 
+      : '';
+    
+    // Build search query
+    let query = keyword || 'B2B suppliers';
+    if (categoryName) query += ` ${categoryName}`;
+    query += ' suppliers manufacturers wholesalers';
+    if (countryName) query += ` in ${countryName}`;
+    
+    // Open Google search in new tab
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+  };
+
+  // Handle top search click - directly search Google
+  const handleTopSearchClick = (term: string, category: string) => {
+    const query = `${term} ${category} suppliers manufacturers wholesalers B2B`;
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+  };
+
+  // Handle Enter key in search input
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearchSuppliers();
+    }
+  };
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -150,23 +188,25 @@ const Index = () => {
                   <Input 
                     placeholder="Enter Product Keyword" 
                     className="h-12"
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-2 block text-muted-foreground">
                     CATEGORY
                   </label>
-                  <Select>
+                  <Select value={searchCategory} onValueChange={setSearchCategory}>
                     <SelectTrigger className="h-12">
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="industrial">Industrial Equipment</SelectItem>
-                      <SelectItem value="electronics">Electronics & Technology</SelectItem>
-                      <SelectItem value="chemicals">Chemicals & Materials</SelectItem>
-                      <SelectItem value="textiles">Textiles & Apparel</SelectItem>
-                      <SelectItem value="food">Food & Beverages</SelectItem>
-                      <SelectItem value="construction">Construction Materials</SelectItem>
+                    <SelectContent className="max-h-60 bg-background">
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.name} value={cat.name}>
+                          {cat.icon} {cat.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -174,33 +214,34 @@ const Index = () => {
                   <label className="text-sm font-medium mb-2 block text-muted-foreground">
                     COUNTRY
                   </label>
-                  <Select>
+                  <Select value={searchCountry} onValueChange={setSearchCountry}>
                     <SelectTrigger className="h-12">
                       <SelectValue placeholder="Select Country" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="india">India</SelectItem>
-                      <SelectItem value="china">China</SelectItem>
-                      <SelectItem value="usa">United States</SelectItem>
-                      <SelectItem value="germany">Germany</SelectItem>
-                      <SelectItem value="japan">Japan</SelectItem>
+                    <SelectContent className="max-h-60 bg-background">
+                      {countries.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <Button size="lg" className="w-full h-14 text-lg">
+              <Button size="lg" className="w-full h-14 text-lg" onClick={handleSearchSuppliers}>
                 <Search className="h-5 w-5 mr-2" />
                 Search Suppliers
               </Button>
               <div className="mt-4 text-center">
                 <span className="text-sm text-muted-foreground mr-2">TOP SEARCH:</span>
                 <div className="inline-flex flex-wrap gap-2 justify-center mt-2">
-                  {popularSearches.map((term) => (
+                  {popularSearches.map((search) => (
                     <span 
-                      key={term} 
-                      className="text-sm text-primary hover:underline cursor-pointer"
+                      key={search.term} 
+                      className="text-sm text-primary hover:underline cursor-pointer px-2 py-1 rounded hover:bg-primary/10 transition-colors"
+                      onClick={() => handleTopSearchClick(search.term, search.category)}
                     >
-                      {term}
+                      {search.term}
                     </span>
                   ))}
                 </div>
