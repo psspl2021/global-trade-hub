@@ -272,14 +272,6 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>
                             <span className="text-muted-foreground">Bid Amount:</span>
-                            <span className="ml-2 font-medium">₹{bid.bid_amount.toLocaleString()}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Service Fee (1%):</span>
-                            <span className="ml-2">₹{bid.service_fee.toLocaleString()}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Total Amount:</span>
                             <span className="ml-2 font-bold text-primary">₹{bid.total_amount.toLocaleString()}</span>
                           </div>
                           <div>
