@@ -94,6 +94,194 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_items: {
+        Row: {
+          created_at: string
+          description: string
+          hsn_code: string | null
+          id: string
+          invoice_id: string
+          product_id: string | null
+          quantity: number
+          tax_amount: number
+          tax_rate: number | null
+          total: number
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          hsn_code?: string | null
+          id?: string
+          invoice_id: string
+          product_id?: string | null
+          quantity?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total: number
+          unit?: string | null
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          hsn_code?: string | null
+          id?: string
+          invoice_id?: string
+          product_id?: string | null
+          quantity?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          bank_details: string | null
+          buyer_address: string | null
+          buyer_email: string | null
+          buyer_gstin: string | null
+          buyer_name: string
+          buyer_phone: string | null
+          created_at: string
+          discount_amount: number
+          discount_percent: number | null
+          document_type: Database["public"]["Enums"]["document_type"]
+          due_date: string | null
+          id: string
+          invoice_number: string
+          issue_date: string
+          notes: string | null
+          status: Database["public"]["Enums"]["document_status"]
+          subtotal: number
+          supplier_id: string
+          tax_amount: number
+          tax_rate: number | null
+          terms_and_conditions: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          bank_details?: string | null
+          buyer_address?: string | null
+          buyer_email?: string | null
+          buyer_gstin?: string | null
+          buyer_name: string
+          buyer_phone?: string | null
+          created_at?: string
+          discount_amount?: number
+          discount_percent?: number | null
+          document_type?: Database["public"]["Enums"]["document_type"]
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          issue_date?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          subtotal?: number
+          supplier_id: string
+          tax_amount?: number
+          tax_rate?: number | null
+          terms_and_conditions?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          bank_details?: string | null
+          buyer_address?: string | null
+          buyer_email?: string | null
+          buyer_gstin?: string | null
+          buyer_name?: string
+          buyer_phone?: string | null
+          created_at?: string
+          discount_amount?: number
+          discount_percent?: number | null
+          document_type?: Database["public"]["Enums"]["document_type"]
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          issue_date?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          subtotal?: number
+          supplier_id?: string
+          tax_amount?: number
+          tax_rate?: number | null
+          terms_and_conditions?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      po_items: {
+        Row: {
+          created_at: string
+          description: string
+          hsn_code: string | null
+          id: string
+          po_id: string
+          quantity: number
+          tax_amount: number
+          tax_rate: number | null
+          total: number
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          hsn_code?: string | null
+          id?: string
+          po_id: string
+          quantity?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total: number
+          unit?: string | null
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          hsn_code?: string | null
+          id?: string
+          po_id?: string
+          quantity?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "po_items_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_images: {
         Row: {
           created_at: string
@@ -225,6 +413,81 @@ export type Database = {
           phone?: string
           state?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      purchase_orders: {
+        Row: {
+          created_at: string
+          delivery_address: string | null
+          discount_amount: number
+          discount_percent: number | null
+          expected_delivery_date: string | null
+          id: string
+          notes: string | null
+          order_date: string
+          po_number: string
+          status: Database["public"]["Enums"]["document_status"]
+          subtotal: number
+          supplier_id: string
+          tax_amount: number
+          tax_rate: number | null
+          terms_and_conditions: string | null
+          total_amount: number
+          updated_at: string
+          vendor_address: string | null
+          vendor_email: string | null
+          vendor_gstin: string | null
+          vendor_name: string
+          vendor_phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          delivery_address?: string | null
+          discount_amount?: number
+          discount_percent?: number | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string
+          po_number: string
+          status?: Database["public"]["Enums"]["document_status"]
+          subtotal?: number
+          supplier_id: string
+          tax_amount?: number
+          tax_rate?: number | null
+          terms_and_conditions?: string | null
+          total_amount?: number
+          updated_at?: string
+          vendor_address?: string | null
+          vendor_email?: string | null
+          vendor_gstin?: string | null
+          vendor_name: string
+          vendor_phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          delivery_address?: string | null
+          discount_amount?: number
+          discount_percent?: number | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string
+          po_number?: string
+          status?: Database["public"]["Enums"]["document_status"]
+          subtotal?: number
+          supplier_id?: string
+          tax_amount?: number
+          tax_rate?: number | null
+          terms_and_conditions?: string | null
+          total_amount?: number
+          updated_at?: string
+          vendor_address?: string | null
+          vendor_email?: string | null
+          vendor_gstin?: string | null
+          vendor_name?: string
+          vendor_phone?: string | null
         }
         Relationships: []
       }
@@ -479,6 +742,14 @@ export type Database = {
     Enums: {
       app_role: "buyer" | "supplier" | "admin"
       bid_status: "pending" | "accepted" | "rejected"
+      document_status:
+        | "draft"
+        | "sent"
+        | "accepted"
+        | "rejected"
+        | "paid"
+        | "cancelled"
+      document_type: "proforma_invoice" | "tax_invoice" | "purchase_order"
       requirement_status: "active" | "closed" | "awarded"
       subscription_tier: "free" | "premium"
     }
@@ -610,6 +881,15 @@ export const Constants = {
     Enums: {
       app_role: ["buyer", "supplier", "admin"],
       bid_status: ["pending", "accepted", "rejected"],
+      document_status: [
+        "draft",
+        "sent",
+        "accepted",
+        "rejected",
+        "paid",
+        "cancelled",
+      ],
+      document_type: ["proforma_invoice", "tax_invoice", "purchase_order"],
       requirement_status: ["active", "closed", "awarded"],
       subscription_tier: ["free", "premium"],
     },
