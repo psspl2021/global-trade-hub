@@ -257,7 +257,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="font-medium">
-                            {bid.profiles?.company_name || 'Supplier'}
+                            ProcureSaathi Solutions Pvt Ltd
                           </span>
                           {index === 0 && (
                             <Badge className="bg-success/20 text-success">Lowest Bid</Badge>
