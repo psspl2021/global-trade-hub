@@ -10,6 +10,7 @@ import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
 import { SupplierCatalog } from '@/components/SupplierCatalog';
 import { StockManagement } from '@/components/StockManagement';
 import { BrowseRequirements } from '@/components/BrowseRequirements';
+import { SupplierCRM } from '@/components/crm/SupplierCRM';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -21,6 +22,7 @@ const Dashboard = () => {
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
   const [showRequirements, setShowRequirements] = useState(false);
+  const [showCRM, setShowCRM] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -130,6 +132,18 @@ const Dashboard = () => {
 
               <Card>
                 <CardHeader>
+                  <CardTitle>Invoices & PO</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Create proforma, tax invoices & purchase orders
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
                   <CardTitle>Subscription</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -146,6 +160,7 @@ const Dashboard = () => {
                 <SupplierCatalog open={showCatalog} onOpenChange={setShowCatalog} userId={user.id} />
                 <StockManagement open={showStock} onOpenChange={setShowStock} userId={user.id} />
                 <BrowseRequirements open={showRequirements} onOpenChange={setShowRequirements} userId={user.id} />
+                <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
               </>
             )}
           </>
