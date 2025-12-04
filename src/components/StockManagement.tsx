@@ -2,13 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Package, Save, Upload, FileSpreadsheet, AlertCircle, Download, Link2, Info } from 'lucide-react';
+import { Loader2, Package, Save, Upload, FileSpreadsheet, AlertCircle, Download, Link2, Info, Plus, Check, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as XLSX from 'xlsx';
 
 interface ProductWithStock {
@@ -33,7 +35,23 @@ interface ParsedStockRow {
   productName: string;
   quantity: number;
   unit?: string;
+  category?: string;
+  matched?: boolean;
+  selected?: boolean;
 }
+
+const PRODUCT_CATEGORIES = [
+  'Industrial Supplies',
+  'Raw Materials',
+  'Electronics',
+  'Machinery',
+  'Chemicals',
+  'Textiles',
+  'Agriculture',
+  'Construction',
+  'Packaging',
+  'Other'
+];
 
 export const StockManagement = ({ open, onOpenChange, userId }: StockManagementProps) => {
   const [products, setProducts] = useState<ProductWithStock[]>([]);
@@ -41,8 +59,11 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
   const [stockUpdates, setStockUpdates] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadPreview, setUploadPreview] = useState<ParsedStockRow[]>([]);
+  const [matchedRows, setMatchedRows] = useState<ParsedStockRow[]>([]);
+  const [unmatchedRows, setUnmatchedRows] = useState<ParsedStockRow[]>([]);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
+  const [defaultCategory, setDefaultCategory] = useState<string>('Industrial Supplies');
+  const [step, setStep] = useState<'upload' | 'preview'>('upload');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -67,10 +88,16 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
   useEffect(() => {
     if (open && userId) {
       fetchProducts();
-      setUploadPreview([]);
-      setUploadErrors([]);
+      resetUploadState();
     }
   }, [open, userId]);
+
+  const resetUploadState = () => {
+    setMatchedRows([]);
+    setUnmatchedRows([]);
+    setUploadErrors([]);
+    setStep('upload');
+  };
 
   const handleStockUpdate = async (product: ProductWithStock) => {
     const newQuantity = stockUpdates[product.id];
@@ -119,9 +146,10 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     if (lines.length < 2) return [];
     
     const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
-    const nameIndex = headers.findIndex(h => h.includes('product') || h.includes('name') || h.includes('item'));
+    const nameIndex = headers.findIndex(h => h.includes('product') || h.includes('name') || h.includes('item') || h.includes('particulars'));
     const qtyIndex = headers.findIndex(h => h.includes('quantity') || h.includes('qty') || h.includes('stock') || h.includes('closing'));
     const unitIndex = headers.findIndex(h => h.includes('unit'));
+    const categoryIndex = headers.findIndex(h => h.includes('category') || h.includes('group'));
 
     if (nameIndex === -1 || qtyIndex === -1) {
       throw new Error('File must have columns for product name and quantity/stock');
@@ -133,6 +161,7 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
         productName: values[nameIndex] || '',
         quantity: parseInt(values[qtyIndex]) || 0,
         unit: unitIndex !== -1 ? values[unitIndex] : undefined,
+        category: categoryIndex !== -1 ? values[categoryIndex] : undefined,
       };
     }).filter(row => row.productName && row.quantity >= 0);
   };
@@ -145,9 +174,7 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
 
     if (jsonData.length === 0) return [];
 
-    // Find column headers (case-insensitive)
     const firstRow = jsonData[0];
-    const headers = Object.keys(firstRow).map(h => h.toLowerCase());
     
     const nameKey = Object.keys(firstRow).find(k => {
       const lk = k.toLowerCase();
@@ -160,6 +187,10 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     });
     
     const unitKey = Object.keys(firstRow).find(k => k.toLowerCase().includes('unit'));
+    const categoryKey = Object.keys(firstRow).find(k => {
+      const lk = k.toLowerCase();
+      return lk.includes('category') || lk.includes('group');
+    });
 
     if (!nameKey || !qtyKey) {
       throw new Error('Excel file must have columns for product name and quantity/stock');
@@ -169,6 +200,7 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
       productName: String(row[nameKey] || '').trim(),
       quantity: parseInt(String(row[qtyKey])) || 0,
       unit: unitKey ? String(row[unitKey]).trim() : undefined,
+      category: categoryKey ? String(row[categoryKey]).trim() : undefined,
     })).filter(row => row.productName && row.quantity >= 0);
   };
 
@@ -176,8 +208,7 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadErrors([]);
-    setUploadPreview([]);
+    resetUploadState();
 
     try {
       const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
@@ -192,27 +223,33 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
       }
       
       if (parsed.length === 0) {
-        setUploadErrors(['No valid data found in file']);
+        setUploadErrors(['No valid data found in file. Make sure it has Product Name and Quantity columns.']);
         return;
       }
 
-      // Match with existing products
-      const errors: string[] = [];
-      const validRows: ParsedStockRow[] = [];
+      // Separate matched and unmatched products
+      const matched: ParsedStockRow[] = [];
+      const unmatched: ParsedStockRow[] = [];
 
       parsed.forEach(row => {
         const matchedProduct = products.find(p => 
-          p.name.toLowerCase() === row.productName.toLowerCase()
+          p.name.toLowerCase().trim() === row.productName.toLowerCase().trim()
         );
         if (matchedProduct) {
-          validRows.push(row);
+          matched.push({ ...row, matched: true, selected: true });
         } else {
-          errors.push(`Product not found: "${row.productName}"`);
+          unmatched.push({ ...row, matched: false, selected: true });
         }
       });
 
-      setUploadPreview(validRows);
-      setUploadErrors(errors);
+      setMatchedRows(matched);
+      setUnmatchedRows(unmatched);
+      setStep('preview');
+
+      toast({
+        title: 'File Parsed',
+        description: `Found ${matched.length} existing products, ${unmatched.length} new products`,
+      });
     } catch (error: any) {
       setUploadErrors([error.message || 'Failed to parse file']);
     }
@@ -220,15 +257,61 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const applyBulkUpdate = async () => {
-    if (uploadPreview.length === 0) return;
+  const toggleUnmatchedSelection = (index: number) => {
+    setUnmatchedRows(prev => prev.map((row, i) => 
+      i === index ? { ...row, selected: !row.selected } : row
+    ));
+  };
 
+  const toggleMatchedSelection = (index: number) => {
+    setMatchedRows(prev => prev.map((row, i) => 
+      i === index ? { ...row, selected: !row.selected } : row
+    ));
+  };
+
+  const applyImport = async () => {
     setUploading(true);
-    let successCount = 0;
+    let createdCount = 0;
+    let updatedCount = 0;
     let errorCount = 0;
 
-    for (const row of uploadPreview) {
-      const product = products.find(p => p.name.toLowerCase() === row.productName.toLowerCase());
+    // Create new products from unmatched rows
+    const selectedUnmatched = unmatchedRows.filter(r => r.selected);
+    for (const row of selectedUnmatched) {
+      try {
+        const { data: newProduct, error: createError } = await supabase
+          .from('products')
+          .insert({
+            supplier_id: userId,
+            name: row.productName,
+            category: row.category || defaultCategory,
+            description: `Imported from stock report`,
+          })
+          .select('id')
+          .single();
+
+        if (createError) throw createError;
+
+        // Create stock inventory for new product
+        await supabase.from('stock_inventory').insert({
+          product_id: newProduct.id,
+          quantity: row.quantity,
+          unit: row.unit || 'units',
+        });
+
+        createdCount++;
+      } catch (err) {
+        console.error('Failed to create product:', row.productName, err);
+        errorCount++;
+      }
+    }
+
+    // Update stock for matched products
+    const selectedMatched = matchedRows.filter(r => r.selected);
+    for (const row of selectedMatched) {
+      const product = products.find(p => 
+        p.name.toLowerCase().trim() === row.productName.toLowerCase().trim()
+      );
       if (!product) continue;
 
       try {
@@ -258,28 +341,34 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
 
           if (error) throw error;
         }
-        successCount++;
-      } catch {
+        updatedCount++;
+      } catch (err) {
+        console.error('Failed to update stock:', row.productName, err);
         errorCount++;
       }
     }
 
     setUploading(false);
-    setUploadPreview([]);
+    resetUploadState();
     fetchProducts();
 
+    const messages = [];
+    if (createdCount > 0) messages.push(`${createdCount} products created`);
+    if (updatedCount > 0) messages.push(`${updatedCount} stocks updated`);
+    if (errorCount > 0) messages.push(`${errorCount} failed`);
+
     toast({
-      title: 'Bulk Update Complete',
-      description: `${successCount} products updated${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
+      title: 'Import Complete',
+      description: messages.join(', ') || 'No changes made',
       variant: errorCount > 0 ? 'destructive' : 'default',
     });
   };
 
   const downloadCSVTemplate = () => {
-    const csvContent = `Product Name,Quantity,Unit
-Steel Rods,500,kg
-Copper Wire,200,meters
-Plastic Sheets,1000,pieces`;
+    const csvContent = `Product Name,Quantity,Unit,Category
+Steel Rods,500,kg,Industrial Supplies
+Copper Wire,200,meters,Raw Materials
+Plastic Sheets,1000,pieces,Packaging`;
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -291,26 +380,26 @@ Plastic Sheets,1000,pieces`;
   };
 
   const downloadExcelTemplate = () => {
-    // Tally/Busy compatible format
     const wsData = [
-      ['Product Name', 'Closing Stock', 'Unit', 'Godown/Location'],
-      ['Steel Rods', 500, 'kg', 'Main Warehouse'],
-      ['Copper Wire', 200, 'meters', 'Main Warehouse'],
-      ['Plastic Sheets', 1000, 'pieces', 'Main Warehouse'],
+      ['Product Name', 'Closing Stock', 'Unit', 'Category', 'Godown/Location'],
+      ['Steel Rods', 500, 'kg', 'Industrial Supplies', 'Main Warehouse'],
+      ['Copper Wire', 200, 'meters', 'Raw Materials', 'Main Warehouse'],
+      ['Plastic Sheets', 1000, 'pieces', 'Packaging', 'Main Warehouse'],
     ];
     
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Stock Report');
-    
-    // Set column widths
-    ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 20 }];
+    ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 20 }, { wch: 20 }];
     
     XLSX.writeFile(wb, 'stock_template_tally_busy.xlsx');
   };
 
   const downloadCurrentStock = () => {
-    if (products.length === 0) return;
+    if (products.length === 0) {
+      toast({ title: 'No Products', description: 'Add products first to export', variant: 'destructive' });
+      return;
+    }
 
     const wsData = [
       ['Product Name', 'Current Stock', 'Unit', 'Category'],
@@ -325,26 +414,25 @@ Plastic Sheets,1000,pieces`;
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Current Stock');
-    
     ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 10 }, { wch: 20 }];
     
     XLSX.writeFile(wb, `stock_report_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
+
+  const totalSelected = matchedRows.filter(r => r.selected).length + unmatchedRows.filter(r => r.selected).length;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Stock Management</DialogTitle>
+          <DialogDescription>
+            Import stock from CSV/Excel or update manually
+          </DialogDescription>
         </DialogHeader>
 
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>No products in catalog. Add products first to manage stock.</p>
-          </div>
         ) : (
           <Tabs defaultValue="upload" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
@@ -356,7 +444,7 @@ Plastic Sheets,1000,pieces`;
                 <Download className="h-4 w-4 mr-2" />
                 Templates
               </TabsTrigger>
-              <TabsTrigger value="manual">
+              <TabsTrigger value="manual" disabled={products.length === 0}>
                 <Save className="h-4 w-4 mr-2" />
                 Manual
               </TabsTrigger>
@@ -367,77 +455,183 @@ Plastic Sheets,1000,pieces`;
             </TabsList>
 
             <TabsContent value="upload" className="space-y-4 mt-4">
-              <Card>
-                <CardContent className="p-4 space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <Label htmlFor="stock-file" className="text-sm font-medium">Upload Stock Report</Label>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Supports CSV, Excel (.xlsx, .xls) • Tally/Busy exports compatible
-                      </p>
+              {step === 'upload' ? (
+                <Card>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <Label htmlFor="stock-file" className="text-sm font-medium">Upload Stock Report</Label>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Supports CSV, Excel (.xlsx, .xls) • Tally/Busy exports compatible
+                        </p>
+                      </div>
+                      <div>
+                        <Input
+                          id="stock-file"
+                          type="file"
+                          accept=".csv,.xlsx,.xls"
+                          ref={fileInputRef}
+                          onChange={handleFileUpload}
+                          className="w-auto"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Input
-                        id="stock-file"
-                        type="file"
-                        accept=".csv,.xlsx,.xls"
-                        ref={fileInputRef}
-                        onChange={handleFileUpload}
-                        className="w-auto"
-                      />
+
+                    <Alert>
+                      <Info className="h-4 w-4" />
+                      <AlertDescription className="text-xs">
+                        <strong>Supported columns:</strong> Product Name/Item/Particulars, Quantity/Qty/Stock/Closing Stock, Unit (optional), Category (optional)
+                        <br /><br />
+                        <strong>New Feature:</strong> Products not in your catalog will be shown for you to create automatically!
+                      </AlertDescription>
+                    </Alert>
+
+                    {uploadErrors.length > 0 && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          <ul className="list-disc list-inside text-sm">
+                            {uploadErrors.map((err, i) => (
+                              <li key={i}>{err}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {products.length === 0 && (
+                      <Alert>
+                        <Package className="h-4 w-4" />
+                        <AlertDescription className="text-xs">
+                          You have no products yet. Upload a stock file and new products will be created automatically!
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Button variant="ghost" size="sm" onClick={resetUploadState}>
+                      ← Back to Upload
+                    </Button>
+                    <div className="text-sm text-muted-foreground">
+                      {totalSelected} items selected
                     </div>
                   </div>
 
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription className="text-xs">
-                      <strong>Supported columns:</strong> Product Name/Item/Particulars, Quantity/Qty/Stock/Closing Stock, Unit (optional)
-                    </AlertDescription>
-                  </Alert>
-
-                  {uploadErrors.length > 0 && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        <ul className="list-disc list-inside text-sm">
-                          {uploadErrors.slice(0, 5).map((err, i) => (
-                            <li key={i}>{err}</li>
-                          ))}
-                          {uploadErrors.length > 5 && <li>...and {uploadErrors.length - 5} more</li>}
-                        </ul>
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {uploadPreview.length > 0 && (
-                    <div className="space-y-3">
-                      <p className="text-sm font-medium">Preview ({uploadPreview.length} products to update):</p>
-                      <div className="max-h-48 overflow-y-auto border rounded-md">
-                        <table className="w-full text-sm">
-                          <thead className="bg-muted sticky top-0">
-                            <tr>
-                              <th className="text-left p-2">Product</th>
-                              <th className="text-right p-2">New Qty</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {uploadPreview.map((row, i) => (
-                              <tr key={i} className="border-t">
-                                <td className="p-2">{row.productName}</td>
-                                <td className="p-2 text-right">{row.quantity} {row.unit || ''}</td>
+                  {/* Matched Products (Stock Updates) */}
+                  {matchedRows.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <Check className="h-4 w-4 text-green-500" />
+                          Update Stock ({matchedRows.length} existing products)
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-2">
+                        <div className="max-h-40 overflow-y-auto">
+                          <table className="w-full text-sm">
+                            <thead className="bg-muted sticky top-0">
+                              <tr>
+                                <th className="w-8 p-2"></th>
+                                <th className="text-left p-2">Product</th>
+                                <th className="text-right p-2">New Qty</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <Button onClick={applyBulkUpdate} disabled={uploading} className="w-full">
-                        {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
-                        Apply Stock Updates
-                      </Button>
-                    </div>
+                            </thead>
+                            <tbody>
+                              {matchedRows.map((row, i) => (
+                                <tr key={i} className="border-t">
+                                  <td className="p-2">
+                                    <Checkbox 
+                                      checked={row.selected} 
+                                      onCheckedChange={() => toggleMatchedSelection(i)}
+                                    />
+                                  </td>
+                                  <td className="p-2">{row.productName}</td>
+                                  <td className="p-2 text-right">{row.quantity} {row.unit || ''}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
-                </CardContent>
-              </Card>
+
+                  {/* Unmatched Products (Create New) */}
+                  {unmatchedRows.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <Plus className="h-4 w-4 text-blue-500" />
+                          Create New Products ({unmatchedRows.length} items)
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          These products don't exist in your catalog. Select which ones to create.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-2 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Label className="text-xs">Default Category:</Label>
+                          <Select value={defaultCategory} onValueChange={setDefaultCategory}>
+                            <SelectTrigger className="w-48 h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PRODUCT_CATEGORIES.map(cat => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="max-h-40 overflow-y-auto">
+                          <table className="w-full text-sm">
+                            <thead className="bg-muted sticky top-0">
+                              <tr>
+                                <th className="w-8 p-2"></th>
+                                <th className="text-left p-2">Product</th>
+                                <th className="text-right p-2">Qty</th>
+                                <th className="text-left p-2">Category</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {unmatchedRows.map((row, i) => (
+                                <tr key={i} className="border-t">
+                                  <td className="p-2">
+                                    <Checkbox 
+                                      checked={row.selected} 
+                                      onCheckedChange={() => toggleUnmatchedSelection(i)}
+                                    />
+                                  </td>
+                                  <td className="p-2">{row.productName}</td>
+                                  <td className="p-2 text-right">{row.quantity} {row.unit || ''}</td>
+                                  <td className="p-2 text-xs text-muted-foreground">
+                                    {row.category || defaultCategory}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <Button 
+                    onClick={applyImport} 
+                    disabled={uploading || totalSelected === 0} 
+                    className="w-full"
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Upload className="h-4 w-4 mr-2" />
+                    )}
+                    Import {totalSelected} Items
+                  </Button>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="templates" className="space-y-4 mt-4">
@@ -507,50 +701,57 @@ Plastic Sheets,1000,pieces`;
             </TabsContent>
 
             <TabsContent value="manual" className="space-y-4 mt-4">
-              {products.map(product => {
-                const currentStock = product.stock_inventory?.quantity ?? 0;
-                const isLowStock = product.stock_inventory && currentStock <= product.stock_inventory.low_stock_threshold;
+              {products.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>No products yet. Use Import to create products from CSV/Excel.</p>
+                </div>
+              ) : (
+                products.map(product => {
+                  const currentStock = product.stock_inventory?.quantity ?? 0;
+                  const isLowStock = product.stock_inventory && currentStock <= product.stock_inventory.low_stock_threshold;
 
-                return (
-                  <Card key={product.id} className={isLowStock ? 'border-destructive' : ''}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <h4 className="font-medium">{product.name}</h4>
-                          <p className="text-sm text-muted-foreground">{product.category}</p>
-                          <p className="text-sm">
-                            Current: <span className={isLowStock ? 'text-destructive font-medium' : ''}>{currentStock} {product.stock_inventory?.unit || 'units'}</span>
-                            {isLowStock && <span className="ml-2 text-destructive">(Low Stock!)</span>}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div>
-                            <Label className="text-xs">New Quantity</Label>
-                            <Input
-                              type="number"
-                              min="0"
-                              className="w-24"
-                              value={stockUpdates[product.id] ?? ''}
-                              onChange={(e) => setStockUpdates(prev => ({ 
-                                ...prev, 
-                                [product.id]: parseInt(e.target.value) || 0 
-                              }))}
-                              placeholder={String(currentStock)}
-                            />
+                  return (
+                    <Card key={product.id} className={isLowStock ? 'border-destructive' : ''}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{product.name}</h4>
+                            <p className="text-sm text-muted-foreground">{product.category}</p>
+                            <p className="text-sm">
+                              Current: <span className={isLowStock ? 'text-destructive font-medium' : ''}>{currentStock} {product.stock_inventory?.unit || 'units'}</span>
+                              {isLowStock && <span className="ml-2 text-destructive">(Low Stock!)</span>}
+                            </p>
                           </div>
-                          <Button
-                            size="sm"
-                            onClick={() => handleStockUpdate(product)}
-                            disabled={saving === product.id || stockUpdates[product.id] === undefined}
-                          >
-                            {saving === product.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <div>
+                              <Label className="text-xs">New Quantity</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                className="w-24"
+                                value={stockUpdates[product.id] ?? ''}
+                                onChange={(e) => setStockUpdates(prev => ({ 
+                                  ...prev, 
+                                  [product.id]: parseInt(e.target.value) || 0 
+                                }))}
+                                placeholder={String(currentStock)}
+                              />
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={() => handleStockUpdate(product)}
+                              disabled={saving === product.id || stockUpdates[product.id] === undefined}
+                            >
+                              {saving === product.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
             </TabsContent>
 
             <TabsContent value="integration" className="space-y-4 mt-4">
