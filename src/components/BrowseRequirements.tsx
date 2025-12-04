@@ -100,14 +100,14 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     if (reqData && reqData.length > 0) {
       const { data: bidsData } = await supabase
         .from('bids')
-        .select('requirement_id, total_amount')
+        .select('requirement_id, bid_amount')
         .in('requirement_id', reqData.map(r => r.id));
 
       if (bidsData) {
         const lowestByReq: Record<string, number> = {};
         bidsData.forEach(bid => {
-          if (!lowestByReq[bid.requirement_id] || bid.total_amount < lowestByReq[bid.requirement_id]) {
-            lowestByReq[bid.requirement_id] = bid.total_amount;
+          if (!lowestByReq[bid.requirement_id] || bid.bid_amount < lowestByReq[bid.requirement_id]) {
+            lowestByReq[bid.requirement_id] = bid.bid_amount;
           }
         });
         setLowestBids(lowestByReq);
@@ -141,12 +141,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const totalOrderValue = data.bid_amount * selectedRequirement.quantity;
       const serviceFee = totalOrderValue * 0.01; // 1% service fee on total order value
       const totalAmount = totalOrderValue + serviceFee;
-      const bidAmountWithFee = totalAmount; // Store the total amount including 1% as bid_amount
-
       const { error } = await supabase.from('bids').insert({
         requirement_id: selectedRequirement.id,
         supplier_id: userId,
-        bid_amount: bidAmountWithFee, // Total including 1% service fee
+        bid_amount: totalOrderValue, // Store original order value (without 1% service fee)
         service_fee: serviceFee,
         total_amount: totalAmount,
         delivery_timeline_days: data.delivery_timeline_days,
