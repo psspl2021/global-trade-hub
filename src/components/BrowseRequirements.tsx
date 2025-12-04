@@ -124,8 +124,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
     setSubmitting(true);
     try {
-      const serviceFee = data.bid_amount * 0.01; // 1% service fee
-      const totalAmount = data.bid_amount + serviceFee;
+      const totalOrderValue = data.bid_amount * selectedRequirement.quantity;
+      const serviceFee = totalOrderValue * 0.01; // 1% service fee on total order value
+      const totalAmount = totalOrderValue + serviceFee;
 
       const { error } = await supabase.from('bids').insert({
         requirement_id: selectedRequirement.id,
@@ -150,8 +151,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   };
 
   const bidAmount = form.watch('bid_amount');
-  const serviceFee = bidAmount ? bidAmount * 0.01 : 0;
-  const totalAmount = bidAmount ? bidAmount + serviceFee : 0;
+  const quantity = selectedRequirement?.quantity || 0;
+  const totalOrderValue = bidAmount ? bidAmount * quantity : 0;
+  const serviceFee = totalOrderValue * 0.01;
+  const totalAmount = totalOrderValue + serviceFee;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -218,8 +221,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       
                       {bidAmount > 0 && (
                         <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                          <div className="flex justify-between"><span>Your Bid:</span><span>₹{bidAmount.toLocaleString()}</span></div>
-                          <div className="flex justify-between text-muted-foreground"><span>Service Fee (1%):</span><span>₹{serviceFee.toLocaleString()}</span></div>
+                          <div className="flex justify-between"><span>Unit Price:</span><span>₹{bidAmount.toLocaleString()}</span></div>
+                          <div className="flex justify-between"><span>Quantity:</span><span>{quantity} {selectedRequirement?.unit}</span></div>
+                          <div className="flex justify-between border-t pt-1"><span>Order Value:</span><span>₹{totalOrderValue.toLocaleString()}</span></div>
+                          <div className="flex justify-between text-muted-foreground"><span>Service Fee (1% of order):</span><span>₹{serviceFee.toLocaleString()}</span></div>
                           <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{totalAmount.toLocaleString()}</span></div>
                         </div>
                       )}
