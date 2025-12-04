@@ -6,13 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send } from 'lucide-react';
+import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
+import { maskCompanyName } from '@/lib/utils';
 
 interface Requirement {
   id: string;
@@ -27,6 +28,9 @@ interface Requirement {
   delivery_location: string;
   status: string;
   created_at: string;
+  buyer_profile?: {
+    company_name: string;
+  };
 }
 
 interface LowestBid {
@@ -84,7 +88,25 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       return;
     }
 
-    setRequirements(reqData || []);
+    // Fetch buyer profiles for the requirements
+    if (reqData && reqData.length > 0) {
+      const buyerIds = [...new Set(reqData.map(r => r.buyer_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, company_name')
+        .in('id', buyerIds);
+
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+      
+      const reqsWithProfiles = reqData.map(req => ({
+        ...req,
+        buyer_profile: profilesMap.get(req.buyer_id) || undefined
+      }));
+      
+      setRequirements(reqsWithProfiles as Requirement[]);
+    } else {
+      setRequirements([]);
+    }
 
     // Fetch my existing bids
     const { data: myBidsData } = await supabase
@@ -200,7 +222,15 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
             <Card>
               <CardHeader>
                 <CardTitle>{selectedRequirement.title}</CardTitle>
-                <Badge>{selectedRequirement.product_category}</Badge>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge>{selectedRequirement.product_category}</Badge>
+                  {selectedRequirement.buyer_profile && (
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Building2 className="h-3 w-3" />
+                      {maskCompanyName(selectedRequirement.buyer_profile.company_name)}
+                    </span>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p>{selectedRequirement.description}</p>
@@ -284,9 +314,15 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <h4 className="font-medium">{req.title}</h4>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">{req.product_category}</Badge>
                         {myBids.has(req.id) && <Badge variant="outline">Bid Submitted</Badge>}
+                        {req.buyer_profile && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Building2 className="h-3 w-3" />
+                            {maskCompanyName(req.buyer_profile.company_name)}
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">{req.description}</p>
                       <div className="flex gap-4 text-sm text-muted-foreground">

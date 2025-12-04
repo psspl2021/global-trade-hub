@@ -80,33 +80,18 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const fetchBids = async (requirementId: string) => {
     setBidsLoading(true);
     try {
+      // Only fetch the lowest bid (sorted by bid_amount ascending, limit 1)
       const { data: bidsData, error: bidsError } = await supabase
         .from('bids')
         .select('*')
         .eq('requirement_id', requirementId)
-        .order('bid_amount', { ascending: true });
+        .order('bid_amount', { ascending: true })
+        .limit(1);
 
       if (bidsError) throw bidsError;
 
-      // Fetch profiles for suppliers
-      if (bidsData && bidsData.length > 0) {
-        const supplierIds = [...new Set(bidsData.map(b => b.supplier_id))];
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('id, company_name, contact_person')
-          .in('id', supplierIds);
-
-        const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
-        
-        const bidsWithProfiles = bidsData.map(bid => ({
-          ...bid,
-          profiles: profilesMap.get(bid.supplier_id) || undefined
-        }));
-        
-        setBids(bidsWithProfiles);
-      } else {
-        setBids([]);
-      }
+      // No need to fetch supplier profiles since we show "ProcureSaathi Solutions Pvt Ltd"
+      setBids(bidsData || []);
     } catch (error: any) {
       console.error('Error fetching bids:', error);
       toast.error('Failed to load bids');
@@ -250,8 +235,9 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {bids.map((bid, index) => (
-                <Card key={bid.id} className={index === 0 ? 'border-primary/50' : ''}>
+              <p className="text-sm text-muted-foreground">Showing lowest bid only</p>
+              {bids.map((bid) => (
+                <Card key={bid.id} className="border-primary/50">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -259,9 +245,6 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                           <span className="font-medium">
                             ProcureSaathi Solutions Pvt Ltd
                           </span>
-                          {index === 0 && (
-                            <Badge className="bg-success/20 text-success">Lowest Bid</Badge>
-                          )}
                           {bid.status === 'accepted' && (
                             <Badge className="bg-primary/20 text-primary">Accepted</Badge>
                           )}
