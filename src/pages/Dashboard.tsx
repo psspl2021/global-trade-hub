@@ -182,7 +182,7 @@ const Dashboard = () => {
                   <CardTitle>Subscription</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm text-muted-foreground mb-2">Free Plan (5 bids/month)</div>
+                  <div className="text-sm text-muted-foreground mb-2">Free Plan (5 free bids)</div>
                   <div className="text-2xl font-bold text-primary mb-2">
                     {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}
                   </div>
@@ -190,7 +190,7 @@ const Dashboard = () => {
                     value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
                     className="mb-2" 
                   />
-                  <p className="text-sm text-muted-foreground mb-2">Free bids used this month</p>
+                  <p className="text-sm text-muted-foreground mb-2">Free bids used</p>
                   {(subscription?.bids_used_this_month ?? 0) >= (subscription?.bids_limit ?? 5) && (
                     <p className="text-sm text-orange-600 font-medium mb-2">
                       Additional bids: ₹500 each
