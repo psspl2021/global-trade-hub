@@ -141,11 +141,12 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const totalOrderValue = data.bid_amount * selectedRequirement.quantity;
       const serviceFee = totalOrderValue * 0.01; // 1% service fee on total order value
       const totalAmount = totalOrderValue + serviceFee;
+      const bidAmountWithFee = totalAmount; // Store the total amount including 1% as bid_amount
 
       const { error } = await supabase.from('bids').insert({
         requirement_id: selectedRequirement.id,
         supplier_id: userId,
-        bid_amount: data.bid_amount,
+        bid_amount: bidAmountWithFee, // Total including 1% service fee
         service_fee: serviceFee,
         total_amount: totalAmount,
         delivery_timeline_days: data.delivery_timeline_days,
