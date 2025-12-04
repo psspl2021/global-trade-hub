@@ -56,14 +56,16 @@ const Index = () => {
     { term: 'Building Material', category: 'Industrial Supplies' },
   ];
 
-  // Open Google search with fallback for blocked popups
+  // Open Google search using anchor click (more reliable than window.open)
   const openGoogleSearch = (query: string) => {
     const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-    // Fallback if popup is blocked
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      window.location.href = url;
-    }
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Handle Google search for suppliers
