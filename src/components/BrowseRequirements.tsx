@@ -138,13 +138,15 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
     setSubmitting(true);
     try {
-      const totalOrderValue = data.bid_amount * selectedRequirement.quantity;
+      const perUnitRate = data.bid_amount; // Supplier's per-unit bid
+      const perUnitWithFee = perUnitRate * 1.01; // Per-unit rate + 1% service fee (shown to buyer)
+      const totalOrderValue = perUnitRate * selectedRequirement.quantity;
       const serviceFee = totalOrderValue * 0.01; // 1% service fee on total order value
       const totalAmount = totalOrderValue + serviceFee;
       const { error } = await supabase.from('bids').insert({
         requirement_id: selectedRequirement.id,
         supplier_id: userId,
-        bid_amount: totalOrderValue, // Store original order value (without 1% service fee)
+        bid_amount: perUnitWithFee, // Store per-unit rate + 1% (e.g., 74500 * 1.01 = 75245)
         service_fee: serviceFee,
         total_amount: totalAmount,
         delivery_timeline_days: data.delivery_timeline_days,
