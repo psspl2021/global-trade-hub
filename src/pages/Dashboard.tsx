@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogOut, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
 import { SupplierCatalog } from '@/components/SupplierCatalog';
@@ -23,6 +25,23 @@ const Dashboard = () => {
   const [showStock, setShowStock] = useState(false);
   const [showRequirements, setShowRequirements] = useState(false);
   const [showCRM, setShowCRM] = useState(false);
+  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
+
+  const fetchSubscription = async () => {
+    if (!user?.id || role !== 'supplier') return;
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('bids_used_this_month, bids_limit')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    setSubscription(data);
+  };
+
+  useEffect(() => {
+    if (user?.id && role === 'supplier') {
+      fetchSubscription();
+    }
+  }, [user?.id, role]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -163,10 +182,20 @@ const Dashboard = () => {
                   <CardTitle>Subscription</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm text-muted-foreground mb-2">Free Plan</div>
-                  <div className="text-2xl font-bold text-primary mb-2">0/5</div>
-                  <p className="text-sm text-muted-foreground mb-4">Bids used this month</p>
-                  <Button variant="outline" className="w-full">Upgrade to Premium</Button>
+                  <div className="text-sm text-muted-foreground mb-2">Free Plan (5 bids/month)</div>
+                  <div className="text-2xl font-bold text-primary mb-2">
+                    {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}
+                  </div>
+                  <Progress 
+                    value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                    className="mb-2" 
+                  />
+                  <p className="text-sm text-muted-foreground mb-2">Free bids used this month</p>
+                  {(subscription?.bids_used_this_month ?? 0) >= (subscription?.bids_limit ?? 5) && (
+                    <p className="text-sm text-orange-600 font-medium mb-2">
+                      Additional bids: ₹500 each
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>

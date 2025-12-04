@@ -55,7 +55,11 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; id: string } | null>(null);
   const { toast } = useToast();
+
+  const BID_FEE = 500; // Rs.500 per bid after free limit
+  const isPaidBid = subscription && subscription.bids_used_this_month >= subscription.bids_limit;
 
   const form = useForm<BidFormData>({
     resolver: zodResolver(bidSchema),
@@ -113,14 +117,24 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     setLoading(false);
   };
 
+  const fetchSubscription = async () => {
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('id, bids_used_this_month, bids_limit')
+      .eq('user_id', userId)
+      .maybeSingle();
+    setSubscription(data);
+  };
+
   useEffect(() => {
     if (open && userId) {
       fetchRequirements();
+      fetchSubscription();
     }
   }, [open, userId]);
 
   const onSubmitBid = async (data: BidFormData) => {
-    if (!selectedRequirement) return;
+    if (!selectedRequirement || !subscription) return;
 
     setSubmitting(true);
     try {
@@ -140,10 +154,18 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
       if (error) throw error;
 
-      toast({ title: 'Success', description: 'Bid submitted successfully!' });
+      // Update subscription bid count
+      await supabase
+        .from('subscriptions')
+        .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
+        .eq('id', subscription.id);
+
+      const bidCostMsg = isPaidBid ? ` (Bid fee: ₹${BID_FEE})` : '';
+      toast({ title: 'Success', description: `Bid submitted successfully!${bidCostMsg}` });
       setSelectedRequirement(null);
       form.reset();
       fetchRequirements();
+      fetchSubscription();
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
@@ -236,9 +258,16 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         </FormItem>
                       )} />
 
+                      {isPaidBid && (
+                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800">
+                          <strong>Paid Bid:</strong> You've used all {subscription?.bids_limit} free bids this month. 
+                          This bid will cost ₹{BID_FEE}.
+                        </div>
+                      )}
+
                       <Button type="submit" disabled={submitting} className="w-full">
                         {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                        Submit Bid
+                        {isPaidBid ? `Submit Bid (₹${BID_FEE})` : 'Submit Bid'}
                       </Button>
                     </form>
                   </Form>
