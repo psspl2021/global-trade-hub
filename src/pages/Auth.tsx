@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,13 @@ import { Package2 } from 'lucide-react';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signUp, signIn } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  
+  // Get role from URL parameter, default to 'buyer'
+  const initialRole = searchParams.get('role') === 'supplier' ? 'supplier' : 'buyer';
+  // If role is specified in URL, default to signup tab
+  const [isLogin, setIsLogin] = useState(!searchParams.get('role'));
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -21,7 +26,7 @@ const Auth = () => {
     companyName: '',
     contactPerson: '',
     phone: '',
-    role: 'buyer',
+    role: initialRole,
   });
 
   useEffect(() => {
