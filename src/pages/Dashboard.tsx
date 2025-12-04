@@ -84,10 +84,26 @@ const Dashboard = () => {
                   </Button>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Invoices & PO</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Create proforma, tax invoices & purchase orders
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Requirements List with Bid Details */}
             {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
+            
+            {user && (
+              <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+            )}
           </div>
         )}
 
