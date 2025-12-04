@@ -56,7 +56,7 @@ const PRODUCT_CATEGORIES = [
 export const StockManagement = ({ open, onOpenChange, userId }: StockManagementProps) => {
   const [products, setProducts] = useState<ProductWithStock[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stockUpdates, setStockUpdates] = useState<Record<string, number>>({});
+  const [stockUpdates, setStockUpdates] = useState<Record<string, number | undefined>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [matchedRows, setMatchedRows] = useState<ParsedStockRow[]>([]);
@@ -101,7 +101,7 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
 
   const handleStockUpdate = async (product: ProductWithStock) => {
     const newQuantity = stockUpdates[product.id];
-    if (newQuantity === undefined) return;
+    if (newQuantity === undefined || newQuantity === null) return;
 
     setSaving(product.id);
     try {
@@ -730,12 +730,13 @@ Plastic Sheets,1000,pieces,Packaging`;
                                 type="number"
                                 min="0"
                                 className="w-24"
-                                value={stockUpdates[product.id] !== undefined ? stockUpdates[product.id] : ''}
+                                value={stockUpdates[product.id] ?? ''}
                                 onChange={(e) => {
                                   const val = e.target.value;
+                                  const numVal = parseInt(val, 10);
                                   setStockUpdates(prev => ({ 
                                     ...prev, 
-                                    [product.id]: val === '' ? undefined : parseInt(val)
+                                    [product.id]: val === '' ? undefined : (isNaN(numVal) ? undefined : numVal)
                                   }));
                                 }}
                                 placeholder={String(currentStock)}
@@ -744,7 +745,7 @@ Plastic Sheets,1000,pieces,Packaging`;
                             <Button
                               size="sm"
                               onClick={() => handleStockUpdate(product)}
-                              disabled={saving === product.id || stockUpdates[product.id] === undefined || isNaN(stockUpdates[product.id] as number)}
+                              disabled={saving === product.id || stockUpdates[product.id] === undefined}
                             >
                               {saving === product.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                             </Button>
