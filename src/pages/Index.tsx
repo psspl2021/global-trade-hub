@@ -19,6 +19,7 @@ const Index = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchCategory, setSearchCategory] = useState('');
   const [searchCountry, setSearchCountry] = useState('');
+  const [searchEngine, setSearchEngine] = useState<'bing' | 'duckduckgo' | 'google'>('bing');
 
   const categories = [
     { name: 'Auto Vehicle & Accessories', icon: '🚗' },
@@ -56,9 +57,15 @@ const Index = () => {
     { term: 'Building Material', category: 'Industrial Supplies' },
   ];
 
-  // Open Google search using anchor click (more reliable than window.open)
-  const openGoogleSearch = (query: string) => {
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+  // Open search using selected engine
+  const openSearch = (query: string) => {
+    const searchUrls = {
+      bing: `https://www.bing.com/search?q=${encodeURIComponent(query)}`,
+      duckduckgo: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+      google: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+    };
+    
+    const url = searchUrls[searchEngine];
     const link = document.createElement('a');
     link.href = url;
     link.target = '_blank';
@@ -82,13 +89,13 @@ const Index = () => {
     query += ' suppliers manufacturers wholesalers';
     if (countryName) query += ` in ${countryName}`;
     
-    openGoogleSearch(query);
+    openSearch(query);
   };
 
   // Handle top search click - directly search Google
   const handleTopSearchClick = (term: string, category: string) => {
     const query = `${term} ${category} suppliers manufacturers wholesalers B2B`;
-    openGoogleSearch(query);
+    openSearch(query);
   };
 
   // Handle Enter key in search input
@@ -239,10 +246,22 @@ const Index = () => {
                   </Select>
                 </div>
               </div>
-              <Button size="lg" className="w-full h-14 text-lg" onClick={handleSearchSuppliers}>
-                <Search className="h-5 w-5 mr-2" />
-                Search Suppliers
-              </Button>
+              <div className="flex gap-3">
+                <Select value={searchEngine} onValueChange={(value: 'bing' | 'duckduckgo' | 'google') => setSearchEngine(value)}>
+                  <SelectTrigger className="w-40 h-14">
+                    <SelectValue placeholder="Search Engine" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background">
+                    <SelectItem value="bing">🔍 Bing</SelectItem>
+                    <SelectItem value="duckduckgo">🦆 DuckDuckGo</SelectItem>
+                    <SelectItem value="google">🌐 Google</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button size="lg" className="flex-1 h-14 text-lg" onClick={handleSearchSuppliers}>
+                  <Search className="h-5 w-5 mr-2" />
+                  Search Suppliers
+                </Button>
+              </div>
               <div className="mt-4 text-center">
                 <span className="text-sm text-muted-foreground mr-2">TOP SEARCH:</span>
                 <div className="inline-flex flex-wrap gap-2 justify-center mt-2">
