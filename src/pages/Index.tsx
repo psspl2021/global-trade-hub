@@ -187,7 +187,7 @@ const Index = () => {
                   size="lg" 
                   variant="outline" 
                   className="border-success text-success hover:bg-success hover:text-success-foreground"
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate('/auth?role=buyer')}
                 >
                   Join Now as Buyer
                 </Button>
@@ -208,7 +208,7 @@ const Index = () => {
                   size="lg"
                   variant="outline"
                   className="border-warning text-warning hover:bg-warning hover:text-warning-foreground"
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate('/auth?role=supplier')}
                 >
                   Join Now as Supplier
                 </Button>
