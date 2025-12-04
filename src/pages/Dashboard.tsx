@@ -14,6 +14,7 @@ import { StockManagement } from '@/components/StockManagement';
 import { BrowseRequirements } from '@/components/BrowseRequirements';
 import { SupplierCRM } from '@/components/crm/SupplierCRM';
 import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
+import { SupplierMyBids } from '@/components/SupplierMyBids';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -203,6 +204,9 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* My Bids Section - Shows all bids with breakdown and re-bid */}
+            {user && <SupplierMyBids userId={user.id} />}
 
             {/* Accepted Bids Section */}
             {user && <SupplierAcceptedBids userId={user.id} />}
