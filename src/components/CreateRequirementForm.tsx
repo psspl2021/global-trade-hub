@@ -63,6 +63,8 @@ const categories = [
   'Household & Pets',
   'Industrial Supplies',
   'Machinery & Equipment',
+  'Metals - Ferrous (Steel, Iron)',
+  'Metals - Non-Ferrous (Copper, Aluminium)',
   'Mobile Electronics',
   'Mother, Kids & Toys',
   'Printing & Packaging',

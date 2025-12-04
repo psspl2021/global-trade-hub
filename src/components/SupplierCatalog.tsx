@@ -44,7 +44,8 @@ interface Product {
 
 const categories = [
   'Electronics', 'Textiles', 'Machinery', 'Chemicals', 'Food & Beverages',
-  'Automotive', 'Construction', 'Medical', 'Agriculture', 'Other'
+  'Automotive', 'Construction', 'Medical', 'Agriculture',
+  'Metals - Ferrous (Steel, Iron)', 'Metals - Non-Ferrous (Copper, Aluminium)', 'Other'
 ];
 
 interface SupplierCatalogProps {
