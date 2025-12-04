@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { countries } from '@/data/countries';
+import { supabase } from '@/integrations/supabase/client';
+import { SearchResults } from '@/components/SearchResults';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,7 +22,11 @@ const Index = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchCategory, setSearchCategory] = useState('');
   const [searchCountry, setSearchCountry] = useState('');
-  const [searchEngine, setSearchEngine] = useState<'bing' | 'duckduckgo' | 'google'>('bing');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [lastSearchQuery, setLastSearchQuery] = useState('');
+  const { toast } = useToast();
 
   const categories = [
     { name: 'Auto Vehicle & Accessories', icon: '🚗' },
@@ -57,45 +64,52 @@ const Index = () => {
     { term: 'Building Material', category: 'Industrial Supplies' },
   ];
 
-  // Open search using selected engine
-  const openSearch = (query: string) => {
-    const searchUrls = {
-      bing: `https://www.bing.com/search?q=${encodeURIComponent(query)}`,
-      duckduckgo: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
-      google: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
-    };
-    
-    const url = searchUrls[searchEngine];
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Handle Google search for suppliers
-  const handleSearchSuppliers = () => {
+  // Handle inline search
+  const handleSearchSuppliers = async () => {
     const keyword = searchKeyword.trim();
     const categoryName = searchCategory || '';
     const countryName = searchCountry 
       ? countries.find(c => c.code === searchCountry)?.name 
       : '';
     
-    // Build search query
-    let query = keyword || 'B2B suppliers';
-    if (categoryName) query += ` ${categoryName}`;
-    query += ' suppliers manufacturers wholesalers';
-    if (countryName) query += ` in ${countryName}`;
+    setIsSearching(true);
+    setSearchError(null);
+    setSearchResults([]);
     
-    openSearch(query);
+    try {
+      const { data, error } = await supabase.functions.invoke('search-suppliers', {
+        body: { keyword, category: categoryName, country: countryName },
+      });
+      
+      if (error) throw error;
+      
+      setSearchResults(data.results || []);
+      setLastSearchQuery(data.query || keyword);
+      
+      if (data.results?.length === 0) {
+        toast({
+          title: "No results found",
+          description: "Try different keywords or broaden your search",
+        });
+      }
+    } catch (error: any) {
+      console.error('Search error:', error);
+      setSearchError(error.message || 'Failed to search. Please try again.');
+      toast({
+        title: "Search failed",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  // Handle top search click - directly search Google
+  // Handle top search click
   const handleTopSearchClick = (term: string, category: string) => {
-    const query = `${term} ${category} suppliers manufacturers wholesalers B2B`;
-    openSearch(query);
+    setSearchKeyword(term);
+    setSearchCategory(category);
+    handleSearchSuppliers();
   };
 
   // Handle Enter key in search input
@@ -246,22 +260,15 @@ const Index = () => {
                   </Select>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <Select value={searchEngine} onValueChange={(value: 'bing' | 'duckduckgo' | 'google') => setSearchEngine(value)}>
-                  <SelectTrigger className="w-40 h-14">
-                    <SelectValue placeholder="Search Engine" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background">
-                    <SelectItem value="bing">🔍 Bing</SelectItem>
-                    <SelectItem value="duckduckgo">🦆 DuckDuckGo</SelectItem>
-                    <SelectItem value="google">🌐 Google</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button size="lg" className="flex-1 h-14 text-lg" onClick={handleSearchSuppliers}>
-                  <Search className="h-5 w-5 mr-2" />
-                  Search Suppliers
-                </Button>
-              </div>
+              <Button 
+                size="lg" 
+                className="w-full h-14 text-lg" 
+                onClick={handleSearchSuppliers}
+                disabled={isSearching}
+              >
+                <Search className="h-5 w-5 mr-2" />
+                {isSearching ? 'Searching...' : 'Search Suppliers'}
+              </Button>
               <div className="mt-4 text-center">
                 <span className="text-sm text-muted-foreground mr-2">TOP SEARCH:</span>
                 <div className="inline-flex flex-wrap gap-2 justify-center mt-2">
@@ -276,6 +283,14 @@ const Index = () => {
                   ))}
                 </div>
               </div>
+              
+              {/* Search Results */}
+              <SearchResults
+                results={searchResults}
+                isLoading={isSearching}
+                error={searchError}
+                searchQuery={lastSearchQuery}
+              />
             </CardContent>
           </Card>
         </div>
