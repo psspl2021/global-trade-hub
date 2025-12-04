@@ -84,7 +84,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
         .from('bids')
         .select('*')
         .eq('requirement_id', requirementId)
-        .order('total_amount', { ascending: true });
+        .order('bid_amount', { ascending: true });
 
       if (bidsError) throw bidsError;
 
@@ -272,7 +272,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>
                             <span className="text-muted-foreground">Bid Amount:</span>
-                            <span className="ml-2 font-bold text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                            <span className="ml-2 font-bold text-primary">₹{bid.bid_amount.toLocaleString()}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Delivery:</span>
