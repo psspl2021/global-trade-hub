@@ -70,7 +70,10 @@ const Dashboard = () => {
               className="h-16 w-auto object-contain"
             />
           </div>
-          <Button variant="outline" onClick={signOut}>
+          <Button variant="outline" onClick={async () => {
+            await signOut();
+            navigate('/');
+          }}>
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
