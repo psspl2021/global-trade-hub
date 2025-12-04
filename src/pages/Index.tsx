@@ -72,7 +72,7 @@ const Index = () => {
   ];
 
   const stats = [
-    { label: 'Established', value: '2024' },
+    { label: 'Established', value: '2021' },
     { label: 'Suppliers', value: '1000+' },
     { label: 'Buyers', value: '500+' },
     { label: 'Categories', value: '23' },
@@ -324,7 +324,7 @@ const Index = () => {
             <div className="text-center">
               <h3 className="text-xl font-semibold mb-4">#SourceRemotely - The New Reality</h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Since 2024, ProcureSaathi has revolutionized the B2B sourcing sector as India's first-ever 
+                Since 2021, ProcureSaathi has revolutionized the B2B sourcing sector as India's first-ever 
                 Reverse Marketplace Platform offering direct procurement services to businesses worldwide. 
                 Our innovative sealed bidding system ensures fair competition while maintaining complete transparency.
               </p>
