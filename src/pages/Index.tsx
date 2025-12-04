@@ -25,6 +25,8 @@ const Index = () => {
     { name: 'Household & Pets', icon: '🐕' },
     { name: 'Industrial Supplies', icon: '🏭' },
     { name: 'Machinery & Equipment', icon: '⚙️' },
+    { name: 'Metals - Ferrous (Steel, Iron)', icon: '🔩' },
+    { name: 'Metals - Non-Ferrous (Copper, Aluminium)', icon: '🥉' },
     { name: 'Mobile Electronics', icon: '📲' },
     { name: 'Mother, Kids & Toys', icon: '🧸' },
     { name: 'Printing & Packaging', icon: '📦' },
