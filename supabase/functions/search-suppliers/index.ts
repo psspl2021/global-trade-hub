@@ -19,7 +19,22 @@ serve(async (req) => {
   }
 
   try {
-    const { keyword, category, country } = await req.json();
+    const { keyword = '', category = '', country = '' } = await req.json();
+
+    // Input validation
+    const maxLength = 200;
+    if (typeof keyword !== 'string' || typeof category !== 'string' || typeof country !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input types' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (keyword.length > maxLength || category.length > maxLength || country.length > maxLength) {
+      return new Response(
+        JSON.stringify({ error: `Input too long (max ${maxLength} characters)` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     console.log('Search request:', { keyword, category, country });
     
