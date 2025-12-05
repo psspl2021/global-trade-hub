@@ -351,6 +351,16 @@ export const categoriesData: CategoryData[] = [
       'Alloy Steel',
       'Structural Steel',
       'Tool Steel',
+      'Scrap',
+      'TMT Bar',
+      'HR Plates',
+      'HR Coil',
+      'CR Sheet',
+      'CR Coil',
+      'HRPO',
+      'Crane Rails',
+      'Iron Ore',
+      'Billets',
     ]
   },
   {
