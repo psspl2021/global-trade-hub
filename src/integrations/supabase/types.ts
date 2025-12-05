@@ -1206,6 +1206,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_totp_secrets: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string
+          encrypted_secret: string
+          id: string
+          is_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string
+          encrypted_secret: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string
+          encrypted_secret?: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicles: {
         Row: {
           capacity_tons: number | null

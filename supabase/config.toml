@@ -8,3 +8,12 @@ verify_jwt = true
 
 [functions.stock-sync]
 verify_jwt = false
+
+[functions.generate-totp-secret]
+verify_jwt = true
+
+[functions.verify-totp]
+verify_jwt = true
+
+[functions.enable-totp]
+verify_jwt = true
