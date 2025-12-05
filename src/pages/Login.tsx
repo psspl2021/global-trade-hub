@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { loginSchema, resetEmailSchema } from '@/lib/validations';
+import { TOTPVerification } from '@/components/auth/TOTPVerification';
+import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
 const Login = () => {
@@ -21,12 +23,53 @@ const Login = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [resetErrors, setResetErrors] = useState<{ email?: string }>({});
+  const [showTOTPVerification, setShowTOTPVerification] = useState(false);
+  const [pendingSession, setPendingSession] = useState<boolean>(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && !showTOTPVerification) {
+      // Check if user has TOTP enabled
+      checkTOTPStatus();
+    }
+  }, [user]);
+
+  const checkTOTPStatus = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: totpData } = await supabase
+        .from('user_totp_secrets')
+        .select('is_enabled')
+        .eq('user_id', user.id)
+        .eq('is_enabled', true)
+        .single();
+
+      if (totpData?.is_enabled) {
+        // User has TOTP enabled, show verification
+        setShowTOTPVerification(true);
+        setPendingSession(true);
+      } else {
+        // No TOTP, proceed to dashboard
+        navigate('/dashboard');
+      }
+    } catch {
+      // No TOTP configured, proceed to dashboard
       navigate('/dashboard');
     }
-  }, [user, navigate]);
+  };
+
+  const handleTOTPSuccess = () => {
+    setShowTOTPVerification(false);
+    setPendingSession(false);
+    navigate('/dashboard');
+  };
+
+  const handleTOTPCancel = async () => {
+    // Sign out if TOTP verification is cancelled
+    await supabase.auth.signOut();
+    setShowTOTPVerification(false);
+    setPendingSession(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +119,20 @@ const Login = () => {
       setResetEmail('');
     }
   };
+
+  // Show TOTP verification screen
+  if (showTOTPVerification && pendingSession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
+            <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-40 w-auto object-contain" />
+          </Link>
+          <TOTPVerification onSuccess={handleTOTPSuccess} onCancel={handleTOTPCancel} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 flex items-center justify-center p-4">
