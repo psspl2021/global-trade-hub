@@ -301,7 +301,7 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
 
         createdCount++;
       } catch (err) {
-        console.error('Failed to create product:', row.productName, err);
+        if (import.meta.env.DEV) console.error('Failed to create product:', row.productName, err);
         errorCount++;
       }
     }
@@ -343,7 +343,7 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
         }
         updatedCount++;
       } catch (err) {
-        console.error('Failed to update stock:', row.productName, err);
+        if (import.meta.env.DEV) console.error('Failed to update stock:', row.productName, err);
         errorCount++;
       }
     }

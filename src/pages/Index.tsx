@@ -146,7 +146,7 @@ const Index = () => {
 
       setInternalProducts(products);
     } catch (error) {
-      console.error('Error searching internal products:', error);
+      if (import.meta.env.DEV) console.error('Error searching internal products:', error);
       setInternalProducts([]);
     }
   };
@@ -185,7 +185,7 @@ const Index = () => {
             });
           }
         } catch (error: any) {
-          console.error('Search error:', error);
+          if (import.meta.env.DEV) console.error('Search error:', error);
           setSearchError(error.message || 'Failed to search. Please try again.');
           toast({
             title: "External search failed",

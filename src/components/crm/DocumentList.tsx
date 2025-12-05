@@ -57,8 +57,8 @@ export const DocumentList = ({
         .order('created_at', { ascending: false }),
     ]);
 
-    if (invoicesRes.error) console.error('Error fetching invoices:', invoicesRes.error);
-    if (posRes.error) console.error('Error fetching POs:', posRes.error);
+    if (invoicesRes.error && import.meta.env.DEV) console.error('Error fetching invoices:', invoicesRes.error);
+    if (posRes.error && import.meta.env.DEV) console.error('Error fetching POs:', posRes.error);
 
     setInvoices(invoicesRes.data || []);
     setPurchaseOrders(posRes.data || []);

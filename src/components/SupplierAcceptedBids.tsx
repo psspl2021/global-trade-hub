@@ -64,7 +64,7 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
       if (error) throw error;
       setAcceptedBids(data || []);
     } catch (error: any) {
-      console.error('Error fetching accepted bids:', error);
+      if (import.meta.env.DEV) console.error('Error fetching accepted bids:', error);
       toast.error('Failed to load accepted bids');
     } finally {
       setLoading(false);

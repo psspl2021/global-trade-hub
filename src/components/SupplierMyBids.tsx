@@ -112,7 +112,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
         setLowestBids(lowestBidsMap);
       }
     } catch (error) {
-      console.error('Error fetching bids:', error);
+      if (import.meta.env.DEV) console.error('Error fetching bids:', error);
       toast.error('Failed to load your bids');
     } finally {
       setLoading(false);
@@ -199,7 +199,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
       setEditingBid(null);
       fetchBids();
     } catch (error) {
-      console.error('Error updating bid:', error);
+      if (import.meta.env.DEV) console.error('Error updating bid:', error);
       toast.error('Failed to update bid');
     } finally {
       setSubmitting(false);
