@@ -275,9 +275,10 @@ const Index = () => {
             />
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <Button variant="ghost" onClick={() => navigate('/categories')}>Categories</Button>
+            <Button variant="ghost" onClick={() => navigate('/')}>Home</Button>
             <Button variant="ghost" onClick={() => scrollToSection('about')}>About Us</Button>
             <Button variant="ghost" onClick={() => scrollToSection('how-it-works')}>How It Works</Button>
+            <Button variant="ghost" onClick={() => navigate('/categories')}>Categories</Button>
             <Button variant="ghost" onClick={() => scrollToSection('contact')}>Contact</Button>
           </nav>
           <div className="flex items-center gap-4">
