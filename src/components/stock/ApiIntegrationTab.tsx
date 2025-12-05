@@ -9,9 +9,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { 
   Loader2, Key, Copy, Trash2, Check, RefreshCw, 
-  AlertCircle, CheckCircle, XCircle, Clock, Code 
+  AlertCircle, CheckCircle, XCircle, Clock, Code, Webhook, Settings 
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
 
 interface ApiKey {
@@ -22,6 +24,8 @@ interface ApiKey {
   last_used_at: string | null;
   created_at: string;
   revoked_at: string | null;
+  webhook_url: string | null;
+  webhook_events: string[] | null;
 }
 
 interface SyncLog {
@@ -155,6 +159,26 @@ export const ApiIntegrationTab = ({ userId }: ApiIntegrationTabProps) => {
     }
   };
 
+  const handleUpdateWebhook = async (keyId: string, webhookUrl: string, webhookEvents: string[]) => {
+    try {
+      const { error } = await supabase
+        .from('supplier_api_keys')
+        .update({ 
+          webhook_url: webhookUrl || null, 
+          webhook_events: webhookEvents 
+        })
+        .eq('id', keyId);
+
+      if (error) throw error;
+
+      fetchData();
+      toast({ title: 'Webhook Updated', description: 'Notification settings saved' });
+    } catch (error: any) {
+      if (import.meta.env.DEV) console.error('Error updating webhook:', error);
+      toast({ title: 'Error', description: 'Failed to update webhook', variant: 'destructive' });
+    }
+  };
+
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
@@ -282,15 +306,23 @@ export const ApiIntegrationTab = ({ userId }: ApiIntegrationTabProps) => {
                         <> • Last used {format(new Date(key.last_used_at), 'MMM d, h:mm a')}</>
                       )}
                     </p>
+                    {key.webhook_url && (
+                      <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                        <Webhook className="h-3 w-3" /> Webhook configured
+                      </p>
+                    )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleRevokeKey(key.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <WebhookConfigDialog apiKey={key} onSave={handleUpdateWebhook} />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleRevokeKey(key.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -436,3 +468,95 @@ export const ApiIntegrationTab = ({ userId }: ApiIntegrationTabProps) => {
     </div>
   );
 };
+
+// Webhook Configuration Dialog Component
+function WebhookConfigDialog({ 
+  apiKey, 
+  onSave 
+}: { 
+  apiKey: ApiKey; 
+  onSave: (keyId: string, webhookUrl: string, webhookEvents: string[]) => Promise<void>;
+}) {
+  const [webhookUrl, setWebhookUrl] = useState(apiKey.webhook_url || '');
+  const [events, setEvents] = useState<string[]>(apiKey.webhook_events || ['sync_failed', 'low_stock']);
+  const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    await onSave(apiKey.id, webhookUrl, events);
+    setSaving(false);
+    setOpen(false);
+  };
+
+  const toggleEvent = (event: string) => {
+    setEvents(prev => 
+      prev.includes(event) 
+        ? prev.filter(e => e !== event)
+        : [...prev, event]
+    );
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost">
+          <Settings className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Webhook className="h-5 w-5" />
+            Webhook Notifications
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <Label>Webhook URL (optional)</Label>
+            <Input
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+              placeholder="https://your-server.com/webhook"
+              type="url"
+            />
+            <p className="text-xs text-muted-foreground">
+              Receive POST requests when events occur. Supports Slack, Discord, or custom endpoints.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Events to notify</Label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="sync_failed"
+                  checked={events.includes('sync_failed')}
+                  onCheckedChange={() => toggleEvent('sync_failed')}
+                />
+                <label htmlFor="sync_failed" className="text-sm">
+                  Sync failures
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="low_stock"
+                  checked={events.includes('low_stock')}
+                  onCheckedChange={() => toggleEvent('low_stock')}
+                />
+                <label htmlFor="low_stock" className="text-sm">
+                  Low stock alerts
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <Button onClick={handleSave} disabled={saving} className="w-full">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Save Webhook Settings
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

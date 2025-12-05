@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogOut, Loader2, Package, Receipt } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
+import { NotificationBell } from '@/components/NotificationBell';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
 import { SupplierCatalog } from '@/components/SupplierCatalog';
 import { StockManagement } from '@/components/StockManagement';
@@ -81,13 +82,16 @@ const Dashboard = () => {
               loading="eager"
             />
           </div>
-          <Button variant="outline" onClick={async () => {
-            await signOut();
-            navigate('/');
-          }}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Button variant="outline" onClick={async () => {
+              await signOut();
+              navigate('/');
+            }}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
