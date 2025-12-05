@@ -32,6 +32,47 @@ async function hashApiKey(key: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Validate webhook URL to prevent SSRF attacks
+function isValidWebhookUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Only allow HTTPS
+    if (parsed.protocol !== 'https:') return false;
+    
+    const hostname = parsed.hostname.toLowerCase();
+    
+    // Block localhost and loopback
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+      return false;
+    }
+    
+    // Block private IP ranges
+    const ipv4Match = hostname.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+    if (ipv4Match) {
+      const [, a, b] = ipv4Match.map(Number);
+      // 10.0.0.0/8
+      if (a === 10) return false;
+      // 172.16.0.0/12
+      if (a === 172 && b >= 16 && b <= 31) return false;
+      // 192.168.0.0/16
+      if (a === 192 && b === 168) return false;
+      // 169.254.0.0/16 (link-local, cloud metadata)
+      if (a === 169 && b === 254) return false;
+      // 127.0.0.0/8
+      if (a === 127) return false;
+    }
+    
+    // Block cloud metadata endpoints
+    if (hostname === '169.254.169.254' || hostname.endsWith('.internal')) {
+      return false;
+    }
+    
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // Send notifications (in-app + webhook)
 async function sendNotifications(
   supabase: any,
@@ -61,6 +102,12 @@ async function sendNotifications(
       .single();
 
     if (apiKeyData?.webhook_url && apiKeyData?.webhook_events?.includes(type)) {
+      // Validate webhook URL to prevent SSRF
+      if (!isValidWebhookUrl(apiKeyData.webhook_url)) {
+        console.warn(`Blocked webhook to invalid/unsafe URL: ${apiKeyData.webhook_url}`);
+        return;
+      }
+      
       // Send webhook notification (fire and forget)
       try {
         await fetch(apiKeyData.webhook_url, {
