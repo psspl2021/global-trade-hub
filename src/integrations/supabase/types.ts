@@ -232,6 +232,176 @@ export type Database = {
         }
         Relationships: []
       }
+      logistics_bids: {
+        Row: {
+          bid_amount: number
+          created_at: string
+          estimated_transit_days: number
+          id: string
+          requirement_id: string
+          service_fee: number
+          status: Database["public"]["Enums"]["logistics_bid_status"]
+          terms_and_conditions: string | null
+          total_amount: number
+          transporter_id: string
+          updated_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          bid_amount: number
+          created_at?: string
+          estimated_transit_days: number
+          id?: string
+          requirement_id: string
+          service_fee: number
+          status?: Database["public"]["Enums"]["logistics_bid_status"]
+          terms_and_conditions?: string | null
+          total_amount: number
+          transporter_id: string
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          bid_amount?: number
+          created_at?: string
+          estimated_transit_days?: number
+          id?: string
+          requirement_id?: string
+          service_fee?: number
+          status?: Database["public"]["Enums"]["logistics_bid_status"]
+          terms_and_conditions?: string | null
+          total_amount?: number
+          transporter_id?: string
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_bids_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_bids_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logistics_requirements: {
+        Row: {
+          budget_max: number | null
+          created_at: string
+          customer_id: string
+          delivery_deadline: string
+          delivery_location: string
+          id: string
+          material_description: string | null
+          material_type: string
+          pickup_date: string
+          pickup_location: string
+          quantity: number
+          special_requirements: string | null
+          status: Database["public"]["Enums"]["logistics_requirement_status"]
+          title: string
+          unit: string
+          updated_at: string
+          vehicle_type_preference:
+            | Database["public"]["Enums"]["vehicle_type"]
+            | null
+        }
+        Insert: {
+          budget_max?: number | null
+          created_at?: string
+          customer_id: string
+          delivery_deadline: string
+          delivery_location: string
+          id?: string
+          material_description?: string | null
+          material_type: string
+          pickup_date: string
+          pickup_location: string
+          quantity: number
+          special_requirements?: string | null
+          status?: Database["public"]["Enums"]["logistics_requirement_status"]
+          title: string
+          unit?: string
+          updated_at?: string
+          vehicle_type_preference?:
+            | Database["public"]["Enums"]["vehicle_type"]
+            | null
+        }
+        Update: {
+          budget_max?: number | null
+          created_at?: string
+          customer_id?: string
+          delivery_deadline?: string
+          delivery_location?: string
+          id?: string
+          material_description?: string | null
+          material_type?: string
+          pickup_date?: string
+          pickup_location?: string
+          quantity?: number
+          special_requirements?: string | null
+          status?: Database["public"]["Enums"]["logistics_requirement_status"]
+          title?: string
+          unit?: string
+          updated_at?: string
+          vehicle_type_preference?:
+            | Database["public"]["Enums"]["vehicle_type"]
+            | null
+        }
+        Relationships: []
+      }
+      logistics_transactions: {
+        Row: {
+          amount: number
+          bid_id: string | null
+          created_at: string
+          customer_id: string
+          fee_paid: boolean
+          id: string
+          payment_date: string | null
+          service_fee: number
+          transporter_id: string
+        }
+        Insert: {
+          amount: number
+          bid_id?: string | null
+          created_at?: string
+          customer_id: string
+          fee_paid?: boolean
+          id?: string
+          payment_date?: string | null
+          service_fee: number
+          transporter_id: string
+        }
+        Update: {
+          amount?: number
+          bid_id?: string | null
+          created_at?: string
+          customer_id?: string
+          fee_paid?: boolean
+          id?: string
+          payment_date?: string | null
+          service_fee?: number
+          transporter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_transactions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_bids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -1053,6 +1223,13 @@ export type Database = {
           lowest_bid_amount: number
         }[]
       }
+      get_lowest_logistics_bid: {
+        Args: { req_id: string }
+        Returns: {
+          bid_count: number
+          lowest_bid_amount: number
+        }[]
+      }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean
@@ -1077,6 +1254,8 @@ export type Database = {
         | "cancelled"
       document_type: "proforma_invoice" | "tax_invoice" | "purchase_order"
       fuel_type: "diesel" | "petrol" | "cng" | "electric" | "hybrid"
+      logistics_bid_status: "pending" | "accepted" | "rejected"
+      logistics_requirement_status: "active" | "closed" | "cancelled"
       requirement_status: "active" | "closed" | "awarded"
       subscription_tier: "free" | "premium"
       vehicle_type:
@@ -1234,6 +1413,8 @@ export const Constants = {
       ],
       document_type: ["proforma_invoice", "tax_invoice", "purchase_order"],
       fuel_type: ["diesel", "petrol", "cng", "electric", "hybrid"],
+      logistics_bid_status: ["pending", "accepted", "rejected"],
+      logistics_requirement_status: ["active", "closed", "cancelled"],
       requirement_status: ["active", "closed", "awarded"],
       subscription_tier: ["free", "premium"],
       vehicle_type: [
