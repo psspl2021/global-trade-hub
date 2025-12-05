@@ -269,6 +269,9 @@ const Index = () => {
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
               className="h-28 w-auto object-contain"
+              width={112}
+              height={112}
+              loading="eager"
             />
           </div>
           <nav className="hidden md:flex items-center gap-6">
