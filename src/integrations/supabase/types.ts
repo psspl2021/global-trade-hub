@@ -509,6 +509,7 @@ export type Database = {
           specifications: Json | null
           status: Database["public"]["Enums"]["requirement_status"]
           title: string
+          trade_type: string | null
           unit: string
           updated_at: string
         }
@@ -529,6 +530,7 @@ export type Database = {
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title: string
+          trade_type?: string | null
           unit: string
           updated_at?: string
         }
@@ -549,6 +551,7 @@ export type Database = {
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title?: string
+          trade_type?: string | null
           unit?: string
           updated_at?: string
         }

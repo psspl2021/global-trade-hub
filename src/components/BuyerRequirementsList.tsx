@@ -78,7 +78,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRequirements(data || []);
+      setRequirements((data || []) as Requirement[]);
     } catch (error: any) {
       console.error('Error fetching requirements:', error);
       toast.error('Failed to load requirements');
@@ -197,12 +197,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         <h4 className="font-medium truncate">{req.title}</h4>
                         {getStatusBadge(req.status)}
                         {req.trade_type && (
-                          <>
-                            <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
-                            <Badge variant={req.trade_type === 'domestic_india' ? 'secondary' : 'default'} className="text-xs">
-                              {req.trade_type === 'domestic_india' ? '0.5% Fee' : '1% Fee'}
-                            </Badge>
-                          </>
+                          <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
                         )}
                       </div>
                       <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">

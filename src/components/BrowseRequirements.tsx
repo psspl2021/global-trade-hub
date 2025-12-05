@@ -239,9 +239,6 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <Badge>{selectedRequirement.product_category}</Badge>
                   <Badge variant="outline">{getTradeTypeLabel(selectedRequirement.trade_type)}</Badge>
-                  <Badge variant={selectedRequirement.trade_type === 'domestic_india' ? 'secondary' : 'default'} className="text-xs">
-                    {selectedRequirement.trade_type === 'domestic_india' ? '0.5% Fee' : '1% Fee'}
-                  </Badge>
                   {selectedRequirement.buyer_profile && (
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                       <Building2 className="h-3 w-3" />
@@ -335,9 +332,6 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">{req.product_category}</Badge>
                         <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
-                        <Badge variant={req.trade_type === 'domestic_india' ? 'secondary' : 'default'} className="text-xs">
-                          {req.trade_type === 'domestic_india' ? '0.5%' : '1%'}
-                        </Badge>
                         {myBids.has(req.id) && <Badge variant="outline">Bid Submitted</Badge>}
                         {req.buyer_profile && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
