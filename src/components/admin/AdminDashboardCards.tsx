@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck } from 'lucide-react';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -11,13 +11,15 @@ interface AdminStats {
   activeSuppliers: number;
   activeRequirements: number;
   overdueInvoices: number;
+  pendingVehicles: number;
 }
 
 interface AdminDashboardCardsProps {
   onOpenInvoiceManagement: () => void;
+  onOpenVehicleVerification: () => void;
 }
 
-export function AdminDashboardCards({ onOpenInvoiceManagement }: AdminDashboardCardsProps) {
+export function AdminDashboardCards({ onOpenInvoiceManagement, onOpenVehicleVerification }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
     pendingAmount: 0,
@@ -25,6 +27,7 @@ export function AdminDashboardCards({ onOpenInvoiceManagement }: AdminDashboardC
     activeSuppliers: 0,
     activeRequirements: 0,
     overdueInvoices: 0,
+    pendingVehicles: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -52,6 +55,12 @@ export function AdminDashboardCards({ onOpenInvoiceManagement }: AdminDashboardC
           .select('*', { count: 'exact', head: true })
           .eq('status', 'active');
 
+        // Fetch pending vehicles count
+        const { count: pendingVehiclesCount } = await (supabase
+          .from('vehicles') as any)
+          .select('*', { count: 'exact', head: true })
+          .eq('verification_status', 'pending');
+
         setStats({
           pendingInvoices: pending.length,
           pendingAmount: pending.reduce((sum, i) => sum + Number(i.total_amount), 0),
@@ -59,6 +68,7 @@ export function AdminDashboardCards({ onOpenInvoiceManagement }: AdminDashboardC
           activeSuppliers: suppliersCount || 0,
           activeRequirements: requirementsCount || 0,
           overdueInvoices: overdue.length,
+          pendingVehicles: pendingVehiclesCount || 0,
         });
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error fetching admin stats:', error);
@@ -92,6 +102,30 @@ export function AdminDashboardCards({ onOpenInvoiceManagement }: AdminDashboardC
           </p>
           <Button className="w-full" onClick={onOpenInvoiceManagement}>
             Manage Invoices
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className={stats.pendingVehicles > 0 ? "border-blue-500/20 bg-blue-500/5" : ""}>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Truck className="h-5 w-5 text-blue-600" />
+            Vehicle Verification
+            {stats.pendingVehicles > 0 && (
+              <span className="ml-auto flex items-center gap-1 text-sm text-blue-600">
+                <AlertTriangle className="h-4 w-4" />
+                {stats.pendingVehicles} pending
+              </span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold text-blue-600">{stats.pendingVehicles}</div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Vehicles awaiting RC verification
+          </p>
+          <Button className="w-full" variant={stats.pendingVehicles > 0 ? "default" : "outline"} onClick={onOpenVehicleVerification}>
+            Verify Vehicles
           </Button>
         </CardContent>
       </Card>
