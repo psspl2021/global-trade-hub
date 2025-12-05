@@ -288,6 +288,7 @@ const Index = () => {
         </div>
       </header>
 
+      <main>
       {/* Hero Section with Search */}
       <section className="relative bg-gradient-to-br from-muted/30 via-background to-muted/50 py-20 overflow-hidden">
         {/* Background Pattern */}
@@ -744,6 +745,7 @@ const Index = () => {
           </Button>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="border-t bg-card py-12">
