@@ -77,6 +77,73 @@ export const useAuth = () => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: 'Google login failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return { error };
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Password reset email sent',
+        description: 'Check your inbox for the reset link.',
+      });
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: 'Password reset failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return { error };
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Password updated',
+        description: 'Your password has been successfully changed.',
+      });
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: 'Password update failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return { error };
+    }
+  };
+
   const signOut = async () => {
     try {
       // Clear local state first
@@ -105,5 +172,8 @@ export const useAuth = () => {
     signUp,
     signIn,
     signOut,
+    signInWithGoogle,
+    resetPassword,
+    updatePassword,
   };
 };
