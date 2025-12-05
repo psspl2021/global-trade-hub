@@ -17,6 +17,12 @@ interface SyncRequest {
   items: StockItem[];
 }
 
+interface LowStockProduct {
+  name: string;
+  quantity: number;
+  threshold: number;
+}
+
 // Simple hash function for API key validation
 async function hashApiKey(key: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -24,6 +30,58 @@ async function hashApiKey(key: string): Promise<string> {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Send notifications (in-app + webhook)
+async function sendNotifications(
+  supabase: any,
+  supplierId: string,
+  apiKeyId: string,
+  type: 'sync_failed' | 'low_stock',
+  title: string,
+  message: string,
+  metadata: Record<string, any>
+) {
+  try {
+    // Create in-app notification
+    await supabase.from('notifications').insert({
+      user_id: supplierId,
+      type,
+      title,
+      message,
+      metadata
+    });
+    console.log(`Created in-app notification: ${type}`);
+
+    // Check if webhook is configured for this API key
+    const { data: apiKeyData } = await supabase
+      .from('supplier_api_keys')
+      .select('webhook_url, webhook_events')
+      .eq('id', apiKeyId)
+      .single();
+
+    if (apiKeyData?.webhook_url && apiKeyData?.webhook_events?.includes(type)) {
+      // Send webhook notification (fire and forget)
+      try {
+        await fetch(apiKeyData.webhook_url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type,
+            title,
+            message,
+            metadata,
+            timestamp: new Date().toISOString()
+          })
+        });
+        console.log(`Webhook sent to: ${apiKeyData.webhook_url}`);
+      } catch (webhookError) {
+        console.error('Webhook delivery failed:', webhookError);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to send notifications:', error);
+  }
 }
 
 Deno.serve(async (req) => {
@@ -145,7 +203,7 @@ Deno.serve(async (req) => {
       .update({ last_used_at: new Date().toISOString() })
       .eq('id', apiKeyId);
 
-    // Get supplier's products
+    // Get supplier's products with stock thresholds
     const { data: products, error: productsError } = await supabase
       .from('products')
       .select('id, name')
@@ -160,22 +218,23 @@ Deno.serve(async (req) => {
     }
 
     // Create name-to-id mapping (case-insensitive)
-    const productMap = new Map<string, string>();
+    const productMap = new Map<string, { id: string; name: string }>();
     for (const p of products || []) {
-      productMap.set(p.name.toLowerCase().trim(), p.id);
+      productMap.set(p.name.toLowerCase().trim(), { id: p.id, name: p.name });
     }
 
     let productsUpdated = 0;
     let productsCreated = 0;
     let errors = 0;
     const errorDetails: Array<{ item: string; error: string }> = [];
+    const lowStockProducts: LowStockProduct[] = [];
 
     // Process each item
     for (const item of body.items) {
       const itemName = (item.product_name || item.sku || '').trim();
-      const productId = productMap.get(itemName.toLowerCase());
+      const productInfo = productMap.get(itemName.toLowerCase());
 
-      if (!productId) {
+      if (!productInfo) {
         errors++;
         errorDetails.push({ item: itemName, error: 'Product not found' });
         continue;
@@ -184,9 +243,11 @@ Deno.serve(async (req) => {
       // Check if stock record exists
       const { data: existingStock } = await supabase
         .from('stock_inventory')
-        .select('id, quantity')
-        .eq('product_id', productId)
+        .select('id, quantity, low_stock_threshold')
+        .eq('product_id', productInfo.id)
         .maybeSingle();
+
+      const threshold = existingStock?.low_stock_threshold || 10;
 
       if (existingStock) {
         // Update existing stock
@@ -197,7 +258,7 @@ Deno.serve(async (req) => {
             unit: item.unit || 'units',
             last_updated: new Date().toISOString()
           })
-          .eq('product_id', productId);
+          .eq('product_id', productInfo.id);
 
         if (updateError) {
           errors++;
@@ -205,20 +266,29 @@ Deno.serve(async (req) => {
         } else {
           // Log stock update
           await supabase.from('stock_updates').insert({
-            product_id: productId,
+            product_id: productInfo.id,
             previous_quantity: existingStock.quantity,
             new_quantity: item.quantity,
             change_reason: `API sync from ${body.source}`,
             updated_by: supplierId
           });
           productsUpdated++;
+
+          // Check for low stock
+          if (item.quantity <= threshold) {
+            lowStockProducts.push({
+              name: productInfo.name,
+              quantity: item.quantity,
+              threshold
+            });
+          }
         }
       } else {
         // Create new stock record
         const { error: insertError } = await supabase
           .from('stock_inventory')
           .insert({
-            product_id: productId,
+            product_id: productInfo.id,
             quantity: item.quantity,
             unit: item.unit || 'units'
           });
@@ -228,6 +298,15 @@ Deno.serve(async (req) => {
           errorDetails.push({ item: itemName, error: insertError.message });
         } else {
           productsCreated++;
+
+          // Check for low stock on new record
+          if (item.quantity <= threshold) {
+            lowStockProducts.push({
+              name: productInfo.name,
+              quantity: item.quantity,
+              threshold
+            });
+          }
         }
       }
     }
@@ -252,6 +331,47 @@ Deno.serve(async (req) => {
       error_details: errorDetails.length > 0 ? errorDetails : null
     });
 
+    // Send notifications using EdgeRuntime.waitUntil for background processing
+    const notificationTasks: Promise<void>[] = [];
+
+    // Sync failure notification
+    if (status === 'failed' || status === 'partial') {
+      notificationTasks.push(
+        sendNotifications(
+          supabase,
+          supplierId,
+          apiKeyId,
+          'sync_failed',
+          `Stock Sync ${status === 'failed' ? 'Failed' : 'Partially Failed'}`,
+          `Sync from ${body.source}: ${errors} error(s). ${productsUpdated + productsCreated} items processed successfully.`,
+          { source: body.source, errors, errorDetails, productsUpdated, productsCreated }
+        )
+      );
+    }
+
+    // Low stock notification
+    if (lowStockProducts.length > 0) {
+      const productNames = lowStockProducts.slice(0, 3).map(p => p.name).join(', ');
+      const moreText = lowStockProducts.length > 3 ? ` and ${lowStockProducts.length - 3} more` : '';
+      
+      notificationTasks.push(
+        sendNotifications(
+          supabase,
+          supplierId,
+          apiKeyId,
+          'low_stock',
+          'Low Stock Alert',
+          `${lowStockProducts.length} product(s) below threshold: ${productNames}${moreText}`,
+          { products: lowStockProducts }
+        )
+      );
+    }
+
+    // Run notifications in background
+    if (notificationTasks.length > 0) {
+      EdgeRuntime.waitUntil(Promise.all(notificationTasks));
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -259,7 +379,8 @@ Deno.serve(async (req) => {
         summary: {
           products_updated: productsUpdated,
           products_created: productsCreated,
-          errors: errors
+          errors: errors,
+          low_stock_alerts: lowStockProducts.length
         },
         error_details: errorDetails.length > 0 ? errorDetails : undefined
       }),
@@ -274,3 +395,8 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+// Declare EdgeRuntime for TypeScript
+declare const EdgeRuntime: {
+  waitUntil(promise: Promise<any>): void;
+};

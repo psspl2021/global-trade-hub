@@ -232,6 +232,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_invoices: {
         Row: {
           amount: number
@@ -789,6 +822,8 @@ export type Database = {
           name: string
           revoked_at: string | null
           supplier_id: string
+          webhook_events: string[] | null
+          webhook_url: string | null
         }
         Insert: {
           api_key_hash: string
@@ -800,6 +835,8 @@ export type Database = {
           name?: string
           revoked_at?: string | null
           supplier_id: string
+          webhook_events?: string[] | null
+          webhook_url?: string | null
         }
         Update: {
           api_key_hash?: string
@@ -811,6 +848,8 @@ export type Database = {
           name?: string
           revoked_at?: string | null
           supplier_id?: string
+          webhook_events?: string[] | null
+          webhook_url?: string | null
         }
         Relationships: []
       }
