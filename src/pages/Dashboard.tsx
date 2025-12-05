@@ -17,6 +17,8 @@ import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
 import { SupplierMyBids } from '@/components/SupplierMyBids';
 import { LiveSupplierStock } from '@/components/LiveSupplierStock';
 import { PlatformInvoices } from '@/components/PlatformInvoices';
+import { AdminDashboardCards } from '@/components/admin/AdminDashboardCards';
+import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -31,6 +33,7 @@ const Dashboard = () => {
   const [showCRM, setShowCRM] = useState(false);
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showPlatformInvoices, setShowPlatformInvoices] = useState(false);
+  const [showAdminInvoices, setShowAdminInvoices] = useState(false);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
 
   const fetchSubscription = async () => {
@@ -98,6 +101,13 @@ const Dashboard = () => {
             {user?.user_metadata?.company_name} • {role?.toUpperCase()}
           </p>
         </div>
+
+        {role === 'admin' && (
+          <>
+            <AdminDashboardCards onOpenInvoiceManagement={() => setShowAdminInvoices(true)} />
+            <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
+          </>
+        )}
 
         {role === 'buyer' && (
           <div className="space-y-6">
