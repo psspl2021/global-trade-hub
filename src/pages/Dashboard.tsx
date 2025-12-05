@@ -172,6 +172,88 @@ const Dashboard = () => {
           </div>
         )}
 
+        {role === 'logistics_partner' && (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Fleet Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Manage your trucks, vehicles and fleet operations
+                  </p>
+                  <Button className="w-full" disabled>Coming Soon</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Shipment Tracking</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Track active shipments and delivery status
+                  </p>
+                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Route Planning</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Optimize delivery routes and reduce costs
+                  </p>
+                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Freight Quotations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Create and manage freight quotations
+                  </p>
+                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Warehouse Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Manage warehouse inventory and storage
+                  </p>
+                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Documents & Invoices</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Create LR, invoices and shipping documents
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {user && (
+              <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+            )}
+          </div>
+        )}
+
         {role === 'supplier' && (
           <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

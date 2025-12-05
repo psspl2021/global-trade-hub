@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-type UserRole = 'buyer' | 'supplier' | 'admin' | null;
+type UserRole = 'buyer' | 'supplier' | 'admin' | 'logistics_partner' | null;
 
 export const useUserRole = (userId: string | undefined) => {
   const [role, setRole] = useState<UserRole>(null);
