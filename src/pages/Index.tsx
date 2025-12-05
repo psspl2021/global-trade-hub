@@ -473,8 +473,7 @@ const Index = () => {
                 </p>
                 <Button 
                   size="lg" 
-                  variant="outline" 
-                  className="border-success text-success hover:bg-success hover:text-success-foreground"
+                  className="bg-success text-success-foreground hover:bg-success/90"
                   onClick={() => navigate('/signup?role=buyer')}
                 >
                   Join Now as Buyer
@@ -494,8 +493,7 @@ const Index = () => {
                 </p>
                 <Button 
                   size="lg"
-                  variant="outline"
-                  className="border-warning text-warning hover:bg-warning hover:text-warning-foreground"
+                  className="bg-warning text-warning-foreground hover:bg-warning/90"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
                   Join Now as Supplier
