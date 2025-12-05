@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package2 } from 'lucide-react';
 import { loginSchema, resetEmailSchema } from '@/lib/validations';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -80,10 +80,9 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Package2 className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-primary">ProcureSaathi</h1>
-        </div>
+        <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
+          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 w-auto object-contain" />
+        </Link>
 
         <Card className="shadow-xl">
           <CardHeader>
