@@ -660,6 +660,53 @@ export type Database = {
           },
         ]
       }
+      stock_sync_logs: {
+        Row: {
+          api_key_id: string | null
+          created_at: string | null
+          error_details: Json | null
+          errors: number | null
+          id: string
+          products_created: number | null
+          products_updated: number | null
+          source: string
+          status: string
+          supplier_id: string
+        }
+        Insert: {
+          api_key_id?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          errors?: number | null
+          id?: string
+          products_created?: number | null
+          products_updated?: number | null
+          source: string
+          status: string
+          supplier_id: string
+        }
+        Update: {
+          api_key_id?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          errors?: number | null
+          id?: string
+          products_created?: number | null
+          products_updated?: number | null
+          source?: string
+          status?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_sync_logs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_updates: {
         Row: {
           change_reason: string | null
@@ -728,6 +775,42 @@ export type Database = {
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      supplier_api_keys: {
+        Row: {
+          api_key_hash: string
+          api_key_prefix: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_used_at: string | null
+          name: string
+          revoked_at: string | null
+          supplier_id: string
+        }
+        Insert: {
+          api_key_hash: string
+          api_key_prefix: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          name?: string
+          revoked_at?: string | null
+          supplier_id: string
+        }
+        Update: {
+          api_key_hash?: string
+          api_key_prefix?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          name?: string
+          revoked_at?: string | null
+          supplier_id?: string
         }
         Relationships: []
       }

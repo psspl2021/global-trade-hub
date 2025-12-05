@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ApiIntegrationTab } from '@/components/stock/ApiIntegrationTab';
 import * as XLSX from 'xlsx';
 
 interface ProductWithStock {
@@ -759,73 +760,7 @@ Plastic Sheets,1000,pieces,Packaging`;
             </TabsContent>
 
             <TabsContent value="integration" className="space-y-4 mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">API Integration (Coming Soon)</CardTitle>
-                  <CardDescription className="text-xs">
-                    Automatically sync stock levels from your accounting software
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="border rounded-lg p-4 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold">T</span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">Tally Prime</p>
-                          <p className="text-xs text-muted-foreground">TDL-based integration</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Connect via Tally ODBC or REST API for real-time stock sync
-                      </p>
-                      <Button variant="outline" size="sm" disabled className="w-full">
-                        Coming Soon
-                      </Button>
-                    </div>
-
-                    <div className="border rounded-lg p-4 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold">B</span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">Busy Accounting</p>
-                          <p className="text-xs text-muted-foreground">Direct database sync</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Auto-sync closing stock from Busy software daily
-                      </p>
-                      <Button variant="outline" size="sm" disabled className="w-full">
-                        Coming Soon
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription className="text-xs">
-                      <strong>Current Workflow:</strong> Export stock reports from Tally/Busy as Excel/CSV and upload them here. 
-                      API integration will automate this process.
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                    <p className="text-sm font-medium">API Endpoint (Preview)</p>
-                    <code className="text-xs bg-background p-2 rounded block">
-                      POST /api/stock/sync<br />
-                      Authorization: Bearer YOUR_API_KEY<br />
-                      Content-Type: application/json
-                    </code>
-                    <p className="text-xs text-muted-foreground">
-                      Request early access to API integration by contacting support.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <ApiIntegrationTab userId={userId} />
             </TabsContent>
           </Tabs>
         )}
