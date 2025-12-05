@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2, Package, Receipt } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -20,6 +20,9 @@ import { LiveSupplierStock } from '@/components/LiveSupplierStock';
 import { PlatformInvoices } from '@/components/PlatformInvoices';
 import { AdminDashboardCards } from '@/components/admin/AdminDashboardCards';
 import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
+import { FleetManagement } from '@/components/logistics/FleetManagement';
+import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
+import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -35,6 +38,10 @@ const Dashboard = () => {
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showPlatformInvoices, setShowPlatformInvoices] = useState(false);
   const [showAdminInvoices, setShowAdminInvoices] = useState(false);
+  const [showFleetManagement, setShowFleetManagement] = useState(false);
+  const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
+  const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
+  const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
 
   const fetchSubscription = async () => {
@@ -47,9 +54,32 @@ const Dashboard = () => {
     setSubscription(data);
   };
 
+  const fetchLogisticsAssets = async () => {
+    if (!user?.id || role !== 'logistics_partner') return;
+    
+    const [vehiclesRes, warehousesRes] = await Promise.all([
+      supabase.from('vehicles').select('id', { count: 'exact', head: true }).eq('partner_id', user.id),
+      supabase.from('warehouses').select('id', { count: 'exact', head: true }).eq('partner_id', user.id),
+    ]);
+    
+    const counts = {
+      vehicles: vehiclesRes.count || 0,
+      warehouses: warehousesRes.count || 0,
+    };
+    setLogisticsAssets(counts);
+    
+    // Show onboarding if no assets registered
+    if (counts.vehicles === 0 && counts.warehouses === 0) {
+      setShowLogisticsOnboarding(true);
+    }
+  };
+
   useEffect(() => {
     if (user?.id && role === 'supplier') {
       fetchSubscription();
+    }
+    if (user?.id && role === 'logistics_partner') {
+      fetchLogisticsAssets();
     }
   }, [user?.id, role]);
 
@@ -174,16 +204,80 @@ const Dashboard = () => {
 
         {role === 'logistics_partner' && (
           <div className="space-y-6">
+            {/* Asset Summary Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-full">
+                      <Truck className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{logisticsAssets?.vehicles || 0}</p>
+                      <p className="text-sm text-muted-foreground">Vehicles</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-full">
+                      <Warehouse className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{logisticsAssets?.warehouses || 0}</p>
+                      <p className="text-sm text-muted-foreground">Warehouses</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>Fleet Management</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Truck className="h-5 w-5" />
+                    Fleet Management
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
                     Manage your trucks, vehicles and fleet operations
                   </p>
-                  <Button className="w-full" disabled>Coming Soon</Button>
+                  <Button className="w-full" onClick={() => setShowFleetManagement(true)}>
+                    Manage Fleet
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Warehouse className="h-5 w-5" />
+                    Warehouse Management
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Manage warehouse inventory and storage spaces
+                  </p>
+                  <Button className="w-full" onClick={() => setShowWarehouseManagement(true)}>
+                    Manage Warehouses
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Documents & Invoices</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Create LR, invoices and shipping documents
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
                 </CardContent>
               </Card>
 
@@ -222,34 +316,28 @@ const Dashboard = () => {
                   <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Warehouse Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Manage warehouse inventory and storage
-                  </p>
-                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Documents & Invoices</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Create LR, invoices and shipping documents
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
-                </CardContent>
-              </Card>
             </div>
 
             {user && (
-              <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+              <>
+                <FleetManagement 
+                  open={showFleetManagement} 
+                  onOpenChange={setShowFleetManagement} 
+                  userId={user.id} 
+                />
+                <WarehouseManagement 
+                  open={showWarehouseManagement} 
+                  onOpenChange={setShowWarehouseManagement} 
+                  userId={user.id} 
+                />
+                <LogisticsOnboarding
+                  open={showLogisticsOnboarding}
+                  onOpenChange={setShowLogisticsOnboarding}
+                  userId={user.id}
+                  onComplete={fetchLogisticsAssets}
+                />
+                <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+              </>
             )}
           </div>
         )}
