@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -28,6 +28,9 @@ import { CreateLogisticsRequirementForm } from '@/components/logistics/CreateLog
 import { BuyerLogisticsRequirements } from '@/components/logistics/BuyerLogisticsRequirements';
 import { BrowseLogisticsRequirements } from '@/components/logistics/BrowseLogisticsRequirements';
 import { TransporterMyBids } from '@/components/logistics/TransporterMyBids';
+import { ActiveShipments } from '@/components/logistics/ActiveShipments';
+import { ActiveRoutePlanning } from '@/components/logistics/ActiveRoutePlanning';
+import { CustomerShipmentTracking } from '@/components/logistics/CustomerShipmentTracking';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -50,6 +53,9 @@ const Dashboard = () => {
   const [showLogisticsRequirementForm, setShowLogisticsRequirementForm] = useState(false);
   const [showBrowseLogisticsRequirements, setShowBrowseLogisticsRequirements] = useState(false);
   const [showTransporterMyBids, setShowTransporterMyBids] = useState(false);
+  const [showActiveShipments, setShowActiveShipments] = useState(false);
+  const [showRoutePlanning, setShowRoutePlanning] = useState(false);
+  const [showCustomerShipmentTracking, setShowCustomerShipmentTracking] = useState(false);
   const [logisticsRequirementsKey, setLogisticsRequirementsKey] = useState(0);
   const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
@@ -225,6 +231,23 @@ const Dashboard = () => {
                   <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Track Shipments
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Track your logistics shipments in real-time
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowCustomerShipmentTracking(true)}>
+                    Track Now
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Requirements List with Bid Details */}
@@ -242,6 +265,11 @@ const Dashboard = () => {
                   onOpenChange={setShowLogisticsRequirementForm} 
                   userId={user.id}
                   onSuccess={() => setLogisticsRequirementsKey(k => k + 1)}
+                />
+                <CustomerShipmentTracking
+                  open={showCustomerShipmentTracking}
+                  onOpenChange={setShowCustomerShipmentTracking}
+                  userId={user.id}
                 />
               </>
             )}
@@ -333,9 +361,11 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Track active shipments and delivery status
+                    Track and update active shipments
                   </p>
-                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
+                  <Button className="w-full" onClick={() => setShowActiveShipments(true)}>
+                    Active Shipments
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -345,9 +375,11 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Optimize delivery routes and reduce costs
+                    Plan and manage delivery routes
                   </p>
-                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
+                  <Button className="w-full" onClick={() => setShowRoutePlanning(true)}>
+                    View Routes
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -411,6 +443,16 @@ const Dashboard = () => {
                   open={showTransporterMyBids} 
                   onOpenChange={setShowTransporterMyBids} 
                   userId={user.id} 
+                />
+                <ActiveShipments
+                  open={showActiveShipments}
+                  onOpenChange={setShowActiveShipments}
+                  userId={user.id}
+                />
+                <ActiveRoutePlanning
+                  open={showRoutePlanning}
+                  onOpenChange={setShowRoutePlanning}
+                  userId={user.id}
                 />
               </>
             )}

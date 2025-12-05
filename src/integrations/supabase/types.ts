@@ -828,6 +828,127 @@ export type Database = {
         }
         Relationships: []
       }
+      shipment_updates: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          notes: string | null
+          photo_url: string | null
+          shipment_id: string
+          status: Database["public"]["Enums"]["shipment_status"]
+          updated_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          shipment_id: string
+          status: Database["public"]["Enums"]["shipment_status"]
+          updated_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          shipment_id?: string
+          status?: Database["public"]["Enums"]["shipment_status"]
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_updates_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          bid_id: string
+          created_at: string
+          current_location: string | null
+          customer_id: string
+          delivered_at: string | null
+          estimated_delivery: string | null
+          id: string
+          pickup_time: string | null
+          requirement_id: string
+          status: Database["public"]["Enums"]["shipment_status"]
+          transaction_id: string | null
+          transporter_id: string
+          updated_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          bid_id: string
+          created_at?: string
+          current_location?: string | null
+          customer_id: string
+          delivered_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          pickup_time?: string | null
+          requirement_id: string
+          status?: Database["public"]["Enums"]["shipment_status"]
+          transaction_id?: string | null
+          transporter_id: string
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          bid_id?: string
+          created_at?: string
+          current_location?: string | null
+          customer_id?: string
+          delivered_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          pickup_time?: string | null
+          requirement_id?: string
+          status?: Database["public"]["Enums"]["shipment_status"]
+          transaction_id?: string | null
+          transporter_id?: string
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_inventory: {
         Row: {
           id: string
@@ -1278,6 +1399,15 @@ export type Database = {
       logistics_bid_status: "pending" | "accepted" | "rejected"
       logistics_requirement_status: "active" | "closed" | "cancelled"
       requirement_status: "active" | "closed" | "awarded"
+      shipment_status:
+        | "awaiting_pickup"
+        | "picked_up"
+        | "in_transit"
+        | "at_checkpoint"
+        | "out_for_delivery"
+        | "delivered"
+        | "delayed"
+        | "cancelled"
       subscription_tier: "free" | "premium"
       vehicle_type:
         | "truck"
@@ -1438,6 +1568,16 @@ export const Constants = {
       logistics_bid_status: ["pending", "accepted", "rejected"],
       logistics_requirement_status: ["active", "closed", "cancelled"],
       requirement_status: ["active", "closed", "awarded"],
+      shipment_status: [
+        "awaiting_pickup",
+        "picked_up",
+        "in_transit",
+        "at_checkpoint",
+        "out_for_delivery",
+        "delivered",
+        "delayed",
+        "cancelled",
+      ],
       subscription_tier: ["free", "premium"],
       vehicle_type: [
         "truck",
