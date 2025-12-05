@@ -2,3 +2,6 @@ project_id = "hsybhjjtxdwtpfvcmoqk"
 
 [functions.search-suppliers]
 verify_jwt = false
+
+[functions.ai-chat]
+verify_jwt = false
