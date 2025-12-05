@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2, Package } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
@@ -16,6 +16,7 @@ import { SupplierCRM } from '@/components/crm/SupplierCRM';
 import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
 import { SupplierMyBids } from '@/components/SupplierMyBids';
 import { LiveSupplierStock } from '@/components/LiveSupplierStock';
+import { PlatformInvoices } from '@/components/PlatformInvoices';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -29,6 +30,7 @@ const Dashboard = () => {
   const [showRequirements, setShowRequirements] = useState(false);
   const [showCRM, setShowCRM] = useState(false);
   const [showLiveStock, setShowLiveStock] = useState(false);
+  const [showPlatformInvoices, setShowPlatformInvoices] = useState(false);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
 
   const fetchSubscription = async () => {
@@ -228,6 +230,23 @@ const Dashboard = () => {
                   )}
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Receipt className="h-5 w-5" />
+                    Platform Invoices
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    View and pay service fees & subscription invoices
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowPlatformInvoices(true)}>
+                    View Invoices
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
 
             {/* My Bids Section - Shows all bids with breakdown and re-bid */}
@@ -242,6 +261,7 @@ const Dashboard = () => {
                 <StockManagement open={showStock} onOpenChange={setShowStock} userId={user.id} />
                 <BrowseRequirements open={showRequirements} onOpenChange={setShowRequirements} userId={user.id} />
                 <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+                <PlatformInvoices open={showPlatformInvoices} onOpenChange={setShowPlatformInvoices} userId={user.id} />
               </>
             )}
           </>
