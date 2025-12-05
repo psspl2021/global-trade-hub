@@ -18,6 +18,7 @@ interface Requirement {
   title: string;
   description: string;
   product_category: string;
+  trade_type?: 'import' | 'export' | 'domestic_india';
   quantity: number;
   unit: string;
   budget_min: number | null;
@@ -27,6 +28,15 @@ interface Requirement {
   status: 'active' | 'closed' | 'awarded';
   created_at: string;
 }
+
+const getTradeTypeLabel = (tradeType: string) => {
+  switch (tradeType) {
+    case 'import': return 'Import';
+    case 'export': return 'Export';
+    case 'domestic_india': return 'Domestic India';
+    default: return tradeType;
+  }
+};
 
 interface Bid {
   id: string;
@@ -183,9 +193,17 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h4 className="font-medium truncate">{req.title}</h4>
                         {getStatusBadge(req.status)}
+                        {req.trade_type && (
+                          <>
+                            <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
+                            <Badge variant={req.trade_type === 'domestic_india' ? 'secondary' : 'default'} className="text-xs">
+                              {req.trade_type === 'domestic_india' ? '0.5% Fee' : '1% Fee'}
+                            </Badge>
+                          </>
+                        )}
                       </div>
                       <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">

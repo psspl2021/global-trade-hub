@@ -27,6 +27,9 @@ const requirementSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
   description: z.string().min(20, 'Description must be at least 20 characters').max(2000),
   product_category: z.string().min(1, 'Please select a category'),
+  trade_type: z.enum(['import', 'export', 'domestic_india'], {
+    required_error: 'Please select a trade type'
+  }),
   quantity: z.number().min(1, 'Quantity must be at least 1'),
   unit: z.string().min(1, 'Please specify a unit'),
   budget_min: z.number().optional(),
@@ -75,6 +78,12 @@ const categories = [
 
 const units = ['Pieces', 'Kilograms', 'Tons', 'Liters', 'Meters', 'Sets', 'Cartons', 'Boxes'];
 
+const tradeTypes = [
+  { value: 'import', label: 'Import' },
+  { value: 'export', label: 'Export' },
+  { value: 'domestic_india', label: 'Domestic India' },
+];
+
 export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }: CreateRequirementFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -99,6 +108,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
         title: data.title,
         description: data.description,
         product_category: data.product_category,
+        trade_type: data.trade_type,
         quantity: data.quantity,
         unit: data.unit,
         budget_min: data.budget_min || null,
@@ -173,6 +183,24 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
               </Select>
               {errors.product_category && <p className="text-sm text-destructive">{errors.product_category.message}</p>}
             </div>
+
+            <div className="space-y-2">
+              <Label>Trade Type *</Label>
+              <Select onValueChange={(value) => setValue('trade_type', value as 'import' | 'export' | 'domestic_india')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select trade type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tradeTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.trade_type && <p className="text-sm text-destructive">{errors.trade_type.message}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
 
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantity *</Label>

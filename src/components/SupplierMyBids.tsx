@@ -27,12 +27,18 @@ interface Bid {
     id: string;
     title: string;
     product_category: string;
+    trade_type: 'import' | 'export' | 'domestic_india';
     quantity: number;
     unit: string;
     delivery_location: string;
     deadline: string;
   };
 }
+
+// Helper function to get service fee rate based on trade type
+const getServiceFeeRate = (tradeType: string | undefined) => {
+  return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
+};
 
 interface LowestBid {
   requirement_id: string;
@@ -71,6 +77,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
             id,
             title,
             product_category,
+            trade_type,
             quantity,
             unit,
             delivery_location,
@@ -119,9 +126,12 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
   }, [userId]);
 
   const calculateBreakdown = (bid: Bid) => {
-    // bid_amount is stored as per-unit rate + 1% (perUnitWithFee)
+    // Get fee rate based on trade type
+    const feeRate = getServiceFeeRate(bid.requirement?.trade_type);
+    const feePercentage = feeRate * 100;
+    // bid_amount is stored as per-unit rate + fee (perUnitWithFee)
     const perUnitWithFee = bid.bid_amount;
-    const perUnitRate = perUnitWithFee / 1.01; // Reverse calculate supplier's original per-unit bid
+    const perUnitRate = perUnitWithFee / (1 + feeRate); // Reverse calculate supplier's original per-unit bid
     const perUnitServiceFee = perUnitWithFee - perUnitRate;
     const quantity = bid.requirement?.quantity || 1;
     const totalOrderValue = perUnitRate * quantity;
@@ -136,6 +146,8 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
       totalOrderValue,
       totalServiceFee,
       grandTotal,
+      feeRate,
+      feePercentage,
     };
   };
 
@@ -164,9 +176,10 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
     setSubmitting(true);
     try {
       const quantity = editingBid.requirement?.quantity || 1;
-      const perUnitWithFee = newPerUnitRate * 1.01;
+      const feeRate = getServiceFeeRate(editingBid.requirement?.trade_type);
+      const perUnitWithFee = newPerUnitRate * (1 + feeRate);
       const totalOrderValue = newPerUnitRate * quantity;
-      const serviceFee = totalOrderValue * 0.01;
+      const serviceFee = totalOrderValue * feeRate;
       const totalAmount = totalOrderValue + serviceFee;
 
       const { error } = await supabase
@@ -257,7 +270,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                       <p className="font-medium">₹{breakdown.perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Service Fee (1%):</span>
+                      <span className="text-muted-foreground">Service Fee ({breakdown.feePercentage}%):</span>
                       <p className="font-medium">₹{breakdown.perUnitServiceFee.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div>
@@ -369,9 +382,10 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                   onChange={(e) => setRebidAmount(e.target.value)}
                   placeholder="Enter per-unit rate"
                 />
-                {rebidAmount && (
+                {rebidAmount && editingBid && (
                   <p className="text-sm text-muted-foreground">
-                    Price shown to buyer: ₹{(parseFloat(rebidAmount) * 1.01).toLocaleString(undefined, { maximumFractionDigits: 2 })} per {editingBid.requirement?.unit}
+                    Price shown to buyer: ₹{(parseFloat(rebidAmount) * (1 + getServiceFeeRate(editingBid.requirement?.trade_type))).toLocaleString(undefined, { maximumFractionDigits: 2 })} per {editingBid.requirement?.unit}
+                    <span className="ml-1 text-xs">({editingBid.requirement?.trade_type === 'domestic_india' ? '0.5%' : '1%'} fee)</span>
                   </p>
                 )}
               </div>
@@ -388,29 +402,34 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
               </div>
 
               {/* Live Preview */}
-              {rebidAmount && (
+              {rebidAmount && editingBid && (() => {
+                const feeRate = getServiceFeeRate(editingBid.requirement?.trade_type);
+                const feePercentage = feeRate * 100;
+                const rate = parseFloat(rebidAmount);
+                return (
                 <div className="bg-muted/50 rounded-lg p-4 text-sm">
                   <h4 className="font-semibold mb-2">New Bid Preview</h4>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <span className="text-muted-foreground">Your Rate:</span>
-                      <p className="font-medium">₹{parseFloat(rebidAmount).toLocaleString()}</p>
+                      <p className="font-medium">₹{rate.toLocaleString()}</p>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Service Fee (1%):</span>
-                      <p className="font-medium">₹{(parseFloat(rebidAmount) * 0.01).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <span className="text-muted-foreground">Service Fee ({feePercentage}%):</span>
+                      <p className="font-medium">₹{(rate * feeRate).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Price to Buyer:</span>
-                      <p className="font-bold text-primary">₹{(parseFloat(rebidAmount) * 1.01).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="font-bold text-primary">₹{(rate * (1 + feeRate)).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Total Order:</span>
-                      <p className="font-bold">₹{(parseFloat(rebidAmount) * (editingBid.requirement?.quantity || 1) * 1.01).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="font-bold">₹{(rate * (editingBid.requirement?.quantity || 1) * (1 + feeRate)).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                   </div>
                 </div>
-              )}
+              );
+              })()}
 
               <div className="flex gap-2">
                 <Button 
