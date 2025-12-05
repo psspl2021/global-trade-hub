@@ -1,12 +1,32 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const NotFound = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
+    // Check for double-encoded URLs (e.g., /signup%3Fcategory=... instead of /signup?category=...)
+    if (location.pathname.includes('%3F') || location.pathname.includes('%26')) {
+      const decodedPath = decodeURIComponent(location.pathname);
+      setIsRedirecting(true);
+      navigate(decodedPath, { replace: true });
+      return;
+    }
+    
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
+
+  if (isRedirecting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="text-center">
+          <p className="text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted">
