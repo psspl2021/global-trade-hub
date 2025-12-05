@@ -915,6 +915,132 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicles: {
+        Row: {
+          capacity_tons: number | null
+          capacity_volume_cbm: number | null
+          created_at: string | null
+          current_location: string | null
+          fuel_type: Database["public"]["Enums"]["fuel_type"] | null
+          id: string
+          insurance_valid_until: string | null
+          is_available: boolean | null
+          manufacturer: string | null
+          model: string | null
+          partner_id: string
+          permit_valid_until: string | null
+          registration_number: string
+          specifications: Json | null
+          updated_at: string | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          year_of_manufacture: number | null
+        }
+        Insert: {
+          capacity_tons?: number | null
+          capacity_volume_cbm?: number | null
+          created_at?: string | null
+          current_location?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
+          id?: string
+          insurance_valid_until?: string | null
+          is_available?: boolean | null
+          manufacturer?: string | null
+          model?: string | null
+          partner_id: string
+          permit_valid_until?: string | null
+          registration_number: string
+          specifications?: Json | null
+          updated_at?: string | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          year_of_manufacture?: number | null
+        }
+        Update: {
+          capacity_tons?: number | null
+          capacity_volume_cbm?: number | null
+          created_at?: string | null
+          current_location?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
+          id?: string
+          insurance_valid_until?: string | null
+          is_available?: boolean | null
+          manufacturer?: string | null
+          model?: string | null
+          partner_id?: string
+          permit_valid_until?: string | null
+          registration_number?: string
+          specifications?: Json | null
+          updated_at?: string | null
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          year_of_manufacture?: number | null
+        }
+        Relationships: []
+      }
+      warehouses: {
+        Row: {
+          address: string
+          available_area_sqft: number
+          city: string
+          contact_person: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string | null
+          facilities: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          operating_hours: string | null
+          partner_id: string
+          pincode: string | null
+          rental_rate_per_sqft: number | null
+          state: string
+          total_area_sqft: number
+          updated_at: string | null
+          warehouse_type: Database["public"]["Enums"]["warehouse_type"] | null
+        }
+        Insert: {
+          address: string
+          available_area_sqft: number
+          city: string
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          facilities?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          operating_hours?: string | null
+          partner_id: string
+          pincode?: string | null
+          rental_rate_per_sqft?: number | null
+          state: string
+          total_area_sqft: number
+          updated_at?: string | null
+          warehouse_type?: Database["public"]["Enums"]["warehouse_type"] | null
+        }
+        Update: {
+          address?: string
+          available_area_sqft?: number
+          city?: string
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          facilities?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          operating_hours?: string | null
+          partner_id?: string
+          pincode?: string | null
+          rental_rate_per_sqft?: number | null
+          state?: string
+          total_area_sqft?: number
+          updated_at?: string | null
+          warehouse_type?: Database["public"]["Enums"]["warehouse_type"] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -950,8 +1076,25 @@ export type Database = {
         | "paid"
         | "cancelled"
       document_type: "proforma_invoice" | "tax_invoice" | "purchase_order"
+      fuel_type: "diesel" | "petrol" | "cng" | "electric" | "hybrid"
       requirement_status: "active" | "closed" | "awarded"
       subscription_tier: "free" | "premium"
+      vehicle_type:
+        | "truck"
+        | "trailer"
+        | "tanker"
+        | "container_truck"
+        | "mini_truck"
+        | "pickup"
+        | "tempo"
+        | "lpv"
+      warehouse_type:
+        | "dry_storage"
+        | "cold_storage"
+        | "bonded"
+        | "open_yard"
+        | "hazmat"
+        | "general"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1090,8 +1233,27 @@ export const Constants = {
         "cancelled",
       ],
       document_type: ["proforma_invoice", "tax_invoice", "purchase_order"],
+      fuel_type: ["diesel", "petrol", "cng", "electric", "hybrid"],
       requirement_status: ["active", "closed", "awarded"],
       subscription_tier: ["free", "premium"],
+      vehicle_type: [
+        "truck",
+        "trailer",
+        "tanker",
+        "container_truck",
+        "mini_truck",
+        "pickup",
+        "tempo",
+        "lpv",
+      ],
+      warehouse_type: [
+        "dry_storage",
+        "cold_storage",
+        "bonded",
+        "open_yard",
+        "hazmat",
+        "general",
+      ],
     },
   },
 } as const
