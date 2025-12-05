@@ -495,6 +495,72 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
+    name: 'Polymers & Resins',
+    icon: Layers,
+    subcategories: [
+      'Polyethylene (PE)',
+      'Polypropylene (PP)',
+      'PVC Resins',
+      'ABS Resins',
+      'Polyester Resins',
+      'Epoxy Resins',
+      'Polyurethane',
+      'Nylon & Polyamide',
+      'Polycarbonate',
+      'Engineering Plastics',
+    ]
+  },
+  {
+    name: 'Pipes & Tubes',
+    icon: Cog,
+    subcategories: [
+      'LSAW Pipes',
+      'HSAW Pipes',
+      'Poles',
+      'DI Pipes',
+      'HDPE Pipes',
+      'PVC Pipes',
+      'GI Pipes',
+      'MS Pipes',
+      'Seamless Pipes',
+      'ERW Pipes',
+      'Copper Tubes',
+      'Stainless Steel Pipes',
+    ]
+  },
+  {
+    name: 'Solar & Renewable Energy',
+    icon: Lightbulb,
+    subcategories: [
+      'Solar Panels',
+      'Solar Inverters',
+      'Solar Batteries',
+      'Solar Mounting Systems',
+      'Solar Water Heaters',
+      'Solar Street Lights',
+      'Solar Pumps',
+      'Solar Cables & Connectors',
+      'Charge Controllers',
+      'Off-Grid Systems',
+    ]
+  },
+  {
+    name: 'Petroleum & Bitumen',
+    icon: Factory,
+    subcategories: [
+      'Diesel',
+      'Bitumen',
+      'Furnace Oil',
+      'Light Diesel Oil (LDO)',
+      'High Speed Diesel (HSD)',
+      'Lubricants',
+      'Base Oil',
+      'Petroleum Coke',
+      'Asphalt',
+      'Crude Oil',
+    ]
+  },
+  {
     name: 'Safety & Security',
     icon: Shield,
     subcategories: [
