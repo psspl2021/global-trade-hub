@@ -20,6 +20,7 @@ interface Requirement {
   title: string;
   description: string;
   product_category: string;
+  trade_type?: 'import' | 'export' | 'domestic_india';
   quantity: number;
   unit: string;
   budget_min: number | null;
@@ -32,6 +33,20 @@ interface Requirement {
     company_name: string;
   };
 }
+
+// Helper function to get service fee rate based on trade type
+const getServiceFeeRate = (tradeType: string | undefined) => {
+  return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
+};
+
+const getTradeTypeLabel = (tradeType: string) => {
+  switch (tradeType) {
+    case 'import': return 'Import';
+    case 'export': return 'Export';
+    case 'domestic_india': return 'Domestic India';
+    default: return tradeType;
+  }
+};
 
 interface LowestBid {
   requirement_id: string;
@@ -156,15 +171,16 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
     setSubmitting(true);
     try {
+      const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
       const perUnitRate = data.bid_amount; // Supplier's per-unit bid
-      const perUnitWithFee = perUnitRate * 1.01; // Per-unit rate + 1% service fee (shown to buyer)
+      const perUnitWithFee = perUnitRate * (1 + feeRate); // Per-unit rate + service fee (shown to buyer)
       const totalOrderValue = perUnitRate * selectedRequirement.quantity;
-      const serviceFee = totalOrderValue * 0.01; // 1% service fee on total order value
+      const serviceFee = totalOrderValue * feeRate; // Service fee on total order value
       const totalAmount = totalOrderValue + serviceFee;
       const { error } = await supabase.from('bids').insert({
         requirement_id: selectedRequirement.id,
         supplier_id: userId,
-        bid_amount: perUnitWithFee, // Store per-unit rate + 1% (e.g., 74500 * 1.01 = 75245)
+        bid_amount: perUnitWithFee, // Store per-unit rate + fee
         service_fee: serviceFee,
         total_amount: totalAmount,
         delivery_timeline_days: data.delivery_timeline_days,
@@ -193,8 +209,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
   const bidAmount = form.watch('bid_amount');
   const quantity = selectedRequirement?.quantity || 0;
+  const currentFeeRate = getServiceFeeRate(selectedRequirement?.trade_type);
+  const feePercentage = currentFeeRate * 100;
   const totalOrderValue = bidAmount ? bidAmount * quantity : 0;
-  const serviceFee = totalOrderValue * 0.01;
+  const serviceFee = totalOrderValue * currentFeeRate;
   const totalAmount = totalOrderValue + serviceFee;
 
   return (
@@ -218,8 +236,12 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
             <Card>
               <CardHeader>
                 <CardTitle>{selectedRequirement.title}</CardTitle>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <Badge>{selectedRequirement.product_category}</Badge>
+                  <Badge variant="outline">{getTradeTypeLabel(selectedRequirement.trade_type)}</Badge>
+                  <Badge variant={selectedRequirement.trade_type === 'domestic_india' ? 'secondary' : 'default'} className="text-xs">
+                    {selectedRequirement.trade_type === 'domestic_india' ? '0.5% Fee' : '1% Fee'}
+                  </Badge>
                   {selectedRequirement.buyer_profile && (
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                       <Building2 className="h-3 w-3" />
@@ -273,7 +295,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                           <div className="flex justify-between"><span>Unit Price:</span><span>₹{bidAmount.toLocaleString()}</span></div>
                           <div className="flex justify-between"><span>Quantity:</span><span>{quantity} {selectedRequirement?.unit}</span></div>
                           <div className="flex justify-between border-t pt-1"><span>Order Value:</span><span>₹{totalOrderValue.toLocaleString()}</span></div>
-                          <div className="flex justify-between text-muted-foreground"><span>Service Fee (1% of order):</span><span>₹{serviceFee.toLocaleString()}</span></div>
+                          <div className="flex justify-between text-muted-foreground"><span>Service Fee ({feePercentage}% of order):</span><span>₹{serviceFee.toLocaleString()}</span></div>
                           <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{totalAmount.toLocaleString()}</span></div>
                         </div>
                       )}
@@ -312,6 +334,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       <h4 className="font-medium">{req.title}</h4>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">{req.product_category}</Badge>
+                        <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
+                        <Badge variant={req.trade_type === 'domestic_india' ? 'secondary' : 'default'} className="text-xs">
+                          {req.trade_type === 'domestic_india' ? '0.5%' : '1%'}
+                        </Badge>
                         {myBids.has(req.id) && <Badge variant="outline">Bid Submitted</Badge>}
                         {req.buyer_profile && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
