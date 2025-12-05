@@ -124,7 +124,7 @@ const Index = () => {
   };
 
   const handleCategoryClick = (categoryName: string) => {
-    navigate(`/auth?category=${encodeURIComponent(categoryName)}`);
+    navigate(`/signup?category=${encodeURIComponent(categoryName)}`);
   };
 
   const buyerSteps = [
@@ -183,10 +183,10 @@ const Index = () => {
             <Button variant="ghost" onClick={() => scrollToSection('contact')}>Contact</Button>
           </nav>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/auth')}>
+            <Button variant="ghost" onClick={() => navigate('/login')}>
               Login
             </Button>
-            <Button onClick={() => navigate('/auth')}>Join Now</Button>
+            <Button onClick={() => navigate('/signup')}>Join Now</Button>
           </div>
         </div>
       </header>
@@ -314,7 +314,7 @@ const Index = () => {
                   size="lg" 
                   variant="outline" 
                   className="border-success text-success hover:bg-success hover:text-success-foreground"
-                  onClick={() => navigate('/auth?role=buyer')}
+                  onClick={() => navigate('/signup?role=buyer')}
                 >
                   Join Now as Buyer
                 </Button>
@@ -335,7 +335,7 @@ const Index = () => {
                   size="lg"
                   variant="outline"
                   className="border-warning text-warning hover:bg-warning hover:text-warning-foreground"
-                  onClick={() => navigate('/auth?role=supplier')}
+                  onClick={() => navigate('/signup?role=supplier')}
                 >
                   Join Now as Supplier
                 </Button>
