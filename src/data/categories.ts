@@ -476,6 +476,22 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
+    name: 'GFRP & Composites',
+    icon: Layers,
+    subcategories: [
+      'GFRP Sheets',
+      'GFRP Pipes',
+      'GFRP Gratings',
+      'GFRP Profiles',
+      'GFRP Tanks',
+      'FRP Rebar',
+      'GFRP Panels',
+      'Composite Raw Materials',
+      'GFRP Structural Components',
+      'Carbon Fiber Products',
+    ]
+  },
+  {
     name: 'Safety & Security',
     icon: Shield,
     subcategories: [
