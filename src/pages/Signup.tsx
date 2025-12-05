@@ -26,7 +26,13 @@ const Signup = () => {
   const { user, signUp, signInWithGoogle } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
   
-  const initialRole = searchParams.get('role') === 'supplier' ? 'supplier' : 'buyer';
+  const getInitialRole = () => {
+    const roleParam = searchParams.get('role');
+    if (roleParam === 'supplier') return 'supplier';
+    if (roleParam === 'logistics_partner') return 'logistics_partner';
+    return 'buyer';
+  };
+  const initialRole = getInitialRole();
   const [loading, setLoading] = useState(false);
   const [checkingPassword, setCheckingPassword] = useState(false);
   const [breachWarning, setBreachWarning] = useState<string | null>(null);
@@ -38,7 +44,7 @@ const Signup = () => {
     companyName: '',
     contactPerson: '',
     phone: '',
-    role: initialRole as 'buyer' | 'supplier',
+    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner',
   });
 
   useEffect(() => {
@@ -108,7 +114,7 @@ const Signup = () => {
                 <Label>I am a</Label>
                 <RadioGroup
                   value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value as 'buyer' | 'supplier' })}
+                  onValueChange={(value) => setFormData({ ...formData, role: value as 'buyer' | 'supplier' | 'logistics_partner' })}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="buyer" id="buyer" />
@@ -120,6 +126,12 @@ const Signup = () => {
                     <RadioGroupItem value="supplier" id="supplier" />
                     <Label htmlFor="supplier" className="font-normal cursor-pointer">
                       Supplier - Providing products
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="logistics_partner" id="logistics_partner" />
+                    <Label htmlFor="logistics_partner" className="font-normal cursor-pointer">
+                      Logistics Partner - Freight & Transportation services
                     </Label>
                   </div>
                 </RadioGroup>

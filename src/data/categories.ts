@@ -3,7 +3,7 @@ import {
   Briefcase, Gem, Lightbulb, Cog, Stethoscope, Factory, Smartphone,
   Baby, BookOpen, Package, FileText, Pill, Layers, Shield, 
   GraduationCap, Dumbbell, Radio, Scissors, Gamepad2, Utensils,
-  Home, Heart, Leaf, Pickaxe, LucideIcon
+  Home, Heart, Leaf, Pickaxe, Truck, LucideIcon
 } from 'lucide-react';
 
 export interface CategoryData {
@@ -628,6 +628,24 @@ export const categoriesData: CategoryData[] = [
       'Action Figures',
       'Building Toys',
       'Party Supplies',
+    ]
+  },
+  {
+    name: 'Logistics & Transportation',
+    icon: Truck,
+    subcategories: [
+      'Freight Forwarding',
+      'Warehousing & Distribution',
+      'Road Transportation',
+      'Sea Freight',
+      'Air Cargo',
+      'Rail Freight',
+      'Customs Brokerage',
+      'Cold Chain Logistics',
+      'Last-Mile Delivery',
+      'Container Services',
+      'Fleet Management',
+      'Supply Chain Solutions',
     ]
   },
 ];

@@ -34,7 +34,7 @@ export const signupSchema = z.object({
   phone: z.string()
     .trim()
     .regex(/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number (10-15 digits)'),
-  role: z.enum(['buyer', 'supplier']),
+  role: z.enum(['buyer', 'supplier', 'logistics_partner']),
 });
 
 export const resetPasswordSchema = z.object({
