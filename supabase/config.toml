@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.ai-chat]
 verify_jwt = true
+
+[functions.stock-sync]
+verify_jwt = false
