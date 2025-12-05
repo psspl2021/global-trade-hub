@@ -3,18 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
   Search, ShoppingBag, MessageSquare, MapPin, Mail, 
   Clock, Building2, FileText, CheckCircle, Send, 
-  Package, Trophy, Users, Shield, Target, Eye 
+  Package, Trophy, Users, Shield, Target, Eye, Radio 
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { countries } from '@/data/countries';
 import { supabase } from '@/integrations/supabase/client';
 import { SearchResults } from '@/components/SearchResults';
 import { useToast } from '@/hooks/use-toast';
+
+interface InternalProduct {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  price_range_min: number | null;
+  price_range_max: number | null;
+  supplier_name: string;
+  stock_quantity: number | null;
+  stock_unit: string | null;
+}
 
 const Index = () => {
   const navigate = useNavigate();
@@ -23,6 +36,7 @@ const Index = () => {
   const [searchCategory, setSearchCategory] = useState('');
   const [searchCountry, setSearchCountry] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [internalProducts, setInternalProducts] = useState<InternalProduct[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [lastSearchQuery, setLastSearchQuery] = useState('');
@@ -64,6 +78,79 @@ const Index = () => {
     { term: 'Building Material', category: 'Industrial Supplies' },
   ];
 
+  // Mask company name for privacy
+  const maskCompanyName = (name: string): string => {
+    if (name.length <= 3) return name + '***';
+    return name.substring(0, 3) + '***';
+  };
+
+  // Search internal products
+  const searchInternalProducts = async (keyword: string) => {
+    if (!keyword.trim()) return;
+    
+    try {
+      const { data: productsData, error } = await supabase
+        .from('products')
+        .select(`
+          id,
+          name,
+          category,
+          description,
+          price_range_min,
+          price_range_max,
+          supplier_id
+        `)
+        .eq('is_active', true)
+        .or(`name.ilike.%${keyword}%,category.ilike.%${keyword}%,description.ilike.%${keyword}%`)
+        .limit(10);
+
+      if (error) throw error;
+      if (!productsData || productsData.length === 0) {
+        setInternalProducts([]);
+        return;
+      }
+
+      // Get supplier profiles
+      const supplierIds = [...new Set(productsData.map(p => p.supplier_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, company_name')
+        .in('id', supplierIds);
+
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p.company_name]) || []);
+
+      // Get stock inventory
+      const productIds = productsData.map(p => p.id);
+      const { data: stockData } = await supabase
+        .from('stock_inventory')
+        .select('product_id, quantity, unit')
+        .in('product_id', productIds);
+
+      const stockMap = new Map(stockData?.map(s => [s.product_id, s]) || []);
+
+      // Combine data
+      const products: InternalProduct[] = productsData.map(product => {
+        const stock = stockMap.get(product.id);
+        return {
+          id: product.id,
+          name: product.name,
+          category: product.category,
+          description: product.description,
+          price_range_min: product.price_range_min,
+          price_range_max: product.price_range_max,
+          supplier_name: maskCompanyName(profilesMap.get(product.supplier_id) || 'Unknown'),
+          stock_quantity: stock?.quantity ?? null,
+          stock_unit: stock?.unit ?? null,
+        };
+      });
+
+      setInternalProducts(products);
+    } catch (error) {
+      console.error('Error searching internal products:', error);
+      setInternalProducts([]);
+    }
+  };
+
   // Handle inline search
   const handleSearchSuppliers = async () => {
     const keyword = searchKeyword.trim();
@@ -75,34 +162,41 @@ const Index = () => {
     setIsSearching(true);
     setSearchError(null);
     setSearchResults([]);
+    setInternalProducts([]);
     
-    try {
-      const { data, error } = await supabase.functions.invoke('search-suppliers', {
-        body: { keyword, category: categoryName, country: countryName },
-      });
-      
-      if (error) throw error;
-      
-      setSearchResults(data.results || []);
-      setLastSearchQuery(data.query || keyword);
-      
-      if (data.results?.length === 0) {
-        toast({
-          title: "No results found",
-          description: "Try different keywords or broaden your search",
-        });
-      }
-    } catch (error: any) {
-      console.error('Search error:', error);
-      setSearchError(error.message || 'Failed to search. Please try again.');
-      toast({
-        title: "Search failed",
-        description: error.message || "Please try again later",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSearching(false);
-    }
+    // Search both internal and external in parallel
+    const [_, externalResult] = await Promise.allSettled([
+      searchInternalProducts(keyword),
+      (async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('search-suppliers', {
+            body: { keyword, category: categoryName, country: countryName },
+          });
+          
+          if (error) throw error;
+          
+          setSearchResults(data.results || []);
+          setLastSearchQuery(data.query || keyword);
+          
+          if (data.results?.length === 0 && !keyword) {
+            toast({
+              title: "No results found",
+              description: "Try different keywords or broaden your search",
+            });
+          }
+        } catch (error: any) {
+          console.error('Search error:', error);
+          setSearchError(error.message || 'Failed to search. Please try again.');
+          toast({
+            title: "External search failed",
+            description: "Showing internal products only",
+            variant: "destructive",
+          });
+        }
+      })()
+    ]);
+
+    setIsSearching(false);
   };
 
   // Handle top search click
@@ -284,7 +378,71 @@ const Index = () => {
                 </div>
               </div>
               
-              {/* Search Results */}
+              {/* Internal Products Results */}
+              {internalProducts.length > 0 && (
+                <div className="mt-6 border-t pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Package className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold">Products from Verified Suppliers</h3>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Radio className="h-3 w-3 text-green-500" />
+                      Live Stock
+                    </Badge>
+                  </div>
+                  <div className="grid gap-3">
+                    {internalProducts.map((product) => (
+                      <Card key={product.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-medium">{product.name}</h4>
+                              <div className="flex flex-wrap gap-2 mt-1 mb-2">
+                                <Badge variant="secondary">{product.category}</Badge>
+                                {product.stock_quantity !== null && (
+                                  <Badge variant={product.stock_quantity > 0 ? 'default' : 'destructive'}>
+                                    {product.stock_quantity > 0 
+                                      ? `${product.stock_quantity} ${product.stock_unit || 'units'} in stock` 
+                                      : 'Out of stock'}
+                                  </Badge>
+                                )}
+                              </div>
+                              {product.description && (
+                                <p className="text-sm text-muted-foreground line-clamp-1">{product.description}</p>
+                              )}
+                              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                                <Building2 className="h-3 w-3" />
+                                <span>{product.supplier_name}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              {(product.price_range_min || product.price_range_max) && (
+                                <p className="font-medium text-primary">
+                                  {product.price_range_min && product.price_range_max
+                                    ? `₹${product.price_range_min.toLocaleString()} - ₹${product.price_range_max.toLocaleString()}`
+                                    : product.price_range_min
+                                      ? `From ₹${product.price_range_min.toLocaleString()}`
+                                      : `Up to ₹${product.price_range_max?.toLocaleString()}`
+                                  }
+                                </p>
+                              )}
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="mt-2"
+                                onClick={() => navigate('/signup?role=buyer')}
+                              >
+                                Sign up to contact
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* External Search Results */}
               <SearchResults
                 results={searchResults}
                 isLoading={isSearching}
