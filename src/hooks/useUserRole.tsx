@@ -25,7 +25,7 @@ export const useUserRole = (userId: string | undefined) => {
         if (error) throw error;
         setRole(data?.role as UserRole);
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        if (import.meta.env.DEV) console.error('Error fetching user role:', error);
         setRole(null);
       } finally {
         setLoading(false);
