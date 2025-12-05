@@ -12,6 +12,8 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Categories = lazy(() => import("./pages/Categories"));
+const Browse = lazy(() => import("./pages/Browse"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Simple loading fallback
@@ -37,6 +39,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/browse" element={<Browse />} />
             {/* Redirect old /auth route to /login */}
             <Route path="/auth" element={<Navigate to="/login" replace />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
