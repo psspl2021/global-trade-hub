@@ -71,6 +71,9 @@ const Dashboard = () => {
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
               className="h-16 w-auto object-contain"
+              width={64}
+              height={64}
+              loading="eager"
             />
           </div>
           <Button variant="outline" onClick={async () => {
