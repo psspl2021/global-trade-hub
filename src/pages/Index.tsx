@@ -9,7 +9,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
   Search, ShoppingBag, MessageSquare, MapPin, Mail, 
   Clock, Building2, FileText, CheckCircle, Send, 
-  Package, Trophy, Users, Shield, Target, Eye, Radio 
+  Package, Trophy, Users, Shield, Target, Eye, Radio,
+  Truck, Warehouse, Route, ClipboardCheck
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { countries } from '@/data/countries';
@@ -233,6 +234,13 @@ const Index = () => {
     { icon: Send, title: 'Submit Sealed Bid', description: 'Place your competitive bid (hidden from others)' },
     { icon: Trophy, title: 'Win Contract', description: 'Get notified when your bid is accepted' },
     { icon: Package, title: 'Fulfill Order', description: 'Deliver and complete the transaction' },
+  ];
+
+  const logisticsSteps = [
+    { icon: Truck, title: 'Register Assets', description: 'Add your vehicles and warehouses to the platform' },
+    { icon: Route, title: 'Receive Requests', description: 'Get booking requests from verified businesses' },
+    { icon: FileText, title: 'Provide Quotes', description: 'Submit competitive quotes for transport/storage' },
+    { icon: ClipboardCheck, title: 'Complete Service', description: 'Fulfill orders and grow your business' },
   ];
 
   const stats = [
@@ -459,46 +467,66 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Dual CTA Section */}
+      {/* Triple CTA Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {/* Buyer CTA */}
             <Card className="bg-success/10 border-success/20">
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-6 text-center">
                 <ShoppingBag className="h-12 w-12 text-success mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-4 text-foreground">
-                  If you're Sourcing or to Connect with Suppliers, it's FREE, Forever!
+                <h2 className="text-xl font-bold mb-3 text-foreground">
+                  Sourcing Products? It's FREE, Forever!
                 </h2>
-                <p className="text-muted-foreground mb-6">
-                  Post your requirements and get competitive bids from verified suppliers worldwide.
+                <p className="text-muted-foreground mb-6 text-sm">
+                  Post requirements and get competitive bids from verified suppliers worldwide.
                 </p>
                 <Button 
                   size="lg" 
-                  className="bg-success text-success-foreground hover:bg-success/90"
+                  className="w-full bg-success text-success-foreground hover:bg-success/90"
                   onClick={() => navigate('/signup?role=buyer')}
                 >
-                  Join Now as Buyer
+                  Join as Buyer
                 </Button>
               </CardContent>
             </Card>
 
             {/* Supplier CTA */}
             <Card className="bg-warning/10 border-warning/20">
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-6 text-center">
                 <MessageSquare className="h-12 w-12 text-warning mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-4 text-foreground">
-                  For Manufacturers, Join & List your company & start connecting with Global buyers now!
+                <h2 className="text-xl font-bold mb-3 text-foreground">
+                  Manufacturer? Connect with Global Buyers!
                 </h2>
-                <p className="text-muted-foreground mb-6">
-                  Connect with buyers worldwide. Choose from Bronze, Silver, and Gold subscription levels.
+                <p className="text-muted-foreground mb-6 text-sm">
+                  List your company and start connecting with buyers. Multiple subscription tiers.
                 </p>
                 <Button 
                   size="lg"
-                  className="bg-warning text-warning-foreground hover:bg-warning/90"
+                  className="w-full bg-warning text-warning-foreground hover:bg-warning/90"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
-                  Join Now as Supplier
+                  Join as Supplier
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Logistics CTA */}
+            <Card className="bg-primary/10 border-primary/20">
+              <CardContent className="p-6 text-center">
+                <Truck className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-3 text-foreground">
+                  Need Transportation? Book a Truck!
+                </h2>
+                <p className="text-muted-foreground mb-6 text-sm">
+                  Find verified trucks, trailers & warehousing services across India.
+                </p>
+                <Button 
+                  size="lg"
+                  className="w-full"
+                  onClick={() => navigate('/book-truck')}
+                >
+                  Book a Truck
                 </Button>
               </CardContent>
             </Card>
@@ -586,10 +614,11 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center mb-4">How It Works</h2>
           <p className="text-center text-muted-foreground mb-12">Simple steps to source or sell on ProcureSaathi</p>
           
-          <Tabs defaultValue="buyer" className="max-w-4xl mx-auto">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+          <Tabs defaultValue="buyer" className="max-w-5xl mx-auto">
+            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8">
               <TabsTrigger value="buyer">For Buyers</TabsTrigger>
               <TabsTrigger value="supplier">For Suppliers</TabsTrigger>
+              <TabsTrigger value="logistics">For Logistics</TabsTrigger>
             </TabsList>
             
             <TabsContent value="buyer">
@@ -608,7 +637,7 @@ const Index = () => {
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Button size="lg" onClick={() => navigate('/auth?role=buyer')}>
+                <Button size="lg" onClick={() => navigate('/signup?role=buyer')}>
                   Start Sourcing Now
                 </Button>
               </div>
@@ -630,8 +659,30 @@ const Index = () => {
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Button size="lg" variant="outline" className="border-warning text-warning hover:bg-warning hover:text-warning-foreground" onClick={() => navigate('/auth?role=supplier')}>
+                <Button size="lg" variant="outline" className="border-warning text-warning hover:bg-warning hover:text-warning-foreground" onClick={() => navigate('/signup?role=supplier')}>
                   Start Selling Now
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="logistics">
+              <div className="grid md:grid-cols-4 gap-6">
+                {logisticsSteps.map((step, index) => (
+                  <Card key={step.title} className="text-center relative">
+                    <CardContent className="p-6">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </div>
+                      <step.icon className="h-10 w-10 text-primary mx-auto mb-4 mt-2" />
+                      <h4 className="font-semibold mb-2">{step.title}</h4>
+                      <p className="text-sm text-muted-foreground">{step.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <div className="text-center mt-8">
+                <Button size="lg" onClick={() => navigate('/signup?role=logistics_partner')}>
+                  Register as Logistics Partner
                 </Button>
               </div>
             </TabsContent>
