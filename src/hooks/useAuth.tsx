@@ -158,7 +158,7 @@ export const useAuth = () => {
       });
     } catch (error: any) {
       // Even if server signout fails, local state is already cleared
-      console.error('Sign out error:', error);
+      if (import.meta.env.DEV) console.error('Sign out error:', error);
       toast({
         title: 'Signed out',
       });

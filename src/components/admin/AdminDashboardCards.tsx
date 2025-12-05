@@ -61,7 +61,7 @@ export function AdminDashboardCards({ onOpenInvoiceManagement }: AdminDashboardC
           overdueInvoices: overdue.length,
         });
       } catch (error) {
-        console.error('Error fetching admin stats:', error);
+        if (import.meta.env.DEV) console.error('Error fetching admin stats:', error);
       } finally {
         setLoading(false);
       }

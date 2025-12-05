@@ -104,7 +104,7 @@ export function AdminInvoiceManagement({ open, onOpenChange }: AdminInvoiceManag
 
       setInvoices(invoicesWithProfiles as PlatformInvoice[]);
     } catch (error) {
-      console.error('Error fetching invoices:', error);
+      if (import.meta.env.DEV) console.error('Error fetching invoices:', error);
       toast.error('Failed to load invoices');
     } finally {
       setLoading(false);
@@ -165,7 +165,7 @@ export function AdminInvoiceManagement({ open, onOpenChange }: AdminInvoiceManag
       setSelectedInvoice(null);
       fetchInvoices();
     } catch (error) {
-      console.error('Error updating invoice:', error);
+      if (import.meta.env.DEV) console.error('Error updating invoice:', error);
       toast.error('Failed to update invoice');
     } finally {
       setUpdating(false);
