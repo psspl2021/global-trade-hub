@@ -1,68 +1,31 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Search, ChevronRight } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import { categoriesData, searchCategories } from '@/data/categories';
 
 const Categories = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const categoriesData = [
-    'Agriculture Equipment & Supplies',
-    'Apparel & Clothing',
-    'Arts, Crafts & Gifts',
-    'Auto Vehicle & Accessories',
-    'Bags, Luggage & Cases',
-    'Beauty & Personal Care',
-    'Building & Construction',
-    'Chemicals & Raw Materials',
-    'Computer Hardware & Software',
-    'Consumer Electronics',
-    'Electrical Equipment & Supplies',
-    'Electronic Components',
-    'Energy & Power',
-    'Environment & Recycling',
-    'Fashion Accessories & Footwear',
-    'Fashion Apparel & Fabrics',
-    'Food & Beverages',
-    'Furniture & Home Decor',
-    'Gifts & Festival Products',
-    'Hardware & Tools',
-    'Health Care Products',
-    'Home Appliances',
-    'Household & Pets',
-    'Industrial Supplies',
-    'Jewelry & Watches',
-    'Lights & Lighting',
-    'Machinery & Equipment',
-    'Medical & Healthcare',
-    'Metals - Ferrous (Steel, Iron)',
-    'Metals - Non-Ferrous (Copper, Aluminium)',
-    'Mining & Minerals',
-    'Mobile Electronics',
-    'Mother, Kids & Toys',
-    'Office & School Supplies',
-    'Packaging & Printing',
-    'Paper & Paper Products',
-    'Pharmaceuticals & Drugs',
-    'Plastic & Rubber',
-    'Printing & Packaging',
-    'Safety & Security',
-    'School & Office Supplies',
-    'Sports & Outdoor',
-    'Telecommunication',
-    'Textiles & Leather',
-    'Tools & Hardware',
-    'Toys & Games',
-    'Transportation & Logistics',
-  ];
+  const filteredCategories = searchQuery 
+    ? searchCategories(searchQuery)
+    : categoriesData;
+
+  const handleSubcategoryClick = (category: string, subcategory: string) => {
+    navigate(`/browse?category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(subcategory)}`);
+  };
 
   const handleCategoryClick = (category: string) => {
     navigate(`/browse?category=${encodeURIComponent(category)}`);
-  };
-
-  const scrollToSection = (id: string) => {
-    if (id === 'contact') {
-      navigate('/#contact');
-    }
   };
 
   return (
@@ -126,24 +89,92 @@ const Categories = () => {
         </div>
       </section>
 
-      {/* Categories Grid */}
-      <section className="py-16">
+      {/* Search Bar */}
+      <section className="py-8 bg-muted/50">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
+          <div className="max-w-xl mx-auto relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Search categories or products..."
+              className="pl-12 py-6 text-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          {searchQuery && (
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              Found {filteredCategories.length} categories matching "{searchQuery}"
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Categories Accordion */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
             Product Categories
           </h2>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3">
-            {categoriesData.map((category) => (
-              <button
-                key={category}
-                onClick={() => handleCategoryClick(category)}
-                className="text-left text-sm text-muted-foreground hover:text-primary hover:underline transition-colors py-1 truncate"
-                title={category}
-              >
-                {category}
-              </button>
-            ))}
+          <div className="max-w-4xl mx-auto">
+            <Accordion type="multiple" className="space-y-2">
+              {filteredCategories.map((category) => {
+                const IconComponent = category.icon;
+                return (
+                  <AccordionItem 
+                    key={category.name} 
+                    value={category.name}
+                    className="border rounded-lg px-4 bg-card"
+                  >
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <IconComponent className="h-5 w-5 text-primary" />
+                        </div>
+                        <span className="font-medium text-left">{category.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          ({category.subcategories.length})
+                        </span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pt-2">
+                        {/* View All Link */}
+                        <button
+                          onClick={() => handleCategoryClick(category.name)}
+                          className="text-left text-sm text-primary font-medium hover:underline flex items-center gap-1 p-2 rounded hover:bg-primary/5 transition-colors"
+                        >
+                          View All
+                          <ChevronRight className="h-3 w-3" />
+                        </button>
+                        {/* Subcategory Links */}
+                        {category.subcategories.map((sub) => (
+                          <button
+                            key={sub}
+                            onClick={() => handleSubcategoryClick(category.name, sub)}
+                            className="text-left text-sm text-muted-foreground hover:text-primary hover:underline p-2 rounded hover:bg-muted/50 transition-colors truncate"
+                            title={sub}
+                          >
+                            {sub}
+                          </button>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+
+            {filteredCategories.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground mb-4">
+                  No categories found matching "{searchQuery}"
+                </p>
+                <Button variant="outline" onClick={() => setSearchQuery('')}>
+                  Clear Search
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>
