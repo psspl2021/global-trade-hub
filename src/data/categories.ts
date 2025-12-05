@@ -489,6 +489,9 @@ export const categoriesData: CategoryData[] = [
       'Composite Raw Materials',
       'GFRP Structural Components',
       'Carbon Fiber Products',
+      'GFRP Manhole Covers',
+      'GFRP Cable Trays',
+      'GFRP Ladders',
     ]
   },
   {
