@@ -5,9 +5,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Package, Building2, Radio, ArrowLeft, Lock } from 'lucide-react';
+import { 
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { Search, Package, Building2, Radio, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
+import { getCategoryByName } from '@/data/categories';
 
 interface Product {
   id: string;
@@ -17,6 +26,7 @@ interface Product {
   price_range_min: number | null;
   price_range_max: number | null;
   supplier_name: string;
+  full_supplier_name: string;
   stock_quantity: number | null;
   stock_unit: string | null;
   moq: number | null;
@@ -27,10 +37,14 @@ const Browse = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get('category') || '';
+  const subcategoryParam = searchParams.get('subcategory') || '';
   
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Get category data for sidebar
+  const categoryData = categoryParam ? getCategoryByName(categoryParam) : null;
 
   // Mask company name for privacy
   const maskCompanyName = (name: string): string => {
@@ -82,6 +96,7 @@ const Browse = () => {
         // Combine data
         const combinedProducts: Product[] = productsData.map(product => {
           const stock = stockMap.get(product.id);
+          const fullName = profilesMap.get(product.supplier_id) || 'Unknown';
           return {
             id: product.id,
             name: product.name,
@@ -89,7 +104,8 @@ const Browse = () => {
             description: product.description,
             price_range_min: product.price_range_min,
             price_range_max: product.price_range_max,
-            supplier_name: maskCompanyName(profilesMap.get(product.supplier_id) || 'Unknown'),
+            supplier_name: maskCompanyName(fullName),
+            full_supplier_name: fullName,
             stock_quantity: stock?.quantity ?? null,
             stock_unit: stock?.unit ?? null,
             moq: product.moq,
@@ -109,11 +125,21 @@ const Browse = () => {
     fetchProducts();
   }, [categoryParam]);
 
-  const filteredProducts = products.filter(product => 
-    searchQuery === '' || 
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter by search and subcategory
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = searchQuery === '' || 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesSubcategory = subcategoryParam === '' ||
+      product.name.toLowerCase().includes(subcategoryParam.toLowerCase()) ||
+      product.description?.toLowerCase().includes(subcategoryParam.toLowerCase()) ||
+      product.category.toLowerCase().includes(subcategoryParam.toLowerCase());
+    
+    return matchesSearch && matchesSubcategory;
+  });
+
+  const displayTitle = subcategoryParam || categoryParam || 'All Products';
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,185 +169,298 @@ const Browse = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Back Button & Title */}
-        <div className="mb-6">
-          <Button 
-            variant="ghost" 
-            className="mb-4"
-            onClick={() => navigate('/categories')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Categories
-          </Button>
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">
-                {categoryParam || 'All Products'}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                {loading ? 'Loading...' : `${filteredProducts.length} products found`}
-              </p>
-            </div>
-            
-            {/* Search within category */}
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search in this category..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+        {/* Breadcrumbs */}
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink onClick={() => navigate('/')} className="cursor-pointer">
+                Home
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink onClick={() => navigate('/categories')} className="cursor-pointer">
+                Categories
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            {categoryParam && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  {subcategoryParam ? (
+                    <BreadcrumbLink 
+                      onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}`)} 
+                      className="cursor-pointer"
+                    >
+                      {categoryParam}
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>{categoryParam}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+              </>
+            )}
+            {subcategoryParam && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{subcategoryParam}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            )}
+          </BreadcrumbList>
+        </Breadcrumb>
 
-        {/* Sign Up Prompt Banner */}
-        <Card className="mb-8 bg-primary/5 border-primary/20">
-          <CardContent className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Lock className="h-6 w-6 text-primary" />
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar - Subcategory Filter */}
+          {categoryData && (
+            <aside className="lg:w-64 shrink-0">
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    {(() => {
+                      const IconComponent = categoryData.icon;
+                      return <IconComponent className="h-4 w-4 text-primary" />;
+                    })()}
+                    {categoryParam}
+                  </h3>
+                  <div className="space-y-1">
+                    <Button
+                      variant={!subcategoryParam ? "secondary" : "ghost"}
+                      size="sm"
+                      className="w-full justify-start text-sm"
+                      onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}`)}
+                    >
+                      All in {categoryParam.split(' ')[0]}...
+                    </Button>
+                    {categoryData.subcategories.map((sub) => (
+                      <Button
+                        key={sub}
+                        variant={subcategoryParam === sub ? "secondary" : "ghost"}
+                        size="sm"
+                        className="w-full justify-start text-sm"
+                        onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(sub)}`)}
+                      >
+                        {sub}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </aside>
+          )}
+
+          {/* Main Content Area */}
+          <div className="flex-1">
+            {/* Title & Search */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
-                <p className="font-medium">Want to see full supplier details?</p>
-                <p className="text-sm text-muted-foreground">
-                  Sign up for free to view complete product information and contact suppliers
+                <h1 className="text-2xl md:text-3xl font-bold">{displayTitle}</h1>
+                <p className="text-muted-foreground mt-1">
+                  {loading ? 'Loading...' : `${filteredProducts.length} products found`}
                 </p>
               </div>
+              
+              <div className="relative w-full md:w-80">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search in this category..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
-            <Button onClick={() => navigate('/signup')}>
-              Create Free Account
-            </Button>
-          </CardContent>
-        </Card>
 
-        {/* Products Grid */}
-        {loading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-4">
-                  <Skeleton className="h-6 w-3/4 mb-3" />
-                  <Skeleton className="h-4 w-1/2 mb-2" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No products found</h3>
-              <p className="text-muted-foreground mb-4">
-                {categoryParam 
-                  ? `No products available in "${categoryParam}" category yet.`
-                  : 'No products available yet.'}
-              </p>
-              <Button variant="outline" onClick={() => navigate('/categories')}>
-                Browse Other Categories
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredProducts.map((product) => (
-              <Card key={product.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-1">{product.name}</h3>
-                  
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <Badge variant="secondary">{product.category}</Badge>
-                    {product.stock_quantity !== null && (
-                      <Badge 
-                        variant={product.stock_quantity > 0 ? 'default' : 'destructive'}
-                        className="flex items-center gap-1"
-                      >
-                        <Radio className="h-3 w-3" />
-                        {product.stock_quantity > 0 
-                          ? `${product.stock_quantity} ${product.stock_unit || 'units'}` 
-                          : 'Out of stock'}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {product.description && (
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
-                  
-                  <div className="space-y-2 text-sm">
-                    {(product.price_range_min || product.price_range_max) && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Price Range:</span>
-                        <span className="font-medium">
-                          {product.price_range_min && product.price_range_max
-                            ? `₹${product.price_range_min.toLocaleString()} - ₹${product.price_range_max.toLocaleString()}`
-                            : product.price_range_min
-                              ? `From ₹${product.price_range_min.toLocaleString()}`
-                              : `Up to ₹${product.price_range_max?.toLocaleString()}`
-                          }
-                        </span>
-                      </div>
-                    )}
-                    
-                    {product.moq && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">MOQ:</span>
-                        <span>{product.moq} units</span>
-                      </div>
-                    )}
-                    
-                    {product.lead_time_days && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Lead Time:</span>
-                        <span>{product.lead_time_days} days</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2 pt-2 border-t">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{product.supplier_name}</span>
-                      <Lock className="h-3 w-3 text-muted-foreground ml-auto" />
+            {/* Category-Specific Sign Up Prompt */}
+            <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-primary/10">
+                      <Sparkles className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-lg">
+                        Looking for {displayTitle}?
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Sign up to access 500+ verified suppliers, view full company details, and get competitive quotes
+                      </p>
                     </div>
                   </div>
+                  <Button onClick={() => navigate('/signup')} className="shrink-0">
+                    Create Free Account
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Products Grid */}
+            {loading ? (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {[...Array(6)].map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-4">
+                      <Skeleton className="h-6 w-3/4 mb-3" />
+                      <Skeleton className="h-4 w-1/2 mb-2" />
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-2/3" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No products found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {subcategoryParam 
+                      ? `No products available in "${subcategoryParam}" yet.`
+                      : categoryParam 
+                        ? `No products available in "${categoryParam}" category yet.`
+                        : 'No products available yet.'}
+                  </p>
+                  <Button variant="outline" onClick={() => navigate('/categories')}>
+                    Browse Other Categories
+                  </Button>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Bottom CTA */}
-        {!loading && filteredProducts.length > 0 && (
-          <Card className="mt-8 bg-gradient-to-r from-primary to-primary/80">
-            <CardContent className="p-8 text-center text-primary-foreground">
-              <h2 className="text-2xl font-bold mb-2">Found what you're looking for?</h2>
-              <p className="mb-6 opacity-90">
-                Create a free account to contact suppliers, view full details, and post your requirements
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  size="lg" 
-                  variant="secondary"
-                  onClick={() => navigate('/signup')}
-                >
-                  Sign Up Free
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-                  onClick={() => navigate('/login')}
-                >
-                  Already have an account? Login
-                </Button>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {filteredProducts.map((product) => (
+                  <Card key={product.id} className="hover:shadow-md transition-shadow group">
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-1">{product.name}</h3>
+                      
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <Badge variant="secondary">{product.category}</Badge>
+                        {product.stock_quantity !== null && (
+                          <Badge 
+                            variant={product.stock_quantity > 0 ? 'default' : 'destructive'}
+                            className="flex items-center gap-1"
+                          >
+                            <Radio className="h-3 w-3" />
+                            {product.stock_quantity > 0 
+                              ? `${product.stock_quantity} ${product.stock_unit || 'units'}` 
+                              : 'Out of stock'}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {product.description && (
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
+                      
+                      <div className="space-y-2 text-sm">
+                        {(product.price_range_min || product.price_range_max) && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Price Range:</span>
+                            <span className="font-medium">
+                              {product.price_range_min && product.price_range_max
+                                ? `₹${product.price_range_min.toLocaleString()} - ₹${product.price_range_max.toLocaleString()}`
+                                : product.price_range_min
+                                  ? `From ₹${product.price_range_min.toLocaleString()}`
+                                  : `Up to ₹${product.price_range_max?.toLocaleString()}`
+                              }
+                            </span>
+                          </div>
+                        )}
+                        
+                        {product.moq && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">MOQ:</span>
+                            <span>{product.moq} units</span>
+                          </div>
+                        )}
+                        
+                        {product.lead_time_days && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Lead Time:</span>
+                            <span>{product.lead_time_days} days</span>
+                          </div>
+                        )}
+                        
+                        {/* Blurred Supplier Name with Reveal Prompt */}
+                        <div className="pt-3 border-t mt-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Building2 className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-muted-foreground text-xs">Supplier</span>
+                          </div>
+                          <div className="relative">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">{product.supplier_name}</span>
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <EyeOff className="h-3 w-3" />
+                                <span>Hidden</span>
+                              </div>
+                            </div>
+                            {/* Blurred full name overlay */}
+                            <div 
+                              className="mt-1 relative overflow-hidden rounded bg-muted/50 px-2 py-1 cursor-pointer group/blur"
+                              onClick={() => navigate('/signup')}
+                            >
+                              <span className="text-sm blur-sm select-none">
+                                {product.full_supplier_name}
+                              </span>
+                              <div className="absolute inset-0 flex items-center justify-center bg-background/80 opacity-0 group-hover/blur:opacity-100 transition-opacity">
+                                <div className="flex items-center gap-1 text-xs text-primary font-medium">
+                                  <Eye className="h-3 w-3" />
+                                  Sign up to reveal
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        )}
+            )}
+
+            {/* Bottom CTA */}
+            {!loading && filteredProducts.length > 0 && (
+              <Card className="mt-8 bg-gradient-to-r from-primary to-primary/80">
+                <CardContent className="p-8 text-center text-primary-foreground">
+                  <h2 className="text-2xl font-bold mb-2">Found what you're looking for?</h2>
+                  <p className="mb-6 opacity-90">
+                    Create a free account to contact suppliers, view full details, and post your requirements
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button 
+                      size="lg" 
+                      variant="secondary"
+                      onClick={() => navigate('/signup')}
+                    >
+                      Sign Up Free
+                    </Button>
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                      onClick={() => navigate('/login')}
+                    >
+                      Already have an account? Login
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </main>
+
+      {/* Sticky Sign Up CTA for Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t lg:hidden">
+        <Button className="w-full" size="lg" onClick={() => navigate('/signup')}>
+          <Lock className="h-4 w-4 mr-2" />
+          Sign Up to View Full Details
+        </Button>
+      </div>
     </div>
   );
 };
