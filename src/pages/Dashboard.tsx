@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -23,6 +23,10 @@ import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagemen
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
+import { CreateLogisticsRequirementForm } from '@/components/logistics/CreateLogisticsRequirementForm';
+import { BuyerLogisticsRequirements } from '@/components/logistics/BuyerLogisticsRequirements';
+import { BrowseLogisticsRequirements } from '@/components/logistics/BrowseLogisticsRequirements';
+import { TransporterMyBids } from '@/components/logistics/TransporterMyBids';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -41,6 +45,10 @@ const Dashboard = () => {
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
+  const [showLogisticsRequirementForm, setShowLogisticsRequirementForm] = useState(false);
+  const [showBrowseLogisticsRequirements, setShowBrowseLogisticsRequirements] = useState(false);
+  const [showTransporterMyBids, setShowTransporterMyBids] = useState(false);
+  const [logisticsRequirementsKey, setLogisticsRequirementsKey] = useState(0);
   const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
 
@@ -145,7 +153,7 @@ const Dashboard = () => {
 
         {role === 'buyer' && (
           <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Post Requirement</CardTitle>
@@ -156,6 +164,23 @@ const Dashboard = () => {
                   </p>
                   <Button className="w-full" onClick={() => setShowRequirementForm(true)}>
                     Create Requirement
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Truck className="h-5 w-5" />
+                    Book Transport
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Post logistics requirement and get competitive quotes
+                  </p>
+                  <Button className="w-full" onClick={() => setShowLogisticsRequirementForm(true)}>
+                    Post Logistics Need
                   </Button>
                 </CardContent>
               </Card>
@@ -193,10 +218,19 @@ const Dashboard = () => {
             {/* Requirements List with Bid Details */}
             {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
             
+            {/* Logistics Requirements List */}
+            {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
+            
             {user && (
               <>
                 <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
                 <LiveSupplierStock open={showLiveStock} onOpenChange={setShowLiveStock} />
+                <CreateLogisticsRequirementForm 
+                  open={showLogisticsRequirementForm} 
+                  onOpenChange={setShowLogisticsRequirementForm} 
+                  userId={user.id}
+                  onSuccess={() => setLogisticsRequirementsKey(k => k + 1)}
+                />
               </>
             )}
           </div>
@@ -307,13 +341,32 @@ const Dashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Freight Quotations</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Browse Transport Jobs
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Create and manage freight quotations
+                    View logistics requirements and submit quotes
                   </p>
-                  <Button variant="outline" className="w-full" disabled>Coming Soon</Button>
+                  <Button className="w-full" onClick={() => setShowBrowseLogisticsRequirements(true)}>
+                    Browse & Quote
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>My Quotes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    View and manage your submitted quotes
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowTransporterMyBids(true)}>
+                    View Quotes
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -323,7 +376,7 @@ const Dashboard = () => {
                 <FleetManagement 
                   open={showFleetManagement} 
                   onOpenChange={setShowFleetManagement} 
-                  userId={user.id} 
+                  userId={user.id}
                 />
                 <WarehouseManagement 
                   open={showWarehouseManagement} 
@@ -337,6 +390,16 @@ const Dashboard = () => {
                   onComplete={fetchLogisticsAssets}
                 />
                 <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+                <BrowseLogisticsRequirements 
+                  open={showBrowseLogisticsRequirements} 
+                  onOpenChange={setShowBrowseLogisticsRequirements} 
+                  userId={user.id} 
+                />
+                <TransporterMyBids 
+                  open={showTransporterMyBids} 
+                  onOpenChange={setShowTransporterMyBids} 
+                  userId={user.id} 
+                />
               </>
             )}
           </div>
