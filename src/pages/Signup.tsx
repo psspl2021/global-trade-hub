@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Package2 } from 'lucide-react';
+import { Package2, AlertTriangle, Loader2 } from 'lucide-react';
 import { signupSchema } from '@/lib/validations';
+import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type FormErrors = {
   email?: string;
@@ -25,6 +27,8 @@ const Signup = () => {
   
   const initialRole = searchParams.get('role') === 'supplier' ? 'supplier' : 'buyer';
   const [loading, setLoading] = useState(false);
+  const [checkingPassword, setCheckingPassword] = useState(false);
+  const [breachWarning, setBreachWarning] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
   const [formData, setFormData] = useState({
@@ -45,6 +49,7 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setBreachWarning(null);
 
     const result = signupSchema.safeParse(formData);
     if (!result.success) {
@@ -56,6 +61,19 @@ const Signup = () => {
         }
       });
       setErrors(fieldErrors);
+      return;
+    }
+
+    // Check password against known breaches
+    setCheckingPassword(true);
+    const breachResult = await checkPasswordBreach(result.data.password);
+    setCheckingPassword(false);
+
+    if (breachResult.isBreached) {
+      setBreachWarning(
+        `This password has been exposed in ${formatBreachCount(breachResult.breachCount)} data breaches. Please choose a different password.`
+      );
+      setErrors({ password: 'This password has been compromised in a data breach' });
       return;
     }
 
@@ -180,8 +198,24 @@ const Signup = () => {
                 )}
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Creating account...' : 'Create Account'}
+              {breachWarning && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>{breachWarning}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button type="submit" className="w-full" disabled={loading || checkingPassword}>
+                {checkingPassword ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking password security...
+                  </>
+                ) : loading ? (
+                  'Creating account...'
+                ) : (
+                  'Create Account'
+                )}
               </Button>
             </form>
 
