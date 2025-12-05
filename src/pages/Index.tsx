@@ -327,7 +327,7 @@ const Index = () => {
                     CATEGORY
                   </label>
                   <Select value={searchCategory} onValueChange={setSearchCategory}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger className="h-12" aria-label="Select Category">
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent className="max-h-60 bg-background">
@@ -344,7 +344,7 @@ const Index = () => {
                     COUNTRY
                   </label>
                   <Select value={searchCountry} onValueChange={setSearchCountry}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger className="h-12" aria-label="Select Country">
                       <SelectValue placeholder="Select Country" />
                     </SelectTrigger>
                     <SelectContent className="max-h-60 bg-background">
