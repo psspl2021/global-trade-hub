@@ -232,6 +232,74 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string
+          invoice_type: string
+          metadata: Json | null
+          paid_at: string | null
+          payment_reference: string | null
+          related_transaction_id: string | null
+          status: string
+          tax_amount: number
+          tax_rate: number | null
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          invoice_type: string
+          metadata?: Json | null
+          paid_at?: string | null
+          payment_reference?: string | null
+          related_transaction_id?: string | null
+          status?: string
+          tax_amount?: number
+          tax_rate?: number | null
+          total_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          invoice_type?: string
+          metadata?: Json | null
+          paid_at?: string | null
+          payment_reference?: string | null
+          related_transaction_id?: string | null
+          status?: string
+          tax_amount?: number
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_invoices_related_transaction_id_fkey"
+            columns: ["related_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       po_items: {
         Row: {
           created_at: string
