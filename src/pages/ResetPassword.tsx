@@ -6,6 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package2 } from 'lucide-react';
+import { resetPasswordSchema } from '@/lib/validations';
+
+type FormErrors = {
+  password?: string;
+  confirmPassword?: string;
+};
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -13,7 +19,7 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     // If no session, user hasn't clicked the reset link yet
@@ -30,20 +36,23 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setErrors({});
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    const result = resetPasswordSchema.safeParse({ password, confirmPassword });
+    if (!result.success) {
+      const fieldErrors: FormErrors = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as keyof FormErrors;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
       return;
     }
 
     setLoading(true);
-    const { error: updateError } = await updatePassword(password);
+    const { error: updateError } = await updatePassword(result.data.password);
     setLoading(false);
 
     if (!updateError) {
@@ -73,11 +82,14 @@ const ResetPassword = () => {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Min 8 chars, uppercase, lowercase, number"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
+                  className={errors.password ? 'border-destructive' : ''}
                 />
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -87,14 +99,12 @@ const ResetPassword = () => {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
+                  className={errors.confirmPassword ? 'border-destructive' : ''}
                 />
+                {errors.confirmPassword && (
+                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                )}
               </div>
-
-              {error && (
-                <p className="text-sm text-destructive">{error}</p>
-              )}
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Updating...' : 'Update Password'}

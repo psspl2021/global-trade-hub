@@ -1,3 +1,5 @@
+import { supabase } from '@/integrations/supabase/client';
+
 export type Message = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
@@ -14,11 +16,19 @@ export async function streamChat({
   onError: (error: string) => void;
 }) {
   try {
+    // Get the current session for authenticated access
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      onError("Please sign in to use the AI chat");
+      return;
+    }
+
     const resp = await fetch(CHAT_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        "Authorization": `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({ messages }),
     });
@@ -89,7 +99,6 @@ export async function streamChat({
 
     onDone();
   } catch (error) {
-    console.error("Stream chat error:", error);
     onError(error instanceof Error ? error.message : "Connection failed");
   }
 }

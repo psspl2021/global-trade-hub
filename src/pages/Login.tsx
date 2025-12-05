@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Package2 } from 'lucide-react';
+import { loginSchema, resetEmailSchema } from '@/lib/validations';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [resetErrors, setResetErrors] = useState<{ email?: string }>({});
 
   useEffect(() => {
     if (user) {
@@ -27,8 +30,21 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      const fieldErrors: { email?: string; password?: string } = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0] === 'email') fieldErrors.email = err.message;
+        if (err.path[0] === 'password') fieldErrors.password = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setLoading(true);
-    await signIn(email, password);
+    await signIn(result.data.email, result.data.password);
     setLoading(false);
   };
 
@@ -40,8 +56,20 @@ const Login = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setResetErrors({});
+    
+    const result = resetEmailSchema.safeParse({ email: resetEmail });
+    if (!result.success) {
+      const fieldErrors: { email?: string } = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0] === 'email') fieldErrors.email = err.message;
+      });
+      setResetErrors(fieldErrors);
+      return;
+    }
+
     setResetLoading(true);
-    const { error } = await resetPassword(resetEmail);
+    const { error } = await resetPassword(result.data.email);
     setResetLoading(false);
     if (!error) {
       setShowForgotPassword(false);
@@ -74,8 +102,11 @@ const Login = () => {
                   placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                  className={errors.email ? 'border-destructive' : ''}
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -103,8 +134,11 @@ const Login = () => {
                             placeholder="you@company.com"
                             value={resetEmail}
                             onChange={(e) => setResetEmail(e.target.value)}
-                            required
+                            className={resetErrors.email ? 'border-destructive' : ''}
                           />
+                          {resetErrors.email && (
+                            <p className="text-sm text-destructive">{resetErrors.email}</p>
+                          )}
                         </div>
                         <Button type="submit" className="w-full" disabled={resetLoading}>
                           {resetLoading ? 'Sending...' : 'Send Reset Link'}
@@ -118,8 +152,11 @@ const Login = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
+                  className={errors.password ? 'border-destructive' : ''}
                 />
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password}</p>
+                )}
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

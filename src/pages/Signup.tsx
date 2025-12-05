@@ -7,6 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Package2 } from 'lucide-react';
+import { signupSchema } from '@/lib/validations';
+
+type FormErrors = {
+  email?: string;
+  password?: string;
+  companyName?: string;
+  contactPerson?: string;
+  phone?: string;
+};
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -16,6 +25,7 @@ const Signup = () => {
   
   const initialRole = searchParams.get('role') === 'supplier' ? 'supplier' : 'buyer';
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const [formData, setFormData] = useState({
     email: '',
@@ -23,7 +33,7 @@ const Signup = () => {
     companyName: '',
     contactPerson: '',
     phone: '',
-    role: initialRole,
+    role: initialRole as 'buyer' | 'supplier',
   });
 
   useEffect(() => {
@@ -34,15 +44,28 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    const result = signupSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: FormErrors = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as keyof FormErrors;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setLoading(true);
-
-    await signUp(formData.email, formData.password, {
-      company_name: formData.companyName,
-      contact_person: formData.contactPerson,
-      phone: formData.phone,
-      role: formData.role,
+    await signUp(result.data.email, result.data.password, {
+      company_name: result.data.companyName,
+      contact_person: result.data.contactPerson,
+      phone: result.data.phone,
+      role: result.data.role,
     });
-
     setLoading(false);
   };
 
@@ -67,7 +90,7 @@ const Signup = () => {
                 <Label>I am a</Label>
                 <RadioGroup
                   value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value })}
+                  onValueChange={(value) => setFormData({ ...formData, role: value as 'buyer' | 'supplier' })}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="buyer" id="buyer" />
@@ -91,8 +114,11 @@ const Signup = () => {
                   placeholder="Your Company Pvt Ltd"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  required
+                  className={errors.companyName ? 'border-destructive' : ''}
                 />
+                {errors.companyName && (
+                  <p className="text-sm text-destructive">{errors.companyName}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -102,8 +128,11 @@ const Signup = () => {
                   placeholder="John Doe"
                   value={formData.contactPerson}
                   onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                  required
+                  className={errors.contactPerson ? 'border-destructive' : ''}
                 />
+                {errors.contactPerson && (
+                  <p className="text-sm text-destructive">{errors.contactPerson}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -111,11 +140,14 @@ const Signup = () => {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+91 98765 43210"
+                  placeholder="+919876543210"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
+                  className={errors.phone ? 'border-destructive' : ''}
                 />
+                {errors.phone && (
+                  <p className="text-sm text-destructive">{errors.phone}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -126,8 +158,11 @@ const Signup = () => {
                   placeholder="you@company.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
+                  className={errors.email ? 'border-destructive' : ''}
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -135,12 +170,14 @@ const Signup = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Minimum 6 characters"
+                  placeholder="Min 8 chars, uppercase, lowercase, number"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  minLength={6}
+                  className={errors.password ? 'border-destructive' : ''}
                 />
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password}</p>
+                )}
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
