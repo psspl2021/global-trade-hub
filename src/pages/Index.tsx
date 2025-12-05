@@ -268,9 +268,9 @@ const Index = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-[220px] w-auto object-contain"
-              width={220}
-              height={220}
+              className="h-40 w-auto object-contain"
+              width={160}
+              height={160}
               loading="eager"
             />
           </div>
