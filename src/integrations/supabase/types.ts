@@ -1099,10 +1099,17 @@ export type Database = {
           model: string | null
           partner_id: string
           permit_valid_until: string | null
+          rc_document_url: string | null
+          rc_uploaded_at: string | null
           registration_number: string
+          rejection_reason: string | null
+          routes: Json | null
           specifications: Json | null
           updated_at: string | null
           vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          verification_status: Database["public"]["Enums"]["vehicle_verification_status"]
+          verified_at: string | null
+          verified_by: string | null
           year_of_manufacture: number | null
         }
         Insert: {
@@ -1118,10 +1125,17 @@ export type Database = {
           model?: string | null
           partner_id: string
           permit_valid_until?: string | null
+          rc_document_url?: string | null
+          rc_uploaded_at?: string | null
           registration_number: string
+          rejection_reason?: string | null
+          routes?: Json | null
           specifications?: Json | null
           updated_at?: string | null
           vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          verification_status?: Database["public"]["Enums"]["vehicle_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
           year_of_manufacture?: number | null
         }
         Update: {
@@ -1137,10 +1151,17 @@ export type Database = {
           model?: string | null
           partner_id?: string
           permit_valid_until?: string | null
+          rc_document_url?: string | null
+          rc_uploaded_at?: string | null
           registration_number?: string
+          rejection_reason?: string | null
+          routes?: Json | null
           specifications?: Json | null
           updated_at?: string | null
           vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          verification_status?: Database["public"]["Enums"]["vehicle_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
           year_of_manufacture?: number | null
         }
         Relationships: []
@@ -1267,6 +1288,7 @@ export type Database = {
         | "pickup"
         | "tempo"
         | "lpv"
+      vehicle_verification_status: "pending" | "verified" | "rejected"
       warehouse_type:
         | "dry_storage"
         | "cold_storage"
@@ -1427,6 +1449,7 @@ export const Constants = {
         "tempo",
         "lpv",
       ],
+      vehicle_verification_status: ["pending", "verified", "rejected"],
       warehouse_type: [
         "dry_storage",
         "cold_storage",

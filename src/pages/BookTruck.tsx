@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Truck, Warehouse, Search, MapPin, ArrowLeft, 
-  Package, Fuel, Calendar, Phone, User, Filter
+  Package, Fuel, CheckCircle, Route
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
@@ -24,6 +24,8 @@ interface Vehicle {
   fuel_type: string | null;
   current_location: string | null;
   is_available: boolean;
+  verification_status: string;
+  routes: { origin: string; destination: string }[] | null;
 }
 
 interface WarehouseData {
@@ -69,6 +71,7 @@ const BookTruck = () => {
   const [searchLocation, setSearchLocation] = useState('');
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('all');
   const [warehouseTypeFilter, setWarehouseTypeFilter] = useState('all');
+  const [routeFilter, setRouteFilter] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -77,8 +80,12 @@ const BookTruck = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
+      // Fetch only verified and available vehicles
       const [vehiclesRes, warehousesRes] = await Promise.all([
-        supabase.from('vehicles').select('*').eq('is_available', true),
+        (supabase.from('vehicles') as any)
+          .select('*')
+          .eq('is_available', true)
+          .eq('verification_status', 'verified'),
         supabase.from('warehouses').select('*').eq('is_active', true)
       ]);
 
@@ -95,7 +102,15 @@ const BookTruck = () => {
     const matchesLocation = !searchLocation || 
       v.current_location?.toLowerCase().includes(searchLocation.toLowerCase());
     const matchesType = vehicleTypeFilter === 'all' || v.vehicle_type === vehicleTypeFilter;
-    return matchesLocation && matchesType;
+    
+    // Route filter
+    const matchesRoute = !routeFilter || 
+      (v.routes && v.routes.some(r => 
+        r.origin.toLowerCase().includes(routeFilter.toLowerCase()) ||
+        r.destination.toLowerCase().includes(routeFilter.toLowerCase())
+      ));
+    
+    return matchesLocation && matchesType && matchesRoute;
   });
 
   const filteredWarehouses = warehouses.filter(w => {
@@ -105,6 +120,15 @@ const BookTruck = () => {
     const matchesType = warehouseTypeFilter === 'all' || w.warehouse_type === warehouseTypeFilter;
     return matchesLocation && matchesType;
   });
+
+  const formatRoutes = (routes: { origin: string; destination: string }[] | null) => {
+    if (!routes || routes.length === 0) return null;
+    return routes.slice(0, 2).map((r, i) => (
+      <Badge key={i} variant="secondary" className="text-xs">
+        {r.origin} → {r.destination}
+      </Badge>
+    ));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,7 +170,7 @@ const BookTruck = () => {
         {/* Search & Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -154,6 +178,15 @@ const BookTruck = () => {
                   className="pl-10 h-12"
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <Route className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Filter by route (city)..." 
+                  className="pl-10 h-12"
+                  value={routeFilter}
+                  onChange={(e) => setRouteFilter(e.target.value)}
                 />
               </div>
               <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
@@ -208,7 +241,7 @@ const BookTruck = () => {
                   <Truck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No vehicles available</h3>
                   <p className="text-muted-foreground mb-4">
-                    {searchLocation || vehicleTypeFilter !== 'all' 
+                    {searchLocation || vehicleTypeFilter !== 'all' || routeFilter
                       ? 'Try adjusting your filters' 
                       : 'Check back later for available vehicles'}
                   </p>
@@ -231,8 +264,9 @@ const BookTruck = () => {
                             {vehicle.manufacturer} {vehicle.model}
                           </CardTitle>
                         </div>
-                        <Badge variant="default" className="bg-success text-success-foreground">
-                          Available
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Verified
                         </Badge>
                       </div>
                     </CardHeader>
@@ -263,6 +297,23 @@ const BookTruck = () => {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <MapPin className="h-4 w-4" />
                           <span>{vehicle.current_location}</span>
+                        </div>
+                      )}
+                      {/* Routes */}
+                      {vehicle.routes && vehicle.routes.length > 0 && (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Route className="h-4 w-4" />
+                            <span>Routes:</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {formatRoutes(vehicle.routes)}
+                            {vehicle.routes.length > 2 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{vehicle.routes.length - 2} more
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       )}
                       <Button 
@@ -312,7 +363,7 @@ const BookTruck = () => {
                           </Badge>
                           <CardTitle className="text-lg">{warehouse.name}</CardTitle>
                         </div>
-                        <Badge variant="default" className="bg-success text-success-foreground">
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
                           Active
                         </Badge>
                       </div>

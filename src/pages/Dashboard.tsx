@@ -20,6 +20,7 @@ import { LiveSupplierStock } from '@/components/LiveSupplierStock';
 import { PlatformInvoices } from '@/components/PlatformInvoices';
 import { AdminDashboardCards } from '@/components/admin/AdminDashboardCards';
 import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
+import { VehicleVerification } from '@/components/admin/VehicleVerification';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -42,6 +43,7 @@ const Dashboard = () => {
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showPlatformInvoices, setShowPlatformInvoices] = useState(false);
   const [showAdminInvoices, setShowAdminInvoices] = useState(false);
+  const [showVehicleVerification, setShowVehicleVerification] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -146,8 +148,18 @@ const Dashboard = () => {
 
         {role === 'admin' && (
           <>
-            <AdminDashboardCards onOpenInvoiceManagement={() => setShowAdminInvoices(true)} />
+            <AdminDashboardCards 
+              onOpenInvoiceManagement={() => setShowAdminInvoices(true)} 
+              onOpenVehicleVerification={() => setShowVehicleVerification(true)}
+            />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
+            {user && (
+              <VehicleVerification 
+                open={showVehicleVerification} 
+                onOpenChange={setShowVehicleVerification}
+                adminId={user.id}
+              />
+            )}
           </>
         )}
 
