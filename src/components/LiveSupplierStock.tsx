@@ -107,7 +107,7 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '' }: L
 
       setProducts(productsWithStock);
     } catch (error: any) {
-      console.error('Error searching products:', error);
+      if (import.meta.env.DEV) console.error('Error searching products:', error);
       toast.error('Failed to search products');
     } finally {
       setLoading(false);
@@ -134,7 +134,7 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '' }: L
           table: 'stock_inventory',
         },
         (payload) => {
-          console.log('Stock update received:', payload);
+          if (import.meta.env.DEV) console.log('Stock update received:', payload);
           
           // Update the product in our list
           setProducts(prev => {

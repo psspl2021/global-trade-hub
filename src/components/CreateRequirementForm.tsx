@@ -127,7 +127,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
       onOpenChange(false);
       onSuccess?.();
     } catch (error: any) {
-      console.error('Error creating requirement:', error);
+      if (import.meta.env.DEV) console.error('Error creating requirement:', error);
       toast.error(error.message || 'Failed to create requirement');
     } finally {
       setIsSubmitting(false);

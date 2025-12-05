@@ -80,7 +80,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       if (error) throw error;
       setRequirements((data || []) as Requirement[]);
     } catch (error: any) {
-      console.error('Error fetching requirements:', error);
+      if (import.meta.env.DEV) console.error('Error fetching requirements:', error);
       toast.error('Failed to load requirements');
     } finally {
       setLoading(false);
@@ -103,7 +103,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       // No need to fetch supplier profiles since we show "ProcureSaathi Solutions Pvt Ltd"
       setBids(bidsData || []);
     } catch (error: any) {
-      console.error('Error fetching bids:', error);
+      if (import.meta.env.DEV) console.error('Error fetching bids:', error);
       toast.error('Failed to load bids');
     } finally {
       setBidsLoading(false);
@@ -147,7 +147,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
         fetchBids(selectedRequirement.id);
       }
     } catch (error: any) {
-      console.error('Error accepting bid:', error);
+      if (import.meta.env.DEV) console.error('Error accepting bid:', error);
       toast.error('Failed to accept bid');
     }
   };
