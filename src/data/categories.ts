@@ -2,7 +2,7 @@ import {
   Tractor, Car, Cpu, FlaskConical, Building, Shirt, Palette, 
   Briefcase, Gem, Lightbulb, Cog, Stethoscope, Factory, Smartphone,
   Baby, BookOpen, Package, FileText, Pill, Layers, Shield, 
-  GraduationCap, Dumbbell, Radio, Scissors, Gamepad2, Truck, Utensils,
+  GraduationCap, Dumbbell, Radio, Scissors, Gamepad2, Utensils,
   Home, Heart, Leaf, Pickaxe, LucideIcon
 } from 'lucide-react';
 
@@ -533,20 +533,6 @@ export const categoriesData: CategoryData[] = [
       'Action Figures',
       'Building Toys',
       'Party Supplies',
-    ]
-  },
-  {
-    name: 'Transportation & Logistics',
-    icon: Truck,
-    subcategories: [
-      'Freight Services',
-      'Warehousing',
-      'Fleet Management',
-      'Shipping Containers',
-      'Logistics Software',
-      'Cold Chain',
-      'Customs Clearance',
-      'Packaging for Transport',
     ]
   },
 ];
