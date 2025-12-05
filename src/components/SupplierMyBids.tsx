@@ -89,24 +89,16 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
 
       setBids(formattedBids);
 
-      // Fetch lowest bids for each requirement
+      // Fetch lowest bids for each requirement using secure RPC function
       const requirementIds = [...new Set(formattedBids.map(b => b.requirement_id))];
       
       if (requirementIds.length > 0) {
         const lowestBidsMap: Record<string, number> = {};
         
         for (const reqId of requirementIds) {
-          const { data: lowestData } = await supabase
-            .from('bids')
-            .select('bid_amount')
-            .eq('requirement_id', reqId)
-            .eq('status', 'pending')
-            .order('bid_amount', { ascending: true })
-            .limit(1)
-            .maybeSingle();
-          
-          if (lowestData) {
-            lowestBidsMap[reqId] = lowestData.bid_amount;
+          const { data } = await supabase.rpc('get_lowest_bid_for_requirement', { req_id: reqId });
+          if (data && data[0]?.lowest_bid_amount) {
+            lowestBidsMap[reqId] = data[0].lowest_bid_amount;
           }
         }
         

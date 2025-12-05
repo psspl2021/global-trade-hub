@@ -727,6 +727,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_lowest_bid_for_requirement: {
+        Args: { req_id: string }
+        Returns: {
+          bid_count: number
+          lowest_bid_amount: number
+        }[]
+      }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean
