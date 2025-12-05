@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2 } from 'lucide-react';
+import { LogOut, Loader2, Package } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
@@ -15,6 +15,7 @@ import { BrowseRequirements } from '@/components/BrowseRequirements';
 import { SupplierCRM } from '@/components/crm/SupplierCRM';
 import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
 import { SupplierMyBids } from '@/components/SupplierMyBids';
+import { LiveSupplierStock } from '@/components/LiveSupplierStock';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const Dashboard = () => {
@@ -27,6 +28,7 @@ const Dashboard = () => {
   const [showStock, setShowStock] = useState(false);
   const [showRequirements, setShowRequirements] = useState(false);
   const [showCRM, setShowCRM] = useState(false);
+  const [showLiveStock, setShowLiveStock] = useState(false);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
 
   const fetchSubscription = async () => {
@@ -94,7 +96,7 @@ const Dashboard = () => {
 
         {role === 'buyer' && (
           <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-3">
               <Card>
                 <CardHeader>
                   <CardTitle>Post Requirement</CardTitle>
@@ -105,6 +107,23 @@ const Dashboard = () => {
                   </p>
                   <Button className="w-full" onClick={() => setShowRequirementForm(true)}>
                     Create Requirement
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="h-5 w-5" />
+                    Browse Products
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Search supplier products with live stock updates
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => setShowLiveStock(true)}>
+                    Browse Stock
                   </Button>
                 </CardContent>
               </Card>
@@ -126,7 +145,10 @@ const Dashboard = () => {
             {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
             
             {user && (
-              <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+              <>
+                <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+                <LiveSupplierStock open={showLiveStock} onOpenChange={setShowLiveStock} />
+              </>
             )}
           </div>
         )}
