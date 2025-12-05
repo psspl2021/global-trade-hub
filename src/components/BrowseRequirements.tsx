@@ -118,22 +118,18 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       setMyBids(new Set(myBidsData.map(b => b.requirement_id)));
     }
 
-    // Fetch lowest bids for each requirement (sealed - only show lowest total)
+    // Fetch lowest bids for each requirement using secure RPC function
     if (reqData && reqData.length > 0) {
-      const { data: bidsData } = await supabase
-        .from('bids')
-        .select('requirement_id, bid_amount')
-        .in('requirement_id', reqData.map(r => r.id));
-
-      if (bidsData) {
-        const lowestByReq: Record<string, number> = {};
-        bidsData.forEach(bid => {
-          if (!lowestByReq[bid.requirement_id] || bid.bid_amount < lowestByReq[bid.requirement_id]) {
-            lowestByReq[bid.requirement_id] = bid.bid_amount;
-          }
-        });
-        setLowestBids(lowestByReq);
+      const lowestByReq: Record<string, number> = {};
+      
+      for (const req of reqData) {
+        const { data } = await supabase.rpc('get_lowest_bid_for_requirement', { req_id: req.id });
+        if (data && data[0]?.lowest_bid_amount) {
+          lowestByReq[req.id] = data[0].lowest_bid_amount;
+        }
       }
+      
+      setLowestBids(lowestByReq);
     }
 
     setLoading(false);
