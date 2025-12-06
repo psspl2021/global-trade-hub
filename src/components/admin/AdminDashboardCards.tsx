@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail } from 'lucide-react';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -22,6 +22,7 @@ interface AdminDashboardCardsProps {
   onOpenRequirementsList: () => void;
   onOpenBidsList: () => void;
   onOpenLogisticsList: () => void;
+  onOpenLeadsDashboard: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -32,6 +33,7 @@ export function AdminDashboardCards({
   onOpenRequirementsList,
   onOpenBidsList,
   onOpenLogisticsList,
+  onOpenLeadsDashboard,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -247,6 +249,24 @@ export function AdminDashboardCards({
           </p>
           <Button className="w-full" variant="outline" onClick={onOpenDataExport}>
             Export Data
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-rose-500/20 bg-rose-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Mail className="h-5 w-5 text-rose-600" />
+            Leads Dashboard
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Newsletter subscribers & demo requests
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenLeadsDashboard}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Leads
           </Button>
         </CardContent>
       </Card>
