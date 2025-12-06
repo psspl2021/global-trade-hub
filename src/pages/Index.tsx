@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,9 +10,41 @@ import {
   Truck, Route, ClipboardCheck
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { LiveSupplierStock } from '@/components/LiveSupplierStock';
+import { BrowseRequirements } from '@/components/BrowseRequirements';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [showLiveStock, setShowLiveStock] = useState(false);
+  const [showLiveRequirements, setShowLiveRequirements] = useState(false);
+
+  const handleLiveStockClick = () => {
+    if (user) {
+      setShowLiveStock(true);
+    } else {
+      toast({
+        title: 'Login Required',
+        description: 'Please log in to browse live supplier stock.',
+      });
+      navigate('/login');
+    }
+  };
+
+  const handleLiveRequirementsClick = () => {
+    if (user) {
+      setShowLiveRequirements(true);
+    } else {
+      toast({
+        title: 'Login Required',
+        description: 'Please log in to view live buyer requirements.',
+      });
+      navigate('/login');
+    }
+  };
 
   const categories = [
     { name: 'Auto Vehicle & Accessories', icon: '🚗' },
@@ -180,18 +213,18 @@ const Index = () => {
                 <span className="text-sm font-medium">Search Categories</span>
               </button>
               <button 
-                onClick={() => navigate('/signup')}
+                onClick={handleLiveStockClick}
                 className="flex items-center gap-2 text-muted-foreground hover:text-success cursor-pointer transition-all group"
               >
                 <Package className="h-5 w-5 text-success group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium">Live Stock</span>
               </button>
               <button 
-                onClick={() => scrollToSection('how-it-works')}
+                onClick={handleLiveRequirementsClick}
                 className="flex items-center gap-2 text-muted-foreground hover:text-warning cursor-pointer transition-all group"
               >
-                <Shield className="h-5 w-5 text-warning group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-medium">Sealed Bids</span>
+                <FileText className="h-5 w-5 text-warning group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-medium">Live Requirements</span>
               </button>
               <button 
                 onClick={() => scrollToSection('about')}
@@ -583,6 +616,20 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      {/* Live Stock Dialog */}
+      <LiveSupplierStock 
+        open={showLiveStock} 
+        onOpenChange={setShowLiveStock}
+      />
+
+      {/* Live Requirements Dialog */}
+      {user && (
+        <BrowseRequirements 
+          open={showLiveRequirements} 
+          onOpenChange={setShowLiveRequirements}
+          userId={user.id}
+        />
+      )}
     </div>
   );
 };
