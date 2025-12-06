@@ -1,47 +1,17 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
-  Search, ShoppingBag, MessageSquare, MapPin, Mail, 
-  Clock, Building2, FileText, CheckCircle, Send, 
-  Package, Trophy, Users, Shield, Target, Eye, Radio,
-  Truck, Warehouse, Route, ClipboardCheck
+  ShoppingBag, MessageSquare, MapPin, Mail, 
+  Clock, FileText, CheckCircle, Send, Building2,
+  Package, Trophy, Users, Shield, Target, Eye, Search,
+  Truck, Route, ClipboardCheck
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
-import { countries } from '@/data/countries';
-import { supabase } from '@/integrations/supabase/client';
-import { SearchResults } from '@/components/SearchResults';
-import { useToast } from '@/hooks/use-toast';
-
-interface InternalProduct {
-  id: string;
-  name: string;
-  category: string;
-  description: string | null;
-  price_range_min: number | null;
-  price_range_max: number | null;
-  supplier_name: string;
-  stock_quantity: number | null;
-  stock_unit: string | null;
-}
 
 const Index = () => {
   const navigate = useNavigate();
-  
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [searchCategory, setSearchCategory] = useState('');
-  const [searchCountry, setSearchCountry] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [internalProducts, setInternalProducts] = useState<InternalProduct[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [lastSearchQuery, setLastSearchQuery] = useState('');
-  const { toast } = useToast();
 
   const categories = [
     { name: 'Auto Vehicle & Accessories', icon: '🚗' },
@@ -68,151 +38,6 @@ const Index = () => {
     { name: 'Sports & Outdoor', icon: '⚽' },
     { name: 'Telecommunication', icon: '📡' },
   ];
-
-  const popularSearches = [
-    { term: 'Electronics', category: 'Consumer Electronics' },
-    { term: 'Machinery', category: 'Machinery & Equipment' },
-    { term: 'Apparel', category: 'Fashion Apparel & Fabrics' },
-    { term: 'Auto Parts', category: 'Auto Vehicle & Accessories' },
-    { term: 'Hardware', category: 'Hardware & Tools' },
-    { term: 'Home Appliances', category: 'Home Appliances' },
-    { term: 'Building Material', category: 'Industrial Supplies' },
-  ];
-
-  // Mask company name for privacy
-  const maskCompanyName = (name: string): string => {
-    if (name.length <= 3) return name + '***';
-    return name.substring(0, 3) + '***';
-  };
-
-  // Search internal products
-  const searchInternalProducts = async (keyword: string) => {
-    if (!keyword.trim()) return;
-    
-    try {
-      const { data: productsData, error } = await supabase
-        .from('products')
-        .select(`
-          id,
-          name,
-          category,
-          description,
-          price_range_min,
-          price_range_max,
-          supplier_id
-        `)
-        .eq('is_active', true)
-        .or(`name.ilike.%${keyword}%,category.ilike.%${keyword}%,description.ilike.%${keyword}%`)
-        .limit(10);
-
-      if (error) throw error;
-      if (!productsData || productsData.length === 0) {
-        setInternalProducts([]);
-        return;
-      }
-
-      // Get supplier profiles
-      const supplierIds = [...new Set(productsData.map(p => p.supplier_id))];
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, company_name')
-        .in('id', supplierIds);
-
-      const profilesMap = new Map(profilesData?.map(p => [p.id, p.company_name]) || []);
-
-      // Get stock inventory
-      const productIds = productsData.map(p => p.id);
-      const { data: stockData } = await supabase
-        .from('stock_inventory')
-        .select('product_id, quantity, unit')
-        .in('product_id', productIds);
-
-      const stockMap = new Map(stockData?.map(s => [s.product_id, s]) || []);
-
-      // Combine data
-      const products: InternalProduct[] = productsData.map(product => {
-        const stock = stockMap.get(product.id);
-        return {
-          id: product.id,
-          name: product.name,
-          category: product.category,
-          description: product.description,
-          price_range_min: product.price_range_min,
-          price_range_max: product.price_range_max,
-          supplier_name: maskCompanyName(profilesMap.get(product.supplier_id) || 'Unknown'),
-          stock_quantity: stock?.quantity ?? null,
-          stock_unit: stock?.unit ?? null,
-        };
-      });
-
-      setInternalProducts(products);
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error searching internal products:', error);
-      setInternalProducts([]);
-    }
-  };
-
-  // Handle inline search
-  const handleSearchSuppliers = async () => {
-    const keyword = searchKeyword.trim();
-    const categoryName = searchCategory || '';
-    const countryName = searchCountry 
-      ? countries.find(c => c.code === searchCountry)?.name 
-      : '';
-    
-    setIsSearching(true);
-    setSearchError(null);
-    setSearchResults([]);
-    setInternalProducts([]);
-    
-    // Search both internal and external in parallel
-    const [_, externalResult] = await Promise.allSettled([
-      searchInternalProducts(keyword),
-      (async () => {
-        try {
-          const { data, error } = await supabase.functions.invoke('search-suppliers', {
-            body: { keyword, category: categoryName, country: countryName },
-          });
-          
-          if (error) throw error;
-          
-          setSearchResults(data.results || []);
-          setLastSearchQuery(data.query || keyword);
-          
-          if (data.results?.length === 0 && !keyword) {
-            toast({
-              title: "No results found",
-              description: "Try different keywords or broaden your search",
-            });
-          }
-        } catch (error: any) {
-          if (import.meta.env.DEV) console.error('Search error:', error);
-          setSearchError(error.message || 'Failed to search. Please try again.');
-          toast({
-            title: "External search failed",
-            description: "Showing internal products only",
-            variant: "destructive",
-          });
-        }
-      })()
-    ]);
-
-    setIsSearching(false);
-  };
-
-  // Handle top search click
-  const handleTopSearchClick = (term: string, category: string) => {
-    setSearchKeyword(term);
-    setSearchCategory(category);
-    handleSearchSuppliers();
-  };
-
-  // Handle Enter key in search input
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearchSuppliers();
-    }
-  };
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -298,7 +123,7 @@ const Index = () => {
       </header>
 
       <main>
-      {/* Hero Section with Search */}
+      {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-muted/30 via-background to-muted/50 py-20 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -309,161 +134,42 @@ const Index = () => {
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto text-center mb-12">
+          <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               For the <span className="text-primary">Global</span> B2B Sourcing{' '}
               <span className="text-warning">Platform</span>
             </h1>
-          </div>
-
-          {/* Search Box */}
-          <Card className="max-w-4xl mx-auto shadow-xl">
-            <CardContent className="p-6">
-              <div className="grid md:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block text-muted-foreground">
-                    KEYWORD
-                  </label>
-                  <Input 
-                    placeholder="Enter Product Keyword" 
-                    className="h-12"
-                    value={searchKeyword}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block text-muted-foreground">
-                    CATEGORY
-                  </label>
-                  <Select value={searchCategory} onValueChange={setSearchCategory}>
-                    <SelectTrigger className="h-12" aria-label="Select Category">
-                      <SelectValue placeholder="Select Category" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60 bg-background">
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.name} value={cat.name}>
-                          {cat.icon} {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block text-muted-foreground">
-                    COUNTRY
-                  </label>
-                  <Select value={searchCountry} onValueChange={setSearchCountry}>
-                    <SelectTrigger className="h-12" aria-label="Select Country">
-                      <SelectValue placeholder="Select Country" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60 bg-background">
-                      {countries.map((country) => (
-                        <SelectItem key={country.code} value={country.code}>
-                          {country.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+              Connect with verified suppliers and buyers worldwide. Post requirements, receive competitive sealed bids, and complete secure transactions.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
-                className="w-full h-14 text-lg" 
-                onClick={handleSearchSuppliers}
-                disabled={isSearching}
+                className="h-14 text-lg px-8"
+                onClick={() => navigate('/signup?role=buyer')}
               >
-                <Search className="h-5 w-5 mr-2" />
-                {isSearching ? 'Searching...' : 'Search Suppliers'}
+                <ShoppingBag className="h-5 w-5 mr-2" />
+                Join as Buyer
               </Button>
-              <div className="mt-4 text-center">
-                <span className="text-sm text-muted-foreground mr-2">TOP SEARCH:</span>
-                <div className="inline-flex flex-wrap gap-2 justify-center mt-2">
-                  {popularSearches.map((search) => (
-                    <span 
-                      key={search.term} 
-                      className="text-sm text-primary hover:underline cursor-pointer px-2 py-1 rounded hover:bg-primary/10 transition-colors"
-                      onClick={() => handleTopSearchClick(search.term, search.category)}
-                    >
-                      {search.term}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Internal Products Results */}
-              {internalProducts.length > 0 && (
-                <div className="mt-6 border-t pt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Package className="h-5 w-5 text-primary" />
-                    <h3 className="font-semibold">Products from Verified Suppliers</h3>
-                    <Badge variant="outline" className="flex items-center gap-1">
-                      <Radio className="h-3 w-3 text-green-500" />
-                      Live Stock
-                    </Badge>
-                  </div>
-                  <div className="grid gap-3">
-                    {internalProducts.map((product) => (
-                      <Card key={product.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <h4 className="font-medium">{product.name}</h4>
-                              <div className="flex flex-wrap gap-2 mt-1 mb-2">
-                                <Badge variant="secondary">{product.category}</Badge>
-                                {product.stock_quantity !== null && (
-                                  <Badge variant={product.stock_quantity > 0 ? 'default' : 'destructive'}>
-                                    {product.stock_quantity > 0 
-                                      ? `${product.stock_quantity} ${product.stock_unit || 'units'} in stock` 
-                                      : 'Out of stock'}
-                                  </Badge>
-                                )}
-                              </div>
-                              {product.description && (
-                                <p className="text-sm text-muted-foreground line-clamp-1">{product.description}</p>
-                              )}
-                              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                                <Building2 className="h-3 w-3" />
-                                <span>{product.supplier_name}</span>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              {(product.price_range_min || product.price_range_max) && (
-                                <p className="font-medium text-primary">
-                                  {product.price_range_min && product.price_range_max
-                                    ? `₹${product.price_range_min.toLocaleString()} - ₹${product.price_range_max.toLocaleString()}`
-                                    : product.price_range_min
-                                      ? `From ₹${product.price_range_min.toLocaleString()}`
-                                      : `Up to ₹${product.price_range_max?.toLocaleString()}`
-                                  }
-                                </p>
-                              )}
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="mt-2"
-                                onClick={() => navigate('/signup?role=buyer')}
-                              >
-                                Sign up to contact
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* External Search Results */}
-              <SearchResults
-                results={searchResults}
-                isLoading={isSearching}
-                error={searchError}
-                searchQuery={lastSearchQuery}
-              />
-            </CardContent>
-          </Card>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="h-14 text-lg px-8"
+                onClick={() => navigate('/signup?role=supplier')}
+              >
+                <Package className="h-5 w-5 mr-2" />
+                Join as Supplier
+              </Button>
+              <Button 
+                size="lg" 
+                variant="secondary"
+                className="h-14 text-lg px-8"
+                onClick={() => navigate('/login')}
+              >
+                Login
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
