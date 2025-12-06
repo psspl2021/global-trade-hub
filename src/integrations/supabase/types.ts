@@ -133,6 +133,57 @@ export type Database = {
         }
         Relationships: []
       }
+      international_leads: {
+        Row: {
+          company_name: string | null
+          country: string
+          created_at: string
+          email: string
+          id: string
+          interested_categories: string[] | null
+          monthly_volume: string | null
+          name: string
+          phone: string | null
+          source: string | null
+          trade_interest: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          country: string
+          created_at?: string
+          email: string
+          id?: string
+          interested_categories?: string[] | null
+          monthly_volume?: string | null
+          name: string
+          phone?: string | null
+          source?: string | null
+          trade_interest?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          country?: string
+          created_at?: string
+          email?: string
+          id?: string
+          interested_categories?: string[] | null
+          monthly_volume?: string | null
+          name?: string
+          phone?: string | null
+          source?: string | null
+          trade_interest?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       invoice_items: {
         Row: {
           created_at: string
