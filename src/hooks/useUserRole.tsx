@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 
 type UserRole = 'buyer' | 'supplier' | 'admin' | 'logistics_partner' | null;
 
+// Priority order: admin has highest priority
+const ROLE_PRIORITY: UserRole[] = ['admin', 'logistics_partner', 'supplier', 'buyer'];
+
 export const useUserRole = (userId: string | undefined) => {
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
@@ -16,14 +19,32 @@ export const useUserRole = (userId: string | undefined) => {
 
     const fetchUserRole = async () => {
       try {
+        // Fetch ALL roles for the user
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
-          .eq('user_id', userId)
-          .single();
+          .eq('user_id', userId);
 
         if (error) throw error;
-        setRole(data?.role as UserRole);
+        
+        if (!data || data.length === 0) {
+          setRole(null);
+          return;
+        }
+        
+        // Get all roles the user has
+        const userRoles = data.map(r => r.role) as UserRole[];
+        
+        // Return highest priority role
+        for (const priorityRole of ROLE_PRIORITY) {
+          if (priorityRole && userRoles.includes(priorityRole)) {
+            setRole(priorityRole);
+            return;
+          }
+        }
+        
+        // Fallback to first role
+        setRole(data[0]?.role as UserRole);
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error fetching user role:', error);
         setRole(null);
