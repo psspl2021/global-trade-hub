@@ -261,18 +261,10 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
               Found {products.length} products • Updates appear instantly
             </p>
             
-            {isGuest && (
-              <div className="p-3 bg-primary/10 rounded-lg text-center">
-                <p className="text-sm font-medium">Sign up as a buyer to view full stock details and contact suppliers</p>
-                <Button size="sm" className="mt-2" onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
-                  Sign Up to Continue
-                </Button>
-              </div>
-            )}
-            
             {products.map((product) => {
               const stockStatus = getStockStatus(product.stock);
               const isLiveUpdated = liveUpdates.has(product.id);
+              const isPriceOnRequest = product.price_range_min === null && product.price_range_max === null;
               
               return (
                 <Card 
@@ -328,12 +320,28 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
                         <p className="font-medium text-primary">
                           {formatPrice(product.price_range_min, product.price_range_max)}
                         </p>
+                        {isPriceOnRequest && isGuest && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Sign up to request quote
+                          </p>
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               );
             })}
+            
+            {/* Guest signup CTA at bottom */}
+            {isGuest && (
+              <div className="p-4 bg-primary/10 rounded-lg text-center mt-4">
+                <p className="text-sm font-medium mb-1">Want to contact suppliers and request quotes?</p>
+                <p className="text-xs text-muted-foreground mb-3">Sign up as a buyer to view full details and connect with suppliers</p>
+                <Button size="sm" onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
+                  Sign Up as Buyer
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </DialogContent>
