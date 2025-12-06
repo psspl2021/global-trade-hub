@@ -25,6 +25,9 @@ import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
 import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
 import { TrustBadges } from '@/components/landing/TrustBadges';
+import { InternationalTestimonials } from '@/components/landing/InternationalTestimonials';
+import { ExportCertifications } from '@/components/landing/ExportCertifications';
+import { WhatsAppButton } from '@/components/WhatsAppButton';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -501,6 +504,12 @@ const Index = () => {
       {/* Stats Section */}
       <StatsSection />
 
+      {/* International Testimonials Section */}
+      <InternationalTestimonials />
+
+      {/* Export Certifications Section */}
+      <ExportCertifications />
+
       {/* Testimonials Section */}
       <Testimonials />
 
@@ -593,6 +602,9 @@ const Index = () => {
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
 
+      {/* WhatsApp Button */}
+      <WhatsAppButton />
+
       {/* Footer */}
       <footer className="border-t bg-card py-12">
         <div className="container mx-auto px-4">
@@ -643,6 +655,25 @@ const Index = () => {
                 </button>
                 <button onClick={() => navigate('/book-truck')} className="text-sm text-muted-foreground hover:text-primary text-left">
                   Book a Truck
+                </button>
+              </div>
+            </div>
+
+            {/* International Markets */}
+            <div>
+              <h4 className="font-semibold mb-4">International Markets</h4>
+              <div className="flex flex-col gap-2">
+                <button onClick={() => navigate('/source/usa')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                  <span>🇺🇸</span> Source from India to USA
+                </button>
+                <button onClick={() => navigate('/source/uae')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                  <span>🇦🇪</span> India to UAE Trade
+                </button>
+                <button onClick={() => navigate('/source/uk')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                  <span>🇬🇧</span> Indian Suppliers for UK
+                </button>
+                <button onClick={() => navigate('/source/africa')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                  <span>🌍</span> Export to Africa
                 </button>
               </div>
             </div>

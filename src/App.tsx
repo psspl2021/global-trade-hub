@@ -15,6 +15,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Categories = lazy(() => import("./pages/Categories"));
 const Browse = lazy(() => import("./pages/Browse"));
 const BookTruck = lazy(() => import("./pages/BookTruck"));
+const SourceCountry = lazy(() => import("./pages/SourceCountry"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Simple loading fallback
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/categories" element={<Categories />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/book-truck" element={<BookTruck />} />
+            <Route path="/source/:country" element={<SourceCountry />} />
             {/* Redirect old /auth route to /login */}
             <Route path="/auth" element={<Navigate to="/login" replace />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
