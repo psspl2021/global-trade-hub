@@ -36,11 +36,6 @@ const benefits = [
     title: "Save Time",
     description: "Post requirements once, receive multiple competitive bids. No more endless calls and negotiations.",
   },
-  {
-    icon: BadgeCheck,
-    title: "Transparent Pricing",
-    description: "Clear 1% service fee for suppliers, 0.25% for logistics. No hidden charges or surprise costs.",
-  },
 ];
 
 const comparisonData = [
