@@ -68,10 +68,21 @@ const BookTruck = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [availableRoutes, setAvailableRoutes] = useState<{ origin: string; destination: string }[]>([]);
+  
+  // Filter inputs
   const [searchLocation, setSearchLocation] = useState('');
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('all');
   const [warehouseTypeFilter, setWarehouseTypeFilter] = useState('all');
-  const [routeFilter, setRouteFilter] = useState('');
+  const [routeFilter, setRouteFilter] = useState('all');
+  
+  // Applied filters (only update on search click)
+  const [appliedFilters, setAppliedFilters] = useState({
+    location: '',
+    route: 'all',
+    vehicleType: 'all',
+    warehouseType: 'all'
+  });
 
   useEffect(() => {
     fetchData();
@@ -80,7 +91,6 @@ const BookTruck = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch only verified and available vehicles
       const [vehiclesRes, warehousesRes] = await Promise.all([
         (supabase.from('vehicles') as any)
           .select('*')
@@ -89,7 +99,15 @@ const BookTruck = () => {
         supabase.from('warehouses').select('*').eq('is_active', true)
       ]);
 
-      if (vehiclesRes.data) setVehicles(vehiclesRes.data);
+      if (vehiclesRes.data) {
+        setVehicles(vehiclesRes.data);
+        // Extract unique routes from all vehicles
+        const allRoutes = vehiclesRes.data.flatMap((v: Vehicle) => v.routes || []);
+        const uniqueRoutes = allRoutes.filter((route: { origin: string; destination: string }, index: number, self: { origin: string; destination: string }[]) =>
+          self.findIndex(r => r.origin === route.origin && r.destination === route.destination) === index
+        );
+        setAvailableRoutes(uniqueRoutes);
+      }
       if (warehousesRes.data) setWarehouses(warehousesRes.data as WarehouseData[]);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -98,26 +116,35 @@ const BookTruck = () => {
     }
   };
 
+  const handleSearch = () => {
+    setAppliedFilters({
+      location: searchLocation,
+      route: routeFilter,
+      vehicleType: vehicleTypeFilter,
+      warehouseType: warehouseTypeFilter
+    });
+  };
+
   const filteredVehicles = vehicles.filter(v => {
-    const matchesLocation = !searchLocation || 
-      v.current_location?.toLowerCase().includes(searchLocation.toLowerCase());
-    const matchesType = vehicleTypeFilter === 'all' || v.vehicle_type === vehicleTypeFilter;
+    const matchesLocation = !appliedFilters.location || 
+      v.current_location?.toLowerCase().includes(appliedFilters.location.toLowerCase());
+    const matchesType = appliedFilters.vehicleType === 'all' || v.vehicle_type === appliedFilters.vehicleType;
     
-    // Route filter
-    const matchesRoute = !routeFilter || 
-      (v.routes && v.routes.some(r => 
-        r.origin.toLowerCase().includes(routeFilter.toLowerCase()) ||
-        r.destination.toLowerCase().includes(routeFilter.toLowerCase())
-      ));
+    // Route filter - match exact origin|destination pair
+    let matchesRoute = true;
+    if (appliedFilters.route !== 'all') {
+      const [origin, destination] = appliedFilters.route.split('|');
+      matchesRoute = v.routes?.some(r => r.origin === origin && r.destination === destination) || false;
+    }
     
     return matchesLocation && matchesType && matchesRoute;
   });
 
   const filteredWarehouses = warehouses.filter(w => {
-    const matchesLocation = !searchLocation || 
-      w.city.toLowerCase().includes(searchLocation.toLowerCase()) ||
-      w.state.toLowerCase().includes(searchLocation.toLowerCase());
-    const matchesType = warehouseTypeFilter === 'all' || w.warehouse_type === warehouseTypeFilter;
+    const matchesLocation = !appliedFilters.location || 
+      w.city.toLowerCase().includes(appliedFilters.location.toLowerCase()) ||
+      w.state.toLowerCase().includes(appliedFilters.location.toLowerCase());
+    const matchesType = appliedFilters.warehouseType === 'all' || w.warehouse_type === appliedFilters.warehouseType;
     return matchesLocation && matchesType;
   });
 
@@ -170,30 +197,38 @@ const BookTruck = () => {
         {/* Search & Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-5 gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   placeholder="Search by location..." 
                   className="pl-10 h-12"
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
               </div>
-              <div className="relative">
-                <Route className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Filter by route (city)..." 
-                  className="pl-10 h-12"
-                  value={routeFilter}
-                  onChange={(e) => setRouteFilter(e.target.value)}
-                />
-              </div>
+              <Select value={routeFilter} onValueChange={setRouteFilter}>
+                <SelectTrigger className="h-12">
+                  <div className="flex items-center gap-2">
+                    <Route className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="Select Route" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="all">All Routes</SelectItem>
+                  {availableRoutes.map((route, i) => (
+                    <SelectItem key={i} value={`${route.origin}|${route.destination}`}>
+                      {route.origin} → {route.destination}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Vehicle Type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background z-50">
                   <SelectItem value="all">All Vehicle Types</SelectItem>
                   {Object.entries(vehicleTypeLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
@@ -204,13 +239,17 @@ const BookTruck = () => {
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Warehouse Type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background z-50">
                   <SelectItem value="all">All Warehouse Types</SelectItem>
                   {Object.entries(warehouseTypeLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <Button className="h-12" onClick={handleSearch}>
+                <Search className="h-4 w-4 mr-2" />
+                Search
+              </Button>
             </div>
           </CardContent>
         </Card>
