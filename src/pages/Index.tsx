@@ -16,7 +16,7 @@ import { LiveSupplierStock } from '@/components/LiveSupplierStock';
 import { BrowseRequirements } from '@/components/BrowseRequirements';
 import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
 import { Testimonials } from '@/components/landing/Testimonials';
-import { FAQ } from '@/components/landing/FAQ';
+import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
@@ -514,7 +514,7 @@ const Index = () => {
       <Testimonials />
 
       {/* FAQ Section */}
-      <FAQ />
+      <LazyFAQ />
 
       {/* Contact Section */}
       <section id="contact" className="py-16">
