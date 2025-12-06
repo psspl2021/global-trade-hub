@@ -23,15 +23,7 @@ const Index = () => {
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
 
   const handleLiveStockClick = () => {
-    if (user) {
-      setShowLiveStock(true);
-    } else {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to browse live supplier stock.',
-      });
-      navigate('/login');
-    }
+    setShowLiveStock(true);
   };
 
   const handleLiveRequirementsClick = () => {
