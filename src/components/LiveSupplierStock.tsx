@@ -321,9 +321,12 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
                           {formatPrice(product.price_range_min, product.price_range_max)}
                         </p>
                         {isPriceOnRequest && isGuest && (
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <button 
+                            onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}
+                            className="text-xs text-primary hover:underline mt-1 cursor-pointer"
+                          >
                             Sign up to request quote
-                          </p>
+                          </button>
                         )}
                       </div>
                     </div>
