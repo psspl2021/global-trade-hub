@@ -89,7 +89,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-2">
           <p className="text-sm text-muted-foreground text-center">
             <span className="font-semibold text-foreground">Important:</span> ProcureSaathi - The future of B2B procurement. 
-            Connect with verified suppliers and buyers worldwide. Post requirements and get competitive bids.
+            Search 23+ product categories, browse live supplier stock, and get competitive sealed bids from verified partners.
           </p>
         </div>
       </div>
@@ -140,7 +140,7 @@ const Index = () => {
               <span className="text-warning">Platform</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Connect with verified suppliers and buyers worldwide. Post requirements, receive competitive sealed bids, and complete secure transactions.
+              Search across 23+ product categories and connect with live stock from registered suppliers. Post requirements, receive competitive sealed bids, and complete secure transactions — all in one platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -168,6 +168,26 @@ const Index = () => {
               >
                 Login
               </Button>
+            </div>
+            
+            {/* Feature Highlights */}
+            <div className="flex flex-wrap justify-center gap-6 mt-10 pt-8 border-t border-border/50">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Search className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium">Search Categories</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Package className="h-5 w-5 text-success" />
+                <span className="text-sm font-medium">Live Stock</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Shield className="h-5 w-5 text-warning" />
+                <span className="text-sm font-medium">Sealed Bids</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CheckCircle className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium">Verified Partners</span>
+              </div>
             </div>
           </div>
         </div>
