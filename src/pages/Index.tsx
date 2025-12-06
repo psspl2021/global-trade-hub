@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,22 +12,27 @@ import {
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { LiveSupplierStock } from '@/components/LiveSupplierStock';
-import { BrowseRequirements } from '@/components/BrowseRequirements';
 import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
-import { Testimonials } from '@/components/landing/Testimonials';
 import { LazyFAQ } from '@/components/landing/LazyFAQ';
-import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
-import { StatsSection } from '@/components/landing/StatsSection';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
-import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
-import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
-import { TrustBadges } from '@/components/landing/TrustBadges';
-import { InternationalTestimonials } from '@/components/landing/InternationalTestimonials';
-import { ExportCertifications } from '@/components/landing/ExportCertifications';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
+
+// Lazy load below-the-fold components to reduce initial bundle
+const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
+const BrowseRequirements = lazy(() => import('@/components/BrowseRequirements').then(m => ({ default: m.BrowseRequirements })));
+const Testimonials = lazy(() => import('@/components/landing/Testimonials').then(m => ({ default: m.Testimonials })));
+const WhyChooseUs = lazy(() => import('@/components/landing/WhyChooseUs').then(m => ({ default: m.WhyChooseUs })));
+const StatsSection = lazy(() => import('@/components/landing/StatsSection').then(m => ({ default: m.StatsSection })));
+const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
+const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed').then(m => ({ default: m.LiveActivityFeed })));
+const TrustBadges = lazy(() => import('@/components/landing/TrustBadges').then(m => ({ default: m.TrustBadges })));
+const InternationalTestimonials = lazy(() => import('@/components/landing/InternationalTestimonials').then(m => ({ default: m.InternationalTestimonials })));
+const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications').then(m => ({ default: m.ExportCertifications })));
+
+// Minimal loading fallback
+const SectionFallback = () => <div className="py-16 bg-background" />;
 
 const Index = () => {
   const navigate = useNavigate();
@@ -499,19 +504,29 @@ const Index = () => {
       <TrustBadges />
 
       {/* Why Choose Us Section */}
-      <WhyChooseUs />
+      <Suspense fallback={<SectionFallback />}>
+        <WhyChooseUs />
+      </Suspense>
 
       {/* Stats Section */}
-      <StatsSection />
+      <Suspense fallback={<SectionFallback />}>
+        <StatsSection />
+      </Suspense>
 
       {/* International Testimonials Section */}
-      <InternationalTestimonials />
+      <Suspense fallback={<SectionFallback />}>
+        <InternationalTestimonials />
+      </Suspense>
 
       {/* Export Certifications Section */}
-      <ExportCertifications />
+      <Suspense fallback={<SectionFallback />}>
+        <ExportCertifications />
+      </Suspense>
 
       {/* Testimonials Section */}
-      <Testimonials />
+      <Suspense fallback={<SectionFallback />}>
+        <Testimonials />
+      </Suspense>
 
       {/* FAQ Section */}
       <LazyFAQ />
@@ -596,8 +611,12 @@ const Index = () => {
       </main>
 
       {/* Lead Generation Components */}
-      <ExitIntentPopup />
-      <LiveActivityFeed />
+      <Suspense fallback={null}>
+        <ExitIntentPopup />
+      </Suspense>
+      <Suspense fallback={null}>
+        <LiveActivityFeed />
+      </Suspense>
       
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
@@ -697,19 +716,27 @@ const Index = () => {
           </div>
         </div>
       </footer>
-      {/* Live Stock Dialog */}
-      <LiveSupplierStock 
-        open={showLiveStock} 
-        onOpenChange={setShowLiveStock}
-        userId={user?.id}
-      />
+      {/* Live Stock Dialog - Only loaded when needed */}
+      {showLiveStock && (
+        <Suspense fallback={null}>
+          <LiveSupplierStock 
+            open={showLiveStock} 
+            onOpenChange={setShowLiveStock}
+            userId={user?.id}
+          />
+        </Suspense>
+      )}
 
-      {/* Live Requirements Dialog */}
-      <BrowseRequirements 
-        open={showLiveRequirements} 
-        onOpenChange={setShowLiveRequirements}
-        userId={user?.id}
-      />
+      {/* Live Requirements Dialog - Only loaded when needed */}
+      {showLiveRequirements && (
+        <Suspense fallback={null}>
+          <BrowseRequirements 
+            open={showLiveRequirements} 
+            onOpenChange={setShowLiveRequirements}
+            userId={user?.id}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
