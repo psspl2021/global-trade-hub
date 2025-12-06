@@ -27,15 +27,7 @@ const Index = () => {
   };
 
   const handleLiveRequirementsClick = () => {
-    if (user) {
-      setShowLiveRequirements(true);
-    } else {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to view live buyer requirements.',
-      });
-      navigate('/login');
-    }
+    setShowLiveRequirements(true);
   };
 
   const categories = [
