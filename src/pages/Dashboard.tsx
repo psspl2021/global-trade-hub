@@ -22,6 +22,10 @@ import { AdminDashboardCards } from '@/components/admin/AdminDashboardCards';
 import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
 import { VehicleVerification } from '@/components/admin/VehicleVerification';
 import { AdminDataExport } from '@/components/admin/AdminDataExport';
+import { AdminUsersList } from '@/components/admin/AdminUsersList';
+import { AdminRequirementsList } from '@/components/admin/AdminRequirementsList';
+import { AdminBidsList } from '@/components/admin/AdminBidsList';
+import { AdminLogisticsList } from '@/components/admin/AdminLogisticsList';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -49,6 +53,10 @@ const Dashboard = () => {
   const [showAdminInvoices, setShowAdminInvoices] = useState(false);
   const [showVehicleVerification, setShowVehicleVerification] = useState(false);
   const [showDataExport, setShowDataExport] = useState(false);
+  const [showAdminUsersList, setShowAdminUsersList] = useState(false);
+  const [showAdminRequirementsList, setShowAdminRequirementsList] = useState(false);
+  const [showAdminBidsList, setShowAdminBidsList] = useState(false);
+  const [showAdminLogisticsList, setShowAdminLogisticsList] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -160,6 +168,10 @@ const Dashboard = () => {
               onOpenInvoiceManagement={() => setShowAdminInvoices(true)} 
               onOpenVehicleVerification={() => setShowVehicleVerification(true)}
               onOpenDataExport={() => setShowDataExport(true)}
+              onOpenUsersList={() => setShowAdminUsersList(true)}
+              onOpenRequirementsList={() => setShowAdminRequirementsList(true)}
+              onOpenBidsList={() => setShowAdminBidsList(true)}
+              onOpenLogisticsList={() => setShowAdminLogisticsList(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -170,6 +182,10 @@ const Dashboard = () => {
               />
             )}
             <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
+            <AdminUsersList open={showAdminUsersList} onOpenChange={setShowAdminUsersList} />
+            <AdminRequirementsList open={showAdminRequirementsList} onOpenChange={setShowAdminRequirementsList} />
+            <AdminBidsList open={showAdminBidsList} onOpenChange={setShowAdminBidsList} />
+            <AdminLogisticsList open={showAdminLogisticsList} onOpenChange={setShowAdminLogisticsList} />
           </>
         )}
 
