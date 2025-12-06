@@ -7,6 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Search, FileText } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
 
 interface Requirement {
   id: string;
@@ -33,27 +42,50 @@ interface AdminRequirementsListProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const PAGE_SIZE = 15;
+
 export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsListProps) {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     if (open) {
       fetchRequirements();
     }
-  }, [open]);
+  }, [open, statusFilter, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, search]);
 
   const fetchRequirements = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase
+      const from = (currentPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      let query = supabase
         .from('requirements')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
 
-      if (!data) return;
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter as 'active' | 'awarded' | 'closed');
+      }
+
+      const { data, count } = await query.range(from, to);
+
+      if (!data) {
+        setRequirements([]);
+        setTotalCount(0);
+        return;
+      }
+
+      setTotalCount(count || 0);
 
       // Fetch buyer profiles
       const buyerIds = [...new Set(data.map(r => r.buyer_id))];
@@ -76,12 +108,10 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
   };
 
   const filteredRequirements = requirements.filter(req => {
-    const matchesStatus = statusFilter === 'all' || req.status === statusFilter;
-    const matchesSearch = search === '' ||
+    return search === '' ||
       req.title.toLowerCase().includes(search.toLowerCase()) ||
       req.product_category.toLowerCase().includes(search.toLowerCase()) ||
       req.buyer?.company_name.toLowerCase().includes(search.toLowerCase());
-    return matchesStatus && matchesSearch;
   });
 
   const getStatusBadge = (status: string) => {
@@ -94,13 +124,31 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 'ellipsis', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, 'ellipsis', totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, 'ellipsis', currentPage, 'ellipsis', totalPages);
+      }
+    }
+    return pages;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            All Requirements ({requirements.length})
+            All Requirements
           </DialogTitle>
         </DialogHeader>
 
@@ -132,7 +180,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto flex flex-col">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -186,6 +234,47 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
                 )}
               </TableBody>
             </Table>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                <p className="text-sm text-muted-foreground">
+                  Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
+                </p>
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                    {getPageNumbers().map((page, idx) =>
+                      page === 'ellipsis' ? (
+                        <PaginationItem key={`ellipsis-${idx}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
+                    )}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
         )}
       </DialogContent>

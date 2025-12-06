@@ -7,6 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Search, Users, Package, Truck } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
 
 interface UserWithProfile {
   user_id: string;
@@ -26,26 +35,67 @@ interface AdminUsersListProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const PAGE_SIZE = 15;
+
 export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('buyer');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [tabCounts, setTabCounts] = useState({ buyer: 0, supplier: 0, logistics_partner: 0 });
 
   useEffect(() => {
     if (open) {
-      fetchUsers();
+      fetchTabCounts();
     }
   }, [open]);
 
-  const fetchUsers = async () => {
+  useEffect(() => {
+    if (open) {
+      fetchUsers(activeTab as 'buyer' | 'supplier' | 'logistics_partner');
+    }
+  }, [open, activeTab, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, search]);
+
+  const fetchTabCounts = async () => {
+    try {
+      const { data: roles } = await supabase.from('user_roles').select('role');
+      if (roles) {
+        setTabCounts({
+          buyer: roles.filter(r => r.role === 'buyer').length,
+          supplier: roles.filter(r => r.role === 'supplier').length,
+          logistics_partner: roles.filter(r => r.role === 'logistics_partner').length,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching counts:', error);
+    }
+  };
+
+  const fetchUsers = async (role: 'buyer' | 'supplier' | 'logistics_partner') => {
     setLoading(true);
     try {
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+      const from = (currentPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
 
-      if (!roles) return;
+      const { data: roles, count } = await supabase
+        .from('user_roles')
+        .select('user_id, role', { count: 'exact' })
+        .eq('role', role)
+        .range(from, to);
+
+      if (!roles) {
+        setUsers([]);
+        setTotalCount(0);
+        return;
+      }
+
+      setTotalCount(count || 0);
 
       const userIds = roles.map(r => r.user_id);
       
@@ -54,10 +104,8 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
         .select('id, company_name, contact_person, email, phone, city, state, gstin, created_at')
         .in('id', userIds);
 
-      if (!profiles) return;
-
       const combined: UserWithProfile[] = roles.map(role => {
-        const profile = profiles.find(p => p.id === role.user_id);
+        const profile = profiles?.find(p => p.id === role.user_id);
         return {
           user_id: role.user_id,
           role: role.role,
@@ -81,18 +129,29 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesRole = user.role === activeTab;
-    const matchesSearch = search === '' || 
+    return search === '' || 
       user.company_name.toLowerCase().includes(search.toLowerCase()) ||
       user.contact_person.toLowerCase().includes(search.toLowerCase()) ||
       user.email.toLowerCase().includes(search.toLowerCase());
-    return matchesRole && matchesSearch;
   });
 
-  const counts = {
-    buyer: users.filter(u => u.role === 'buyer').length,
-    supplier: users.filter(u => u.role === 'supplier').length,
-    logistics_partner: users.filter(u => u.role === 'logistics_partner').length,
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const currentRole = activeTab as 'buyer' | 'supplier' | 'logistics_partner';
+
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 'ellipsis', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, 'ellipsis', totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, 'ellipsis', currentPage, 'ellipsis', totalPages);
+      }
+    }
+    return pages;
   };
 
   return (
@@ -119,15 +178,15 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="buyer" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Buyers ({counts.buyer})
+              Buyers ({tabCounts.buyer})
             </TabsTrigger>
             <TabsTrigger value="supplier" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
-              Suppliers ({counts.supplier})
+              Suppliers ({tabCounts.supplier})
             </TabsTrigger>
             <TabsTrigger value="logistics_partner" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
-              Logistics ({counts.logistics_partner})
+              Logistics ({tabCounts.logistics_partner})
             </TabsTrigger>
           </TabsList>
 
@@ -146,6 +205,47 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
               <TabsContent value="logistics_partner" className="flex-1 overflow-auto mt-4">
                 <UserTable users={filteredUsers} />
               </TabsContent>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
+                  </p>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                      {getPageNumbers().map((page, idx) =>
+                        page === 'ellipsis' ? (
+                          <PaginationItem key={`ellipsis-${idx}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </>
           )}
         </Tabs>

@@ -7,6 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Search, Truck, Warehouse, FileText } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
 
 interface Vehicle {
   id: string;
@@ -64,6 +73,8 @@ interface AdminLogisticsListProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const PAGE_SIZE = 15;
+
 export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListProps) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
@@ -72,76 +83,160 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('vehicles');
 
+  const [vehiclesPage, setVehiclesPage] = useState(1);
+  const [vehiclesTotal, setVehiclesTotal] = useState(0);
+  const [warehousesPage, setWarehousesPage] = useState(1);
+  const [warehousesTotal, setWarehousesTotal] = useState(0);
+  const [requirementsPage, setRequirementsPage] = useState(1);
+  const [requirementsTotal, setRequirementsTotal] = useState(0);
+  const [tabCounts, setTabCounts] = useState({ vehicles: 0, warehouses: 0, requirements: 0 });
+
   useEffect(() => {
     if (open) {
-      fetchAllData();
+      fetchTabCounts();
     }
   }, [open]);
 
-  const fetchAllData = async () => {
+  useEffect(() => {
+    if (open) {
+      if (activeTab === 'vehicles') {
+        fetchVehicles();
+      } else if (activeTab === 'warehouses') {
+        fetchWarehouses();
+      } else {
+        fetchRequirements();
+      }
+    }
+  }, [open, activeTab, vehiclesPage, warehousesPage, requirementsPage]);
+
+  useEffect(() => {
+    setVehiclesPage(1);
+    setWarehousesPage(1);
+    setRequirementsPage(1);
+  }, [search]);
+
+  const fetchTabCounts = async () => {
+    try {
+      const [{ count: vCount }, { count: wCount }, { count: rCount }] = await Promise.all([
+        supabase.from('vehicles').select('*', { count: 'exact', head: true }),
+        supabase.from('warehouses').select('*', { count: 'exact', head: true }),
+        supabase.from('logistics_requirements').select('*', { count: 'exact', head: true }),
+      ]);
+      setTabCounts({ vehicles: vCount || 0, warehouses: wCount || 0, requirements: rCount || 0 });
+    } catch (error) {
+      console.error('Error fetching counts:', error);
+    }
+  };
+
+  const fetchVehicles = async () => {
     setLoading(true);
     try {
-      // Fetch vehicles
-      const { data: vehicleData } = await supabase
+      const from = (vehiclesPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      const { data: vehicleData, count } = await supabase
         .from('vehicles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
-      if (vehicleData) {
-        const partnerIds = [...new Set(vehicleData.map(v => v.partner_id))];
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, company_name, email')
-          .in('id', partnerIds);
-
-        const vehiclesWithPartners: Vehicle[] = vehicleData.map(v => ({
-          ...v,
-          partner: profiles?.find(p => p.id === v.partner_id) || null,
-        }));
-        setVehicles(vehiclesWithPartners);
+      if (!vehicleData) {
+        setVehicles([]);
+        setVehiclesTotal(0);
+        return;
       }
 
-      // Fetch warehouses
-      const { data: warehouseData } = await supabase
-        .from('warehouses')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setVehiclesTotal(count || 0);
 
-      if (warehouseData) {
-        const partnerIds = [...new Set(warehouseData.map(w => w.partner_id))];
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, company_name, email')
-          .in('id', partnerIds);
+      const partnerIds = [...new Set(vehicleData.map(v => v.partner_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, company_name, email')
+        .in('id', partnerIds);
 
-        const warehousesWithPartners: WarehouseData[] = warehouseData.map(w => ({
-          ...w,
-          partner: profiles?.find(p => p.id === w.partner_id) || null,
-        }));
-        setWarehouses(warehousesWithPartners);
-      }
-
-      // Fetch logistics requirements
-      const { data: reqData } = await supabase
-        .from('logistics_requirements')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (reqData) {
-        const customerIds = [...new Set(reqData.map(r => r.customer_id))];
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, company_name, email')
-          .in('id', customerIds);
-
-        const reqsWithCustomers: LogisticsRequirement[] = reqData.map(r => ({
-          ...r,
-          customer: profiles?.find(p => p.id === r.customer_id) || null,
-        }));
-        setRequirements(reqsWithCustomers);
-      }
+      const vehiclesWithPartners: Vehicle[] = vehicleData.map(v => ({
+        ...v,
+        partner: profiles?.find(p => p.id === v.partner_id) || null,
+      }));
+      setVehicles(vehiclesWithPartners);
     } catch (error) {
-      console.error('Error fetching logistics data:', error);
+      console.error('Error fetching vehicles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchWarehouses = async () => {
+    setLoading(true);
+    try {
+      const from = (warehousesPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      const { data: warehouseData, count } = await supabase
+        .from('warehouses')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (!warehouseData) {
+        setWarehouses([]);
+        setWarehousesTotal(0);
+        return;
+      }
+
+      setWarehousesTotal(count || 0);
+
+      const partnerIds = [...new Set(warehouseData.map(w => w.partner_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, company_name, email')
+        .in('id', partnerIds);
+
+      const warehousesWithPartners: WarehouseData[] = warehouseData.map(w => ({
+        ...w,
+        partner: profiles?.find(p => p.id === w.partner_id) || null,
+      }));
+      setWarehouses(warehousesWithPartners);
+    } catch (error) {
+      console.error('Error fetching warehouses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRequirements = async () => {
+    setLoading(true);
+    try {
+      const from = (requirementsPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      const { data: reqData, count } = await supabase
+        .from('logistics_requirements')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (!reqData) {
+        setRequirements([]);
+        setRequirementsTotal(0);
+        return;
+      }
+
+      setRequirementsTotal(count || 0);
+
+      const customerIds = [...new Set(reqData.map(r => r.customer_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, company_name, email')
+        .in('id', customerIds);
+
+      const reqsWithCustomers: LogisticsRequirement[] = reqData.map(r => ({
+        ...r,
+        customer: profiles?.find(p => p.id === r.customer_id) || null,
+      }));
+      setRequirements(reqsWithCustomers);
+    } catch (error) {
+      console.error('Error fetching requirements:', error);
     } finally {
       setLoading(false);
     }
@@ -187,6 +282,36 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
     r.customer?.company_name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const getCurrentPageData = () => {
+    switch (activeTab) {
+      case 'vehicles':
+        return { page: vehiclesPage, setPage: setVehiclesPage, total: vehiclesTotal };
+      case 'warehouses':
+        return { page: warehousesPage, setPage: setWarehousesPage, total: warehousesTotal };
+      default:
+        return { page: requirementsPage, setPage: setRequirementsPage, total: requirementsTotal };
+    }
+  };
+
+  const { page: currentPage, setPage: setCurrentPage, total: totalCount } = getCurrentPageData();
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 'ellipsis', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, 'ellipsis', totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, 'ellipsis', currentPage, 'ellipsis', totalPages);
+      }
+    }
+    return pages;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl max-h-[85vh] overflow-hidden flex flex-col">
@@ -211,15 +336,15 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="vehicles" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
-              Vehicles ({vehicles.length})
+              Vehicles ({tabCounts.vehicles})
             </TabsTrigger>
             <TabsTrigger value="warehouses" className="flex items-center gap-2">
               <Warehouse className="h-4 w-4" />
-              Warehouses ({warehouses.length})
+              Warehouses ({tabCounts.warehouses})
             </TabsTrigger>
             <TabsTrigger value="requirements" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Requirements ({requirements.length})
+              Requirements ({tabCounts.requirements})
             </TabsTrigger>
           </TabsList>
 
@@ -372,6 +497,47 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
                   </TableBody>
                 </Table>
               </TabsContent>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
+                  </p>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                      {getPageNumbers().map((page, idx) =>
+                        page === 'ellipsis' ? (
+                          <PaginationItem key={`ellipsis-${idx}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </>
           )}
         </Tabs>
