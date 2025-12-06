@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,10 +11,27 @@ import {
 import { Search, ChevronRight } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { categoriesData, searchCategories } from '@/data/categories';
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 
 const Categories = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // SEO setup
+  useSEO({
+    title: "23+ Product Categories | ProcureSaathi B2B Marketplace",
+    description: "Browse 23+ product categories including Industrial Supplies, Electronics, Metals, Machinery & more. Find verified B2B suppliers across India.",
+    canonical: "https://procuresaathi.com/categories",
+    keywords: "B2B categories, industrial suppliers, wholesale products, manufacturing categories, procurement categories India"
+  });
+
+  // Inject Breadcrumb schema
+  useEffect(() => {
+    injectStructuredData(getBreadcrumbSchema([
+      { name: "Home", url: "https://procuresaathi.com/" },
+      { name: "Categories", url: "https://procuresaathi.com/categories" }
+    ]), 'breadcrumb-schema');
+  }, []);
 
   const filteredCategories = searchQuery 
     ? searchCategories(searchQuery)

@@ -11,6 +11,7 @@ import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
+import { useSEO } from '@/hooks/useSEO';
 
 type FormErrors = {
   email?: string;
@@ -36,6 +37,13 @@ const Signup = () => {
   const [checkingPassword, setCheckingPassword] = useState(false);
   const [breachWarning, setBreachWarning] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useSEO({
+    title: "Free B2B Registration | Join ProcureSaathi as Buyer or Supplier",
+    description: "Register free on India's leading B2B platform. Join as buyer, supplier, or logistics partner. Connect with verified businesses today!",
+    canonical: "https://procuresaathi.com/signup",
+    keywords: "B2B registration, supplier registration, buyer signup, logistics partner India"
+  });
 
   const [formData, setFormData] = useState({
     email: '',
