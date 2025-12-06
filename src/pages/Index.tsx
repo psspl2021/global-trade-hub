@@ -172,22 +172,34 @@ const Index = () => {
             
             {/* Feature Highlights */}
             <div className="flex flex-wrap justify-center gap-6 mt-10 pt-8 border-t border-border/50">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Search className="h-5 w-5 text-primary" />
+              <button 
+                onClick={() => navigate('/categories')}
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
+              >
+                <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium">Search Categories</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Package className="h-5 w-5 text-success" />
+              </button>
+              <button 
+                onClick={() => navigate('/signup')}
+                className="flex items-center gap-2 text-muted-foreground hover:text-success cursor-pointer transition-all group"
+              >
+                <Package className="h-5 w-5 text-success group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium">Live Stock</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-5 w-5 text-warning" />
+              </button>
+              <button 
+                onClick={() => scrollToSection('how-it-works')}
+                className="flex items-center gap-2 text-muted-foreground hover:text-warning cursor-pointer transition-all group"
+              >
+                <Shield className="h-5 w-5 text-warning group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium">Sealed Bids</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <CheckCircle className="h-5 w-5 text-primary" />
+              </button>
+              <button 
+                onClick={() => scrollToSection('about')}
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
+              >
+                <CheckCircle className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium">Verified Partners</span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
