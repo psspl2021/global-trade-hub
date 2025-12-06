@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,6 +11,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import { indianLocations } from '@/data/indianLocations';
 
 interface Vehicle {
   id: string;
@@ -71,14 +71,16 @@ const BookTruck = () => {
   const [availableRoutes, setAvailableRoutes] = useState<{ origin: string; destination: string }[]>([]);
   
   // Filter inputs
-  const [searchLocation, setSearchLocation] = useState('');
+  const [fromLocation, setFromLocation] = useState('all');
+  const [toLocation, setToLocation] = useState('all');
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('all');
   const [warehouseTypeFilter, setWarehouseTypeFilter] = useState('all');
   const [routeFilter, setRouteFilter] = useState('all');
   
   // Applied filters (only update on search click)
   const [appliedFilters, setAppliedFilters] = useState({
-    location: '',
+    from: 'all',
+    to: 'all',
     route: 'all',
     vehicleType: 'all',
     warehouseType: 'all'
@@ -118,7 +120,8 @@ const BookTruck = () => {
 
   const handleSearch = () => {
     setAppliedFilters({
-      location: searchLocation,
+      from: fromLocation,
+      to: toLocation,
       route: routeFilter,
       vehicleType: vehicleTypeFilter,
       warehouseType: warehouseTypeFilter
@@ -126,8 +129,14 @@ const BookTruck = () => {
   };
 
   const filteredVehicles = vehicles.filter(v => {
-    const matchesLocation = !appliedFilters.location || 
-      v.current_location?.toLowerCase().includes(appliedFilters.location.toLowerCase());
+    // From location - match vehicle's current location
+    const matchesFrom = appliedFilters.from === 'all' || 
+      v.current_location?.toLowerCase().includes(appliedFilters.from.toLowerCase());
+    
+    // To location - match routes that go to this destination
+    const matchesTo = appliedFilters.to === 'all' || 
+      v.routes?.some(r => r.destination.toLowerCase().includes(appliedFilters.to.toLowerCase()));
+    
     const matchesType = appliedFilters.vehicleType === 'all' || v.vehicle_type === appliedFilters.vehicleType;
     
     // Route filter - match exact origin|destination pair
@@ -137,13 +146,16 @@ const BookTruck = () => {
       matchesRoute = v.routes?.some(r => r.origin === origin && r.destination === destination) || false;
     }
     
-    return matchesLocation && matchesType && matchesRoute;
+    return matchesFrom && matchesTo && matchesType && matchesRoute;
   });
 
   const filteredWarehouses = warehouses.filter(w => {
-    const matchesLocation = !appliedFilters.location || 
-      w.city.toLowerCase().includes(appliedFilters.location.toLowerCase()) ||
-      w.state.toLowerCase().includes(appliedFilters.location.toLowerCase());
+    // Match warehouses in either From or To location
+    const matchesLocation = (appliedFilters.from === 'all' && appliedFilters.to === 'all') ||
+      w.city.toLowerCase().includes(appliedFilters.from.toLowerCase()) ||
+      w.city.toLowerCase().includes(appliedFilters.to.toLowerCase()) ||
+      (appliedFilters.from !== 'all' && w.city.toLowerCase().includes(appliedFilters.from.toLowerCase())) ||
+      (appliedFilters.to !== 'all' && w.city.toLowerCase().includes(appliedFilters.to.toLowerCase()));
     const matchesType = appliedFilters.warehouseType === 'all' || w.warehouse_type === appliedFilters.warehouseType;
     return matchesLocation && matchesType;
   });
@@ -197,17 +209,39 @@ const BookTruck = () => {
         {/* Search & Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid md:grid-cols-5 gap-4">
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search by location..." 
-                  className="pl-10 h-12"
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                />
-              </div>
+            <div className="grid md:grid-cols-6 gap-4">
+              <Select value={fromLocation} onValueChange={setFromLocation}>
+                <SelectTrigger className="h-12">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="From" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50 max-h-60">
+                  <SelectItem value="all">Any Origin</SelectItem>
+                  {indianLocations.map((loc) => (
+                    <SelectItem key={`from-${loc.city}-${loc.state}`} value={loc.city}>
+                      {loc.city}, {loc.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={toLocation} onValueChange={setToLocation}>
+                <SelectTrigger className="h-12">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-green-600" />
+                    <SelectValue placeholder="To" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50 max-h-60">
+                  <SelectItem value="all">Any Destination</SelectItem>
+                  {indianLocations.map((loc) => (
+                    <SelectItem key={`to-${loc.city}-${loc.state}`} value={loc.city}>
+                      {loc.city}, {loc.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={routeFilter} onValueChange={setRouteFilter}>
                 <SelectTrigger className="h-12">
                   <div className="flex items-center gap-2">
@@ -280,7 +314,7 @@ const BookTruck = () => {
                   <Truck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No vehicles available</h3>
                   <p className="text-muted-foreground mb-4">
-                    {searchLocation || vehicleTypeFilter !== 'all' || routeFilter
+                    {fromLocation !== 'all' || toLocation !== 'all' || vehicleTypeFilter !== 'all' || routeFilter !== 'all'
                       ? 'Try adjusting your filters' 
                       : 'Check back later for available vehicles'}
                   </p>
@@ -381,7 +415,7 @@ const BookTruck = () => {
                   <Warehouse className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No warehouses available</h3>
                   <p className="text-muted-foreground mb-4">
-                    {searchLocation || warehouseTypeFilter !== 'all' 
+                    {fromLocation !== 'all' || toLocation !== 'all' || warehouseTypeFilter !== 'all' 
                       ? 'Try adjusting your filters' 
                       : 'Check back later for available warehouses'}
                   </p>
