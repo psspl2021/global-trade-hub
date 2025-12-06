@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download } from 'lucide-react';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -17,9 +17,10 @@ interface AdminStats {
 interface AdminDashboardCardsProps {
   onOpenInvoiceManagement: () => void;
   onOpenVehicleVerification: () => void;
+  onOpenDataExport: () => void;
 }
 
-export function AdminDashboardCards({ onOpenInvoiceManagement, onOpenVehicleVerification }: AdminDashboardCardsProps) {
+export function AdminDashboardCards({ onOpenInvoiceManagement, onOpenVehicleVerification, onOpenDataExport }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
     pendingAmount: 0,
@@ -174,6 +175,23 @@ export function AdminDashboardCards({ onOpenInvoiceManagement, onOpenVehicleVeri
           <p className="text-sm text-muted-foreground">
             Open buyer requirements
           </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-emerald-500/20 bg-emerald-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Download className="h-5 w-5 text-emerald-600" />
+            Data Export
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Download signups, requirements, bids & transactions
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenDataExport}>
+            Export Data
+          </Button>
         </CardContent>
       </Card>
     </div>

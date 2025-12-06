@@ -21,6 +21,7 @@ import { PlatformInvoices } from '@/components/PlatformInvoices';
 import { AdminDashboardCards } from '@/components/admin/AdminDashboardCards';
 import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
 import { VehicleVerification } from '@/components/admin/VehicleVerification';
+import { AdminDataExport } from '@/components/admin/AdminDataExport';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -47,6 +48,7 @@ const Dashboard = () => {
   const [showPlatformInvoices, setShowPlatformInvoices] = useState(false);
   const [showAdminInvoices, setShowAdminInvoices] = useState(false);
   const [showVehicleVerification, setShowVehicleVerification] = useState(false);
+  const [showDataExport, setShowDataExport] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -157,6 +159,7 @@ const Dashboard = () => {
             <AdminDashboardCards 
               onOpenInvoiceManagement={() => setShowAdminInvoices(true)} 
               onOpenVehicleVerification={() => setShowVehicleVerification(true)}
+              onOpenDataExport={() => setShowDataExport(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -166,6 +169,7 @@ const Dashboard = () => {
                 adminId={user.id}
               />
             )}
+            <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
           </>
         )}
 
