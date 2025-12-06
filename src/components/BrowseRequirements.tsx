@@ -64,10 +64,11 @@ type BidFormData = z.infer<typeof bidSchema>;
 interface BrowseRequirementsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  userId: string;
+  userId?: string;
 }
 
 export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequirementsProps) => {
+  const isGuest = !userId;
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [lowestBids, setLowestBids] = useState<Record<string, number>>({});
   const [myBids, setMyBids] = useState<Set<string>>(new Set());
@@ -123,14 +124,16 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       setRequirements([]);
     }
 
-    // Fetch my existing bids
-    const { data: myBidsData } = await supabase
-      .from('bids')
-      .select('requirement_id')
-      .eq('supplier_id', userId);
+    // Fetch my existing bids (only for logged-in users)
+    if (userId) {
+      const { data: myBidsData } = await supabase
+        .from('bids')
+        .select('requirement_id')
+        .eq('supplier_id', userId);
 
-    if (myBidsData) {
-      setMyBids(new Set(myBidsData.map(b => b.requirement_id)));
+      if (myBidsData) {
+        setMyBids(new Set(myBidsData.map(b => b.requirement_id)));
+      }
     }
 
     // Fetch lowest bids for each requirement using secure RPC function
@@ -151,6 +154,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   };
 
   const fetchSubscription = async () => {
+    if (!userId) return;
     const { data } = await supabase
       .from('subscriptions')
       .select('id, bids_used_this_month, bids_limit')
@@ -160,9 +164,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   };
 
   useEffect(() => {
-    if (open && userId) {
+    if (open) {
       fetchRequirements();
-      fetchSubscription();
+      if (userId) fetchSubscription();
     }
   }, [open, userId]);
 
@@ -262,7 +266,14 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   </div>
                 )}
 
-                {myBids.has(selectedRequirement.id) ? (
+                {isGuest ? (
+                  <div className="p-4 bg-primary/10 rounded-lg text-center space-y-3 border-t pt-4">
+                    <p className="font-medium">Sign up as a supplier to bid on this requirement</p>
+                    <Button onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
+                      Sign Up to Bid
+                    </Button>
+                  </div>
+                ) : myBids.has(selectedRequirement.id) ? (
                   <div className="p-4 bg-primary/10 rounded-lg text-center">
                     <p className="font-medium">You have already submitted a bid for this requirement.</p>
                   </div>
