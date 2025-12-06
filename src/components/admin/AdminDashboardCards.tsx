@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye } from 'lucide-react';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -18,9 +18,21 @@ interface AdminDashboardCardsProps {
   onOpenInvoiceManagement: () => void;
   onOpenVehicleVerification: () => void;
   onOpenDataExport: () => void;
+  onOpenUsersList: () => void;
+  onOpenRequirementsList: () => void;
+  onOpenBidsList: () => void;
+  onOpenLogisticsList: () => void;
 }
 
-export function AdminDashboardCards({ onOpenInvoiceManagement, onOpenVehicleVerification, onOpenDataExport }: AdminDashboardCardsProps) {
+export function AdminDashboardCards({ 
+  onOpenInvoiceManagement, 
+  onOpenVehicleVerification, 
+  onOpenDataExport,
+  onOpenUsersList,
+  onOpenRequirementsList,
+  onOpenBidsList,
+  onOpenLogisticsList,
+}: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
     pendingAmount: 0,
@@ -148,33 +160,77 @@ export function AdminDashboardCards({ onOpenInvoiceManagement, onOpenVehicleVeri
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-blue-500/20 bg-blue-500/5">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Users className="h-5 w-5 text-blue-600" />
-            Active Suppliers
+            All Users
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">{stats.activeSuppliers}</div>
-          <p className="text-sm text-muted-foreground">
-            Registered suppliers on platform
+          <div className="text-3xl font-bold text-blue-600">{stats.activeSuppliers}</div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Suppliers registered
           </p>
+          <Button className="w-full" variant="outline" onClick={onOpenUsersList}>
+            <Eye className="h-4 w-4 mr-2" />
+            View All Users
+          </Button>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-purple-500/20 bg-purple-500/5">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
             <FileText className="h-5 w-5 text-purple-600" />
-            Active Requirements
+            Requirements
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">{stats.activeRequirements}</div>
-          <p className="text-sm text-muted-foreground">
-            Open buyer requirements
+          <div className="text-3xl font-bold text-purple-600">{stats.activeRequirements}</div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Active requirements
           </p>
+          <Button className="w-full" variant="outline" onClick={onOpenRequirementsList}>
+            <Eye className="h-4 w-4 mr-2" />
+            View All Requirements
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-amber-500/20 bg-amber-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Gavel className="h-5 w-5 text-amber-600" />
+            All Bids
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            View supplier & logistics bids
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenBidsList}>
+            <Eye className="h-4 w-4 mr-2" />
+            View All Bids
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-cyan-500/20 bg-cyan-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Truck className="h-5 w-5 text-cyan-600" />
+            Logistics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Vehicles, warehouses & requirements
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenLogisticsList}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Logistics
+          </Button>
         </CardContent>
       </Card>
 
