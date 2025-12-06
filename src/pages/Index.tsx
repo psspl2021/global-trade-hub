@@ -607,13 +607,11 @@ const Index = () => {
       />
 
       {/* Live Requirements Dialog */}
-      {user && (
-        <BrowseRequirements 
-          open={showLiveRequirements} 
-          onOpenChange={setShowLiveRequirements}
-          userId={user.id}
-        />
-      )}
+      <BrowseRequirements 
+        open={showLiveRequirements} 
+        onOpenChange={setShowLiveRequirements}
+        userId={user?.id}
+      />
     </div>
   );
 };
