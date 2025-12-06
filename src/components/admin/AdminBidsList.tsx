@@ -7,6 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Search, Gavel, Package, Truck } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
 
 interface Bid {
   id: string;
@@ -51,71 +60,133 @@ interface AdminBidsListProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const PAGE_SIZE = 15;
+
 export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [bids, setBids] = useState<Bid[]>([]);
   const [logisticsBids, setLogisticsBids] = useState<LogisticsBid[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('supplier');
+  
+  const [supplierPage, setSupplierPage] = useState(1);
+  const [supplierTotal, setSupplierTotal] = useState(0);
+  const [logisticsPage, setLogisticsPage] = useState(1);
+  const [logisticsTotal, setLogisticsTotal] = useState(0);
+  const [tabCounts, setTabCounts] = useState({ supplier: 0, logistics: 0 });
 
   useEffect(() => {
     if (open) {
-      fetchAllBids();
+      fetchTabCounts();
     }
   }, [open]);
 
-  const fetchAllBids = async () => {
+  useEffect(() => {
+    if (open) {
+      if (activeTab === 'supplier') {
+        fetchSupplierBids();
+      } else {
+        fetchLogisticsBids();
+      }
+    }
+  }, [open, activeTab, supplierPage, logisticsPage]);
+
+  useEffect(() => {
+    setSupplierPage(1);
+    setLogisticsPage(1);
+  }, [search]);
+
+  const fetchTabCounts = async () => {
+    try {
+      const [{ count: sCount }, { count: lCount }] = await Promise.all([
+        supabase.from('bids').select('*', { count: 'exact', head: true }),
+        supabase.from('logistics_bids').select('*', { count: 'exact', head: true }),
+      ]);
+      setTabCounts({ supplier: sCount || 0, logistics: lCount || 0 });
+    } catch (error) {
+      console.error('Error fetching counts:', error);
+    }
+  };
+
+  const fetchSupplierBids = async () => {
     setLoading(true);
     try {
-      // Fetch supplier bids
-      const { data: supplierBids } = await supabase
+      const from = (supplierPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      const { data: supplierBids, count } = await supabase
         .from('bids')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
-      if (supplierBids) {
-        const reqIds = [...new Set(supplierBids.map(b => b.requirement_id))];
-        const supplierIds = [...new Set(supplierBids.map(b => b.supplier_id))];
-
-        const [reqRes, profRes] = await Promise.all([
-          supabase.from('requirements').select('id, title, product_category').in('id', reqIds),
-          supabase.from('profiles').select('id, company_name, email').in('id', supplierIds),
-        ]);
-
-        const bidsWithDetails: Bid[] = supplierBids.map(bid => ({
-          ...bid,
-          requirement: reqRes.data?.find(r => r.id === bid.requirement_id) || null,
-          supplier: profRes.data?.find(p => p.id === bid.supplier_id) || null,
-        }));
-
-        setBids(bidsWithDetails);
+      if (!supplierBids) {
+        setBids([]);
+        setSupplierTotal(0);
+        return;
       }
 
-      // Fetch logistics bids
-      const { data: logBids } = await supabase
-        .from('logistics_bids')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setSupplierTotal(count || 0);
 
-      if (logBids) {
-        const reqIds = [...new Set(logBids.map(b => b.requirement_id))];
-        const transporterIds = [...new Set(logBids.map(b => b.transporter_id))];
+      const reqIds = [...new Set(supplierBids.map(b => b.requirement_id))];
+      const supplierIds = [...new Set(supplierBids.map(b => b.supplier_id))];
 
-        const [reqRes, profRes] = await Promise.all([
-          supabase.from('logistics_requirements').select('id, title, material_type, pickup_location, delivery_location').in('id', reqIds),
-          supabase.from('profiles').select('id, company_name, email').in('id', transporterIds),
-        ]);
+      const [reqRes, profRes] = await Promise.all([
+        supabase.from('requirements').select('id, title, product_category').in('id', reqIds),
+        supabase.from('profiles').select('id, company_name, email').in('id', supplierIds),
+      ]);
 
-        const logBidsWithDetails: LogisticsBid[] = logBids.map(bid => ({
-          ...bid,
-          requirement: reqRes.data?.find(r => r.id === bid.requirement_id) || null,
-          transporter: profRes.data?.find(p => p.id === bid.transporter_id) || null,
-        }));
+      const bidsWithDetails: Bid[] = supplierBids.map(bid => ({
+        ...bid,
+        requirement: reqRes.data?.find(r => r.id === bid.requirement_id) || null,
+        supplier: profRes.data?.find(p => p.id === bid.supplier_id) || null,
+      }));
 
-        setLogisticsBids(logBidsWithDetails);
-      }
+      setBids(bidsWithDetails);
     } catch (error) {
-      console.error('Error fetching bids:', error);
+      console.error('Error fetching supplier bids:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchLogisticsBids = async () => {
+    setLoading(true);
+    try {
+      const from = (logisticsPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      const { data: logBids, count } = await supabase
+        .from('logistics_bids')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (!logBids) {
+        setLogisticsBids([]);
+        setLogisticsTotal(0);
+        return;
+      }
+
+      setLogisticsTotal(count || 0);
+
+      const reqIds = [...new Set(logBids.map(b => b.requirement_id))];
+      const transporterIds = [...new Set(logBids.map(b => b.transporter_id))];
+
+      const [reqRes, profRes] = await Promise.all([
+        supabase.from('logistics_requirements').select('id, title, material_type, pickup_location, delivery_location').in('id', reqIds),
+        supabase.from('profiles').select('id, company_name, email').in('id', transporterIds),
+      ]);
+
+      const logBidsWithDetails: LogisticsBid[] = logBids.map(bid => ({
+        ...bid,
+        requirement: reqRes.data?.find(r => r.id === bid.requirement_id) || null,
+        transporter: profRes.data?.find(p => p.id === bid.transporter_id) || null,
+      }));
+
+      setLogisticsBids(logBidsWithDetails);
+    } catch (error) {
+      console.error('Error fetching logistics bids:', error);
     } finally {
       setLoading(false);
     }
@@ -143,6 +214,27 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
       bid.transporter?.company_name.toLowerCase().includes(search.toLowerCase());
   });
 
+  const currentPage = activeTab === 'supplier' ? supplierPage : logisticsPage;
+  const setCurrentPage = activeTab === 'supplier' ? setSupplierPage : setLogisticsPage;
+  const totalCount = activeTab === 'supplier' ? supplierTotal : logisticsTotal;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 'ellipsis', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, 'ellipsis', totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, 'ellipsis', currentPage, 'ellipsis', totalPages);
+      }
+    }
+    return pages;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl max-h-[85vh] overflow-hidden flex flex-col">
@@ -167,11 +259,11 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="supplier" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
-              Supplier Bids ({bids.length})
+              Supplier Bids ({tabCounts.supplier})
             </TabsTrigger>
             <TabsTrigger value="logistics" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
-              Logistics Bids ({logisticsBids.length})
+              Logistics Bids ({tabCounts.logistics})
             </TabsTrigger>
           </TabsList>
 
@@ -280,6 +372,47 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   </TableBody>
                 </Table>
               </TabsContent>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
+                  </p>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                      {getPageNumbers().map((page, idx) =>
+                        page === 'ellipsis' ? (
+                          <PaginationItem key={`ellipsis-${idx}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </>
           )}
         </Tabs>
