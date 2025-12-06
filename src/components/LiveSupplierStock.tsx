@@ -37,9 +37,11 @@ interface LiveSupplierStockProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialKeyword?: string;
+  userId?: string;
 }
 
-export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '' }: LiveSupplierStockProps) => {
+export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', userId }: LiveSupplierStockProps) => {
+  const isGuest = !userId;
   const [searchKeyword, setSearchKeyword] = useState(initialKeyword);
   const [products, setProducts] = useState<ProductWithStock[]>([]);
   const [loading, setLoading] = useState(false);
@@ -243,6 +245,14 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '' }: L
           <div className="text-center py-12 text-muted-foreground">
             <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>Search for products to see available supplier stock</p>
+            {isGuest && (
+              <div className="mt-4 p-4 bg-primary/10 rounded-lg">
+                <p className="text-foreground font-medium mb-2">Sign up to view full stock details</p>
+                <Button onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
+                  Sign Up as Buyer
+                </Button>
+              </div>
+            )}
             <p className="text-sm mt-2">Stock updates in real-time when suppliers make changes</p>
           </div>
         ) : (
@@ -250,6 +260,16 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '' }: L
             <p className="text-sm text-muted-foreground">
               Found {products.length} products • Updates appear instantly
             </p>
+            
+            {isGuest && (
+              <div className="p-3 bg-primary/10 rounded-lg text-center">
+                <p className="text-sm font-medium">Sign up as a buyer to view full stock details and contact suppliers</p>
+                <Button size="sm" className="mt-2" onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
+                  Sign Up to Continue
+                </Button>
+              </div>
+            )}
+            
             {products.map((product) => {
               const stockStatus = getStockStatus(product.stock);
               const isLiveUpdated = liveUpdates.has(product.id);
