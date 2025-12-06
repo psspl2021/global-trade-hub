@@ -11,6 +11,7 @@ import { TOTPVerification } from '@/components/auth/TOTPVerification';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
+import { useSEO } from '@/hooks/useSEO';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,6 +26,12 @@ const Login = () => {
   const [resetErrors, setResetErrors] = useState<{ email?: string }>({});
   const [showTOTPVerification, setShowTOTPVerification] = useState(false);
   const [checkingTOTP, setCheckingTOTP] = useState(false);
+
+  useSEO({
+    title: "Login | ProcureSaathi B2B Platform",
+    description: "Sign in to your ProcureSaathi account. Access your dashboard, manage requirements, and connect with verified B2B partners.",
+    canonical: "https://procuresaathi.com/login"
+  });
 
   useEffect(() => {
     if (user && !showTOTPVerification && !checkingTOTP) {

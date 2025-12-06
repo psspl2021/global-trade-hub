@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { LiveSupplierStock } from '@/components/LiveSupplierStock';
 import { BrowseRequirements } from '@/components/BrowseRequirements';
+import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
+import { Testimonials } from '@/components/landing/Testimonials';
+import { FAQ } from '@/components/landing/FAQ';
+import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
+import { StatsSection } from '@/components/landing/StatsSection';
+import { StickySignupBanner } from '@/components/StickySignupBanner';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -21,6 +27,19 @@ const Index = () => {
   const { toast } = useToast();
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
+
+  // SEO setup
+  useSEO({
+    title: "ProcureSaathi - India's #1 B2B Sourcing & Procurement Platform",
+    description: "India's leading B2B marketplace. Connect with 5000+ verified suppliers, get competitive bids, and save 15-30% on sourcing. Free signup!",
+    canonical: "https://procuresaathi.com/",
+    keywords: "B2B marketplace, procurement platform, sourcing India, wholesale suppliers, bulk buying, industrial suppliers"
+  });
+
+  // Inject Organization schema
+  useEffect(() => {
+    injectStructuredData(getOrganizationSchema(), 'organization-schema');
+  }, []);
 
   const handleLiveStockClick = () => {
     setShowLiveStock(true);
@@ -475,6 +494,18 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Why Choose Us Section */}
+      <WhyChooseUs />
+
+      {/* Stats Section */}
+      <StatsSection />
+
+      {/* Testimonials Section */}
+      <Testimonials />
+
+      {/* FAQ Section */}
+      <FAQ />
+
       {/* Contact Section */}
       <section id="contact" className="py-16">
         <div className="container mx-auto px-4">
@@ -547,17 +578,20 @@ const Index = () => {
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join ProcureSaathi today and experience the future of B2B procurement
           </p>
-          <Button size="lg" onClick={() => navigate('/auth')}>
+          <Button size="lg" onClick={() => navigate('/signup')}>
             Start Free Trial
           </Button>
         </div>
       </section>
       </main>
 
+      {/* Sticky Signup Banner */}
+      <StickySignupBanner />
+
       {/* Footer */}
       <footer className="border-t bg-card py-12">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
             {/* Company Info */}
             <div>
               <h4 className="font-semibold mb-4">PROCURESAATHI SOLUTIONS PRIVATE LIMITED</h4>
@@ -577,8 +611,33 @@ const Index = () => {
                 <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-muted-foreground hover:text-primary text-left">
                   How It Works
                 </button>
+                <button onClick={() => navigate('/categories')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  Categories
+                </button>
+                <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  FAQ
+                </button>
                 <button onClick={() => scrollToSection('contact')} className="text-sm text-muted-foreground hover:text-primary text-left">
                   Contact Us
+                </button>
+              </div>
+            </div>
+
+            {/* For Business */}
+            <div>
+              <h4 className="font-semibold mb-4">For Business</h4>
+              <div className="flex flex-col gap-2">
+                <button onClick={() => navigate('/signup?role=buyer')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  Join as Buyer
+                </button>
+                <button onClick={() => navigate('/signup?role=supplier')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  Join as Supplier
+                </button>
+                <button onClick={() => navigate('/signup?role=logistics_partner')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  Logistics Partner
+                </button>
+                <button onClick={() => navigate('/book-truck')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  Book a Truck
                 </button>
               </div>
             </div>
@@ -597,6 +656,7 @@ const Index = () => {
           
           <div className="border-t pt-8 text-center text-sm text-muted-foreground">
             <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
+            <p className="mt-2">India's #1 B2B Sourcing & Procurement Platform</p>
           </div>
         </div>
       </footer>
