@@ -604,6 +604,7 @@ const Index = () => {
       <LiveSupplierStock 
         open={showLiveStock} 
         onOpenChange={setShowLiveStock}
+        userId={user?.id}
       />
 
       {/* Live Requirements Dialog */}
