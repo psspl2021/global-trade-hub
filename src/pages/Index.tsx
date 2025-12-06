@@ -20,6 +20,11 @@ import { FAQ } from '@/components/landing/FAQ';
 import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
+import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
+import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
+import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
+import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
+import { TrustBadges } from '@/components/landing/TrustBadges';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -196,14 +201,7 @@ const Index = () => {
                 <Package className="h-5 w-5 mr-2" />
                 Join as Supplier
               </Button>
-              <Button 
-                size="lg" 
-                variant="secondary"
-                className="h-14 text-lg px-8"
-                onClick={() => navigate('/login')}
-              >
-                Login
-              </Button>
+              <DemoRequestForm />
             </div>
             
             {/* Feature Highlights */}
@@ -494,6 +492,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Trust Badges Section */}
+      <TrustBadges />
+
       {/* Why Choose Us Section */}
       <WhyChooseUs />
 
@@ -585,6 +586,10 @@ const Index = () => {
       </section>
       </main>
 
+      {/* Lead Generation Components */}
+      <ExitIntentPopup />
+      <LiveActivityFeed />
+      
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
 
@@ -642,15 +647,16 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Contact */}
+            {/* Newsletter */}
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
-              <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline">
+              <h4 className="font-semibold mb-4">Stay Updated</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Get weekly B2B sourcing tips & market insights
+              </p>
+              <NewsletterSignup source="footer" />
+              <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline block mt-4">
                 sales@procuresaathi.com
               </a>
-              <p className="text-sm text-muted-foreground mt-2">
-                Mon - Sat: 9:00 AM - 6:00 PM IST
-              </p>
             </div>
           </div>
           

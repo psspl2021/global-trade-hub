@@ -64,6 +64,45 @@ export type Database = {
           },
         ]
       }
+      demo_requests: {
+        Row: {
+          company_name: string | null
+          contacted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          company_name?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          company_name?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           document_type: string
@@ -401,6 +440,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          email: string
+          id: string
+          is_active: boolean
+          source: string | null
+          subscribed_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+          subscribed_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+          subscribed_at?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
