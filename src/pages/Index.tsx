@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useSEO } from "@/hooks/useSEO";
 import Header from "@/components/landing/Header";
+import FeaturesSection from "@/components/landing/FeaturesSection";
 import StatsSection from "@/components/landing/StatsSection";
 import WhyChooseUs from "@/components/landing/WhyChooseUs";
 import { LazyFAQ } from "@/components/landing/LazyFAQ";
@@ -28,6 +29,7 @@ const Index = () => {
         </div>
       </section>
       
+      <FeaturesSection />
       <StatsSection />
       <WhyChooseUs />
       <LazyFAQ />

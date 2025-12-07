@@ -7,18 +7,18 @@ import logo from '@/assets/procuresaathi-logo.png';
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const scrollToFAQ = (e: React.MouseEvent) => {
+  const scrollToSection = (e: React.MouseEvent, sectionId: string) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
-    document.getElementById('faq')?.scrollIntoView({ 
+    document.getElementById(sectionId)?.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
     });
   };
 
   const navLinks = [
-    { label: 'Features', href: '#features', onClick: undefined },
-    { label: 'FAQ', href: '#faq', onClick: scrollToFAQ },
+    { label: 'Features', href: '#features', onClick: (e: React.MouseEvent) => scrollToSection(e, 'features') },
+    { label: 'FAQ', href: '#faq', onClick: (e: React.MouseEvent) => scrollToSection(e, 'faq') },
   ];
 
   return (
