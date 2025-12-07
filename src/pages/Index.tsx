@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 // Group C - Landing Sections
 import StatsSection from "@/components/landing/StatsSection";
 import WhyChooseUs from "@/components/landing/WhyChooseUs";
-// import { LazyFAQ } from "@/components/landing/LazyFAQ";
+import { LazyFAQ } from "@/components/landing/LazyFAQ";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -24,10 +24,10 @@ const Index = () => {
       {/* Header Section */}
       <div className="text-center p-8">
         <h1 className="text-3xl font-bold text-primary mb-4">
-          Testing StatsSection + WhyChooseUs
+          Testing All Three: StatsSection + WhyChooseUs + LazyFAQ
         </h1>
         <p className="text-muted-foreground mb-4">
-          If this works, LazyFAQ is likely the issue.
+          If blank, LazyFAQ is confirmed as the issue.
         </p>
         
         <div className="flex justify-center gap-4 mb-4">
@@ -52,6 +52,7 @@ const Index = () => {
       {/* Test Components */}
       <StatsSection />
       <WhyChooseUs />
+      <LazyFAQ />
     </div>
   );
 };
