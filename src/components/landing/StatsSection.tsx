@@ -61,7 +61,7 @@ const AnimatedCounter = ({ target, suffix }: { target: number; suffix: string })
   );
 };
 
-const StatsSection = () => {
+export const StatsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -114,5 +114,3 @@ const StatsSection = () => {
     </section>
   );
 };
-
-export default StatsSection;

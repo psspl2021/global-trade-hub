@@ -7,8 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, MapPin, Calendar, Package, Send, ArrowRight } from 'lucide-react';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { CurrencySelectorCompact } from './CurrencySelectorCompact';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -71,7 +69,6 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
   const [submitting, setSubmitting] = useState(false);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; id: string } | null>(null);
   const { toast } = useToast();
-  const { formatPrice } = useCurrency();
 
   const BID_FEE = 500;
   const isPaidBid = subscription && subscription.bids_used_this_month >= subscription.bids_limit;
@@ -208,10 +205,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Active Logistics Requirements</DialogTitle>
-            <CurrencySelectorCompact />
-          </div>
+          <DialogTitle>Active Logistics Requirements</DialogTitle>
         </DialogHeader>
 
         {loading ? (
@@ -237,7 +231,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div><strong>Cargo:</strong> {selectedRequirement.quantity} {selectedRequirement.unit}</div>
-                  <div><strong>Budget:</strong> {selectedRequirement.budget_max ? formatPrice(selectedRequirement.budget_max) : 'Not specified'}</div>
+                  <div><strong>Budget:</strong> {selectedRequirement.budget_max ? `₹${selectedRequirement.budget_max.toLocaleString()}` : 'Not specified'}</div>
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
                     {selectedRequirement.pickup_location} → {selectedRequirement.delivery_location}
@@ -262,7 +256,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                 
                 {lowestBids[selectedRequirement.id] && (
                   <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm font-medium">Current Lowest Quote: {formatPrice(lowestBids[selectedRequirement.id])}</p>
+                    <p className="text-sm font-medium">Current Lowest Quote: ₹{lowestBids[selectedRequirement.id].toLocaleString()}</p>
                   </div>
                 )}
 
@@ -314,14 +308,14 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                       
                       {bidAmount > 0 && (
                         <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                          <div className="flex justify-between"><span>Your Quote:</span><span>{formatPrice(bidAmount)}</span></div>
+                          <div className="flex justify-between"><span>Your Quote:</span><span>₹{bidAmount.toLocaleString()}</span></div>
                           <div className="flex justify-between text-muted-foreground">
                             <span>Platform Fee (0.25%):</span>
-                            <span>{formatPrice(serviceFee)}</span>
+                            <span>₹{serviceFee.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between font-medium border-t pt-1">
                             <span>Total to Customer:</span>
-                            <span>{formatPrice(totalAmount)}</span>
+                            <span>₹{totalAmount.toLocaleString()}</span>
                           </div>
                         </div>
                       )}
@@ -381,7 +375,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                       {lowestBids[req.id] && (
                         <p className="text-sm">
                           <span className="text-muted-foreground">Lowest: </span>
-                          <span className="font-medium">{formatPrice(lowestBids[req.id])}</span>
+                          <span className="font-medium">₹{lowestBids[req.id].toLocaleString()}</span>
                         </p>
                       )}
                       <Button size="sm" className="mt-2">View & Quote</Button>

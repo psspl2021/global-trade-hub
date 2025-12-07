@@ -89,7 +89,7 @@ const certifications = [
   }
 ];
 
-const ExportCertifications = () => {
+export const ExportCertifications = () => {
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -140,5 +140,3 @@ const ExportCertifications = () => {
     </section>
   );
 };
-
-export default ExportCertifications;

@@ -5,9 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Upload, X, Plus, FileText, AlertCircle, Truck, Ship, Plane, Train } from 'lucide-react';
+import { Loader2, Upload, X, Plus, FileText, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { globalLocations, globalTradeRoutes } from '@/data/globalLocations';
 
 interface VehicleFormProps {
   userId: string;
@@ -21,43 +20,16 @@ interface Route {
   destination: string;
 }
 
-// Road Freight Vehicle Types
-const roadVehicleTypes = [
-  { value: 'truck', label: 'Truck', icon: Truck },
-  { value: 'trailer', label: 'Trailer', icon: Truck },
-  { value: 'tanker', label: 'Tanker', icon: Truck },
-  { value: 'container_truck', label: 'Container Truck', icon: Truck },
-  { value: 'mini_truck', label: 'Mini Truck', icon: Truck },
-  { value: 'pickup', label: 'Pickup', icon: Truck },
-  { value: 'tempo', label: 'Tempo', icon: Truck },
-  { value: 'lpv', label: 'Light Passenger Vehicle', icon: Truck },
+const vehicleTypes = [
+  { value: 'truck', label: 'Truck' },
+  { value: 'trailer', label: 'Trailer' },
+  { value: 'tanker', label: 'Tanker' },
+  { value: 'container_truck', label: 'Container Truck' },
+  { value: 'mini_truck', label: 'Mini Truck' },
+  { value: 'pickup', label: 'Pickup' },
+  { value: 'tempo', label: 'Tempo' },
+  { value: 'lpv', label: 'Light Passenger Vehicle' },
 ];
-
-// Sea Freight Types
-const seaFreightTypes = [
-  { value: 'fcl_20ft', label: '20ft FCL Container', icon: Ship },
-  { value: 'fcl_40ft', label: '40ft FCL Container', icon: Ship },
-  { value: 'fcl_40hc', label: '40ft HC Container', icon: Ship },
-  { value: 'lcl', label: 'LCL (Less than Container)', icon: Ship },
-  { value: 'bulk_carrier', label: 'Bulk Carrier', icon: Ship },
-  { value: 'roro', label: 'RoRo (Roll-on/Roll-off)', icon: Ship },
-];
-
-// Air Freight Types
-const airFreightTypes = [
-  { value: 'air_cargo', label: 'Air Cargo', icon: Plane },
-  { value: 'express_air', label: 'Express Air Courier', icon: Plane },
-  { value: 'charter_cargo', label: 'Charter Cargo', icon: Plane },
-];
-
-// Rail Freight Types
-const railFreightTypes = [
-  { value: 'rail_container', label: 'Rail Container', icon: Train },
-  { value: 'rail_wagon', label: 'Rail Wagon', icon: Train },
-  { value: 'rail_tanker', label: 'Rail Tanker', icon: Train },
-];
-
-const allVehicleTypes = [...roadVehicleTypes, ...seaFreightTypes, ...airFreightTypes, ...railFreightTypes];
 
 const fuelTypes = [
   { value: 'diesel', label: 'Diesel' },
@@ -65,14 +37,15 @@ const fuelTypes = [
   { value: 'cng', label: 'CNG' },
   { value: 'electric', label: 'Electric' },
   { value: 'hybrid', label: 'Hybrid' },
-  { value: 'marine_diesel', label: 'Marine Diesel' },
-  { value: 'jet_fuel', label: 'Jet Fuel' },
 ];
 
-const popularRoutes = globalTradeRoutes.slice(0, 6).map(r => ({
-  origin: `${r.origin}, ${r.originCountry}`,
-  destination: `${r.destination}, ${r.destinationCountry}`,
-}));
+const popularRoutes = [
+  { origin: 'Delhi', destination: 'Mumbai' },
+  { origin: 'Mumbai', destination: 'Pune' },
+  { origin: 'Chennai', destination: 'Bangalore' },
+  { origin: 'Kolkata', destination: 'Delhi' },
+  { origin: 'Hyderabad', destination: 'Chennai' },
+];
 
 export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: VehicleFormProps) => {
   const [loading, setLoading] = useState(false);
@@ -291,34 +264,13 @@ export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: Vehicl
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Vehicle/Freight Type *</Label>
+          <Label>Vehicle Type *</Label>
           <Select value={formData.vehicle_type} onValueChange={(v) => setFormData({ ...formData, vehicle_type: v })}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="max-h-80">
-              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1">
-                <Truck className="h-3 w-3" /> Road Freight
-              </div>
-              {roadVehicleTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-              ))}
-              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
-                <Ship className="h-3 w-3" /> Sea Freight
-              </div>
-              {seaFreightTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-              ))}
-              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
-                <Plane className="h-3 w-3" /> Air Freight
-              </div>
-              {airFreightTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-              ))}
-              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
-                <Train className="h-3 w-3" /> Rail Freight
-              </div>
-              {railFreightTypes.map((type) => (
+            <SelectContent>
+              {vehicleTypes.map((type) => (
                 <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
               ))}
             </SelectContent>

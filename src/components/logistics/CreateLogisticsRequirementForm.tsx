@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Truck, Ship, Plane, Train } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const logisticsSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -23,8 +23,6 @@ const logisticsSchema = z.object({
   pickup_date: z.string().min(1, 'Pickup date is required'),
   delivery_deadline: z.string().min(1, 'Delivery deadline is required'),
   vehicle_type_preference: z.string().optional(),
-  freight_mode: z.string().optional(),
-  incoterms: z.string().optional(),
   special_requirements: z.string().optional(),
   budget_max: z.coerce.number().optional(),
 });
@@ -41,63 +39,20 @@ interface CreateLogisticsRequirementFormProps {
 const materialTypes = [
   'Raw Materials', 'Finished Goods', 'Machinery & Equipment', 'Agricultural Products',
   'Chemicals', 'Food & Beverages', 'Textiles', 'Electronics', 'Construction Materials',
-  'Automotive Parts', 'Pharmaceuticals', 'Hazardous Materials', 'Perishables', 'Other'
+  'Automotive Parts', 'Pharmaceuticals', 'Other'
 ];
 
-const units = ['tons', 'kg', 'pieces', 'CBM', 'pallets', 'containers', 'TEU', 'FEU'];
+const units = ['tons', 'kg', 'pieces', 'CBM', 'pallets', 'containers'];
 
-const freightModes = [
-  { value: 'road', label: 'Road Freight', icon: Truck },
-  { value: 'sea', label: 'Sea Freight', icon: Ship },
-  { value: 'air', label: 'Air Freight', icon: Plane },
-  { value: 'rail', label: 'Rail Freight', icon: Train },
-  { value: 'multimodal', label: 'Multimodal', icon: Truck },
-];
-
-const incotermsOptions = [
-  { value: 'EXW', label: 'EXW - Ex Works' },
-  { value: 'FCA', label: 'FCA - Free Carrier' },
-  { value: 'CPT', label: 'CPT - Carriage Paid To' },
-  { value: 'CIP', label: 'CIP - Carriage and Insurance Paid To' },
-  { value: 'DAP', label: 'DAP - Delivered at Place' },
-  { value: 'DPU', label: 'DPU - Delivered at Place Unloaded' },
-  { value: 'DDP', label: 'DDP - Delivered Duty Paid' },
-  { value: 'FAS', label: 'FAS - Free Alongside Ship' },
-  { value: 'FOB', label: 'FOB - Free on Board' },
-  { value: 'CFR', label: 'CFR - Cost and Freight' },
-  { value: 'CIF', label: 'CIF - Cost, Insurance and Freight' },
-];
-
-// Road Freight
-const roadVehicleTypes = [
+const vehicleTypes = [
   { value: 'truck', label: 'Truck' },
   { value: 'trailer', label: 'Trailer' },
   { value: 'tanker', label: 'Tanker' },
   { value: 'container_truck', label: 'Container Truck' },
+  { value: 'open_truck', label: 'Open Truck' },
+  { value: 'closed_container', label: 'Closed Container' },
+  { value: 'refrigerated', label: 'Refrigerated' },
   { value: 'flatbed', label: 'Flatbed' },
-  { value: 'refrigerated', label: 'Refrigerated Truck' },
-];
-
-// Sea Freight
-const seaFreightTypes = [
-  { value: 'fcl_20ft', label: '20ft FCL Container' },
-  { value: 'fcl_40ft', label: '40ft FCL Container' },
-  { value: 'fcl_40hc', label: '40ft HC Container' },
-  { value: 'lcl', label: 'LCL (Less than Container)' },
-  { value: 'bulk_carrier', label: 'Bulk Carrier' },
-  { value: 'roro', label: 'RoRo' },
-];
-
-// Air Freight
-const airFreightTypes = [
-  { value: 'air_cargo', label: 'Air Cargo' },
-  { value: 'express_air', label: 'Express Air Courier' },
-];
-
-// Rail Freight
-const railFreightTypes = [
-  { value: 'rail_container', label: 'Rail Container' },
-  { value: 'rail_wagon', label: 'Rail Wagon' },
 ];
 
 export const CreateLogisticsRequirementForm = ({ 
@@ -183,64 +138,14 @@ export const CreateLogisticsRequirementForm = ({
                 </FormItem>
               )} />
 
-              <FormField control={form.control} name="freight_mode" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Freight Mode</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select mode" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {freightModes.map(mode => (
-                        <SelectItem key={mode.value} value={mode.value}>
-                          <div className="flex items-center gap-2">
-                            <mode.icon className="h-3 w-3" />
-                            {mode.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="vehicle_type_preference" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Vehicle/Container Type</FormLabel>
+                  <FormLabel>Vehicle Preference</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Any type" /></SelectTrigger></FormControl>
-                    <SelectContent className="max-h-60">
-                      <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">Road</div>
-                      {roadVehicleTypes.map(type => (
+                    <FormControl><SelectTrigger><SelectValue placeholder="Any vehicle" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {vehicleTypes.map(type => (
                         <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                      ))}
-                      <div className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1">Sea</div>
-                      {seaFreightTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                      ))}
-                      <div className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1">Air</div>
-                      {airFreightTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                      ))}
-                      <div className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1">Rail</div>
-                      {railFreightTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
-              <FormField control={form.control} name="incoterms" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Incoterms (Intl.)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select terms" /></SelectTrigger></FormControl>
-                    <SelectContent className="max-h-60">
-                      {incotermsOptions.map(term => (
-                        <SelectItem key={term.value} value={term.value}>{term.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

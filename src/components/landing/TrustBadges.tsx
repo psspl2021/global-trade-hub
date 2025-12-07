@@ -33,7 +33,7 @@ const badges = [
   },
 ];
 
-const TrustBadges = () => {
+export const TrustBadges = () => {
   return (
     <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -55,5 +55,3 @@ const TrustBadges = () => {
     </section>
   );
 };
-
-export default TrustBadges;

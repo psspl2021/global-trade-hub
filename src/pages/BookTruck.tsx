@@ -1,4 +1,3 @@
-// Rebuild: 2025-12-07T18:25:00Z - Added loading skeletons
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks/useSEO';
@@ -7,89 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Truck, Warehouse, Search, MapPin, ArrowLeft, 
-  Package, Fuel, CheckCircle, Route, Ship, Plane, Train
+  Package, Fuel, CheckCircle, Route
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
-import { globalLocations, regions } from '@/data/globalLocations';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { CurrencySelectorCompact } from '@/components/logistics/CurrencySelectorCompact';
-
-// Vehicle Card Skeleton
-const VehicleCardSkeleton = () => (
-  <Card>
-    <CardHeader className="pb-3">
-      <div className="flex items-start justify-between">
-        <div>
-          <Skeleton className="h-5 w-24 mb-2" />
-          <Skeleton className="h-6 w-40" />
-        </div>
-        <Skeleton className="h-5 w-20" />
-      </div>
-    </CardHeader>
-    <CardContent className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-4 w-4 rounded-full" />
-        <Skeleton className="h-4 w-32" />
-      </div>
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-4 w-4 rounded-full" />
-        <Skeleton className="h-4 w-28" />
-      </div>
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-4 w-4 rounded-full" />
-        <Skeleton className="h-4 w-20" />
-      </div>
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-4 w-4 rounded-full" />
-        <Skeleton className="h-4 w-36" />
-      </div>
-      <div className="space-y-1">
-        <Skeleton className="h-4 w-16" />
-        <div className="flex gap-1">
-          <Skeleton className="h-5 w-28" />
-          <Skeleton className="h-5 w-28" />
-        </div>
-      </div>
-      <Skeleton className="h-10 w-full mt-4" />
-    </CardContent>
-  </Card>
-);
-
-// Warehouse Card Skeleton
-const WarehouseCardSkeleton = () => (
-  <Card>
-    <CardHeader className="pb-3">
-      <div className="flex items-start justify-between">
-        <div>
-          <Skeleton className="h-5 w-24 mb-2" />
-          <Skeleton className="h-6 w-44" />
-        </div>
-        <Skeleton className="h-5 w-16" />
-      </div>
-    </CardHeader>
-    <CardContent className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-4 w-4 rounded-full" />
-        <Skeleton className="h-4 w-32" />
-      </div>
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-4 w-4 rounded-full" />
-        <Skeleton className="h-4 w-36" />
-      </div>
-      <Skeleton className="h-4 w-28" />
-      <div className="flex gap-1">
-        <Skeleton className="h-5 w-20" />
-        <Skeleton className="h-5 w-24" />
-        <Skeleton className="h-5 w-16" />
-      </div>
-      <Skeleton className="h-10 w-full mt-4" />
-    </CardContent>
-  </Card>
-);
+import { indianLocations } from '@/data/indianLocations';
 
 interface Vehicle {
   id: string;
@@ -113,7 +36,6 @@ interface WarehouseData {
   address: string;
   city: string;
   state: string;
-  country?: string | null;
   total_area_sqft: number;
   available_area_sqft: number;
   rental_rate_per_sqft: number | null;
@@ -122,8 +44,7 @@ interface WarehouseData {
   contact_phone: string | null;
 }
 
-// Road Freight
-const roadVehicleTypes: Record<string, string> = {
+const vehicleTypeLabels: Record<string, string> = {
   truck: 'Truck',
   trailer: 'Trailer',
   tanker: 'Tanker',
@@ -133,33 +54,6 @@ const roadVehicleTypes: Record<string, string> = {
   tempo: 'Tempo',
   lpv: 'LPV',
 };
-
-// Sea Freight
-const seaFreightTypes: Record<string, string> = {
-  fcl_20ft: '20ft FCL Container',
-  fcl_40ft: '40ft FCL Container',
-  fcl_40hc: '40ft HC Container',
-  lcl: 'LCL (Less than Container)',
-  bulk_carrier: 'Bulk Carrier',
-  roro: 'RoRo (Roll-on/Roll-off)',
-  breakbulk: 'Break Bulk',
-};
-
-// Air Freight
-const airFreightTypes: Record<string, string> = {
-  air_cargo: 'Air Cargo',
-  express_air: 'Express Air Courier',
-  charter_cargo: 'Charter Cargo',
-};
-
-// Rail Freight
-const railFreightTypes: Record<string, string> = {
-  rail_container: 'Rail Container',
-  rail_wagon: 'Rail Wagon',
-  rail_tanker: 'Rail Tanker',
-};
-
-const allVehicleTypes = { ...roadVehicleTypes, ...seaFreightTypes, ...airFreightTypes, ...railFreightTypes };
 
 const warehouseTypeLabels: Record<string, string> = {
   dry_storage: 'Dry Storage',
@@ -175,16 +69,14 @@ const BookTruck = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
   const [loading, setLoading] = useState(true);
-  const { formatPrice } = useCurrency();
   const [availableRoutes, setAvailableRoutes] = useState<{ origin: string; destination: string }[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState('All Regions');
 
   // SEO
   useSEO({
-    title: 'Book Trucks & Warehouses Worldwide | ProcureSaathi Global Logistics',
-    description: 'Find verified logistics partners for transportation and warehousing worldwide. Sea freight, air cargo, road transport, and rail freight across 150+ global hubs.',
+    title: 'Book Trucks & Warehouses | ProcureSaathi Logistics',
+    description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators.',
     canonical: 'https://procuresaathi.com/book-truck',
-    keywords: 'global logistics, international freight, sea freight, air cargo, truck booking, warehouse rental, FCL LCL shipping, container shipping'
+    keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services'
   });
   
   // Filter inputs
@@ -303,7 +195,6 @@ const BookTruck = () => {
             />
           </div>
           <div className="flex items-center gap-4">
-            <CurrencySelectorCompact showBadge={false} />
             <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
             <Button onClick={() => navigate('/signup?role=logistics_partner')}>
               Register as Logistics Partner
@@ -316,31 +207,17 @@ const BookTruck = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">
-            <span className="text-primary">Global</span> Logistics & Warehousing
+            Book <span className="text-primary">Trucks</span> & <span className="text-primary">Warehouses</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Find verified logistics partners for transportation and warehousing worldwide. 
-            Sea freight, air cargo, road transport, and rail freight across 150+ global hubs.
+            Find verified logistics partners for your transportation and warehousing needs. 
+            Get instant quotes and book services across India.
           </p>
         </div>
 
         {/* Search & Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            {/* Region Filter */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {regions.map((region) => (
-                <Badge
-                  key={region}
-                  variant={selectedRegion === region ? 'default' : 'outline'}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedRegion(region)}
-                >
-                  {region}
-                </Badge>
-              ))}
-            </div>
-            
             <div className="grid md:grid-cols-6 gap-4">
               <Select value={fromLocation} onValueChange={setFromLocation}>
                 <SelectTrigger className="h-12">
@@ -351,11 +228,9 @@ const BookTruck = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50 max-h-60">
                   <SelectItem value="all">Any Origin</SelectItem>
-                  {globalLocations
-                    .filter(loc => selectedRegion === 'All Regions' || loc.region === selectedRegion)
-                    .map((loc) => (
-                    <SelectItem key={`from-${loc.city}-${loc.country}`} value={loc.city}>
-                      {loc.city}, {loc.country} {loc.isPort ? '⚓' : ''}
+                  {indianLocations.map((loc) => (
+                    <SelectItem key={`from-${loc.city}-${loc.state}`} value={loc.city}>
+                      {loc.city}, {loc.state}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -369,11 +244,9 @@ const BookTruck = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50 max-h-60">
                   <SelectItem value="all">Any Destination</SelectItem>
-                  {globalLocations
-                    .filter(loc => selectedRegion === 'All Regions' || loc.region === selectedRegion)
-                    .map((loc) => (
-                    <SelectItem key={`to-${loc.city}-${loc.country}`} value={loc.city}>
-                      {loc.city}, {loc.country} {loc.isPort ? '⚓' : ''}
+                  {indianLocations.map((loc) => (
+                    <SelectItem key={`to-${loc.city}-${loc.state}`} value={loc.city}>
+                      {loc.city}, {loc.state}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -396,32 +269,11 @@ const BookTruck = () => {
               </Select>
               <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
                 <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Freight Type" />
+                  <SelectValue placeholder="Vehicle Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50 max-h-80">
-                  <SelectItem value="all">All Freight Types</SelectItem>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1">
-                    <Truck className="h-3 w-3" /> Road Freight
-                  </div>
-                  {Object.entries(roadVehicleTypes).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
-                    <Ship className="h-3 w-3" /> Sea Freight
-                  </div>
-                  {Object.entries(seaFreightTypes).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
-                    <Plane className="h-3 w-3" /> Air Freight
-                  </div>
-                  {Object.entries(airFreightTypes).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
-                    <Train className="h-3 w-3" /> Rail Freight
-                  </div>
-                  {Object.entries(railFreightTypes).map(([value, label]) => (
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="all">All Vehicle Types</SelectItem>
+                  {Object.entries(vehicleTypeLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -461,10 +313,9 @@ const BookTruck = () => {
           {/* Vehicles Tab */}
           <TabsContent value="vehicles">
             {loading ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <VehicleCardSkeleton key={i} />
-                ))}
+              <div className="text-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+                <p className="mt-4 text-muted-foreground">Loading vehicles...</p>
               </div>
             ) : filteredVehicles.length === 0 ? (
               <Card>
@@ -489,7 +340,7 @@ const BookTruck = () => {
                       <div className="flex items-start justify-between">
                         <div>
                           <Badge variant="outline" className="mb-2">
-                            {allVehicleTypes[vehicle.vehicle_type] || vehicle.vehicle_type}
+                            {vehicleTypeLabels[vehicle.vehicle_type] || vehicle.vehicle_type}
                           </Badge>
                           <CardTitle className="text-lg">
                             {vehicle.manufacturer} {vehicle.model}
@@ -563,10 +414,9 @@ const BookTruck = () => {
           {/* Warehouses Tab */}
           <TabsContent value="warehouses">
             {loading ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <WarehouseCardSkeleton key={i} />
-                ))}
+              <div className="text-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+                <p className="mt-4 text-muted-foreground">Loading warehouses...</p>
               </div>
             ) : filteredWarehouses.length === 0 ? (
               <Card>
@@ -611,7 +461,7 @@ const BookTruck = () => {
                       </div>
                       {warehouse.rental_rate_per_sqft && (
                         <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                          {formatPrice(warehouse.rental_rate_per_sqft)}/sq.ft/month
+                          ₹{warehouse.rental_rate_per_sqft}/sq.ft/month
                         </div>
                       )}
                       {warehouse.facilities && (

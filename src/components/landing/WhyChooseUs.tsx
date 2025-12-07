@@ -46,7 +46,7 @@ const comparisonData = [
   { feature: "Payment Tracking", traditional: "Manual invoicing", procuresaathi: "Automated platform invoices" },
 ];
 
-const WhyChooseUs = () => {
+export const WhyChooseUs = () => {
   const navigate = useNavigate();
 
   return (
@@ -125,5 +125,3 @@ const WhyChooseUs = () => {
     </section>
   );
 };
-
-export default WhyChooseUs;
