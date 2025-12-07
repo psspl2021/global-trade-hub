@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef, Component, ReactNode } from 'react';
-import { FAQ } from './FAQ';
+import { useState, useEffect, useRef, Suspense, lazy, Component, ReactNode } from 'react';
+
+// TRUE lazy import - FAQ only loads when rendered
+const FAQ = lazy(() => import('./FAQ').then(module => ({ default: module.FAQ })));
 
 // Error boundary specifically for FAQ to catch and display errors
 class FAQErrorBoundary extends Component<
@@ -35,6 +37,22 @@ class FAQErrorBoundary extends Component<
   }
 }
 
+const Placeholder = () => (
+  <section className="py-16 bg-background">
+    <div className="container mx-auto px-4">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold text-foreground mb-4">
+          Frequently Asked Questions
+        </h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Loading...
+        </p>
+      </div>
+      <div className="max-w-3xl mx-auto h-64" />
+    </div>
+  </section>
+);
+
 export const LazyFAQ = () => {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,10 +65,7 @@ export const LazyFAQ = () => {
           observer.disconnect();
         }
       },
-      {
-        rootMargin: '200px',
-        threshold: 0
-      }
+      { rootMargin: '200px', threshold: 0 }
     );
 
     if (containerRef.current) {
@@ -60,27 +75,13 @@ export const LazyFAQ = () => {
     return () => observer.disconnect();
   }, []);
 
-  const Placeholder = () => (
-    <section className="py-16 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to know about sourcing, supplying, and logistics on ProcureSaathi.
-          </p>
-        </div>
-        <div className="max-w-3xl mx-auto h-64" />
-      </div>
-    </section>
-  );
-
   return (
     <div ref={containerRef} id="faq">
       {isVisible ? (
         <FAQErrorBoundary>
-          <FAQ />
+          <Suspense fallback={<Placeholder />}>
+            <FAQ />
+          </Suspense>
         </FAQErrorBoundary>
       ) : (
         <Placeholder />
