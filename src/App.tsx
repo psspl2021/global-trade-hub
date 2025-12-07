@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AIChatBox } from "@/components/AIChatBox";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Lazy load pages for code splitting
@@ -34,7 +33,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AIChatBox />
         <BrowserRouter>
           <Suspense fallback={<PageLoader />}>
             <Routes>
