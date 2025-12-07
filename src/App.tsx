@@ -1,4 +1,6 @@
-// App.tsx - Main application component with routing - Build v2
+// App.tsx - Force rebuild v3 - 2025-12-07T12:00:00Z
+console.log("[APP] Module loading...");
+
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,7 +10,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AlertTriangle, RefreshCw, Home, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Direct imports for all pages (prevents lazy loading blank page issues)
+console.log("[APP] Core imports loaded");
+
+// Direct imports for all pages
 import Login from "./pages/Login";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -20,54 +24,30 @@ import BookTruck from "./pages/BookTruck";
 import SourceCountry from "./pages/SourceCountry";
 import NotFound from "./pages/NotFound";
 
-// Enhanced Error Boundary with recovery options
+console.log("[APP] All page imports loaded");
+
+// Error Boundary
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
-  showDetails: boolean;
-  errorTime: Date | null;
 }
 
 class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
   constructor(props: { children: ReactNode }) {
     super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      showDetails: false,
-      errorTime: null,
-    };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error: Error) {
-    console.error('[ErrorBoundary] Caught error:', error.message);
-    return { hasError: true, error, errorTime: new Date() };
+    console.error("[ErrorBoundary] Caught error:", error.message);
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("[ErrorBoundary] Full error details:", error, errorInfo);
+    console.error("[ErrorBoundary] Full error:", error, errorInfo);
     this.setState({ errorInfo });
   }
-
-  handleReload = () => {
-    window.location.reload();
-  };
-
-  handleGoHome = () => {
-    window.location.href = "/";
-  };
-
-  handleClearCacheAndReload = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.reload();
-  };
-
-  toggleDetails = () => {
-    this.setState((prev) => ({ showDetails: !prev.showDetails }));
-  };
 
   render() {
     if (this.state.hasError) {
@@ -79,95 +59,76 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
                 <AlertTriangle className="h-12 w-12 text-destructive" />
               </div>
             </div>
-
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">
-                Something went wrong
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
               <p className="text-muted-foreground">
-                We encountered an unexpected error. Try the recovery options below.
+                {this.state.error?.message || "An unexpected error occurred"}
               </p>
-              {this.state.errorTime && (
-                <p className="text-xs text-muted-foreground">
-                  Error occurred at: {this.state.errorTime.toLocaleTimeString()}
-                </p>
-              )}
             </div>
-
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={this.handleReload} className="gap-2">
+              <Button onClick={() => window.location.reload()} className="gap-2">
                 <RefreshCw className="h-4 w-4" />
                 Reload Page
               </Button>
-              <Button onClick={this.handleGoHome} variant="outline" className="gap-2">
+              <Button onClick={() => window.location.href = "/"} variant="outline" className="gap-2">
                 <Home className="h-4 w-4" />
                 Go Home
               </Button>
               <Button
-                onClick={this.handleClearCacheAndReload}
+                onClick={() => {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  window.location.reload();
+                }}
                 variant="secondary"
                 className="gap-2"
               >
                 <Trash2 className="h-4 w-4" />
-                Clear Cache & Reload
+                Clear Cache
               </Button>
-            </div>
-
-            <div className="pt-4">
-              <button
-                onClick={this.toggleDetails}
-                className="text-sm text-muted-foreground hover:text-foreground underline"
-              >
-                {this.state.showDetails ? "Hide" : "Show"} Technical Details
-              </button>
-
-              {this.state.showDetails && this.state.error && (
-                <div className="mt-4 text-left bg-muted p-4 rounded-lg text-sm overflow-auto max-h-64">
-                  <p className="font-semibold text-destructive mb-2">
-                    {this.state.error.name}: {this.state.error.message}
-                  </p>
-                  <pre className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
-                    {this.state.error.stack}
-                    {this.state.errorInfo?.componentStack}
-                  </pre>
-                </div>
-              )}
             </div>
           </div>
         </div>
       );
     }
-
     return this.props.children;
   }
 }
 
+console.log("[APP] ErrorBoundary defined");
+
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/browse" element={<Browse />} />
-            <Route path="/book-truck" element={<BookTruck />} />
-            <Route path="/source/:country" element={<SourceCountry />} />
-            <Route path="/auth" element={<Navigate to="/login" replace />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  console.log("[APP] App component rendering...");
+  
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/browse" element={<Browse />} />
+              <Route path="/book-truck" element={<BookTruck />} />
+              <Route path="/source/:country" element={<SourceCountry />} />
+              <Route path="/auth" element={<Navigate to="/login" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
+
+console.log("[APP] App component defined, exporting...");
 
 export default App;

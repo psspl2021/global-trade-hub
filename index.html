@@ -40,6 +40,33 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/favicon.ico" />
 
+    <!-- Critical CSS for loading state -->
+    <style>
+      #root-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f8fafc;
+      }
+      #root-loading .loader {
+        text-align: center;
+      }
+      #root-loading .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+
     <!-- Structured Data - Organization -->
     <script type="application/ld+json">
     {
@@ -80,7 +107,6 @@
     </script>
 
     <!-- Google Analytics 4 -->
-    <!-- Replace G-XXXXXXXXXX with your actual Measurement ID from Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -91,7 +117,35 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading state shown before React hydrates -->
+      <div id="root-loading">
+        <div class="loader">
+          <div class="spinner"></div>
+          <p id="loading-text">Loading ProcureSaathi...</p>
+        </div>
+      </div>
+    </div>
+    <noscript>
+      <div style="padding: 40px; text-align: center; font-family: system-ui, sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>Please enable JavaScript to use ProcureSaathi.</p>
+      </div>
+    </noscript>
+    <!-- Debug script - runs before modules -->
+    <script>
+      console.log('[HTML] Inline script executing - v3 - ' + new Date().toISOString());
+      window.__APP_DEBUG = { startTime: Date.now(), steps: [] };
+      window.__APP_DEBUG.steps.push('html_script');
+      window.onerror = function(msg, url, line, col, error) {
+        console.error('[HTML] Global error:', msg, 'at', url, ':', line);
+        var root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = '<div style="padding:20px;color:red;font-family:system-ui;"><h2>Error Loading App</h2><p>' + msg + '</p><p>Line: ' + line + '</p></div>';
+        }
+        return false;
+      };
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
