@@ -17,7 +17,6 @@ import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
-import { WhatsAppButton } from '@/components/WhatsAppButton';
 
 // Lazy load below-the-fold components to reduce initial bundle
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -621,8 +620,6 @@ const Index = () => {
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
 
-      {/* WhatsApp Button */}
-      <WhatsAppButton />
 
       {/* Footer */}
       <footer className="border-t bg-card py-12">
