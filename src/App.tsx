@@ -1,4 +1,4 @@
-// Force rebuild: 2025-12-07T18:55:00Z - ALL direct imports, no lazy loading
+// Force rebuild: 2025-12-07T19:00:00Z - Fresh rebuild trigger
 console.log("App.tsx: Module loading started");
 
 import { Toaster } from "@/components/ui/toaster";
