@@ -126,6 +126,7 @@ export default function SourceCountry() {
   useSEO({
     title: `${data.headline} | ProcureSaathi`,
     description: data.description,
+    canonical: `https://procuresaathi.com/source/${country?.toLowerCase() || 'usa'}`,
     keywords: `${data.name} import, India export, B2B sourcing, ${data.topCategories.join(", ")}`
   });
 

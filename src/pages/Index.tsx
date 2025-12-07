@@ -184,8 +184,9 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              For the <span className="text-primary">Global</span> B2B Sourcing{' '}
-              <span className="text-warning">Platform</span>
+              ProcureSaathi - India's #1{' '}
+              <span className="text-primary">B2B Sourcing</span> &{' '}
+              <span className="text-warning">Procurement Platform</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               Search across 23+ product categories and connect with live stock from registered suppliers. Post requirements, receive competitive sealed bids, and complete secure transactions — all in one platform.
@@ -679,18 +680,24 @@ const Index = () => {
             <div>
               <h4 className="font-semibold mb-4">International Markets</h4>
               <div className="flex flex-col gap-2">
-                <button onClick={() => navigate('/source/usa')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                <a href="/source/usa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
                   <span>🇺🇸</span> Source from India to USA
-                </button>
-                <button onClick={() => navigate('/source/uae')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                </a>
+                <a href="/source/uae" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
                   <span>🇦🇪</span> India to UAE Trade
-                </button>
-                <button onClick={() => navigate('/source/uk')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                </a>
+                <a href="/source/uk" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
                   <span>🇬🇧</span> Indian Suppliers for UK
-                </button>
-                <button onClick={() => navigate('/source/africa')} className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                </a>
+                <a href="/source/germany" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                  <span>🇩🇪</span> India to Germany Trade
+                </a>
+                <a href="/source/australia" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                  <span>🇦🇺</span> Source from India to Australia
+                </a>
+                <a href="/source/africa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
                   <span>🌍</span> Export to Africa
-                </button>
+                </a>
               </div>
             </div>
             
