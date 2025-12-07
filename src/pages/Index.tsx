@@ -1,11 +1,16 @@
-// ProcureSaathi Homepage - India's #1 B2B Sourcing Platform
+// Index.tsx - Homepage - Force rebuild v3
+console.log("[INDEX] Module loading started");
+
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingBag, Package, Truck } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
+console.log("[INDEX] All imports completed");
+
 const Index = () => {
+  console.log("[INDEX] Component rendering");
   const navigate = useNavigate();
 
   return (
@@ -104,5 +109,7 @@ const Index = () => {
     </div>
   );
 };
+
+console.log("[INDEX] Component defined, exporting");
 
 export default Index;
