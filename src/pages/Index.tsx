@@ -1,5 +1,5 @@
-// Rebuild: 2025-12-07T18:22:00Z - Clean module rebuild v2
-import { useState, useEffect, lazy, Suspense } from 'react';
+// Rebuild: 2025-12-07T18:56:00Z - ALL direct imports, no lazy loading
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,20 +19,19 @@ import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 
+// Direct imports - no lazy loading
+import LiveSupplierStock from '@/components/LiveSupplierStock';
+import BrowseRequirements from '@/components/BrowseRequirements';
+import Testimonials from '@/components/landing/Testimonials';
+import WhyChooseUs from '@/components/landing/WhyChooseUs';
+import StatsSection from '@/components/landing/StatsSection';
+import ExitIntentPopup from '@/components/landing/ExitIntentPopup';
+import LiveActivityFeed from '@/components/landing/LiveActivityFeed';
+import TrustBadges from '@/components/landing/TrustBadges';
+import InternationalTestimonials from '@/components/landing/InternationalTestimonials';
+import ExportCertifications from '@/components/landing/ExportCertifications';
 
-// Lazy load below-the-fold components to reduce initial bundle
-const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock'));
-const BrowseRequirements = lazy(() => import('@/components/BrowseRequirements'));
-const Testimonials = lazy(() => import('@/components/landing/Testimonials'));
-const WhyChooseUs = lazy(() => import('@/components/landing/WhyChooseUs'));
-const StatsSection = lazy(() => import('@/components/landing/StatsSection'));
-const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup'));
-const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed'));
-const TrustBadges = lazy(() => import('@/components/landing/TrustBadges'));
-const InternationalTestimonials = lazy(() => import('@/components/landing/InternationalTestimonials'));
-const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications'));
-// Minimal loading fallback
-const SectionFallback = () => <div className="py-16 bg-background" />;
+console.log("Index.tsx: All imports loaded successfully");
 
 const Index = () => {
   const navigate = useNavigate();
@@ -502,34 +501,23 @@ const Index = () => {
       </section>
 
       {/* Trust Badges Section */}
-      <Suspense fallback={<SectionFallback />}>
-        <TrustBadges />
-      </Suspense>
+      {/* Trust Badges Section */}
+      <TrustBadges />
 
       {/* Why Choose Us Section */}
-      <Suspense fallback={<SectionFallback />}>
-        <WhyChooseUs />
-      </Suspense>
+      <WhyChooseUs />
 
       {/* Stats Section */}
-      <Suspense fallback={<SectionFallback />}>
-        <StatsSection />
-      </Suspense>
+      <StatsSection />
 
       {/* International Testimonials Section */}
-      <Suspense fallback={<SectionFallback />}>
-        <InternationalTestimonials />
-      </Suspense>
+      <InternationalTestimonials />
 
       {/* Export Certifications Section */}
-      <Suspense fallback={<SectionFallback />}>
-        <ExportCertifications />
-      </Suspense>
+      <ExportCertifications />
 
       {/* Testimonials Section */}
-      <Suspense fallback={<SectionFallback />}>
-        <Testimonials />
-      </Suspense>
+      <Testimonials />
 
       {/* FAQ Section */}
       <LazyFAQ />
@@ -614,12 +602,8 @@ const Index = () => {
       </main>
 
       {/* Lead Generation Components */}
-      <Suspense fallback={null}>
-        <ExitIntentPopup />
-      </Suspense>
-      <Suspense fallback={null}>
-        <LiveActivityFeed />
-      </Suspense>
+      <ExitIntentPopup />
+      <LiveActivityFeed />
       
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
@@ -725,24 +709,20 @@ const Index = () => {
       </footer>
       {/* Live Stock Dialog - Only loaded when needed */}
       {showLiveStock && (
-        <Suspense fallback={null}>
-          <LiveSupplierStock 
-            open={showLiveStock} 
-            onOpenChange={setShowLiveStock}
-            userId={user?.id}
-          />
-        </Suspense>
+        <LiveSupplierStock 
+          open={showLiveStock} 
+          onOpenChange={setShowLiveStock}
+          userId={user?.id}
+        />
       )}
 
       {/* Live Requirements Dialog - Only loaded when needed */}
       {showLiveRequirements && (
-        <Suspense fallback={null}>
-          <BrowseRequirements 
-            open={showLiveRequirements} 
-            onOpenChange={setShowLiveRequirements}
-            userId={user?.id}
-          />
-        </Suspense>
+        <BrowseRequirements 
+          open={showLiveRequirements} 
+          onOpenChange={setShowLiveRequirements}
+          userId={user?.id}
+        />
       )}
     </div>
   );
