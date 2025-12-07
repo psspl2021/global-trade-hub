@@ -1,34 +1,135 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingBag, Package, Truck } from 'lucide-react';
+import { ShoppingBag, Package, Truck, Menu, X } from 'lucide-react';
 import { TrustBadges } from '@/components/landing/TrustBadges';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
 import { Testimonials } from '@/components/landing/Testimonials';
 import { FAQ } from '@/components/landing/FAQ';
-import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
 import { AIChatBox } from '@/components/AIChatBox';
+import { CategoriesShowcase } from '@/components/landing/CategoriesShowcase';
+import { AboutSection } from '@/components/landing/AboutSection';
+import { ContactSection } from '@/components/landing/ContactSection';
+import { Footer } from '@/components/layout/Footer';
+import procuresaathiLogo from '@/assets/procuresaathi-logo.png';
 
 const Index = () => {
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const scrollToSection = (id: string) => {
+    setMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Enhanced Header */}
       <header className="bg-card border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-primary">ProcureSaathi</h1>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
-            <Button onClick={() => navigate('/signup')}>Join Now</Button>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center">
+              <img src={procuresaathiLogo} alt="ProcureSaathi" className="h-10" />
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
+                Home
+              </Link>
+              <Link to="/categories" className="text-sm font-medium hover:text-primary transition-colors">
+                Categories
+              </Link>
+              <button 
+                onClick={() => scrollToSection('about')} 
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                About Us
+              </button>
+              <button 
+                onClick={() => scrollToSection('contact')} 
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                Contact
+              </button>
+              <Link to="/book-truck" className="text-sm font-medium hover:text-primary transition-colors">
+                Book a Truck
+              </Link>
+            </nav>
+
+            {/* Auth Buttons */}
+            <div className="hidden md:flex items-center gap-3">
+              <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
+              <Button onClick={() => navigate('/signup')}>Join Now</Button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              className="md:hidden p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t py-4 space-y-3">
+              <Link 
+                to="/" 
+                className="block px-2 py-2 text-sm font-medium hover:bg-muted rounded-md"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                to="/categories" 
+                className="block px-2 py-2 text-sm font-medium hover:bg-muted rounded-md"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Categories
+              </Link>
+              <button 
+                onClick={() => scrollToSection('about')} 
+                className="block w-full text-left px-2 py-2 text-sm font-medium hover:bg-muted rounded-md"
+              >
+                About Us
+              </button>
+              <button 
+                onClick={() => scrollToSection('contact')} 
+                className="block w-full text-left px-2 py-2 text-sm font-medium hover:bg-muted rounded-md"
+              >
+                Contact
+              </button>
+              <Link 
+                to="/book-truck" 
+                className="block px-2 py-2 text-sm font-medium hover:bg-muted rounded-md"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Book a Truck
+              </Link>
+              <div className="flex gap-2 pt-2 px-2">
+                <Button variant="outline" className="flex-1" onClick={() => { setMobileMenuOpen(false); navigate('/login'); }}>
+                  Login
+                </Button>
+                <Button className="flex-1" onClick={() => { setMobileMenuOpen(false); navigate('/signup'); }}>
+                  Join Now
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
       <main>
+        {/* Hero Section */}
         <section className="py-20 bg-gradient-to-br from-muted/30 via-background to-muted/50">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -51,6 +152,7 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Role Cards Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -96,23 +198,19 @@ const Index = () => {
           </div>
         </section>
 
+        <CategoriesShowcase />
         <TrustBadges />
         <StatsSection />
+        <AboutSection />
         <WhyChooseUs />
         <Testimonials />
-        <FAQ />
+        <ContactSection />
+        <section id="faq">
+          <FAQ />
+        </section>
       </main>
 
-      <footer className="border-t bg-card py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-xl mx-auto mb-8">
-            <NewsletterSignup variant="inline" source="homepage_footer" />
-          </div>
-          <div className="text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       <LiveActivityFeed />
       <StickySignupBanner />
