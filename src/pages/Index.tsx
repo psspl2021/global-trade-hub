@@ -2,21 +2,16 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingBag, Package, Truck } from 'lucide-react';
-import { lazy, Suspense } from 'react';
-
-// Core landing components (always loaded)
 import { TrustBadges } from '@/components/landing/TrustBadges';
 import { StatsSection } from '@/components/landing/StatsSection';
+import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
 import { Testimonials } from '@/components/landing/Testimonials';
-
-// Lazy load heavier components
-const WhyChooseUs = lazy(() => import('@/components/landing/WhyChooseUs').then(m => ({ default: m.WhyChooseUs })));
-const FAQ = lazy(() => import('@/components/landing/FAQ').then(m => ({ default: m.FAQ })));
-const NewsletterSignup = lazy(() => import('@/components/landing/NewsletterSignup').then(m => ({ default: m.NewsletterSignup })));
-const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed').then(m => ({ default: m.LiveActivityFeed })));
-const StickySignupBanner = lazy(() => import('@/components/StickySignupBanner').then(m => ({ default: m.StickySignupBanner })));
-const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
-const AIChatBox = lazy(() => import('@/components/AIChatBox').then(m => ({ default: m.AIChatBox })));
+import { FAQ } from '@/components/landing/FAQ';
+import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
+import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
+import { StickySignupBanner } from '@/components/StickySignupBanner';
+import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
+import { AIChatBox } from '@/components/AIChatBox';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -34,7 +29,6 @@ const Index = () => {
       </header>
 
       <main>
-        {/* Hero Section */}
         <section className="py-20 bg-gradient-to-br from-muted/30 via-background to-muted/50">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -57,7 +51,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Role Cards Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -103,38 +96,28 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Marketing Sections */}
         <TrustBadges />
         <StatsSection />
-        <Suspense fallback={<div className="py-16" />}>
-          <WhyChooseUs />
-        </Suspense>
+        <WhyChooseUs />
         <Testimonials />
-        <Suspense fallback={<div className="py-16" />}>
-          <FAQ />
-        </Suspense>
+        <FAQ />
       </main>
 
       <footer className="border-t bg-card py-12">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="h-12" />}>
-            <div className="max-w-xl mx-auto mb-8">
-              <NewsletterSignup variant="inline" source="homepage_footer" />
-            </div>
-          </Suspense>
+          <div className="max-w-xl mx-auto mb-8">
+            <NewsletterSignup variant="inline" source="homepage_footer" />
+          </div>
           <div className="text-center text-sm text-muted-foreground">
             <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
           </div>
         </div>
       </footer>
 
-      {/* Floating Components */}
-      <Suspense fallback={null}>
-        <LiveActivityFeed />
-        <StickySignupBanner />
-        <ExitIntentPopup />
-        <AIChatBox />
-      </Suspense>
+      <LiveActivityFeed />
+      <StickySignupBanner />
+      <ExitIntentPopup />
+      <AIChatBox />
     </div>
   );
 };
