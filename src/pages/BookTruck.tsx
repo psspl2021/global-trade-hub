@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
-import { indianLocations } from '@/data/indianLocations';
+import { globalLocations, locationsByRegion, regions } from '@/data/globalLocations';
 
 interface Vehicle {
   id: string;
@@ -73,10 +73,10 @@ const BookTruck = () => {
 
   // SEO
   useSEO({
-    title: 'Book Trucks & Warehouses | ProcureSaathi Logistics',
-    description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators.',
+    title: 'Book Trucks & Warehouses Worldwide | ProcureSaathi Global Logistics',
+    description: 'Find verified logistics partners for transportation and warehousing worldwide. Get instant quotes from verified truck owners and warehouse operators across Asia, Europe, Americas, Middle East and Africa.',
     canonical: 'https://procuresaathi.com/book-truck',
-    keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services'
+    keywords: 'global truck booking, international warehouse rental, logistics partners worldwide, freight transport, cargo services, international shipping'
   });
   
   // Filter inputs
@@ -211,7 +211,7 @@ const BookTruck = () => {
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Find verified logistics partners for your transportation and warehousing needs. 
-            Get instant quotes and book services across India.
+            Get instant quotes and book services worldwide.
           </p>
         </div>
 
@@ -226,12 +226,19 @@ const BookTruck = () => {
                     <SelectValue placeholder="From" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50 max-h-60">
+                <SelectContent className="bg-background z-[100] max-h-72">
                   <SelectItem value="all">Any Origin</SelectItem>
-                  {indianLocations.map((loc) => (
-                    <SelectItem key={`from-${loc.city}-${loc.state}`} value={loc.city}>
-                      {loc.city}, {loc.state}
-                    </SelectItem>
+                  {regions.map((region) => (
+                    <div key={`from-region-${region}`}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
+                        {region}
+                      </div>
+                      {locationsByRegion[region].map((loc) => (
+                        <SelectItem key={`from-${loc.city}-${loc.country}`} value={loc.city}>
+                          {loc.city}, {loc.country}
+                        </SelectItem>
+                      ))}
+                    </div>
                   ))}
                 </SelectContent>
               </Select>
@@ -242,12 +249,19 @@ const BookTruck = () => {
                     <SelectValue placeholder="To" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50 max-h-60">
+                <SelectContent className="bg-background z-[100] max-h-72">
                   <SelectItem value="all">Any Destination</SelectItem>
-                  {indianLocations.map((loc) => (
-                    <SelectItem key={`to-${loc.city}-${loc.state}`} value={loc.city}>
-                      {loc.city}, {loc.state}
-                    </SelectItem>
+                  {regions.map((region) => (
+                    <div key={`to-region-${region}`}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
+                        {region}
+                      </div>
+                      {locationsByRegion[region].map((loc) => (
+                        <SelectItem key={`to-${loc.city}-${loc.country}`} value={loc.city}>
+                          {loc.city}, {loc.country}
+                        </SelectItem>
+                      ))}
+                    </div>
                   ))}
                 </SelectContent>
               </Select>
