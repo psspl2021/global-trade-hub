@@ -9,9 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSEO } from "@/hooks/useSEO";
 import { useToast } from "@/hooks/use-toast";
 
-// Group C - Landing Sections (Testing StatsSection only)
+// Group C - Landing Sections
 import StatsSection from "@/components/landing/StatsSection";
-// import WhyChooseUs from "@/components/landing/WhyChooseUs";
+import WhyChooseUs from "@/components/landing/WhyChooseUs";
 // import { LazyFAQ } from "@/components/landing/LazyFAQ";
 
 const Index = () => {
@@ -24,10 +24,10 @@ const Index = () => {
       {/* Header Section */}
       <div className="text-center p-8">
         <h1 className="text-3xl font-bold text-primary mb-4">
-          Testing StatsSection Only
+          Testing StatsSection + WhyChooseUs
         </h1>
         <p className="text-muted-foreground mb-4">
-          If this works, StatsSection is fine.
+          If this works, LazyFAQ is likely the issue.
         </p>
         
         <div className="flex justify-center gap-4 mb-4">
@@ -49,8 +49,9 @@ const Index = () => {
         <Link to="/login" className="text-primary underline block mt-4">Login</Link>
       </div>
       
-      {/* Test StatsSection Only */}
+      {/* Test Components */}
       <StatsSection />
+      <WhyChooseUs />
     </div>
   );
 };
