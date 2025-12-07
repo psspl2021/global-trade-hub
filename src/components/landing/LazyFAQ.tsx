@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, Suspense, lazy, Component, ReactNode } from 'react';
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Retry logic for chunk loading failures (handles Vite HMR caching issues)
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
@@ -67,10 +68,25 @@ const Placeholder = () => (
           Frequently Asked Questions
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Loading...
+          Everything you need to know about sourcing, supplying, and logistics on ProcureSaathi.
         </p>
       </div>
-      <div className="max-w-3xl mx-auto h-64" />
+      
+      <div className="max-w-3xl mx-auto space-y-8">
+        {[1, 2, 3].map((category) => (
+          <div key={category}>
+            <Skeleton className="h-7 w-32 mb-4" />
+            <div className="space-y-2">
+              {[1, 2, 3].map((item) => (
+                <Skeleton 
+                  key={item} 
+                  className="h-12 w-full rounded-md" 
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 );
