@@ -1,9 +1,10 @@
+// Build timestamp: 2025-12-07T10:00:00Z - Force cache invalidation v2
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-console.log("main.tsx: Starting application initialization");
+console.log("main.tsx: Starting application initialization - v2");
 
 // Global error handlers for debugging
 window.addEventListener("error", (event) => {
