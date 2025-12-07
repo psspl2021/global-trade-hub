@@ -13,7 +13,7 @@ import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
-
+import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
@@ -530,6 +530,8 @@ const Index = () => {
         <Testimonials />
       </Suspense>
 
+      {/* FAQ Section */}
+      <LazyFAQ />
 
       {/* Contact Section */}
       <section id="contact" className="py-16">
@@ -647,6 +649,9 @@ const Index = () => {
                 </button>
                 <button onClick={() => navigate('/categories')} className="text-sm text-muted-foreground hover:text-primary text-left">
                   Categories
+                </button>
+                <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  FAQ
                 </button>
                 <button onClick={() => scrollToSection('contact')} className="text-sm text-muted-foreground hover:text-primary text-left">
                   Contact Us

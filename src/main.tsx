@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-console.log("BOOTSTRAP: Script starting");
+console.log("main.tsx: Starting application initialization");
 
-// Global error handlers
+// Global error handlers for debugging
 window.addEventListener("error", (event) => {
   console.error("Global error:", event.error);
 });
@@ -24,11 +24,10 @@ if (rootElement) {
         <App />
       </StrictMode>
     );
-    console.log("BOOTSTRAP: App rendered");
   } catch (error) {
-    console.error("BOOTSTRAP: Failed to render:", error);
-    rootElement.innerHTML = `<div style="padding: 20px; color: red;">Failed to load application. Check console.</div>`;
+    console.error("main.tsx: Failed to render App:", error);
+    rootElement.innerHTML = '<div style="padding: 20px; color: red;">Failed to load application. Check console for details.</div>';
   }
 } else {
-  console.error("BOOTSTRAP: Root element not found");
+  console.error("main.tsx: Root element not found!");
 }

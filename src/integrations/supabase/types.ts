@@ -14,42 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_activity_logs: {
-        Row: {
-          action_type: string
-          admin_id: string
-          created_at: string
-          id: string
-          ip_address: string | null
-          metadata: Json | null
-          target_details: Json | null
-          target_id: string | null
-          target_type: string | null
-        }
-        Insert: {
-          action_type: string
-          admin_id: string
-          created_at?: string
-          id?: string
-          ip_address?: string | null
-          metadata?: Json | null
-          target_details?: Json | null
-          target_id?: string | null
-          target_type?: string | null
-        }
-        Update: {
-          action_type?: string
-          admin_id?: string
-          created_at?: string
-          id?: string
-          ip_address?: string | null
-          metadata?: Json | null
-          target_details?: Json | null
-          target_id?: string | null
-          target_type?: string | null
-        }
-        Relationships: []
-      }
       bids: {
         Row: {
           bid_amount: number
