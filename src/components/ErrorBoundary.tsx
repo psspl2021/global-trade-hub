@@ -10,6 +10,7 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
+  isChunkError: boolean;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -17,10 +18,17 @@ class ErrorBoundary extends Component<Props, State> {
     hasError: false,
     error: null,
     errorInfo: null,
+    isChunkError: false,
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
-    return { hasError: true, error };
+    const isChunkError = 
+      error.message?.includes('dynamically imported module') ||
+      error.message?.includes('Failed to fetch') ||
+      error.message?.includes('Loading chunk') ||
+      error.message?.includes('Loading CSS chunk');
+    
+    return { hasError: true, error, isChunkError };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -34,6 +42,29 @@ class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
+      // Special handling for chunk loading errors
+      if (this.state.isChunkError) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-background p-4">
+            <div className="max-w-md w-full text-center space-y-6">
+              <div className="flex justify-center">
+                <RefreshCw className="h-16 w-16 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold text-foreground">
+                Update Available
+              </h1>
+              <p className="text-muted-foreground">
+                A new version is available. Please reload to get the latest updates.
+              </p>
+              <Button onClick={this.handleReload} className="gap-2">
+                <RefreshCw className="h-4 w-4" />
+                Reload Page
+              </Button>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
           <div className="max-w-md w-full text-center space-y-6">

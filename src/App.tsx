@@ -1,4 +1,4 @@
-// Force rebuild: 2025-12-07T18:30:00Z - Fixed lazyWithRetry mechanism
+// Force rebuild: 2025-12-07T18:45:00Z - Direct imports for critical pages
 import { Suspense, lazy, useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -9,7 +9,13 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Button } from "@/components/ui/button";
 
-// Lazy load pages with proper retry mechanism
+// Direct imports for critical pages - no dynamic loading issues
+import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+
+// Lazy load only secondary pages with retry mechanism
 const lazyWithRetry = (
   importFn: () => Promise<{ default: React.ComponentType }>,
   retries = 3,
@@ -22,22 +28,17 @@ const lazyWithRetry = (
       } catch (error) {
         console.warn(`Module load attempt ${i + 1}/${retries} failed`);
         if (i === retries - 1) {
-          // All retries failed - force page reload to get fresh assets
           console.error('All module load attempts failed, reloading page...');
           window.location.reload();
           throw error;
         }
-        // Wait before retrying
         await new Promise(resolve => setTimeout(resolve, interval));
       }
     }
     throw new Error('Failed to load module');
   });
 
-const Index = lazyWithRetry(() => import("./pages/Index"));
-const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
-const Login = lazyWithRetry(() => import("./pages/Login"));
-const Signup = lazyWithRetry(() => import("./pages/Signup"));
+// Secondary pages - lazy loaded
 const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
 const Categories = lazyWithRetry(() => import("./pages/Categories"));
 const Browse = lazyWithRetry(() => import("./pages/Browse"));
