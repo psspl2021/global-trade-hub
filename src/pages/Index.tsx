@@ -9,10 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSEO } from "@/hooks/useSEO";
 import { useToast } from "@/hooks/use-toast";
 
-// Group C - Landing Sections
+// Group C - Landing Sections (Testing StatsSection only)
 import StatsSection from "@/components/landing/StatsSection";
-import WhyChooseUs from "@/components/landing/WhyChooseUs";
-import { LazyFAQ } from "@/components/landing/LazyFAQ";
+// import WhyChooseUs from "@/components/landing/WhyChooseUs";
+// import { LazyFAQ } from "@/components/landing/LazyFAQ";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -24,10 +24,10 @@ const Index = () => {
       {/* Header Section */}
       <div className="text-center p-8">
         <h1 className="text-3xl font-bold text-primary mb-4">
-          ✓ Group C Working!
+          Testing StatsSection Only
         </h1>
         <p className="text-muted-foreground mb-4">
-          Landing Sections: StatsSection, WhyChooseUs, LazyFAQ
+          If this works, StatsSection is fine.
         </p>
         
         <div className="flex justify-center gap-4 mb-4">
@@ -49,10 +49,8 @@ const Index = () => {
         <Link to="/login" className="text-primary underline block mt-4">Login</Link>
       </div>
       
-      {/* Group C Components */}
+      {/* Test StatsSection Only */}
       <StatsSection />
-      <WhyChooseUs />
-      <LazyFAQ />
     </div>
   );
 };
