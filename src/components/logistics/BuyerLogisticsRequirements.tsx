@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, MapPin, Calendar, Package, Truck, CheckCircle } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { CurrencySelectorCompact } from './CurrencySelectorCompact';
 import { format } from 'date-fns';
 
 interface LogisticsRequirement {
@@ -49,6 +51,7 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
   const [bids, setBids] = useState<LogisticsBid[]>([]);
   const [bidsLoading, setBidsLoading] = useState(false);
   const { toast } = useToast();
+  const { formatPrice } = useCurrency();
 
   const fetchRequirements = async () => {
     const { data, error } = await (supabase
@@ -196,7 +199,10 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
       <Dialog open={!!selectedRequirement} onOpenChange={() => setSelectedRequirement(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Quotes for: {selectedRequirement?.title}</DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle>Quotes for: {selectedRequirement?.title}</DialogTitle>
+              <CurrencySelectorCompact />
+            </div>
           </DialogHeader>
 
           {bidsLoading ? (
@@ -221,10 +227,10 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
                         {index === 0 && (
                           <Badge className="bg-primary mb-1">Lowest Quote</Badge>
                         )}
-                        <p className="text-2xl font-bold">₹{bid.total_amount.toLocaleString()}</p>
+                        <p className="text-2xl font-bold">{formatPrice(bid.total_amount)}</p>
                         <div className="text-sm text-muted-foreground space-y-0.5">
                           <p>Transit Time: {bid.estimated_transit_days} days</p>
-                          <p className="text-xs">Base: ₹{bid.bid_amount.toLocaleString()} + Fee: ₹{bid.service_fee.toLocaleString()}</p>
+                          <p className="text-xs">Base: {formatPrice(bid.bid_amount)} + Fee: {formatPrice(bid.service_fee)}</p>
                         </div>
                         {bid.terms_and_conditions && (
                           <p className="text-xs text-muted-foreground mt-2">{bid.terms_and_conditions}</p>
