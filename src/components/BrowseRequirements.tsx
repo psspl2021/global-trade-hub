@@ -189,6 +189,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         total_amount: totalAmount,
         delivery_timeline_days: data.delivery_timeline_days,
         terms_and_conditions: data.terms_and_conditions || null,
+        is_paid_bid: isPaidBid ? true : false,
       });
 
       if (error) throw error;

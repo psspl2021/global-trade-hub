@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           delivery_timeline_days: number
           id: string
+          is_paid_bid: boolean
           requirement_id: string
           service_fee: number
           status: Database["public"]["Enums"]["bid_status"]
@@ -33,6 +34,7 @@ export type Database = {
           created_at?: string
           delivery_timeline_days: number
           id?: string
+          is_paid_bid?: boolean
           requirement_id: string
           service_fee: number
           status?: Database["public"]["Enums"]["bid_status"]
@@ -46,6 +48,7 @@ export type Database = {
           created_at?: string
           delivery_timeline_days?: number
           id?: string
+          is_paid_bid?: boolean
           requirement_id?: string
           service_fee?: number
           status?: Database["public"]["Enums"]["bid_status"]
@@ -328,6 +331,7 @@ export type Database = {
           created_at: string
           estimated_transit_days: number
           id: string
+          is_paid_bid: boolean
           requirement_id: string
           service_fee: number
           status: Database["public"]["Enums"]["logistics_bid_status"]
@@ -342,6 +346,7 @@ export type Database = {
           created_at?: string
           estimated_transit_days: number
           id?: string
+          is_paid_bid?: boolean
           requirement_id: string
           service_fee: number
           status?: Database["public"]["Enums"]["logistics_bid_status"]
@@ -356,6 +361,7 @@ export type Database = {
           created_at?: string
           estimated_transit_days?: number
           id?: string
+          is_paid_bid?: boolean
           requirement_id?: string
           service_fee?: number
           status?: Database["public"]["Enums"]["logistics_bid_status"]
