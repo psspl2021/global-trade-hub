@@ -1,4 +1,4 @@
-// Force rebuild: 2025-12-07T18:55:00Z - Complete cache bust
+// Force rebuild: 2025-12-07T19:00:00Z - Fresh rebuild trigger
 console.log("main.tsx: Script execution started at", new Date().toISOString());
 
 import { StrictMode } from "react";

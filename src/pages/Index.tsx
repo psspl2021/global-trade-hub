@@ -1,4 +1,4 @@
-// Rebuild: 2025-12-07T18:56:00Z - ALL direct imports, no lazy loading
+// Rebuild: 2025-12-07T19:05:00Z - Minimal test version
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -374,16 +374,6 @@ const Index = () => {
                 </Card>
               ))}
             </div>
-
-            {/* Company Description */}
-            <div className="text-center">
-              <h3 className="text-xl font-semibold mb-4">#SourceRemotely - The New Reality</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Since 2021, ProcureSaathi has revolutionized the B2B sourcing sector as India's first-ever 
-                Reverse Marketplace Platform offering direct procurement services to businesses worldwide. 
-                Our innovative sealed bidding system ensures fair competition while maintaining complete transparency.
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -392,10 +382,10 @@ const Index = () => {
       <section id="how-it-works" className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4">How It Works</h2>
-          <p className="text-center text-muted-foreground mb-12">Simple steps to source or sell on ProcureSaathi</p>
+          <p className="text-center text-muted-foreground mb-12">Simple steps for buyers, suppliers, and logistics partners</p>
           
-          <Tabs defaultValue="buyer" className="max-w-5xl mx-auto">
-            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8">
+          <Tabs defaultValue="buyer" className="max-w-4xl mx-auto">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="buyer">For Buyers</TabsTrigger>
               <TabsTrigger value="supplier">For Suppliers</TabsTrigger>
               <TabsTrigger value="logistics">For Logistics</TabsTrigger>
@@ -404,66 +394,51 @@ const Index = () => {
             <TabsContent value="buyer">
               <div className="grid md:grid-cols-4 gap-6">
                 {buyerSteps.map((step, index) => (
-                  <Card key={step.title} className="text-center relative">
+                  <Card key={step.title} className="text-center">
                     <CardContent className="p-6">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <step.icon className="h-6 w-6 text-primary" />
                       </div>
-                      <step.icon className="h-10 w-10 text-primary mx-auto mb-4 mt-2" />
-                      <h4 className="font-semibold mb-2">{step.title}</h4>
+                      <span className="text-xs text-muted-foreground">Step {index + 1}</span>
+                      <h3 className="font-semibold mt-1 mb-2">{step.title}</h3>
                       <p className="text-sm text-muted-foreground">{step.description}</p>
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-              <div className="text-center mt-8">
-                <Button size="lg" onClick={() => navigate('/signup?role=buyer')}>
-                  Start Sourcing Now
-                </Button>
               </div>
             </TabsContent>
             
             <TabsContent value="supplier">
               <div className="grid md:grid-cols-4 gap-6">
                 {supplierSteps.map((step, index) => (
-                  <Card key={step.title} className="text-center relative">
+                  <Card key={step.title} className="text-center">
                     <CardContent className="p-6">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-warning text-warning-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
+                      <div className="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <step.icon className="h-6 w-6 text-warning" />
                       </div>
-                      <step.icon className="h-10 w-10 text-warning mx-auto mb-4 mt-2" />
-                      <h4 className="font-semibold mb-2">{step.title}</h4>
+                      <span className="text-xs text-muted-foreground">Step {index + 1}</span>
+                      <h3 className="font-semibold mt-1 mb-2">{step.title}</h3>
                       <p className="text-sm text-muted-foreground">{step.description}</p>
                     </CardContent>
                   </Card>
                 ))}
               </div>
-              <div className="text-center mt-8">
-                <Button size="lg" variant="outline" className="border-warning text-warning hover:bg-warning hover:text-warning-foreground" onClick={() => navigate('/signup?role=supplier')}>
-                  Start Selling Now
-                </Button>
-              </div>
             </TabsContent>
-
+            
             <TabsContent value="logistics">
               <div className="grid md:grid-cols-4 gap-6">
                 {logisticsSteps.map((step, index) => (
-                  <Card key={step.title} className="text-center relative">
+                  <Card key={step.title} className="text-center">
                     <CardContent className="p-6">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <step.icon className="h-6 w-6 text-primary" />
                       </div>
-                      <step.icon className="h-10 w-10 text-primary mx-auto mb-4 mt-2" />
-                      <h4 className="font-semibold mb-2">{step.title}</h4>
+                      <span className="text-xs text-muted-foreground">Step {index + 1}</span>
+                      <h3 className="font-semibold mt-1 mb-2">{step.title}</h3>
                       <p className="text-sm text-muted-foreground">{step.description}</p>
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-              <div className="text-center mt-8">
-                <Button size="lg" onClick={() => navigate('/signup?role=logistics_partner')}>
-                  Register as Logistics Partner
-                </Button>
               </div>
             </TabsContent>
           </Tabs>
@@ -471,36 +446,34 @@ const Index = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 bg-muted/30">
+      <section id="categories" className="bg-muted/30 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">
-            Browse by Category
-          </h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Explore our comprehensive range of product categories
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-            {categories.map((category) => (
+          <h2 className="text-3xl font-bold text-center mb-4">Product Categories</h2>
+          <p className="text-center text-muted-foreground mb-12">Browse 23+ categories across industries</p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+            {categories.slice(0, 12).map((category) => (
               <Card 
                 key={category.name} 
-                className="hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer group"
+                className="cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1"
                 onClick={() => handleCategoryClick(category.name)}
               >
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">
-                    {category.icon}
-                  </div>
-                  <h3 className="font-medium text-xs leading-tight">
-                    {category.name}
-                  </h3>
+                  <span className="text-3xl mb-2 block">{category.icon}</span>
+                  <p className="text-sm font-medium">{category.name}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
+          
+          <div className="text-center mt-8">
+            <Button variant="outline" onClick={() => navigate('/categories')}>
+              View All Categories
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* Trust Badges Section */}
       {/* Trust Badges Section */}
       <TrustBadges />
 
@@ -528,74 +501,56 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center mb-4">Contact Us</h2>
           <p className="text-center text-muted-foreground mb-12">Get in touch with our team</p>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {/* Address */}
-            <Card>
-              <CardContent className="p-6 text-center">
-                <MapPin className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Address</h4>
-                <p className="text-sm text-muted-foreground">
-                  PROCURESAATHI SOLUTIONS PRIVATE LIMITED<br />
-                  Metro Pillar Number 564, 14/3 Mathura Road, Sector-31, Haryana - 121003
-                </p>
-              </CardContent>
-            </Card>
-            
-            {/* Email */}
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Mail className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Email</h4>
-                <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline">
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <Mail className="h-8 w-8 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Email Us</h3>
+                <a 
+                  href="mailto:sales@procuresaathi.com" 
+                  className="text-primary hover:underline"
+                >
                   sales@procuresaathi.com
                 </a>
               </CardContent>
             </Card>
             
-            {/* GSTIN */}
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Building2 className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">GSTIN</h4>
-                <p className="text-sm text-muted-foreground">06AAMCP4662L1ZW</p>
-              </CardContent>
-            </Card>
-            
-            {/* Business Hours */}
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Clock className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Business Hours</h4>
-                <p className="text-sm text-muted-foreground">
-                  Monday - Saturday<br />
-                  9:00 AM - 6:00 PM IST
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <MapPin className="h-8 w-8 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Our Location</h3>
+                <p className="text-muted-foreground text-sm">
+                  Corporate office: Ahmedabad, Gujarat, India
                 </p>
               </CardContent>
             </Card>
-          </div>
-          
-          {/* CTA */}
-          <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-4">Have questions? We'd love to hear from you!</p>
-            <Button size="lg" onClick={() => window.location.href = 'mailto:sales@procuresaathi.com'}>
-              <Mail className="h-4 w-4 mr-2" />
-              Send us an Email
-            </Button>
+            
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <Clock className="h-8 w-8 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Business Hours</h3>
+                <p className="text-muted-foreground text-sm">
+                  Mon - Sat: 9:00 AM - 6:00 PM IST
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-muted/30 py-16">
+      <section className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Transform Your Business?
-          </h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join ProcureSaathi today and experience the future of B2B procurement
+          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your B2B Sourcing?</h2>
+          <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+            Join thousands of verified buyers and suppliers on India's most trusted procurement platform.
           </p>
-          <Button size="lg" onClick={() => navigate('/signup')}>
-            Start Free Trial
+          <Button 
+            size="lg" 
+            variant="secondary"
+            onClick={() => navigate('/signup')}
+          >
+            Get Started for Free
           </Button>
         </div>
       </section>
@@ -608,100 +563,70 @@ const Index = () => {
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
 
-
       {/* Footer */}
-      <footer className="border-t bg-card py-12">
+      <footer className="bg-card border-t py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid md:grid-cols-4 gap-8">
             {/* Company Info */}
             <div>
-              <h4 className="font-semibold mb-4">PROCURESAATHI SOLUTIONS PRIVATE LIMITED</h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                Metro Pillar Number 564, 14/3 Mathura Road, Sector-31, Haryana - 121003
+              <div className="flex items-center gap-2 mb-4">
+                <Building2 className="h-6 w-6 text-primary" />
+                <span className="font-bold text-lg">ProcureSaathi</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                India's #1 B2B Sourcing & Procurement Platform connecting verified buyers and suppliers.
               </p>
-              <p className="text-sm text-muted-foreground">GSTIN: 06AAMCP4662L1ZW</p>
+              <p className="text-sm text-muted-foreground">
+                <strong>GSTIN:</strong> Coming Soon
+              </p>
             </div>
-            
+
             {/* Quick Links */}
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
-              <div className="flex flex-col gap-2">
-                <button onClick={() => scrollToSection('about')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  About Us
-                </button>
-                <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  How It Works
-                </button>
-                <button onClick={() => navigate('/categories')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  Categories
-                </button>
-                <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  FAQ
-                </button>
-                <button onClick={() => scrollToSection('contact')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  Contact Us
-                </button>
-              </div>
+              <ul className="space-y-2">
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => scrollToSection('about')}>About Us</Button></li>
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => scrollToSection('how-it-works')}>How It Works</Button></li>
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/categories')}>Categories</Button></li>
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => scrollToSection('contact')}>Contact</Button></li>
+              </ul>
             </div>
 
             {/* For Business */}
             <div>
               <h4 className="font-semibold mb-4">For Business</h4>
-              <div className="flex flex-col gap-2">
-                <button onClick={() => navigate('/signup?role=buyer')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  Join as Buyer
-                </button>
-                <button onClick={() => navigate('/signup?role=supplier')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  Join as Supplier
-                </button>
-                <button onClick={() => navigate('/signup?role=logistics_partner')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  Logistics Partner
-                </button>
-                <button onClick={() => navigate('/book-truck')} className="text-sm text-muted-foreground hover:text-primary text-left">
-                  Book a Truck
-                </button>
-              </div>
+              <ul className="space-y-2">
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/signup?role=buyer')}>Register as Buyer</Button></li>
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/signup?role=supplier')}>Register as Supplier</Button></li>
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/signup?role=logistics')}>Logistics Partner</Button></li>
+                <li><Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/book-truck')}>Book a Truck</Button></li>
+              </ul>
             </div>
 
-            {/* International Markets */}
-            <div>
-              <h4 className="font-semibold mb-4">International Markets</h4>
-              <div className="flex flex-col gap-2">
-                <a href="/source/usa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
-                  <span>🇺🇸</span> Source from India to USA
-                </a>
-                <a href="/source/uae" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
-                  <span>🇦🇪</span> India to UAE Trade
-                </a>
-                <a href="/source/uk" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
-                  <span>🇬🇧</span> Indian Suppliers for UK
-                </a>
-                <a href="/source/germany" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
-                  <span>🇩🇪</span> India to Germany Trade
-                </a>
-                <a href="/source/australia" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
-                  <span>🇦🇺</span> Source from India to Australia
-                </a>
-                <a href="/source/africa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
-                  <span>🌍</span> Export to Africa
-                </a>
-              </div>
-            </div>
-            
             {/* Newsletter */}
             <div>
               <h4 className="font-semibold mb-4">Stay Updated</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Get weekly B2B sourcing tips & market insights
+              <p className="text-sm text-muted-foreground mb-4">
+                Subscribe to our newsletter for latest updates and market insights.
               </p>
-              <NewsletterSignup source="footer" />
-              <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline block mt-4">
-                sales@procuresaathi.com
-              </a>
+              <NewsletterSignup />
             </div>
           </div>
-          
-          <div className="border-t pt-8 text-center text-sm text-muted-foreground">
+
+          {/* International Markets */}
+          <div className="border-t mt-8 pt-8">
+            <h4 className="font-semibold mb-4 text-center">International Markets</h4>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/source/usa')}>🇺🇸 USA</Button>
+              <Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/source/uae')}>🇦🇪 UAE</Button>
+              <Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/source/uk')}>🇬🇧 UK</Button>
+              <Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/source/germany')}>🇩🇪 Germany</Button>
+              <Button variant="link" className="p-0 h-auto text-muted-foreground" onClick={() => navigate('/source/africa')}>🌍 Africa</Button>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
             <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
             <p className="mt-2">India's #1 B2B Sourcing & Procurement Platform</p>
           </div>
