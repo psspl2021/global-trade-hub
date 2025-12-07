@@ -1,5 +1,5 @@
-// Force rebuild: 2025-12-07T18:22:00Z - Complete cache invalidation v2
-import { Suspense, lazy } from "react";
+// Force rebuild: 2025-12-07T18:30:00Z - Fixed lazyWithRetry mechanism
+import { Suspense, lazy, useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,16 +7,32 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { Button } from "@/components/ui/button";
 
-// Lazy load pages with error recovery
-const lazyWithRetry = (importFn: () => Promise<{ default: React.ComponentType }>) =>
-  lazy(() =>
-    importFn().catch(() => {
-      // Force reload on chunk load failure
-      window.location.reload();
-      return importFn();
-    })
-  );
+// Lazy load pages with proper retry mechanism
+const lazyWithRetry = (
+  importFn: () => Promise<{ default: React.ComponentType }>,
+  retries = 3,
+  interval = 1000
+) =>
+  lazy(async () => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await importFn();
+      } catch (error) {
+        console.warn(`Module load attempt ${i + 1}/${retries} failed`);
+        if (i === retries - 1) {
+          // All retries failed - force page reload to get fresh assets
+          console.error('All module load attempts failed, reloading page...');
+          window.location.reload();
+          throw error;
+        }
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, interval));
+      }
+    }
+    throw new Error('Failed to load module');
+  });
 
 const Index = lazyWithRetry(() => import("./pages/Index"));
 const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
@@ -29,12 +45,29 @@ const BookTruck = lazyWithRetry(() => import("./pages/BookTruck"));
 const SourceCountry = lazyWithRetry(() => import("./pages/SourceCountry"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
-// Simple loading fallback
-const PageLoader = () => (
-  <div className="flex min-h-screen items-center justify-center">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-  </div>
-);
+// Loading fallback with timeout recovery
+const PageLoader = () => {
+  const [showRetry, setShowRetry] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setShowRetry(true), 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      {showRetry && (
+        <div className="text-center space-y-2">
+          <p className="text-sm text-muted-foreground">Taking longer than expected...</p>
+          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+            Reload Page
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const queryClient = new QueryClient();
 
