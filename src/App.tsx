@@ -1,6 +1,3 @@
-// Debug: App.tsx module loading
-console.log('[App.tsx] Module loading started');
-
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -22,8 +19,6 @@ import BookTruck from "./pages/BookTruck";
 import SourceCountry from "./pages/SourceCountry";
 import NotFound from "./pages/NotFound";
 
-console.log('[App.tsx] All imports completed');
-
 // Enhanced Error Boundary with recovery options
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -43,7 +38,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
       showDetails: false,
       errorTime: null,
     };
-    console.log('[ErrorBoundary] Initialized');
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -75,8 +69,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   };
 
   render() {
-    console.log('[ErrorBoundary] Rendering, hasError:', this.state.hasError);
-    
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -151,36 +143,30 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
 const queryClient = new QueryClient();
 
-console.log('[App.tsx] About to render App component');
-
-const App = () => {
-  console.log('[App] Rendering main App component');
-  
-  return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/browse" element={<Browse />} />
-              <Route path="/book-truck" element={<BookTruck />} />
-              <Route path="/source/:country" element={<SourceCountry />} />
-              <Route path="/auth" element={<Navigate to="/login" replace />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
-};
+const App = () => (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/browse" element={<Browse />} />
+            <Route path="/book-truck" element={<BookTruck />} />
+            <Route path="/source/:country" element={<SourceCountry />} />
+            <Route path="/auth" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
+);
 
 export default App;
