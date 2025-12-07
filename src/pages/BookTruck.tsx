@@ -8,11 +8,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Truck, Warehouse, Search, MapPin, ArrowLeft, 
-  Package, Fuel, CheckCircle, Route
+  Package, Fuel, CheckCircle, Route, Ship, Plane, Train
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
-import { indianLocations } from '@/data/indianLocations';
+import { globalLocations, regions } from '@/data/globalLocations';
 
 interface Vehicle {
   id: string;
@@ -36,6 +36,7 @@ interface WarehouseData {
   address: string;
   city: string;
   state: string;
+  country?: string | null;
   total_area_sqft: number;
   available_area_sqft: number;
   rental_rate_per_sqft: number | null;
@@ -44,7 +45,8 @@ interface WarehouseData {
   contact_phone: string | null;
 }
 
-const vehicleTypeLabels: Record<string, string> = {
+// Road Freight
+const roadVehicleTypes: Record<string, string> = {
   truck: 'Truck',
   trailer: 'Trailer',
   tanker: 'Tanker',
@@ -54,6 +56,33 @@ const vehicleTypeLabels: Record<string, string> = {
   tempo: 'Tempo',
   lpv: 'LPV',
 };
+
+// Sea Freight
+const seaFreightTypes: Record<string, string> = {
+  fcl_20ft: '20ft FCL Container',
+  fcl_40ft: '40ft FCL Container',
+  fcl_40hc: '40ft HC Container',
+  lcl: 'LCL (Less than Container)',
+  bulk_carrier: 'Bulk Carrier',
+  roro: 'RoRo (Roll-on/Roll-off)',
+  breakbulk: 'Break Bulk',
+};
+
+// Air Freight
+const airFreightTypes: Record<string, string> = {
+  air_cargo: 'Air Cargo',
+  express_air: 'Express Air Courier',
+  charter_cargo: 'Charter Cargo',
+};
+
+// Rail Freight
+const railFreightTypes: Record<string, string> = {
+  rail_container: 'Rail Container',
+  rail_wagon: 'Rail Wagon',
+  rail_tanker: 'Rail Tanker',
+};
+
+const allVehicleTypes = { ...roadVehicleTypes, ...seaFreightTypes, ...airFreightTypes, ...railFreightTypes };
 
 const warehouseTypeLabels: Record<string, string> = {
   dry_storage: 'Dry Storage',
@@ -70,13 +99,14 @@ const BookTruck = () => {
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
   const [loading, setLoading] = useState(true);
   const [availableRoutes, setAvailableRoutes] = useState<{ origin: string; destination: string }[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState('All Regions');
 
   // SEO
   useSEO({
-    title: 'Book Trucks & Warehouses | ProcureSaathi Logistics',
-    description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators.',
+    title: 'Book Trucks & Warehouses Worldwide | ProcureSaathi Global Logistics',
+    description: 'Find verified logistics partners for transportation and warehousing worldwide. Sea freight, air cargo, road transport, and rail freight across 150+ global hubs.',
     canonical: 'https://procuresaathi.com/book-truck',
-    keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services'
+    keywords: 'global logistics, international freight, sea freight, air cargo, truck booking, warehouse rental, FCL LCL shipping, container shipping'
   });
   
   // Filter inputs
@@ -207,17 +237,31 @@ const BookTruck = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">
-            Book <span className="text-primary">Trucks</span> & <span className="text-primary">Warehouses</span>
+            <span className="text-primary">Global</span> Logistics & Warehousing
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Find verified logistics partners for your transportation and warehousing needs. 
-            Get instant quotes and book services across India.
+            Find verified logistics partners for transportation and warehousing worldwide. 
+            Sea freight, air cargo, road transport, and rail freight across 150+ global hubs.
           </p>
         </div>
 
         {/* Search & Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
+            {/* Region Filter */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {regions.map((region) => (
+                <Badge
+                  key={region}
+                  variant={selectedRegion === region ? 'default' : 'outline'}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedRegion(region)}
+                >
+                  {region}
+                </Badge>
+              ))}
+            </div>
+            
             <div className="grid md:grid-cols-6 gap-4">
               <Select value={fromLocation} onValueChange={setFromLocation}>
                 <SelectTrigger className="h-12">
@@ -228,9 +272,11 @@ const BookTruck = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50 max-h-60">
                   <SelectItem value="all">Any Origin</SelectItem>
-                  {indianLocations.map((loc) => (
-                    <SelectItem key={`from-${loc.city}-${loc.state}`} value={loc.city}>
-                      {loc.city}, {loc.state}
+                  {globalLocations
+                    .filter(loc => selectedRegion === 'All Regions' || loc.region === selectedRegion)
+                    .map((loc) => (
+                    <SelectItem key={`from-${loc.city}-${loc.country}`} value={loc.city}>
+                      {loc.city}, {loc.country} {loc.isPort ? '⚓' : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -244,9 +290,11 @@ const BookTruck = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50 max-h-60">
                   <SelectItem value="all">Any Destination</SelectItem>
-                  {indianLocations.map((loc) => (
-                    <SelectItem key={`to-${loc.city}-${loc.state}`} value={loc.city}>
-                      {loc.city}, {loc.state}
+                  {globalLocations
+                    .filter(loc => selectedRegion === 'All Regions' || loc.region === selectedRegion)
+                    .map((loc) => (
+                    <SelectItem key={`to-${loc.city}-${loc.country}`} value={loc.city}>
+                      {loc.city}, {loc.country} {loc.isPort ? '⚓' : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -269,11 +317,32 @@ const BookTruck = () => {
               </Select>
               <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
                 <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Vehicle Type" />
+                  <SelectValue placeholder="Freight Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="all">All Vehicle Types</SelectItem>
-                  {Object.entries(vehicleTypeLabels).map(([value, label]) => (
+                <SelectContent className="bg-background z-50 max-h-80">
+                  <SelectItem value="all">All Freight Types</SelectItem>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1">
+                    <Truck className="h-3 w-3" /> Road Freight
+                  </div>
+                  {Object.entries(roadVehicleTypes).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
+                    <Ship className="h-3 w-3" /> Sea Freight
+                  </div>
+                  {Object.entries(seaFreightTypes).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
+                    <Plane className="h-3 w-3" /> Air Freight
+                  </div>
+                  {Object.entries(airFreightTypes).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1 mt-2">
+                    <Train className="h-3 w-3" /> Rail Freight
+                  </div>
+                  {Object.entries(railFreightTypes).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -340,7 +409,7 @@ const BookTruck = () => {
                       <div className="flex items-start justify-between">
                         <div>
                           <Badge variant="outline" className="mb-2">
-                            {vehicleTypeLabels[vehicle.vehicle_type] || vehicle.vehicle_type}
+                            {allVehicleTypes[vehicle.vehicle_type] || vehicle.vehicle_type}
                           </Badge>
                           <CardTitle className="text-lg">
                             {vehicle.manufacturer} {vehicle.model}

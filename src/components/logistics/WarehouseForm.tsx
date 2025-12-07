@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { countries } from '@/data/countries';
 
 interface WarehouseFormProps {
   userId: string;
@@ -22,6 +23,8 @@ const warehouseTypes = [
   { value: 'bonded', label: 'Bonded Warehouse' },
   { value: 'open_yard', label: 'Open Yard' },
   { value: 'hazmat', label: 'Hazmat Storage' },
+  { value: 'free_trade_zone', label: 'Free Trade Zone' },
+  { value: 'container_yard', label: 'Container Yard' },
 ];
 
 const facilityOptions = [
@@ -30,6 +33,9 @@ const facilityOptions = [
   { key: 'security_24x7', label: '24x7 Security' },
   { key: 'cctv', label: 'CCTV Surveillance' },
   { key: 'fire_safety', label: 'Fire Safety' },
+  { key: 'customs_clearance', label: 'Customs Clearance' },
+  { key: 'container_handling', label: 'Container Handling' },
+  { key: 'climate_control', label: 'Climate Control' },
 ];
 
 export const WarehouseForm = ({ userId, onSuccess, onCancel, initialData }: WarehouseFormProps) => {
@@ -40,6 +46,7 @@ export const WarehouseForm = ({ userId, onSuccess, onCancel, initialData }: Ware
     address: initialData?.address || '',
     city: initialData?.city || '',
     state: initialData?.state || '',
+    country: initialData?.country || 'India',
     pincode: initialData?.pincode || '',
     total_area_sqft: initialData?.total_area_sqft || '',
     available_area_sqft: initialData?.available_area_sqft || '',
@@ -55,6 +62,9 @@ export const WarehouseForm = ({ userId, onSuccess, onCancel, initialData }: Ware
       security_24x7: false,
       cctv: false,
       fire_safety: false,
+      customs_clearance: false,
+      container_handling: false,
+      climate_control: false,
     }
   );
 
@@ -78,6 +88,7 @@ export const WarehouseForm = ({ userId, onSuccess, onCancel, initialData }: Ware
         address: formData.address.trim(),
         city: formData.city.trim(),
         state: formData.state.trim(),
+        country: formData.country || 'India',
         pincode: formData.pincode || null,
         total_area_sqft: Number(formData.total_area_sqft),
         available_area_sqft: Number(formData.available_area_sqft),
@@ -155,12 +166,28 @@ export const WarehouseForm = ({ userId, onSuccess, onCancel, initialData }: Ware
         </div>
 
         <div className="space-y-2">
-          <Label>State *</Label>
+          <Label>State/Province *</Label>
           <Input
             value={formData.state}
             onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-            placeholder="State"
+            placeholder="State/Province"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Country *</Label>
+          <Select value={formData.country} onValueChange={(v) => setFormData({ ...formData, country: v })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select country" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {countries.map((country) => (
+                <SelectItem key={country.code} value={country.name}>
+                  {country.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
