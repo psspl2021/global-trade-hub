@@ -1,19 +1,35 @@
-// Group A Test: 2025-12-07T19:00:00Z - UI Components
+// Group B Test: 2025-12-07T19:10:00Z - Hooks
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Package, Users, TrendingUp } from "lucide-react";
 
+// Group B - Hooks
+import { useAuth } from "@/hooks/useAuth";
+import { useSEO } from "@/hooks/useSEO";
+import { useToast } from "@/hooks/use-toast";
+
 const Index = () => {
+  // Test useAuth hook
+  const { user, loading } = useAuth();
+  
+  // Test useSEO hook
+  useSEO({
+    title: "Test - ProcureSaathi",
+    description: "Testing hooks",
+  });
+  
+  // Test useToast hook
+  const { toast } = useToast();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-8">
       <div className="text-center space-y-6 max-w-md">
         <h1 className="text-3xl font-bold text-primary mb-4">
-          ✓ Group A Working!
+          ✓ Group B Working!
         </h1>
         <p className="text-muted-foreground mb-4">
-          UI Components: Button, Card, Tabs, Lucide icons
+          Hooks: useAuth, useSEO, useToast
         </p>
         
         {/* Test Icons */}
@@ -24,26 +40,21 @@ const Index = () => {
           <TrendingUp className="h-6 w-6" />
         </div>
         
-        {/* Test Button */}
-        <Button>Test Button</Button>
-        
-        {/* Test Card */}
+        {/* Test useAuth output */}
         <Card>
           <CardHeader>
-            <CardTitle>Test Card</CardTitle>
+            <CardTitle>useAuth Status</CardTitle>
           </CardHeader>
-          <CardContent>Card content works!</CardContent>
+          <CardContent>
+            <p>Loading: {loading ? "Yes" : "No"}</p>
+            <p>User: {user ? user.email : "Not logged in"}</p>
+          </CardContent>
         </Card>
         
-        {/* Test Tabs */}
-        <Tabs defaultValue="tab1">
-          <TabsList>
-            <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2">Tab 2</TabsTrigger>
-          </TabsList>
-          <TabsContent value="tab1">Tab 1 content</TabsContent>
-          <TabsContent value="tab2">Tab 2 content</TabsContent>
-        </Tabs>
+        {/* Test useToast */}
+        <Button onClick={() => toast({ title: "Toast works!" })}>
+          Test Toast
+        </Button>
         
         <Link to="/login" className="text-primary underline block mt-4">
           Test Link to Login
