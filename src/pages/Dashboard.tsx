@@ -27,6 +27,7 @@ import { AdminRequirementsList } from '@/components/admin/AdminRequirementsList'
 import { AdminBidsList } from '@/components/admin/AdminBidsList';
 import { AdminLogisticsList } from '@/components/admin/AdminLogisticsList';
 import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
+import { AdminActivityLog } from '@/components/admin/AdminActivityLog';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -59,6 +60,7 @@ const Dashboard = () => {
   const [showAdminBidsList, setShowAdminBidsList] = useState(false);
   const [showAdminLogisticsList, setShowAdminLogisticsList] = useState(false);
   const [showLeadsDashboard, setShowLeadsDashboard] = useState(false);
+  const [showActivityLog, setShowActivityLog] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -175,6 +177,7 @@ const Dashboard = () => {
               onOpenBidsList={() => setShowAdminBidsList(true)}
               onOpenLogisticsList={() => setShowAdminLogisticsList(true)}
               onOpenLeadsDashboard={() => setShowLeadsDashboard(true)}
+              onOpenActivityLog={() => setShowActivityLog(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -189,6 +192,7 @@ const Dashboard = () => {
             <AdminRequirementsList open={showAdminRequirementsList} onOpenChange={setShowAdminRequirementsList} />
             <AdminBidsList open={showAdminBidsList} onOpenChange={setShowAdminBidsList} />
             <AdminLogisticsList open={showAdminLogisticsList} onOpenChange={setShowAdminLogisticsList} />
+            <AdminActivityLog open={showActivityLog} onOpenChange={setShowActivityLog} />
             {showLeadsDashboard && (
               <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
                 <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">

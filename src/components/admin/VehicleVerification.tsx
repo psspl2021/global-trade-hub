@@ -102,6 +102,8 @@ export const VehicleVerification = ({ open, onOpenChange, adminId }: VehicleVeri
   const approveVehicle = async (vehicleId: string) => {
     setProcessing(true);
     try {
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      
       const { error } = await (supabase
         .from('vehicles') as any)
         .update({
@@ -112,6 +114,20 @@ export const VehicleVerification = ({ open, onOpenChange, adminId }: VehicleVeri
         .eq('id', vehicleId);
 
       if (error) throw error;
+
+      // Log activity
+      await supabase.from('admin_activity_logs').insert({
+        admin_id: adminId,
+        action_type: 'vehicle_approval',
+        target_type: 'vehicle',
+        target_id: vehicleId,
+        target_details: {
+          registration_number: vehicle?.registration_number,
+          vehicle_type: vehicle?.vehicle_type,
+          partner_company: vehicle?.partner_profile?.company_name,
+          partner_id: vehicle?.partner_id,
+        },
+      });
 
       toast.success('Vehicle approved successfully');
       setVehicles(vehicles.filter(v => v.id !== vehicleId));
@@ -131,6 +147,8 @@ export const VehicleVerification = ({ open, onOpenChange, adminId }: VehicleVeri
 
     setProcessing(true);
     try {
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      
       const { error } = await (supabase
         .from('vehicles') as any)
         .update({
@@ -142,6 +160,23 @@ export const VehicleVerification = ({ open, onOpenChange, adminId }: VehicleVeri
         .eq('id', vehicleId);
 
       if (error) throw error;
+
+      // Log activity
+      await supabase.from('admin_activity_logs').insert({
+        admin_id: adminId,
+        action_type: 'vehicle_rejection',
+        target_type: 'vehicle',
+        target_id: vehicleId,
+        target_details: {
+          registration_number: vehicle?.registration_number,
+          vehicle_type: vehicle?.vehicle_type,
+          partner_company: vehicle?.partner_profile?.company_name,
+          partner_id: vehicle?.partner_id,
+        },
+        metadata: {
+          rejection_reason: rejectionReason.trim(),
+        },
+      });
 
       toast.success('Vehicle rejected');
       setVehicles(vehicles.filter(v => v.id !== vehicleId));
