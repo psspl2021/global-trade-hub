@@ -8,12 +8,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Truck, Warehouse, Search, MapPin, ArrowLeft, 
-  Package, Fuel, CheckCircle, Route, Ship, Plane, TrainFront
+  Package, Fuel, CheckCircle, Route
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
-import { globalLocations, locationsByRegion, regions } from '@/data/globalLocations';
-import { CurrencySelector, formatCurrency } from '@/components/landing/CurrencySelector';
+import { indianLocations } from '@/data/indianLocations';
 
 interface Vehicle {
   id: string;
@@ -45,47 +44,7 @@ interface WarehouseData {
   contact_phone: string | null;
 }
 
-// Freight modes for international logistics
-const freightModes = [
-  { value: 'all', label: 'All Modes', icon: Package },
-  { value: 'road', label: 'Road Freight', icon: Truck },
-  { value: 'sea', label: 'Sea Freight', icon: Ship },
-  { value: 'air', label: 'Air Freight', icon: Plane },
-  { value: 'rail', label: 'Rail Freight', icon: TrainFront },
-];
-
-// Vehicle types grouped by freight mode
-const vehicleTypesByMode: Record<string, { value: string; label: string }[]> = {
-  road: [
-    { value: 'truck', label: 'Truck' },
-    { value: 'trailer', label: 'Trailer' },
-    { value: 'tanker', label: 'Tanker' },
-    { value: 'container_truck', label: 'Container Truck' },
-    { value: 'mini_truck', label: 'Mini Truck' },
-    { value: 'pickup', label: 'Pickup' },
-    { value: 'tempo', label: 'Tempo' },
-    { value: 'lpv', label: 'LPV' },
-  ],
-  sea: [
-    { value: 'sea_fcl', label: 'FCL Container (Full)' },
-    { value: 'sea_lcl', label: 'LCL Cargo (Partial)' },
-    { value: 'sea_bulk', label: 'Bulk Carrier' },
-    { value: 'sea_roro', label: 'RoRo Vessel' },
-  ],
-  air: [
-    { value: 'air_cargo', label: 'Air Cargo' },
-    { value: 'air_express', label: 'Express Air' },
-    { value: 'air_charter', label: 'Charter Flight' },
-  ],
-  rail: [
-    { value: 'rail_container', label: 'Rail Container' },
-    { value: 'rail_wagon', label: 'Rail Wagon' },
-    { value: 'rail_tanker', label: 'Rail Tanker' },
-  ],
-};
-
 const vehicleTypeLabels: Record<string, string> = {
-  // Road
   truck: 'Truck',
   trailer: 'Trailer',
   tanker: 'Tanker',
@@ -94,19 +53,6 @@ const vehicleTypeLabels: Record<string, string> = {
   pickup: 'Pickup',
   tempo: 'Tempo',
   lpv: 'LPV',
-  // Sea
-  sea_fcl: 'FCL Container',
-  sea_lcl: 'LCL Cargo',
-  sea_bulk: 'Bulk Carrier',
-  sea_roro: 'RoRo Vessel',
-  // Air
-  air_cargo: 'Air Cargo',
-  air_express: 'Express Air',
-  air_charter: 'Charter Flight',
-  // Rail
-  rail_container: 'Rail Container',
-  rail_wagon: 'Rail Wagon',
-  rail_tanker: 'Rail Tanker',
 };
 
 const warehouseTypeLabels: Record<string, string> = {
@@ -127,10 +73,10 @@ const BookTruck = () => {
 
   // SEO
   useSEO({
-    title: 'Book Trucks & Warehouses Worldwide | ProcureSaathi Global Logistics',
-    description: 'Find verified logistics partners for transportation and warehousing worldwide. Get instant quotes from verified truck owners and warehouse operators across Asia, Europe, Americas, Middle East and Africa.',
+    title: 'Book Trucks & Warehouses | ProcureSaathi Logistics',
+    description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators.',
     canonical: 'https://procuresaathi.com/book-truck',
-    keywords: 'global truck booking, international warehouse rental, logistics partners worldwide, freight transport, cargo services, international shipping'
+    keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services'
   });
   
   // Filter inputs
@@ -139,11 +85,6 @@ const BookTruck = () => {
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('all');
   const [warehouseTypeFilter, setWarehouseTypeFilter] = useState('all');
   const [routeFilter, setRouteFilter] = useState('all');
-  const [freightMode, setFreightMode] = useState('all');
-  
-  // Currency state
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [currencyRate, setCurrencyRate] = useState(0.012);
   
   // Applied filters (only update on search click)
   const [appliedFilters, setAppliedFilters] = useState({
@@ -151,14 +92,8 @@ const BookTruck = () => {
     to: 'all',
     route: 'all',
     vehicleType: 'all',
-    warehouseType: 'all',
-    freightMode: 'all'
+    warehouseType: 'all'
   });
-  
-  const handleCurrencyChange = (currency: string, rate: number) => {
-    setSelectedCurrency(currency);
-    setCurrencyRate(rate);
-  };
 
   useEffect(() => {
     fetchData();
@@ -198,19 +133,8 @@ const BookTruck = () => {
       to: toLocation,
       route: routeFilter,
       vehicleType: vehicleTypeFilter,
-      warehouseType: warehouseTypeFilter,
-      freightMode: freightMode
+      warehouseType: warehouseTypeFilter
     });
-  };
-  
-  // Get vehicle types based on selected freight mode
-  const getFilteredVehicleTypes = () => {
-    if (freightMode === 'all') {
-      return Object.entries(vehicleTypesByMode).flatMap(([mode, types]) => 
-        types.map(t => ({ ...t, mode }))
-      );
-    }
-    return vehicleTypesByMode[freightMode]?.map(t => ({ ...t, mode: freightMode })) || [];
   };
 
   const filteredVehicles = vehicles.filter(v => {
@@ -271,10 +195,6 @@ const BookTruck = () => {
             />
           </div>
           <div className="flex items-center gap-4">
-            <CurrencySelector 
-              onCurrencyChange={handleCurrencyChange} 
-              className="flex items-center"
-            />
             <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
             <Button onClick={() => navigate('/signup?role=logistics_partner')}>
               Register as Logistics Partner
@@ -291,37 +211,14 @@ const BookTruck = () => {
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Find verified logistics partners for your transportation and warehousing needs. 
-            Get instant quotes and book services worldwide.
+            Get instant quotes and book services across India.
           </p>
         </div>
 
         {/* Search & Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid md:grid-cols-4 lg:grid-cols-7 gap-4">
-              {/* Freight Mode - First filter */}
-              <Select value={freightMode} onValueChange={(val) => {
-                setFreightMode(val);
-                setVehicleTypeFilter('all'); // Reset vehicle type when mode changes
-              }}>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Freight Mode" />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-[100]">
-                  {freightModes.map((mode) => {
-                    const IconComponent = mode.icon;
-                    return (
-                      <SelectItem key={mode.value} value={mode.value}>
-                        <div className="flex items-center gap-2">
-                          <IconComponent className="h-4 w-4" />
-                          {mode.label}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-
+            <div className="grid md:grid-cols-6 gap-4">
               <Select value={fromLocation} onValueChange={setFromLocation}>
                 <SelectTrigger className="h-12">
                   <div className="flex items-center gap-2">
@@ -329,23 +226,15 @@ const BookTruck = () => {
                     <SelectValue placeholder="From" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-background z-[100] max-h-72">
+                <SelectContent className="bg-background z-50 max-h-60">
                   <SelectItem value="all">Any Origin</SelectItem>
-                  {regions.map((region) => (
-                    <div key={`from-region-${region}`}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
-                        {region}
-                      </div>
-                      {locationsByRegion[region].map((loc) => (
-                        <SelectItem key={`from-${loc.city}-${loc.country}`} value={loc.city}>
-                          {loc.city}, {loc.country}
-                        </SelectItem>
-                      ))}
-                    </div>
+                  {indianLocations.map((loc) => (
+                    <SelectItem key={`from-${loc.city}-${loc.state}`} value={loc.city}>
+                      {loc.city}, {loc.state}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
               <Select value={toLocation} onValueChange={setToLocation}>
                 <SelectTrigger className="h-12">
                   <div className="flex items-center gap-2">
@@ -353,23 +242,15 @@ const BookTruck = () => {
                     <SelectValue placeholder="To" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-background z-[100] max-h-72">
+                <SelectContent className="bg-background z-50 max-h-60">
                   <SelectItem value="all">Any Destination</SelectItem>
-                  {regions.map((region) => (
-                    <div key={`to-region-${region}`}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
-                        {region}
-                      </div>
-                      {locationsByRegion[region].map((loc) => (
-                        <SelectItem key={`to-${loc.city}-${loc.country}`} value={loc.city}>
-                          {loc.city}, {loc.country}
-                        </SelectItem>
-                      ))}
-                    </div>
+                  {indianLocations.map((loc) => (
+                    <SelectItem key={`to-${loc.city}-${loc.state}`} value={loc.city}>
+                      {loc.city}, {loc.state}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
               <Select value={routeFilter} onValueChange={setRouteFilter}>
                 <SelectTrigger className="h-12">
                   <div className="flex items-center gap-2">
@@ -377,7 +258,7 @@ const BookTruck = () => {
                     <SelectValue placeholder="Select Route" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-background z-[100]">
+                <SelectContent className="bg-background z-50">
                   <SelectItem value="all">All Routes</SelectItem>
                   {availableRoutes.map((route, i) => (
                     <SelectItem key={i} value={`${route.origin}|${route.destination}`}>
@@ -386,50 +267,28 @@ const BookTruck = () => {
                   ))}
                 </SelectContent>
               </Select>
-
               <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
                 <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Vehicle/Freight Type" />
+                  <SelectValue placeholder="Vehicle Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-[100] max-h-72">
-                  <SelectItem value="all">All Types</SelectItem>
-                  {freightMode === 'all' ? (
-                    // Show grouped by mode when "All Modes" is selected
-                    Object.entries(vehicleTypesByMode).map(([mode, types]) => (
-                      <div key={mode}>
-                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0 capitalize">
-                          {mode} Freight
-                        </div>
-                        {types.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </div>
-                    ))
-                  ) : (
-                    // Show only types for selected mode
-                    getFilteredVehicleTypes().map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))
-                  )}
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="all">All Vehicle Types</SelectItem>
+                  {Object.entries(vehicleTypeLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-
               <Select value={warehouseTypeFilter} onValueChange={setWarehouseTypeFilter}>
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Warehouse Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-[100]">
+                <SelectContent className="bg-background z-50">
                   <SelectItem value="all">All Warehouse Types</SelectItem>
                   {Object.entries(warehouseTypeLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
               <Button className="h-12" onClick={handleSearch}>
                 <Search className="h-4 w-4 mr-2" />
                 Search
@@ -602,7 +461,7 @@ const BookTruck = () => {
                       </div>
                       {warehouse.rental_rate_per_sqft && (
                         <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                          {formatCurrency(warehouse.rental_rate_per_sqft, selectedCurrency)}/sq.ft/month
+                          ₹{warehouse.rental_rate_per_sqft}/sq.ft/month
                         </div>
                       )}
                       {warehouse.facilities && (
