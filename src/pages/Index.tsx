@@ -20,16 +20,16 @@ import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 
 
 // Lazy load below-the-fold components to reduce initial bundle
-const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
-const BrowseRequirements = lazy(() => import('@/components/BrowseRequirements').then(m => ({ default: m.BrowseRequirements })));
-const Testimonials = lazy(() => import('@/components/landing/Testimonials').then(m => ({ default: m.Testimonials })));
-const WhyChooseUs = lazy(() => import('@/components/landing/WhyChooseUs').then(m => ({ default: m.WhyChooseUs })));
-const StatsSection = lazy(() => import('@/components/landing/StatsSection').then(m => ({ default: m.StatsSection })));
-const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
-const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed').then(m => ({ default: m.LiveActivityFeed })));
-const TrustBadges = lazy(() => import('@/components/landing/TrustBadges').then(m => ({ default: m.TrustBadges })));
-const InternationalTestimonials = lazy(() => import('@/components/landing/InternationalTestimonials').then(m => ({ default: m.InternationalTestimonials })));
-const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications').then(m => ({ default: m.ExportCertifications })));
+const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock'));
+const BrowseRequirements = lazy(() => import('@/components/BrowseRequirements'));
+const Testimonials = lazy(() => import('@/components/landing/Testimonials'));
+const WhyChooseUs = lazy(() => import('@/components/landing/WhyChooseUs'));
+const StatsSection = lazy(() => import('@/components/landing/StatsSection'));
+const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup'));
+const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed'));
+const TrustBadges = lazy(() => import('@/components/landing/TrustBadges'));
+const InternationalTestimonials = lazy(() => import('@/components/landing/InternationalTestimonials'));
+const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications'));
 // Minimal loading fallback
 const SectionFallback = () => <div className="py-16 bg-background" />;
 

@@ -67,7 +67,7 @@ interface BrowseRequirementsProps {
   userId?: string;
 }
 
-export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequirementsProps) => {
+const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequirementsProps) => {
   const isGuest = !userId;
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [lowestBids, setLowestBids] = useState<Record<string, number>>({});
@@ -378,3 +378,5 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     </Dialog>
   );
 };
+
+export default BrowseRequirements;
