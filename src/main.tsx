@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
@@ -14,14 +15,19 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 const rootElement = document.getElementById("root");
-console.log("main.tsx: Root element found:", !!rootElement);
 
 if (rootElement) {
-  console.log("main.tsx: Creating React root");
-  const root = createRoot(rootElement);
-  console.log("main.tsx: Rendering App component");
-  root.render(<App />);
-  console.log("main.tsx: App render called");
+  try {
+    const root = createRoot(rootElement);
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+  } catch (error) {
+    console.error("main.tsx: Failed to render App:", error);
+    rootElement.innerHTML = '<div style="padding: 20px; color: red;">Failed to load application. Check console for details.</div>';
+  }
 } else {
   console.error("main.tsx: Root element not found!");
 }
