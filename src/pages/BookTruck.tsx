@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,6 +70,14 @@ const BookTruck = () => {
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
   const [loading, setLoading] = useState(true);
   const [availableRoutes, setAvailableRoutes] = useState<{ origin: string; destination: string }[]>([]);
+
+  // SEO
+  useSEO({
+    title: 'Book Trucks & Warehouses | ProcureSaathi Logistics',
+    description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators.',
+    canonical: 'https://procuresaathi.com/book-truck',
+    keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services'
+  });
   
   // Filter inputs
   const [fromLocation, setFromLocation] = useState('all');
