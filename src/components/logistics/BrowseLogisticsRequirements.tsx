@@ -67,7 +67,11 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<LogisticsRequirement | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; id: string } | null>(null);
   const { toast } = useToast();
+
+  const BID_FEE = 500;
+  const isPaidBid = subscription && subscription.bids_used_this_month >= subscription.bids_limit;
 
   const form = useForm<BidFormData>({
     resolver: zodResolver(bidSchema),
@@ -126,9 +130,19 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
     setLoading(false);
   };
 
+  const fetchSubscription = async () => {
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('id, bids_used_this_month, bids_limit')
+      .eq('user_id', userId)
+      .maybeSingle();
+    setSubscription(data);
+  };
+
   useEffect(() => {
     if (open && userId) {
       fetchRequirements();
+      fetchSubscription();
     }
   }, [open, userId]);
 
@@ -150,14 +164,25 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
         estimated_transit_days: data.estimated_transit_days,
         vehicle_id: data.vehicle_id || null,
         terms_and_conditions: data.terms_and_conditions || null,
+        is_paid_bid: isPaidBid ? true : false,
       });
 
       if (error) throw error;
 
-      toast({ title: 'Success', description: 'Quote submitted successfully!' });
+      // Update subscription bid count if exists
+      if (subscription) {
+        await supabase
+          .from('subscriptions')
+          .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
+          .eq('id', subscription.id);
+      }
+
+      const bidCostMsg = isPaidBid ? ` (Bid fee: ₹${BID_FEE})` : '';
+      toast({ title: 'Success', description: `Quote submitted successfully!${bidCostMsg}` });
       setSelectedRequirement(null);
       form.reset();
       fetchRequirements();
+      fetchSubscription();
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
@@ -302,9 +327,16 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                         </FormItem>
                       )} />
 
+                      {isPaidBid && (
+                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800">
+                          <strong>Paid Bid:</strong> You've used all {subscription?.bids_limit} free bids this month. 
+                          This quote will cost ₹{BID_FEE}.
+                        </div>
+                      )}
+
                       <Button type="submit" disabled={submitting} className="w-full">
                         {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                        Submit Quote
+                        {isPaidBid ? `Submit Quote (₹${BID_FEE})` : 'Submit Quote'}
                       </Button>
                     </form>
                   </Form>
