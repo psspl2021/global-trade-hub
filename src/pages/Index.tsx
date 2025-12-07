@@ -1,3 +1,4 @@
+// Force re-bundle: 2025-12-07T18:00:00Z
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
