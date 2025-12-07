@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { FAQ } from './FAQ';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+
+// True lazy import - only loaded when rendered
+const FAQ = lazy(() => import('./FAQ').then(module => ({ default: module.FAQ })));
 
 export const LazyFAQ = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,7 +16,7 @@ export const LazyFAQ = () => {
         }
       },
       {
-        rootMargin: '200px', // Load 200px before it comes into view
+        rootMargin: '200px',
         threshold: 0
       }
     );
@@ -26,25 +28,30 @@ export const LazyFAQ = () => {
     return () => observer.disconnect();
   }, []);
 
+  const Placeholder = () => (
+    <section className="py-16 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Everything you need to know about sourcing, supplying, and logistics on ProcureSaathi.
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto h-64" />
+      </div>
+    </section>
+  );
+
   return (
     <div ref={containerRef} id="faq">
       {isVisible ? (
-        <FAQ />
+        <Suspense fallback={<Placeholder />}>
+          <FAQ />
+        </Suspense>
       ) : (
-        // Placeholder with minimum height to prevent layout shift
-        <section className="py-16 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Everything you need to know about sourcing, supplying, and logistics on ProcureSaathi.
-              </p>
-            </div>
-            <div className="max-w-3xl mx-auto h-64" />
-          </div>
-        </section>
+        <Placeholder />
       )}
     </div>
   );
