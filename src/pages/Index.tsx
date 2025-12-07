@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 // Group C - Landing Sections
 import StatsSection from "@/components/landing/StatsSection";
 import WhyChooseUs from "@/components/landing/WhyChooseUs";
-import { LazyFAQ } from "@/components/landing/LazyFAQ";
+// LazyFAQ temporarily removed to test chunk caching issue
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -52,7 +52,7 @@ const Index = () => {
       {/* Test Components */}
       <StatsSection />
       <WhyChooseUs />
-      <LazyFAQ />
+      {/* LazyFAQ removed for testing */}
     </div>
   );
 };
