@@ -1,3 +1,6 @@
+// Debug: App.tsx module loading
+console.log('[App.tsx] Module loading started');
+
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +9,20 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AlertTriangle, RefreshCw, Home, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+// Direct imports for all pages (prevents lazy loading blank page issues)
+import Login from "./pages/Login";
+import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import Signup from "./pages/Signup";
+import ResetPassword from "./pages/ResetPassword";
+import Categories from "./pages/Categories";
+import Browse from "./pages/Browse";
+import BookTruck from "./pages/BookTruck";
+import SourceCountry from "./pages/SourceCountry";
+import NotFound from "./pages/NotFound";
+
+console.log('[App.tsx] All imports completed');
 
 // Enhanced Error Boundary with recovery options
 interface ErrorBoundaryState {
@@ -17,20 +34,25 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
-  state: ErrorBoundaryState = {
-    hasError: false,
-    error: null,
-    errorInfo: null,
-    showDetails: false,
-    errorTime: null,
-  };
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      showDetails: false,
+      errorTime: null,
+    };
+    console.log('[ErrorBoundary] Initialized');
+  }
 
   static getDerivedStateFromError(error: Error) {
+    console.error('[ErrorBoundary] Caught error:', error.message);
     return { hasError: true, error, errorTime: new Date() };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught:", error, errorInfo);
+    console.error("[ErrorBoundary] Full error details:", error, errorInfo);
     this.setState({ errorInfo });
   }
 
@@ -53,6 +75,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   };
 
   render() {
+    console.log('[ErrorBoundary] Rendering, hasError:', this.state.hasError);
+    
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -125,21 +149,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   }
 }
 
-// Direct imports for all pages (prevents lazy loading blank page issues)
-import Login from "./pages/Login";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import Signup from "./pages/Signup";
-import ResetPassword from "./pages/ResetPassword";
-import Categories from "./pages/Categories";
-import Browse from "./pages/Browse";
-import BookTruck from "./pages/BookTruck";
-import SourceCountry from "./pages/SourceCountry";
-import NotFound from "./pages/NotFound";
-
 const queryClient = new QueryClient();
 
+console.log('[App.tsx] About to render App component');
+
 const App = () => {
+  console.log('[App] Rendering main App component');
+  
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
