@@ -1,7 +1,29 @@
 import { useState, useEffect, useRef, Suspense, lazy, Component, ReactNode } from 'react';
 
-// TRUE lazy import - FAQ only loads when rendered
-const FAQ = lazy(() => import('./FAQ').then(module => ({ default: module.FAQ })));
+// Retry logic for chunk loading failures (handles Vite HMR caching issues)
+const lazyWithRetry = (componentImport: () => Promise<any>) =>
+  lazy(async () => {
+    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
+
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyBeenForceRefreshed) {
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        window.location.reload();
+      }
+      throw error;
+    }
+  });
+
+// TRUE lazy import with retry logic
+const FAQ = lazyWithRetry(() => 
+  import('./FAQ').then(module => ({ default: module.FAQ }))
+);
 
 // Error boundary specifically for FAQ to catch and display errors
 class FAQErrorBoundary extends Component<
