@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingBag, Package, Truck } from 'lucide-react';
 
-// Marketing Components
+// Landing page marketing components
 import { TrustBadges } from '@/components/landing/TrustBadges';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
