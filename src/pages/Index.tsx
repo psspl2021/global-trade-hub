@@ -3,6 +3,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingBag, Package, Truck } from 'lucide-react';
 
+// Marketing Components
+import { TrustBadges } from '@/components/landing/TrustBadges';
+import { StatsSection } from '@/components/landing/StatsSection';
+import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
+import { Testimonials } from '@/components/landing/Testimonials';
+import { FAQ } from '@/components/landing/FAQ';
+import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
+import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
+import { StickySignupBanner } from '@/components/StickySignupBanner';
+import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
+import { AIChatBox } from '@/components/AIChatBox';
+
 const Index = () => {
   const navigate = useNavigate();
 
@@ -19,6 +31,7 @@ const Index = () => {
       </header>
 
       <main>
+        {/* Hero Section */}
         <section className="py-20 bg-gradient-to-br from-muted/30 via-background to-muted/50">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -41,6 +54,7 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Role Cards Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -85,13 +99,31 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Marketing Sections */}
+        <TrustBadges />
+        <StatsSection />
+        <WhyChooseUs />
+        <Testimonials />
+        <FAQ />
       </main>
 
-      <footer className="border-t bg-card py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
+      <footer className="border-t bg-card py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-xl mx-auto mb-8">
+            <NewsletterSignup variant="inline" source="homepage_footer" />
+          </div>
+          <div className="text-center text-sm text-muted-foreground">
+            <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
+          </div>
         </div>
       </footer>
+
+      {/* Floating Components */}
+      <LiveActivityFeed />
+      <StickySignupBanner />
+      <ExitIntentPopup />
+      <AIChatBox />
     </div>
   );
 };
