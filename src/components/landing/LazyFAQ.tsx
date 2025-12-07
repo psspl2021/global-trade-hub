@@ -118,7 +118,9 @@ export const LazyFAQ = () => {
       {isVisible ? (
         <FAQErrorBoundary>
           <Suspense fallback={<Placeholder />}>
-            <FAQ />
+            <div className="animate-fade-in">
+              <FAQ />
+            </div>
           </Suspense>
         </FAQErrorBoundary>
       ) : (
