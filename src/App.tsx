@@ -1,12 +1,45 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, Component, ErrorInfo, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import ErrorBoundary from "@/components/ErrorBoundary";
 
-// Lazy load pages for code splitting
+// Inline error boundary to show actual errors
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Error caught:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: "20px", color: "red", fontFamily: "monospace" }}>
+          <h1>Error</h1>
+          <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+            {this.state.error?.message}
+            {"\n\n"}
+            {this.state.error?.stack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Lazy load pages
 const Index = lazy(() => import("./pages/Index"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
@@ -18,10 +51,6 @@ const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Lazy load AIChatBox
-const AIChatBox = lazy(() => import("@/components/AIChatBox").then(m => ({ default: m.AIChatBox })));
-
-// Simple loading fallback
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -52,9 +81,6 @@ const App = () => {
                 <Route path="/auth" element={<Navigate to="/login" replace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </Suspense>
-            <Suspense fallback={null}>
-              <AIChatBox />
             </Suspense>
           </BrowserRouter>
         </TooltipProvider>
