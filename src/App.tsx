@@ -1,10 +1,9 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AIChatBox } from "@/components/AIChatBox";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Lazy load pages for code splitting
@@ -19,6 +18,9 @@ const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+// Lazy load AIChatBox
+const AIChatBox = lazy(() => import("@/components/AIChatBox").then(m => ({ default: m.AIChatBox })));
+
 // Simple loading fallback
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
@@ -28,33 +30,37 @@ const PageLoader = () => (
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AIChatBox />
-        <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/browse" element={<Browse />} />
-              <Route path="/book-truck" element={<BookTruck />} />
-              <Route path="/source/:country" element={<SourceCountry />} />
-              <Route path="/auth" element={<Navigate to="/login" replace />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/browse" element={<Browse />} />
+                <Route path="/book-truck" element={<BookTruck />} />
+                <Route path="/source/:country" element={<SourceCountry />} />
+                <Route path="/auth" element={<Navigate to="/login" replace />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+            <Suspense fallback={null}>
+              <AIChatBox />
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;

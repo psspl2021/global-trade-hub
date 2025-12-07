@@ -46,12 +46,12 @@ class ErrorBoundary extends Component<Props, State> {
             <p className="text-muted-foreground">
               We encountered an unexpected error. Please try reloading the page.
             </p>
-            {process.env.NODE_ENV === "development" && this.state.error && (
+            {this.state.error && (
               <details className="text-left bg-muted p-4 rounded-lg text-sm">
                 <summary className="cursor-pointer font-medium text-foreground mb-2">
                   Error Details
                 </summary>
-                <pre className="overflow-auto text-destructive whitespace-pre-wrap">
+                <pre className="overflow-auto text-destructive whitespace-pre-wrap text-xs">
                   {this.state.error.toString()}
                   {this.state.errorInfo?.componentStack}
                 </pre>

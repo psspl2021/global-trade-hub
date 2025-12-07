@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,21 +17,16 @@ import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
-
-// Lazy load below-the-fold components to reduce initial bundle
-const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
-const BrowseRequirements = lazy(() => import('@/components/BrowseRequirements').then(m => ({ default: m.BrowseRequirements })));
-const Testimonials = lazy(() => import('@/components/landing/Testimonials').then(m => ({ default: m.Testimonials })));
-const WhyChooseUs = lazy(() => import('@/components/landing/WhyChooseUs').then(m => ({ default: m.WhyChooseUs })));
-const StatsSection = lazy(() => import('@/components/landing/StatsSection').then(m => ({ default: m.StatsSection })));
-const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
-const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed').then(m => ({ default: m.LiveActivityFeed })));
-const TrustBadges = lazy(() => import('@/components/landing/TrustBadges').then(m => ({ default: m.TrustBadges })));
-const InternationalTestimonials = lazy(() => import('@/components/landing/InternationalTestimonials').then(m => ({ default: m.InternationalTestimonials })));
-const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications').then(m => ({ default: m.ExportCertifications })));
-
-// Minimal loading fallback
-const SectionFallback = () => <div className="py-16 bg-background" />;
+import { TrustBadges } from '@/components/landing/TrustBadges';
+import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
+import { StatsSection } from '@/components/landing/StatsSection';
+import { Testimonials } from '@/components/landing/Testimonials';
+import { InternationalTestimonials } from '@/components/landing/InternationalTestimonials';
+import { ExportCertifications } from '@/components/landing/ExportCertifications';
+import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
+import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
+import { LiveSupplierStock } from '@/components/LiveSupplierStock';
+import { BrowseRequirements } from '@/components/BrowseRequirements';
 
 const Index = () => {
   const navigate = useNavigate();
