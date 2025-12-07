@@ -41,9 +41,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
 // Direct imports for critical pages
 import Login from "./pages/Login";
-
-// Lazy load pages
-const Index = lazy(() => import("./pages/Index"));
+import Index from "./pages/Index";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
