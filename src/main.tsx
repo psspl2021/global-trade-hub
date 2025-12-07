@@ -1,9 +1,18 @@
+// Force rebuild: 2025-12-07T18:55:00Z - Complete cache bust
+console.log("main.tsx: Script execution started at", new Date().toISOString());
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+
+console.log("main.tsx: React imports completed");
+
 import App from "./App.tsx";
+
+console.log("main.tsx: App import completed");
+
 import "./index.css";
 
-console.log("main.tsx: Starting application initialization");
+console.log("main.tsx: CSS import completed, starting initialization");
 
 // Global error handlers for debugging
 window.addEventListener("error", (event) => {
