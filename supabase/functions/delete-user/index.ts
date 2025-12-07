@@ -87,16 +87,70 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Use service role client to delete the user
+    // Use service role client to delete related data and the user
     const adminClient = createClient(supabaseUrl, supabaseServiceKey)
 
-    console.log('Deleting user:', userId)
+    console.log('Deleting user data for:', userId)
 
-    // Delete from auth.users (this will cascade to user_roles and profiles due to ON DELETE CASCADE)
+    // Delete all related data first (order matters due to foreign keys)
+    // These tables reference user_id directly or indirectly
+    
+    // 1. Delete notifications
+    const { error: notifError } = await adminClient
+      .from('notifications')
+      .delete()
+      .eq('user_id', userId)
+    if (notifError) console.log('Notifications delete:', notifError.message)
+
+    // 2. Delete TOTP secrets
+    const { error: totpError } = await adminClient
+      .from('user_totp_secrets')
+      .delete()
+      .eq('user_id', userId)
+    if (totpError) console.log('TOTP delete:', totpError.message)
+
+    // 3. Delete user roles
+    const { error: rolesError } = await adminClient
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+    if (rolesError) console.log('Roles delete:', rolesError.message)
+
+    // 4. Delete subscriptions
+    const { error: subError } = await adminClient
+      .from('subscriptions')
+      .delete()
+      .eq('user_id', userId)
+    if (subError) console.log('Subscriptions delete:', subError.message)
+
+    // 5. Delete documents
+    const { error: docsError } = await adminClient
+      .from('documents')
+      .delete()
+      .eq('user_id', userId)
+    if (docsError) console.log('Documents delete:', docsError.message)
+
+    // 6. Delete platform invoices
+    const { error: invoicesError } = await adminClient
+      .from('platform_invoices')
+      .delete()
+      .eq('user_id', userId)
+    if (invoicesError) console.log('Platform invoices delete:', invoicesError.message)
+
+    // 7. Delete profile (profile.id = user.id)
+    const { error: profileError } = await adminClient
+      .from('profiles')
+      .delete()
+      .eq('id', userId)
+    if (profileError) console.log('Profile delete:', profileError.message)
+
+    console.log('Related data deleted, now deleting auth user:', userId)
+
+    // Delete from auth.users
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId)
 
     if (deleteError) {
-      console.error('Delete error:', deleteError)
+      console.error('Delete auth user error:', deleteError)
       return new Response(JSON.stringify({ error: 'Failed to delete user: ' + deleteError.message }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
