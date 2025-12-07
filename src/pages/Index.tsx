@@ -501,7 +501,9 @@ const Index = () => {
       </section>
 
       {/* Trust Badges Section */}
-      <TrustBadges />
+      <Suspense fallback={<SectionFallback />}>
+        <TrustBadges />
+      </Suspense>
 
       {/* Why Choose Us Section */}
       <Suspense fallback={<SectionFallback />}>
