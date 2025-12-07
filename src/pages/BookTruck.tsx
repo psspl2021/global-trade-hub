@@ -13,6 +13,8 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { globalLocations, regions } from '@/data/globalLocations';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { CurrencySelectorCompact } from '@/components/logistics/CurrencySelectorCompact';
 
 interface Vehicle {
   id: string;
@@ -98,6 +100,7 @@ const BookTruck = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
   const [loading, setLoading] = useState(true);
+  const { formatPrice } = useCurrency();
   const [availableRoutes, setAvailableRoutes] = useState<{ origin: string; destination: string }[]>([]);
   const [selectedRegion, setSelectedRegion] = useState('All Regions');
 
@@ -225,6 +228,7 @@ const BookTruck = () => {
             />
           </div>
           <div className="flex items-center gap-4">
+            <CurrencySelectorCompact showBadge={false} />
             <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
             <Button onClick={() => navigate('/signup?role=logistics_partner')}>
               Register as Logistics Partner
@@ -530,7 +534,7 @@ const BookTruck = () => {
                       </div>
                       {warehouse.rental_rate_per_sqft && (
                         <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                          ₹{warehouse.rental_rate_per_sqft}/sq.ft/month
+                          {formatPrice(warehouse.rental_rate_per_sqft)}/sq.ft/month
                         </div>
                       )}
                       {warehouse.facilities && (

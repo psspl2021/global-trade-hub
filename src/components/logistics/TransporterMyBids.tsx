@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Truck, MapPin, Calendar, ArrowRight, Edit2 } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { CurrencySelectorCompact } from './CurrencySelectorCompact';
 import { format } from 'date-fns';
 
 interface LogisticsBid {
@@ -53,6 +55,7 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
   const [newTransitDays, setNewTransitDays] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const { formatPrice } = useCurrency();
 
   const fetchBids = async () => {
     setLoading(true);
@@ -160,10 +163,13 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Truck className="h-5 w-5" />
-            My Logistics Quotes
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              My Logistics Quotes
+            </DialogTitle>
+            <CurrencySelectorCompact />
+          </div>
         </DialogHeader>
 
         {bids.length === 0 ? (
@@ -200,15 +206,15 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
                       <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
                         <div className="flex justify-between">
                           <span>Your Quote:</span>
-                          <span>₹{bid.bid_amount.toLocaleString()}</span>
+                          <span>{formatPrice(bid.bid_amount)}</span>
                         </div>
                         <div className="flex justify-between text-muted-foreground">
                           <span>Platform Fee (0.25%):</span>
-                          <span>₹{bid.service_fee.toLocaleString()}</span>
+                          <span>{formatPrice(bid.service_fee)}</span>
                         </div>
                         <div className="flex justify-between font-medium border-t pt-1">
                           <span>Total to Customer:</span>
-                          <span>₹{bid.total_amount.toLocaleString()}</span>
+                          <span>{formatPrice(bid.total_amount)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Transit Time:</span>
@@ -222,7 +228,7 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
                             <Badge className="bg-primary">You have the lowest quote!</Badge>
                           ) : (
                             <span className="text-muted-foreground">
-                              Lowest quote: ₹{lowestBids[bid.requirement_id].toLocaleString()}
+                              Lowest quote: {formatPrice(lowestBids[bid.requirement_id])}
                             </span>
                           )}
                         </div>
@@ -270,15 +276,15 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
                 <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
                   <div className="flex justify-between">
                     <span>New Quote:</span>
-                    <span>₹{parseFloat(newBidAmount).toLocaleString()}</span>
+                    <span>{formatPrice(parseFloat(newBidAmount))}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Platform Fee (0.25%):</span>
-                    <span>₹{(parseFloat(newBidAmount) * SERVICE_FEE_RATE).toLocaleString()}</span>
+                    <span>{formatPrice(parseFloat(newBidAmount) * SERVICE_FEE_RATE)}</span>
                   </div>
                   <div className="flex justify-between font-medium border-t pt-1">
                     <span>Total to Customer:</span>
-                    <span>₹{(parseFloat(newBidAmount) * (1 + SERVICE_FEE_RATE)).toLocaleString()}</span>
+                    <span>{formatPrice(parseFloat(newBidAmount) * (1 + SERVICE_FEE_RATE))}</span>
                   </div>
                 </div>
               )}
