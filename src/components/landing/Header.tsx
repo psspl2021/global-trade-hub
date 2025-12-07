@@ -17,7 +17,10 @@ const Header = () => {
   };
 
   const navLinks = [
-    { label: 'Features', href: '#features', onClick: (e: React.MouseEvent) => scrollToSection(e, 'features') },
+    { label: 'About Us', href: '#features', onClick: (e: React.MouseEvent) => scrollToSection(e, 'features') },
+    { label: 'How It Works', href: '#how-it-works', onClick: (e: React.MouseEvent) => scrollToSection(e, 'how-it-works') },
+    { label: 'Categories', href: '/categories', onClick: undefined },
+    { label: 'Contact', href: '#contact', onClick: (e: React.MouseEvent) => scrollToSection(e, 'contact') },
   ];
 
   return (
@@ -32,21 +35,31 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={link.onClick}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              {link.label}
-            </a>
+            link.onClick ? (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={link.onClick}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.label}
+                to={link.href}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              >
+                {link.label}
+              </Link>
+            )
           ))}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" asChild>
               <Link to="/login">Login</Link>
             </Button>
             <Button asChild>
-              <Link to="/signup">Sign Up</Link>
+              <Link to="/signup">Join Now</Link>
             </Button>
           </div>
         </nav>
@@ -66,21 +79,32 @@ const Header = () => {
         <div className="md:hidden border-t bg-background">
           <nav className="container mx-auto flex flex-col gap-4 p-4">
             {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={link.onClick}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-              >
-                {link.label}
-              </a>
+              link.onClick ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={link.onClick}
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t">
-              <Button variant="ghost" asChild>
+              <Button variant="outline" asChild>
                 <Link to="/login">Login</Link>
               </Button>
               <Button asChild>
-                <Link to="/signup">Sign Up</Link>
+                <Link to="/signup">Join Now</Link>
               </Button>
             </div>
           </nav>
