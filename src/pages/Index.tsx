@@ -4,7 +4,6 @@ import Header from "@/components/landing/Header";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import StatsSection from "@/components/landing/StatsSection";
 import WhyChooseUs from "@/components/landing/WhyChooseUs";
-import { LazyFAQ } from "@/components/landing/LazyFAQ";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -32,7 +31,6 @@ const Index = () => {
       <FeaturesSection />
       <StatsSection />
       <WhyChooseUs />
-      <LazyFAQ />
     </div>
   );
 };

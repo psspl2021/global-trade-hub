@@ -18,7 +18,6 @@ const Header = () => {
 
   const navLinks = [
     { label: 'Features', href: '#features', onClick: (e: React.MouseEvent) => scrollToSection(e, 'features') },
-    { label: 'FAQ', href: '#faq', onClick: (e: React.MouseEvent) => scrollToSection(e, 'faq') },
   ];
 
   return (
