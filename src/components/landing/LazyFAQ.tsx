@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FAQ } from './FAQ';
+// FAQ import temporarily removed to isolate issue
 
 export const LazyFAQ = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -45,7 +45,12 @@ export const LazyFAQ = () => {
   return (
     <div ref={containerRef} id="faq">
       {isVisible ? (
-        <FAQ />
+        <section className="py-16 bg-background">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold text-foreground">FAQ Test - Import Removed</h2>
+            <p className="text-muted-foreground mt-2">If you see this, LazyFAQ works without the FAQ import.</p>
+          </div>
+        </section>
       ) : (
         <Placeholder />
       )}
