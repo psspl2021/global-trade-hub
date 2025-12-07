@@ -1,4 +1,3 @@
-console.log('[Index.tsx] Module loading');
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
