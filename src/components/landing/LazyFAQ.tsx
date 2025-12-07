@@ -22,9 +22,7 @@ const lazyWithRetry = (componentImport: () => Promise<any>) =>
   });
 
 // TRUE lazy import with retry logic
-const FAQ = lazyWithRetry(() => 
-  import('./FAQ').then(module => ({ default: module.FAQ }))
-);
+const FAQ = lazyWithRetry(() => import('./FAQ').then(module => ({ default: module.FAQ })));
 
 // Error boundary specifically for FAQ to catch and display errors
 class FAQErrorBoundary extends Component<
