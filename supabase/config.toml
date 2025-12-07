@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.enable-totp]
 verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true

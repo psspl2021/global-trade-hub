@@ -5,8 +5,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Users, Package, Truck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Loader2, Search, Users, Package, Truck, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import {
   Pagination,
   PaginationContent,
@@ -45,6 +57,9 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [tabCounts, setTabCounts] = useState({ buyer: 0, supplier: 0, logistics_partner: 0 });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserWithProfile | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -128,6 +143,53 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
     }
   };
 
+  const handleDeleteClick = (user: UserWithProfile) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+
+    setDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('You must be logged in to delete users');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: userToDelete.user_id }
+      });
+
+      if (error) {
+        console.error('Delete error:', error);
+        toast.error('Failed to delete user: ' + error.message);
+        return;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      toast.success(`${userToDelete.company_name} has been deleted`);
+      
+      // Refresh the list
+      fetchUsers(activeTab as 'buyer' | 'supplier' | 'logistics_partner');
+      fetchTabCounts();
+      
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user');
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     return search === '' || 
       user.company_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -136,7 +198,6 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   });
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
-  const currentRole = activeTab as 'buyer' | 'supplier' | 'logistics_partner';
 
   const getPageNumbers = () => {
     const pages: (number | 'ellipsis')[] = [];
@@ -155,106 +216,142 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            All Users
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              All Users
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by company, name, or email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by company, name, or email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="buyer" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Buyers ({tabCounts.buyer})
-            </TabsTrigger>
-            <TabsTrigger value="supplier" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Suppliers ({tabCounts.supplier})
-            </TabsTrigger>
-            <TabsTrigger value="logistics_partner" className="flex items-center gap-2">
-              <Truck className="h-4 w-4" />
-              Logistics ({tabCounts.logistics_partner})
-            </TabsTrigger>
-          </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="buyer" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Buyers ({tabCounts.buyer})
+              </TabsTrigger>
+              <TabsTrigger value="supplier" className="flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Suppliers ({tabCounts.supplier})
+              </TabsTrigger>
+              <TabsTrigger value="logistics_partner" className="flex items-center gap-2">
+                <Truck className="h-4 w-4" />
+                Logistics ({tabCounts.logistics_partner})
+              </TabsTrigger>
+            </TabsList>
 
-          {loading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <>
-              <TabsContent value="buyer" className="flex-1 overflow-auto mt-4">
-                <UserTable users={filteredUsers} />
-              </TabsContent>
-              <TabsContent value="supplier" className="flex-1 overflow-auto mt-4">
-                <UserTable users={filteredUsers} />
-              </TabsContent>
-              <TabsContent value="logistics_partner" className="flex-1 overflow-auto mt-4">
-                <UserTable users={filteredUsers} />
-              </TabsContent>
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                <TabsContent value="buyer" className="flex-1 overflow-auto mt-4">
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} />
+                </TabsContent>
+                <TabsContent value="supplier" className="flex-1 overflow-auto mt-4">
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} />
+                </TabsContent>
+                <TabsContent value="logistics_partner" className="flex-1 overflow-auto mt-4">
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} />
+                </TabsContent>
 
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
-                  </p>
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                        />
-                      </PaginationItem>
-                      {getPageNumbers().map((page, idx) =>
-                        page === 'ellipsis' ? (
-                          <PaginationItem key={`ellipsis-${idx}`}>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        ) : (
-                          <PaginationItem key={page}>
-                            <PaginationLink
-                              onClick={() => setCurrentPage(page)}
-                              isActive={currentPage === page}
-                              className="cursor-pointer"
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        )
-                      )}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
+                    </p>
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                        {getPageNumbers().map((page, idx) =>
+                          page === 'ellipsis' ? (
+                            <PaginationItem key={`ellipsis-${idx}`}>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          ) : (
+                            <PaginationItem key={page}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(page)}
+                                isActive={currentPage === page}
+                                className="cursor-pointer"
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          )
+                        )}
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+              </>
+            )}
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{userToDelete?.company_name}</strong>? 
+              This action cannot be undone. All associated data including bids, requirements, and documents will be removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
               )}
-            </>
-          )}
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
-function UserTable({ users }: { users: UserWithProfile[] }) {
+interface UserTableProps {
+  users: UserWithProfile[];
+  onDelete: (user: UserWithProfile) => void;
+}
+
+function UserTable({ users, onDelete }: UserTableProps) {
   if (users.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -274,6 +371,7 @@ function UserTable({ users }: { users: UserWithProfile[] }) {
           <TableHead>Location</TableHead>
           <TableHead>GSTIN</TableHead>
           <TableHead>Registered</TableHead>
+          <TableHead className="w-[70px]">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -295,6 +393,16 @@ function UserTable({ users }: { users: UserWithProfile[] }) {
             </TableCell>
             <TableCell>
               {user.created_at ? format(new Date(user.created_at), 'dd MMM yyyy') : '-'}
+            </TableCell>
+            <TableCell>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(user)}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </TableCell>
           </TableRow>
         ))}
