@@ -1,42 +1,14 @@
-// Force rebuild: 2025-12-07T19:00:00Z - Fresh rebuild trigger
-console.log("main.tsx: Script execution started at", new Date().toISOString());
+// Force rebuild test: 2025-12-07T19:15:00Z
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-
-console.log("main.tsx: React imports completed");
-
-import App from "./App.tsx";
-
-console.log("main.tsx: App import completed");
-
-import "./index.css";
-
-console.log("main.tsx: CSS import completed, starting initialization");
-
-// Global error handlers for debugging
-window.addEventListener("error", (event) => {
-  console.error("Global error:", event.error);
-});
-
-window.addEventListener("unhandledrejection", (event) => {
-  console.error("Unhandled promise rejection:", event.reason);
-});
-
-const rootElement = document.getElementById("root");
-
-if (rootElement) {
-  try {
-    const root = createRoot(rootElement);
-    root.render(
-      <StrictMode>
-        <App />
-      </StrictMode>
-    );
-  } catch (error) {
-    console.error("main.tsx: Failed to render App:", error);
-    rootElement.innerHTML = '<div style="padding: 20px; color: red;">Failed to load application. Check console for details.</div>';
-  }
-} else {
-  console.error("main.tsx: Root element not found!");
-}
+createRoot(document.getElementById('root')!).render(
+  <div style={{padding: '40px', textAlign: 'center'}}>
+    <h1 style={{fontSize: '32px', color: '#22c55e', marginBottom: '16px'}}>
+      ✓ Application loaded successfully!
+    </h1>
+    <p style={{fontSize: '18px', color: '#666'}}>
+      Build system is working. Ready to restore full application.
+    </p>
+  </div>
+);
