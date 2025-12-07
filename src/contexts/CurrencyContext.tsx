@@ -1,4 +1,4 @@
-// Cache bust: 2025-12-07T18:05:00Z - Force context rebuild
+// Rebuild: 2025-12-07T18:15:00Z - Context cache invalidation
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 export const currencies = [

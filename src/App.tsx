@@ -1,4 +1,4 @@
-// Cache bust: 2025-12-07T18:05:00Z - Force complete rebuild
+// Force rebuild: 2025-12-07T18:15:00Z - Complete cache invalidation
 import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,17 +8,26 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 
-// Lazy load pages for code splitting
-const Index = lazy(() => import("./pages/Index"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Login = lazy(() => import("./pages/Login"));
-const Signup = lazy(() => import("./pages/Signup"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const Categories = lazy(() => import("./pages/Categories"));
-const Browse = lazy(() => import("./pages/Browse"));
-const BookTruck = lazy(() => import("./pages/BookTruck"));
-const SourceCountry = lazy(() => import("./pages/SourceCountry"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+// Lazy load pages with error recovery
+const lazyWithRetry = (importFn: () => Promise<{ default: React.ComponentType }>) =>
+  lazy(() =>
+    importFn().catch(() => {
+      // Force reload on chunk load failure
+      window.location.reload();
+      return importFn();
+    })
+  );
+
+const Index = lazyWithRetry(() => import("./pages/Index"));
+const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
+const Login = lazyWithRetry(() => import("./pages/Login"));
+const Signup = lazyWithRetry(() => import("./pages/Signup"));
+const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
+const Categories = lazyWithRetry(() => import("./pages/Categories"));
+const Browse = lazyWithRetry(() => import("./pages/Browse"));
+const BookTruck = lazyWithRetry(() => import("./pages/BookTruck"));
+const SourceCountry = lazyWithRetry(() => import("./pages/SourceCountry"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 // Simple loading fallback
 const PageLoader = () => (
