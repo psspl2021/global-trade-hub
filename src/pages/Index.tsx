@@ -17,7 +17,7 @@ import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
-import { AIChatBox } from '@/components/AIChatBox';
+
 
 // Lazy load below-the-fold components to reduce initial bundle
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -744,8 +744,6 @@ const Index = () => {
           />
         </Suspense>
       )}
-      {/* AI Chat Widget */}
-      <AIChatBox />
     </div>
   );
 };
