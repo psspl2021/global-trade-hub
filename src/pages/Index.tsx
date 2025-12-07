@@ -1,3 +1,4 @@
+// ProcureSaathi Homepage - India's #1 B2B Sourcing Platform
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
