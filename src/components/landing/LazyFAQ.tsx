@@ -1,62 +1,6 @@
-import { useState, useEffect, useRef, Suspense, lazy, Component, ReactNode } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
-
-// Retry logic for chunk loading failures (handles Vite HMR caching issues)
-const lazyWithRetry = (componentImport: () => Promise<any>) =>
-  lazy(async () => {
-    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
-      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
-    );
-
-    try {
-      const component = await componentImport();
-      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
-      return component;
-    } catch (error) {
-      if (!pageHasAlreadyBeenForceRefreshed) {
-        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
-        window.location.reload();
-      }
-      throw error;
-    }
-  });
-
-// TRUE lazy import with retry logic
-const FAQ = lazyWithRetry(() => import('./FAQ').then(module => ({ default: module.FAQ })));
-
-// Error boundary specifically for FAQ to catch and display errors
-class FAQErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean; error: Error | null }
-> {
-  state = { hasError: false, error: null as Error | null };
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, info: any) {
-    console.error('FAQ Error:', error, info);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <section className="py-16 bg-destructive/10">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-xl font-bold text-destructive">FAQ Failed to Load</h2>
-            <pre className="text-sm mt-4 text-left max-w-xl mx-auto overflow-auto bg-background p-4 rounded border">
-              {this.state.error?.toString()}
-              {'\n\n'}
-              {this.state.error?.stack}
-            </pre>
-          </div>
-        </section>
-      );
-    }
-    return this.props.children;
-  }
-}
+import { FAQ } from './FAQ';
 
 const Placeholder = () => (
   <section className="py-16 bg-background">
@@ -114,13 +58,9 @@ export const LazyFAQ = () => {
   return (
     <div ref={containerRef} id="faq">
       {isVisible ? (
-        <FAQErrorBoundary>
-          <Suspense fallback={<Placeholder />}>
-            <div className="animate-fade-in">
-              <FAQ />
-            </div>
-          </Suspense>
-        </FAQErrorBoundary>
+        <div className="animate-fade-in">
+          <FAQ />
+        </div>
       ) : (
         <Placeholder />
       )}
