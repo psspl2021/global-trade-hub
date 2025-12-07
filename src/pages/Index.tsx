@@ -30,8 +30,6 @@ const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFee
 const TrustBadges = lazy(() => import('@/components/landing/TrustBadges').then(m => ({ default: m.TrustBadges })));
 const InternationalTestimonials = lazy(() => import('@/components/landing/InternationalTestimonials').then(m => ({ default: m.InternationalTestimonials })));
 const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications').then(m => ({ default: m.ExportCertifications })));
-const AIChatBox = lazy(() => import('@/components/AIChatBox').then(m => ({ default: m.AIChatBox })));
-
 // Minimal loading fallback
 const SectionFallback = () => <div className="py-16 bg-background" />;
 
@@ -745,11 +743,6 @@ const Index = () => {
           />
         </Suspense>
       )}
-      
-      {/* AI Chat Widget - Lazy loaded with fallback */}
-      <Suspense fallback={null}>
-        <AIChatBox />
-      </Suspense>
     </div>
   );
 };
