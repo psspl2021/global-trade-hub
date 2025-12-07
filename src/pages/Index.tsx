@@ -1,4 +1,4 @@
-// Cache bust: 2025-12-07T18:05:00Z - Force module rebuild
+// Rebuild: 2025-12-07T18:15:00Z - Clean module rebuild
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
