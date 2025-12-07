@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,6 +43,26 @@ const Browse = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // SEO
+  const pageTitle = subcategoryParam 
+    ? `${subcategoryParam} - ${categoryParam} | ProcureSaathi`
+    : categoryParam 
+      ? `${categoryParam} Suppliers & Products | ProcureSaathi`
+      : 'Browse B2B Products & Suppliers | ProcureSaathi';
+  
+  const canonicalUrl = subcategoryParam
+    ? `https://procuresaathi.com/browse?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(subcategoryParam)}`
+    : categoryParam
+      ? `https://procuresaathi.com/browse?category=${encodeURIComponent(categoryParam)}`
+      : 'https://procuresaathi.com/browse';
+
+  useSEO({
+    title: pageTitle,
+    description: `Browse verified B2B suppliers and products${categoryParam ? ` in ${categoryParam}` : ''}. Find wholesale suppliers across India with competitive pricing and live stock availability.`,
+    canonical: canonicalUrl,
+    keywords: `B2B suppliers, ${categoryParam || 'wholesale products'}, bulk buying India, industrial suppliers, manufacturing`
+  });
 
   // Get category data for sidebar
   const categoryData = categoryParam ? getCategoryByName(categoryParam) : null;
