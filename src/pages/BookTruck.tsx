@@ -1,4 +1,4 @@
-// Rebuild: 2025-12-07T18:22:00Z - Cache invalidation
+// Rebuild: 2025-12-07T18:25:00Z - Added loading skeletons
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks/useSEO';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Truck, Warehouse, Search, MapPin, ArrowLeft, 
   Package, Fuel, CheckCircle, Route, Ship, Plane, Train
@@ -16,6 +17,79 @@ import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { globalLocations, regions } from '@/data/globalLocations';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { CurrencySelectorCompact } from '@/components/logistics/CurrencySelectorCompact';
+
+// Vehicle Card Skeleton
+const VehicleCardSkeleton = () => (
+  <Card>
+    <CardHeader className="pb-3">
+      <div className="flex items-start justify-between">
+        <div>
+          <Skeleton className="h-5 w-24 mb-2" />
+          <Skeleton className="h-6 w-40" />
+        </div>
+        <Skeleton className="h-5 w-20" />
+      </div>
+    </CardHeader>
+    <CardContent className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-32" />
+      </div>
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-28" />
+      </div>
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-20" />
+      </div>
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-36" />
+      </div>
+      <div className="space-y-1">
+        <Skeleton className="h-4 w-16" />
+        <div className="flex gap-1">
+          <Skeleton className="h-5 w-28" />
+          <Skeleton className="h-5 w-28" />
+        </div>
+      </div>
+      <Skeleton className="h-10 w-full mt-4" />
+    </CardContent>
+  </Card>
+);
+
+// Warehouse Card Skeleton
+const WarehouseCardSkeleton = () => (
+  <Card>
+    <CardHeader className="pb-3">
+      <div className="flex items-start justify-between">
+        <div>
+          <Skeleton className="h-5 w-24 mb-2" />
+          <Skeleton className="h-6 w-44" />
+        </div>
+        <Skeleton className="h-5 w-16" />
+      </div>
+    </CardHeader>
+    <CardContent className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-32" />
+      </div>
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-36" />
+      </div>
+      <Skeleton className="h-4 w-28" />
+      <div className="flex gap-1">
+        <Skeleton className="h-5 w-20" />
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-5 w-16" />
+      </div>
+      <Skeleton className="h-10 w-full mt-4" />
+    </CardContent>
+  </Card>
+);
 
 interface Vehicle {
   id: string;
@@ -387,9 +461,10 @@ const BookTruck = () => {
           {/* Vehicles Tab */}
           <TabsContent value="vehicles">
             {loading ? (
-              <div className="text-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-                <p className="mt-4 text-muted-foreground">Loading vehicles...</p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <VehicleCardSkeleton key={i} />
+                ))}
               </div>
             ) : filteredVehicles.length === 0 ? (
               <Card>
@@ -488,9 +563,10 @@ const BookTruck = () => {
           {/* Warehouses Tab */}
           <TabsContent value="warehouses">
             {loading ? (
-              <div className="text-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-                <p className="mt-4 text-muted-foreground">Loading warehouses...</p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <WarehouseCardSkeleton key={i} />
+                ))}
               </div>
             ) : filteredWarehouses.length === 0 ? (
               <Card>
