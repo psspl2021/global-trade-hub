@@ -1,3 +1,4 @@
+// Rebuild: 2025-12-07T18:22:00Z - Cache invalidation
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks/useSEO';
