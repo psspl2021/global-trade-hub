@@ -24,7 +24,9 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    console.error("ErrorBoundary CRITICAL - Error caught:", error.message);
+    console.error("ErrorBoundary CRITICAL - Stack:", error.stack);
+    console.error("ErrorBoundary CRITICAL - Component Stack:", errorInfo.componentStack);
     this.setState({ errorInfo });
   }
 
