@@ -159,6 +159,29 @@ export function AdminInvoiceManagement({ open, onOpenChange }: AdminInvoiceManag
 
       if (error) throw error;
 
+      // Get current user for activity log
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Log activity
+      if (user) {
+        await supabase.from('admin_activity_logs').insert({
+          admin_id: user.id,
+          action_type: 'invoice_payment',
+          target_type: 'platform_invoice',
+          target_id: selectedInvoice.id,
+          target_details: {
+            invoice_number: selectedInvoice.invoice_number,
+            amount: selectedInvoice.total_amount,
+            company_name: selectedInvoice.profiles?.company_name,
+            user_id: selectedInvoice.user_id,
+          },
+          metadata: {
+            payment_reference: paymentReference.trim(),
+            paid_at: new Date().toISOString(),
+          },
+        });
+      }
+
       toast.success('Invoice marked as paid');
       setShowPaymentDialog(false);
       setPaymentReference('');

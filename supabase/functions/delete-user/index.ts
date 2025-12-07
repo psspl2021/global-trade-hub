@@ -92,17 +92,41 @@ Deno.serve(async (req) => {
 
     console.log('Starting comprehensive user data deletion for:', userId)
 
+    // Capture user details BEFORE deletion for activity log
+    const { data: userProfile } = await adminClient
+      .from('profiles')
+      .select('company_name, contact_person, email, phone')
+      .eq('id', userId)
+      .single()
+
+    const { data: userRoles } = await adminClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+
+    const deletedUserDetails = {
+      company_name: userProfile?.company_name || 'Unknown',
+      contact_person: userProfile?.contact_person || 'Unknown',
+      email: userProfile?.email || 'Unknown',
+      phone: userProfile?.phone || 'Unknown',
+      roles: userRoles?.map(r => r.role) || [],
+    }
+
+    // Track deletion counts for metadata
+    const deletionCounts: Record<string, number> = {}
+
     // ============================================
     // SUPPLIER-RELATED DATA (order matters due to FK)
     // ============================================
 
     // 1. Delete stock_sync_logs (references supplier_id)
-    const { error: syncLogsError } = await adminClient
+    const { error: syncLogsError, count: syncLogsCount } = await adminClient
       .from('stock_sync_logs')
       .delete()
       .eq('supplier_id', userId)
     if (syncLogsError) console.log('stock_sync_logs delete:', syncLogsError.message)
     else console.log('Deleted stock_sync_logs')
+    deletionCounts.stock_sync_logs = syncLogsCount || 0
 
     // 2. Delete supplier_api_keys (references supplier_id)
     const { error: apiKeysError } = await adminClient
@@ -119,6 +143,7 @@ Deno.serve(async (req) => {
       .eq('supplier_id', userId)
     const productIds = products?.map(p => p.id) || []
     console.log('Found products to delete:', productIds.length)
+    deletionCounts.products = productIds.length
 
     if (productIds.length > 0) {
       // 4. Delete stock_updates (references product_id)
@@ -161,6 +186,7 @@ Deno.serve(async (req) => {
       .eq('supplier_id', userId)
     const invoiceIds = invoices?.map(i => i.id) || []
     console.log('Found invoices to delete:', invoiceIds.length)
+    deletionCounts.invoices = invoiceIds.length
 
     if (invoiceIds.length > 0) {
       // 9. Delete invoice_items (references invoice_id)
@@ -207,6 +233,12 @@ Deno.serve(async (req) => {
     else console.log('Deleted purchase_orders')
 
     // 14. Delete bids (references supplier_id)
+    const { data: bidsData } = await adminClient
+      .from('bids')
+      .select('id')
+      .eq('supplier_id', userId)
+    deletionCounts.bids = bidsData?.length || 0
+
     const { error: bidsError } = await adminClient
       .from('bids')
       .delete()
@@ -219,6 +251,12 @@ Deno.serve(async (req) => {
     // ============================================
 
     // 15. Delete requirements (references buyer_id)
+    const { data: reqData } = await adminClient
+      .from('requirements')
+      .select('id')
+      .eq('buyer_id', userId)
+    deletionCounts.requirements = reqData?.length || 0
+
     const { error: requirementsError } = await adminClient
       .from('requirements')
       .delete()
@@ -317,6 +355,12 @@ Deno.serve(async (req) => {
     else console.log('Deleted logistics_requirements')
 
     // 23. Delete vehicles (references partner_id)
+    const { data: vehiclesData } = await adminClient
+      .from('vehicles')
+      .select('id')
+      .eq('partner_id', userId)
+    deletionCounts.vehicles = vehiclesData?.length || 0
+
     const { error: vehiclesError } = await adminClient
       .from('vehicles')
       .delete()
@@ -325,6 +369,12 @@ Deno.serve(async (req) => {
     else console.log('Deleted vehicles')
 
     // 24. Delete warehouses (references partner_id)
+    const { data: warehousesData } = await adminClient
+      .from('warehouses')
+      .select('id')
+      .eq('partner_id', userId)
+    deletionCounts.warehouses = warehousesData?.length || 0
+
     const { error: warehousesError } = await adminClient
       .from('warehouses')
       .delete()
@@ -406,6 +456,28 @@ Deno.serve(async (req) => {
     }
 
     console.log('User deleted successfully:', userId)
+
+    // Log the activity for audit purposes
+    const { error: activityLogError } = await adminClient
+      .from('admin_activity_logs')
+      .insert({
+        admin_id: currentUser.id,
+        action_type: 'user_deletion',
+        target_type: 'user',
+        target_id: userId,
+        target_details: deletedUserDetails,
+        metadata: {
+          deletion_counts: deletionCounts,
+          deleted_at: new Date().toISOString(),
+        },
+      })
+
+    if (activityLogError) {
+      console.error('Failed to log activity:', activityLogError)
+      // Don't fail the request if logging fails
+    } else {
+      console.log('Activity logged successfully')
+    }
 
     return new Response(JSON.stringify({ success: true, message: 'User deleted successfully' }), {
       status: 200,

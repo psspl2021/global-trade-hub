@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, History } from 'lucide-react';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -12,6 +12,7 @@ interface AdminStats {
   activeRequirements: number;
   overdueInvoices: number;
   pendingVehicles: number;
+  recentActivityCount: number;
 }
 
 interface AdminDashboardCardsProps {
@@ -23,6 +24,7 @@ interface AdminDashboardCardsProps {
   onOpenBidsList: () => void;
   onOpenLogisticsList: () => void;
   onOpenLeadsDashboard: () => void;
+  onOpenActivityLog: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -34,6 +36,7 @@ export function AdminDashboardCards({
   onOpenBidsList,
   onOpenLogisticsList,
   onOpenLeadsDashboard,
+  onOpenActivityLog,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -43,6 +46,7 @@ export function AdminDashboardCards({
     activeRequirements: 0,
     overdueInvoices: 0,
     pendingVehicles: 0,
+    recentActivityCount: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -76,6 +80,14 @@ export function AdminDashboardCards({
           .select('*', { count: 'exact', head: true })
           .eq('verification_status', 'pending');
 
+        // Fetch recent activity count (last 24 hours)
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const { count: activityCount } = await supabase
+          .from('admin_activity_logs')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', yesterday.toISOString());
+
         setStats({
           pendingInvoices: pending.length,
           pendingAmount: pending.reduce((sum, i) => sum + Number(i.total_amount), 0),
@@ -84,6 +96,7 @@ export function AdminDashboardCards({
           activeRequirements: requirementsCount || 0,
           overdueInvoices: overdue.length,
           pendingVehicles: pendingVehiclesCount || 0,
+          recentActivityCount: activityCount || 0,
         });
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error fetching admin stats:', error);
@@ -267,6 +280,25 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenLeadsDashboard}>
             <Eye className="h-4 w-4 mr-2" />
             View Leads
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-500/20 bg-slate-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <History className="h-5 w-5 text-slate-600" />
+            Activity Log
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold text-slate-600">{stats.recentActivityCount}</div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Actions in last 24 hours
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenActivityLog}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Activity
           </Button>
         </CardContent>
       </Card>
