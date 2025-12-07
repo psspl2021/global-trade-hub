@@ -12,7 +12,7 @@ import { Gift, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const ExitIntentPopup = () => {
+const ExitIntentPopup = () => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -125,3 +125,5 @@ export const ExitIntentPopup = () => {
     </Dialog>
   );
 };
+
+export default ExitIntentPopup;

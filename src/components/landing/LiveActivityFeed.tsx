@@ -22,7 +22,7 @@ const mockActivities: Activity[] = [
   { id: 8, type: "bid", message: "Best price bid accepted", location: "Kolkata", time: "30 min ago" },
 ];
 
-export const LiveActivityFeed = () => {
+const LiveActivityFeed = () => {
   const [currentActivity, setCurrentActivity] = useState<Activity>(mockActivities[0]);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -107,3 +107,5 @@ export const LiveActivityFeed = () => {
     </div>
   );
 };
+
+export default LiveActivityFeed;

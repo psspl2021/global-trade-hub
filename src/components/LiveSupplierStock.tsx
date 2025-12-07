@@ -40,7 +40,7 @@ interface LiveSupplierStockProps {
   userId?: string;
 }
 
-export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', userId }: LiveSupplierStockProps) => {
+const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', userId }: LiveSupplierStockProps) => {
   const isGuest = !userId;
   const [searchKeyword, setSearchKeyword] = useState(initialKeyword);
   const [products, setProducts] = useState<ProductWithStock[]>([]);
@@ -351,3 +351,5 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
     </Dialog>
   );
 };
+
+export default LiveSupplierStock;
