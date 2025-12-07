@@ -1,7 +1,5 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-
-// True lazy import - only loaded when rendered
-const FAQ = lazy(() => import('./FAQ').then(module => ({ default: module.FAQ })));
+import { useState, useEffect, useRef } from 'react';
+import { FAQ } from './FAQ';
 
 export const LazyFAQ = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -47,9 +45,7 @@ export const LazyFAQ = () => {
   return (
     <div ref={containerRef} id="faq">
       {isVisible ? (
-        <Suspense fallback={<Placeholder />}>
-          <FAQ />
-        </Suspense>
+        <FAQ />
       ) : (
         <Placeholder />
       )}
