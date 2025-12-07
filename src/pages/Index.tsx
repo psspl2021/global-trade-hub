@@ -1,4 +1,4 @@
-// Force re-bundle: 2025-12-07T18:00:00Z
+// Cache bust: 2025-12-07T18:05:00Z - Force module rebuild
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
