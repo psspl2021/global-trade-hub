@@ -4,14 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingBag, Package, Truck } from 'lucide-react';
 import { TrustBadges } from '@/components/landing/TrustBadges';
 import { StatsSection } from '@/components/landing/StatsSection';
-import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
 import { Testimonials } from '@/components/landing/Testimonials';
-import { FAQ } from '@/components/landing/FAQ';
-import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
-import { LiveActivityFeed } from '@/components/landing/LiveActivityFeed';
-import { StickySignupBanner } from '@/components/StickySignupBanner';
-import { ExitIntentPopup } from '@/components/landing/ExitIntentPopup';
-import { AIChatBox } from '@/components/AIChatBox';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -98,26 +91,14 @@ const Index = () => {
 
         <TrustBadges />
         <StatsSection />
-        <WhyChooseUs />
         <Testimonials />
-        <FAQ />
       </main>
 
       <footer className="border-t bg-card py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-xl mx-auto mb-8">
-            <NewsletterSignup variant="inline" source="homepage_footer" />
-          </div>
-          <div className="text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
-          </div>
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
         </div>
       </footer>
-
-      <LiveActivityFeed />
-      <StickySignupBanner />
-      <ExitIntentPopup />
-      <AIChatBox />
     </div>
   );
 };
