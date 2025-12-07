@@ -34,11 +34,21 @@ const ExportCertifications = lazy(() => import('@/components/landing/ExportCerti
 const SectionFallback = () => <div className="py-16 bg-background" />;
 
 const Index = () => {
+  console.log("Index: Component rendering started");
+  
   const navigate = useNavigate();
+  console.log("Index: useNavigate initialized");
+  
   const { user } = useAuth();
+  console.log("Index: useAuth called, user:", !!user);
+  
   const { toast } = useToast();
+  console.log("Index: useToast initialized");
+  
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
+  
+  console.log("Index: State initialized, about to render");
 
   // SEO setup
   useSEO({
