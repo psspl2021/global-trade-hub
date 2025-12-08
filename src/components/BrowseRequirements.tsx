@@ -65,12 +65,17 @@ interface LowestBid {
 }
 
 const bidSchema = z.object({
-  bid_amount: z.coerce.number().min(1, 'Bid amount is required'),
+  bid_amount: z.coerce.number().optional(),
   delivery_timeline_days: z.coerce.number().min(1, 'Delivery timeline is required'),
   terms_and_conditions: z.string().optional(),
 });
 
 type BidFormData = z.infer<typeof bidSchema>;
+
+interface ItemBid {
+  unitPrice: number;
+  quantity: number;
+}
 
 interface BrowseRequirementsProps {
   open: boolean;
@@ -86,6 +91,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
   const [lineItems, setLineItems] = useState<RequirementItem[]>([]);
+  const [itemBids, setItemBids] = useState<Record<string, ItemBid>>({});
   const [submitting, setSubmitting] = useState(false);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; id: string } | null>(null);
   const { toast } = useToast();
@@ -99,6 +105,36 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       delivery_timeline_days: 7,
     },
   });
+
+  // Initialize item bids when line items are fetched
+  useEffect(() => {
+    if (lineItems.length > 0) {
+      const initial: Record<string, ItemBid> = {};
+      lineItems.forEach(item => {
+        initial[item.id] = { unitPrice: 0, quantity: item.quantity };
+      });
+      setItemBids(initial);
+    } else {
+      setItemBids({});
+    }
+  }, [lineItems]);
+
+  // Calculate totals from line item bids
+  const calculateItemTotals = () => {
+    let subtotal = 0;
+    lineItems.forEach(item => {
+      const bid = itemBids[item.id];
+      if (bid?.unitPrice) {
+        subtotal += bid.unitPrice * item.quantity;
+      }
+    });
+    const currentFeeRate = getServiceFeeRate(selectedRequirement?.trade_type);
+    const serviceFee = subtotal * currentFeeRate;
+    return { subtotal, serviceFee, total: subtotal + serviceFee };
+  };
+
+  const hasLineItems = lineItems.length > 0;
+  const allItemsBidded = hasLineItems && lineItems.every(item => itemBids[item.id]?.unitPrice > 0);
 
   const fetchRequirements = async () => {
     setLoading(true);
@@ -191,6 +227,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const handleSelectRequirement = (req: Requirement) => {
     setSelectedRequirement(req);
     fetchLineItems(req.id);
+    form.reset({ delivery_timeline_days: 7 });
   };
 
   useEffect(() => {
@@ -206,23 +243,59 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     setSubmitting(true);
     try {
       const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-      const perUnitRate = data.bid_amount; // Supplier's per-unit bid
-      const perUnitWithFee = perUnitRate * (1 + feeRate); // Per-unit rate + service fee (shown to buyer)
-      const totalOrderValue = perUnitRate * selectedRequirement.quantity;
-      const serviceFee = totalOrderValue * feeRate; // Service fee on total order value
-      const totalAmount = totalOrderValue + serviceFee;
-      const { error } = await supabase.from('bids').insert({
-        requirement_id: selectedRequirement.id,
-        supplier_id: userId,
-        bid_amount: perUnitWithFee, // Store per-unit rate + fee
-        service_fee: serviceFee,
-        total_amount: totalAmount,
-        delivery_timeline_days: data.delivery_timeline_days,
-        terms_and_conditions: data.terms_and_conditions || null,
-        is_paid_bid: isPaidBid ? true : false,
-      });
+      
+      let totalOrderValue: number;
+      let serviceFee: number;
+      let totalAmount: number;
+      let bidAmountToStore: number;
 
-      if (error) throw error;
+      if (hasLineItems) {
+        // Per-line-item bidding
+        const totals = calculateItemTotals();
+        totalOrderValue = totals.subtotal;
+        serviceFee = totals.serviceFee;
+        totalAmount = totals.total;
+        bidAmountToStore = totalOrderValue; // Store total bid amount
+      } else {
+        // Legacy single bid
+        const perUnitRate = data.bid_amount || 0;
+        totalOrderValue = perUnitRate * selectedRequirement.quantity;
+        serviceFee = totalOrderValue * feeRate;
+        totalAmount = totalOrderValue + serviceFee;
+        bidAmountToStore = perUnitRate * (1 + feeRate);
+      }
+
+      // Insert parent bid
+      const { data: bidData, error: bidError } = await supabase
+        .from('bids')
+        .insert({
+          requirement_id: selectedRequirement.id,
+          supplier_id: userId,
+          bid_amount: bidAmountToStore,
+          service_fee: serviceFee,
+          total_amount: totalAmount,
+          delivery_timeline_days: data.delivery_timeline_days,
+          terms_and_conditions: data.terms_and_conditions || null,
+          is_paid_bid: isPaidBid ? true : false,
+        })
+        .select('id')
+        .single();
+
+      if (bidError) throw bidError;
+
+      // Insert bid items if we have line items
+      if (hasLineItems && bidData) {
+        const bidItems = lineItems.map(item => ({
+          bid_id: bidData.id,
+          requirement_item_id: item.id,
+          unit_price: itemBids[item.id]?.unitPrice || 0,
+          quantity: item.quantity,
+          total: (itemBids[item.id]?.unitPrice || 0) * item.quantity,
+        }));
+
+        const { error: itemsError } = await supabase.from('bid_items').insert(bidItems);
+        if (itemsError) throw itemsError;
+      }
 
       // Update subscription bid count
       await supabase
@@ -233,6 +306,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const bidCostMsg = isPaidBid ? ` (Bid fee: ₹${BID_FEE})` : '';
       toast({ title: 'Success', description: `Bid submitted successfully!${bidCostMsg}` });
       setSelectedRequirement(null);
+      setLineItems([]);
+      setItemBids({});
       form.reset();
       fetchRequirements();
       fetchSubscription();
@@ -242,13 +317,17 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     setSubmitting(false);
   };
 
-  const bidAmount = form.watch('bid_amount');
+  // For legacy single-bid requirements
+  const bidAmount = form.watch('bid_amount') || 0;
   const quantity = selectedRequirement?.quantity || 0;
   const currentFeeRate = getServiceFeeRate(selectedRequirement?.trade_type);
   const feePercentage = currentFeeRate * 100;
-  const totalOrderValue = bidAmount ? bidAmount * quantity : 0;
-  const serviceFee = totalOrderValue * currentFeeRate;
-  const totalAmount = totalOrderValue + serviceFee;
+  const singleBidOrderValue = bidAmount * quantity;
+  const singleBidServiceFee = singleBidOrderValue * currentFeeRate;
+  const singleBidTotal = singleBidOrderValue + singleBidServiceFee;
+
+  // For line-item bidding
+  const { subtotal: itemSubtotal, serviceFee: itemServiceFee, total: itemTotal } = calculateItemTotals();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -291,36 +370,6 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
                 </div>
 
-                {lineItems.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-medium">Line Items ({lineItems.length})</h4>
-                    <div className="border rounded-lg divide-y">
-                      {lineItems.map((item) => (
-                        <div key={item.id} className="p-3 grid grid-cols-3 gap-2 text-sm">
-                          <div className="col-span-2">
-                            <p className="font-medium">{item.item_name}</p>
-                            {item.description && <p className="text-muted-foreground text-xs">{item.description}</p>}
-                            <Badge variant="secondary" className="mt-1 text-xs">{item.category}</Badge>
-                          </div>
-                          <div className="text-right">
-                            <p>{item.quantity} {item.unit}</p>
-                            {(item.budget_min || item.budget_max) && (
-                              <p className="text-muted-foreground text-xs">
-                                {item.budget_min && item.budget_max 
-                                  ? `₹${item.budget_min.toLocaleString()} - ₹${item.budget_max.toLocaleString()}`
-                                  : item.budget_max 
-                                    ? `Up to ₹${item.budget_max.toLocaleString()}`
-                                    : `From ₹${item.budget_min?.toLocaleString()}`
-                                }
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
                 {lowestBids[selectedRequirement.id] && (
                   <div className="p-3 bg-muted rounded-lg">
                     <p className="text-sm font-medium">Current Lowest Bid: ₹{lowestBids[selectedRequirement.id].toLocaleString()}</p>
@@ -342,14 +391,96 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmitBid)} className="space-y-4 border-t pt-4">
                       <h4 className="font-medium">Submit Your Bid</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField control={form.control} name="bid_amount" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Bid Amount (₹) *</FormLabel>
-                            <FormControl><Input type="number" {...field} /></FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )} />
+                      
+                      {/* Per-line-item bidding */}
+                      {hasLineItems ? (
+                        <div className="space-y-3">
+                          <p className="text-sm text-muted-foreground">Enter your bid per item:</p>
+                          <div className="border rounded-lg divide-y">
+                            {lineItems.map((item) => (
+                              <div key={item.id} className="p-3 space-y-2">
+                                <div className="flex justify-between items-start gap-4">
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.item_name}</p>
+                                    {item.description && <p className="text-muted-foreground text-xs">{item.description}</p>}
+                                    <p className="text-xs text-muted-foreground mt-1">{item.quantity} {item.unit}</p>
+                                    {(item.budget_min || item.budget_max) && (
+                                      <p className="text-xs text-muted-foreground">
+                                        Budget: {item.budget_min && item.budget_max 
+                                          ? `₹${item.budget_min.toLocaleString()} - ₹${item.budget_max.toLocaleString()}`
+                                          : item.budget_max 
+                                            ? `Up to ₹${item.budget_max.toLocaleString()}`
+                                            : `From ₹${item.budget_min?.toLocaleString()}`
+                                        }
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm">₹</span>
+                                    <Input
+                                      type="number"
+                                      placeholder="Unit price"
+                                      className="w-28"
+                                      value={itemBids[item.id]?.unitPrice || ''}
+                                      onChange={(e) => setItemBids(prev => ({
+                                        ...prev,
+                                        [item.id]: { ...prev[item.id], unitPrice: Number(e.target.value) }
+                                      }))}
+                                    />
+                                    <span className="text-xs text-muted-foreground">/{item.unit}</span>
+                                  </div>
+                                </div>
+                                {itemBids[item.id]?.unitPrice > 0 && (
+                                  <div className="text-right text-sm text-muted-foreground">
+                                    Subtotal: ₹{((itemBids[item.id]?.unitPrice || 0) * item.quantity).toLocaleString()}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {itemSubtotal > 0 && (
+                            <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
+                              <div className="flex justify-between"><span>Total Bid Amount:</span><span>₹{itemSubtotal.toLocaleString()}</span></div>
+                              <div className="flex justify-between text-muted-foreground"><span>Service Fee ({feePercentage}%):</span><span>₹{itemServiceFee.toLocaleString()}</span></div>
+                              <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{itemTotal.toLocaleString()}</span></div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        /* Legacy single bid for requirements without line items */
+                        <>
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField control={form.control} name="bid_amount" render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Your Bid Amount (₹) *</FormLabel>
+                                <FormControl><Input type="number" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )} />
+                            <FormField control={form.control} name="delivery_timeline_days" render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Delivery Timeline (days) *</FormLabel>
+                                <FormControl><Input type="number" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )} />
+                          </div>
+                          
+                          {bidAmount > 0 && (
+                            <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
+                              <div className="flex justify-between"><span>Unit Price:</span><span>₹{bidAmount.toLocaleString()}</span></div>
+                              <div className="flex justify-between"><span>Quantity:</span><span>{quantity} {selectedRequirement?.unit}</span></div>
+                              <div className="flex justify-between border-t pt-1"><span>Order Value:</span><span>₹{singleBidOrderValue.toLocaleString()}</span></div>
+                              <div className="flex justify-between text-muted-foreground"><span>Service Fee ({feePercentage}% of order):</span><span>₹{singleBidServiceFee.toLocaleString()}</span></div>
+                              <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{singleBidTotal.toLocaleString()}</span></div>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {/* Common fields */}
+                      {hasLineItems && (
                         <FormField control={form.control} name="delivery_timeline_days" render={({ field }) => (
                           <FormItem>
                             <FormLabel>Delivery Timeline (days) *</FormLabel>
@@ -357,16 +488,6 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                             <FormMessage />
                           </FormItem>
                         )} />
-                      </div>
-                      
-                      {bidAmount > 0 && (
-                        <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                          <div className="flex justify-between"><span>Unit Price:</span><span>₹{bidAmount.toLocaleString()}</span></div>
-                          <div className="flex justify-between"><span>Quantity:</span><span>{quantity} {selectedRequirement?.unit}</span></div>
-                          <div className="flex justify-between border-t pt-1"><span>Order Value:</span><span>₹{totalOrderValue.toLocaleString()}</span></div>
-                          <div className="flex justify-between text-muted-foreground"><span>Service Fee ({feePercentage}% of order):</span><span>₹{serviceFee.toLocaleString()}</span></div>
-                          <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{totalAmount.toLocaleString()}</span></div>
-                        </div>
                       )}
 
                       <FormField control={form.control} name="terms_and_conditions" render={({ field }) => (
@@ -383,10 +504,17 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         </div>
                       )}
 
-                      <Button type="submit" disabled={submitting} className="w-full">
+                      <Button 
+                        type="submit" 
+                        disabled={submitting || (hasLineItems && !allItemsBidded)} 
+                        className="w-full"
+                      >
                         {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
                         {isPaidBid ? `Submit Bid (₹${BID_FEE})` : 'Submit Bid'}
                       </Button>
+                      {hasLineItems && !allItemsBidded && (
+                        <p className="text-xs text-muted-foreground text-center">Please enter a bid for all items</p>
+                      )}
                     </form>
                   </Form>
                 )}

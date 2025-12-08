@@ -50,6 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
+      bid_items: {
+        Row: {
+          bid_id: string
+          created_at: string | null
+          id: string
+          quantity: number
+          requirement_item_id: string
+          total: number
+          unit_price: number
+        }
+        Insert: {
+          bid_id: string
+          created_at?: string | null
+          id?: string
+          quantity: number
+          requirement_item_id: string
+          total: number
+          unit_price: number
+        }
+        Update: {
+          bid_id?: string
+          created_at?: string | null
+          id?: string
+          quantity?: number
+          requirement_item_id?: string
+          total?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_items_requirement_item_id_fkey"
+            columns: ["requirement_item_id"]
+            isOneToOne: false
+            referencedRelation: "requirement_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bids: {
         Row: {
           bid_amount: number
