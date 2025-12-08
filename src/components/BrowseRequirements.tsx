@@ -34,6 +34,17 @@ interface Requirement {
   };
 }
 
+interface RequirementItem {
+  id: string;
+  item_name: string;
+  description: string | null;
+  category: string;
+  quantity: number;
+  unit: string;
+  budget_min: number | null;
+  budget_max: number | null;
+}
+
 // Helper function to get service fee rate based on trade type
 const getServiceFeeRate = (tradeType: string | undefined) => {
   return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
@@ -74,6 +85,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const [myBids, setMyBids] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
+  const [lineItems, setLineItems] = useState<RequirementItem[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; id: string } | null>(null);
   const { toast } = useToast();
@@ -163,6 +175,24 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     setSubscription(data);
   };
 
+  const fetchLineItems = async (requirementId: string) => {
+    const { data, error } = await supabase
+      .from('requirement_items')
+      .select('*')
+      .eq('requirement_id', requirementId);
+    
+    if (data && !error) {
+      setLineItems(data as RequirementItem[]);
+    } else {
+      setLineItems([]);
+    }
+  };
+
+  const handleSelectRequirement = (req: Requirement) => {
+    setSelectedRequirement(req);
+    fetchLineItems(req.id);
+  };
+
   useEffect(() => {
     if (open) {
       fetchRequirements();
@@ -236,7 +266,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           </div>
         ) : selectedRequirement ? (
           <div className="space-y-4">
-            <Button variant="outline" size="sm" onClick={() => setSelectedRequirement(null)}>← Back to list</Button>
+            <Button variant="outline" size="sm" onClick={() => { setSelectedRequirement(null); setLineItems([]); }}>← Back to list</Button>
             
             <Card>
               <CardHeader>
@@ -260,6 +290,36 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-center gap-1"><Calendar className="h-4 w-4" /> Deadline: {format(new Date(selectedRequirement.deadline), 'PPP')}</div>
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
                 </div>
+
+                {lineItems.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Line Items ({lineItems.length})</h4>
+                    <div className="border rounded-lg divide-y">
+                      {lineItems.map((item) => (
+                        <div key={item.id} className="p-3 grid grid-cols-3 gap-2 text-sm">
+                          <div className="col-span-2">
+                            <p className="font-medium">{item.item_name}</p>
+                            {item.description && <p className="text-muted-foreground text-xs">{item.description}</p>}
+                            <Badge variant="secondary" className="mt-1 text-xs">{item.category}</Badge>
+                          </div>
+                          <div className="text-right">
+                            <p>{item.quantity} {item.unit}</p>
+                            {(item.budget_min || item.budget_max) && (
+                              <p className="text-muted-foreground text-xs">
+                                {item.budget_min && item.budget_max 
+                                  ? `₹${item.budget_min.toLocaleString()} - ₹${item.budget_max.toLocaleString()}`
+                                  : item.budget_max 
+                                    ? `Up to ₹${item.budget_max.toLocaleString()}`
+                                    : `From ₹${item.budget_min?.toLocaleString()}`
+                                }
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {lowestBids[selectedRequirement.id] && (
                   <div className="p-3 bg-muted rounded-lg">
@@ -336,7 +396,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         ) : (
           <div className="space-y-4">
             {requirements.map(req => (
-              <Card key={req.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => setSelectedRequirement(req)}>
+              <Card key={req.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handleSelectRequirement(req)}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
