@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -70,13 +70,13 @@ const Dashboard = () => {
   const [showCustomerShipmentTracking, setShowCustomerShipmentTracking] = useState(false);
   const [logisticsRequirementsKey, setLogisticsRequirementsKey] = useState(0);
   const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
-  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number } | null>(null);
+  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
 
   const fetchSubscription = async () => {
     if (!user?.id || role !== 'supplier') return;
     const { data } = await supabase
       .from('subscriptions')
-      .select('bids_used_this_month, bids_limit')
+      .select('bids_used_this_month, bids_limit, premium_bids_balance')
       .eq('user_id', user.id)
       .maybeSingle();
     setSubscription(data);
@@ -548,20 +548,85 @@ const Dashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Subscription</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    {(subscription?.premium_bids_balance ?? 0) > 0 && (
+                      <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                    )}
+                    Subscription
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-sm text-muted-foreground mb-2">Free Plan (5 free bids)</div>
-                  <div className="text-2xl font-bold text-primary mb-2">
-                    {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}
+                <CardContent className="space-y-4">
+                  {/* Free Monthly Bids */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Free Plan (5 bids/month)</div>
+                    <div className="text-xl font-bold text-primary mb-1">
+                      {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}
+                    </div>
+                    <Progress 
+                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                      className="mb-1 h-2" 
+                    />
+                    <p className="text-xs text-muted-foreground">Monthly bids used</p>
                   </div>
-                  <Progress 
-                    value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                    className="mb-2" 
-                  />
-                  <p className="text-sm text-muted-foreground mb-2">Free bids used</p>
-                  {(subscription?.bids_used_this_month ?? 0) >= (subscription?.bids_limit ?? 5) && (
-                    <p className="text-sm text-orange-600 font-medium mb-2">
+
+                  {/* Premium Balance Display */}
+                  {(subscription?.premium_bids_balance ?? 0) > 0 && (
+                    <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                        <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Premium Balance</span>
+                      </div>
+                      <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                        {subscription?.premium_bids_balance ?? 0} bids
+                      </div>
+                      <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Lifetime bids (never expires)</p>
+                    </div>
+                  )}
+
+                  {/* Premium Pack Purchase Option */}
+                  {(subscription?.premium_bids_balance ?? 0) === 0 ? (
+                    <div className="p-4 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-5 w-5 text-amber-500" />
+                        <span className="font-bold text-foreground">Buy Premium Pack</span>
+                      </div>
+                      <div className="text-2xl font-bold text-primary mb-1">₹24,950</div>
+                      <p className="text-sm text-muted-foreground mb-3">50 lifetime bids (₹499/bid)</p>
+                      <ul className="text-sm space-y-1 mb-4">
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <Check className="h-4 w-4 text-green-500" /> Never expires - use anytime
+                        </li>
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <Check className="h-4 w-4 text-green-500" /> Lower service fee (0.3%)
+                        </li>
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <Check className="h-4 w-4 text-green-500" /> Priority listing in search
+                        </li>
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <Check className="h-4 w-4 text-green-500" /> Dedicated support
+                        </li>
+                      </ul>
+                      <Button 
+                        variant="default" 
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                        onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Premium Pack Purchase Request&body=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime bids).'}
+                      >
+                        Contact to Purchase
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                      onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Buy More Premium Bids&body=Hi, I would like to purchase more premium bids.'}
+                    >
+                      <Star className="h-4 w-4 mr-2" />
+                      Buy More Premium Bids
+                    </Button>
+                  )}
+
+                  {(subscription?.bids_used_this_month ?? 0) >= (subscription?.bids_limit ?? 5) && (subscription?.premium_bids_balance ?? 0) === 0 && (
+                    <p className="text-sm text-orange-600 font-medium">
                       Additional bids: ₹500 each
                     </p>
                   )}

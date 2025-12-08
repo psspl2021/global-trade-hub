@@ -1378,6 +1378,7 @@ export type Database = {
           billing_cycle_start: string
           created_at: string
           id: string
+          premium_bids_balance: number
           tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
           user_id: string
@@ -1388,6 +1389,7 @@ export type Database = {
           billing_cycle_start?: string
           created_at?: string
           id?: string
+          premium_bids_balance?: number
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id: string
@@ -1398,6 +1400,7 @@ export type Database = {
           billing_cycle_start?: string
           created_at?: string
           id?: string
+          premium_bids_balance?: number
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
