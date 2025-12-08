@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send, Building2 } from 'lucide-react';
+import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send, Building2, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -45,10 +45,13 @@ interface RequirementItem {
   budget_max: number | null;
 }
 
-// Helper function to get service fee rate based on trade type
+// Helper function to get service fee rate based on trade type (standard rate)
 const getServiceFeeRate = (tradeType: string | undefined) => {
   return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
 };
+
+// Premium bid fee rate is lower
+const PREMIUM_FEE_RATE = 0.003; // 0.3%
 
 const getTradeTypeLabel = (tradeType: string | undefined) => {
   switch (tradeType) {
@@ -93,11 +96,21 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const [lineItems, setLineItems] = useState<RequirementItem[]>([]);
   const [itemBids, setItemBids] = useState<Record<string, ItemBid>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; id: string } | null>(null);
+  const [subscription, setSubscription] = useState<{ 
+    bids_used_this_month: number; 
+    bids_limit: number; 
+    id: string;
+    premium_bids_balance: number;
+  } | null>(null);
   const { toast } = useToast();
 
   const BID_FEE = 500; // Rs.500 per bid after free limit
-  const isPaidBid = subscription && subscription.bids_used_this_month >= subscription.bids_limit;
+  
+  // Priority: premium_bids_balance -> monthly bids -> paid bid
+  const hasPremiumBids = subscription && subscription.premium_bids_balance > 0;
+  const hasFreeBidsRemaining = subscription && subscription.bids_used_this_month < subscription.bids_limit;
+  const isPaidBid = subscription && !hasPremiumBids && !hasFreeBidsRemaining;
+  const isUsingPremiumBid = hasPremiumBids;
 
   const form = useForm<BidFormData>({
     resolver: zodResolver(bidSchema),
@@ -128,9 +141,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         subtotal += bid.unitPrice * item.quantity;
       }
     });
-    const currentFeeRate = getServiceFeeRate(selectedRequirement?.trade_type);
+    // Use premium rate if using premium bids
+    const currentFeeRate = isUsingPremiumBid ? PREMIUM_FEE_RATE : getServiceFeeRate(selectedRequirement?.trade_type);
     const serviceFee = subtotal * currentFeeRate;
-    return { subtotal, serviceFee, total: subtotal + serviceFee };
+    return { subtotal, serviceFee, total: subtotal + serviceFee, feeRate: currentFeeRate };
   };
 
   const hasLineItems = lineItems.length > 0;
@@ -205,7 +219,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     if (!userId) return;
     const { data } = await supabase
       .from('subscriptions')
-      .select('id, bids_used_this_month, bids_limit')
+      .select('id, bids_used_this_month, bids_limit, premium_bids_balance')
       .eq('user_id', userId)
       .maybeSingle();
     setSubscription(data);
@@ -242,7 +256,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
     setSubmitting(true);
     try {
-      const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
+      // Determine fee rate: 0.3% for premium bids, standard rate otherwise
+      const standardFeeRate = getServiceFeeRate(selectedRequirement.trade_type);
+      const feeRate = isUsingPremiumBid ? 0.003 : standardFeeRate; // 0.3% for premium
       
       let totalOrderValue: number;
       let serviceFee: number;
@@ -250,12 +266,18 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       let bidAmountToStore: number;
 
       if (hasLineItems) {
-        // Per-line-item bidding
-        const totals = calculateItemTotals();
-        totalOrderValue = totals.subtotal;
-        serviceFee = totals.serviceFee;
-        totalAmount = totals.total;
-        bidAmountToStore = totalOrderValue; // Store total bid amount
+        // Per-line-item bidding - recalculate with correct fee rate
+        let subtotal = 0;
+        lineItems.forEach(item => {
+          const bid = itemBids[item.id];
+          if (bid?.unitPrice) {
+            subtotal += bid.unitPrice * item.quantity;
+          }
+        });
+        totalOrderValue = subtotal;
+        serviceFee = subtotal * feeRate;
+        totalAmount = subtotal + serviceFee;
+        bidAmountToStore = totalOrderValue;
       } else {
         // Legacy single bid
         const perUnitRate = data.bid_amount || 0;
@@ -297,13 +319,28 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         if (itemsError) throw itemsError;
       }
 
-      // Update subscription bid count
-      await supabase
-        .from('subscriptions')
-        .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
-        .eq('id', subscription.id);
+      // Update subscription based on bid type
+      if (isUsingPremiumBid) {
+        // Deduct from premium balance
+        await supabase
+          .from('subscriptions')
+          .update({ premium_bids_balance: subscription.premium_bids_balance - 1 })
+          .eq('id', subscription.id);
+      } else if (hasFreeBidsRemaining) {
+        // Deduct from monthly bids
+        await supabase
+          .from('subscriptions')
+          .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
+          .eq('id', subscription.id);
+      }
+      // For paid bids, no subscription update needed (they pay per bid)
 
-      const bidCostMsg = isPaidBid ? ` (Bid fee: ₹${BID_FEE})` : '';
+      let bidCostMsg = '';
+      if (isUsingPremiumBid) {
+        bidCostMsg = ' (Used 1 premium bid)';
+      } else if (isPaidBid) {
+        bidCostMsg = ` (Bid fee: ₹${BID_FEE})`;
+      }
       toast({ title: 'Success', description: `Bid submitted successfully!${bidCostMsg}` });
       setSelectedRequirement(null);
       setLineItems([]);
@@ -320,14 +357,15 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   // For legacy single-bid requirements
   const bidAmount = form.watch('bid_amount') || 0;
   const quantity = selectedRequirement?.quantity || 0;
-  const currentFeeRate = getServiceFeeRate(selectedRequirement?.trade_type);
+  const currentFeeRate = isUsingPremiumBid ? PREMIUM_FEE_RATE : getServiceFeeRate(selectedRequirement?.trade_type);
   const feePercentage = currentFeeRate * 100;
   const singleBidOrderValue = bidAmount * quantity;
   const singleBidServiceFee = singleBidOrderValue * currentFeeRate;
   const singleBidTotal = singleBidOrderValue + singleBidServiceFee;
 
   // For line-item bidding
-  const { subtotal: itemSubtotal, serviceFee: itemServiceFee, total: itemTotal } = calculateItemTotals();
+  const { subtotal: itemSubtotal, serviceFee: itemServiceFee, total: itemTotal, feeRate: itemFeeRate } = calculateItemTotals();
+  const itemFeePercentage = (itemFeeRate || currentFeeRate) * 100;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -497,8 +535,18 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         </FormItem>
                       )} />
 
+                      {isUsingPremiumBid && (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
+                          <div className="flex items-center gap-2">
+                            <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            <strong>Using Premium Bid</strong>
+                          </div>
+                          <p className="mt-1">Lower service fee (0.3%) applied. Balance after: {(subscription?.premium_bids_balance ?? 1) - 1} bids</p>
+                        </div>
+                      )}
+
                       {isPaidBid && (
-                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800">
+                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800 dark:bg-orange-950/30 dark:border-orange-800 dark:text-orange-400">
                           <strong>Paid Bid:</strong> You've used all {subscription?.bids_limit} free bids this month. 
                           This bid will cost ₹{BID_FEE}.
                         </div>
