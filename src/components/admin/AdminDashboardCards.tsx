@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -62,6 +62,32 @@ export function AdminDashboardCards({
   const [loading, setLoading] = useState(true);
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number>(7);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true);
+      const { data, error } = await supabase.functions.invoke('get-analytics', {
+        body: {
+          startDate: getDateString(-selectedDays),
+          endDate: getDateString(0),
+          days: selectedDays,
+        },
+      });
+
+      if (error) {
+        console.error('Error fetching analytics:', error);
+        return;
+      }
+
+      setAnalytics(data);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -113,30 +139,6 @@ export function AdminDashboardCards({
   }, []);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        setAnalyticsLoading(true);
-        const { data, error } = await supabase.functions.invoke('get-analytics', {
-          body: {
-            startDate: getDateString(-selectedDays),
-            endDate: getDateString(0),
-            days: selectedDays,
-          },
-        });
-
-        if (error) {
-          console.error('Error fetching analytics:', error);
-          return;
-        }
-
-        setAnalytics(data);
-      } catch (error) {
-        console.error('Error fetching analytics:', error);
-      } finally {
-        setAnalyticsLoading(false);
-      }
-    };
-
     fetchAnalytics();
   }, [selectedDays]);
 
@@ -154,6 +156,15 @@ export function AdminDashboardCards({
           <CardTitle className="flex items-center gap-2 text-lg">
             <BarChart3 className="h-5 w-5 text-indigo-600" />
             Visitor Analytics
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 ml-1"
+              onClick={fetchAnalytics}
+              disabled={analyticsLoading}
+            >
+              <RefreshCw className={`h-3 w-3 ${analyticsLoading ? 'animate-spin' : ''}`} />
+            </Button>
             <Select value={String(selectedDays)} onValueChange={(val) => setSelectedDays(Number(val))}>
               <SelectTrigger className="ml-auto w-[130px] h-7 text-xs">
                 <SelectValue />
@@ -166,6 +177,11 @@ export function AdminDashboardCards({
               </SelectContent>
             </Select>
           </CardTitle>
+          {lastUpdated && (
+            <p className="text-xs text-muted-foreground">
+              Updated: {lastUpdated.toLocaleTimeString()}
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           {analyticsLoading ? (
