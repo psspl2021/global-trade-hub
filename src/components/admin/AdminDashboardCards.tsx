@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -36,6 +36,7 @@ interface AdminDashboardCardsProps {
   onOpenBidsList: () => void;
   onOpenLogisticsList: () => void;
   onOpenLeadsDashboard: () => void;
+  onOpenPremiumBidsManager: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -47,6 +48,7 @@ export function AdminDashboardCards({
   onOpenBidsList,
   onOpenLogisticsList,
   onOpenLeadsDashboard,
+  onOpenPremiumBidsManager,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -429,6 +431,24 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenLeadsDashboard}>
             <Eye className="h-4 w-4 mr-2" />
             View Leads
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-amber-500/20 bg-amber-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Star className="h-5 w-5 text-amber-500" />
+            Premium Bids
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Manage premium bids for suppliers & transporters
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenPremiumBidsManager}>
+            <Star className="h-4 w-4 mr-2" />
+            Manage Premium Bids
           </Button>
         </CardContent>
       </Card>

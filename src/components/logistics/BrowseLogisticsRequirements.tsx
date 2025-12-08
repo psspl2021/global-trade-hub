@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, MapPin, Calendar, Package, Send, ArrowRight } from 'lucide-react';
+import { Loader2, MapPin, Calendar, Package, Send, ArrowRight, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -67,11 +67,21 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<LogisticsRequirement | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; id: string } | null>(null);
+  const [subscription, setSubscription] = useState<{ 
+    bids_used_this_month: number; 
+    bids_limit: number; 
+    id: string;
+    premium_bids_balance: number;
+  } | null>(null);
   const { toast } = useToast();
 
   const BID_FEE = 500;
-  const isPaidBid = subscription && subscription.bids_used_this_month >= subscription.bids_limit;
+  
+  // Priority: premium_bids_balance -> monthly bids -> paid bid
+  const hasPremiumBids = subscription && subscription.premium_bids_balance > 0;
+  const hasFreeBidsRemaining = subscription && subscription.bids_used_this_month < subscription.bids_limit;
+  const isPaidBid = subscription && !hasPremiumBids && !hasFreeBidsRemaining;
+  const isUsingPremiumBid = hasPremiumBids;
 
   const form = useForm<BidFormData>({
     resolver: zodResolver(bidSchema),
@@ -133,7 +143,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
   const fetchSubscription = async () => {
     const { data } = await supabase
       .from('subscriptions')
-      .select('id, bids_used_this_month, bids_limit')
+      .select('id, bids_used_this_month, bids_limit, premium_bids_balance')
       .eq('user_id', userId)
       .maybeSingle();
     setSubscription(data);
@@ -152,6 +162,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
     setSubmitting(true);
     try {
       const bidAmount = data.bid_amount;
+      // Service fee is same (0.25%) for all bids including premium
       const serviceFee = bidAmount * SERVICE_FEE_RATE;
       const totalAmount = bidAmount + serviceFee;
 
@@ -169,15 +180,30 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
 
       if (error) throw error;
 
-      // Update subscription bid count if exists
+      // Update subscription based on bid type
       if (subscription) {
-        await supabase
-          .from('subscriptions')
-          .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
-          .eq('id', subscription.id);
+        if (isUsingPremiumBid) {
+          // Deduct from premium balance
+          await supabase
+            .from('subscriptions')
+            .update({ premium_bids_balance: subscription.premium_bids_balance - 1 })
+            .eq('id', subscription.id);
+        } else if (hasFreeBidsRemaining) {
+          // Deduct from monthly bids
+          await supabase
+            .from('subscriptions')
+            .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
+            .eq('id', subscription.id);
+        }
+        // For paid bids, no subscription update needed
       }
 
-      const bidCostMsg = isPaidBid ? ` (Bid fee: ₹${BID_FEE})` : '';
+      let bidCostMsg = '';
+      if (isUsingPremiumBid) {
+        bidCostMsg = ' (Used 1 premium quote)';
+      } else if (isPaidBid) {
+        bidCostMsg = ` (Bid fee: ₹${BID_FEE})`;
+      }
       toast({ title: 'Success', description: `Quote submitted successfully!${bidCostMsg}` });
       setSelectedRequirement(null);
       form.reset();
@@ -327,8 +353,18 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                         </FormItem>
                       )} />
 
+                      {isUsingPremiumBid && (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
+                          <div className="flex items-center gap-2">
+                            <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            <strong>Using Premium Quote</strong>
+                          </div>
+                          <p className="mt-1">Balance after: {(subscription?.premium_bids_balance ?? 1) - 1} quotes</p>
+                        </div>
+                      )}
+
                       {isPaidBid && (
-                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800">
+                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800 dark:bg-orange-950/30 dark:border-orange-800 dark:text-orange-400">
                           <strong>Paid Bid:</strong> You've used all {subscription?.bids_limit} free bids this month. 
                           This quote will cost ₹{BID_FEE}.
                         </div>
@@ -336,7 +372,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
 
                       <Button type="submit" disabled={submitting} className="w-full">
                         {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                        {isPaidBid ? `Submit Quote (₹${BID_FEE})` : 'Submit Quote'}
+                        {isUsingPremiumBid ? 'Submit Quote (Premium)' : isPaidBid ? `Submit Quote (₹${BID_FEE})` : 'Submit Quote'}
                       </Button>
                     </form>
                   </Form>

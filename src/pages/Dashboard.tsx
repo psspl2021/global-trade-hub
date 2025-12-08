@@ -27,6 +27,7 @@ import { AdminRequirementsList } from '@/components/admin/AdminRequirementsList'
 import { AdminBidsList } from '@/components/admin/AdminBidsList';
 import { AdminLogisticsList } from '@/components/admin/AdminLogisticsList';
 import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
+import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -59,6 +60,7 @@ const Dashboard = () => {
   const [showAdminBidsList, setShowAdminBidsList] = useState(false);
   const [showAdminLogisticsList, setShowAdminLogisticsList] = useState(false);
   const [showLeadsDashboard, setShowLeadsDashboard] = useState(false);
+  const [showPremiumBidsManager, setShowPremiumBidsManager] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -71,6 +73,7 @@ const Dashboard = () => {
   const [logisticsRequirementsKey, setLogisticsRequirementsKey] = useState(0);
   const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
+  const [logisticsSubscription, setLogisticsSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
 
   const fetchSubscription = async () => {
     if (!user?.id || role !== 'supplier') return;
@@ -102,12 +105,23 @@ const Dashboard = () => {
     }
   };
 
+  const fetchLogisticsSubscription = async () => {
+    if (!user?.id || role !== 'logistics_partner') return;
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('bids_used_this_month, bids_limit, premium_bids_balance')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    setLogisticsSubscription(data);
+  };
+
   useEffect(() => {
     if (user?.id && role === 'supplier') {
       fetchSubscription();
     }
     if (user?.id && role === 'logistics_partner') {
       fetchLogisticsAssets();
+      fetchLogisticsSubscription();
     }
   }, [user?.id, role]);
 
@@ -175,6 +189,7 @@ const Dashboard = () => {
               onOpenBidsList={() => setShowAdminBidsList(true)}
               onOpenLogisticsList={() => setShowAdminLogisticsList(true)}
               onOpenLeadsDashboard={() => setShowLeadsDashboard(true)}
+              onOpenPremiumBidsManager={() => setShowPremiumBidsManager(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -201,6 +216,13 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+            )}
+            {user && (
+              <PremiumBidsManager 
+                open={showPremiumBidsManager} 
+                onOpenChange={setShowPremiumBidsManager}
+                adminId={user.id}
+              />
             )}
           </>
         )}
@@ -433,6 +455,91 @@ const Dashboard = () => {
                   <Button className="w-full" onClick={() => setShowBrowseLogisticsRequirements(true)}>
                     Browse & Quote
                   </Button>
+                </CardContent>
+              </Card>
+
+              {/* Subscription Card for Logistics Partners */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {(logisticsSubscription?.premium_bids_balance ?? 0) > 0 && (
+                      <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                    )}
+                    Subscription
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Free Monthly Quotes */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Free Plan (5 quotes/month)</div>
+                    <div className="text-xl font-bold text-primary mb-1">
+                      {logisticsSubscription?.bids_used_this_month ?? 0}/{logisticsSubscription?.bids_limit ?? 5}
+                    </div>
+                    <Progress 
+                      value={((logisticsSubscription?.bids_used_this_month ?? 0) / (logisticsSubscription?.bids_limit ?? 5)) * 100} 
+                      className="mb-1 h-2" 
+                    />
+                    <p className="text-xs text-muted-foreground">Monthly quotes used</p>
+                  </div>
+
+                  {/* Premium Balance Display */}
+                  {(logisticsSubscription?.premium_bids_balance ?? 0) > 0 && (
+                    <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                        <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Premium Balance</span>
+                      </div>
+                      <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                        {logisticsSubscription?.premium_bids_balance ?? 0} quotes
+                      </div>
+                      <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Lifetime quotes (never expires)</p>
+                    </div>
+                  )}
+
+                  {/* Premium Pack Purchase Option */}
+                  {(logisticsSubscription?.premium_bids_balance ?? 0) === 0 ? (
+                    <div className="p-4 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-5 w-5 text-amber-500" />
+                        <span className="font-bold text-foreground">Buy Premium Pack</span>
+                      </div>
+                      <div className="text-2xl font-bold text-primary mb-1">₹24,950</div>
+                      <p className="text-sm text-muted-foreground mb-3">50 lifetime quotes (₹499/quote)</p>
+                      <ul className="text-sm space-y-1 mb-4">
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <Check className="h-4 w-4 text-green-500" /> Never expires - use anytime
+                        </li>
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <Check className="h-4 w-4 text-green-500" /> Priority in quote listings
+                        </li>
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <Check className="h-4 w-4 text-green-500" /> Dedicated support
+                        </li>
+                      </ul>
+                      <Button 
+                        variant="default" 
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                        onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Logistics Premium Pack Purchase Request&body=Hi, I would like to purchase the Logistics Premium Pack (₹24,950 for 50 lifetime quotes).'}
+                      >
+                        Contact to Purchase
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                      onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Buy More Premium Quotes&body=Hi, I would like to purchase more premium quotes.'}
+                    >
+                      <Star className="h-4 w-4 mr-2" />
+                      Buy More Premium Quotes
+                    </Button>
+                  )}
+
+                  {(logisticsSubscription?.bids_used_this_month ?? 0) >= (logisticsSubscription?.bids_limit ?? 5) && (logisticsSubscription?.premium_bids_balance ?? 0) === 0 && (
+                    <p className="text-sm text-orange-600 font-medium">
+                      Additional quotes: ₹500 each
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
