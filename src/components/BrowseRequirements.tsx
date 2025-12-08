@@ -39,12 +39,12 @@ const getServiceFeeRate = (tradeType: string | undefined) => {
   return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
 };
 
-const getTradeTypeLabel = (tradeType: string) => {
+const getTradeTypeLabel = (tradeType: string | undefined) => {
   switch (tradeType) {
     case 'import': return 'Import';
     case 'export': return 'Export';
     case 'domestic_india': return 'Domestic India';
-    default: return tradeType;
+    default: return 'Domestic India';
   }
 };
 
@@ -243,7 +243,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 <CardTitle>{selectedRequirement.title}</CardTitle>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <Badge>{selectedRequirement.product_category}</Badge>
-                  <Badge variant="outline">{getTradeTypeLabel(selectedRequirement.trade_type)}</Badge>
+                  {selectedRequirement.trade_type && <Badge variant="outline">{getTradeTypeLabel(selectedRequirement.trade_type)}</Badge>}
                   {selectedRequirement.buyer_profile && (
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                       <Building2 className="h-3 w-3" />
@@ -343,7 +343,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       <h4 className="font-medium">{req.title}</h4>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">{req.product_category}</Badge>
-                        <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
+                        {req.trade_type && <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>}
                         {myBids.has(req.id) && <Badge variant="outline">Bid Submitted</Badge>}
                         {req.buyer_profile && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
