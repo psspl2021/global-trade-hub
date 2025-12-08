@@ -50,8 +50,8 @@ const getServiceFeeRate = (tradeType: string | undefined) => {
   return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
 };
 
-// Premium bid fee rate is lower
-const PREMIUM_FEE_RATE = 0.003; // 0.3%
+// Premium bid fee rate (same as domestic)
+const PREMIUM_FEE_RATE = 0.005; // 0.5%
 
 const getTradeTypeLabel = (tradeType: string | undefined) => {
   switch (tradeType) {
@@ -541,7 +541,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                             <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
                             <strong>Using Premium Bid</strong>
                           </div>
-                          <p className="mt-1">Lower service fee (0.3%) applied. Balance after: {(subscription?.premium_bids_balance ?? 1) - 1} bids</p>
+                          <p className="mt-1">Balance after: {(subscription?.premium_bids_balance ?? 1) - 1} bids</p>
                         </div>
                       )}
 

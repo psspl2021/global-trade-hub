@@ -704,9 +704,6 @@ const Dashboard = () => {
                           <Check className="h-4 w-4 text-green-500" /> Never expires - use anytime
                         </li>
                         <li className="flex items-center gap-2 text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" /> Lower service fee (0.3%)
-                        </li>
-                        <li className="flex items-center gap-2 text-muted-foreground">
                           <Check className="h-4 w-4 text-green-500" /> Priority listing in search
                         </li>
                         <li className="flex items-center gap-2 text-muted-foreground">
