@@ -141,8 +141,8 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
         toast.error(`Item ${i + 1}: Please select a category`);
         return false;
       }
-      if (item.quantity < 1) {
-        toast.error(`Item ${i + 1}: Quantity must be at least 1`);
+      if (item.quantity <= 0) {
+        toast.error(`Item ${i + 1}: Quantity must be greater than 0`);
         return false;
       }
     }
@@ -314,10 +314,11 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
                       <Label className="text-xs">Quantity *</Label>
                       <Input
                         type="number"
-                        min={1}
+                        min={0.01}
+                        step="any"
                         placeholder="Enter quantity"
                         value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                        onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
                       />
                     </div>
 
