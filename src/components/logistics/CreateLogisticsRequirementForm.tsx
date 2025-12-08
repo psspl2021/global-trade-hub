@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { indianLocations } from '@/data/indianLocations';
 
 const logisticsSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -201,7 +202,20 @@ export const CreateLogisticsRequirementForm = ({
               <FormField control={form.control} name="pickup_location" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pickup Location *</FormLabel>
-                  <FormControl><Input placeholder="City, State" {...field} /></FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select pickup location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {indianLocations.map(loc => (
+                        <SelectItem key={`pickup-${loc.city}`} value={`${loc.city}, ${loc.state}`}>
+                          {loc.city}, {loc.state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -209,7 +223,20 @@ export const CreateLogisticsRequirementForm = ({
               <FormField control={form.control} name="delivery_location" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Delivery Location *</FormLabel>
-                  <FormControl><Input placeholder="City, State" {...field} /></FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select delivery location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {indianLocations.map(loc => (
+                        <SelectItem key={`delivery-${loc.city}`} value={`${loc.city}, ${loc.state}`}>
+                          {loc.city}, {loc.state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )} />
