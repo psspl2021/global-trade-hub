@@ -525,7 +525,7 @@ const Dashboard = () => {
                           className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
                         >
                           <MessageCircle className="h-4 w-4" />
-                          WhatsApp: 8368127357
+                          WhatsApp: +91 8368127357
                         </a>
                         <a 
                           href="mailto:sales@procuresaathi.com?subject=Logistics Premium Pack Purchase Request&body=Hi, I would like to purchase the Logistics Premium Pack (₹24,950 for 50 lifetime quotes)."
@@ -546,7 +546,7 @@ const Dashboard = () => {
                         className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
                       >
                         <MessageCircle className="h-4 w-4" />
-                        WhatsApp: 8368127357
+                        WhatsApp: +91 8368127357
                       </a>
                       <a 
                         href="mailto:sales@procuresaathi.com?subject=Buy More Premium Quotes&body=Hi, I would like to purchase more premium quotes."
@@ -742,7 +742,7 @@ const Dashboard = () => {
                           className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
                         >
                           <MessageCircle className="h-4 w-4" />
-                          WhatsApp: 8368127357
+                          WhatsApp: +91 8368127357
                         </a>
                         <a 
                           href="mailto:sales@procuresaathi.com?subject=Premium Pack Purchase Request&body=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime bids)."
@@ -763,7 +763,7 @@ const Dashboard = () => {
                         className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
                       >
                         <MessageCircle className="h-4 w-4" />
-                        WhatsApp: 8368127357
+                        WhatsApp: +91 8368127357
                       </a>
                       <a 
                         href="mailto:sales@procuresaathi.com?subject=Buy More Premium Bids&body=Hi, I would like to purchase more premium bids."
