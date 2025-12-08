@@ -9,10 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Loader2, Eye, Calendar, MapPin, Package } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-
+import { EditRequirementForm } from './EditRequirementForm';
 interface Requirement {
   id: string;
   title: string;
@@ -62,6 +62,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
+  const [editingRequirement, setEditingRequirement] = useState<Requirement | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [bidsLoading, setBidsLoading] = useState(false);
 
@@ -215,14 +216,26 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleViewBids(req)}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      View Bids
-                    </Button>
+                    <div className="flex gap-2">
+                      {req.status === 'active' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingRequirement(req)}
+                        >
+                          <Edit2 className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewBids(req)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View Bids
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -294,6 +307,19 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit Requirement Dialog */}
+      {editingRequirement && (
+        <EditRequirementForm
+          open={!!editingRequirement}
+          onOpenChange={(open) => !open && setEditingRequirement(null)}
+          requirement={editingRequirement}
+          onSuccess={() => {
+            setEditingRequirement(null);
+            fetchRequirements();
+          }}
+        />
+      )}
     </>
   );
 }
