@@ -171,6 +171,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
         requirement_id: selectedRequirement.id,
         transporter_id: userId,
         bid_amount: bidAmount,
+        rate_per_unit: data.rate_per_unit,
         service_fee: serviceFee,
         total_amount: totalAmount,
         estimated_transit_days: data.estimated_transit_days,
