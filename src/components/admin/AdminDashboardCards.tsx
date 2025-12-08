@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp } from 'lucide-react';
+import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -22,6 +23,7 @@ interface VisitorAnalytics {
   topSources: Array<{ source: string; count: number; percentage: number }>;
   deviceBreakdown: { desktop: number; mobile: number; tablet: number };
   dailyData: Array<{ date: string; visitors: number; pageviews: number }>;
+  countryBreakdown: Array<{ country: string; countryCode: string; visitors: number; percentage: number }>;
 }
 
 interface AdminDashboardCardsProps {
@@ -57,6 +59,7 @@ export function AdminDashboardCards({
   const [analytics, setAnalytics] = useState<VisitorAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -158,7 +161,7 @@ export function AdminDashboardCards({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-3xl font-bold text-indigo-600">{analytics.totalVisitors}</div>
-                  <p className="text-xs text-muted-foreground">Unique Visitors</p>
+                  <p className="text-xs text-muted-foreground">Total Visitors</p>
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-indigo-600">{analytics.totalPageviews}</div>
@@ -180,17 +183,44 @@ export function AdminDashboardCards({
                 </div>
               </div>
 
+              {/* Geographic Preview */}
+              {analytics.countryBreakdown && analytics.countryBreakdown.length > 0 && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Globe className="h-3 w-3" />
+                  <span>
+                    Top: {analytics.countryBreakdown.slice(0, 2).map(c => `${c.country} (${c.percentage}%)`).join(', ')}
+                  </span>
+                </div>
+              )}
+
               {analytics.topSources.length > 0 && (
                 <div className="text-xs text-muted-foreground">
                   Top source: {analytics.topSources[0].source} ({analytics.topSources[0].percentage}%)
                 </div>
               )}
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full" 
+                onClick={() => setAnalyticsModalOpen(true)}
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                View Detailed Analytics
+              </Button>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Unable to load analytics</p>
           )}
         </CardContent>
       </Card>
+
+      {/* Analytics Modal */}
+      <VisitorAnalyticsModal 
+        open={analyticsModalOpen} 
+        onOpenChange={setAnalyticsModalOpen} 
+        analytics={analytics} 
+      />
 
       <Card className="border-orange-500/20 bg-orange-500/5">
         <CardHeader className="pb-2">

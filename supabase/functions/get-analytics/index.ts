@@ -91,6 +91,7 @@ interface AnalyticsData {
   topSources: Array<{ source: string; count: number; percentage: number }>;
   deviceBreakdown: { desktop: number; mobile: number; tablet: number };
   dailyData: Array<{ date: string; visitors: number; pageviews: number }>;
+  countryBreakdown: Array<{ country: string; countryCode: string; visitors: number; percentage: number }>;
 }
 
 function processAnalyticsData(rawData: any): AnalyticsData {
@@ -103,6 +104,7 @@ function processAnalyticsData(rawData: any): AnalyticsData {
     topSources: [{ source: 'Direct', count: 0, percentage: 100 }],
     deviceBreakdown: { desktop: 0, mobile: 0, tablet: 0 },
     dailyData: [],
+    countryBreakdown: [],
   };
 
   if (!rawData || !rawData.data) {
@@ -120,6 +122,7 @@ function processAnalyticsData(rawData: any): AnalyticsData {
   let desktopCount = 0;
   let mobileCount = 0;
   let tabletCount = 0;
+  const countryCounts: Record<string, { count: number; code: string }> = {};
 
   // Process each day's data
   if (Array.isArray(data)) {
@@ -158,6 +161,18 @@ function processAnalyticsData(rawData: any): AnalyticsData {
         mobileCount += day.devices.mobile || 0;
         tabletCount += day.devices.tablet || 0;
       }
+
+      // Aggregate countries/geographic data
+      if (day.countries) {
+        for (const country of day.countries) {
+          const countryName = country.country || country.name || 'Unknown';
+          const countryCode = country.code || country.country_code || '';
+          if (!countryCounts[countryName]) {
+            countryCounts[countryName] = { count: 0, code: countryCode };
+          }
+          countryCounts[countryName].count += country.visitors || country.count || 1;
+        }
+      }
     }
   }
 
@@ -190,6 +205,18 @@ function processAnalyticsData(rawData: any): AnalyticsData {
     tablet: Math.round((tabletCount / totalDevices) * 100),
   };
 
+  // Convert country counts to sorted array with percentages
+  const totalCountryCount = Object.values(countryCounts).reduce((sum, c) => sum + c.count, 0) || totalVisitors || 1;
+  const countryBreakdown = Object.entries(countryCounts)
+    .map(([country, data]) => ({
+      country,
+      countryCode: data.code,
+      visitors: data.count,
+      percentage: Math.round((data.count / totalCountryCount) * 100),
+    }))
+    .sort((a, b) => b.visitors - a.visitors)
+    .slice(0, 10);
+
   return {
     totalVisitors,
     totalPageviews,
@@ -198,5 +225,6 @@ function processAnalyticsData(rawData: any): AnalyticsData {
     topSources,
     deviceBreakdown,
     dailyData,
+    countryBreakdown,
   };
 }
