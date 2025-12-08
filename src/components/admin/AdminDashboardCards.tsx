@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
@@ -60,6 +61,7 @@ export function AdminDashboardCards({
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<number>(7);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -107,13 +109,18 @@ export function AdminDashboardCards({
       }
     };
 
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
     const fetchAnalytics = async () => {
       try {
         setAnalyticsLoading(true);
         const { data, error } = await supabase.functions.invoke('get-analytics', {
           body: {
-            startDate: getDateString(-7),
+            startDate: getDateString(-selectedDays),
             endDate: getDateString(0),
+            days: selectedDays,
           },
         });
 
@@ -130,9 +137,8 @@ export function AdminDashboardCards({
       }
     };
 
-    fetchStats();
     fetchAnalytics();
-  }, []);
+  }, [selectedDays]);
 
   function getDateString(daysOffset: number): string {
     const date = new Date();
@@ -148,7 +154,17 @@ export function AdminDashboardCards({
           <CardTitle className="flex items-center gap-2 text-lg">
             <BarChart3 className="h-5 w-5 text-indigo-600" />
             Visitor Analytics
-            <span className="ml-auto text-xs text-muted-foreground font-normal">Last 7 days</span>
+            <Select value={String(selectedDays)} onValueChange={(val) => setSelectedDays(Number(val))}>
+              <SelectTrigger className="ml-auto w-[130px] h-7 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Last 7 days</SelectItem>
+                <SelectItem value="30">Last 30 days</SelectItem>
+                <SelectItem value="90">Last 90 days</SelectItem>
+                <SelectItem value="365">Last 365 days</SelectItem>
+              </SelectContent>
+            </Select>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -219,7 +235,8 @@ export function AdminDashboardCards({
       <VisitorAnalyticsModal 
         open={analyticsModalOpen} 
         onOpenChange={setAnalyticsModalOpen} 
-        analytics={analytics} 
+        analytics={analytics}
+        selectedDays={selectedDays}
       />
 
       <Card className="border-orange-500/20 bg-orange-500/5">

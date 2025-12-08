@@ -15,20 +15,22 @@ serve(async (req) => {
     // Get date range from request body
     let startDate: string;
     let endDate: string;
+    let days: number = 7;
     
     try {
       const body = await req.json();
       startDate = body.startDate || getDateString(-7);
       endDate = body.endDate || getDateString(0);
+      days = body.days || 7;
     } catch {
       startDate = getDateString(-7);
       endDate = getDateString(0);
     }
 
-    console.log(`Generating analytics from ${startDate} to ${endDate}`);
+    console.log(`Generating analytics from ${startDate} to ${endDate} (${days} days)`);
 
     // Generate sample analytics data based on date range
-    const analytics = generateSampleAnalytics(startDate, endDate);
+    const analytics = generateSampleAnalytics(startDate, endDate, days);
 
     return new Response(
       JSON.stringify(analytics),
@@ -60,7 +62,7 @@ interface AnalyticsData {
   countryBreakdown: Array<{ country: string; countryCode: string; visitors: number; percentage: number }>;
 }
 
-function generateSampleAnalytics(startDate: string, endDate: string): AnalyticsData {
+function generateSampleAnalytics(startDate: string, endDate: string, days: number): AnalyticsData {
   // Generate daily data based on date range
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -69,11 +71,14 @@ function generateSampleAnalytics(startDate: string, endDate: string): AnalyticsD
   let totalVisitors = 0;
   let totalPageviews = 0;
   
+  // Scale base visitors based on time range
+  const baseMultiplier = days <= 7 ? 1 : days <= 30 ? 1.2 : days <= 90 ? 1.5 : 2;
+  
   // Generate data for each day
   const currentDate = new Date(start);
   while (currentDate <= end) {
-    // Generate realistic random values
-    const baseVisitors = 5 + Math.floor(Math.random() * 15);
+    // Generate realistic random values scaled by multiplier
+    const baseVisitors = Math.floor((5 + Math.floor(Math.random() * 15)) * baseMultiplier);
     const visitors = baseVisitors;
     const pageviews = visitors + Math.floor(Math.random() * visitors * 1.5);
     
@@ -94,20 +99,22 @@ function generateSampleAnalytics(startDate: string, endDate: string): AnalyticsD
     totalPageviews,
     pageviewsPerVisit: totalVisitors > 0 ? Math.round((totalPageviews / totalVisitors) * 10) / 10 : 0,
     topPages: [
-      { page: '/', views: Math.floor(totalPageviews * 0.45) },
-      { page: '/login', views: Math.floor(totalPageviews * 0.15) },
+      { page: '/', views: Math.floor(totalPageviews * 0.42) },
+      { page: '/login', views: Math.floor(totalPageviews * 0.14) },
       { page: '/categories', views: Math.floor(totalPageviews * 0.12) },
       { page: '/dashboard', views: Math.floor(totalPageviews * 0.10) },
       { page: '/signup', views: Math.floor(totalPageviews * 0.08) },
       { page: '/browse', views: Math.floor(totalPageviews * 0.06) },
       { page: '/book-truck', views: Math.floor(totalPageviews * 0.04) },
+      { page: '/source/india', views: Math.floor(totalPageviews * 0.04) },
     ],
     topSources: [
-      { source: 'Direct', count: Math.floor(totalVisitors * 0.65), percentage: 65 },
-      { source: 'Google', count: Math.floor(totalVisitors * 0.20), percentage: 20 },
-      { source: 'Facebook', count: Math.floor(totalVisitors * 0.08), percentage: 8 },
+      { source: 'Direct', count: Math.floor(totalVisitors * 0.42), percentage: 42 },
+      { source: 'Google', count: Math.floor(totalVisitors * 0.28), percentage: 28 },
+      { source: 'Instagram', count: Math.floor(totalVisitors * 0.12), percentage: 12 },
+      { source: 'Facebook', count: Math.floor(totalVisitors * 0.10), percentage: 10 },
       { source: 'LinkedIn', count: Math.floor(totalVisitors * 0.05), percentage: 5 },
-      { source: 'Twitter', count: Math.floor(totalVisitors * 0.02), percentage: 2 },
+      { source: 'Twitter', count: Math.floor(totalVisitors * 0.03), percentage: 3 },
     ],
     deviceBreakdown: {
       desktop: 68,
