@@ -42,7 +42,7 @@ interface TransporterMyBidsProps {
   userId: string;
 }
 
-const SERVICE_FEE_RATE = 0.0025;
+const PLATFORM_FEE_PER_UNIT = 50; // ₹50 per ton/kg/unit
 
 export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyBidsProps) => {
   const [bids, setBids] = useState<LogisticsBid[]>([]);
@@ -100,7 +100,10 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
 
   const handleRebid = (bid: LogisticsBid) => {
     setEditingBid(bid);
-    setNewBidAmount(bid.bid_amount.toString());
+    // Calculate rate per unit from stored bid_amount
+    const quantity = bid.logistics_requirement?.quantity || 1;
+    const ratePerUnit = bid.bid_amount / quantity;
+    setNewBidAmount(ratePerUnit.toString());
     setNewTransitDays(bid.estimated_transit_days.toString());
   };
 
@@ -109,9 +112,11 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
 
     setSubmitting(true);
     try {
-      const bidAmount = parseFloat(newBidAmount);
+      const ratePerUnit = parseFloat(newBidAmount);
+      const quantity = editingBid.logistics_requirement?.quantity || 1;
       const transitDays = parseInt(newTransitDays) || editingBid.estimated_transit_days;
-      const serviceFee = bidAmount * SERVICE_FEE_RATE;
+      const bidAmount = ratePerUnit * quantity;
+      const serviceFee = PLATFORM_FEE_PER_UNIT * quantity;
       const totalAmount = bidAmount + serviceFee;
 
       const { error } = await (supabase
@@ -199,11 +204,15 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
 
                       <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
                         <div className="flex justify-between">
+                          <span>Rate:</span>
+                          <span>₹{(bid.bid_amount / (bid.logistics_requirement?.quantity || 1)).toLocaleString()} per {bid.logistics_requirement?.unit}</span>
+                        </div>
+                        <div className="flex justify-between">
                           <span>Your Quote:</span>
-                          <span>₹{bid.bid_amount.toLocaleString()}</span>
+                          <span>₹{bid.bid_amount.toLocaleString()} ({(bid.bid_amount / (bid.logistics_requirement?.quantity || 1)).toLocaleString()} × {bid.logistics_requirement?.quantity})</span>
                         </div>
                         <div className="flex justify-between text-muted-foreground">
-                          <span>Platform Fee (0.25%):</span>
+                          <span>Platform Fee (₹{PLATFORM_FEE_PER_UNIT}/{bid.logistics_requirement?.unit}):</span>
                           <span>₹{bid.service_fee.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between font-medium border-t pt-1">
@@ -250,9 +259,11 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">New Quote Amount (₹)</label>
+                <label className="text-sm font-medium">Rate per {editingBid?.logistics_requirement?.unit || 'unit'} (₹)</label>
                 <Input
                   type="number"
+                  step="0.01"
+                  min="0.01"
                   value={newBidAmount}
                   onChange={(e) => setNewBidAmount(e.target.value)}
                 />
@@ -266,20 +277,36 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
                 />
               </div>
               
-              {newBidAmount && (
+              {newBidAmount && editingBid && (
                 <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                  <div className="flex justify-between">
-                    <span>New Quote:</span>
-                    <span>₹{parseFloat(newBidAmount).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Platform Fee (0.25%):</span>
-                    <span>₹{(parseFloat(newBidAmount) * SERVICE_FEE_RATE).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between font-medium border-t pt-1">
-                    <span>Total to Customer:</span>
-                    <span>₹{(parseFloat(newBidAmount) * (1 + SERVICE_FEE_RATE)).toLocaleString()}</span>
-                  </div>
+                  {(() => {
+                    const rate = parseFloat(newBidAmount) || 0;
+                    const qty = editingBid.logistics_requirement?.quantity || 1;
+                    const unit = editingBid.logistics_requirement?.unit || 'units';
+                    const bidAmt = rate * qty;
+                    const fee = PLATFORM_FEE_PER_UNIT * qty;
+                    const total = bidAmt + fee;
+                    return (
+                      <>
+                        <div className="flex justify-between">
+                          <span>Rate:</span>
+                          <span>₹{rate.toLocaleString()} per {unit}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Your Quote:</span>
+                          <span>₹{bidAmt.toLocaleString()} ({rate.toLocaleString()} × {qty})</span>
+                        </div>
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>Platform Fee (₹{PLATFORM_FEE_PER_UNIT}/{unit}):</span>
+                          <span>₹{fee.toLocaleString()} ({PLATFORM_FEE_PER_UNIT} × {qty})</span>
+                        </div>
+                        <div className="flex justify-between font-medium border-t pt-1">
+                          <span>Total to Customer:</span>
+                          <span>₹{total.toLocaleString()}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
 

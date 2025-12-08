@@ -42,10 +42,10 @@ interface Vehicle {
   capacity_tons: number | null;
 }
 
-const SERVICE_FEE_RATE = 0.0025; // 0.25%
+const PLATFORM_FEE_PER_UNIT = 50; // ₹50 per ton/kg/unit
 
 const bidSchema = z.object({
-  bid_amount: z.coerce.number().min(1, 'Quote amount is required'),
+  rate_per_unit: z.coerce.number().min(0.01, 'Rate per unit is required'),
   estimated_transit_days: z.coerce.number().min(1, 'Transit days required'),
   vehicle_id: z.string().optional(),
   terms_and_conditions: z.string().optional(),
@@ -161,9 +161,10 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
 
     setSubmitting(true);
     try {
-      const bidAmount = data.bid_amount;
-      // Service fee is same (0.25%) for all bids including premium
-      const serviceFee = bidAmount * SERVICE_FEE_RATE;
+      const quantity = selectedRequirement.quantity;
+      const bidAmount = data.rate_per_unit * quantity;
+      // Fixed ₹50 per unit platform fee
+      const serviceFee = PLATFORM_FEE_PER_UNIT * quantity;
       const totalAmount = bidAmount + serviceFee;
 
       const { error } = await (supabase.from('logistics_bids') as any).insert({
@@ -215,9 +216,12 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
     setSubmitting(false);
   };
 
-  const bidAmount = form.watch('bid_amount');
-  const serviceFee = bidAmount ? bidAmount * SERVICE_FEE_RATE : 0;
-  const totalAmount = bidAmount ? bidAmount + serviceFee : 0;
+  const ratePerUnit = form.watch('rate_per_unit');
+  const quantity = selectedRequirement?.quantity || 0;
+  const unit = selectedRequirement?.unit || 'units';
+  const bidAmount = ratePerUnit ? ratePerUnit * quantity : 0;
+  const serviceFee = quantity ? PLATFORM_FEE_PER_UNIT * quantity : 0;
+  const totalAmount = bidAmount + serviceFee;
 
   const getVehicleTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -296,10 +300,10 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                       <h4 className="font-medium">Submit Your Quote</h4>
                       
                       <div className="grid grid-cols-2 gap-4">
-                        <FormField control={form.control} name="bid_amount" render={({ field }) => (
+                        <FormField control={form.control} name="rate_per_unit" render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Your Quote (₹) *</FormLabel>
-                            <FormControl><Input type="number" {...field} /></FormControl>
+                            <FormLabel>Rate per {selectedRequirement.unit} (₹) *</FormLabel>
+                            <FormControl><Input type="number" step="0.01" min="0.01" {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
                         )} />
@@ -332,12 +336,23 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                         )} />
                       )}
                       
-                      {bidAmount > 0 && (
+                      {ratePerUnit > 0 && (
                         <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                          <div className="flex justify-between"><span>Your Quote:</span><span>₹{bidAmount.toLocaleString()}</span></div>
+                          <div className="flex justify-between">
+                            <span>Rate:</span>
+                            <span>₹{ratePerUnit.toLocaleString()} per {unit}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Quantity:</span>
+                            <span>{quantity} {unit}</span>
+                          </div>
+                          <div className="flex justify-between border-t pt-1">
+                            <span>Your Quote:</span>
+                            <span>₹{bidAmount.toLocaleString()} ({ratePerUnit.toLocaleString()} × {quantity})</span>
+                          </div>
                           <div className="flex justify-between text-muted-foreground">
-                            <span>Platform Fee (0.25%):</span>
-                            <span>₹{serviceFee.toLocaleString()}</span>
+                            <span>Platform Fee (₹{PLATFORM_FEE_PER_UNIT}/{unit}):</span>
+                            <span>₹{serviceFee.toLocaleString()} ({PLATFORM_FEE_PER_UNIT} × {quantity})</span>
                           </div>
                           <div className="flex justify-between font-medium border-t pt-1">
                             <span>Total to Customer:</span>
