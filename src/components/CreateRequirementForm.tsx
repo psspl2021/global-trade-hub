@@ -21,19 +21,25 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+
+interface RequirementItem {
+  item_name: string;
+  description: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  budget_min?: number;
+  budget_max?: number;
+}
 
 const requirementSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
   description: z.string().min(20, 'Description must be at least 20 characters').max(2000),
-  product_category: z.string().min(1, 'Please select a category'),
   trade_type: z.enum(['import', 'export', 'domestic_india'], {
     required_error: 'Please select a trade type'
   }),
-  quantity: z.number().min(1, 'Quantity must be at least 1'),
-  unit: z.string().min(1, 'Please specify a unit'),
-  budget_min: z.number().optional(),
-  budget_max: z.number().optional(),
   deadline: z.string().min(1, 'Please select a deadline'),
   delivery_location: z.string().min(3, 'Please specify delivery location'),
   quality_standards: z.string().optional(),
@@ -84,8 +90,19 @@ const tradeTypes = [
   { value: 'domestic_india', label: 'Domestic India' },
 ];
 
+const defaultItem: RequirementItem = {
+  item_name: '',
+  description: '',
+  category: '',
+  quantity: 1,
+  unit: 'Pieces',
+  budget_min: undefined,
+  budget_max: undefined,
+};
+
 export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }: CreateRequirementFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
 
   const {
     register,
@@ -95,35 +112,97 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
     formState: { errors },
   } = useForm<RequirementFormData>({
     resolver: zodResolver(requirementSchema),
-    defaultValues: {
-      unit: 'Pieces',
-    },
   });
 
+  const addItem = () => {
+    setItems([...items, { ...defaultItem }]);
+  };
+
+  const removeItem = (index: number) => {
+    if (items.length > 1) {
+      setItems(items.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateItem = (index: number, field: keyof RequirementItem, value: string | number) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
+  const validateItems = (): boolean => {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (!item.item_name.trim()) {
+        toast.error(`Item ${i + 1}: Please enter item name`);
+        return false;
+      }
+      if (!item.category) {
+        toast.error(`Item ${i + 1}: Please select a category`);
+        return false;
+      }
+      if (item.quantity < 1) {
+        toast.error(`Item ${i + 1}: Quantity must be at least 1`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const onSubmit = async (data: RequirementFormData) => {
+    if (!validateItems()) return;
+
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from('requirements').insert({
-        buyer_id: userId,
-        title: data.title,
-        description: data.description,
-        product_category: data.product_category,
-        trade_type: data.trade_type,
-        quantity: data.quantity,
-        unit: data.unit,
-        budget_min: data.budget_min || null,
-        budget_max: data.budget_max || null,
-        deadline: data.deadline,
-        delivery_location: data.delivery_location,
-        quality_standards: data.quality_standards || null,
-        certifications_required: data.certifications_required || null,
-        payment_terms: data.payment_terms || null,
-      });
+      // Calculate total quantity and get primary category from first item
+      const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+      const primaryCategory = items[0].category;
 
-      if (error) throw error;
+      // Insert main requirement
+      const { data: requirement, error: reqError } = await supabase
+        .from('requirements')
+        .insert({
+          buyer_id: userId,
+          title: data.title,
+          description: data.description,
+          product_category: primaryCategory,
+          trade_type: data.trade_type,
+          quantity: totalQuantity,
+          unit: items[0].unit,
+          budget_min: items.reduce((sum, item) => sum + (item.budget_min || 0), 0) || null,
+          budget_max: items.reduce((sum, item) => sum + (item.budget_max || 0), 0) || null,
+          deadline: data.deadline,
+          delivery_location: data.delivery_location,
+          quality_standards: data.quality_standards || null,
+          certifications_required: data.certifications_required || null,
+          payment_terms: data.payment_terms || null,
+        })
+        .select('id')
+        .single();
+
+      if (reqError) throw reqError;
+
+      // Insert requirement items
+      const itemsToInsert = items.map((item) => ({
+        requirement_id: requirement.id,
+        item_name: item.item_name,
+        description: item.description || null,
+        category: item.category,
+        quantity: item.quantity,
+        unit: item.unit,
+        budget_min: item.budget_min || null,
+        budget_max: item.budget_max || null,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('requirement_items')
+        .insert(itemsToInsert);
+
+      if (itemsError) throw itemsError;
 
       toast.success('Requirement posted successfully!');
       reset();
+      setItems([{ ...defaultItem }]);
       onOpenChange(false);
       onSuccess?.();
     } catch (error: any) {
@@ -134,14 +213,22 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
     }
   };
 
+  const handleClose = (isOpen: boolean) => {
+    if (!isOpen) {
+      reset();
+      setItems([{ ...defaultItem }]);
+    }
+    onOpenChange(isOpen);
+  };
+
   // Get minimum date (tomorrow)
   const minDate = new Date();
   minDate.setDate(minDate.getDate() + 1);
   const minDateStr = minDate.toISOString().split('T')[0];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Requirement</DialogTitle>
         </DialogHeader>
@@ -162,28 +249,132 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
             <Textarea
               id="description"
               placeholder="Provide detailed specifications, quality requirements, etc."
-              rows={4}
+              rows={3}
               {...register('description')}
             />
             {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Product Category *</Label>
-              <Select onValueChange={(value) => setValue('product_category', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.product_category && <p className="text-sm text-destructive">{errors.product_category.message}</p>}
+          {/* Items Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">Items *</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addItem}>
+                <Plus className="h-4 w-4 mr-1" />
+                Add Item
+              </Button>
             </div>
 
+            {items.map((item, index) => (
+              <Card key={index} className="relative">
+                <CardContent className="pt-4 pb-3">
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <span className="text-sm font-medium text-muted-foreground">Item {index + 1}</span>
+                    {items.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => removeItem(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Item Name *</Label>
+                      <Input
+                        placeholder="e.g., Steel Ball Bearings"
+                        value={item.item_name}
+                        onChange={(e) => updateItem(index, 'item_name', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Category *</Label>
+                      <Select
+                        value={item.category}
+                        onValueChange={(value) => updateItem(index, 'category', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Quantity *</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        placeholder="Enter quantity"
+                        value={item.quantity}
+                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Unit *</Label>
+                      <Select
+                        value={item.unit}
+                        onValueChange={(value) => updateItem(index, 'unit', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select unit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {units.map((unit) => (
+                            <SelectItem key={unit} value={unit}>{unit}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Budget Min (₹)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="Minimum budget"
+                        value={item.budget_min || ''}
+                        onChange={(e) => updateItem(index, 'budget_min', parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Budget Max (₹)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="Maximum budget"
+                        value={item.budget_max || ''}
+                        onChange={(e) => updateItem(index, 'budget_max', parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 space-y-1.5">
+                      <Label className="text-xs">Item Description</Label>
+                      <Input
+                        placeholder="Additional item specifications"
+                        value={item.description}
+                        onChange={(e) => updateItem(index, 'description', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Trade Type *</Label>
               <Select onValueChange={(value) => setValue('trade_type', value as 'import' | 'export' | 'domestic_india')}>
@@ -198,38 +389,6 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
               </Select>
               {errors.trade_type && <p className="text-sm text-destructive">{errors.trade_type.message}</p>}
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-
-            <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity *</Label>
-              <Input
-                id="quantity"
-                type="number"
-                min={1}
-                placeholder="Enter quantity"
-                {...register('quantity', { valueAsNumber: true })}
-              />
-              {errors.quantity && <p className="text-sm text-destructive">{errors.quantity.message}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Unit *</Label>
-              <Select defaultValue="Pieces" onValueChange={(value) => setValue('unit', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select unit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {units.map((unit) => (
-                    <SelectItem key={unit} value={unit}>{unit}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.unit && <p className="text-sm text-destructive">{errors.unit.message}</p>}
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="deadline">Deadline *</Label>
@@ -240,30 +399,6 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
                 {...register('deadline')}
               />
               {errors.deadline && <p className="text-sm text-destructive">{errors.deadline.message}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="budget_min">Budget Min (₹)</Label>
-              <Input
-                id="budget_min"
-                type="number"
-                min={0}
-                placeholder="Minimum budget"
-                {...register('budget_min', { valueAsNumber: true })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="budget_max">Budget Max (₹)</Label>
-              <Input
-                id="budget_max"
-                type="number"
-                min={0}
-                placeholder="Maximum budget"
-                {...register('budget_max', { valueAsNumber: true })}
-              />
             </div>
           </div>
 
@@ -305,7 +440,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => handleClose(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
