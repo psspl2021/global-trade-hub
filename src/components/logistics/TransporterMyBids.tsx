@@ -123,6 +123,7 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
         .from('logistics_bids') as any)
         .update({
           bid_amount: bidAmount,
+          rate_per_unit: ratePerUnit,
           service_fee: serviceFee,
           total_amount: totalAmount,
           estimated_transit_days: transitDays,
