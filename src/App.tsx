@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AIChatBox } from "@/components/AIChatBox";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { VisitorTracker } from "@/components/VisitorTracker";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -36,6 +37,7 @@ const App = () => (
         <Sonner />
         <AIChatBox />
         <BrowserRouter>
+          <VisitorTracker />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
