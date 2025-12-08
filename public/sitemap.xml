@@ -1,76 +1,210 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <!-- Core Pages -->
   <url>
     <loc>https://procuresaathi.com/</loc>
-    <lastmod>2025-01-01</lastmod>
+    <lastmod>2025-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://procuresaathi.com/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://procuresaathi.com/" />
   </url>
   <url>
     <loc>https://procuresaathi.com/categories</loc>
-    <lastmod>2025-01-01</lastmod>
+    <lastmod>2025-12-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://procuresaathi.com/browse</loc>
-    <lastmod>2025-01-01</lastmod>
+    <lastmod>2025-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://procuresaathi.com/book-truck</loc>
-    <lastmod>2025-01-01</lastmod>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/signup</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/login</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <!-- International Landing Pages -->
+  <url>
+    <loc>https://procuresaathi.com/source/usa</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://procuresaathi.com/source/usa" />
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/source/uae</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-ae" href="https://procuresaathi.com/source/uae" />
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/source/uk</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-gb" href="https://procuresaathi.com/source/uk" />
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/source/germany</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="de-de" href="https://procuresaathi.com/source/germany" />
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/source/australia</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-au" href="https://procuresaathi.com/source/australia" />
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/source/africa</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- High-Value Category Pages -->
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Metals%20-%20Ferrous%20(Steel%2C%20Iron)</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Machinery%20%26%20Equipment</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Industrial%20Supplies</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Chemicals%20%26%20Raw%20Materials</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Building%20%26%20Construction</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Consumer%20Electronics</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Textiles%20%26%20Fabrics</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Pharmaceuticals%20%26%20Drugs</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Food%20%26%20Beverages</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Auto%20Vehicle%20%26%20Accessories</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Electrical%20Equipment%20%26%20Supplies</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Metals%20-%20Non-Ferrous%20(Copper%2C%20Aluminium)</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Plastic%20%26%20Rubber</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Packaging%20%26%20Printing</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Agriculture%20Equipment%20%26%20Supplies</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- High-Value Subcategory Pages -->
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Metals%20-%20Ferrous%20(Steel%2C%20Iron)&amp;subcategory=TMT%20Bar</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Metals%20-%20Ferrous%20(Steel%2C%20Iron)&amp;subcategory=Steel%20Sheets</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Metals%20-%20Ferrous%20(Steel%2C%20Iron)&amp;subcategory=HR%20Coil</loc>
+    <lastmod>2025-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procuresaathi.com/browse?category=Machinery%20%26%20Equipment&amp;subcategory=CNC%20Machines</loc>
+    <lastmod>2025-12-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://procuresaathi.com/signup</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://procuresaathi.com/login</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <!-- International Landing Pages -->
-  <url>
-    <loc>https://procuresaathi.com/source/usa</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://procuresaathi.com/browse?category=Chemicals%20%26%20Raw%20Materials&amp;subcategory=Industrial%20Chemicals</loc>
+    <lastmod>2025-12-08</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://procuresaathi.com/source/uae</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://procuresaathi.com/source/uk</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://procuresaathi.com/source/africa</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://procuresaathi.com/source/germany</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://procuresaathi.com/source/australia</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 </urlset>
