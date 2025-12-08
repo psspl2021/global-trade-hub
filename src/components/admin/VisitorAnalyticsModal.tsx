@@ -19,6 +19,7 @@ interface VisitorAnalyticsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   analytics: VisitorAnalytics | null;
+  selectedDays?: number;
 }
 
 // Country code to flag emoji mapping
@@ -31,7 +32,7 @@ const getCountryFlag = (countryCode: string): string => {
   return String.fromCodePoint(...codePoints);
 };
 
-export function VisitorAnalyticsModal({ open, onOpenChange, analytics }: VisitorAnalyticsModalProps) {
+export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedDays = 7 }: VisitorAnalyticsModalProps) {
   if (!analytics) return null;
 
   // Format daily data for the chart
@@ -40,6 +41,13 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics }: Visitor
     date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
   }));
 
+  const getDateRangeLabel = () => {
+    if (selectedDays === 365) return 'Last 365 days';
+    if (selectedDays === 90) return 'Last 90 days';
+    if (selectedDays === 30) return 'Last 30 days';
+    return 'Last 7 days';
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -47,7 +55,7 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics }: Visitor
           <DialogTitle className="flex items-center gap-2 text-xl">
             <TrendingUp className="h-5 w-5 text-indigo-600" />
             Detailed Visitor Analytics
-            <span className="ml-auto text-sm text-muted-foreground font-normal">Last 7 days</span>
+            <span className="ml-auto text-sm text-muted-foreground font-normal">{getDateRangeLabel()}</span>
           </DialogTitle>
         </DialogHeader>
 
