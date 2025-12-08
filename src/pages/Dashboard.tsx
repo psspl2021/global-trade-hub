@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -516,23 +516,46 @@ const Dashboard = () => {
                           <Check className="h-4 w-4 text-green-500" /> Dedicated support
                         </li>
                       </ul>
-                      <Button 
-                        variant="default" 
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
-                        onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Logistics Premium Pack Purchase Request&body=Hi, I would like to purchase the Logistics Premium Pack (₹24,950 for 50 lifetime quotes).'}
-                      >
-                        Contact to Purchase
-                      </Button>
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-center mb-2">Contact to Purchase:</p>
+                        <a 
+                          href="https://wa.me/918368127357?text=Hi, I would like to purchase the Logistics Premium Pack (₹24,950 for 50 lifetime quotes)."
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          WhatsApp: 8368127357
+                        </a>
+                        <a 
+                          href="mailto:sales@procuresaathi.com?subject=Logistics Premium Pack Purchase Request&body=Hi, I would like to purchase the Logistics Premium Pack (₹24,950 for 50 lifetime quotes)."
+                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
+                        >
+                          <Mail className="h-4 w-4" />
+                          sales@procuresaathi.com
+                        </a>
+                      </div>
                     </div>
                   ) : (
-                    <Button 
-                      variant="outline" 
-                      className="w-full border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
-                      onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Buy More Premium Quotes&body=Hi, I would like to purchase more premium quotes.'}
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      Buy More Premium Quotes
-                    </Button>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-center mb-2">Buy More Premium Quotes:</p>
+                      <a 
+                        href="https://wa.me/918368127357?text=Hi, I would like to purchase more premium quotes."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        WhatsApp: 8368127357
+                      </a>
+                      <a 
+                        href="mailto:sales@procuresaathi.com?subject=Buy More Premium Quotes&body=Hi, I would like to purchase more premium quotes."
+                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
+                      >
+                        <Mail className="h-4 w-4" />
+                        sales@procuresaathi.com
+                      </a>
+                    </div>
                   )}
 
                   {(logisticsSubscription?.bids_used_this_month ?? 0) >= (logisticsSubscription?.bids_limit ?? 5) && (logisticsSubscription?.premium_bids_balance ?? 0) === 0 && (
@@ -710,23 +733,46 @@ const Dashboard = () => {
                           <Check className="h-4 w-4 text-green-500" /> Dedicated support
                         </li>
                       </ul>
-                      <Button 
-                        variant="default" 
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
-                        onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Premium Pack Purchase Request&body=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime bids).'}
-                      >
-                        Contact to Purchase
-                      </Button>
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-center mb-2">Contact to Purchase:</p>
+                        <a 
+                          href="https://wa.me/918368127357?text=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime bids)."
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          WhatsApp: 8368127357
+                        </a>
+                        <a 
+                          href="mailto:sales@procuresaathi.com?subject=Premium Pack Purchase Request&body=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime bids)."
+                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
+                        >
+                          <Mail className="h-4 w-4" />
+                          sales@procuresaathi.com
+                        </a>
+                      </div>
                     </div>
                   ) : (
-                    <Button 
-                      variant="outline" 
-                      className="w-full border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
-                      onClick={() => window.location.href = 'mailto:sales@procuresaathi.com?subject=Buy More Premium Bids&body=Hi, I would like to purchase more premium bids.'}
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      Buy More Premium Bids
-                    </Button>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-center mb-2">Buy More Premium Bids:</p>
+                      <a 
+                        href="https://wa.me/918368127357?text=Hi, I would like to purchase more premium bids."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        WhatsApp: 8368127357
+                      </a>
+                      <a 
+                        href="mailto:sales@procuresaathi.com?subject=Buy More Premium Bids&body=Hi, I would like to purchase more premium bids."
+                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
+                      >
+                        <Mail className="h-4 w-4" />
+                        sales@procuresaathi.com
+                      </a>
+                    </div>
                   )}
 
                   {(subscription?.bids_used_this_month ?? 0) >= (subscription?.bids_limit ?? 5) && (subscription?.premium_bids_balance ?? 0) === 0 && (
