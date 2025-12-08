@@ -969,6 +969,56 @@ export type Database = {
         }
         Relationships: []
       }
+      requirement_items: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          item_name: string
+          quantity: number
+          requirement_id: string
+          specifications: Json | null
+          unit: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          item_name: string
+          quantity?: number
+          requirement_id: string
+          specifications?: Json | null
+          unit?: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          item_name?: string
+          quantity?: number
+          requirement_id?: string
+          specifications?: Json | null
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_items_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requirements: {
         Row: {
           budget_max: number | null
