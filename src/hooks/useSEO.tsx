@@ -111,3 +111,81 @@ export const getBreadcrumbSchema = (items: { name: string; url: string }[]) => (
     "item": item.url
   }))
 });
+
+// Product schema for category/product pages
+export const getProductSchema = (product: {
+  name: string;
+  description: string;
+  image?: string;
+  priceMin?: number;
+  priceMax?: number;
+  currency?: string;
+  category?: string;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": product.name,
+  "description": product.description,
+  "image": product.image || "https://procuresaathi.com/logo.png",
+  "category": product.category,
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": product.currency || "INR",
+    "lowPrice": product.priceMin || 0,
+    "highPrice": product.priceMax || 999999,
+    "offerCount": "100+",
+    "availability": "https://schema.org/InStock"
+  },
+  "brand": {
+    "@type": "Brand",
+    "name": "Multiple Verified Suppliers"
+  }
+});
+
+// Category page schema
+export const getCategorySchema = (category: {
+  name: string;
+  description: string;
+  subcategories: string[];
+  url: string;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": `${category.name} Suppliers & Manufacturers in India`,
+  "description": category.description,
+  "url": category.url,
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": category.name,
+    "numberOfItems": category.subcategories.length,
+    "itemListElement": category.subcategories.map((sub, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": sub,
+      "url": `${category.url}?subcategory=${encodeURIComponent(sub)}`
+    }))
+  }
+});
+
+// LocalBusiness schema helper (for injection via JS if needed)
+export const getLocalBusinessSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "ProcureSaathi",
+  "description": "India's leading B2B sourcing and procurement platform connecting verified buyers and suppliers.",
+  "url": "https://procuresaathi.com",
+  "logo": "https://procuresaathi.com/logo.png",
+  "telephone": "+91-8368127357",
+  "email": "sales@procuresaathi.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "India",
+    "addressCountry": "IN"
+  },
+  "priceRange": "$$",
+  "openingHours": "Mo-Sa 09:00-18:00",
+  "sameAs": [
+    "https://twitter.com/ProcureSaathi",
+    "https://linkedin.com/company/procuresaathi"
+  ]
+});

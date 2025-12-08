@@ -11,26 +11,34 @@ import {
 import { Search, ChevronRight } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { categoriesData, searchCategories } from '@/data/categories';
-import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
+import { useSEO, injectStructuredData, getBreadcrumbSchema, getCategorySchema } from '@/hooks/useSEO';
 
 const Categories = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
-  // SEO setup
+  // SEO setup with optimized meta tags for ranking
   useSEO({
-    title: "23+ Product Categories | ProcureSaathi B2B Marketplace",
-    description: "Browse 23+ product categories including Industrial Supplies, Electronics, Metals, Machinery & more. Find verified B2B suppliers across India.",
+    title: "40+ B2B Product Categories | Verified Suppliers India | ProcureSaathi",
+    description: "Explore 40+ product categories: Steel, Machinery, Electronics, Textiles, Chemicals & more. Connect with 5000+ verified Indian manufacturers & exporters. Get quotes now!",
     canonical: "https://procuresaathi.com/categories",
-    keywords: "B2B categories, industrial suppliers, wholesale products, manufacturing categories, procurement categories India"
+    keywords: "B2B suppliers India, industrial suppliers, steel manufacturers, machinery suppliers, textile exporters, chemical suppliers, wholesale products India, manufacturing categories, verified suppliers, Indian exporters"
   });
 
-  // Inject Breadcrumb schema
+  // Inject Breadcrumb and Category schemas
   useEffect(() => {
     injectStructuredData(getBreadcrumbSchema([
       { name: "Home", url: "https://procuresaathi.com/" },
-      { name: "Categories", url: "https://procuresaathi.com/categories" }
+      { name: "Product Categories", url: "https://procuresaathi.com/categories" }
     ]), 'breadcrumb-schema');
+
+    // Inject category collection schema
+    injectStructuredData(getCategorySchema({
+      name: "B2B Product Categories",
+      description: "Browse 40+ product categories with verified suppliers across India. Find manufacturers, wholesalers, and exporters for all industrial and consumer goods.",
+      subcategories: categoriesData.map(c => c.name),
+      url: "https://procuresaathi.com/categories"
+    }), 'category-schema');
   }, []);
 
   const filteredCategories = searchQuery 

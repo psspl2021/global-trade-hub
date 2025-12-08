@@ -12,9 +12,19 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
 User-agent: *
 Allow: /
 Crawl-delay: 2
 
-# Sitemap
+# Disallow internal/admin routes
+Disallow: /dashboard
+Disallow: /api/
+
+# Sitemaps
 Sitemap: https://procuresaathi.com/sitemap.xml
+
+# Host
+Host: https://procuresaathi.com
