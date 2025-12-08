@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone } from 'lucide-react';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -12,6 +12,16 @@ interface AdminStats {
   activeRequirements: number;
   overdueInvoices: number;
   pendingVehicles: number;
+}
+
+interface VisitorAnalytics {
+  totalVisitors: number;
+  totalPageviews: number;
+  pageviewsPerVisit: number;
+  topPages: Array<{ page: string; views: number }>;
+  topSources: Array<{ source: string; count: number; percentage: number }>;
+  deviceBreakdown: { desktop: number; mobile: number; tablet: number };
+  dailyData: Array<{ date: string; visitors: number; pageviews: number }>;
 }
 
 interface AdminDashboardCardsProps {
@@ -44,6 +54,8 @@ export function AdminDashboardCards({
     overdueInvoices: 0,
     pendingVehicles: 0,
   });
+  const [analytics, setAnalytics] = useState<VisitorAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -92,11 +104,94 @@ export function AdminDashboardCards({
       }
     };
 
+    const fetchAnalytics = async () => {
+      try {
+        setAnalyticsLoading(true);
+        const { data, error } = await supabase.functions.invoke('get-analytics', {
+          body: {
+            startDate: getDateString(-7),
+            endDate: getDateString(0),
+          },
+        });
+
+        if (error) {
+          console.error('Error fetching analytics:', error);
+          return;
+        }
+
+        setAnalytics(data);
+      } catch (error) {
+        console.error('Error fetching analytics:', error);
+      } finally {
+        setAnalyticsLoading(false);
+      }
+    };
+
     fetchStats();
+    fetchAnalytics();
   }, []);
+
+  function getDateString(daysOffset: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() + daysOffset);
+    return date.toISOString().split('T')[0];
+  }
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Visitor Analytics Card - First Position */}
+      <Card className="border-indigo-500/20 bg-indigo-500/5 md:col-span-2 lg:col-span-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BarChart3 className="h-5 w-5 text-indigo-600" />
+            Visitor Analytics
+            <span className="ml-auto text-xs text-muted-foreground font-normal">Last 7 days</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {analyticsLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            </div>
+          ) : analytics ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-3xl font-bold text-indigo-600">{analytics.totalVisitors}</div>
+                  <p className="text-xs text-muted-foreground">Unique Visitors</p>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-indigo-600">{analytics.totalPageviews}</div>
+                  <p className="text-xs text-muted-foreground">Page Views</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <Monitor className="h-4 w-4 text-muted-foreground" />
+                  <span>{analytics.deviceBreakdown.desktop}%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Smartphone className="h-4 w-4 text-muted-foreground" />
+                  <span>{analytics.deviceBreakdown.mobile}%</span>
+                </div>
+                <div className="ml-auto text-muted-foreground">
+                  {analytics.pageviewsPerVisit} pages/visit
+                </div>
+              </div>
+
+              {analytics.topSources.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Top source: {analytics.topSources[0].source} ({analytics.topSources[0].percentage}%)
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Unable to load analytics</p>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="border-orange-500/20 bg-orange-500/5">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
