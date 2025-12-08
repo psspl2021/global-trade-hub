@@ -95,17 +95,20 @@ export const VisitorTracker = () => {
           const deviceType = detectDeviceType();
           const browser = detectBrowser();
 
-          await supabase.from('page_visits').insert({
-            visitor_id: visitorId,
-            session_id: sessionId,
-            page_path: currentPath,
-            referrer: referrer || null,
-            source,
-            device_type: deviceType,
-            browser,
-            user_agent: navigator.userAgent,
-            screen_width: window.screen.width,
-            screen_height: window.screen.height,
+          // Use edge function for server-side country detection via IP
+          await supabase.functions.invoke('track-visit', {
+            body: {
+              visitor_id: visitorId,
+              session_id: sessionId,
+              page_path: currentPath,
+              referrer: referrer || null,
+              source,
+              device_type: deviceType,
+              browser,
+              user_agent: navigator.userAgent,
+              screen_width: window.screen.width,
+              screen_height: window.screen.height,
+            },
           });
         } catch (error) {
           // Silently fail - don't disrupt user experience

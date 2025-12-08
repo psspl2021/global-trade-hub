@@ -140,6 +140,10 @@ export function AdminDashboardCards({
 
   useEffect(() => {
     fetchAnalytics();
+    
+    // Auto-refresh analytics every 30 seconds
+    const interval = setInterval(fetchAnalytics, 30000);
+    return () => clearInterval(interval);
   }, [selectedDays]);
 
   function getDateString(daysOffset: number): string {
