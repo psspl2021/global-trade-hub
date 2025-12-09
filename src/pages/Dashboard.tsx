@@ -39,6 +39,7 @@ import { ActiveShipments } from '@/components/logistics/ActiveShipments';
 import { ActiveRoutePlanning } from '@/components/logistics/ActiveRoutePlanning';
 import { CustomerShipmentTracking } from '@/components/logistics/CustomerShipmentTracking';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import { ReferralSection } from '@/components/ReferralSection';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -581,6 +582,9 @@ const Dashboard = () => {
               </Card>
             </div>
 
+            {/* Referral Section for Logistics Partners */}
+            {user && <ReferralSection userId={user.id} role="logistics_partner" />}
+
             {user && (
               <>
                 <FleetManagement 
@@ -800,6 +804,9 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Referral Section for Suppliers */}
+            {user && <ReferralSection userId={user.id} role="supplier" />}
 
             {/* My Bids Section - Shows all bids with breakdown and re-bid */}
             {user && <SupplierMyBids userId={user.id} />}

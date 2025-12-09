@@ -29,18 +29,34 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, data: any) => {
+  const signUp = async (email: string, password: string, data: any, referralCode?: string | null) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data,
+          data: {
+            ...data,
+            referral_code: referralCode || undefined,
+          },
           emailRedirectTo: `${window.location.origin}/`,
         },
       });
 
       if (error) throw error;
+
+      // If user was created and we have a referral code, update the referral record with their ID
+      if (authData?.user && referralCode) {
+        await supabase
+          .from('referrals')
+          .update({ 
+            referred_id: authData.user.id,
+            status: 'signed_up',
+            signed_up_at: new Date().toISOString()
+          })
+          .eq('referral_code', referralCode)
+          .is('referred_id', null);
+      }
 
       toast({
         title: 'Registration successful',
