@@ -1434,7 +1434,9 @@ export type Database = {
           bids_used_this_month: number
           billing_cycle_start: string
           created_at: string
+          early_adopter_expires_at: string | null
           id: string
+          is_early_adopter: boolean | null
           premium_bids_balance: number
           tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
@@ -1445,7 +1447,9 @@ export type Database = {
           bids_used_this_month?: number
           billing_cycle_start?: string
           created_at?: string
+          early_adopter_expires_at?: string | null
           id?: string
+          is_early_adopter?: boolean | null
           premium_bids_balance?: number
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
@@ -1456,7 +1460,9 @@ export type Database = {
           bids_used_this_month?: number
           billing_cycle_start?: string
           created_at?: string
+          early_adopter_expires_at?: string | null
           id?: string
+          is_early_adopter?: boolean | null
           premium_bids_balance?: number
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
