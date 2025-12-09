@@ -373,17 +373,9 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                           </Table>
                         </div>
 
-                        {/* Totals Section */}
-                        <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Subtotal</span>
-                            <span>₹{bid.bid_amount.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Service Fee</span>
-                            <span>₹{bid.service_fee.toLocaleString()}</span>
-                          </div>
-                          <div className="border-t pt-2 flex justify-between font-semibold">
+                        {/* Total Amount Only */}
+                        <div className="bg-muted/30 rounded-lg p-4">
+                          <div className="flex justify-between font-semibold">
                             <span>Total Amount</span>
                             <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
                           </div>
@@ -391,16 +383,8 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                       </div>
                     ) : (
                       // Fallback for bids without itemized breakdown
-                      <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Bid Amount</span>
-                          <span>₹{bid.bid_amount.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Service Fee</span>
-                          <span>₹{bid.service_fee.toLocaleString()}</span>
-                        </div>
-                        <div className="border-t pt-2 flex justify-between font-semibold">
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <div className="flex justify-between font-semibold">
                           <span>Total Amount</span>
                           <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
                         </div>
