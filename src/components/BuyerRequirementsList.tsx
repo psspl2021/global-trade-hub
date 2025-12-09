@@ -9,10 +9,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Loader2, Eye, Calendar, MapPin, Package, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
+
 interface Requirement {
   id: string;
   title: string;
@@ -29,14 +38,22 @@ interface Requirement {
   created_at: string;
 }
 
-const getTradeTypeLabel = (tradeType: string) => {
-  switch (tradeType) {
-    case 'import': return 'Import';
-    case 'export': return 'Export';
-    case 'domestic_india': return 'Domestic India';
-    default: return tradeType;
-  }
-};
+interface RequirementItem {
+  id: string;
+  item_name: string;
+  quantity: number;
+  unit: string;
+  category: string;
+  description?: string;
+}
+
+interface BidItem {
+  id: string;
+  requirement_item_id: string;
+  unit_price: number;
+  quantity: number;
+  total: number;
+}
 
 interface Bid {
   id: string;
@@ -48,11 +65,17 @@ interface Bid {
   terms_and_conditions: string | null;
   created_at: string;
   supplier_id: string;
-  profiles?: {
-    company_name: string;
-    contact_person: string;
-  };
+  bid_items?: BidItem[];
 }
+
+const getTradeTypeLabel = (tradeType: string) => {
+  switch (tradeType) {
+    case 'import': return 'Import';
+    case 'export': return 'Export';
+    case 'domestic_india': return 'Domestic India';
+    default: return tradeType;
+  }
+};
 
 interface BuyerRequirementsListProps {
   userId: string;
@@ -65,6 +88,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [editingRequirement, setEditingRequirement] = useState<Requirement | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [bidsLoading, setBidsLoading] = useState(false);
+  const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
 
   useEffect(() => {
     fetchRequirements();
@@ -91,18 +115,42 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const fetchBids = async (requirementId: string) => {
     setBidsLoading(true);
     try {
-      // Only fetch the lowest bid (sorted by bid_amount ascending, limit 1)
+      // Fetch requirement items
+      const { data: itemsData, error: itemsError } = await supabase
+        .from('requirement_items')
+        .select('id, item_name, quantity, unit, category, description')
+        .eq('requirement_id', requirementId);
+
+      if (itemsError) throw itemsError;
+      setRequirementItems((itemsData || []) as RequirementItem[]);
+
+      // Fetch the lowest bid with bid_items
       const { data: bidsData, error: bidsError } = await supabase
         .from('bids')
-        .select('*')
+        .select(`
+          id,
+          bid_amount,
+          service_fee,
+          total_amount,
+          delivery_timeline_days,
+          status,
+          terms_and_conditions,
+          created_at,
+          supplier_id,
+          bid_items (
+            id,
+            requirement_item_id,
+            unit_price,
+            quantity,
+            total
+          )
+        `)
         .eq('requirement_id', requirementId)
         .order('bid_amount', { ascending: true })
         .limit(1);
 
       if (bidsError) throw bidsError;
-
-      // No need to fetch supplier profiles since we show "ProcureSaathi Solutions Pvt Ltd"
-      setBids(bidsData || []);
+      setBids((bidsData || []) as Bid[]);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Error fetching bids:', error);
       toast.error('Failed to load bids');
@@ -118,7 +166,6 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
   const handleAcceptBid = async (bidId: string) => {
     try {
-      // Update bid status to accepted
       const { error: bidError } = await supabase
         .from('bids')
         .update({ status: 'accepted' })
@@ -126,7 +173,6 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
       if (bidError) throw bidError;
 
-      // Update requirement status to awarded
       const { error: reqError } = await supabase
         .from('requirements')
         .update({ status: 'awarded' })
@@ -134,7 +180,6 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
       if (reqError) throw reqError;
 
-      // Reject other pending bids
       await supabase
         .from('bids')
         .update({ status: 'rejected' })
@@ -164,6 +209,16 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const getItemName = (requirementItemId: string) => {
+    const item = requirementItems.find(i => i.id === requirementItemId);
+    return item?.item_name || 'Unknown Item';
+  };
+
+  const getItemUnit = (requirementItemId: string) => {
+    const item = requirementItems.find(i => i.id === requirementItemId);
+    return item?.unit || 'units';
   };
 
   if (loading) {
@@ -246,7 +301,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
       {/* Bids Dialog */}
       <Dialog open={!!selectedRequirement} onOpenChange={() => setSelectedRequirement(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Bids for: {selectedRequirement?.title}</DialogTitle>
           </DialogHeader>
@@ -264,42 +319,108 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
               <p className="text-sm text-muted-foreground">Showing lowest bid only</p>
               {bids.map((bid) => (
                 <Card key={bid.id} className="border-primary/50">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-medium">
-                            ProcureSaathi Solutions Pvt Ltd
-                          </span>
-                          {bid.status === 'accepted' && (
-                            <Badge className="bg-primary/20 text-primary">Accepted</Badge>
-                          )}
-                          {bid.status === 'rejected' && (
-                            <Badge variant="secondary">Rejected</Badge>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Price per Unit:</span>
-                            <span className="ml-2 font-bold text-primary">₹{bid.bid_amount.toLocaleString()}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Delivery:</span>
-                            <span className="ml-2">{bid.delivery_timeline_days} days</span>
-                          </div>
-                        </div>
-                        {bid.terms_and_conditions && (
-                          <p className="text-sm text-muted-foreground mt-2">
-                            <span className="font-medium">Terms:</span> {bid.terms_and_conditions}
-                          </p>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">ProcureSaathi Solutions Pvt Ltd</span>
+                        {bid.status === 'accepted' && (
+                          <Badge className="bg-primary/20 text-primary">Accepted</Badge>
+                        )}
+                        {bid.status === 'rejected' && (
+                          <Badge variant="secondary">Rejected</Badge>
                         )}
                       </div>
-                      {bid.status === 'pending' && selectedRequirement?.status === 'active' && (
-                        <Button size="sm" onClick={() => handleAcceptBid(bid.id)}>
+                      <div className="text-sm text-muted-foreground">
+                        Delivery: <span className="font-medium text-foreground">{bid.delivery_timeline_days} days</span>
+                      </div>
+                    </div>
+
+                    {/* Bid Items Table */}
+                    {bid.bid_items && bid.bid_items.length > 0 ? (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium flex items-center gap-2">
+                          <Package className="h-4 w-4" />
+                          Item Breakdown
+                        </h4>
+                        <div className="border rounded-lg overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="font-medium">Item</TableHead>
+                                <TableHead className="text-right font-medium">Qty</TableHead>
+                                <TableHead className="text-right font-medium">Rate</TableHead>
+                                <TableHead className="text-right font-medium">Amount</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {bid.bid_items.map((item) => (
+                                <TableRow key={item.id}>
+                                  <TableCell className="font-medium">
+                                    {getItemName(item.requirement_item_id)}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {item.quantity} {getItemUnit(item.requirement_item_id)}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    ₹{item.unit_price.toLocaleString()}
+                                  </TableCell>
+                                  <TableCell className="text-right font-medium">
+                                    ₹{item.total.toLocaleString()}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+
+                        {/* Totals Section */}
+                        <div className="bg-muted/30 rounded-lg p-4 space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Subtotal</span>
+                            <span>₹{bid.bid_amount.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Service Fee</span>
+                            <span>₹{bid.service_fee.toLocaleString()}</span>
+                          </div>
+                          <div className="border-t pt-2 flex justify-between font-semibold">
+                            <span>Total Amount</span>
+                            <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      // Fallback for bids without itemized breakdown
+                      <div className="bg-muted/30 rounded-lg p-4 space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Bid Amount</span>
+                          <span>₹{bid.bid_amount.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Service Fee</span>
+                          <span>₹{bid.service_fee.toLocaleString()}</span>
+                        </div>
+                        <div className="border-t pt-2 flex justify-between font-semibold">
+                          <span>Total Amount</span>
+                          <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {bid.terms_and_conditions && (
+                      <div className="text-sm">
+                        <span className="font-medium text-muted-foreground">Terms:</span>
+                        <p className="mt-1 text-foreground">{bid.terms_and_conditions}</p>
+                      </div>
+                    )}
+
+                    {bid.status === 'pending' && selectedRequirement?.status === 'active' && (
+                      <div className="flex justify-end">
+                        <Button onClick={() => handleAcceptBid(bid.id)}>
                           Accept Bid
                         </Button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
