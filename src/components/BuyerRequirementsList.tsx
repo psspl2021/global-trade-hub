@@ -353,22 +353,29 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {bid.bid_items.map((item) => (
-                                <TableRow key={item.id}>
-                                  <TableCell className="font-medium">
-                                    {getItemName(item.requirement_item_id)}
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    {item.quantity} {getItemUnit(item.requirement_item_id)}
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    ₹{item.unit_price.toLocaleString()}
-                                  </TableCell>
-                                  <TableCell className="text-right font-medium">
-                                    ₹{item.total.toLocaleString()}
-                                  </TableCell>
-                                </TableRow>
-                              ))}
+                              {bid.bid_items.map((item) => {
+                                // Calculate service fee inclusive prices (0.5% for domestic, 1% for import/export)
+                                const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
+                                const inclusiveRate = item.unit_price * (1 + feeRate);
+                                const inclusiveTotal = item.total * (1 + feeRate);
+                                
+                                return (
+                                  <TableRow key={item.id}>
+                                    <TableCell className="font-medium">
+                                      {getItemName(item.requirement_item_id)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      {item.quantity} {getItemUnit(item.requirement_item_id)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      ₹{inclusiveRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                      ₹{inclusiveTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
                             </TableBody>
                           </Table>
                         </div>
