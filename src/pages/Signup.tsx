@@ -33,6 +33,7 @@ const Signup = () => {
     return 'buyer';
   };
   const initialRole = getInitialRole();
+  const referralCode = searchParams.get('ref') || null;
   const [loading, setLoading] = useState(false);
   const [checkingPassword, setCheckingPassword] = useState(false);
   const [breachWarning, setBreachWarning] = useState<string | null>(null);
@@ -92,12 +93,26 @@ const Signup = () => {
     }
 
     setLoading(true);
-    await signUp(result.data.email, result.data.password, {
+    const { error } = await signUp(result.data.email, result.data.password, {
       company_name: result.data.companyName,
       contact_person: result.data.contactPerson,
       phone: result.data.phone,
       role: result.data.role,
-    });
+    }, referralCode);
+    
+    // Update referral record if signup was successful and referral code was used
+    if (!error && referralCode) {
+      const { supabase } = await import('@/integrations/supabase/client');
+      await supabase
+        .from('referrals')
+        .update({ 
+          status: 'signed_up',
+          signed_up_at: new Date().toISOString()
+        })
+        .eq('referral_code', referralCode)
+        .is('referred_id', null);
+    }
+    
     setLoading(false);
   };
 
