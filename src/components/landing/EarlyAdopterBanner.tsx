@@ -9,27 +9,50 @@ export const EarlyAdopterBanner = () => {
   const [remainingSlots, setRemainingSlots] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .in('role', ['supplier', 'logistics_partner']);
+
+      if (error) throw error;
+      
+      const remaining = Math.max(0, 100 - (count || 0));
+      setRemainingSlots(remaining);
+    } catch (error) {
+      console.error('Error fetching early adopter count:', error);
+      setRemainingSlots(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const { count, error } = await supabase
-          .from('user_roles')
-          .select('*', { count: 'exact', head: true })
-          .in('role', ['supplier', 'logistics_partner']);
-
-        if (error) throw error;
-        
-        const remaining = Math.max(0, 100 - (count || 0));
-        setRemainingSlots(remaining);
-      } catch (error) {
-        console.error('Error fetching early adopter count:', error);
-        setRemainingSlots(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchCount();
+
+    // Subscribe to realtime updates for new signups
+    const channel = supabase
+      .channel('early-adopter-count')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_roles',
+        },
+        (payload) => {
+          // Only update if new role is supplier or logistics_partner
+          if (payload.new.role === 'supplier' || payload.new.role === 'logistics_partner') {
+            fetchCount();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Don't show banner if all spots are filled
