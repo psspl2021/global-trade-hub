@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -37,6 +37,7 @@ interface AdminDashboardCardsProps {
   onOpenLogisticsList: () => void;
   onOpenLeadsDashboard: () => void;
   onOpenPremiumBidsManager: () => void;
+  onOpenReferralStats: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -49,6 +50,7 @@ export function AdminDashboardCards({
   onOpenLogisticsList,
   onOpenLeadsDashboard,
   onOpenPremiumBidsManager,
+  onOpenReferralStats,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -449,6 +451,24 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenPremiumBidsManager}>
             <Star className="h-4 w-4 mr-2" />
             Manage Premium Bids
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-pink-500/20 bg-pink-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Gift className="h-5 w-5 text-pink-600" />
+            Referral Program
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            View referral stats & top referrers leaderboard
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenReferralStats}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Referral Stats
           </Button>
         </CardContent>
       </Card>

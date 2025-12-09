@@ -28,6 +28,7 @@ import { AdminBidsList } from '@/components/admin/AdminBidsList';
 import { AdminLogisticsList } from '@/components/admin/AdminLogisticsList';
 import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
 import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
+import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -62,6 +63,7 @@ const Dashboard = () => {
   const [showAdminLogisticsList, setShowAdminLogisticsList] = useState(false);
   const [showLeadsDashboard, setShowLeadsDashboard] = useState(false);
   const [showPremiumBidsManager, setShowPremiumBidsManager] = useState(false);
+  const [showReferralStats, setShowReferralStats] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -191,6 +193,7 @@ const Dashboard = () => {
               onOpenLogisticsList={() => setShowAdminLogisticsList(true)}
               onOpenLeadsDashboard={() => setShowLeadsDashboard(true)}
               onOpenPremiumBidsManager={() => setShowPremiumBidsManager(true)}
+              onOpenReferralStats={() => setShowReferralStats(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -218,9 +221,10 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
+            <AdminReferralStats open={showReferralStats} onOpenChange={setShowReferralStats} />
             {user && (
               <PremiumBidsManager 
-                open={showPremiumBidsManager} 
+                open={showPremiumBidsManager}
                 onOpenChange={setShowPremiumBidsManager}
                 adminId={user.id}
               />
