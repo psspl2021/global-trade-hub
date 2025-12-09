@@ -17,6 +17,7 @@ import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
+import { EarlyAdopterBanner } from '@/components/landing/EarlyAdopterBanner';
 
 // Lazy load below-the-fold components to reduce initial bundle
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -246,6 +247,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Early Adopter Banner */}
+      <EarlyAdopterBanner />
 
       {/* Triple CTA Section */}
       <section className="py-16">
