@@ -18,6 +18,8 @@ const Categories = lazy(() => import("./pages/Categories"));
 const Browse = lazy(() => import("./pages/Browse"));
 const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
+const Blogs = lazy(() => import("./pages/Blogs"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Simple loading fallback
@@ -48,6 +50,8 @@ const App = () => (
               <Route path="/categories" element={<Categories />} />
               <Route path="/browse" element={<Browse />} />
               <Route path="/book-truck" element={<BookTruck />} />
+              <Route path="/blogs" element={<Blogs />} />
+              <Route path="/blogs/:slug" element={<BlogPost />} />
               <Route path="/source/:country" element={<SourceCountry />} />
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />

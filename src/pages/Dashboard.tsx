@@ -29,6 +29,7 @@ import { AdminLogisticsList } from '@/components/admin/AdminLogisticsList';
 import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
 import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
 import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
+import AdminBlogManager from '@/components/admin/AdminBlogManager';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -64,6 +65,7 @@ const Dashboard = () => {
   const [showLeadsDashboard, setShowLeadsDashboard] = useState(false);
   const [showPremiumBidsManager, setShowPremiumBidsManager] = useState(false);
   const [showReferralStats, setShowReferralStats] = useState(false);
+  const [showBlogManager, setShowBlogManager] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -194,6 +196,7 @@ const Dashboard = () => {
               onOpenLeadsDashboard={() => setShowLeadsDashboard(true)}
               onOpenPremiumBidsManager={() => setShowPremiumBidsManager(true)}
               onOpenReferralStats={() => setShowReferralStats(true)}
+              onOpenBlogManager={() => setShowBlogManager(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -228,6 +231,19 @@ const Dashboard = () => {
                 onOpenChange={setShowPremiumBidsManager}
                 adminId={user.id}
               />
+            )}
+            {showBlogManager && (
+              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">Blog Management</h2>
+                      <Button variant="outline" onClick={() => setShowBlogManager(false)}>Close</Button>
+                    </div>
+                    <AdminBlogManager />
+                  </div>
+                </div>
+              </div>
             )}
           </>
         )}
