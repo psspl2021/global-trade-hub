@@ -757,6 +757,9 @@ const Index = () => {
                 <button onClick={() => navigate('/book-truck')} className="text-sm text-muted-foreground hover:text-primary text-left">
                   Book a Truck
                 </button>
+                <button onClick={() => navigate('/blogs')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                  Blogs
+                </button>
               </div>
             </div>
 
