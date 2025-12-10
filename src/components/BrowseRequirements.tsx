@@ -530,8 +530,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
                       <FormField control={form.control} name="terms_and_conditions" render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Terms & Conditions (Optional)</FormLabel>
-                          <FormControl><Textarea {...field} rows={2} placeholder="Any specific terms..." /></FormControl>
+                          <FormLabel>Any Other Charges + Taxes (Optional)</FormLabel>
+                          <FormControl><Textarea {...field} rows={2} placeholder="E.g., Packaging charges ₹500, Transportation extra, 18% GST applicable..." /></FormControl>
                         </FormItem>
                       )} />
 

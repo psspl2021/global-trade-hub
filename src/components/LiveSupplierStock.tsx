@@ -245,14 +245,6 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
           <div className="text-center py-12 text-muted-foreground">
             <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>Search for products to see available supplier stock</p>
-            {isGuest && (
-              <div className="mt-4 p-4 bg-primary/10 rounded-lg">
-                <p className="text-foreground font-medium mb-2">Sign up to view full stock details</p>
-                <Button onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
-                  Sign Up as Buyer
-                </Button>
-              </div>
-            )}
             <p className="text-sm mt-2">Stock updates in real-time when suppliers make changes</p>
           </div>
         ) : (
@@ -320,14 +312,6 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
                         <p className="font-medium text-primary">
                           {formatPrice(product.price_range_min, product.price_range_max)}
                         </p>
-                        {isPriceOnRequest && isGuest && (
-                          <button 
-                            onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}
-                            className="text-xs text-primary hover:underline mt-1 cursor-pointer"
-                          >
-                            Sign up to request quote
-                          </button>
-                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -335,16 +319,6 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
               );
             })}
             
-            {/* Guest signup CTA at bottom */}
-            {isGuest && (
-              <div className="p-4 bg-primary/10 rounded-lg text-center mt-4">
-                <p className="text-sm font-medium mb-1">Want to contact suppliers and request quotes?</p>
-                <p className="text-xs text-muted-foreground mb-3">Sign up as a buyer to view full details and connect with suppliers</p>
-                <Button size="sm" onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
-                  Sign Up as Buyer
-                </Button>
-              </div>
-            )}
           </div>
         )}
       </DialogContent>
