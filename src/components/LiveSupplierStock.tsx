@@ -309,7 +309,10 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
                         </div>
                       </div>
                       <div className="text-right ml-4">
-                        <p className="font-medium text-primary cursor-pointer hover:underline">
+                        <p 
+                          className={`font-medium text-primary ${isPriceOnRequest ? 'cursor-pointer hover:underline' : ''}`}
+                          onClick={() => isPriceOnRequest && window.location.assign('/signup')}
+                        >
                           {formatPrice(product.price_range_min, product.price_range_max)}
                         </p>
                       </div>
