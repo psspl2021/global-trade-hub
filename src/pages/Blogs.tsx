@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSEO } from '@/hooks/useSEO';
+import logo from '@/assets/procuresaathi-logo.png';
 
 interface Blog {
   id: string;
@@ -79,6 +80,9 @@ const Blogs = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 py-16">
         <div className="container mx-auto px-4">
+          <Link to="/" className="inline-block mb-6">
+            <img src={logo} alt="ProcureSaathi" className="h-12 hover:opacity-80 transition-opacity" />
+          </Link>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Blogs</h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
             Get latest information about B2B procurement, supplier management, logistics, and trade compliance.
