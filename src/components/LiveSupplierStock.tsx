@@ -309,7 +309,7 @@ export const LiveSupplierStock = ({ open, onOpenChange, initialKeyword = '', use
                         </div>
                       </div>
                       <div className="text-right ml-4">
-                        <p className="font-medium text-primary">
+                        <p className={`font-medium ${isPriceOnRequest ? 'text-muted-foreground' : 'text-primary'}`}>
                           {formatPrice(product.price_range_min, product.price_range_max)}
                         </p>
                       </div>
