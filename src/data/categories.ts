@@ -631,6 +631,32 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
+    name: 'Industrial Storage & Tanks',
+    icon: Factory,
+    subcategories: [
+      'Industrial Storage Tanks',
+      'Effluent Treatment Storage Tanks',
+      'Glass Lined Tanks',
+      'Corrugated Steel Tanks',
+      'GFS Storage Tanks',
+      'Zinc Aluminium Tanks',
+      'Zincalume Steel Tanks',
+      'Industrial Silos',
+      'Grain Storage Silos',
+      'Hopper Bottom Silos',
+      'Bucket Elevators',
+      'Industrial Conveyors',
+      'Belt Conveyors',
+      'Chain Conveyors',
+      'Roller Conveyors',
+      'Water Storage Tanks',
+      'Fire Water Tanks',
+      'Sewage Treatment Tanks',
+      'Bio Digester Tanks',
+      'Bolted Steel Tanks',
+    ]
+  },
+  {
     name: 'Logistics & Transportation',
     icon: Truck,
     subcategories: [
