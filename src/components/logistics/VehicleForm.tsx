@@ -202,6 +202,12 @@ export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: Vehicl
       return;
     }
 
+    // Insurance valid until is required
+    if (!formData.insurance_valid_until) {
+      toast.error('Insurance valid until date is required');
+      return;
+    }
+
     // Validate at least one complete route
     const validRoutes = routes.filter(r => r.origin.trim() && r.destination.trim());
     if (validRoutes.length === 0) {
@@ -381,11 +387,12 @@ export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: Vehicl
         </div>
 
         <div className="space-y-2">
-          <Label>Insurance Valid Until</Label>
+          <Label>Insurance Valid Until *</Label>
           <Input
             type="date"
             value={formData.insurance_valid_until}
             onChange={(e) => setFormData({ ...formData, insurance_valid_until: e.target.value })}
+            required
           />
         </div>
 
