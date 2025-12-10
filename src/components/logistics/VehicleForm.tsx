@@ -53,6 +53,7 @@ export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: Vehicl
   const [rcFile, setRcFile] = useState<File | null>(null);
   const [rcPreviewUrl, setRcPreviewUrl] = useState<string>(initialData?.rc_document_url || '');
   const [duplicateError, setDuplicateError] = useState<string>('');
+  const [routeError, setRouteError] = useState<string>('');
   const [routes, setRoutes] = useState<Route[]>(
     initialData?.routes && Array.isArray(initialData.routes) 
       ? initialData.routes 
@@ -164,6 +165,10 @@ export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: Vehicl
     const newRoutes = [...routes];
     newRoutes[index][field] = value;
     setRoutes(newRoutes);
+    // Clear route error when user starts typing
+    if (value.trim()) {
+      setRouteError('');
+    }
   };
 
   const addPopularRoute = (route: { origin: string; destination: string }) => {
@@ -194,6 +199,14 @@ export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: Vehicl
     // RC document is required for new vehicles
     if (!initialData?.id && !rcFile && !rcPreviewUrl) {
       toast.error('RC document is required for new vehicles');
+      return;
+    }
+
+    // Validate at least one complete route
+    const validRoutes = routes.filter(r => r.origin.trim() && r.destination.trim());
+    if (validRoutes.length === 0) {
+      setRouteError('At least one operational route with both origin and destination is required');
+      toast.error('Please add at least one operational route');
       return;
     }
 
@@ -455,11 +468,18 @@ export const VehicleForm = ({ userId, onSuccess, onCancel, initialData }: Vehicl
       </div>
 
       {/* Routes Section */}
-      <div className="space-y-3 border rounded-lg p-4">
-        <Label className="text-base font-medium">Operational Routes</Label>
+      <div className={`space-y-3 border rounded-lg p-4 ${routeError ? 'border-destructive' : ''}`}>
+        <Label className="text-base font-medium">Operational Routes *</Label>
         <p className="text-sm text-muted-foreground">
-          Add routes where your vehicle operates. This helps buyers find your vehicle.
+          Add routes where your vehicle operates. At least one route is required.
         </p>
+
+        {routeError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{routeError}</AlertDescription>
+          </Alert>
+        )}
 
         {/* Popular Routes */}
         <div className="flex flex-wrap gap-2">
