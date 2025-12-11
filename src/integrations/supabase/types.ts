@@ -1002,6 +1002,8 @@ export type Database = {
           gstin: string | null
           id: string
           phone: string
+          referred_by_name: string | null
+          referred_by_phone: string | null
           state: string | null
           updated_at: string
         }
@@ -1017,6 +1019,8 @@ export type Database = {
           gstin?: string | null
           id: string
           phone: string
+          referred_by_name?: string | null
+          referred_by_phone?: string | null
           state?: string | null
           updated_at?: string
         }
@@ -1032,6 +1036,8 @@ export type Database = {
           gstin?: string | null
           id?: string
           phone?: string
+          referred_by_name?: string | null
+          referred_by_phone?: string | null
           state?: string | null
           updated_at?: string
         }
