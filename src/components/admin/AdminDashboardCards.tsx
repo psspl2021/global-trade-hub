@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -39,6 +39,7 @@ interface AdminDashboardCardsProps {
   onOpenPremiumBidsManager: () => void;
   onOpenReferralStats: () => void;
   onOpenBlogManager: () => void;
+  onOpenSEOTools: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -53,6 +54,7 @@ export function AdminDashboardCards({
   onOpenPremiumBidsManager,
   onOpenReferralStats,
   onOpenBlogManager,
+  onOpenSEOTools,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -489,6 +491,24 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenBlogManager}>
             <PenTool className="h-4 w-4 mr-2" />
             Manage Blogs
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-sky-500/20 bg-sky-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Search className="h-5 w-5 text-sky-600" />
+            SEO Tools
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Keyword tracking, page audits & content ideas
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenSEOTools}>
+            <Search className="h-4 w-4 mr-2" />
+            Open SEO Tools
           </Button>
         </CardContent>
       </Card>

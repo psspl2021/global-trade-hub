@@ -1282,6 +1282,123 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_content_suggestions: {
+        Row: {
+          created_at: string
+          id: string
+          is_used: boolean | null
+          keyword: string
+          suggestion: string
+          suggestion_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_used?: boolean | null
+          keyword: string
+          suggestion: string
+          suggestion_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_used?: boolean | null
+          keyword?: string
+          suggestion?: string
+          suggestion_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seo_keywords: {
+        Row: {
+          created_at: string
+          current_position: number | null
+          difficulty: string | null
+          id: string
+          keyword: string
+          last_checked: string | null
+          previous_position: number | null
+          search_volume: number | null
+          target_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_position?: number | null
+          difficulty?: string | null
+          id?: string
+          keyword: string
+          last_checked?: string | null
+          previous_position?: number | null
+          search_volume?: number | null
+          target_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_position?: number | null
+          difficulty?: string | null
+          id?: string
+          keyword?: string
+          last_checked?: string | null
+          previous_position?: number | null
+          search_volume?: number | null
+          target_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seo_page_audits: {
+        Row: {
+          created_at: string
+          h1_count: number | null
+          id: string
+          image_alt_missing: number | null
+          issues: Json | null
+          meta_description: string | null
+          page_url: string
+          score: number | null
+          suggestions: Json | null
+          title_tag: string | null
+          user_id: string
+          word_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          h1_count?: number | null
+          id?: string
+          image_alt_missing?: number | null
+          issues?: Json | null
+          meta_description?: string | null
+          page_url: string
+          score?: number | null
+          suggestions?: Json | null
+          title_tag?: string | null
+          user_id: string
+          word_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          h1_count?: number | null
+          id?: string
+          image_alt_missing?: number | null
+          issues?: Json | null
+          meta_description?: string | null
+          page_url?: string
+          score?: number | null
+          suggestions?: Json | null
+          title_tag?: string | null
+          user_id?: string
+          word_count?: number | null
+        }
+        Relationships: []
+      }
       shipment_updates: {
         Row: {
           created_at: string
