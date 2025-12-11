@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { Loader2, Building, Mail, Phone, Globe, Calendar, DollarSign, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
+import { LeadActivities } from './LeadActivities';
 
 interface LeadViewerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   leadId: string | null;
+  supplierId: string;
 }
 
 const statusColors: Record<string, string> = {
@@ -31,7 +34,7 @@ const statusLabels: Record<string, string> = {
   lost: 'Lost',
 };
 
-export const LeadViewer = ({ open, onOpenChange, leadId }: LeadViewerProps) => {
+export const LeadViewer = ({ open, onOpenChange, leadId, supplierId }: LeadViewerProps) => {
   const [lead, setLead] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +59,7 @@ export const LeadViewer = ({ open, onOpenChange, leadId }: LeadViewerProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Lead Details</DialogTitle>
         </DialogHeader>
@@ -139,6 +142,11 @@ export const LeadViewer = ({ open, onOpenChange, leadId }: LeadViewerProps) => {
                 <p className="text-sm whitespace-pre-wrap">{lead.notes}</p>
               </div>
             )}
+
+            <Separator />
+
+            {/* Activity Timeline */}
+            <LeadActivities leadId={lead.id} supplierId={supplierId} />
           </div>
         ) : (
           <p className="text-center text-muted-foreground py-8">Lead not found</p>
