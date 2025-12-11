@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -13,10 +12,13 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, CheckCircle2, Globe, Package, Ship, Shield, Truck } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useSEO } from "@/hooks/useSEO";
+import { useRegionalSEO } from "@/hooks/useRegionalSEO";
+import { LanguageSelector } from "@/components/landing/LanguageSelector";
+import { translations, getDefaultLanguage, isRTL, Language } from "@/lib/i18n/translations";
 
 
 const countryData: Record<string, {
@@ -110,7 +112,20 @@ const countryData: Record<string, {
 
 export default function SourceCountry() {
   const { country } = useParams<{ country: string }>();
-  const data = countryData[country?.toLowerCase() || ""] || countryData.usa;
+  const countryKey = country?.toLowerCase() || "usa";
+  const data = countryData[countryKey] || countryData.usa;
+  
+  // Language support
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(() => 
+    getDefaultLanguage(countryKey)
+  );
+  const t = translations[currentLanguage];
+  const rtl = isRTL(currentLanguage);
+  
+  // Update language when country changes
+  useEffect(() => {
+    setCurrentLanguage(getDefaultLanguage(countryKey));
+  }, [countryKey]);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -123,12 +138,16 @@ export default function SourceCountry() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // SEO hooks
   useSEO({
     title: `${data.headline} | ProcureSaathi`,
     description: data.description,
-    canonical: `https://procuresaathi.com/source/${country?.toLowerCase() || 'usa'}`,
+    canonical: `https://procuresaathi.com/source/${countryKey}`,
     keywords: `${data.name} import, India export, B2B sourcing, ${data.topCategories.join(", ")}`
   });
+  
+  // Regional LocalBusiness schema
+  useRegionalSEO(countryKey, data.name);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,13 +182,22 @@ export default function SourceCountry() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${rtl ? 'rtl' : 'ltr'}`} dir={rtl ? 'rtl' : 'ltr'}>
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="container mx-auto px-4">
+          {/* Language Selector */}
+          <div className={`flex justify-end mb-4 ${rtl ? 'flex-row-reverse' : ''}`}>
+            <LanguageSelector
+              currentLanguage={currentLanguage}
+              onLanguageChange={setCurrentLanguage}
+              availableLanguages={countryKey === 'uae' ? ['en', 'ar'] : countryKey === 'germany' ? ['en', 'de'] : ['en']}
+            />
+          </div>
+          
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="flex items-center gap-3 mb-6">
+              <div className={`flex items-center gap-3 mb-6 ${rtl ? 'flex-row-reverse' : ''}`}>
                 <span className="text-5xl">{data.flag}</span>
                 <Badge variant="secondary" className="text-sm">
                   <Globe className="h-3 w-3 mr-1" />
@@ -205,25 +233,29 @@ export default function SourceCountry() {
             {/* Lead Capture Form */}
             <Card className="shadow-xl">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-2">Get Started Today</h2>
+                <h2 className="text-2xl font-bold mb-2">{t.hero.getStarted}</h2>
                 <p className="text-muted-foreground mb-6">
-                  Tell us about your sourcing needs and we'll connect you with verified suppliers
+                  {currentLanguage === 'en' 
+                    ? "Tell us about your sourcing needs and we'll connect you with verified suppliers"
+                    : currentLanguage === 'ar'
+                    ? "أخبرنا عن احتياجات التوريد الخاصة بك وسنربطك بموردين معتمدين"
+                    : "Teilen Sie uns Ihre Beschaffungsbedürfnisse mit und wir verbinden Sie mit verifizierten Lieferanten"}
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="name">Full Name *</Label>
+                      <Label htmlFor="name">{t.form.fullName} *</Label>
                       <Input
                         id="name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
-                        placeholder="John Smith"
+                        placeholder={currentLanguage === 'ar' ? "محمد أحمد" : currentLanguage === 'de' ? "Max Mustermann" : "John Smith"}
                       />
                     </div>
                     <div>
-                      <Label htmlFor="email">Business Email *</Label>
+                      <Label htmlFor="email">{t.form.businessEmail} *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -237,47 +269,47 @@ export default function SourceCountry() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="phone">Phone (with country code)</Label>
+                      <Label htmlFor="phone">{t.form.phone}</Label>
                       <Input
                         id="phone"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="+1 555 123 4567"
+                        placeholder={countryKey === 'uae' ? "+971 50 123 4567" : countryKey === 'germany' ? "+49 30 1234567" : "+1 555 123 4567"}
                       />
                     </div>
                     <div>
-                      <Label htmlFor="company">Company Name</Label>
+                      <Label htmlFor="company">{t.form.companyName}</Label>
                       <Input
                         id="company"
                         value={formData.company}
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        placeholder="ABC Imports Ltd"
+                        placeholder={currentLanguage === 'ar' ? "شركة ABC للاستيراد" : currentLanguage === 'de' ? "ABC Import GmbH" : "ABC Imports Ltd"}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="volume">Monthly Sourcing Volume</Label>
+                    <Label htmlFor="volume">{t.form.monthlyVolume}</Label>
                     <Select
                       value={formData.volume}
                       onValueChange={(value) => setFormData({ ...formData, volume: value })}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select volume range" />
+                        <SelectValue placeholder={t.form.selectVolume} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="under_10k">Under $10,000</SelectItem>
-                        <SelectItem value="10k_50k">$10,000 - $50,000</SelectItem>
-                        <SelectItem value="50k_100k">$50,000 - $100,000</SelectItem>
-                        <SelectItem value="100k_500k">$100,000 - $500,000</SelectItem>
-                        <SelectItem value="over_500k">Over $500,000</SelectItem>
+                        <SelectItem value="under_10k">{t.form.under10k}</SelectItem>
+                        <SelectItem value="10k_50k">{t.form.range10k50k}</SelectItem>
+                        <SelectItem value="50k_100k">{t.form.range50k100k}</SelectItem>
+                        <SelectItem value="100k_500k">{t.form.range100k500k}</SelectItem>
+                        <SelectItem value="over_500k">{t.form.over500k}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div>
-                    <Label>Interested Categories</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <Label>{t.form.interestedCategories}</Label>
+                    <div className={`flex flex-wrap gap-2 mt-2 ${rtl ? 'flex-row-reverse' : ''}`}>
                       {data.topCategories.map((cat) => (
                         <Badge
                           key={cat}
@@ -304,12 +336,14 @@ export default function SourceCountry() {
                   </div>
 
                   <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                    {isSubmitting ? "Submitting..." : "Connect with Suppliers"}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    {isSubmitting 
+                      ? (currentLanguage === 'ar' ? "جاري الإرسال..." : currentLanguage === 'de' ? "Wird gesendet..." : "Submitting...")
+                      : t.hero.connectWithSuppliers}
+                    <ArrowRight className={`h-4 w-4 ${rtl ? 'mr-2 rotate-180' : 'ml-2'}`} />
                   </Button>
 
                   <p className="text-xs text-muted-foreground text-center">
-                    By submitting, you agree to our terms of service and privacy policy
+                    {t.hero.bySubmitting}
                   </p>
                 </form>
               </CardContent>
@@ -322,7 +356,7 @@ export default function SourceCountry() {
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Top Export Categories to {data.name}
+            {t.sections.topCategories} {data.name}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {data.topCategories.map((category, index) => (
@@ -341,33 +375,33 @@ export default function SourceCountry() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Why Source from India via ProcureSaathi?
+            {t.sections.whySource}
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardContent className="p-6 text-center">
                 <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold mb-2">Verified Suppliers</h3>
+                <h3 className="text-xl font-bold mb-2">{t.sections.verifiedSuppliers}</h3>
                 <p className="text-muted-foreground">
-                  All suppliers are verified with proper export licenses, certifications, and track records
+                  {t.sections.verifiedSuppliersDesc}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-6 text-center">
                 <Ship className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold mb-2">Integrated Logistics</h3>
+                <h3 className="text-xl font-bold mb-2">{t.sections.integratedLogistics}</h3>
                 <p className="text-muted-foreground">
-                  End-to-end shipping solutions from factory to your door with customs support
+                  {t.sections.integratedLogisticsDesc}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-6 text-center">
                 <Truck className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold mb-2">Real-Time Tracking</h3>
+                <h3 className="text-xl font-bold mb-2">{t.sections.realTimeTracking}</h3>
                 <p className="text-muted-foreground">
-                  Track your shipments in real-time from dispatch to delivery at destination port
+                  {t.sections.realTimeTrackingDesc}
                 </p>
               </CardContent>
             </Card>
@@ -379,21 +413,21 @@ export default function SourceCountry() {
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Ready to Start Sourcing from India?
+            {t.sections.readyToStart}
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of importers who save 25-40% on procurement costs
+            {t.sections.joinThousands}
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className={`flex flex-wrap gap-4 justify-center ${rtl ? 'flex-row-reverse' : ''}`}>
             <Link to="/signup">
               <Button size="lg" variant="secondary">
-                Create Free Account
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {t.sections.createFreeAccount}
+                <ArrowRight className={`h-4 w-4 ${rtl ? 'mr-2 rotate-180' : 'ml-2'}`} />
               </Button>
             </Link>
             <Link to="/categories">
               <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                Browse Categories
+                {t.sections.browseCategories}
               </Button>
             </Link>
           </div>
