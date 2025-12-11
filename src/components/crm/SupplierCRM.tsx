@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Users } from 'lucide-react';
@@ -9,6 +9,7 @@ import { DocumentViewer } from './DocumentViewer';
 import { LeadsList } from './LeadsList';
 import { LeadForm } from './LeadForm';
 import { LeadViewer } from './LeadViewer';
+import { useCRMSEO } from '@/hooks/useCRMSEO';
 
 interface SupplierCRMProps {
   open: boolean;
@@ -17,6 +18,9 @@ interface SupplierCRMProps {
 }
 
 export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) => {
+  // SEO for CRM
+  useCRMSEO({ pageType: 'leads' });
+
   const [invoiceFormOpen, setInvoiceFormOpen] = useState(false);
   const [invoiceType, setInvoiceType] = useState<'proforma_invoice' | 'tax_invoice'>('proforma_invoice');
   const [poFormOpen, setPoFormOpen] = useState(false);
@@ -177,6 +181,7 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
         open={leadViewerOpen}
         onOpenChange={setLeadViewerOpen}
         leadId={viewLeadId}
+        supplierId={userId}
       />
     </>
   );

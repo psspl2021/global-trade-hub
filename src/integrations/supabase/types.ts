@@ -454,6 +454,53 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_activities: {
+        Row: {
+          activity_date: string
+          activity_type: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          lead_id: string
+          outcome: string | null
+          subject: string
+          supplier_id: string
+        }
+        Insert: {
+          activity_date?: string
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lead_id: string
+          outcome?: string | null
+          subject: string
+          supplier_id: string
+        }
+        Update: {
+          activity_date?: string
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lead_id?: string
+          outcome?: string | null
+          subject?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logistics_bids: {
         Row: {
           bid_amount: number
