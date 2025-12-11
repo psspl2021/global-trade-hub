@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, Users } from 'lucide-react';
 import { DocumentList } from './DocumentList';
 import { InvoiceForm } from './InvoiceForm';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
 import { DocumentViewer } from './DocumentViewer';
+import { LeadsList } from './LeadsList';
+import { LeadForm } from './LeadForm';
+import { LeadViewer } from './LeadViewer';
 
 interface SupplierCRMProps {
   open: boolean;
@@ -21,6 +26,13 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
   const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null);
   const [editPOId, setEditPOId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Lead states
+  const [leadFormOpen, setLeadFormOpen] = useState(false);
+  const [leadViewerOpen, setLeadViewerOpen] = useState(false);
+  const [editLeadId, setEditLeadId] = useState<string | null>(null);
+  const [viewLeadId, setViewLeadId] = useState<string | null>(null);
+  const [leadsRefreshKey, setLeadsRefreshKey] = useState(0);
 
   const handleCreateInvoice = (type: 'proforma_invoice' | 'tax_invoice') => {
     setInvoiceType(type);
@@ -59,6 +71,26 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
     setRefreshKey((k) => k + 1);
   };
 
+  // Lead handlers
+  const handleCreateLead = () => {
+    setEditLeadId(null);
+    setLeadFormOpen(true);
+  };
+
+  const handleViewLead = (id: string) => {
+    setViewLeadId(id);
+    setLeadViewerOpen(true);
+  };
+
+  const handleEditLead = (id: string) => {
+    setEditLeadId(id);
+    setLeadFormOpen(true);
+  };
+
+  const handleLeadsRefresh = () => {
+    setLeadsRefreshKey((k) => k + 1);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -66,20 +98,45 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
           <DialogHeader>
             <DialogTitle>Supplier CRM</DialogTitle>
             <DialogDescription>
-              Manage your proforma invoices, tax invoices, and purchase orders
+              Manage leads, invoices, and purchase orders
             </DialogDescription>
           </DialogHeader>
 
-          <DocumentList
-            key={refreshKey}
-            userId={userId}
-            onCreateInvoice={handleCreateInvoice}
-            onCreatePO={handleCreatePO}
-            onViewInvoice={handleViewInvoice}
-            onViewPO={handleViewPO}
-            onEditInvoice={handleEditInvoice}
-            onEditPO={handleEditPO}
-          />
+          <Tabs defaultValue="leads" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="leads" className="text-sm">
+                <Users className="h-4 w-4 mr-2" />
+                Leads
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="text-sm">
+                <FileText className="h-4 w-4 mr-2" />
+                Documents
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="leads" className="mt-4">
+              <LeadsList
+                key={leadsRefreshKey}
+                userId={userId}
+                onCreateLead={handleCreateLead}
+                onViewLead={handleViewLead}
+                onEditLead={handleEditLead}
+              />
+            </TabsContent>
+
+            <TabsContent value="documents" className="mt-4">
+              <DocumentList
+                key={refreshKey}
+                userId={userId}
+                onCreateInvoice={handleCreateInvoice}
+                onCreatePO={handleCreatePO}
+                onViewInvoice={handleViewInvoice}
+                onViewPO={handleViewPO}
+                onEditInvoice={handleEditInvoice}
+                onEditPO={handleEditPO}
+              />
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
@@ -106,6 +163,20 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
         documentType={viewerType}
         documentId={viewerId}
         onRefresh={handleRefresh}
+      />
+
+      <LeadForm
+        open={leadFormOpen}
+        onOpenChange={setLeadFormOpen}
+        userId={userId}
+        editId={editLeadId}
+        onSuccess={handleLeadsRefresh}
+      />
+
+      <LeadViewer
+        open={leadViewerOpen}
+        onOpenChange={setLeadViewerOpen}
+        leadId={viewLeadId}
       />
     </>
   );
