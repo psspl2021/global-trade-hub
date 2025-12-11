@@ -1560,6 +1560,57 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_leads: {
+        Row: {
+          company_name: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          expected_value: number | null
+          id: string
+          name: string
+          next_follow_up: string | null
+          notes: string | null
+          phone: string | null
+          source: string | null
+          status: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          expected_value?: number | null
+          id?: string
+          name: string
+          next_follow_up?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          expected_value?: number | null
+          id?: string
+          name?: string
+          next_follow_up?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
