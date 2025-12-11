@@ -30,6 +30,7 @@ import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
 import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
 import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
 import AdminBlogManager from '@/components/admin/AdminBlogManager';
+import { SEOTools } from '@/components/admin/SEOTools';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -66,6 +67,7 @@ const Dashboard = () => {
   const [showPremiumBidsManager, setShowPremiumBidsManager] = useState(false);
   const [showReferralStats, setShowReferralStats] = useState(false);
   const [showBlogManager, setShowBlogManager] = useState(false);
+  const [showSEOTools, setShowSEOTools] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -197,6 +199,7 @@ const Dashboard = () => {
               onOpenPremiumBidsManager={() => setShowPremiumBidsManager(true)}
               onOpenReferralStats={() => setShowReferralStats(true)}
               onOpenBlogManager={() => setShowBlogManager(true)}
+              onOpenSEOTools={() => setShowSEOTools(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -245,6 +248,7 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
+            <SEOTools open={showSEOTools} onOpenChange={setShowSEOTools} />
           </>
         )}
 
