@@ -19,6 +19,8 @@ type FormErrors = {
   companyName?: string;
   contactPerson?: string;
   phone?: string;
+  referredByName?: string;
+  referredByPhone?: string;
 };
 
 const Signup = () => {
@@ -53,6 +55,8 @@ const Signup = () => {
     contactPerson: '',
     phone: '',
     role: initialRole as 'buyer' | 'supplier' | 'logistics_partner',
+    referredByName: '',
+    referredByPhone: '',
   });
 
   useEffect(() => {
@@ -98,6 +102,8 @@ const Signup = () => {
       contact_person: result.data.contactPerson,
       phone: result.data.phone,
       role: result.data.role,
+      referred_by_name: result.data.referredByName,
+      referred_by_phone: result.data.referredByPhone,
     }, referralCode);
     
     // Update referral record if signup was successful and referral code was used
@@ -230,6 +236,39 @@ const Signup = () => {
                 {errors.password && (
                   <p className="text-sm text-destructive">{errors.password}</p>
                 )}
+              </div>
+
+              <div className="border-t pt-4 mt-4">
+                <p className="text-sm font-medium text-muted-foreground mb-3">Referred By *</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="referredByName">Name *</Label>
+                    <Input
+                      id="referredByName"
+                      placeholder="Referrer's name"
+                      value={formData.referredByName}
+                      onChange={(e) => setFormData({ ...formData, referredByName: e.target.value })}
+                      className={errors.referredByName ? 'border-destructive' : ''}
+                    />
+                    {errors.referredByName && (
+                      <p className="text-sm text-destructive">{errors.referredByName}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="referredByPhone">Phone *</Label>
+                    <Input
+                      id="referredByPhone"
+                      type="tel"
+                      placeholder="+919876543210"
+                      value={formData.referredByPhone}
+                      onChange={(e) => setFormData({ ...formData, referredByPhone: e.target.value })}
+                      className={errors.referredByPhone ? 'border-destructive' : ''}
+                    />
+                    {errors.referredByPhone && (
+                      <p className="text-sm text-destructive">{errors.referredByPhone}</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {breachWarning && (

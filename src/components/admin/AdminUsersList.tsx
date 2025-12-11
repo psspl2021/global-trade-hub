@@ -16,7 +16,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Search, Users, Package, Truck, Trash2 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Search, Users, Package, Truck, Trash2, ArrowRightLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import {
@@ -40,6 +47,8 @@ interface UserWithProfile {
   state: string | null;
   gstin: string | null;
   created_at: string;
+  referred_by_name: string | null;
+  referred_by_phone: string | null;
 }
 
 interface AdminUsersListProps {
@@ -48,6 +57,8 @@ interface AdminUsersListProps {
 }
 
 const PAGE_SIZE = 15;
+
+type AppRole = 'buyer' | 'supplier' | 'logistics_partner';
 
 export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const [users, setUsers] = useState<UserWithProfile[]>([]);
@@ -60,6 +71,10 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserWithProfile | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [userToTransfer, setUserToTransfer] = useState<UserWithProfile | null>(null);
+  const [newRole, setNewRole] = useState<AppRole>('buyer');
+  const [transferring, setTransferring] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -116,7 +131,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
       
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, company_name, contact_person, email, phone, city, state, gstin, created_at')
+        .select('id, company_name, contact_person, email, phone, city, state, gstin, created_at, referred_by_name, referred_by_phone')
         .in('id', userIds);
 
       const combined: UserWithProfile[] = roles.map(role => {
@@ -132,6 +147,8 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           state: profile?.state || null,
           gstin: profile?.gstin || null,
           created_at: profile?.created_at || '',
+          referred_by_name: profile?.referred_by_name || null,
+          referred_by_phone: profile?.referred_by_phone || null,
         };
       });
 
@@ -146,6 +163,61 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const handleDeleteClick = (user: UserWithProfile) => {
     setUserToDelete(user);
     setDeleteDialogOpen(true);
+  };
+
+  const handleTransferClick = (user: UserWithProfile) => {
+    setUserToTransfer(user);
+    // Set default new role to something different from current
+    const currentRole = user.role as AppRole;
+    if (currentRole === 'buyer') setNewRole('supplier');
+    else if (currentRole === 'supplier') setNewRole('buyer');
+    else setNewRole('buyer');
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransferConfirm = async () => {
+    if (!userToTransfer || newRole === userToTransfer.role) return;
+
+    setTransferring(true);
+    try {
+      // Update the user's role in user_roles table
+      const { error } = await supabase
+        .from('user_roles')
+        .update({ role: newRole })
+        .eq('user_id', userToTransfer.user_id)
+        .eq('role', userToTransfer.role as AppRole);
+
+      if (error) throw error;
+
+      // If transferring to supplier/logistics_partner, ensure subscription exists
+      if (newRole === 'supplier' || newRole === 'logistics_partner') {
+        const { data: existingSub } = await supabase
+          .from('subscriptions')
+          .select('id')
+          .eq('user_id', userToTransfer.user_id)
+          .single();
+
+        if (!existingSub) {
+          await supabase
+            .from('subscriptions')
+            .insert({ user_id: userToTransfer.user_id, tier: 'free', bids_limit: 5 });
+        }
+      }
+
+      toast.success(`${userToTransfer.company_name} transferred to ${newRole.replace('_', ' ')}`);
+      
+      // Refresh the list
+      fetchUsers(activeTab as AppRole);
+      fetchTabCounts();
+      
+    } catch (error) {
+      console.error('Error transferring user:', error);
+      toast.error('Failed to transfer user role');
+    } finally {
+      setTransferring(false);
+      setTransferDialogOpen(false);
+      setUserToTransfer(null);
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -259,13 +331,13 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
             ) : (
               <>
                 <TabsContent value="buyer" className="flex-1 overflow-auto mt-4">
-                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} />
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} />
                 </TabsContent>
                 <TabsContent value="supplier" className="flex-1 overflow-auto mt-4">
-                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} />
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} />
                 </TabsContent>
                 <TabsContent value="logistics_partner" className="flex-1 overflow-auto mt-4">
-                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} />
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} />
                 </TabsContent>
 
                 {totalPages > 1 && (
@@ -342,6 +414,64 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <ArrowRightLeft className="h-5 w-5" />
+              Transfer User Role
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Transfer <strong>{userToTransfer?.company_name}</strong> from {userToTransfer?.role?.replace('_', ' ')} to a different role.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium">New Role</label>
+            <Select value={newRole} onValueChange={(v) => setNewRole(v as AppRole)}>
+              <SelectTrigger className="mt-2">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="buyer" disabled={userToTransfer?.role === 'buyer'}>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Buyer
+                  </div>
+                </SelectItem>
+                <SelectItem value="supplier" disabled={userToTransfer?.role === 'supplier'}>
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Supplier
+                  </div>
+                </SelectItem>
+                <SelectItem value="logistics_partner" disabled={userToTransfer?.role === 'logistics_partner'}>
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-4 w-4" />
+                    Logistics Partner
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={transferring}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleTransferConfirm}
+              disabled={transferring || newRole === userToTransfer?.role}
+            >
+              {transferring ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Transferring...
+                </>
+              ) : (
+                'Transfer'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -349,9 +479,10 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
 interface UserTableProps {
   users: UserWithProfile[];
   onDelete: (user: UserWithProfile) => void;
+  onTransfer: (user: UserWithProfile) => void;
 }
 
-function UserTable({ users, onDelete }: UserTableProps) {
+function UserTable({ users, onDelete, onTransfer }: UserTableProps) {
   if (users.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -368,10 +499,11 @@ function UserTable({ users, onDelete }: UserTableProps) {
           <TableHead>Contact Person</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
+          <TableHead>Referred By</TableHead>
           <TableHead>Location</TableHead>
           <TableHead>GSTIN</TableHead>
           <TableHead>Registered</TableHead>
-          <TableHead className="w-[70px]">Actions</TableHead>
+          <TableHead className="w-[100px]">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -381,6 +513,16 @@ function UserTable({ users, onDelete }: UserTableProps) {
             <TableCell>{user.contact_person}</TableCell>
             <TableCell>{user.email}</TableCell>
             <TableCell>{user.phone}</TableCell>
+            <TableCell>
+              {user.referred_by_name ? (
+                <div className="text-sm">
+                  <div>{user.referred_by_name}</div>
+                  {user.referred_by_phone && (
+                    <div className="text-muted-foreground text-xs">{user.referred_by_phone}</div>
+                  )}
+                </div>
+              ) : '-'}
+            </TableCell>
             <TableCell>
               {user.city && user.state ? `${user.city}, ${user.state}` : user.city || user.state || '-'}
             </TableCell>
@@ -395,14 +537,26 @@ function UserTable({ users, onDelete }: UserTableProps) {
               {user.created_at ? format(new Date(user.created_at), 'dd MMM yyyy') : '-'}
             </TableCell>
             <TableCell>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(user)}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onTransfer(user)}
+                  className="text-primary hover:text-primary hover:bg-primary/10"
+                  title="Transfer Role"
+                >
+                  <ArrowRightLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onDelete(user)}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  title="Delete User"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
