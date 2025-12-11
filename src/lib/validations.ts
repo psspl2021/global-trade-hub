@@ -35,6 +35,13 @@ export const signupSchema = z.object({
     .trim()
     .regex(/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number (10-15 digits)'),
   role: z.enum(['buyer', 'supplier', 'logistics_partner']),
+  referredByName: z.string()
+    .trim()
+    .min(2, 'Referrer name must be at least 2 characters')
+    .max(100, 'Referrer name must be less than 100 characters'),
+  referredByPhone: z.string()
+    .trim()
+    .regex(/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number (10-15 digits)'),
 });
 
 export const resetPasswordSchema = z.object({
