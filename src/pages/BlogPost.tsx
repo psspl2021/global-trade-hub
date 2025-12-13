@@ -8,6 +8,7 @@ import { ArrowLeft, Calendar, User, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSEO } from '@/hooks/useSEO';
 import { toast } from 'sonner';
+import DOMPurify from 'dompurify';
 
 interface Blog {
   id: string;
@@ -155,10 +156,10 @@ const BlogPost = () => {
           )}
         </div>
 
-        {/* Blog Content */}
+        {/* Blog Content - Sanitized to prevent XSS */}
         <div 
           className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-a:text-primary"
-          dangerouslySetInnerHTML={{ __html: blog.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
         />
 
         {/* Share Section */}
