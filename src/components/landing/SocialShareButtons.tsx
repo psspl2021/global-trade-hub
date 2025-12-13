@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Share2 } from "lucide-react";
+import { Share2, Check, Copy } from "lucide-react";
 
 interface SocialShareButtonsProps {
   url?: string;
@@ -12,6 +13,7 @@ export const SocialShareButtons = ({
   title = "First 100 Partners Get 1 Year FREE Premium!",
   description = "Join ProcureSaathi - India's #1 B2B Platform. Get FREE CRM, Tax Invoice Generator & Unlimited Bids. Limited spots remaining!"
 }: SocialShareButtonsProps) => {
+  const [copied, setCopied] = useState(false);
   
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
@@ -25,6 +27,16 @@ export const SocialShareButtons = ({
 
   const handleShare = (platform: keyof typeof shareLinks) => {
     window.open(shareLinks[platform], '_blank', 'noopener,noreferrer,width=600,height=400');
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   return (
@@ -68,6 +80,25 @@ export const SocialShareButtons = ({
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
         </svg>
         X
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleCopyLink}
+        className={copied ? "bg-success/10 border-success/30 text-success" : ""}
+        aria-label="Copy link"
+      >
+        {copied ? (
+          <>
+            <Check className="h-4 w-4 mr-1.5" />
+            Copied!
+          </>
+        ) : (
+          <>
+            <Copy className="h-4 w-4 mr-1.5" />
+            Copy Link
+          </>
+        )}
       </Button>
     </div>
   );
