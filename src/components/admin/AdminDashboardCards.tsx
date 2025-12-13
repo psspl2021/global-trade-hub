@@ -109,12 +109,11 @@ export function AdminDashboardCards({
         const paid = invoices?.filter(i => i.status === 'paid') || [];
         const overdue = pending.filter(i => i.due_date && new Date(i.due_date) < new Date());
 
-        // Fetch active suppliers count
+        // Fetch active suppliers and logistics partners count
         const { count: suppliersCount } = await supabase
           .from('user_roles')
           .select('*', { count: 'exact', head: true })
-          .eq('role', 'supplier');
-
+          .in('role', ['supplier', 'logistics_partner']);
         // Fetch active requirements count
         const { count: requirementsCount } = await supabase
           .from('requirements')
@@ -359,7 +358,7 @@ export function AdminDashboardCards({
         <CardContent>
           <div className="text-3xl font-bold text-blue-600">{stats.activeSuppliers}</div>
           <p className="text-sm text-muted-foreground mb-4">
-            Suppliers registered
+            Suppliers & Logistics Partners
           </p>
           <Button className="w-full" variant="outline" onClick={onOpenUsersList}>
             <Eye className="h-4 w-4 mr-2" />
