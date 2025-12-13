@@ -28,6 +28,49 @@ export const EarlyAdopterBanner = () => {
     }
   };
 
+  // SEO: Inject JSON-LD structured data for the offer
+  useEffect(() => {
+    const offerData = {
+      "@context": "https://schema.org",
+      "@type": "Offer",
+      "name": "Early Adopter Premium Subscription - 1 Year FREE",
+      "description": "First 100 suppliers and logistics partners get 1 year FREE premium subscription worth ₹24,950. Includes unlimited bids, free CRM, tax invoice generator, early adopter badge, and priority support.",
+      "price": "0",
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/LimitedAvailability",
+      "validFrom": "2024-01-01",
+      "validThrough": "2025-12-31",
+      "eligibleRegion": {
+        "@type": "Country",
+        "name": "India"
+      },
+      "seller": {
+        "@type": "Organization",
+        "name": "ProcureSaathi",
+        "url": "https://procuresaathi.com"
+      },
+      "itemOffered": {
+        "@type": "Service",
+        "name": "ProcureSaathi Premium Subscription",
+        "description": "B2B marketplace premium subscription with unlimited bids, CRM, tax invoice generator, and priority support"
+      }
+    };
+
+    const existingScript = document.getElementById('early-adopter-offer-schema');
+    if (existingScript) existingScript.remove();
+
+    const script = document.createElement('script');
+    script.id = 'early-adopter-offer-schema';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(offerData);
+    document.head.appendChild(script);
+
+    return () => {
+      const scriptToRemove = document.getElementById('early-adopter-offer-schema');
+      if (scriptToRemove) scriptToRemove.remove();
+    };
+  }, []);
+
   useEffect(() => {
     fetchCount();
 
@@ -64,25 +107,31 @@ export const EarlyAdopterBanner = () => {
   const progressPercentage = (filledSpots / 100) * 100;
 
   return (
-    <section className="relative py-8 overflow-hidden">
+    <section 
+      className="relative py-8 overflow-hidden" 
+      id="early-adopter-offer" 
+      aria-labelledby="early-adopter-heading"
+      itemScope 
+      itemType="https://schema.org/Offer"
+    >
       {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-warning/20 via-primary/20 to-warning/20 animate-pulse" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-warning/20 via-primary/20 to-warning/20 animate-pulse" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-transparent" aria-hidden="true" />
       
       {/* Decorative elements */}
-      <div className="absolute top-0 left-0 w-32 h-32 bg-warning/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute top-0 left-0 w-32 h-32 bg-warning/10 rounded-full blur-3xl" aria-hidden="true" />
+      <div className="absolute bottom-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" aria-hidden="true" />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto">
           <div className="bg-card/95 backdrop-blur-sm border-2 border-warning/50 rounded-2xl p-6 md:p-8 shadow-lg">
             {/* Header with badge */}
-            <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
+            <header className="flex flex-col md:flex-row items-center gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-warning/30 rounded-full blur-md animate-pulse" />
+                  <div className="absolute inset-0 bg-warning/30 rounded-full blur-md animate-pulse" aria-hidden="true" />
                   <div className="relative bg-gradient-to-br from-warning to-warning/80 p-3 rounded-full">
-                    <Trophy className="h-8 w-8 text-warning-foreground" />
+                    <Trophy className="h-8 w-8 text-warning-foreground" aria-hidden="true" />
                   </div>
                 </div>
                 <div>
@@ -90,14 +139,17 @@ export const EarlyAdopterBanner = () => {
                     <span className="bg-warning/20 text-warning text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">
                       Limited Offer
                     </span>
-                    <Sparkles className="h-4 w-4 text-warning animate-pulse" />
+                    <Sparkles className="h-4 w-4 text-warning animate-pulse" aria-hidden="true" />
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mt-1">
+                  <h2 id="early-adopter-heading" className="text-2xl md:text-3xl font-bold text-foreground mt-1" itemProp="name">
                     First 100 Partners Get <span className="text-warning">1 Year FREE</span> Premium!
                   </h2>
+                  <p className="text-sm text-muted-foreground mt-1" itemProp="description">
+                    Free CRM & Tax Invoice Generator included with premium subscription
+                  </p>
                 </div>
               </div>
-            </div>
+            </header>
 
             {/* Progress bar and counter */}
             <div className="mb-6">
