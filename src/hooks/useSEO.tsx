@@ -5,33 +5,48 @@ interface SEOProps {
   description?: string;
   canonical?: string;
   keywords?: string;
+  ogImage?: string;
+  ogType?: string;
+  twitterCard?: 'summary' | 'summary_large_image';
+  ogSiteName?: string;
 }
 
-export const useSEO = ({ title, description, canonical, keywords }: SEOProps) => {
+const updateMetaTag = (selector: string, attribute: string, value: string, attrName: string = 'content') => {
+  let meta = document.querySelector(selector);
+  if (!meta) {
+    meta = document.createElement('meta');
+    if (selector.includes('property=')) {
+      meta.setAttribute('property', attribute);
+    } else {
+      meta.setAttribute('name', attribute);
+    }
+    document.head.appendChild(meta);
+  }
+  meta.setAttribute(attrName, value);
+};
+
+export const useSEO = ({ 
+  title, 
+  description, 
+  canonical, 
+  keywords,
+  ogImage = 'https://procuresaathi.com/og-image.png',
+  ogType = 'website',
+  twitterCard = 'summary_large_image',
+  ogSiteName = 'ProcureSaathi'
+}: SEOProps) => {
   useEffect(() => {
     // Update document title
     document.title = title;
 
     // Update or create meta description
-    let metaDescription = document.querySelector('meta[name="description"]');
     if (description) {
-      if (!metaDescription) {
-        metaDescription = document.createElement('meta');
-        metaDescription.setAttribute('name', 'description');
-        document.head.appendChild(metaDescription);
-      }
-      metaDescription.setAttribute('content', description);
+      updateMetaTag('meta[name="description"]', 'description', description);
     }
 
     // Update or create meta keywords
-    let metaKeywords = document.querySelector('meta[name="keywords"]');
     if (keywords) {
-      if (!metaKeywords) {
-        metaKeywords = document.createElement('meta');
-        metaKeywords.setAttribute('name', 'keywords');
-        document.head.appendChild(metaKeywords);
-      }
-      metaKeywords.setAttribute('content', keywords);
+      updateMetaTag('meta[name="keywords"]', 'keywords', keywords);
     }
 
     // Update or create canonical URL
@@ -45,14 +60,35 @@ export const useSEO = ({ title, description, canonical, keywords }: SEOProps) =>
       canonicalLink.setAttribute('href', canonical);
     }
 
-    // Update Open Graph tags
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) ogTitle.setAttribute('content', title);
+    // Open Graph tags
+    updateMetaTag('meta[property="og:title"]', 'og:title', title);
+    updateMetaTag('meta[property="og:type"]', 'og:type', ogType);
+    updateMetaTag('meta[property="og:site_name"]', 'og:site_name', ogSiteName);
+    if (description) {
+      updateMetaTag('meta[property="og:description"]', 'og:description', description);
+    }
+    if (canonical) {
+      updateMetaTag('meta[property="og:url"]', 'og:url', canonical);
+    }
+    if (ogImage) {
+      updateMetaTag('meta[property="og:image"]', 'og:image', ogImage);
+      updateMetaTag('meta[property="og:image:width"]', 'og:image:width', '1200');
+      updateMetaTag('meta[property="og:image:height"]', 'og:image:height', '630');
+      updateMetaTag('meta[property="og:image:alt"]', 'og:image:alt', title);
+    }
 
-    const ogDescription = document.querySelector('meta[property="og:description"]');
-    if (ogDescription && description) ogDescription.setAttribute('content', description);
+    // Twitter Card tags
+    updateMetaTag('meta[name="twitter:card"]', 'twitter:card', twitterCard);
+    updateMetaTag('meta[name="twitter:title"]', 'twitter:title', title);
+    if (description) {
+      updateMetaTag('meta[name="twitter:description"]', 'twitter:description', description);
+    }
+    if (ogImage) {
+      updateMetaTag('meta[name="twitter:image"]', 'twitter:image', ogImage);
+      updateMetaTag('meta[name="twitter:image:alt"]', 'twitter:image:alt', title);
+    }
 
-  }, [title, description, canonical, keywords]);
+  }, [title, description, canonical, keywords, ogImage, ogType, twitterCard, ogSiteName]);
 };
 
 // Helper to inject JSON-LD structured data
