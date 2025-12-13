@@ -33,17 +33,36 @@ serve(async (req) => {
 
     console.log(`Fetching real analytics for last ${days} days from ${startDateStr}`);
 
-    // Fetch all page visits in date range
-    const { data: visits, error } = await supabase
-      .from('page_visits')
-      .select('*')
-      .gte('created_at', startDateStr)
-      .order('created_at', { ascending: true });
+    // Fetch all page visits in date range - need to handle pagination for large datasets
+    // Supabase has a default limit of 1000 rows, so we need to fetch in batches
+    let allVisits: any[] = [];
+    let hasMore = true;
+    let offset = 0;
+    const batchSize = 1000;
 
-    if (error) {
-      console.error('Error fetching page visits:', error);
-      throw error;
+    while (hasMore) {
+      const { data: batch, error: batchError } = await supabase
+        .from('page_visits')
+        .select('*')
+        .gte('created_at', startDateStr)
+        .order('created_at', { ascending: true })
+        .range(offset, offset + batchSize - 1);
+
+      if (batchError) {
+        console.error('Error fetching page visits batch:', batchError);
+        throw batchError;
+      }
+
+      if (batch && batch.length > 0) {
+        allVisits = allVisits.concat(batch);
+        offset += batchSize;
+        hasMore = batch.length === batchSize;
+      } else {
+        hasMore = false;
+      }
     }
+
+    const visits = allVisits;
 
     console.log(`Found ${visits?.length || 0} page visits`);
 
