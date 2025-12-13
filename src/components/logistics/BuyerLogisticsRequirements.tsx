@@ -110,7 +110,10 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
         .update({ status: 'closed' })
         .eq('id', selectedRequirement.id);
 
-      toast({ title: 'Success', description: 'Bid accepted successfully!' });
+      toast({ 
+        title: 'Order Completed!', 
+        description: 'Thank you for doing business with ProcureSaathi. The transporter has been notified and will contact you shortly.',
+      });
       setSelectedRequirement(null);
       fetchRequirements();
     } catch (error: any) {
