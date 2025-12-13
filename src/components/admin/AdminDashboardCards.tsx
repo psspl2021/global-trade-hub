@@ -149,9 +149,26 @@ export function AdminDashboardCards({
   useEffect(() => {
     fetchAnalytics();
     
-    // Auto-refresh analytics every 30 seconds
-    const interval = setInterval(fetchAnalytics, 30000);
-    return () => clearInterval(interval);
+    // Subscribe to real-time page_visits updates
+    const channel = supabase
+      .channel('page-visits-analytics')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'page_visits'
+        },
+        () => {
+          // Refresh analytics when new visit is recorded
+          fetchAnalytics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [selectedDays]);
 
   function getDateString(daysOffset: number): string {
