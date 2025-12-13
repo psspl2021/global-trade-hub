@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AIChatBox } from "@/components/AIChatBox";
+import { GlobalSEOTools } from "@/components/admin/GlobalSEOTools";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { VisitorTracker } from "@/components/VisitorTracker";
 
@@ -38,6 +39,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <AIChatBox />
+        <GlobalSEOTools />
         <BrowserRouter>
           <VisitorTracker />
           <Suspense fallback={<PageLoader />}>
