@@ -56,6 +56,19 @@ const countryData: Record<string, {
     ],
     certifications: ["HALAL", "SASO", "ISO 22000", "FSSAI"]
   },
+  dubai: {
+    name: "Dubai",
+    flag: "🇦🇪",
+    headline: "Source from India to Dubai",
+    description: "Connect with verified Indian suppliers for seamless import to Dubai. Direct shipping to Jebel Ali Free Zone with competitive pricing and HALAL-certified products.",
+    topCategories: ["Food Products", "Textiles", "Gold & Jewelry", "Machinery", "Chemicals", "Spices"],
+    tradeStats: [
+      { label: "India-Dubai Trade", value: "$50B+" },
+      { label: "Active Suppliers", value: "2,800+" },
+      { label: "Avg. Delivery", value: "4-6 days" }
+    ],
+    certifications: ["HALAL", "ESMA", "ISO 22000", "Dubai Municipality"]
+  },
   uk: {
     name: "United Kingdom",
     flag: "🇬🇧",
