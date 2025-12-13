@@ -41,12 +41,15 @@ const Index = () => {
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
 
-  // SEO setup
+  // SEO setup with social sharing meta tags
   useSEO({
-    title: "ProcureSaathi - India's #1 B2B Sourcing & Procurement Platform",
-    description: "India's leading B2B marketplace. Connect with 5000+ verified suppliers, get competitive bids, and save 15-30% on sourcing. Free signup!",
+    title: "ProcureSaathi - First 100 Partners Get 1 Year FREE Premium | India's #1 B2B Platform",
+    description: "🎉 Limited Offer: First 100 suppliers & logistics partners get 1 Year FREE Premium worth ₹24,950! Free CRM, Tax Invoice Generator, Unlimited Bids. Join India's leading B2B sourcing platform today.",
     canonical: "https://procuresaathi.com/",
-    keywords: "B2B marketplace, procurement platform, sourcing India, wholesale suppliers, bulk buying, industrial suppliers"
+    keywords: "B2B marketplace India, free premium subscription, supplier platform, procurement platform, CRM free, tax invoice generator, wholesale suppliers, bulk buying",
+    ogImage: "https://procuresaathi.com/og-early-adopter.png",
+    ogType: "website",
+    twitterCard: "summary_large_image"
   });
 
   // Inject Organization schema
