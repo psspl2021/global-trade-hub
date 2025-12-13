@@ -17,7 +17,7 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     countryCode: "US",
     region: "North America",
     currency: "USD",
-    telephone: "+1-555-PROCURE",
+    telephone: "+91-8368127357",
     languages: ["en-US"],
   },
   uae: {
@@ -25,7 +25,15 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     countryCode: "AE",
     region: "Middle East",
     currency: "AED",
-    telephone: "+971-4-XXX-XXXX",
+    telephone: "+91-8368127357",
+    languages: ["ar-AE", "en-AE"],
+  },
+  dubai: {
+    country: "United Arab Emirates",
+    countryCode: "AE",
+    region: "Middle East",
+    currency: "AED",
+    telephone: "+91-8368127357",
     languages: ["ar-AE", "en-AE"],
   },
   uk: {
