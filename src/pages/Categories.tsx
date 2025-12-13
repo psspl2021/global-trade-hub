@@ -12,6 +12,7 @@ import { Search, ChevronRight } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { categoriesData, searchCategories } from '@/data/categories';
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getCategorySchema } from '@/hooks/useSEO';
+import { nameToSlug } from './CategoryLanding';
 
 const Categories = () => {
   const navigate = useNavigate();
@@ -46,11 +47,11 @@ const Categories = () => {
     : categoriesData;
 
   const handleSubcategoryClick = (category: string, subcategory: string) => {
-    navigate(`/browse?category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(subcategory)}`);
+    navigate(`/category/${nameToSlug(category)}/${nameToSlug(subcategory)}`);
   };
 
   const handleCategoryClick = (category: string) => {
-    navigate(`/browse?category=${encodeURIComponent(category)}`);
+    navigate(`/category/${nameToSlug(category)}`);
   };
 
   return (

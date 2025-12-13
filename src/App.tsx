@@ -16,6 +16,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Categories = lazy(() => import("./pages/Categories"));
+const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
 const Browse = lazy(() => import("./pages/Browse"));
 const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
@@ -50,6 +51,8 @@ const App = () => (
               <Route path="/signup" element={<Signup />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/categories" element={<Categories />} />
+              <Route path="/category/:categorySlug" element={<CategoryLanding />} />
+              <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryLanding />} />
               <Route path="/browse" element={<Browse />} />
               <Route path="/book-truck" element={<BookTruck />} />
               <Route path="/blogs" element={<Blogs />} />
