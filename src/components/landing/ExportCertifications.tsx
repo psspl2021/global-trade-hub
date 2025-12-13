@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -301,20 +301,104 @@ const certifications: Certification[] = [
 export const ExportCertifications = () => {
   const [selectedCert, setSelectedCert] = useState<Certification | null>(null);
 
+  // SEO: Inject JSON-LD structured data
+  useEffect(() => {
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Export Certifications Directory",
+      "description": "Complete guide to international export certifications including CE Marking, FDA, ISO, BIS, FSSAI, HALAL, KOSHER, and more for global trade compliance.",
+      "numberOfItems": certifications.length,
+      "itemListElement": certifications.map((cert, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Service",
+          "name": cert.name,
+          "description": cert.fullDescription,
+          "areaServed": cert.region,
+          "provider": {
+            "@type": "Organization",
+            "name": cert.issuingBody
+          },
+          "category": cert.categories.join(", ")
+        }
+      }))
+    };
+
+    const faqData = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is CE marking and why is it required?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CE marking indicates that a product complies with EU health, safety, and environmental protection standards. It is mandatory for products sold within the European Economic Area (EEA) covering electronics, machinery, medical devices, and toys."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I get FDA approval for exporting to USA?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FDA approval requires pre-market approval or clearance application, clinical trials for drugs and medical devices, Good Manufacturing Practice (GMP) compliance, and facility registration with product listing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What certifications are required for exporting food products from India?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For exporting food products from India, you typically need FSSAI license, and depending on destination: FDA approval (USA), ISO 22000 (international), HALAL certification (Middle East/SEA), or KOSHER certification (global Jewish markets)."
+          }
+        }
+      ]
+    };
+
+    // Remove existing scripts
+    const existingScript = document.getElementById('export-cert-schema');
+    const existingFaqScript = document.getElementById('export-cert-faq-schema');
+    if (existingScript) existingScript.remove();
+    if (existingFaqScript) existingFaqScript.remove();
+
+    // Add structured data
+    const script = document.createElement('script');
+    script.id = 'export-cert-schema';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+
+    const faqScript = document.createElement('script');
+    faqScript.id = 'export-cert-faq-schema';
+    faqScript.type = 'application/ld+json';
+    faqScript.text = JSON.stringify(faqData);
+    document.head.appendChild(faqScript);
+
+    return () => {
+      const scriptToRemove = document.getElementById('export-cert-schema');
+      const faqScriptToRemove = document.getElementById('export-cert-faq-schema');
+      if (scriptToRemove) scriptToRemove.remove();
+      if (faqScriptToRemove) faqScriptToRemove.remove();
+    };
+  }, []);
+
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 bg-background" id="export-certifications" aria-labelledby="certifications-heading">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <header className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Shield className="h-8 w-8 text-primary" />
-            <h2 className="text-3xl md:text-4xl font-bold">
+            <Shield className="h-8 w-8 text-primary" aria-hidden="true" />
+            <h2 id="certifications-heading" className="text-3xl md:text-4xl font-bold">
               Export Certifications Directory
             </h2>
           </div>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Click on any certification to view detailed requirements and benefits
+            Complete guide to international export certifications for global trade compliance. 
+            Click on any certification to view detailed requirements, issuing bodies, and benefits.
           </p>
-        </div>
+        </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {certifications.map((cert, index) => (
