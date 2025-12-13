@@ -5,12 +5,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper to convert name to slug
+const nameToSlug = (name: string) => {
+  return name.toLowerCase()
+    .replace(/[&,()]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+};
+
 // Static pages
 const staticPages = [
   { url: '/', priority: 1.0, changefreq: 'daily' },
   { url: '/categories', priority: 0.9, changefreq: 'weekly' },
   { url: '/browse', priority: 0.8, changefreq: 'daily' },
   { url: '/book-truck', priority: 0.8, changefreq: 'weekly' },
+  { url: '/blogs', priority: 0.7, changefreq: 'daily' },
   { url: '/login', priority: 0.5, changefreq: 'monthly' },
   { url: '/signup', priority: 0.6, changefreq: 'monthly' },
 ];
@@ -25,14 +35,25 @@ const internationalPages = [
   { url: '/source/africa', priority: 0.8, changefreq: 'weekly' },
 ];
 
-// All 40+ categories with their subcategories
+// High-value categories (priority 0.9 for SEO)
+const highValueCategories = [
+  'Metals - Ferrous (Steel, Iron)',
+  'Chemicals & Raw Materials',
+  'Machinery & Equipment',
+  'Building & Construction',
+  'Pharmaceuticals & Drugs',
+  'Textiles & Fabrics',
+  'Food & Beverages',
+];
+
+// All categories with subcategories
 const categories = [
   { name: 'Agriculture Equipment & Supplies', subcategories: ['Agricultural Machinery', 'Irrigation Equipment', 'Seeds & Plants', 'Fertilizers & Pesticides', 'Farm Tools & Equipment', 'Animal Feed', 'Greenhouse Equipment', 'Harvesting Equipment', 'Storage & Silos', 'Dairy Equipment'] },
-  { name: 'Apparel & Clothing', subcategories: ['Men\'s Clothing', 'Women\'s Clothing', 'Children\'s Clothing', 'Sportswear', 'Work Uniforms', 'Traditional Wear', 'Winter Wear', 'Innerwear'] },
+  { name: 'Apparel & Clothing', subcategories: ['Mens Clothing', 'Womens Clothing', 'Childrens Clothing', 'Sportswear', 'Work Uniforms', 'Traditional Wear', 'Winter Wear', 'Innerwear'] },
   { name: 'Arts, Crafts & Gifts', subcategories: ['Handicrafts', 'Art Supplies', 'Gift Items', 'Home Decor Crafts', 'Festive Decorations', 'Souvenirs', 'Candles & Fragrances'] },
   { name: 'Auto Vehicle & Accessories', subcategories: ['Car Parts', 'Truck Parts', 'Motorcycle Parts', 'Auto Batteries', 'Tires & Wheels', 'Auto Electronics', 'Body Parts', 'Engine Components', 'Lubricants & Oils', 'Interior Accessories'] },
   { name: 'Bags, Luggage & Cases', subcategories: ['Travel Bags', 'Backpacks', 'Handbags', 'Laptop Bags', 'Luggage Sets', 'Briefcases', 'Wallets & Purses', 'Promotional Bags'] },
-  { name: 'Beauty & Personal Care', subcategories: ['Skincare Products', 'Hair Care', 'Cosmetics', 'Fragrances', 'Men\'s Grooming', 'Organic Beauty', 'Salon Equipment', 'Personal Hygiene'] },
+  { name: 'Beauty & Personal Care', subcategories: ['Skincare Products', 'Hair Care', 'Cosmetics', 'Fragrances', 'Mens Grooming', 'Organic Beauty', 'Salon Equipment', 'Personal Hygiene'] },
   { name: 'Building & Construction', subcategories: ['Cement & Concrete', 'Steel & Iron', 'Tiles & Flooring', 'Sanitary Ware', 'Doors & Windows', 'Roofing Materials', 'Paints & Coatings', 'Plumbing Supplies', 'Electrical Fittings', 'Glass & Glazing'] },
   { name: 'Chemicals & Raw Materials', subcategories: ['Industrial Chemicals', 'Lab Chemicals', 'Dyes & Pigments', 'Solvents', 'Adhesives & Sealants', 'Petrochemicals', 'Agrochemicals', 'Specialty Chemicals'] },
   { name: 'Computer Hardware & Software', subcategories: ['Desktop Computers', 'Laptops', 'Computer Components', 'Printers & Scanners', 'Networking Equipment', 'Storage Devices', 'Software Solutions', 'Computer Peripherals'] },
@@ -46,7 +67,7 @@ const categories = [
   { name: 'Hardware & Tools', subcategories: ['Hand Tools', 'Power Tools', 'Fasteners', 'Locks & Security', 'Garden Tools', 'Measuring Tools', 'Abrasives', 'Tool Storage'] },
   { name: 'Health Care Products', subcategories: ['Medical Supplies', 'Health Supplements', 'First Aid', 'Wellness Products', 'Therapeutic Equipment', 'Diagnostic Devices', 'Rehabilitation Aids'] },
   { name: 'Industrial Supplies', subcategories: ['Industrial Tools', 'Safety Equipment', 'Material Handling', 'Pumps & Valves', 'Bearings & Seals', 'Industrial Hoses', 'Cleaning Supplies', 'Packaging Materials'] },
-  { name: 'Jewelry & Watches', subcategories: ['Gold Jewelry', 'Silver Jewelry', 'Fashion Jewelry', 'Gemstones', 'Watches', 'Jewelry Components', 'Wedding Jewelry', 'Men\'s Jewelry'] },
+  { name: 'Jewelry & Watches', subcategories: ['Gold Jewelry', 'Silver Jewelry', 'Fashion Jewelry', 'Gemstones', 'Watches', 'Jewelry Components', 'Wedding Jewelry', 'Mens Jewelry'] },
   { name: 'Lights & Lighting', subcategories: ['LED Lights', 'Decorative Lighting', 'Industrial Lighting', 'Street Lights', 'Ceiling Lights', 'Outdoor Lighting', 'Emergency Lighting', 'Smart Lighting'] },
   { name: 'Machinery & Equipment', subcategories: ['CNC Machines', 'Pumps & Motors', 'Compressors', 'Packaging Machines', 'Printing Machines', 'Textile Machinery', 'Food Processing', 'Woodworking Machines'] },
   { name: 'Medical & Healthcare', subcategories: ['Medical Equipment', 'Surgical Instruments', 'Hospital Furniture', 'Lab Equipment', 'Diagnostic Equipment', 'Rehabilitation Equipment', 'Dental Equipment', 'Veterinary Equipment'] },
@@ -101,25 +122,29 @@ function generateSitemap(): string {
 `;
   }
 
-  // Category pages
+  // Category landing pages (SEO-optimized URLs)
   for (const category of categories) {
-    const categoryUrl = `/browse?category=${encodeURIComponent(category.name)}`;
+    const categorySlug = nameToSlug(category.name);
+    const isHighValue = highValueCategories.includes(category.name);
+    const priority = isHighValue ? 0.9 : 0.7;
+    
+    // Main category page
     xml += `  <url>
-    <loc>${baseUrl}${categoryUrl}</loc>
+    <loc>${baseUrl}/category/${categorySlug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>${priority}</priority>
   </url>
 `;
 
     // Subcategory pages
     for (const sub of category.subcategories) {
-      const subUrl = `/browse?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(sub)}`;
+      const subSlug = nameToSlug(sub);
       xml += `  <url>
-    <loc>${baseUrl}${subUrl}</loc>
+    <loc>${baseUrl}/category/${categorySlug}/${subSlug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <priority>${isHighValue ? 0.8 : 0.6}</priority>
   </url>
 `;
     }
