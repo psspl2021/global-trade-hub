@@ -187,7 +187,10 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
         .neq('id', bidId)
         .eq('status', 'pending');
 
-      toast.success('Bid accepted successfully!');
+      toast.success('Order completed successfully! Thank you for doing business with ProcureSaathi.', {
+        duration: 5000,
+        description: 'The supplier has been notified and will contact you shortly.',
+      });
       fetchRequirements();
       if (selectedRequirement) {
         fetchBids(selectedRequirement.id);
