@@ -29,7 +29,7 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     languages: ["ar-AE", "en-AE"],
   },
   dubai: {
-    country: "United Arab Emirates",
+    country: "Dubai",
     countryCode: "AE",
     region: "Middle East",
     currency: "AED",
