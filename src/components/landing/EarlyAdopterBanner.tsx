@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Trophy, Sparkles, Package, Truck, Star, Zap } from 'lucide-react';
+import { SocialShareButtons } from './SocialShareButtons';
 
 export const EarlyAdopterBanner = () => {
   const navigate = useNavigate();
@@ -222,6 +223,9 @@ export const EarlyAdopterBanner = () => {
             <p className="text-center text-xs text-muted-foreground mt-4">
               Premium subscription worth ₹24,950 — completely FREE for early adopters. No credit card required.
             </p>
+
+            {/* Social Share Buttons */}
+            <SocialShareButtons />
           </div>
         </div>
       </div>
