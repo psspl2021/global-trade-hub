@@ -994,6 +994,7 @@ export type Database = {
           address: string | null
           business_type: string | null
           city: string | null
+          company_logo_url: string | null
           company_name: string
           contact_person: string
           country: string | null
@@ -1011,6 +1012,7 @@ export type Database = {
           address?: string | null
           business_type?: string | null
           city?: string | null
+          company_logo_url?: string | null
           company_name: string
           contact_person: string
           country?: string | null
@@ -1028,6 +1030,7 @@ export type Database = {
           address?: string | null
           business_type?: string | null
           city?: string | null
+          company_logo_url?: string | null
           company_name?: string
           contact_person?: string
           country?: string | null

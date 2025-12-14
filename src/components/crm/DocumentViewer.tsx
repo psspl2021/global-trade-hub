@@ -228,6 +228,13 @@ export const DocumentViewer = ({
                   )}
                 </div>
                 <div className="text-right">
+                  {supplier?.company_logo_url && (
+                    <img 
+                      src={supplier.company_logo_url} 
+                      alt="Company Logo" 
+                      className="h-16 w-auto mb-2 ml-auto object-contain"
+                    />
+                  )}
                   <h3 className="font-bold">{supplier?.company_name || 'Your Company'}</h3>
                   {supplier?.address && <p className="text-sm">{supplier.address}</p>}
                   {supplier?.gstin && <p className="text-sm">GSTIN: {supplier.gstin}</p>}
