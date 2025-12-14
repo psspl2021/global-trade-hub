@@ -61,18 +61,34 @@ export const InvoiceForm = ({
     { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: 18, tax_amount: 0, total: 0 },
   ]);
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
+  const [savedBankDetails, setSavedBankDetails] = useState<string[]>([]);
+  const [savedTerms, setSavedTerms] = useState<string[]>([]);
 
   useEffect(() => {
-    // Fetch current logo
-    const fetchLogo = async () => {
-      const { data } = await supabase
+    // Fetch current logo and saved bank details/terms
+    const fetchData = async () => {
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('company_logo_url')
         .eq('id', userId)
-        .single();
-      setCurrentLogoUrl(data?.company_logo_url || null);
+        .maybeSingle();
+      setCurrentLogoUrl(profileData?.company_logo_url || null);
+
+      // Fetch unique saved bank details
+      const { data: invoicesData } = await supabase
+        .from('invoices')
+        .select('bank_details, terms_and_conditions')
+        .eq('supplier_id', userId)
+        .not('bank_details', 'is', null);
+
+      if (invoicesData) {
+        const uniqueBankDetails = [...new Set(invoicesData.map(i => i.bank_details).filter(Boolean))] as string[];
+        const uniqueTerms = [...new Set(invoicesData.map(i => i.terms_and_conditions).filter(Boolean))] as string[];
+        setSavedBankDetails(uniqueBankDetails);
+        setSavedTerms(uniqueTerms);
+      }
     };
-    if (open) fetchLogo();
+    if (open) fetchData();
   }, [open, userId]);
 
   useEffect(() => {
@@ -507,19 +523,47 @@ export const InvoiceForm = ({
                 <Label>Notes</Label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label>Terms & Conditions</Label>
-                <Textarea value={terms} onChange={(e) => setTerms(e.target.value)} rows={2} />
+                {savedTerms.length > 0 && (
+                  <Select onValueChange={(val) => setTerms(val)}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Select from saved..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {savedTerms.map((t, idx) => (
+                        <SelectItem key={idx} value={t}>
+                          {t.length > 50 ? t.substring(0, 50) + '...' : t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <Textarea value={terms} onChange={(e) => setTerms(e.target.value)} rows={2} placeholder="Or type new terms..." />
               </div>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label>Bank Details (for payment)</Label>
+              {savedBankDetails.length > 0 && (
+                <Select onValueChange={(val) => setBankDetails(val)}>
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select from saved..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {savedBankDetails.map((b, idx) => (
+                      <SelectItem key={idx} value={b}>
+                        {b.length > 60 ? b.substring(0, 60) + '...' : b}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <Textarea
                 value={bankDetails}
                 onChange={(e) => setBankDetails(e.target.value)}
                 rows={2}
-                placeholder="Bank: XYZ Bank, A/C: 1234567890, IFSC: XYZB0001234"
+                placeholder="Or type new: Bank: XYZ Bank, A/C: 1234567890, IFSC: XYZB0001234"
               />
             </div>
 
