@@ -55,13 +55,16 @@ export const InvoiceForm = ({
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
   const [terms, setTerms] = useState('');
-  const [bankDetails, setBankDetails] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [bankAccount, setBankAccount] = useState('');
+  const [bankIfsc, setBankIfsc] = useState('');
+  const [bankLocation, setBankLocation] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: 18, tax_amount: 0, total: 0 },
   ]);
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
-  const [savedBankDetails, setSavedBankDetails] = useState<string[]>([]);
+  const [savedBankDetails, setSavedBankDetails] = useState<{bankName: string; bankAccount: string; bankIfsc: string; bankLocation: string; label: string;}[]>([]);
   const [savedTerms, setSavedTerms] = useState<string[]>([]);
 
   useEffect(() => {
@@ -82,10 +85,29 @@ export const InvoiceForm = ({
         .not('bank_details', 'is', null);
 
       if (invoicesData) {
-        const uniqueBankDetails = [...new Set(invoicesData.map(i => i.bank_details).filter(Boolean))] as string[];
         const uniqueTerms = [...new Set(invoicesData.map(i => i.terms_and_conditions).filter(Boolean))] as string[];
-        setSavedBankDetails(uniqueBankDetails);
         setSavedTerms(uniqueTerms);
+        
+        // Parse bank details JSON and deduplicate
+        const parsedBankDetails: {bankName: string; bankAccount: string; bankIfsc: string; bankLocation: string; label: string;}[] = [];
+        const seenAccounts = new Set<string>();
+        invoicesData.forEach(i => {
+          if (i.bank_details) {
+            try {
+              const parsed = JSON.parse(i.bank_details);
+              if (parsed.bankAccount && !seenAccounts.has(parsed.bankAccount)) {
+                seenAccounts.add(parsed.bankAccount);
+                parsedBankDetails.push({
+                  ...parsed,
+                  label: `${parsed.bankName} - ${parsed.bankAccount}`
+                });
+              }
+            } catch {
+              // Legacy format - skip
+            }
+          }
+        });
+        setSavedBankDetails(parsedBankDetails);
       }
     };
     if (open) fetchData();
@@ -116,7 +138,10 @@ export const InvoiceForm = ({
     setDueDate('');
     setNotes('');
     setTerms('');
-    setBankDetails('');
+    setBankName('');
+    setBankAccount('');
+    setBankIfsc('');
+    setBankLocation('');
     setDiscountPercent(0);
     setItems([{ description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: 18, tax_amount: 0, total: 0 }]);
   };
@@ -150,7 +175,27 @@ export const InvoiceForm = ({
     setDueDate(invoice.due_date || '');
     setNotes(invoice.notes || '');
     setTerms(invoice.terms_and_conditions || '');
-    setBankDetails(invoice.bank_details || '');
+    // Parse bank details from JSON
+    if (invoice.bank_details) {
+      try {
+        const parsed = JSON.parse(invoice.bank_details);
+        setBankName(parsed.bankName || '');
+        setBankAccount(parsed.bankAccount || '');
+        setBankIfsc(parsed.bankIfsc || '');
+        setBankLocation(parsed.bankLocation || '');
+      } catch {
+        // Legacy format - clear fields
+        setBankName('');
+        setBankAccount('');
+        setBankIfsc('');
+        setBankLocation('');
+      }
+    } else {
+      setBankName('');
+      setBankAccount('');
+      setBankIfsc('');
+      setBankLocation('');
+    }
     setDiscountPercent(Number(invoice.discount_percent) || 0);
     setItems(
       invoiceItems?.map((item) => ({
@@ -250,7 +295,7 @@ export const InvoiceForm = ({
             total_amount: total,
             notes: notes || null,
             terms_and_conditions: terms || null,
-            bank_details: bankDetails || null,
+            bank_details: JSON.stringify({ bankName, bankAccount, bankIfsc, bankLocation }) || null,
           })
           .eq('id', editId);
 
@@ -295,7 +340,7 @@ export const InvoiceForm = ({
             total_amount: total,
             notes: notes || null,
             terms_and_conditions: terms || null,
-            bank_details: bankDetails || null,
+            bank_details: JSON.stringify({ bankName, bankAccount, bankIfsc, bankLocation }) || null,
           })
           .select('id')
           .single();
@@ -543,29 +588,53 @@ export const InvoiceForm = ({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Bank Details (for payment)</Label>
-              {savedBankDetails.length > 0 && (
-                <Select onValueChange={(val) => setBankDetails(val)}>
-                  <SelectTrigger className="bg-background">
-                    <SelectValue placeholder="Select from saved..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    {savedBankDetails.map((b, idx) => (
-                      <SelectItem key={idx} value={b}>
-                        {b.length > 60 ? b.substring(0, 60) + '...' : b}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              <Textarea
-                value={bankDetails}
-                onChange={(e) => setBankDetails(e.target.value)}
-                rows={2}
-                placeholder="Or type new: Bank: XYZ Bank, A/C: 1234567890, IFSC: XYZB0001234"
-              />
-            </div>
+            <Card>
+              <CardContent className="pt-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Bank Details (for payment)</h3>
+                  {savedBankDetails.length > 0 && (
+                    <Select onValueChange={(val) => {
+                      const selected = savedBankDetails.find(b => b.bankAccount === val);
+                      if (selected) {
+                        setBankName(selected.bankName);
+                        setBankAccount(selected.bankAccount);
+                        setBankIfsc(selected.bankIfsc);
+                        setBankLocation(selected.bankLocation);
+                      }
+                    }}>
+                      <SelectTrigger className="w-[200px] bg-background">
+                        <SelectValue placeholder="Select from saved..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {savedBankDetails.map((b, idx) => (
+                          <SelectItem key={idx} value={b.bankAccount}>
+                            {b.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Bank Name</Label>
+                    <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g., HDFC Bank" />
+                  </div>
+                  <div>
+                    <Label>Account Number</Label>
+                    <Input value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="e.g., 1234567890123" />
+                  </div>
+                  <div>
+                    <Label>IFSC Code</Label>
+                    <Input value={bankIfsc} onChange={(e) => setBankIfsc(e.target.value)} placeholder="e.g., HDFC0001234" />
+                  </div>
+                  <div>
+                    <Label>Branch Location</Label>
+                    <Input value={bankLocation} onChange={(e) => setBankLocation(e.target.value)} placeholder="e.g., Mumbai Main Branch" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Totals */}
             <Card className="bg-muted">
