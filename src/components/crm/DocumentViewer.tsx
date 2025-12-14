@@ -320,12 +320,29 @@ export const DocumentViewer = ({
               </div>
 
               {/* Bank Details (Invoice only) */}
-              {isInvoice && document.bank_details && (
-                <div className="border-t pt-4">
-                  <h4 className="font-semibold text-sm mb-1">Bank Details:</h4>
-                  <p className="text-sm whitespace-pre-wrap">{document.bank_details}</p>
-                </div>
-              )}
+              {isInvoice && document.bank_details && (() => {
+                try {
+                  const bank = JSON.parse(document.bank_details);
+                  return (
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold text-sm mb-2">Bank Details:</h4>
+                      <div className="text-sm grid grid-cols-2 gap-2">
+                        <div><span className="text-muted-foreground">Bank Name:</span> {bank.bankName}</div>
+                        <div><span className="text-muted-foreground">A/C No:</span> {bank.bankAccount}</div>
+                        <div><span className="text-muted-foreground">IFSC:</span> {bank.bankIfsc}</div>
+                        <div><span className="text-muted-foreground">Branch:</span> {bank.bankLocation}</div>
+                      </div>
+                    </div>
+                  );
+                } catch {
+                  return (
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold text-sm mb-1">Bank Details:</h4>
+                      <p className="text-sm whitespace-pre-wrap">{document.bank_details}</p>
+                    </div>
+                  );
+                }
+              })()}
 
               {/* Notes & Terms */}
               <div className="grid grid-cols-2 gap-6 text-sm">
