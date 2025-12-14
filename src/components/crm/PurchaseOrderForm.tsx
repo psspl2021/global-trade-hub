@@ -32,6 +32,7 @@ interface PurchaseOrderFormProps {
 }
 
 const GST_RATES = [0, 5, 12, 18, 28];
+const UNIT_OPTIONS = ['units', 'kg', 'g', 'ton', 'mt', 'quintal', 'ltr', 'ml', 'pcs', 'box', 'carton', 'bag', 'roll', 'mtr', 'sqft', 'sqm', 'dozen', 'pair', 'set'];
 
 export const PurchaseOrderForm = ({
   open,
@@ -192,8 +193,18 @@ export const PurchaseOrderForm = ({
       return;
     }
 
+    if (!vendorGstin.trim()) {
+      toast({ title: 'Error', description: 'Vendor GSTIN is required', variant: 'destructive' });
+      return;
+    }
+
     if (items.some((item) => !item.description.trim())) {
       toast({ title: 'Error', description: 'All items must have a description', variant: 'destructive' });
+      return;
+    }
+
+    if (items.some((item) => !item.hsn_code.trim())) {
+      toast({ title: 'Error', description: 'All items must have an HSN code', variant: 'destructive' });
       return;
     }
 
@@ -339,7 +350,7 @@ export const PurchaseOrderForm = ({
                     <Input value={vendorName} onChange={(e) => setVendorName(e.target.value)} placeholder="Vendor/Supplier name" />
                   </div>
                   <div>
-                    <Label>GSTIN</Label>
+                    <Label>GSTIN *</Label>
                     <Input value={vendorGstin} onChange={(e) => setVendorGstin(e.target.value)} placeholder="22AAAAA0000A1Z5" />
                   </div>
                   <div>
@@ -380,11 +391,12 @@ export const PurchaseOrderForm = ({
                             placeholder="Product/Service name"
                           />
                         </div>
-                        <div className="w-24">
-                          <Label className="text-xs">HSN Code</Label>
+                        <div className="w-28">
+                          <Label className="text-xs">HSN Code *</Label>
                           <Input
                             value={item.hsn_code}
                             onChange={(e) => updateItem(index, 'hsn_code', e.target.value)}
+                            placeholder="Required"
                           />
                         </div>
                         {items.length > 1 && (
@@ -409,11 +421,22 @@ export const PurchaseOrderForm = ({
                           />
                         </div>
                         <div>
-                          <Label className="text-xs">Unit</Label>
-                          <Input
+                          <Label className="text-xs">Unit *</Label>
+                          <Select
                             value={item.unit}
-                            onChange={(e) => updateItem(index, 'unit', e.target.value)}
-                          />
+                            onValueChange={(val) => updateItem(index, 'unit', val)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {UNIT_OPTIONS.map((unit) => (
+                                <SelectItem key={unit} value={unit}>
+                                  {unit}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div>
                           <Label className="text-xs">Unit Price (₹)</Label>
