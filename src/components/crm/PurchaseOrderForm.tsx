@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2, Save } from 'lucide-react';
+import { CompanyLogoUpload } from './CompanyLogoUpload';
 
 interface POItem {
   id?: string;
@@ -58,6 +59,20 @@ export const PurchaseOrderForm = ({
   const [items, setItems] = useState<POItem[]>([
     { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: 18, tax_amount: 0, total: 0 },
   ]);
+  const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch current logo
+    const fetchLogo = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('company_logo_url')
+        .eq('id', userId)
+        .single();
+      setCurrentLogoUrl(data?.company_logo_url || null);
+    };
+    if (open) fetchLogo();
+  }, [open, userId]);
 
   useEffect(() => {
     if (open && !editId) {
@@ -295,6 +310,13 @@ export const PurchaseOrderForm = ({
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Company Logo */}
+            <CompanyLogoUpload 
+              userId={userId} 
+              currentLogoUrl={currentLogoUrl}
+              onLogoChange={setCurrentLogoUrl}
+            />
+
             {/* PO Header */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
