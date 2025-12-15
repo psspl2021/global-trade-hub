@@ -23,7 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Search, Users, Package, Truck, Trash2, ArrowRightLeft } from 'lucide-react';
+import { Loader2, Search, Users, Package, Truck, Trash2, ArrowRightLeft, Pencil } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import {
@@ -75,6 +76,11 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const [userToTransfer, setUserToTransfer] = useState<UserWithProfile | null>(null);
   const [newRole, setNewRole] = useState<AppRole>('buyer');
   const [transferring, setTransferring] = useState(false);
+  const [editReferralDialogOpen, setEditReferralDialogOpen] = useState(false);
+  const [userToEditReferral, setUserToEditReferral] = useState<UserWithProfile | null>(null);
+  const [referralName, setReferralName] = useState('');
+  const [referralPhone, setReferralPhone] = useState('');
+  const [savingReferral, setSavingReferral] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -262,6 +268,43 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
     }
   };
 
+  const handleEditReferralClick = (user: UserWithProfile) => {
+    setUserToEditReferral(user);
+    setReferralName(user.referred_by_name || '');
+    setReferralPhone(user.referred_by_phone || '');
+    setEditReferralDialogOpen(true);
+  };
+
+  const handleSaveReferral = async () => {
+    if (!userToEditReferral) return;
+
+    setSavingReferral(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          referred_by_name: referralName || null,
+          referred_by_phone: referralPhone || null,
+        })
+        .eq('id', userToEditReferral.user_id);
+
+      if (error) throw error;
+
+      toast.success('Referral information updated');
+      
+      // Refresh the list
+      fetchUsers(activeTab as AppRole);
+      
+    } catch (error) {
+      console.error('Error updating referral:', error);
+      toast.error('Failed to update referral information');
+    } finally {
+      setSavingReferral(false);
+      setEditReferralDialogOpen(false);
+      setUserToEditReferral(null);
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     return search === '' || 
       user.company_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -331,13 +374,13 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
             ) : (
               <>
                 <TabsContent value="buyer" className="flex-1 overflow-auto mt-4">
-                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} />
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} onEditReferral={handleEditReferralClick} />
                 </TabsContent>
                 <TabsContent value="supplier" className="flex-1 overflow-auto mt-4">
-                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} />
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} onEditReferral={handleEditReferralClick} />
                 </TabsContent>
                 <TabsContent value="logistics_partner" className="flex-1 overflow-auto mt-4">
-                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} />
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} onEditReferral={handleEditReferralClick} />
                 </TabsContent>
 
                 {totalPages > 1 && (
@@ -472,6 +515,55 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={editReferralDialogOpen} onOpenChange={setEditReferralDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5" />
+              Edit Referred By
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Editing referral for <strong>{userToEditReferral?.company_name}</strong>
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="referral-name">Referrer Name</Label>
+              <Input
+                id="referral-name"
+                value={referralName}
+                onChange={(e) => setReferralName(e.target.value)}
+                placeholder="Enter referrer name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="referral-phone">Referrer Phone</Label>
+              <Input
+                id="referral-phone"
+                value={referralPhone}
+                onChange={(e) => setReferralPhone(e.target.value)}
+                placeholder="Enter referrer phone"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setEditReferralDialogOpen(false)} disabled={savingReferral}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveReferral} disabled={savingReferral}>
+              {savingReferral ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
@@ -480,9 +572,10 @@ interface UserTableProps {
   users: UserWithProfile[];
   onDelete: (user: UserWithProfile) => void;
   onTransfer: (user: UserWithProfile) => void;
+  onEditReferral: (user: UserWithProfile) => void;
 }
 
-function UserTable({ users, onDelete, onTransfer }: UserTableProps) {
+function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTableProps) {
   if (users.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -514,14 +607,25 @@ function UserTable({ users, onDelete, onTransfer }: UserTableProps) {
             <TableCell>{user.email}</TableCell>
             <TableCell>{user.phone}</TableCell>
             <TableCell>
-              {user.referred_by_name ? (
-                <div className="text-sm">
-                  <div>{user.referred_by_name}</div>
-                  {user.referred_by_phone && (
-                    <div className="text-muted-foreground text-xs">{user.referred_by_phone}</div>
-                  )}
-                </div>
-              ) : '-'}
+              <div className="flex items-center gap-2">
+                {user.referred_by_name ? (
+                  <div className="text-sm">
+                    <div>{user.referred_by_name}</div>
+                    {user.referred_by_phone && (
+                      <div className="text-muted-foreground text-xs">{user.referred_by_phone}</div>
+                    )}
+                  </div>
+                ) : <span className="text-muted-foreground">-</span>}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => onEditReferral(user)}
+                  title="Edit Referral"
+                >
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
             </TableCell>
             <TableCell>
               {user.city && user.state ? `${user.city}, ${user.state}` : user.city || user.state || '-'}
