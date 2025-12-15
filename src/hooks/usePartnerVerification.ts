@@ -9,12 +9,14 @@ interface VerificationStatus {
   loading: boolean;
 }
 
-const REQUIRED_DOCUMENTS = ['aadhar_card', 'pan_card', 'notary_agreement'];
+const REQUIRED_DOCUMENTS = ['aadhar_card', 'pan_card', 'notary_agreement', 'house_address_photo', 'office_address_photo'];
 
 const documentLabels: Record<string, string> = {
   aadhar_card: 'Aadhar Card',
   pan_card: 'PAN Card',
   notary_agreement: 'Notary Agreement',
+  house_address_photo: 'House Address Photo',
+  office_address_photo: 'Office Address Photo',
 };
 
 export const usePartnerVerification = (userId: string | undefined) => {

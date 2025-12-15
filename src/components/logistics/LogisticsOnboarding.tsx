@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Truck, Warehouse, ArrowRight, FileText, AlertCircle } from 'lucide-react';
+import { Truck, Warehouse, ArrowRight, FileText, AlertCircle, MapPin } from 'lucide-react';
 import { VehicleForm } from './VehicleForm';
 import { WarehouseForm } from './WarehouseForm';
 import { PartnerDocumentUpload } from './PartnerDocumentUpload';
+import { GeotaggedAddressUpload } from './GeotaggedAddressUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -17,7 +18,7 @@ interface LogisticsOnboardingProps {
 }
 
 export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: LogisticsOnboardingProps) => {
-  const [activeTab, setActiveTab] = useState<'vehicle' | 'warehouse' | 'documents'>('documents');
+  const [activeTab, setActiveTab] = useState<'vehicle' | 'warehouse' | 'documents' | 'addresses'>('documents');
   const [vehicleAdded, setVehicleAdded] = useState(false);
   const [warehouseAdded, setWarehouseAdded] = useState(false);
   const [partnerType, setPartnerType] = useState<'agent' | 'fleet_owner' | null>(null);
@@ -25,6 +26,8 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
     aadhar_card: false,
     pan_card: false,
     notary_agreement: false,
+    house_address_photo: false,
+    office_address_photo: false,
   });
 
   useEffect(() => {
@@ -57,6 +60,8 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
         aadhar_card: data.some(d => d.document_type === 'aadhar_card'),
         pan_card: data.some(d => d.document_type === 'pan_card'),
         notary_agreement: data.some(d => d.document_type === 'notary_agreement'),
+        house_address_photo: data.some(d => d.document_type === 'house_address_photo'),
+        office_address_photo: data.some(d => d.document_type === 'office_address_photo'),
       };
       setDocumentsUploaded(uploaded);
     }
@@ -76,8 +81,16 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
   };
 
   const requiredDocsComplete = () => {
-    // Both agent and fleet owner need Aadhar, PAN, and Notary agreement
-    return documentsUploaded.aadhar_card && documentsUploaded.pan_card && documentsUploaded.notary_agreement;
+    // Both agent and fleet owner need Aadhar, PAN, Notary agreement, and both address photos
+    return documentsUploaded.aadhar_card && 
+           documentsUploaded.pan_card && 
+           documentsUploaded.notary_agreement &&
+           documentsUploaded.house_address_photo &&
+           documentsUploaded.office_address_photo;
+  };
+
+  const addressDocsComplete = () => {
+    return documentsUploaded.house_address_photo && documentsUploaded.office_address_photo;
   };
 
   const canContinue = (vehicleAdded || warehouseAdded) && requiredDocsComplete();
@@ -105,20 +118,25 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
         )}
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="mt-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="documents" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Documents
-              {requiredDocsComplete() && <span className="ml-1 text-green-600">✓</span>}
+              {(documentsUploaded.aadhar_card && documentsUploaded.pan_card && documentsUploaded.notary_agreement) && <span className="ml-1 text-green-600">✓</span>}
+            </TabsTrigger>
+            <TabsTrigger value="addresses" className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Addresses
+              {addressDocsComplete() && <span className="ml-1 text-green-600">✓</span>}
             </TabsTrigger>
             <TabsTrigger value="vehicle" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
-              Add Vehicle
+              Vehicle
               {vehicleAdded && <span className="ml-1 text-green-600">✓</span>}
             </TabsTrigger>
             <TabsTrigger value="warehouse" className="flex items-center gap-2">
               <Warehouse className="h-4 w-4" />
-              Add Warehouse
+              Warehouse
               {warehouseAdded && <span className="ml-1 text-green-600">✓</span>}
             </TabsTrigger>
           </TabsList>
@@ -152,6 +170,33 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
                 documentType="notary_agreement"
                 label="Notary Agreement"
                 description="Signed legal agreement between you and ProcureSaathi for material loads"
+                required
+                onUploadComplete={checkUploadedDocuments}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="addresses" className="mt-4">
+            <div className="bg-muted/50 rounded-lg p-4 mb-4">
+              <h4 className="font-medium mb-1">Address Verification</h4>
+              <p className="text-sm text-muted-foreground">
+                Enter your addresses and upload geotagged photos for verification. Location will be captured automatically.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <GeotaggedAddressUpload
+                userId={userId}
+                addressType="house_address"
+                label="House Address"
+                description="Enter your residential address and upload a geotagged photo of the location"
+                required
+                onUploadComplete={checkUploadedDocuments}
+              />
+              <GeotaggedAddressUpload
+                userId={userId}
+                addressType="office_address"
+                label="Office Address"
+                description="Enter your business/office address and upload a geotagged photo of the location"
                 required
                 onUploadComplete={checkUploadedDocuments}
               />
