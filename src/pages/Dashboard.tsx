@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { usePartnerVerification } from '@/hooks/usePartnerVerification';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -49,6 +51,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
+  const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
@@ -371,6 +374,77 @@ const Dashboard = () => {
 
         {role === 'logistics_partner' && (
           <div className="space-y-6">
+            {/* Verification Status Card */}
+            {!partnerVerification.loading && !partnerVerification.isFullyVerified && (
+              <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                    <AlertTriangle className="h-5 w-5" />
+                    Document Verification Required
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-amber-800 dark:text-amber-300">
+                    Your documents need to be verified before you can browse and submit quotes for logistics requirements.
+                  </p>
+                  
+                  <div className="grid gap-2 md:grid-cols-3">
+                    {/* Verified Documents */}
+                    {partnerVerification.verifiedDocuments.map((doc) => (
+                      <div key={doc} className="flex items-center gap-2 p-2 bg-green-100 dark:bg-green-950/30 rounded-md">
+                        <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        <span className="text-sm text-green-700 dark:text-green-400">{doc}</span>
+                      </div>
+                    ))}
+                    
+                    {/* Pending Documents */}
+                    {partnerVerification.pendingDocuments.map((doc) => (
+                      <div key={doc} className="flex items-center gap-2 p-2 bg-amber-100 dark:bg-amber-950/30 rounded-md">
+                        <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <span className="text-sm text-amber-700 dark:text-amber-400">{doc}</span>
+                      </div>
+                    ))}
+                    
+                    {/* Rejected Documents */}
+                    {partnerVerification.rejectedDocuments.map((doc) => (
+                      <div key={doc.type} className="flex flex-col gap-1 p-2 bg-red-100 dark:bg-red-950/30 rounded-md">
+                        <div className="flex items-center gap-2">
+                          <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                          <span className="text-sm font-medium text-red-700 dark:text-red-400">{doc.type}</span>
+                        </div>
+                        {doc.reason && (
+                          <p className="text-xs text-red-600 dark:text-red-400 pl-6">{doc.reason}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button 
+                    variant="outline" 
+                    className="border-amber-400 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-400"
+                    onClick={() => setShowLogisticsOnboarding(true)}
+                  >
+                    Upload Documents
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Verified Status Badge */}
+            {!partnerVerification.loading && partnerVerification.isFullyVerified && (
+              <Card className="border-green-300 bg-green-50 dark:bg-green-950/30 dark:border-green-800">
+                <CardContent className="py-4">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    <div>
+                      <p className="font-medium text-green-700 dark:text-green-400">Documents Verified</p>
+                      <p className="text-sm text-green-600 dark:text-green-500">You can now browse and submit quotes for logistics requirements.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Asset Summary Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card className="bg-primary/5 border-primary/20">
@@ -476,19 +550,34 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className={!partnerVerification.isFullyVerified ? 'opacity-60' : ''}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
                     Browse Requirements
+                    {!partnerVerification.isFullyVerified && (
+                      <Badge variant="outline" className="ml-auto text-amber-600 border-amber-300">
+                        Verification Required
+                      </Badge>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    View logistics requirements and submit quotes
+                    {partnerVerification.isFullyVerified 
+                      ? 'View logistics requirements and submit quotes'
+                      : 'Complete document verification to access load details'
+                    }
                   </p>
-                  <Button className="w-full" onClick={() => setShowBrowseLogisticsRequirements(true)}>
-                    Browse & Quote
+                  <Button 
+                    className="w-full" 
+                    onClick={() => partnerVerification.isFullyVerified 
+                      ? setShowBrowseLogisticsRequirements(true) 
+                      : setShowLogisticsOnboarding(true)
+                    }
+                    variant={partnerVerification.isFullyVerified ? 'default' : 'outline'}
+                  >
+                    {partnerVerification.isFullyVerified ? 'Browse & Quote' : 'Upload Documents First'}
                   </Button>
                 </CardContent>
               </Card>
