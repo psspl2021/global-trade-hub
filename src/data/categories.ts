@@ -343,24 +343,119 @@ export const categoriesData: CategoryData[] = [
     name: 'Metals - Ferrous (Steel, Iron)',
     icon: Layers,
     subcategories: [
-      'Steel Sheets',
-      'Steel Bars & Rods',
-      'Steel Pipes',
-      'Iron Castings',
-      'Stainless Steel',
-      'Alloy Steel',
-      'Structural Steel',
-      'Tool Steel',
-      'Scrap',
-      'TMT Bar',
-      'HR Plates',
-      'HR Coil',
+      // Pig Iron
+      'Pig Iron',
+      'Basic Pig Iron',
+      'Foundry Grade Pig Iron',
+      
+      // Cold Rolled Products
       'CR Sheet',
       'CR Coil',
-      'HRPO',
-      'Crane Rails',
-      'Iron Ore',
+      'Cold Rolled GP Sheets',
+      'Cold Rolled Annealed Coils',
+      'Full Hard Cold Rolled Coils',
+      
+      // Hot Rolled Products
+      'HR Coil',
+      'HR Sheet',
+      'HR Plates',
+      'Hot Rolled Pickled & Oiled (HRPO)',
+      'Chequered Plates',
+      
+      // Galvanised Products
+      'Galvanised Plain (GP) Sheets',
+      'Galvanised Corrugated (GC) Sheets',
+      'Galvanised Coils',
+      'Color Coated Sheets',
+      
+      // Pipes
+      'Steel Pipes',
+      'ERW Pipes',
+      'Spiral Welded Pipes',
+      'Seamless Pipes',
+      'API Grade Pipes',
+      
+      // Semis
       'Billets',
+      'Blooms',
+      'Slabs',
+      'Ingots',
+      
+      // Structurals
+      'Structural Steel',
+      'Angles',
+      'Channels',
+      'Beams (ISMB/ISJB/ISLB)',
+      'Joists',
+      'H-Beams',
+      'I-Beams',
+      
+      // TMT Bars
+      'TMT Bar',
+      'TMT Bars Fe-500',
+      'TMT Bars Fe-500D',
+      'TMT Bars Fe-550',
+      'TMT Bars Fe-550D',
+      'TMT Bars Fe-600',
+      'SeQR TMT Bars',
+      'Earthquake Resistant TMT',
+      
+      // Wire Rods
+      'Wire Rods',
+      'High Carbon Wire Rods',
+      'Low Carbon Wire Rods',
+      'Electrode Quality Wire Rods',
+      'Cold Heading Quality Wire Rods',
+      
+      // Plates
+      'PM Plates',
+      'Boiler Quality Plates',
+      'Shipbuilding Plates',
+      'Structural Plates',
+      'Pressure Vessel Plates',
+      'High Tensile Plates',
+      'Wear Resistant Plates',
+      
+      // Railway Products
+      'Rails',
+      'Crane Rails',
+      'Fish Plates',
+      'Railway Track Components',
+      '60 Kg Rails',
+      '52 Kg Rails',
+      'Head Hardened Rails',
+      
+      // Wheels and Axles
+      'Railway Wheels',
+      'Railway Axles',
+      'Wheel Sets',
+      'Forged Wheels',
+      
+      // Stainless Steel Products
+      'Stainless Steel Sheets',
+      'Stainless Steel Coils',
+      'Stainless Steel Plates',
+      'Stainless Steel Bars',
+      'Austenitic Stainless Steel',
+      'Ferritic Stainless Steel',
+      'Duplex Stainless Steel',
+      
+      // Electrical Steels
+      'Electrical Steel Sheets',
+      'CRGO (Cold Rolled Grain Oriented)',
+      'CRNGO (Cold Rolled Non-Grain Oriented)',
+      'Silicon Steel',
+      'Transformer Grade Steel',
+      'Motor Grade Steel',
+      
+      // General Categories
+      'Steel Sheets',
+      'Steel Bars & Rods',
+      'Iron Castings',
+      'Alloy Steel',
+      'Tool Steel',
+      'Scrap',
+      'Iron Ore',
     ]
   },
   {
