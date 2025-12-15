@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
   Loader2, FileText, CheckCircle, XCircle, 
-  User, Building2, CreditCard, FileCheck
+  User, Building2, CreditCard, FileCheck, MapPin
 } from 'lucide-react';
 
 interface PartnerDocumentVerificationProps {
@@ -26,11 +26,19 @@ interface PendingDocument {
   file_name: string;
   verification_status: string;
   uploaded_at: string;
+  geolocation?: {
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+  } | null;
+  captured_at?: string | null;
   partner_profile?: {
     company_name: string;
     contact_person: string;
     phone: string;
     logistics_partner_type: string | null;
+    house_address?: string | null;
+    office_address?: string | null;
   };
 }
 
@@ -38,6 +46,8 @@ const documentTypeLabels: Record<string, { label: string; icon: any }> = {
   aadhar_card: { label: 'Aadhar Card', icon: User },
   pan_card: { label: 'PAN Card', icon: CreditCard },
   notary_agreement: { label: 'Notary Agreement', icon: FileCheck },
+  house_address_photo: { label: 'House Address', icon: Building2 },
+  office_address_photo: { label: 'Office Address', icon: Building2 },
 };
 
 export const PartnerDocumentVerification = ({ open, onOpenChange, adminId }: PartnerDocumentVerificationProps) => {
@@ -64,12 +74,13 @@ export const PartnerDocumentVerification = ({ open, onOpenChange, adminId }: Par
         (data || []).map(async (doc: any) => {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('company_name, contact_person, phone, logistics_partner_type')
+            .select('company_name, contact_person, phone, logistics_partner_type, house_address, office_address')
             .eq('id', doc.partner_id)
             .maybeSingle();
           
           return {
             ...doc,
+            geolocation: doc.geolocation as PendingDocument['geolocation'],
             partner_profile: profile,
           };
         })
@@ -250,6 +261,32 @@ export const PartnerDocumentVerification = ({ open, onOpenChange, adminId }: Par
                       />
                     )}
                   </div>
+                  
+                  {/* Geolocation Info for Address Documents */}
+                  {selectedDoc.geolocation && (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                      <h5 className="font-medium text-sm flex items-center gap-2 mb-2">
+                        <MapPin className="h-4 w-4 text-blue-600" />
+                        Geolocation Data
+                      </h5>
+                      <div className="text-sm space-y-1">
+                        <p>Latitude: {selectedDoc.geolocation.latitude.toFixed(6)}</p>
+                        <p>Longitude: {selectedDoc.geolocation.longitude.toFixed(6)}</p>
+                        <p>Accuracy: ±{Math.round(selectedDoc.geolocation.accuracy)}m</p>
+                        {selectedDoc.captured_at && (
+                          <p className="text-muted-foreground">Captured: {new Date(selectedDoc.captured_at).toLocaleString()}</p>
+                        )}
+                        <a 
+                          href={`https://www.google.com/maps?q=${selectedDoc.geolocation.latitude},${selectedDoc.geolocation.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-xs"
+                        >
+                          View on Google Maps →
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

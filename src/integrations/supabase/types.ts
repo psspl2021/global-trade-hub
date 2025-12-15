@@ -787,9 +787,11 @@ export type Database = {
       }
       partner_documents: {
         Row: {
+          captured_at: string | null
           document_type: string
           file_name: string
           file_url: string
+          geolocation: Json | null
           id: string
           partner_id: string
           rejection_reason: string | null
@@ -800,9 +802,11 @@ export type Database = {
           verified_by: string | null
         }
         Insert: {
+          captured_at?: string | null
           document_type: string
           file_name: string
           file_url: string
+          geolocation?: Json | null
           id?: string
           partner_id: string
           rejection_reason?: string | null
@@ -813,9 +817,11 @@ export type Database = {
           verified_by?: string | null
         }
         Update: {
+          captured_at?: string | null
           document_type?: string
           file_name?: string
           file_url?: string
+          geolocation?: Json | null
           id?: string
           partner_id?: string
           rejection_reason?: string | null
@@ -1043,10 +1049,12 @@ export type Database = {
           created_at: string
           email: string
           gstin: string | null
+          house_address: string | null
           id: string
           logistics_partner_type:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
+          office_address: string | null
           phone: string
           referred_by_name: string | null
           referred_by_phone: string | null
@@ -1064,10 +1072,12 @@ export type Database = {
           created_at?: string
           email: string
           gstin?: string | null
+          house_address?: string | null
           id: string
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
+          office_address?: string | null
           phone: string
           referred_by_name?: string | null
           referred_by_phone?: string | null
@@ -1085,10 +1095,12 @@ export type Database = {
           created_at?: string
           email?: string
           gstin?: string | null
+          house_address?: string | null
           id?: string
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
+          office_address?: string | null
           phone?: string
           referred_by_name?: string | null
           referred_by_phone?: string | null
