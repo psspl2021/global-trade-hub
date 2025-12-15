@@ -222,6 +222,14 @@ const Index = () => {
                 <Truck className="h-5 w-5 mr-2" />
                 Join as Logistics Partner
               </Button>
+              <Button 
+                size="lg" 
+                className="h-14 text-lg px-8 bg-warning text-warning-foreground hover:bg-warning/90"
+                onClick={() => navigate('/book-truck')}
+              >
+                <Route className="h-5 w-5 mr-2" />
+                Book a Truck
+              </Button>
               <DemoRequestForm />
             </div>
             
