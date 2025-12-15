@@ -41,12 +41,12 @@ const Index = () => {
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
 
-  // SEO setup with social sharing meta tags - optimized for USA and Dubai visibility
+  // SEO setup with social sharing meta tags
   useSEO({
-    title: "ProcureSaathi - Import from India to USA & Dubai | First 100 Partners Get 1 Year FREE Premium",
-    description: "🎉 Limited Offer: First 100 suppliers & logistics partners get 1 Year FREE Premium worth ₹24,950! Source products from India to USA, Dubai & UAE. Free CRM, Tax Invoice Generator, Unlimited Bids. Join now!",
+    title: "ProcureSaathi - India's #1 B2B Sourcing & Procurement Platform | First 100 Partners Get 1 Year FREE Premium",
+    description: "🎉 Limited Offer: First 100 suppliers & logistics partners get 1 Year FREE Premium worth ₹24,950! Free CRM, Tax Invoice Generator, Unlimited Bids. Connect with verified suppliers across 23+ categories. Join now!",
     canonical: "https://procuresaathi.com/",
-    keywords: "B2B marketplace India, import from India to USA, Dubai suppliers, UAE import, India export, wholesale suppliers USA, bulk buying Dubai, B2B sourcing platform, international trade, procurement platform",
+    keywords: "B2B marketplace India, B2B sourcing platform, procurement platform, verified suppliers India, wholesale suppliers, bulk buying, industrial supplies, manufacturing",
     ogImage: "https://procuresaathi.com/og-early-adopter.png",
     ogType: "website",
     twitterCard: "summary_large_image"
