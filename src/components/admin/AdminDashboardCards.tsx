@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -14,6 +14,7 @@ interface AdminStats {
   activeRequirements: number;
   overdueInvoices: number;
   pendingVehicles: number;
+  pendingDocuments: number;
 }
 
 interface VisitorAnalytics {
@@ -40,6 +41,7 @@ interface AdminDashboardCardsProps {
   onOpenReferralStats: () => void;
   onOpenBlogManager: () => void;
   onOpenSEOTools: () => void;
+  onOpenPartnerDocumentVerification: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -55,6 +57,7 @@ export function AdminDashboardCards({
   onOpenReferralStats,
   onOpenBlogManager,
   onOpenSEOTools,
+  onOpenPartnerDocumentVerification,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -64,6 +67,7 @@ export function AdminDashboardCards({
     activeRequirements: 0,
     overdueInvoices: 0,
     pendingVehicles: 0,
+    pendingDocuments: 0,
   });
   const [analytics, setAnalytics] = useState<VisitorAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
@@ -126,6 +130,12 @@ export function AdminDashboardCards({
           .select('*', { count: 'exact', head: true })
           .eq('verification_status', 'pending');
 
+        // Fetch pending partner documents count
+        const { count: pendingDocsCount } = await supabase
+          .from('partner_documents')
+          .select('*', { count: 'exact', head: true })
+          .eq('verification_status', 'pending');
+
         setStats({
           pendingInvoices: pending.length,
           pendingAmount: pending.reduce((sum, i) => sum + Number(i.total_amount), 0),
@@ -134,6 +144,7 @@ export function AdminDashboardCards({
           activeRequirements: requirementsCount || 0,
           overdueInvoices: overdue.length,
           pendingVehicles: pendingVehiclesCount || 0,
+          pendingDocuments: pendingDocsCount || 0,
         });
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error fetching admin stats:', error);
@@ -327,6 +338,30 @@ export function AdminDashboardCards({
           </p>
           <Button className="w-full" variant={stats.pendingVehicles > 0 ? "default" : "outline"} onClick={onOpenVehicleVerification}>
             Verify Vehicles
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className={stats.pendingDocuments > 0 ? "border-violet-500/20 bg-violet-500/5" : ""}>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CreditCard className="h-5 w-5 text-violet-600" />
+            Partner Documents
+            {stats.pendingDocuments > 0 && (
+              <span className="ml-auto flex items-center gap-1 text-sm text-violet-600">
+                <AlertTriangle className="h-4 w-4" />
+                {stats.pendingDocuments} pending
+              </span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold text-violet-600">{stats.pendingDocuments}</div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Aadhar, PAN & Notary verification
+          </p>
+          <Button className="w-full" variant={stats.pendingDocuments > 0 ? "default" : "outline"} onClick={onOpenPartnerDocumentVerification}>
+            Verify Documents
           </Button>
         </CardContent>
       </Card>
