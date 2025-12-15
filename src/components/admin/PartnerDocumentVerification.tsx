@@ -262,29 +262,68 @@ export const PartnerDocumentVerification = ({ open, onOpenChange, adminId }: Par
                     )}
                   </div>
                   
-                  {/* Geolocation Info for Address Documents */}
+                  {/* Geolocation Info & Map for Address Documents */}
                   {selectedDoc.geolocation && (
-                    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                      <h5 className="font-medium text-sm flex items-center gap-2 mb-2">
-                        <MapPin className="h-4 w-4 text-blue-600" />
-                        Geolocation Data
-                      </h5>
-                      <div className="text-sm space-y-1">
-                        <p>Latitude: {selectedDoc.geolocation.latitude.toFixed(6)}</p>
-                        <p>Longitude: {selectedDoc.geolocation.longitude.toFixed(6)}</p>
-                        <p>Accuracy: ±{Math.round(selectedDoc.geolocation.accuracy)}m</p>
-                        {selectedDoc.captured_at && (
-                          <p className="text-muted-foreground">Captured: {new Date(selectedDoc.captured_at).toLocaleString()}</p>
-                        )}
-                        <a 
-                          href={`https://www.google.com/maps?q=${selectedDoc.geolocation.latitude},${selectedDoc.geolocation.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline text-xs"
-                        >
-                          View on Google Maps →
-                        </a>
+                    <div className="space-y-4">
+                      <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                        <h5 className="font-medium text-sm flex items-center gap-2 mb-2">
+                          <MapPin className="h-4 w-4 text-blue-600" />
+                          Geolocation Data
+                        </h5>
+                        <div className="text-sm space-y-1">
+                          <p>Latitude: {selectedDoc.geolocation.latitude.toFixed(6)}</p>
+                          <p>Longitude: {selectedDoc.geolocation.longitude.toFixed(6)}</p>
+                          <p>Accuracy: ±{Math.round(selectedDoc.geolocation.accuracy)}m</p>
+                          {selectedDoc.captured_at && (
+                            <p className="text-muted-foreground">Captured: {new Date(selectedDoc.captured_at).toLocaleString()}</p>
+                          )}
+                          <a 
+                            href={`https://www.google.com/maps?q=${selectedDoc.geolocation.latitude},${selectedDoc.geolocation.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline text-xs"
+                          >
+                            Open in Google Maps →
+                          </a>
+                        </div>
                       </div>
+                      
+                      {/* Google Maps Embed Preview */}
+                      <div>
+                        <h5 className="font-medium text-sm flex items-center gap-2 mb-2">
+                          <MapPin className="h-4 w-4" />
+                          Location Preview
+                        </h5>
+                        <div className="border rounded-lg overflow-hidden">
+                          <iframe
+                            src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedDoc.geolocation.latitude},${selectedDoc.geolocation.longitude}&zoom=17`}
+                            width="100%"
+                            height="300"
+                            style={{ border: 0 }}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Location Map"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Compare this location with the address shown in the uploaded photo above
+                        </p>
+                      </div>
+                      
+                      {/* Address Text for Reference */}
+                      {(selectedDoc.document_type === 'house_address_photo' && selectedDoc.partner_profile?.house_address) && (
+                        <div className="p-3 bg-muted rounded-lg">
+                          <h5 className="font-medium text-sm mb-1">Declared House Address:</h5>
+                          <p className="text-sm">{selectedDoc.partner_profile.house_address}</p>
+                        </div>
+                      )}
+                      {(selectedDoc.document_type === 'office_address_photo' && selectedDoc.partner_profile?.office_address) && (
+                        <div className="p-3 bg-muted rounded-lg">
+                          <h5 className="font-medium text-sm mb-1">Declared Office Address:</h5>
+                          <p className="text-sm">{selectedDoc.partner_profile.office_address}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
