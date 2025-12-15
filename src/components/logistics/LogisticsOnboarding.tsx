@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Truck, Warehouse, ArrowRight } from 'lucide-react';
+import { Truck, Warehouse, ArrowRight, FileText, AlertCircle } from 'lucide-react';
 import { VehicleForm } from './VehicleForm';
 import { WarehouseForm } from './WarehouseForm';
+import { PartnerDocumentUpload } from './PartnerDocumentUpload';
+import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface LogisticsOnboardingProps {
   open: boolean;
@@ -14,9 +17,50 @@ interface LogisticsOnboardingProps {
 }
 
 export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: LogisticsOnboardingProps) => {
-  const [activeTab, setActiveTab] = useState<'vehicle' | 'warehouse'>('vehicle');
+  const [activeTab, setActiveTab] = useState<'vehicle' | 'warehouse' | 'documents'>('documents');
   const [vehicleAdded, setVehicleAdded] = useState(false);
   const [warehouseAdded, setWarehouseAdded] = useState(false);
+  const [partnerType, setPartnerType] = useState<'agent' | 'fleet_owner' | null>(null);
+  const [documentsUploaded, setDocumentsUploaded] = useState({
+    aadhar_card: false,
+    pan_card: false,
+    notary_agreement: false,
+  });
+
+  useEffect(() => {
+    if (open) {
+      fetchPartnerType();
+      checkUploadedDocuments();
+    }
+  }, [open, userId]);
+
+  const fetchPartnerType = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('logistics_partner_type')
+      .eq('id', userId)
+      .maybeSingle();
+    
+    if (data?.logistics_partner_type) {
+      setPartnerType(data.logistics_partner_type as 'agent' | 'fleet_owner');
+    }
+  };
+
+  const checkUploadedDocuments = async () => {
+    const { data } = await supabase
+      .from('partner_documents')
+      .select('document_type')
+      .eq('partner_id', userId);
+
+    if (data) {
+      const uploaded = {
+        aadhar_card: data.some(d => d.document_type === 'aadhar_card'),
+        pan_card: data.some(d => d.document_type === 'pan_card'),
+        notary_agreement: data.some(d => d.document_type === 'notary_agreement'),
+      };
+      setDocumentsUploaded(uploaded);
+    }
+  };
 
   const handleVehicleSuccess = () => {
     setVehicleAdded(true);
@@ -31,7 +75,12 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
     onOpenChange(false);
   };
 
-  const canContinue = vehicleAdded || warehouseAdded;
+  const requiredDocsComplete = () => {
+    // Both agent and fleet owner need Aadhar, PAN, and Notary agreement
+    return documentsUploaded.aadhar_card && documentsUploaded.pan_card && documentsUploaded.notary_agreement;
+  };
+
+  const canContinue = (vehicleAdded || warehouseAdded) && requiredDocsComplete();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,12 +88,29 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
         <DialogHeader>
           <DialogTitle>Complete Your Registration</DialogTitle>
           <DialogDescription>
-            Add at least one vehicle or warehouse to start receiving transport and storage requests
+            Upload verification documents and add at least one vehicle or warehouse to start receiving requests
           </DialogDescription>
         </DialogHeader>
 
+        {partnerType && (
+          <Alert className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              You are registering as a <strong className="capitalize">{partnerType.replace('_', ' ')}</strong>. 
+              {partnerType === 'fleet_owner' 
+                ? ' Please upload RC document with each vehicle, plus Aadhar, PAN, and Notary Agreement.'
+                : ' Please upload Aadhar, PAN, and Notary Agreement for verification.'}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="documents" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Documents
+              {requiredDocsComplete() && <span className="ml-1 text-green-600">✓</span>}
+            </TabsTrigger>
             <TabsTrigger value="vehicle" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
               Add Vehicle
@@ -57,11 +123,47 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="documents" className="mt-4">
+            <div className="bg-muted/50 rounded-lg p-4 mb-4">
+              <h4 className="font-medium mb-1">Verification Documents</h4>
+              <p className="text-sm text-muted-foreground">
+                Upload required documents for verification. All documents are mandatory.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <PartnerDocumentUpload
+                userId={userId}
+                documentType="aadhar_card"
+                label="Aadhar Card"
+                description="Upload a clear copy of your Aadhar card (front and back)"
+                required
+                onUploadComplete={checkUploadedDocuments}
+              />
+              <PartnerDocumentUpload
+                userId={userId}
+                documentType="pan_card"
+                label="PAN Card"
+                description="Upload a clear copy of your PAN card"
+                required
+                onUploadComplete={checkUploadedDocuments}
+              />
+              <PartnerDocumentUpload
+                userId={userId}
+                documentType="notary_agreement"
+                label="Notary Agreement"
+                description="Signed legal agreement between you and ProcureSaathi for material loads"
+                required
+                onUploadComplete={checkUploadedDocuments}
+              />
+            </div>
+          </TabsContent>
+
           <TabsContent value="vehicle" className="mt-4">
             <div className="bg-muted/50 rounded-lg p-4 mb-4">
               <h4 className="font-medium mb-1">Register Your Vehicles</h4>
               <p className="text-sm text-muted-foreground">
-                Add trucks, trailers, or other vehicles you operate for freight transport
+                Add trucks, trailers, or other vehicles you operate for freight transport.
+                {partnerType === 'fleet_owner' && ' RC document is required for each vehicle.'}
               </p>
             </div>
             <VehicleForm
@@ -88,6 +190,8 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
           <p className="text-sm text-muted-foreground">
             {canContinue 
               ? 'You can add more assets later from your dashboard'
+              : !requiredDocsComplete()
+              ? 'Please upload all required verification documents'
               : 'Add at least one vehicle or warehouse to continue'
             }
           </p>

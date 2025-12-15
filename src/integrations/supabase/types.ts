@@ -785,6 +785,48 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_documents: {
+        Row: {
+          document_type: string
+          file_name: string
+          file_url: string
+          id: string
+          partner_id: string
+          rejection_reason: string | null
+          updated_at: string
+          uploaded_at: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          document_type: string
+          file_name: string
+          file_url: string
+          id?: string
+          partner_id: string
+          rejection_reason?: string | null
+          updated_at?: string
+          uploaded_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          document_type?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          partner_id?: string
+          rejection_reason?: string | null
+          updated_at?: string
+          uploaded_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
       platform_invoices: {
         Row: {
           amount: number
@@ -1002,6 +1044,9 @@ export type Database = {
           email: string
           gstin: string | null
           id: string
+          logistics_partner_type:
+            | Database["public"]["Enums"]["logistics_partner_type"]
+            | null
           phone: string
           referred_by_name: string | null
           referred_by_phone: string | null
@@ -1020,6 +1065,9 @@ export type Database = {
           email: string
           gstin?: string | null
           id: string
+          logistics_partner_type?:
+            | Database["public"]["Enums"]["logistics_partner_type"]
+            | null
           phone: string
           referred_by_name?: string | null
           referred_by_phone?: string | null
@@ -1038,6 +1086,9 @@ export type Database = {
           email?: string
           gstin?: string | null
           id?: string
+          logistics_partner_type?:
+            | Database["public"]["Enums"]["logistics_partner_type"]
+            | null
           phone?: string
           referred_by_name?: string | null
           referred_by_phone?: string | null
@@ -2068,6 +2119,7 @@ export type Database = {
       document_type: "proforma_invoice" | "tax_invoice" | "purchase_order"
       fuel_type: "diesel" | "petrol" | "cng" | "electric" | "hybrid"
       logistics_bid_status: "pending" | "accepted" | "rejected"
+      logistics_partner_type: "agent" | "fleet_owner"
       logistics_requirement_status: "active" | "closed" | "cancelled"
       requirement_status: "active" | "closed" | "awarded"
       shipment_status:
@@ -2237,6 +2289,7 @@ export const Constants = {
       document_type: ["proforma_invoice", "tax_invoice", "purchase_order"],
       fuel_type: ["diesel", "petrol", "cng", "electric", "hybrid"],
       logistics_bid_status: ["pending", "accepted", "rejected"],
+      logistics_partner_type: ["agent", "fleet_owner"],
       logistics_requirement_status: ["active", "closed", "cancelled"],
       requirement_status: ["active", "closed", "awarded"],
       shipment_status: [

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
@@ -21,6 +22,7 @@ type FormErrors = {
   phone?: string;
   referredByName?: string;
   referredByPhone?: string;
+  logisticsPartnerType?: string;
 };
 
 const Signup = () => {
@@ -57,6 +59,7 @@ const Signup = () => {
     role: initialRole as 'buyer' | 'supplier' | 'logistics_partner',
     referredByName: '',
     referredByPhone: '',
+    logisticsPartnerType: '' as 'agent' | 'fleet_owner' | '',
   });
 
   useEffect(() => {
@@ -69,6 +72,12 @@ const Signup = () => {
     e.preventDefault();
     setErrors({});
     setBreachWarning(null);
+
+    // Validate logistics partner type if role is logistics_partner
+    if (formData.role === 'logistics_partner' && !formData.logisticsPartnerType) {
+      setErrors({ logisticsPartnerType: 'Please select whether you are an Agent or Fleet Owner' });
+      return;
+    }
 
     const result = signupSchema.safeParse(formData);
     if (!result.success) {
@@ -104,6 +113,7 @@ const Signup = () => {
       role: result.data.role,
       referred_by_name: result.data.referredByName,
       referred_by_phone: result.data.referredByPhone,
+      logistics_partner_type: formData.role === 'logistics_partner' ? formData.logisticsPartnerType : null,
     }, referralCode);
     
     // Update referral record if signup was successful and referral code was used
@@ -164,6 +174,35 @@ const Signup = () => {
                   </div>
                 </RadioGroup>
               </div>
+
+              {formData.role === 'logistics_partner' && (
+                <div className="space-y-2">
+                  <Label>Partner Type *</Label>
+                  <Select
+                    value={formData.logisticsPartnerType}
+                    onValueChange={(value) => setFormData({ ...formData, logisticsPartnerType: value as 'agent' | 'fleet_owner' })}
+                  >
+                    <SelectTrigger className={errors.logisticsPartnerType ? 'border-destructive' : ''}>
+                      <SelectValue placeholder="Select partner type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="agent">Agent - I connect transporters with customers</SelectItem>
+                      <SelectItem value="fleet_owner">Fleet Owner - I own and operate vehicles</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.logisticsPartnerType && (
+                    <p className="text-sm text-destructive">{errors.logisticsPartnerType}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {formData.logisticsPartnerType === 'fleet_owner' 
+                      ? 'You will need to upload RC, Aadhar, PAN and Notary agreement for verification'
+                      : formData.logisticsPartnerType === 'agent'
+                      ? 'You will need to upload Aadhar, PAN and Notary agreement for verification'
+                      : 'Select your partner type to see verification requirements'
+                    }
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="company">Company Name</Label>

@@ -21,6 +21,7 @@ import { PlatformInvoices } from '@/components/PlatformInvoices';
 import { AdminDashboardCards } from '@/components/admin/AdminDashboardCards';
 import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
 import { VehicleVerification } from '@/components/admin/VehicleVerification';
+import { PartnerDocumentVerification } from '@/components/admin/PartnerDocumentVerification';
 import { AdminDataExport } from '@/components/admin/AdminDataExport';
 import { AdminUsersList } from '@/components/admin/AdminUsersList';
 import { AdminRequirementsList } from '@/components/admin/AdminRequirementsList';
@@ -68,6 +69,7 @@ const Dashboard = () => {
   const [showReferralStats, setShowReferralStats] = useState(false);
   const [showBlogManager, setShowBlogManager] = useState(false);
   const [showSEOTools, setShowSEOTools] = useState(false);
+  const [showPartnerDocVerification, setShowPartnerDocVerification] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -200,6 +202,7 @@ const Dashboard = () => {
               onOpenReferralStats={() => setShowReferralStats(true)}
               onOpenBlogManager={() => setShowBlogManager(true)}
               onOpenSEOTools={() => setShowSEOTools(true)}
+              onOpenPartnerDocumentVerification={() => setShowPartnerDocVerification(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -249,6 +252,13 @@ const Dashboard = () => {
               </div>
             )}
             <SEOTools open={showSEOTools} onOpenChange={setShowSEOTools} />
+            {user && (
+              <PartnerDocumentVerification
+                open={showPartnerDocVerification}
+                onOpenChange={setShowPartnerDocVerification}
+                adminId={user.id}
+              />
+            )}
           </>
         )}
 
