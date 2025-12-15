@@ -195,7 +195,7 @@ const Index = () => {
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               Search across 23+ product categories and connect with live stock from registered suppliers. Post requirements, receive competitive sealed bids, and complete secure transactions — all in one platform.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
               <Button 
                 size="lg" 
                 className="h-14 text-lg px-8"
@@ -212,6 +212,15 @@ const Index = () => {
               >
                 <Package className="h-5 w-5 mr-2" />
                 Join as Supplier
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="h-14 text-lg px-8 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                onClick={() => navigate('/signup?role=logistics_partner')}
+              >
+                <Truck className="h-5 w-5 mr-2" />
+                Join as Logistics Partner
               </Button>
               <DemoRequestForm />
             </div>
