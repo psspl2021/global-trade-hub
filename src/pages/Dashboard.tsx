@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useSEO } from '@/hooks/useSEO';
 import { usePartnerVerification } from '@/hooks/usePartnerVerification';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -86,6 +87,12 @@ const Dashboard = () => {
   const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
   const [logisticsSubscription, setLogisticsSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
+
+  // SEO for dashboard
+  useSEO({
+    title: 'Dashboard | ProcureSaathi',
+    description: 'Manage your B2B procurement, track requirements, and connect with verified suppliers on ProcureSaathi dashboard.',
+  });
 
   const fetchSubscription = async () => {
     if (!user?.id || role !== 'supplier') return;
