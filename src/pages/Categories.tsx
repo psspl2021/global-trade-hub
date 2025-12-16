@@ -20,8 +20,8 @@ const Categories = () => {
 
   // SEO setup with optimized meta tags for ranking
   useSEO({
-    title: "40+ B2B Product Categories | Verified Suppliers India | ProcureSaathi",
-    description: "Explore 40+ product categories: Steel, Machinery, Electronics, Textiles, Chemicals & more. Connect with 5000+ verified Indian manufacturers & exporters. Get quotes now!",
+    title: "B2B Product Categories | Verified Suppliers India",
+    description: "Browse 40+ B2B categories: Steel, Machinery, Textiles & more. Connect with 5000+ verified Indian suppliers. Get quotes now!",
     canonical: "https://procuresaathi.com/categories",
     keywords: "B2B suppliers India, industrial suppliers, steel manufacturers, machinery suppliers, textile exporters, chemical suppliers, wholesale products India, manufacturing categories, verified suppliers, Indian exporters"
   });
@@ -89,20 +89,20 @@ const Categories = () => {
 
       {/* Hero Banner */}
       <section className="relative bg-gradient-to-r from-primary/90 to-primary py-16 overflow-hidden">
-        <div 
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage: 'url("https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+        <img 
+          src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80"
+          alt="B2B industrial suppliers and manufacturers warehouse"
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          width={1920}
+          height={600}
+          loading="eager"
         />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
-            Together, we source, trade, and grow globally
+            B2B Product Categories
           </h1>
           <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Explore our comprehensive product categories and connect with verified suppliers worldwide
+            Find verified <strong>B2B suppliers</strong>, <strong>manufacturers</strong>, and <strong>exporters</strong> across 40+ industrial categories. Source steel, machinery, textiles, chemicals, and more from India.
           </p>
           <Button 
             size="lg" 
@@ -138,9 +138,12 @@ const Categories = () => {
       {/* Categories Accordion */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
-            Product Categories
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
+            Browse All Categories
           </h2>
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Explore <a href="/category/building-construction" className="text-primary hover:underline">Building & Construction</a>, <a href="/category/machinery-equipment" className="text-primary hover:underline">Machinery</a>, <a href="/category/textiles-fabrics" className="text-primary hover:underline">Textiles</a>, and more categories with verified suppliers.
+          </p>
           
           <div className="max-w-4xl mx-auto">
             <Accordion type="multiple" className="space-y-2">
@@ -218,8 +221,8 @@ const Categories = () => {
             <Button size="lg" onClick={() => navigate('/signup')}>
               Create Free Account
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/')}>
-              Learn More
+            <Button size="lg" variant="outline" onClick={() => navigate('/browse')}>
+              Browse Requirements
             </Button>
           </div>
         </div>
@@ -232,8 +235,11 @@ const Categories = () => {
             <div className="flex items-center gap-2">
               <img 
                 src={procureSaathiLogo} 
-                alt="ProcureSaathi" 
+                alt="ProcureSaathi B2B sourcing platform logo" 
                 className="h-12 w-auto object-contain"
+                width={48}
+                height={48}
+                loading="lazy"
               />
             </div>
             <p className="text-sm text-muted-foreground">
