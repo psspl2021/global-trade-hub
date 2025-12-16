@@ -5,8 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Download, Printer, Send, X } from 'lucide-react';
+import { Loader2, Download, Printer } from 'lucide-react';
 import { format } from 'date-fns';
+import * as XLSX from 'xlsx';
 
 interface DocumentViewerProps {
   open: boolean;
@@ -144,6 +145,72 @@ export const DocumentViewer = ({
     printWindow.print();
   };
 
+  const handleExportExcel = () => {
+    if (!document || items.length === 0) {
+      toast({ title: 'No data', description: 'No items to export', variant: 'destructive' });
+      return;
+    }
+
+    const exportData = items.map((item, idx) => ({
+      'S.No': idx + 1,
+      'Description': item.description,
+      'HSN Code': item.hsn_code || '',
+      'Quantity': Number(item.quantity),
+      'Unit': item.unit || 'units',
+      'Rate': Number(item.unit_price),
+      'GST %': Number(item.tax_rate) || 0,
+      'GST Amount': Number(item.tax_amount),
+      'Total': Number(item.total),
+    }));
+
+    // Add summary row
+    exportData.push({
+      'S.No': '',
+      'Description': 'TOTALS',
+      'HSN Code': '',
+      'Quantity': '',
+      'Unit': '',
+      'Rate': '',
+      'GST %': '',
+      'GST Amount': Number(document.tax_amount),
+      'Total': Number(document.total_amount),
+    } as any);
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Items');
+
+    // Add document details sheet
+    const docDetails = [
+      { 'Field': 'Document Number', 'Value': document.invoice_number || document.po_number },
+      { 'Field': 'Type', 'Value': getDocumentTypeName() },
+      { 'Field': 'Party Name', 'Value': document.buyer_name || document.vendor_name },
+      { 'Field': 'GSTIN', 'Value': document.buyer_gstin || document.vendor_gstin || '' },
+      { 'Field': 'Date', 'Value': format(new Date(document.issue_date || document.order_date), 'dd-MM-yyyy') },
+      { 'Field': 'Subtotal', 'Value': Number(document.subtotal) },
+      { 'Field': 'Tax Amount', 'Value': Number(document.tax_amount) },
+      { 'Field': 'Total', 'Value': Number(document.total_amount) },
+      { 'Field': 'Status', 'Value': document.status },
+    ];
+    const detailsWs = XLSX.utils.json_to_sheet(docDetails);
+    XLSX.utils.book_append_sheet(wb, detailsWs, 'Details');
+
+    const filename = `${(document.invoice_number || document.po_number).replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+    XLSX.writeFile(wb, filename);
+    toast({ title: 'Exported', description: 'Document exported to Excel' });
+  };
+
+  const getDocumentTypeName = () => {
+    if (documentType === 'purchase_order') return 'PURCHASE ORDER';
+    switch (document?.document_type) {
+      case 'proforma_invoice': return 'PROFORMA INVOICE';
+      case 'tax_invoice': return 'TAX INVOICE';
+      case 'debit_note': return 'DEBIT NOTE';
+      case 'credit_note': return 'CREDIT NOTE';
+      default: return 'INVOICE';
+    }
+  };
+
   if (!open) return null;
 
   const isInvoice = documentType === 'invoice';
@@ -160,14 +227,11 @@ export const DocumentViewer = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>
-              {isInvoice
-                ? document?.document_type === 'proforma_invoice'
-                  ? 'Proforma Invoice'
-                  : 'Tax Invoice'
-                : 'Purchase Order'}
-            </span>
+            <span>{getDocumentTypeName()}</span>
             <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={handleExportExcel}>
+                <Download className="h-4 w-4 mr-1" /> Excel
+              </Button>
               <Button size="sm" variant="outline" onClick={handlePrint}>
                 <Printer className="h-4 w-4 mr-1" /> Print
               </Button>
@@ -205,13 +269,7 @@ export const DocumentViewer = ({
               {/* Header */}
               <div className="flex justify-between items-start border-b pb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary">
-                    {isInvoice
-                      ? document.document_type === 'proforma_invoice'
-                        ? 'PROFORMA INVOICE'
-                        : 'TAX INVOICE'
-                      : 'PURCHASE ORDER'}
-                  </h2>
+                  <h2 className="text-2xl font-bold text-primary">{getDocumentTypeName()}</h2>
                   <p className="text-lg font-semibold mt-1">{docNumber}</p>
                   <p className="text-sm text-muted-foreground">
                     Date: {format(new Date(docDate), 'dd MMM yyyy')}
@@ -224,6 +282,11 @@ export const DocumentViewer = ({
                   {!isInvoice && document.expected_delivery_date && (
                     <p className="text-sm text-muted-foreground">
                       Expected Delivery: {format(new Date(document.expected_delivery_date), 'dd MMM yyyy')}
+                    </p>
+                  )}
+                  {document.reference_invoice_number && (
+                    <p className="text-sm text-muted-foreground">
+                      Reference: {document.reference_invoice_number}
                     </p>
                   )}
                 </div>
@@ -348,7 +411,9 @@ export const DocumentViewer = ({
               <div className="grid grid-cols-2 gap-6 text-sm">
                 {document.notes && (
                   <div>
-                    <h4 className="font-semibold mb-1">Notes:</h4>
+                    <h4 className="font-semibold mb-1">
+                      {document.document_type === 'debit_note' || document.document_type === 'credit_note' ? 'Reason:' : 'Notes:'}
+                    </h4>
                     <p className="text-muted-foreground whitespace-pre-wrap">{document.notes}</p>
                   </div>
                 )}
