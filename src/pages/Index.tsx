@@ -43,8 +43,8 @@ const Index = () => {
 
   // SEO setup with social sharing meta tags
   useSEO({
-    title: "ProcureSaathi - India's #1 B2B Sourcing & Procurement Platform | First 100 Partners Get 1 Year FREE Premium",
-    description: "🎉 Limited Offer: First 100 suppliers & logistics partners get 1 Year FREE Premium worth ₹24,950! Free CRM, Tax Invoice Generator, Unlimited Bids. Connect with verified suppliers across 23+ categories. Join now!",
+    title: "ProcureSaathi | B2B Sourcing Platform India",
+    description: "India's #1 B2B sourcing platform. Connect with 1000+ verified suppliers across 23+ categories. Get competitive sealed bids. Join free!",
     canonical: "https://procuresaathi.com/",
     keywords: "B2B marketplace India, B2B sourcing platform, procurement platform, verified suppliers India, wholesale suppliers, bulk buying, industrial supplies, manufacturing",
     ogImage: "https://procuresaathi.com/og-early-adopter.png",
@@ -188,12 +188,11 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              ProcureSaathi - India's #1{' '}
-              <span className="text-primary">B2B Sourcing</span> &{' '}
-              <span className="text-warning">Procurement Platform</span>
+              India's #1 <span className="text-primary">B2B Sourcing</span> & <span className="text-warning">Procurement Platform</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Search across 23+ product categories and connect with live stock from registered suppliers. Post requirements, receive competitive sealed bids, and complete secure transactions — all in one platform.
+              Connect with <strong>verified suppliers</strong> across <a href="/categories" className="text-primary hover:underline">23+ product categories</a>. 
+              <a href="/browse" className="text-primary hover:underline">Browse live stock</a>, post requirements, receive competitive sealed bids, and complete secure transactions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
               <Button 
