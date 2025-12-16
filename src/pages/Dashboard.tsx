@@ -17,6 +17,7 @@ import { SupplierCatalog } from '@/components/SupplierCatalog';
 import { StockManagement } from '@/components/StockManagement';
 import { BrowseRequirements } from '@/components/BrowseRequirements';
 import { SupplierCRM } from '@/components/crm/SupplierCRM';
+import { BuyerCRM } from '@/components/crm/BuyerCRM';
 import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
 import { SupplierMyBids } from '@/components/SupplierMyBids';
 import { LiveSupplierStock } from '@/components/LiveSupplierStock';
@@ -325,11 +326,14 @@ const Dashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Invoices & PO</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="h-5 w-5" />
+                    CRM & Inventory
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Create proforma, tax invoices & purchase orders
+                    Manage inventory, invoices, PO & supplier contacts
                   </p>
                   <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
                 </CardContent>
@@ -361,7 +365,7 @@ const Dashboard = () => {
             
             {user && (
               <>
-                <SupplierCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
+                <BuyerCRM open={showCRM} onOpenChange={setShowCRM} userId={user.id} />
                 <LiveSupplierStock open={showLiveStock} onOpenChange={setShowLiveStock} />
                 <CreateLogisticsRequirementForm 
                   open={showLogisticsRequirementForm} 

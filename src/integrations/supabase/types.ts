@@ -196,6 +196,104 @@ export type Database = {
         }
         Relationships: []
       }
+      buyer_inventory: {
+        Row: {
+          buyer_id: string
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          last_restocked_at: string | null
+          location: string | null
+          max_stock_level: number | null
+          min_stock_level: number | null
+          product_name: string
+          quantity: number
+          sku: string | null
+          supplier_name: string | null
+          unit: string
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_restocked_at?: string | null
+          location?: string | null
+          max_stock_level?: number | null
+          min_stock_level?: number | null
+          product_name: string
+          quantity?: number
+          sku?: string | null
+          supplier_name?: string | null
+          unit?: string
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_restocked_at?: string | null
+          location?: string | null
+          max_stock_level?: number | null
+          min_stock_level?: number | null
+          product_name?: string
+          quantity?: number
+          sku?: string | null
+          supplier_name?: string | null
+          unit?: string
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      buyer_stock_movements: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          inventory_id: string
+          movement_type: string
+          notes: string | null
+          quantity: number
+          reference_number: string | null
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          inventory_id: string
+          movement_type: string
+          notes?: string | null
+          quantity: number
+          reference_number?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          inventory_id?: string
+          movement_type?: string
+          notes?: string | null
+          quantity?: number
+          reference_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_stock_movements_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           company_name: string | null
