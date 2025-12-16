@@ -253,6 +253,106 @@ export type Database = {
         }
         Relationships: []
       }
+      buyer_purchase_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_name: string
+          purchase_id: string
+          quantity: number
+          tax_amount: number
+          tax_rate: number | null
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_name: string
+          purchase_id: string
+          quantity?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          unit?: string
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_name?: string
+          purchase_id?: string
+          quantity?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_purchase_items_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buyer_purchases: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          invoice_number: string | null
+          notes: string | null
+          payment_status: string
+          purchase_date: string
+          status: string
+          supplier_id: string | null
+          tax_amount: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_status?: string
+          purchase_date?: string
+          status?: string
+          supplier_id?: string | null
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_status?: string
+          purchase_date?: string
+          status?: string
+          supplier_id?: string | null
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_purchases_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buyer_stock_movements: {
         Row: {
           buyer_id: string
@@ -293,6 +393,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      buyer_suppliers: {
+        Row: {
+          address: string | null
+          buyer_id: string
+          company_name: string | null
+          created_at: string
+          email: string | null
+          gstin: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          supplier_name: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          buyer_id: string
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          supplier_name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          buyer_id?: string
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          supplier_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       demo_requests: {
         Row: {

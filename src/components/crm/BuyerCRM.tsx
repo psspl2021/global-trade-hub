@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Package, Users } from 'lucide-react';
+import { FileText, Package, Users, Truck, ShoppingCart } from 'lucide-react';
 import { DocumentList } from './DocumentList';
 import { InvoiceForm } from './InvoiceForm';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
@@ -11,6 +11,11 @@ import { BuyerStockManagement } from './BuyerStockManagement';
 import { LeadsList } from './LeadsList';
 import { LeadForm } from './LeadForm';
 import { LeadViewer } from './LeadViewer';
+import { BuyerSuppliersList } from './BuyerSuppliersList';
+import { BuyerSupplierForm } from './BuyerSupplierForm';
+import { BuyerPurchasesList } from './BuyerPurchasesList';
+import { BuyerPurchaseForm } from './BuyerPurchaseForm';
+import { BuyerPurchaseViewer } from './BuyerPurchaseViewer';
 import { useCRMSEO } from '@/hooks/useCRMSEO';
 
 interface BuyerCRMProps {
@@ -43,6 +48,18 @@ export const BuyerCRM = ({ open, onOpenChange, userId }: BuyerCRMProps) => {
   const [editLeadId, setEditLeadId] = useState<string | null>(null);
   const [viewLeadId, setViewLeadId] = useState<string | null>(null);
   const [leadsRefreshKey, setLeadsRefreshKey] = useState(0);
+
+  // Supplier states
+  const [supplierFormOpen, setSupplierFormOpen] = useState(false);
+  const [editSupplierId, setEditSupplierId] = useState<string | null>(null);
+  const [suppliersRefreshKey, setSuppliersRefreshKey] = useState(0);
+
+  // Purchase states
+  const [purchaseFormOpen, setPurchaseFormOpen] = useState(false);
+  const [purchaseViewerOpen, setPurchaseViewerOpen] = useState(false);
+  const [editPurchaseId, setEditPurchaseId] = useState<string | null>(null);
+  const [viewPurchaseId, setViewPurchaseId] = useState<string | null>(null);
+  const [purchasesRefreshKey, setPurchasesRefreshKey] = useState(0);
 
   const handleCreateInvoice = (type: 'proforma_invoice' | 'tax_invoice') => {
     setInvoiceType(type);
@@ -113,6 +130,41 @@ export const BuyerCRM = ({ open, onOpenChange, userId }: BuyerCRMProps) => {
     setLeadsRefreshKey((k) => k + 1);
   };
 
+  // Supplier handlers
+  const handleCreateSupplier = () => {
+    setEditSupplierId(null);
+    setSupplierFormOpen(true);
+  };
+
+  const handleEditSupplier = (id: string) => {
+    setEditSupplierId(id);
+    setSupplierFormOpen(true);
+  };
+
+  const handleSuppliersRefresh = () => {
+    setSuppliersRefreshKey((k) => k + 1);
+  };
+
+  // Purchase handlers
+  const handleCreatePurchase = () => {
+    setEditPurchaseId(null);
+    setPurchaseFormOpen(true);
+  };
+
+  const handleEditPurchase = (id: string) => {
+    setEditPurchaseId(id);
+    setPurchaseFormOpen(true);
+  };
+
+  const handleViewPurchase = (id: string) => {
+    setViewPurchaseId(id);
+    setPurchaseViewerOpen(true);
+  };
+
+  const handlePurchasesRefresh = () => {
+    setPurchasesRefreshKey((k) => k + 1);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -120,28 +172,60 @@ export const BuyerCRM = ({ open, onOpenChange, userId }: BuyerCRMProps) => {
           <DialogHeader>
             <DialogTitle>Buyer CRM</DialogTitle>
             <DialogDescription>
-              Manage inventory, documents, and supplier contacts
+              Manage inventory, suppliers, purchases, documents, and contacts
             </DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="stock" className="text-sm">
-                <Package className="h-4 w-4 mr-2" />
-                Inventory
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="stock" className="text-xs sm:text-sm">
+                <Package className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Inventory</span>
+                <span className="sm:hidden">Stock</span>
               </TabsTrigger>
-              <TabsTrigger value="documents" className="text-sm">
-                <FileText className="h-4 w-4 mr-2" />
-                Documents
+              <TabsTrigger value="suppliers" className="text-xs sm:text-sm">
+                <Truck className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Suppliers</span>
+                <span className="sm:hidden">Supp.</span>
               </TabsTrigger>
-              <TabsTrigger value="contacts" className="text-sm">
-                <Users className="h-4 w-4 mr-2" />
-                Contacts
+              <TabsTrigger value="purchases" className="text-xs sm:text-sm">
+                <ShoppingCart className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Purchases</span>
+                <span className="sm:hidden">Purch.</span>
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="text-xs sm:text-sm">
+                <FileText className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Documents</span>
+                <span className="sm:hidden">Docs</span>
+              </TabsTrigger>
+              <TabsTrigger value="contacts" className="text-xs sm:text-sm">
+                <Users className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Contacts</span>
+                <span className="sm:hidden">Cont.</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock" className="mt-4">
               <BuyerStockManagement userId={userId} />
+            </TabsContent>
+
+            <TabsContent value="suppliers" className="mt-4">
+              <BuyerSuppliersList
+                key={suppliersRefreshKey}
+                userId={userId}
+                onCreateSupplier={handleCreateSupplier}
+                onEditSupplier={handleEditSupplier}
+              />
+            </TabsContent>
+
+            <TabsContent value="purchases" className="mt-4">
+              <BuyerPurchasesList
+                key={purchasesRefreshKey}
+                userId={userId}
+                onCreatePurchase={handleCreatePurchase}
+                onEditPurchase={handleEditPurchase}
+                onViewPurchase={handleViewPurchase}
+              />
             </TabsContent>
 
             <TabsContent value="documents" className="mt-4">
@@ -219,6 +303,28 @@ export const BuyerCRM = ({ open, onOpenChange, userId }: BuyerCRMProps) => {
         onOpenChange={setLeadViewerOpen}
         leadId={viewLeadId}
         supplierId={userId}
+      />
+
+      <BuyerSupplierForm
+        open={supplierFormOpen}
+        onOpenChange={setSupplierFormOpen}
+        userId={userId}
+        editId={editSupplierId}
+        onSuccess={handleSuppliersRefresh}
+      />
+
+      <BuyerPurchaseForm
+        open={purchaseFormOpen}
+        onOpenChange={setPurchaseFormOpen}
+        userId={userId}
+        editId={editPurchaseId}
+        onSuccess={handlePurchasesRefresh}
+      />
+
+      <BuyerPurchaseViewer
+        open={purchaseViewerOpen}
+        onOpenChange={setPurchaseViewerOpen}
+        purchaseId={viewPurchaseId}
       />
     </>
   );
