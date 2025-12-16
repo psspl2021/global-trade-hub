@@ -21,7 +21,7 @@ const Categories = () => {
   // SEO setup with optimized meta tags for ranking
   useSEO({
     title: "B2B Product Categories | Verified Suppliers India",
-    description: "Browse 40+ B2B categories: Steel, Machinery, Textiles & more. Connect with 5000+ verified Indian suppliers. Get quotes now!",
+    description: "Browse 40+ B2B categories: Steel, Machinery, Textiles, Chemicals & more. Connect with 5000+ verified Indian suppliers and manufacturers. Get competitive quotes free!",
     canonical: "https://procuresaathi.com/categories",
     keywords: "B2B suppliers India, industrial suppliers, steel manufacturers, machinery suppliers, textile exporters, chemical suppliers, wholesale products India, manufacturing categories, verified suppliers, Indian exporters"
   });
