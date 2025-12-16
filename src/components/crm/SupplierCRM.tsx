@@ -5,6 +5,7 @@ import { FileText, Users } from 'lucide-react';
 import { DocumentList } from './DocumentList';
 import { InvoiceForm } from './InvoiceForm';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
+import { DebitCreditNoteForm } from './DebitCreditNoteForm';
 import { DocumentViewer } from './DocumentViewer';
 import { LeadsList } from './LeadsList';
 import { LeadForm } from './LeadForm';
@@ -38,6 +39,11 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
   const [viewLeadId, setViewLeadId] = useState<string | null>(null);
   const [leadsRefreshKey, setLeadsRefreshKey] = useState(0);
 
+  // Debit/Credit Note states
+  const [noteFormOpen, setNoteFormOpen] = useState(false);
+  const [noteType, setNoteType] = useState<'debit_note' | 'credit_note'>('debit_note');
+  const [editNoteId, setEditNoteId] = useState<string | null>(null);
+
   const handleCreateInvoice = (type: 'proforma_invoice' | 'tax_invoice') => {
     setInvoiceType(type);
     setEditInvoiceId(null);
@@ -47,6 +53,12 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
   const handleCreatePO = () => {
     setEditPOId(null);
     setPoFormOpen(true);
+  };
+
+  const handleCreateNote = (type: 'debit_note' | 'credit_note') => {
+    setNoteType(type);
+    setEditNoteId(null);
+    setNoteFormOpen(true);
   };
 
   const handleViewInvoice = (id: string) => {
@@ -69,6 +81,12 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
   const handleEditPO = (id: string) => {
     setEditPOId(id);
     setPoFormOpen(true);
+  };
+
+  const handleEditNote = (id: string, type: 'debit_note' | 'credit_note') => {
+    setNoteType(type);
+    setEditNoteId(id);
+    setNoteFormOpen(true);
   };
 
   const handleRefresh = () => {
@@ -134,10 +152,12 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
                 userId={userId}
                 onCreateInvoice={handleCreateInvoice}
                 onCreatePO={handleCreatePO}
+                onCreateNote={handleCreateNote}
                 onViewInvoice={handleViewInvoice}
                 onViewPO={handleViewPO}
                 onEditInvoice={handleEditInvoice}
                 onEditPO={handleEditPO}
+                onEditNote={handleEditNote}
               />
             </TabsContent>
           </Tabs>
@@ -158,6 +178,15 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
         onOpenChange={setPoFormOpen}
         userId={userId}
         editId={editPOId}
+        onSuccess={handleRefresh}
+      />
+
+      <DebitCreditNoteForm
+        open={noteFormOpen}
+        onOpenChange={setNoteFormOpen}
+        userId={userId}
+        noteType={noteType}
+        editId={editNoteId}
         onSuccess={handleRefresh}
       />
 

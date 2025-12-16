@@ -393,6 +393,8 @@ export type Database = {
           invoice_number: string
           issue_date: string
           notes: string | null
+          reference_invoice_id: string | null
+          reference_invoice_number: string | null
           status: Database["public"]["Enums"]["document_status"]
           subtotal: number
           supplier_id: string
@@ -418,6 +420,8 @@ export type Database = {
           invoice_number: string
           issue_date?: string
           notes?: string | null
+          reference_invoice_id?: string | null
+          reference_invoice_number?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id: string
@@ -443,6 +447,8 @@ export type Database = {
           invoice_number?: string
           issue_date?: string
           notes?: string | null
+          reference_invoice_id?: string | null
+          reference_invoice_number?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id?: string
@@ -452,7 +458,15 @@ export type Database = {
           total_amount?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoices_reference_invoice_id_fkey"
+            columns: ["reference_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_activities: {
         Row: {
@@ -2128,7 +2142,12 @@ export type Database = {
         | "rejected"
         | "paid"
         | "cancelled"
-      document_type: "proforma_invoice" | "tax_invoice" | "purchase_order"
+      document_type:
+        | "proforma_invoice"
+        | "tax_invoice"
+        | "purchase_order"
+        | "debit_note"
+        | "credit_note"
       fuel_type: "diesel" | "petrol" | "cng" | "electric" | "hybrid"
       logistics_bid_status: "pending" | "accepted" | "rejected"
       logistics_partner_type: "agent" | "fleet_owner"
@@ -2298,7 +2317,13 @@ export const Constants = {
         "paid",
         "cancelled",
       ],
-      document_type: ["proforma_invoice", "tax_invoice", "purchase_order"],
+      document_type: [
+        "proforma_invoice",
+        "tax_invoice",
+        "purchase_order",
+        "debit_note",
+        "credit_note",
+      ],
       fuel_type: ["diesel", "petrol", "cng", "electric", "hybrid"],
       logistics_bid_status: ["pending", "accepted", "rejected"],
       logistics_partner_type: ["agent", "fleet_owner"],
