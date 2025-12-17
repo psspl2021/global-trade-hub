@@ -639,6 +639,23 @@ export const categoriesData: CategoryData[] = [
       'Nickel Alloys',
       'Titanium Products',
       'Bronze Products',
+      // Ingots & Billets
+      'Aluminium Ingots',
+      'Aluminium Billets',
+      'Copper Cathodes',
+      'Copper Wire Rods',
+      'Zinc Ingots',
+      'Lead Ingots',
+      'Tin Ingots',
+      // Sheets & Coils
+      'Aluminium Sheets',
+      'Aluminium Coils',
+      'Copper Sheets',
+      'Brass Sheets',
+      // Scrap
+      'Aluminium Scrap',
+      'Copper Scrap',
+      'Brass Scrap',
     ]
   },
   {
@@ -791,6 +808,20 @@ export const categoriesData: CategoryData[] = [
       'Nylon & Polyamide',
       'Polycarbonate',
       'Engineering Plastics',
+      // Polymer Grades
+      'HDPE Granules',
+      'LDPE Granules',
+      'LLDPE Granules',
+      'PVC Compounds',
+      'PP Homopolymer',
+      'PP Copolymer',
+      'PET Resins',
+      'PS (Polystyrene)',
+      'EVA Copolymer',
+      // Masterbatches
+      'Color Masterbatch',
+      'Additive Masterbatch',
+      'Filler Masterbatch',
     ]
   },
   {
@@ -870,6 +901,20 @@ export const categoriesData: CategoryData[] = [
       'Petroleum Coke',
       'Asphalt',
       'Crude Oil',
+      // Bitumen Grades
+      'Bitumen VG10',
+      'Bitumen VG30',
+      'Bitumen VG40',
+      'Emulsion Bitumen',
+      'Polymer Modified Bitumen',
+      'Cutback Bitumen',
+      // Industrial Fuels
+      'Natural Gas',
+      'LPG Industrial',
+      'Methanol',
+      'Ethanol',
+      'Coal Tar',
+      'Naptha',
     ]
   },
   {
