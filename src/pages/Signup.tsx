@@ -279,34 +279,60 @@ const Signup = () => {
 
               <div className="border-t pt-4 mt-4">
                 <p className="text-sm font-medium text-muted-foreground mb-3">Referred By *</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-3">
                   <div className="space-y-2">
-                    <Label htmlFor="referredByName">Name *</Label>
-                    <Input
-                      id="referredByName"
-                      placeholder="Referrer's name"
-                      value={formData.referredByName}
-                      onChange={(e) => setFormData({ ...formData, referredByName: e.target.value })}
-                      className={errors.referredByName ? 'border-destructive' : ''}
-                    />
-                    {errors.referredByName && (
-                      <p className="text-sm text-destructive">{errors.referredByName}</p>
-                    )}
+                    <Label>Select Referrer *</Label>
+                    <Select
+                      value={formData.referredByName === 'Priyanka' ? 'priyanka' : formData.referredByName ? 'other' : ''}
+                      onValueChange={(value) => {
+                        if (value === 'priyanka') {
+                          setFormData({ ...formData, referredByName: 'Priyanka', referredByPhone: '+91 8368127357' });
+                        } else if (value === 'other') {
+                          setFormData({ ...formData, referredByName: '', referredByPhone: '' });
+                        }
+                      }}
+                    >
+                      <SelectTrigger className={errors.referredByName ? 'border-destructive' : ''}>
+                        <SelectValue placeholder="Select who referred you" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="priyanka">Priyanka (+91 8368127357)</SelectItem>
+                        <SelectItem value="other">Other (Add manually)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="referredByPhone">Phone *</Label>
-                    <Input
-                      id="referredByPhone"
-                      type="tel"
-                      placeholder="+919876543210"
-                      value={formData.referredByPhone}
-                      onChange={(e) => setFormData({ ...formData, referredByPhone: e.target.value })}
-                      className={errors.referredByPhone ? 'border-destructive' : ''}
-                    />
-                    {errors.referredByPhone && (
-                      <p className="text-sm text-destructive">{errors.referredByPhone}</p>
-                    )}
-                  </div>
+                  
+                  {(formData.referredByName !== 'Priyanka' || formData.referredByPhone !== '+91 8368127357') && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="referredByName">Name *</Label>
+                        <Input
+                          id="referredByName"
+                          placeholder="Referrer's name"
+                          value={formData.referredByName}
+                          onChange={(e) => setFormData({ ...formData, referredByName: e.target.value })}
+                          className={errors.referredByName ? 'border-destructive' : ''}
+                        />
+                        {errors.referredByName && (
+                          <p className="text-sm text-destructive">{errors.referredByName}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="referredByPhone">Phone *</Label>
+                        <Input
+                          id="referredByPhone"
+                          type="tel"
+                          placeholder="+919876543210"
+                          value={formData.referredByPhone}
+                          onChange={(e) => setFormData({ ...formData, referredByPhone: e.target.value })}
+                          className={errors.referredByPhone ? 'border-destructive' : ''}
+                        />
+                        {errors.referredByPhone && (
+                          <p className="text-sm text-destructive">{errors.referredByPhone}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
