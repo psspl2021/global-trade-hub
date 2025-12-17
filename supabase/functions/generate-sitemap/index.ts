@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,7 +21,7 @@ const staticPages = [
   { url: '/categories', priority: 0.9, changefreq: 'weekly' },
   { url: '/browse', priority: 0.8, changefreq: 'daily' },
   { url: '/book-truck', priority: 0.8, changefreq: 'weekly' },
-  { url: '/blogs', priority: 0.7, changefreq: 'daily' },
+  { url: '/blogs', priority: 0.8, changefreq: 'daily' },
   { url: '/login', priority: 0.5, changefreq: 'monthly' },
   { url: '/signup', priority: 0.6, changefreq: 'monthly' },
 ];
@@ -91,8 +92,39 @@ const categories = [
 
 const baseUrl = 'https://procuresaathi.com';
 
-function generateSitemap(): string {
+interface BlogPost {
+  slug: string;
+  published_at: string | null;
+  updated_at: string;
+}
+
+async function fetchBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('slug, published_at, updated_at')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false });
+
+    if (error) {
+      console.error('[generate-sitemap] Error fetching blogs:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('[generate-sitemap] Error in fetchBlogPosts:', error);
+    return [];
+  }
+}
+
+async function generateSitemap(): Promise<string> {
   const today = new Date().toISOString().split('T')[0];
+  const blogPosts = await fetchBlogPosts();
   
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -106,6 +138,20 @@ function generateSitemap(): string {
     <lastmod>${today}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
+  </url>
+`;
+  }
+
+  // Blog posts with high priority for SEO
+  for (const blog of blogPosts) {
+    const lastmod = blog.published_at 
+      ? new Date(blog.published_at).toISOString().split('T')[0]
+      : today;
+    xml += `  <url>
+    <loc>${baseUrl}/blogs/${blog.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 `;
   }
@@ -163,7 +209,7 @@ serve(async (req: Request) => {
   try {
     console.log('[generate-sitemap] Generating dynamic sitemap...');
     
-    const sitemap = generateSitemap();
+    const sitemap = await generateSitemap();
     
     // Count URLs
     const urlCount = (sitemap.match(/<url>/g) || []).length;

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Calendar, User, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useSEO } from '@/hooks/useSEO';
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
 
@@ -63,10 +63,56 @@ const BlogPost = () => {
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // SEO with dynamic content
   useSEO({
-    title: blog ? `${blog.title} - ProcureSaathi Blog` : 'Blog - ProcureSaathi',
-    description: blog?.excerpt || 'Read our latest blog post',
+    title: blog ? `${blog.title} | ProcureSaathi Blog` : 'Blog - ProcureSaathi',
+    description: blog?.excerpt || 'Read our latest insights on B2B procurement, supplier management, and trade compliance.',
+    canonical: blog ? `https://procuresaathi.com/blogs/${blog.slug}` : undefined,
+    keywords: blog ? `${blog.category}, ${blog.title.toLowerCase()}, B2B procurement, supplier sourcing India` : undefined,
+    ogImage: blog?.cover_image || 'https://procuresaathi.com/og-image.png',
+    ogType: 'article',
   });
+
+  // Inject Article schema when blog loads
+  useEffect(() => {
+    if (blog) {
+      // Breadcrumb schema
+      injectStructuredData(getBreadcrumbSchema([
+        { name: 'Home', url: 'https://procuresaathi.com' },
+        { name: 'Blogs', url: 'https://procuresaathi.com/blogs' },
+        { name: blog.title, url: `https://procuresaathi.com/blogs/${blog.slug}` }
+      ]), 'breadcrumb-schema');
+
+      // Article schema for rich snippets
+      injectStructuredData({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": blog.title,
+        "description": blog.excerpt || blog.title,
+        "image": blog.cover_image || "https://procuresaathi.com/og-image.png",
+        "author": {
+          "@type": "Person",
+          "name": blog.author_name || "ProcureSaathi Team"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "ProcureSaathi",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://procuresaathi.com/logo.png"
+          }
+        },
+        "datePublished": blog.published_at || blog.created_at,
+        "dateModified": blog.published_at || blog.created_at,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": `https://procuresaathi.com/blogs/${blog.slug}`
+        },
+        "articleSection": blog.category,
+        "keywords": `${blog.category}, B2B procurement, supplier sourcing`
+      }, 'article-schema');
+    }
+  }, [blog]);
 
   useEffect(() => {
     if (slug) {
