@@ -29,13 +29,14 @@ export const EarlyAdopterBanner = () => {
     }
   };
 
-  // SEO: Inject JSON-LD structured data for the offer
+  // SEO: Inject JSON-LD structured data for the offer and CRM software
   useEffect(() => {
+    // Offer Schema for Early Adopter promotion
     const offerData = {
       "@context": "https://schema.org",
       "@type": "Offer",
-      "name": "Early Adopter Premium Subscription - 1 Year FREE",
-      "description": "First 100 suppliers and logistics partners get 1 year FREE premium subscription worth ₹24,950. Includes unlimited bids, free CRM, tax invoice generator, early adopter badge, and priority support.",
+      "name": "Free CRM & Tax Invoice Generator - 1 Year FREE Premium",
+      "description": "First 100 suppliers and logistics partners get 1 year FREE premium subscription worth ₹24,950. Includes free CRM software, GST tax invoice generator, unlimited bids, early adopter badge, and priority support for B2B businesses in India.",
       "price": "0",
       "priceCurrency": "INR",
       "availability": "https://schema.org/LimitedAvailability",
@@ -52,23 +53,71 @@ export const EarlyAdopterBanner = () => {
       },
       "itemOffered": {
         "@type": "Service",
-        "name": "ProcureSaathi Premium Subscription",
-        "description": "B2B marketplace premium subscription with unlimited bids, CRM, tax invoice generator, and priority support"
+        "name": "Free CRM & Tax Invoice Generator for B2B",
+        "description": "Complete CRM software with lead management, GST tax invoice generator, proforma invoice maker, purchase order management, and activity tracking - all free for suppliers and logistics partners"
       }
     };
 
-    const existingScript = document.getElementById('early-adopter-offer-schema');
-    if (existingScript) existingScript.remove();
+    // SoftwareApplication Schema for CRM & Invoice Generator
+    const softwareSchema = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ProcureSaathi Free CRM & Tax Invoice Generator",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "CRM Software, Invoice Generator",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+        "description": "Free CRM and GST tax invoice generator for B2B suppliers and logistics partners"
+      },
+      "featureList": [
+        "Free CRM Software",
+        "GST Tax Invoice Generator",
+        "Proforma Invoice Maker",
+        "Purchase Order Management",
+        "Lead Management System",
+        "Activity Tracking",
+        "Follow-up Reminders",
+        "Document Management",
+        "Pipeline Analytics"
+      ],
+      "screenshot": "https://procuresaathi.com/og-early-adopter.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "200",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    };
 
-    const script = document.createElement('script');
-    script.id = 'early-adopter-offer-schema';
-    script.type = 'application/ld+json';
-    script.text = JSON.stringify(offerData);
-    document.head.appendChild(script);
+    // Remove existing scripts
+    const existingOffer = document.getElementById('early-adopter-offer-schema');
+    const existingSoftware = document.getElementById('crm-invoice-software-schema');
+    if (existingOffer) existingOffer.remove();
+    if (existingSoftware) existingSoftware.remove();
+
+    // Add offer schema
+    const offerScript = document.createElement('script');
+    offerScript.id = 'early-adopter-offer-schema';
+    offerScript.type = 'application/ld+json';
+    offerScript.text = JSON.stringify(offerData);
+    document.head.appendChild(offerScript);
+
+    // Add software schema
+    const softwareScript = document.createElement('script');
+    softwareScript.id = 'crm-invoice-software-schema';
+    softwareScript.type = 'application/ld+json';
+    softwareScript.text = JSON.stringify(softwareSchema);
+    document.head.appendChild(softwareScript);
 
     return () => {
-      const scriptToRemove = document.getElementById('early-adopter-offer-schema');
-      if (scriptToRemove) scriptToRemove.remove();
+      const scriptToRemove1 = document.getElementById('early-adopter-offer-schema');
+      const scriptToRemove2 = document.getElementById('crm-invoice-software-schema');
+      if (scriptToRemove1) scriptToRemove1.remove();
+      if (scriptToRemove2) scriptToRemove2.remove();
     };
   }, []);
 
