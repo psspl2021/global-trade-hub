@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
-import { useSEO } from '@/hooks/useSEO';
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import logo from '@/assets/procuresaathi-logo.png';
 
 interface Blog {
@@ -36,9 +36,36 @@ const CATEGORIES = [
 
 const Blogs = () => {
   useSEO({
-    title: 'Blogs - ProcureSaathi',
-    description: 'Get latest information about B2B procurement, supplier management, logistics, and trade compliance.',
+    title: 'B2B Procurement Blog | Industry Insights & Tips - ProcureSaathi',
+    description: 'Expert insights on B2B procurement strategies, supplier management, logistics best practices, GST compliance, and trade tips. Stay updated with ProcureSaathi blog.',
+    canonical: 'https://procuresaathi.com/blogs',
+    keywords: 'B2B procurement blog, supplier management tips, logistics best practices, GST compliance India, trade compliance, procurement strategies, supplier sourcing India',
+    ogType: 'website',
   });
+
+  // Inject Blog listing schema
+  useEffect(() => {
+    injectStructuredData(getBreadcrumbSchema([
+      { name: 'Home', url: 'https://procuresaathi.com' },
+      { name: 'Blogs', url: 'https://procuresaathi.com/blogs' }
+    ]), 'breadcrumb-schema');
+
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "ProcureSaathi Blog",
+      "description": "Expert insights on B2B procurement, supplier management, and logistics",
+      "url": "https://procuresaathi.com/blogs",
+      "publisher": {
+        "@type": "Organization",
+        "name": "ProcureSaathi",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://procuresaathi.com/logo.png"
+        }
+      }
+    }, 'blog-schema');
+  }, []);
 
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
