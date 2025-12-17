@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -48,6 +48,7 @@ import { ActiveRoutePlanning } from '@/components/logistics/ActiveRoutePlanning'
 import { CustomerShipmentTracking } from '@/components/logistics/CustomerShipmentTracking';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { ReferralSection } from '@/components/ReferralSection';
+import { ProfileSettings } from '@/components/ProfileSettings';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -88,6 +89,7 @@ const Dashboard = () => {
   const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
   const [logisticsSubscription, setLogisticsSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
 
   // SEO for dashboard
   useSEO({
@@ -176,6 +178,9 @@ const Dashboard = () => {
           </Link>
           <div className="flex items-center gap-2">
             <NotificationBell />
+            <Button variant="outline" size="icon" onClick={() => setShowProfileSettings(true)}>
+              <Settings className="h-4 w-4" />
+            </Button>
             <Button variant="outline" onClick={async () => {
               await signOut();
               navigate('/');
@@ -967,6 +972,14 @@ const Dashboard = () => {
             onOpenChange={setShowRequirementForm}
             userId={user.id}
             onSuccess={() => setRefreshKey(k => k + 1)}
+          />
+        )}
+        
+        {user && (
+          <ProfileSettings
+            open={showProfileSettings}
+            onOpenChange={setShowProfileSettings}
+            userId={user.id}
           />
         )}
       </main>
