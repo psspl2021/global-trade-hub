@@ -903,6 +903,107 @@ export const categoriesData: CategoryData[] = [
       'Supply Chain Solutions',
     ]
   },
+  {
+    name: 'Steel & Metal Products',
+    icon: Layers,
+    subcategories: [
+      // TMT Bars & Rebars
+      'TMT Bars',
+      'Fe-500D TMT Bars',
+      'Fe-550D TMT Bars',
+      'Earthquake Resistant TMT Bars',
+      'Corrosion Resistant TMT Bars',
+      // MS (Mild Steel) Products
+      'MS Angles',
+      'MS Channels',
+      'MS Beams',
+      'MS Flats',
+      'MS Rounds',
+      'MS Squares',
+      'MS Pipes',
+      'MS Tubes',
+      // Plates & Sheets
+      'Chequered Plates',
+      'HR Sheets',
+      'HR Plates',
+      'CR Sheets',
+      'CR Coils',
+      'GP Sheets',
+      'GC Sheets',
+      'Color Coated Sheets',
+      'Stainless Steel Sheets',
+      // Wire Products
+      'Wire Rods',
+      'Binding Wire',
+      'GI Wire',
+      'MS Wire',
+      'Barbed Wire',
+      'Welded Wire Mesh',
+      'Chain Link Fence',
+      // Structural Steel
+      'I-Beams',
+      'H-Beams',
+      'ISMC Channels',
+      'ISMB Beams',
+      'Joist Beams',
+      'Steel Joists',
+      // Pipes & Tubes
+      'ERW Pipes',
+      'Seamless Pipes',
+      'Galvanized Pipes',
+      'Square Tubes',
+      'Rectangular Tubes',
+      'Hollow Sections',
+    ]
+  },
+  {
+    name: 'Road Safety & Infrastructure',
+    icon: Shield,
+    subcategories: [
+      // Crash Barriers
+      'Crash Barriers',
+      'Metal Crash Barriers',
+      'W-Beam Crash Barriers',
+      'Thrie Beam Crash Barriers',
+      'Box Beam Crash Barriers',
+      'Cable Barriers',
+      'Concrete Barriers',
+      'Bridge Barriers',
+      'Median Barriers',
+      'Guardrails',
+      'End Terminals',
+      'Crash Cushions',
+      // Road Safety Equipment
+      'Road Studs',
+      'Cat Eyes',
+      'Reflective Road Markers',
+      'Delineators',
+      'Traffic Cones',
+      'Speed Breakers',
+      'Rumble Strips',
+      'Bollards',
+      'Parking Barriers',
+      // Signage
+      'Traffic Signs',
+      'Highway Signs',
+      'Reflective Signs',
+      'LED Traffic Signs',
+      'Warning Signs',
+      'Directional Signs',
+      // Road Marking
+      'Thermoplastic Road Marking',
+      'Road Paint',
+      'Lane Marking',
+      'Zebra Crossing Materials',
+      // Infrastructure
+      'Street Light Poles',
+      'Highway Lighting',
+      'Toll Plaza Equipment',
+      'Road Dividers',
+      'Kerb Stones',
+      'Drainage Systems',
+    ]
+  },
 ];
 
 export const getAllCategoryNames = (): string[] => {
