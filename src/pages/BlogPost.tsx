@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calendar, User, Share2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Share2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import { toast } from 'sonner';
@@ -46,6 +46,19 @@ const processContent = (content: string): string => {
   return html;
 };
 
+// Calculate reading time
+const calculateReadingTime = (content: string): number => {
+  const text = content.replace(/<[^>]*>/g, ''); // Strip HTML tags
+  const words = text.trim().split(/\s+/).length;
+  return Math.ceil(words / 200); // Average reading speed: 200 words/min
+};
+
+// Count words for schema
+const countWords = (content: string): number => {
+  const text = content.replace(/<[^>]*>/g, '');
+  return text.trim().split(/\s+/).length;
+};
+
 interface Blog {
   id: string;
   title: string;
@@ -64,6 +77,9 @@ const BlogPost = () => {
   const navigate = useNavigate();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const readingTime = useMemo(() => blog ? calculateReadingTime(blog.content) : 0, [blog]);
+  const wordCount = useMemo(() => blog ? countWords(blog.content) : 0, [blog]);
 
   // SEO with dynamic content
   useSEO({
@@ -111,10 +127,39 @@ const BlogPost = () => {
           "@id": `https://procuresaathi.com/blogs/${blog.slug}`
         },
         "articleSection": blog.category,
-        "keywords": `${blog.category}, B2B procurement, supplier sourcing`
+        "keywords": `${blog.category}, B2B procurement, supplier sourcing`,
+        "wordCount": wordCount,
+        "inLanguage": "en-IN"
       }, 'article-schema');
+
+      // BlogPosting schema for better blog SEO
+      injectStructuredData({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": blog.title,
+        "alternativeHeadline": blog.excerpt || undefined,
+        "image": blog.cover_image || "https://procuresaathi.com/og-image.png",
+        "author": {
+          "@type": "Person",
+          "name": blog.author_name || "ProcureSaathi Team"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "ProcureSaathi",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://procuresaathi.com/logo.png"
+          }
+        },
+        "datePublished": blog.published_at || blog.created_at,
+        "dateModified": blog.published_at || blog.created_at,
+        "articleBody": blog.content.replace(/<[^>]*>/g, '').substring(0, 500),
+        "wordCount": wordCount,
+        "timeRequired": `PT${readingTime}M`,
+        "url": `https://procuresaathi.com/blogs/${blog.slug}`
+      }, 'blogposting-schema');
     }
-  }, [blog]);
+  }, [blog, wordCount, readingTime]);
 
   useEffect(() => {
     if (slug) {
@@ -156,7 +201,7 @@ const BlogPost = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background py-12">
+      <main className="min-h-screen bg-background py-12" aria-busy="true">
         <div className="container mx-auto px-4 max-w-4xl">
           <Skeleton className="h-8 w-32 mb-8" />
           <Skeleton className="h-64 w-full mb-8 rounded-lg" />
@@ -168,65 +213,71 @@ const BlogPost = () => {
             <Skeleton className="h-4 w-3/4" />
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (!blog) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <main className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Blog not found</h1>
           <Button asChild>
             <Link to="/blogs">Back to Blogs</Link>
           </Button>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background">
       {/* Back Button */}
-      <div className="container mx-auto px-4 py-6">
+      <nav className="container mx-auto px-4 py-6" aria-label="Blog navigation">
         <Button variant="ghost" asChild>
           <Link to="/blogs" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back to Blogs
           </Link>
         </Button>
-      </div>
+      </nav>
 
       {/* Cover Image */}
       {blog.cover_image && (
-        <div className="w-full h-64 md:h-96 overflow-hidden">
+        <figure className="w-full h-64 md:h-96 overflow-hidden">
           <img
             src={blog.cover_image}
-            alt={blog.title}
+            alt={`Cover image for ${blog.title}`}
             className="w-full h-full object-cover"
+            width="1200"
+            height="600"
           />
-        </div>
+        </figure>
       )}
 
       {/* Content */}
       <article className="container mx-auto px-4 py-12 max-w-4xl">
-        <div className="mb-8">
+        <header className="mb-8">
           <Badge className="mb-4">{blog.category}</Badge>
           <h1 className="text-3xl md:text-4xl font-bold mb-4">{blog.title}</h1>
           
           <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
             {blog.author_name && (
               <span className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                {blog.author_name}
+                <User className="h-4 w-4" aria-hidden="true" />
+                <span itemProp="author">{blog.author_name}</span>
               </span>
             )}
-            <span className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
+            <time dateTime={blog.published_at || blog.created_at} className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" aria-hidden="true" />
               {format(new Date(blog.published_at || blog.created_at), 'MMMM d, yyyy')}
+            </time>
+            <span className="flex items-center gap-2">
+              <Clock className="h-4 w-4" aria-hidden="true" />
+              {readingTime} min read
             </span>
-            <Button variant="ghost" size="sm" onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
+            <Button variant="ghost" size="sm" onClick={handleShare} aria-label="Share this article">
+              <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
               Share
             </Button>
           </div>
@@ -236,26 +287,27 @@ const BlogPost = () => {
               {blog.excerpt}
             </p>
           )}
-        </div>
+        </header>
 
         {/* Blog Content - Process and sanitize */}
-        <div 
+        <section 
           className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processContent(blog.content)) }}
+          aria-label="Blog content"
         />
 
         {/* Share Section */}
-        <div className="mt-12 pt-8 border-t">
+        <footer className="mt-12 pt-8 border-t">
           <div className="flex items-center justify-between">
             <p className="text-muted-foreground">Found this helpful? Share it!</p>
-            <Button onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
+            <Button onClick={handleShare} aria-label="Share this article">
+              <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
               Share Article
             </Button>
           </div>
-        </div>
+        </footer>
       </article>
-    </div>
+    </main>
   );
 };
 
