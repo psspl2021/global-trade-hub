@@ -176,7 +176,7 @@ const Index = () => {
 
       <main>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-muted/30 via-background to-muted/50 py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-muted/30 via-background to-muted/50 py-12 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -187,7 +187,7 @@ const Index = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
               India's #1 <span className="text-primary">B2B Sourcing</span> & <span className="text-warning">Procurement Platform</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
