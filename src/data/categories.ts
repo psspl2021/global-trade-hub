@@ -117,6 +117,17 @@ export const categoriesData: CategoryData[] = [
       'Organic Beauty',
       'Salon Equipment',
       'Personal Hygiene',
+      // Specialty Ingredients
+      'Emollients & Moisturizers',
+      'Emulsifiers',
+      'Conditioning Agents',
+      'UV Filters & Sunscreens',
+      'Active Ingredients',
+      'Natural Extracts',
+      'Essential Oils',
+      'Preservatives for Cosmetics',
+      'Rheology Modifiers',
+      'Colorants & Pigments',
     ]
   },
   {
@@ -306,6 +317,48 @@ export const categoriesData: CategoryData[] = [
       'Frozen Foods',
       'Organic Foods',
       'Snacks & Confectionery',
+      // Food Ingredients & Additives
+      'Food Preservatives',
+      'Food Emulsifiers',
+      'Food Colorants',
+      'Sweeteners',
+      'Flavor Enhancers',
+      'Thickening Agents',
+      'Stabilizers',
+      'Acidulants',
+      'Antioxidants',
+      // Nutrition
+      'Nutraceuticals',
+      'Dietary Supplements',
+      'Protein Ingredients',
+      'Vitamins & Minerals',
+      'Probiotics & Prebiotics',
+      'Sports Nutrition',
+    ]
+  },
+  {
+    name: 'Flavors & Fragrances',
+    icon: FlaskConical,
+    subcategories: [
+      'Natural Flavors',
+      'Synthetic Flavors',
+      'Fruit Flavors',
+      'Dairy Flavors',
+      'Savory Flavors',
+      'Beverage Flavors',
+      'Confectionery Flavors',
+      'Mint & Menthol',
+      'Vanilla & Vanillin',
+      'Citrus Flavors',
+      // Fragrances
+      'Fine Fragrances',
+      'Functional Fragrances',
+      'Aroma Chemicals',
+      'Essential Oils',
+      'Fragrance Oils',
+      'Musk Compounds',
+      'Floral Notes',
+      'Woody Notes',
     ]
   },
   {
