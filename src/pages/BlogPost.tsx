@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,40 @@ import { format } from 'date-fns';
 import { useSEO } from '@/hooks/useSEO';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
+
+// Simple markdown to HTML converter
+const parseMarkdown = (markdown: string): string => {
+  let html = markdown
+    // Escape HTML first
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    // Headers
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Bold and Italic
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Lists
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
+    // Paragraphs - wrap non-tag lines
+    .split('\n\n')
+    .map(block => {
+      const trimmed = block.trim();
+      if (!trimmed) return '';
+      if (trimmed.startsWith('<h') || trimmed.startsWith('<li')) return trimmed;
+      // Wrap lists in ul
+      if (trimmed.includes('<li>')) {
+        return `<ul>${trimmed}</ul>`;
+      }
+      return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+    })
+    .join('\n');
+  
+  return html;
+};
 
 interface Blog {
   id: string;
@@ -156,10 +190,10 @@ const BlogPost = () => {
           )}
         </div>
 
-        {/* Blog Content - Sanitized to prevent XSS */}
+        {/* Blog Content - Parse markdown and sanitize */}
         <div 
-          className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-a:text-primary"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
+          className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parseMarkdown(blog.content)) }}
         />
 
         {/* Share Section */}
