@@ -21,30 +21,34 @@ export const useCRMSEO = ({ pageType, companyName }: CRMSEOProps) => {
     const softwareSchema = {
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
-      name: 'ProcureSaathi CRM',
+      name: 'Free CRM & Tax Invoice Generator - ProcureSaathi',
       applicationCategory: 'BusinessApplication',
-      applicationSubCategory: 'Customer Relationship Management',
+      applicationSubCategory: 'CRM Software, Invoice Generator, B2B Tools',
       operatingSystem: 'Web Browser',
       offers: {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'INR',
-        description: 'Free CRM for suppliers to manage leads, invoices, and purchase orders'
+        description: 'Free CRM software and GST tax invoice generator for B2B suppliers. Manage leads, create invoices, and track sales pipeline at no cost.'
       },
       featureList: [
-        'Lead Management',
+        'Free CRM Software',
+        'GST Tax Invoice Generator',
+        'Proforma Invoice Maker',
+        'Lead Management System',
         'Activity Tracking',
         'Follow-up Reminders',
-        'Proforma Invoice Generation',
-        'Tax Invoice Generation',
         'Purchase Order Management',
-        'Pipeline Analytics'
+        'Debit Credit Note Generator',
+        'Document Export to Excel',
+        'Pipeline Value Analytics',
+        'Supplier Contact Management'
       ],
       screenshot: 'https://procuresaathi.com/og-image.png',
       aggregateRating: {
         '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        ratingCount: '150',
+        ratingValue: '4.9',
+        ratingCount: '250',
         bestRating: '5',
         worstRating: '1'
       }
@@ -66,38 +70,50 @@ export const useCRMSEO = ({ pageType, companyName }: CRMSEOProps) => {
     const howToSchema = {
       '@context': 'https://schema.org',
       '@type': 'HowTo',
-      name: 'How to Manage Leads with ProcureSaathi CRM',
-      description: 'Step-by-step guide to using the free CRM for B2B lead management',
+      name: 'How to Use Free CRM & Tax Invoice Generator',
+      description: 'Step-by-step guide to using the free CRM software and GST tax invoice generator for B2B businesses',
       step: [
         {
           '@type': 'HowToStep',
           position: 1,
           name: 'Add a New Lead',
-          text: 'Click "Add Lead" and enter contact details, company name, and expected deal value'
+          text: 'Click "Add Lead" and enter contact details, company name, and expected deal value in the free CRM'
         },
         {
           '@type': 'HowToStep',
           position: 2,
           name: 'Track Activities',
-          text: 'Log calls, emails, and meetings to maintain a complete interaction history'
+          text: 'Log calls, emails, and meetings to maintain a complete interaction history with leads'
         },
         {
           '@type': 'HowToStep',
           position: 3,
           name: 'Set Follow-ups',
-          text: 'Schedule follow-up dates to receive automated reminders'
+          text: 'Schedule follow-up dates to receive automated reminders for lead nurturing'
         },
         {
           '@type': 'HowToStep',
           position: 4,
           name: 'Update Lead Status',
-          text: 'Move leads through your pipeline: New → Contacted → Qualified → Proposal → Won'
+          text: 'Move leads through your sales pipeline: New → Contacted → Qualified → Proposal → Won'
         },
         {
           '@type': 'HowToStep',
           position: 5,
-          name: 'Generate Documents',
-          text: 'Create proforma invoices, tax invoices, and purchase orders directly from CRM'
+          name: 'Generate GST Tax Invoice',
+          text: 'Create GST-compliant tax invoices with HSN codes, GSTIN, and automatic tax calculation'
+        },
+        {
+          '@type': 'HowToStep',
+          position: 6,
+          name: 'Create Proforma Invoice',
+          text: 'Generate proforma invoices for quotations before finalizing deals'
+        },
+        {
+          '@type': 'HowToStep',
+          position: 7,
+          name: 'Manage Purchase Orders',
+          text: 'Create and track purchase orders with vendor details and delivery schedules'
         }
       ]
     };
@@ -114,41 +130,49 @@ export const useCRMSEO = ({ pageType, companyName }: CRMSEOProps) => {
   }, [pageType, companyName]);
 };
 
-// FAQ Schema for CRM
+// FAQ Schema for Free CRM & Tax Invoice Generator
 export const getCRMFAQSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'Is ProcureSaathi CRM free to use?',
+      name: 'Is the CRM and Tax Invoice Generator really free?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes, the CRM is completely free for all registered suppliers on ProcureSaathi. It includes lead management, activity tracking, and document generation features at no cost.'
+        text: 'Yes, the CRM software and GST tax invoice generator are completely free for all registered suppliers and logistics partners on ProcureSaathi. No hidden charges, no premium tier required for basic features.'
       }
     },
     {
       '@type': 'Question',
-      name: 'What features does the CRM include?',
+      name: 'What features does the free CRM include?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'ProcureSaathi CRM includes: Lead pipeline management with status tracking, Activity logging for calls/emails/meetings, Automated follow-up reminders, Proforma and Tax invoice generation, Purchase order management, and Pipeline value analytics.'
+        text: 'The free CRM includes: Lead pipeline management, Activity logging for calls/emails/meetings, Automated follow-up reminders, Contact management, Pipeline value analytics, and complete document generation suite.'
       }
     },
     {
       '@type': 'Question',
-      name: 'How do follow-up reminders work?',
+      name: 'Can I generate GST tax invoices for free?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'When you set a follow-up date for a lead, the system automatically sends you a notification on that date. Overdue follow-ups are also flagged so you never miss an important touchpoint.'
+        text: 'Yes, you can create GST-compliant tax invoices with HSN codes, GSTIN validation, and automatic tax calculation. Export invoices to Excel or PDF for your records.'
       }
     },
     {
       '@type': 'Question',
-      name: 'Can I generate invoices from the CRM?',
+      name: 'What types of invoices can I create?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes, you can create both Proforma Invoices and GST Tax Invoices directly from the CRM. Simply fill in the buyer details and line items, and the system calculates taxes automatically.'
+        text: 'You can create Proforma Invoices, GST Tax Invoices, Purchase Orders, Debit Notes, and Credit Notes. All documents include your company logo and are GST-compliant.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'How do I get 1 year FREE premium subscription?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The first 100 suppliers and logistics partners to sign up get 1 year FREE premium subscription worth ₹24,950. This includes unlimited bids, free CRM, tax invoice generator, early adopter badge, and priority support.'
       }
     }
   ]
