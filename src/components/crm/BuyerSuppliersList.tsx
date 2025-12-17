@@ -4,9 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Search, Edit2, Trash2, Building2, Mail, Phone } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Building2, Mail, Phone, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ExternalSupplierSearch } from './ExternalSupplierSearch';
 
 interface BuyerSuppliersListProps {
   userId: string;
@@ -16,6 +17,7 @@ interface BuyerSuppliersListProps {
 
 export const BuyerSuppliersList = ({ userId, onCreateSupplier, onEditSupplier }: BuyerSuppliersListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showExternalSearch, setShowExternalSearch] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: suppliers, isLoading } = useQuery({
@@ -67,11 +69,22 @@ export const BuyerSuppliersList = ({ userId, onCreateSupplier, onEditSupplier }:
             className="pl-10"
           />
         </div>
-        <Button onClick={onCreateSupplier}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Supplier
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowExternalSearch(true)}>
+            <Globe className="h-4 w-4 mr-2" />
+            Find Vendors
+          </Button>
+          <Button onClick={onCreateSupplier}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Supplier
+          </Button>
+        </div>
       </div>
+
+      <ExternalSupplierSearch 
+        open={showExternalSearch} 
+        onOpenChange={setShowExternalSearch} 
+      />
 
       {isLoading ? (
         <div className="text-center py-8 text-muted-foreground">Loading suppliers...</div>

@@ -19,7 +19,7 @@ serve(async (req) => {
   }
 
   try {
-    const { keyword = '', category = '', country = '' } = await req.json();
+    const { keyword = '', category = '', country = '', searchSource = 'all' } = await req.json();
 
     // Input validation
     const maxLength = 200;
@@ -36,13 +36,24 @@ serve(async (req) => {
       );
     }
     
-    console.log('Search request:', { keyword, category, country });
+    console.log('Search request:', { keyword, category, country, searchSource });
     
     // Build search query
     let query = keyword || 'B2B suppliers';
     if (category) query += ` ${category}`;
     query += ' suppliers manufacturers wholesalers';
     if (country) query += ` in ${country}`;
+    
+    // Add source-specific site filter
+    if (searchSource === 'freshdi') {
+      query += ' site:freshdi.com';
+    } else if (searchSource === 'alibaba') {
+      query += ' site:alibaba.com';
+    } else if (searchSource === 'indiamart') {
+      query += ' site:indiamart.com';
+    } else if (searchSource === 'tradeindia') {
+      query += ' site:tradeindia.com';
+    }
     
     console.log('Constructed query:', query);
     
@@ -114,7 +125,7 @@ serve(async (req) => {
     
     console.log(`Found ${results.length} results`);
     
-    return new Response(JSON.stringify({ results, query }), {
+    return new Response(JSON.stringify({ results, query, searchSource }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
     
