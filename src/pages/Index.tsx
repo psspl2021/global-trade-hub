@@ -52,9 +52,49 @@ const Index = () => {
     twitterCard: "summary_large_image"
   });
 
-  // Inject Organization schema
+  // Inject Organization and HowTo schemas
   useEffect(() => {
     injectStructuredData(getOrganizationSchema(), 'organization-schema');
+    
+    // HowTo schema for "How It Works" section
+    const howToSchema = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Source Products on ProcureSaathi",
+      "description": "Simple steps to source products or sell on ProcureSaathi - India's trusted B2B procurement platform connecting verified buyers and suppliers",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Post Requirement",
+          "text": "Submit your sourcing needs with detailed specifications on ProcureSaathi"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Receive Sealed Bids",
+          "text": "Get competitive bids from verified suppliers across India"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Accept Best Bid",
+          "text": "Review and accept the lowest bid from qualified suppliers"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Complete Transaction",
+          "text": "Finalize your purchase with ProcureSaathi support and secure payment"
+        }
+      ],
+      "totalTime": "PT15M",
+      "tool": {
+        "@type": "HowToTool",
+        "name": "ProcureSaathi Platform"
+      }
+    };
+    injectStructuredData(howToSchema, 'howto-schema');
   }, []);
 
   const handleLiveStockClick = () => {
@@ -490,80 +530,111 @@ const Index = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-16">
+      {/* How It Works Section - SEO Optimized */}
+      <section 
+        id="how-it-works" 
+        className="py-16"
+        aria-labelledby="how-it-works-heading"
+        itemScope 
+        itemType="https://schema.org/HowTo"
+      >
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">How It Works</h2>
-          <p className="text-center text-muted-foreground mb-12">Simple steps to source or sell on ProcureSaathi</p>
+          <header className="text-center mb-12">
+            <h2 
+              id="how-it-works-heading" 
+              className="text-3xl font-bold mb-4"
+              itemProp="name"
+            >
+              How It Works - B2B Sourcing Made Simple
+            </h2>
+            <p 
+              className="text-muted-foreground max-w-2xl mx-auto"
+              itemProp="description"
+            >
+              Simple steps to source products or sell on ProcureSaathi - India's trusted B2B procurement platform connecting verified buyers and suppliers
+            </p>
+          </header>
           
           <Tabs defaultValue="buyer" className="max-w-5xl mx-auto">
-            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8">
-              <TabsTrigger value="buyer">For Buyers</TabsTrigger>
-              <TabsTrigger value="supplier">For Suppliers</TabsTrigger>
-              <TabsTrigger value="logistics">For Logistics</TabsTrigger>
+            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8" aria-label="Select user type">
+              <TabsTrigger value="buyer" aria-label="Steps for buyers">For Buyers</TabsTrigger>
+              <TabsTrigger value="supplier" aria-label="Steps for suppliers">For Suppliers</TabsTrigger>
+              <TabsTrigger value="logistics" aria-label="Steps for logistics partners">For Logistics</TabsTrigger>
             </TabsList>
             
             <TabsContent value="buyer">
-              <div className="grid md:grid-cols-4 gap-6">
+              <ol className="grid md:grid-cols-4 gap-6 list-none p-0" role="list" aria-label="Steps for buyers to source products">
                 {buyerSteps.map((step, index) => (
-                  <Card key={step.title} className="text-center relative">
-                    <CardContent className="p-6">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
-                      </div>
-                      <step.icon className="h-10 w-10 text-primary mx-auto mb-4 mt-2" />
-                      <h4 className="font-semibold mb-2">{step.title}</h4>
-                      <p className="text-sm text-muted-foreground">{step.description}</p>
-                    </CardContent>
-                  </Card>
+                  <li key={step.title} itemProp="step" itemScope itemType="https://schema.org/HowToStep">
+                    <Card className="text-center relative h-full">
+                      <CardContent className="p-6">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold" aria-hidden="true">
+                          {index + 1}
+                        </div>
+                        <step.icon className="h-10 w-10 text-primary mx-auto mb-4 mt-2" aria-hidden="true" />
+                        <h3 className="font-semibold mb-2 text-base" itemProp="name">
+                          Step {index + 1}: {step.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground" itemProp="text">{step.description}</p>
+                      </CardContent>
+                    </Card>
+                  </li>
                 ))}
-              </div>
+              </ol>
               <div className="text-center mt-8">
-                <Button size="lg" onClick={() => navigate('/signup?role=buyer')}>
+                <Button size="lg" onClick={() => navigate('/signup?role=buyer')} aria-label="Start sourcing products on ProcureSaathi">
                   Start Sourcing Now
                 </Button>
               </div>
             </TabsContent>
             
             <TabsContent value="supplier">
-              <div className="grid md:grid-cols-4 gap-6">
+              <ol className="grid md:grid-cols-4 gap-6 list-none p-0" role="list" aria-label="Steps for suppliers to sell products">
                 {supplierSteps.map((step, index) => (
-                  <Card key={step.title} className="text-center relative">
-                    <CardContent className="p-6">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-warning text-warning-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
-                      </div>
-                      <step.icon className="h-10 w-10 text-warning mx-auto mb-4 mt-2" />
-                      <h4 className="font-semibold mb-2">{step.title}</h4>
-                      <p className="text-sm text-muted-foreground">{step.description}</p>
-                    </CardContent>
-                  </Card>
+                  <li key={step.title}>
+                    <Card className="text-center relative h-full">
+                      <CardContent className="p-6">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-warning text-warning-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold" aria-hidden="true">
+                          {index + 1}
+                        </div>
+                        <step.icon className="h-10 w-10 text-warning mx-auto mb-4 mt-2" aria-hidden="true" />
+                        <h3 className="font-semibold mb-2 text-base">
+                          Step {index + 1}: {step.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{step.description}</p>
+                      </CardContent>
+                    </Card>
+                  </li>
                 ))}
-              </div>
+              </ol>
               <div className="text-center mt-8">
-                <Button size="lg" variant="outline" className="border-warning text-warning hover:bg-warning hover:text-warning-foreground" onClick={() => navigate('/signup?role=supplier')}>
+                <Button size="lg" variant="outline" className="border-warning text-warning hover:bg-warning hover:text-warning-foreground" onClick={() => navigate('/signup?role=supplier')} aria-label="Start selling products on ProcureSaathi">
                   Start Selling Now
                 </Button>
               </div>
             </TabsContent>
 
             <TabsContent value="logistics">
-              <div className="grid md:grid-cols-4 gap-6">
+              <ol className="grid md:grid-cols-4 gap-6 list-none p-0" role="list" aria-label="Steps for logistics partners">
                 {logisticsSteps.map((step, index) => (
-                  <Card key={step.title} className="text-center relative">
-                    <CardContent className="p-6">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
-                      </div>
-                      <step.icon className="h-10 w-10 text-primary mx-auto mb-4 mt-2" />
-                      <h4 className="font-semibold mb-2">{step.title}</h4>
-                      <p className="text-sm text-muted-foreground">{step.description}</p>
-                    </CardContent>
-                  </Card>
+                  <li key={step.title}>
+                    <Card className="text-center relative h-full">
+                      <CardContent className="p-6">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold" aria-hidden="true">
+                          {index + 1}
+                        </div>
+                        <step.icon className="h-10 w-10 text-primary mx-auto mb-4 mt-2" aria-hidden="true" />
+                        <h3 className="font-semibold mb-2 text-base">
+                          Step {index + 1}: {step.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{step.description}</p>
+                      </CardContent>
+                    </Card>
+                  </li>
                 ))}
-              </div>
+              </ol>
               <div className="text-center mt-8">
-                <Button size="lg" onClick={() => navigate('/signup?role=logistics_partner')}>
+                <Button size="lg" onClick={() => navigate('/signup?role=logistics_partner')} aria-label="Register as logistics partner on ProcureSaathi">
                   Register as Logistics Partner
                 </Button>
               </div>
