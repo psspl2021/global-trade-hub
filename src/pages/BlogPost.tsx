@@ -10,13 +10,15 @@ import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSE
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
 
-// Simple markdown to HTML converter
-const parseMarkdown = (markdown: string): string => {
-  let html = markdown
-    // Escape HTML first
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+// Process content - detect if HTML or markdown
+const processContent = (content: string): string => {
+  // If content already contains HTML tags, return as-is
+  if (/<[a-z][\s\S]*>/i.test(content)) {
+    return content;
+  }
+  
+  // Otherwise, parse as markdown
+  let html = content
     // Headers
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
@@ -236,10 +238,10 @@ const BlogPost = () => {
           )}
         </div>
 
-        {/* Blog Content - Parse markdown and sanitize */}
+        {/* Blog Content - Process and sanitize */}
         <div 
           className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parseMarkdown(blog.content)) }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processContent(blog.content)) }}
         />
 
         {/* Share Section */}
