@@ -22,6 +22,7 @@ const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Requirements = lazy(() => import("./pages/Requirements"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Simple loading fallback
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/book-truck" element={<BookTruck />} />
               <Route path="/blogs" element={<Blogs />} />
               <Route path="/blogs/:slug" element={<BlogPost />} />
+              <Route path="/requirements" element={<Requirements />} />
               <Route path="/source/:country" element={<SourceCountry />} />
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
