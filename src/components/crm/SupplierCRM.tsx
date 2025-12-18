@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Users, Package, UserCheck, ShoppingCart } from 'lucide-react';
@@ -16,6 +16,7 @@ import { SupplierSalesList } from './SupplierSalesList';
 import { SupplierSaleForm } from './SupplierSaleForm';
 import { SupplierSaleViewer } from './SupplierSaleViewer';
 import { SupplierStockManagementWrapper } from './SupplierStockManagementWrapper';
+import { SupplierCatalog } from '@/components/SupplierCatalog';
 import { useCRMSEO } from '@/hooks/useCRMSEO';
 
 interface SupplierCRMProps {
@@ -59,6 +60,16 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
   const [editSaleId, setEditSaleId] = useState<string | null>(null);
   const [viewSaleId, setViewSaleId] = useState<string | null>(null);
   const [salesRefreshKey, setSalesRefreshKey] = useState(0);
+
+  // Catalog state
+  const [catalogOpen, setCatalogOpen] = useState(false);
+
+  // Auto-open catalog when CRM opens
+  useEffect(() => {
+    if (open) {
+      setCatalogOpen(true);
+    }
+  }, [open]);
 
   // Document handlers
   const handleCreateInvoice = (type: 'proforma_invoice' | 'tax_invoice') => {
@@ -193,7 +204,7 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
             </TabsList>
 
             <TabsContent value="stock" className="mt-4">
-              <SupplierStockManagementWrapper userId={userId} />
+              <SupplierStockManagementWrapper onOpenCatalog={() => setCatalogOpen(true)} />
             </TabsContent>
 
             <TabsContent value="customers" className="mt-4">
@@ -316,6 +327,13 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
         open={saleViewerOpen}
         onOpenChange={setSaleViewerOpen}
         saleId={viewSaleId}
+      />
+
+      {/* Product Catalog */}
+      <SupplierCatalog
+        open={catalogOpen}
+        onOpenChange={setCatalogOpen}
+        userId={userId}
       />
     </>
   );
