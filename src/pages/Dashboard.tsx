@@ -778,6 +778,32 @@ const Dashboard = () => {
 
         {role === 'supplier' && (
           <>
+            {/* Compulsory Products Reminder Banner */}
+            <Card className="mb-6 border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 dark:border-amber-700">
+              <CardContent className="py-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-full">
+                      <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-amber-800 dark:text-amber-300">Add Products for Higher Visibility</p>
+                      <p className="text-sm text-amber-700 dark:text-amber-400">
+                        Adding products to your catalogue is compulsory. Suppliers with complete catalogues get priority in buyer searches.
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => setShowCatalog(true)} 
+                    className="bg-amber-600 hover:bg-amber-700 text-white shrink-0"
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    Add Products Now
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>
