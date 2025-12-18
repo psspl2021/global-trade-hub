@@ -140,6 +140,8 @@ const Dashboard = () => {
   useEffect(() => {
     if (user?.id && role === 'supplier') {
       fetchSubscription();
+      // Auto-open Product Catalog for suppliers on login
+      setShowCatalog(true);
     }
     if (user?.id && role === 'logistics_partner') {
       fetchLogisticsAssets();
