@@ -134,11 +134,15 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (!item.item_name.trim()) {
-        toast.error(`Item ${i + 1}: Please enter item name`);
+        toast.error(`Item ${i + 1}: Please enter product name`);
         return false;
       }
       if (!item.category) {
         toast.error(`Item ${i + 1}: Please select a category`);
+        return false;
+      }
+      if (!item.description.trim()) {
+        toast.error(`Item ${i + 1}: Please enter product description`);
         return false;
       }
       if (item.quantity <= 0) {
@@ -285,7 +289,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Item Name *</Label>
+                      <Label className="text-xs">Product Name *</Label>
                       <Input
                         placeholder="e.g., Steel Ball Bearings"
                         value={item.item_name}
@@ -362,9 +366,10 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
                     </div>
 
                     <div className="md:col-span-2 space-y-1.5">
-                      <Label className="text-xs">Item Description</Label>
-                      <Input
-                        placeholder="Additional item specifications"
+                      <Label className="text-xs">Product Description *</Label>
+                      <Textarea
+                        placeholder="Provide detailed specifications, quality requirements, material details, etc."
+                        rows={2}
                         value={item.description}
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
                       />
