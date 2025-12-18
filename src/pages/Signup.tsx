@@ -130,6 +130,11 @@ const Signup = () => {
     }
     
     setLoading(false);
+    
+    // Redirect to login page after successful signup
+    if (!error) {
+      navigate('/login');
+    }
   };
 
   return (
