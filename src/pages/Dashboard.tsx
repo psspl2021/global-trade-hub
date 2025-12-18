@@ -165,40 +165,46 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-16 w-auto object-contain cursor-pointer"
+              className="h-10 sm:h-16 w-auto object-contain cursor-pointer"
               width={64}
               height={64}
               loading="eager"
             />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <NotificationBell />
-            <Button variant="outline" size="icon" onClick={() => setShowProfileSettings(true)}>
+            <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => setShowProfileSettings(true)}>
               <Settings className="h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={async () => {
+            <Button variant="outline" size="sm" className="hidden sm:flex" onClick={async () => {
               await signOut();
               navigate('/');
             }}>
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
+            <Button variant="outline" size="icon" className="h-8 w-8 sm:hidden" onClick={async () => {
+              await signOut();
+              navigate('/');
+            }}>
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">
+      <main className="container mx-auto px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
             Welcome back, {user?.user_metadata?.contact_person || 'User'}!
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {user?.user_metadata?.company_name} • {role?.toUpperCase()}
           </p>
         </div>
@@ -279,8 +285,8 @@ const Dashboard = () => {
         )}
 
         {role === 'buyer' && (
-          <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Post Requirement</CardTitle>
@@ -389,7 +395,7 @@ const Dashboard = () => {
         )}
 
         {role === 'logistics_partner' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Verification Status Card */}
             {!partnerVerification.loading && !partnerVerification.isFullyVerified && (
               <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800">
@@ -404,7 +410,7 @@ const Dashboard = () => {
                     Your documents need to be verified before you can browse and submit quotes for logistics requirements.
                   </p>
                   
-                  <div className="grid gap-2 md:grid-cols-3">
+                  <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                     {/* Verified Documents */}
                     {partnerVerification.verifiedDocuments.map((doc) => (
                       <div key={doc} className="flex items-center gap-2 p-2 bg-green-100 dark:bg-green-950/30 rounded-md">
@@ -462,7 +468,7 @@ const Dashboard = () => {
             )}
 
             {/* Asset Summary Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
               <Card className="bg-primary/5 border-primary/20">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-4">
@@ -491,7 +497,7 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -770,7 +776,7 @@ const Dashboard = () => {
 
         {role === 'supplier' && (
           <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>
                   <CardTitle>Manage Products</CardTitle>

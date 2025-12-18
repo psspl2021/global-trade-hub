@@ -80,20 +80,20 @@ export function AIChatBox() {
       <Button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg transition-all duration-300",
+          "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-lg transition-all duration-300",
           "bg-primary hover:bg-primary/90",
           isOpen && "rotate-90"
         )}
         size="icon"
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6" />}
+        {isOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />}
       </Button>
 
       {/* Chat Panel */}
       <div
         className={cn(
-          "fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-3rem)] overflow-hidden rounded-2xl border bg-background shadow-2xl transition-all duration-300",
+          "fixed bottom-20 sm:bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[360px] max-h-[70vh] sm:max-h-none overflow-hidden rounded-2xl border bg-background shadow-2xl transition-all duration-300",
           isOpen
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0"

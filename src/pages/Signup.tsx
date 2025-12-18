@@ -136,7 +136,7 @@ const Signup = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
-          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-40 w-auto object-contain" />
+          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 sm:h-32 w-auto object-contain" />
         </Link>
 
         <Card className="shadow-xl">
@@ -303,7 +303,7 @@ const Signup = () => {
                   </div>
                   
                   {(formData.referredByName !== 'Priyanka' || formData.referredByPhone !== '+91 8368127357') && (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="referredByName">Name *</Label>
                         <Input
