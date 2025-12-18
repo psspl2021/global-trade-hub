@@ -330,28 +330,109 @@ export const ApiIntegrationTab = ({ userId }: ApiIntegrationTabProps) => {
         </CardContent>
       </Card>
 
+      {/* Quick Setup Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">T</span>
+              </div>
+              <div>
+                <p className="font-medium text-sm">Tally Prime</p>
+                <p className="text-xs text-muted-foreground">ERP Integration</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Export stock via TDL or Excel import
+            </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="w-full text-xs"
+              onClick={() => copyToClipboard(`curl -X POST "${apiEndpoint}" -H "x-api-key: YOUR_API_KEY" -H "Content-Type: application/json" -d '{"source":"tally","items":[{"product_name":"Product","quantity":100,"unit":"kg"}]}'`)}
+            >
+              <Copy className="h-3 w-3 mr-1" />
+              Copy Tally Script
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <span className="text-lg font-bold text-green-600 dark:text-green-400">B</span>
+              </div>
+              <div>
+                <p className="font-medium text-sm">Busy Accounting</p>
+                <p className="text-xs text-muted-foreground">Stock Sync</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Auto-sync via scheduled export
+            </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="w-full text-xs"
+              onClick={() => copyToClipboard(`curl -X POST "${apiEndpoint}" -H "x-api-key: YOUR_API_KEY" -H "Content-Type: application/json" -d '{"source":"busy","items":[{"product_name":"Product","quantity":100,"unit":"pcs"}]}'`)}
+            >
+              <Copy className="h-3 w-3 mr-1" />
+              Copy Busy Script
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                <Code className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Custom API</p>
+                <p className="text-xs text-muted-foreground">Any Software</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              REST API for any integration
+            </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="w-full text-xs"
+              onClick={() => copyToClipboard(apiEndpoint)}
+            >
+              <Copy className="h-3 w-3 mr-1" />
+              Copy Endpoint
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* API Documentation */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <Code className="h-4 w-4" />
-            API Documentation
+            Integration Guide
           </CardTitle>
           <CardDescription className="text-xs">
-            Use these endpoints to sync stock from your accounting software
+            Step-by-step setup for your accounting software
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="bg-muted/50 p-3 rounded-lg space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-medium">Endpoint</Label>
+              <Label className="text-xs font-medium">API Endpoint</Label>
               <Button
                 size="sm"
                 variant="ghost"
                 className="h-6 px-2"
                 onClick={() => copyToClipboard(apiEndpoint)}
               >
-                <Copy className="h-3 w-3" />
+                {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               </Button>
             </div>
             <code className="text-xs bg-background p-2 rounded block break-all">
@@ -360,53 +441,139 @@ export const ApiIntegrationTab = ({ userId }: ApiIntegrationTabProps) => {
           </div>
 
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="curl">
-              <AccordionTrigger className="text-xs">cURL Example</AccordionTrigger>
-              <AccordionContent>
-                <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
-{`curl -X POST "${apiEndpoint}" \\
-  -H "x-api-key: sk_live_YOUR_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "source": "tally",
-    "items": [
-      {"product_name": "Steel Rods", "quantity": 500, "unit": "kg"},
-      {"product_name": "Copper Wire", "quantity": 200}
-    ]
-  }'`}
-                </pre>
+            <AccordionItem value="tally-detailed">
+              <AccordionTrigger className="text-xs font-medium">
+                <span className="flex items-center gap-2">
+                  <span className="w-5 h-5 bg-blue-100 dark:bg-blue-900 rounded text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold">T</span>
+                  Tally Prime Step-by-Step Setup
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="text-xs space-y-3">
+                <div className="space-y-2">
+                  <p className="font-medium">Method 1: Excel Export (Easiest)</p>
+                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground pl-2">
+                    <li>Open Tally Prime → Go to <strong>Gateway of Tally</strong></li>
+                    <li>Select <strong>Stock Summary</strong> report</li>
+                    <li>Press <strong>E</strong> to Export → Choose <strong>Excel</strong></li>
+                    <li>Come back to ProcureSaathi → Use <strong>Import</strong> tab</li>
+                    <li>Upload the Excel file - stock syncs automatically!</li>
+                  </ol>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-medium">Method 2: Automated TDL (Advanced)</p>
+                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground pl-2">
+                    <li>Create a TDL file with HTTP POST function</li>
+                    <li>Set API endpoint: <code className="bg-muted px-1 rounded">{apiEndpoint}</code></li>
+                    <li>Add header: <code className="bg-muted px-1 rounded">x-api-key: YOUR_KEY</code></li>
+                    <li>Schedule daily sync via Tally's scheduler</li>
+                  </ol>
+                </div>
+                <Alert className="mt-2">
+                  <AlertCircle className="h-3 w-3" />
+                  <AlertDescription className="text-xs">
+                    Need help? Contact support@procuresaathi.com for free integration assistance!
+                  </AlertDescription>
+                </Alert>
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="response">
-              <AccordionTrigger className="text-xs">Response Format</AccordionTrigger>
+            <AccordionItem value="busy-detailed">
+              <AccordionTrigger className="text-xs font-medium">
+                <span className="flex items-center gap-2">
+                  <span className="w-5 h-5 bg-green-100 dark:bg-green-900 rounded text-green-600 dark:text-green-400 flex items-center justify-center text-xs font-bold">B</span>
+                  Busy Accounting Setup
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="text-xs space-y-3">
+                <div className="space-y-2">
+                  <p className="font-medium">Excel Export Method</p>
+                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground pl-2">
+                    <li>Open Busy → <strong>Transactions → Inventory Reports</strong></li>
+                    <li>Select <strong>Stock Summary</strong></li>
+                    <li>Click <strong>Export</strong> → Choose <strong>Excel Format</strong></li>
+                    <li>Upload to ProcureSaathi <strong>Import</strong> tab</li>
+                  </ol>
+                </div>
+                <div className="space-y-2 mt-2">
+                  <p className="font-medium">Required Excel Columns:</p>
+                  <code className="bg-muted p-2 rounded block">
+                    product_name | quantity | unit (optional)
+                  </code>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="api-format">
+              <AccordionTrigger className="text-xs font-medium">
+                <span className="flex items-center gap-2">
+                  <Code className="h-4 w-4 text-purple-600" />
+                  API Request & Response Format
+                </span>
+              </AccordionTrigger>
               <AccordionContent>
-                <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs font-medium mb-1">Request Body:</p>
+                    <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+{`{
+  "source": "tally",  // or "busy", "custom"
+  "items": [
+    {
+      "product_name": "Steel Rods 12mm",
+      "quantity": 500,
+      "unit": "kg"  // optional, defaults to "units"
+    },
+    {
+      "product_name": "Copper Wire 2.5mm",
+      "quantity": 200,
+      "unit": "meters"
+    }
+  ]
+}`}
+                    </pre>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium mb-1">Success Response:</p>
+                    <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
 {`{
   "success": true,
-  "status": "success", // or "partial", "failed"
+  "status": "success",
   "summary": {
-    "products_updated": 5,
+    "products_updated": 2,
     "products_created": 0,
     "errors": 0
   }
 }`}
-                </pre>
+                    </pre>
+                  </div>
+                </div>
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="tally">
-              <AccordionTrigger className="text-xs">Tally Integration Guide</AccordionTrigger>
-              <AccordionContent className="text-xs space-y-2">
-                <p>To sync stock from Tally Prime:</p>
-                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-                  <li>Export stock summary from Tally as Excel</li>
-                  <li>Use the Import tab to upload, or</li>
-                  <li>Use a scheduled script with the API</li>
-                </ol>
-                <p className="text-muted-foreground">
-                  For automated sync, create a TDL function that calls this API endpoint.
-                </p>
+            <AccordionItem value="curl">
+              <AccordionTrigger className="text-xs">Complete cURL Example</AccordionTrigger>
+              <AccordionContent>
+                <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+{`curl -X POST "${apiEndpoint}" \\
+  -H "x-api-key: sk_live_YOUR_KEY_HERE" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "source": "tally",
+    "items": [
+      {"product_name": "Steel Rods 12mm", "quantity": 500, "unit": "kg"},
+      {"product_name": "Copper Wire 2.5mm", "quantity": 200, "unit": "meters"}
+    ]
+  }'`}
+                </pre>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-2 w-full"
+                  onClick={() => copyToClipboard(`curl -X POST "${apiEndpoint}" -H "x-api-key: sk_live_YOUR_KEY_HERE" -H "Content-Type: application/json" -d '{"source":"tally","items":[{"product_name":"Steel Rods 12mm","quantity":500,"unit":"kg"},{"product_name":"Copper Wire 2.5mm","quantity":200,"unit":"meters"}]}'`)}
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  Copy Full Command
+                </Button>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
