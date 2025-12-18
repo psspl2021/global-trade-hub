@@ -92,6 +92,35 @@ const Signup = () => {
       return;
     }
 
+    // Check for duplicate phone number
+    setLoading(true);
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data: existingPhone } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('phone', result.data.phone)
+      .maybeSingle();
+    
+    if (existingPhone) {
+      setLoading(false);
+      setErrors({ phone: 'This phone number is already registered' });
+      return;
+    }
+
+    // Check for duplicate email
+    const { data: existingEmail } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', result.data.email)
+      .maybeSingle();
+    
+    if (existingEmail) {
+      setLoading(false);
+      setErrors({ email: 'This email is already registered' });
+      return;
+    }
+    setLoading(false);
+
     // Check password against known breaches
     setCheckingPassword(true);
     const breachResult = await checkPasswordBreach(result.data.password);
