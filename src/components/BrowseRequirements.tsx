@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,8 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send, Building2, Star, Share2, Copy, Check } from 'lucide-react';
+import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send, Building2, Star, Share2, Copy, Check, Filter } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +16,7 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { maskCompanyName } from '@/lib/utils';
+import { categoriesData } from '@/data/categories';
 
 interface Requirement {
   id: string;
@@ -98,6 +100,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const [itemBids, setItemBids] = useState<Record<string, ItemBid>>({});
   const [submitting, setSubmitting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [subscription, setSubscription] = useState<{ 
     bids_used_this_month: number; 
     bids_limit: number; 
@@ -105,6 +108,18 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     premium_bids_balance: number;
   } | null>(null);
   const { toast } = useToast();
+
+  // Get unique categories from requirements for the filter
+  const availableCategories = useMemo(() => {
+    const categories = [...new Set(requirements.map(r => r.product_category))];
+    return categories.sort();
+  }, [requirements]);
+
+  // Filter requirements based on selected category
+  const filteredRequirements = useMemo(() => {
+    if (categoryFilter === 'all') return requirements;
+    return requirements.filter(r => r.product_category === categoryFilter);
+  }, [requirements, categoryFilter]);
 
   const handleShare = (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => {
     e.stopPropagation();
@@ -398,12 +413,36 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           <DialogTitle>Live Requirements</DialogTitle>
         </DialogHeader>
 
+        {!selectedRequirement && requirements.length > 0 && (
+          <div className="flex items-center gap-2 mb-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[280px]">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories ({requirements.length})</SelectItem>
+                {availableCategories.map(cat => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat} ({requirements.filter(r => r.product_category === cat).length})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {categoryFilter !== 'all' && (
+              <Button variant="ghost" size="sm" onClick={() => setCategoryFilter('all')}>
+                Clear
+              </Button>
+            )}
+          </div>
+        )}
+
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
-        ) : requirements.length === 0 ? (
+        ) : filteredRequirements.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>No active requirements at the moment.</p>
+            <p>{requirements.length === 0 ? 'No active requirements at the moment.' : 'No requirements match the selected category.'}</p>
           </div>
         ) : selectedRequirement ? (
           <div className="space-y-4">
@@ -595,7 +634,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           </div>
         ) : (
           <div className="space-y-4">
-            {requirements.map(req => (
+            {filteredRequirements.map(req => (
               <Card key={req.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handleSelectRequirement(req)}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
