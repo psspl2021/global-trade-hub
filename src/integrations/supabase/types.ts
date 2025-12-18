@@ -2050,6 +2050,48 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_customers: {
+        Row: {
+          address: string | null
+          company_name: string | null
+          created_at: string
+          customer_name: string
+          email: string | null
+          gstin: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          company_name?: string | null
+          created_at?: string
+          customer_name: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          company_name?: string | null
+          created_at?: string
+          customer_name?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       supplier_leads: {
         Row: {
           company_name: string | null
@@ -2100,6 +2142,106 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      supplier_sale_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_name: string
+          quantity: number
+          sale_id: string
+          tax_amount: number
+          tax_rate: number | null
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_name: string
+          quantity?: number
+          sale_id: string
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          unit?: string
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_name?: string
+          quantity?: number
+          sale_id?: string
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_sales: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          id: string
+          invoice_number: string | null
+          notes: string | null
+          payment_status: string
+          sale_date: string
+          status: string
+          supplier_id: string
+          tax_amount: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_status?: string
+          sale_date?: string
+          status?: string
+          supplier_id: string
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_status?: string
+          sale_date?: string
+          status?: string
+          supplier_id?: string
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_sales_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {

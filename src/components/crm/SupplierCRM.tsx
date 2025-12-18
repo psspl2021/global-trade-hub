@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Users } from 'lucide-react';
+import { FileText, Users, Package, UserCheck, ShoppingCart } from 'lucide-react';
 import { DocumentList } from './DocumentList';
 import { InvoiceForm } from './InvoiceForm';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
@@ -10,6 +10,12 @@ import { DocumentViewer } from './DocumentViewer';
 import { LeadsList } from './LeadsList';
 import { LeadForm } from './LeadForm';
 import { LeadViewer } from './LeadViewer';
+import { SupplierCustomersList } from './SupplierCustomersList';
+import { SupplierCustomerForm } from './SupplierCustomerForm';
+import { SupplierSalesList } from './SupplierSalesList';
+import { SupplierSaleForm } from './SupplierSaleForm';
+import { SupplierSaleViewer } from './SupplierSaleViewer';
+import { SupplierStockManagementWrapper } from './SupplierStockManagementWrapper';
 import { useCRMSEO } from '@/hooks/useCRMSEO';
 
 interface SupplierCRMProps {
@@ -19,9 +25,9 @@ interface SupplierCRMProps {
 }
 
 export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) => {
-  // SEO for CRM
   useCRMSEO({ pageType: 'leads' });
 
+  // Document states
   const [invoiceFormOpen, setInvoiceFormOpen] = useState(false);
   const [invoiceType, setInvoiceType] = useState<'proforma_invoice' | 'tax_invoice'>('proforma_invoice');
   const [poFormOpen, setPoFormOpen] = useState(false);
@@ -31,6 +37,9 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
   const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null);
   const [editPOId, setEditPOId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [noteFormOpen, setNoteFormOpen] = useState(false);
+  const [noteType, setNoteType] = useState<'debit_note' | 'credit_note'>('debit_note');
+  const [editNoteId, setEditNoteId] = useState<string | null>(null);
 
   // Lead states
   const [leadFormOpen, setLeadFormOpen] = useState(false);
@@ -39,11 +48,19 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
   const [viewLeadId, setViewLeadId] = useState<string | null>(null);
   const [leadsRefreshKey, setLeadsRefreshKey] = useState(0);
 
-  // Debit/Credit Note states
-  const [noteFormOpen, setNoteFormOpen] = useState(false);
-  const [noteType, setNoteType] = useState<'debit_note' | 'credit_note'>('debit_note');
-  const [editNoteId, setEditNoteId] = useState<string | null>(null);
+  // Customer states
+  const [customerFormOpen, setCustomerFormOpen] = useState(false);
+  const [editCustomerId, setEditCustomerId] = useState<string | null>(null);
+  const [customersRefreshKey, setCustomersRefreshKey] = useState(0);
 
+  // Sales states
+  const [saleFormOpen, setSaleFormOpen] = useState(false);
+  const [saleViewerOpen, setSaleViewerOpen] = useState(false);
+  const [editSaleId, setEditSaleId] = useState<string | null>(null);
+  const [viewSaleId, setViewSaleId] = useState<string | null>(null);
+  const [salesRefreshKey, setSalesRefreshKey] = useState(0);
+
+  // Document handlers
   const handleCreateInvoice = (type: 'proforma_invoice' | 'tax_invoice') => {
     setInvoiceType(type);
     setEditInvoiceId(null);
@@ -89,9 +106,7 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
     setNoteFormOpen(true);
   };
 
-  const handleRefresh = () => {
-    setRefreshKey((k) => k + 1);
-  };
+  const handleRefresh = () => setRefreshKey((k) => k + 1);
 
   // Lead handlers
   const handleCreateLead = () => {
@@ -109,9 +124,38 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
     setLeadFormOpen(true);
   };
 
-  const handleLeadsRefresh = () => {
-    setLeadsRefreshKey((k) => k + 1);
+  const handleLeadsRefresh = () => setLeadsRefreshKey((k) => k + 1);
+
+  // Customer handlers
+  const handleCreateCustomer = () => {
+    setEditCustomerId(null);
+    setCustomerFormOpen(true);
   };
+
+  const handleEditCustomer = (id: string) => {
+    setEditCustomerId(id);
+    setCustomerFormOpen(true);
+  };
+
+  const handleCustomersRefresh = () => setCustomersRefreshKey((k) => k + 1);
+
+  // Sales handlers
+  const handleCreateSale = () => {
+    setEditSaleId(null);
+    setSaleFormOpen(true);
+  };
+
+  const handleViewSale = (id: string) => {
+    setViewSaleId(id);
+    setSaleViewerOpen(true);
+  };
+
+  const handleEditSale = (id: string) => {
+    setEditSaleId(id);
+    setSaleFormOpen(true);
+  };
+
+  const handleSalesRefresh = () => setSalesRefreshKey((k) => k + 1);
 
   return (
     <>
@@ -120,29 +164,54 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
           <DialogHeader>
             <DialogTitle>Supplier CRM</DialogTitle>
             <DialogDescription>
-              Manage leads, invoices, and purchase orders
+              Manage stock, customers, sales, documents, and leads
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="leads" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="leads" className="text-sm">
-                <Users className="h-4 w-4 mr-2" />
-                Leads
+          <Tabs defaultValue="stock" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="stock" className="text-xs sm:text-sm">
+                <Package className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Stock</span>
               </TabsTrigger>
-              <TabsTrigger value="documents" className="text-sm">
-                <FileText className="h-4 w-4 mr-2" />
-                Documents
+              <TabsTrigger value="customers" className="text-xs sm:text-sm">
+                <UserCheck className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Customers</span>
+              </TabsTrigger>
+              <TabsTrigger value="sales" className="text-xs sm:text-sm">
+                <ShoppingCart className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Sales</span>
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="text-xs sm:text-sm">
+                <FileText className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Documents</span>
+              </TabsTrigger>
+              <TabsTrigger value="leads" className="text-xs sm:text-sm">
+                <Users className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Leads</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="leads" className="mt-4">
-              <LeadsList
-                key={leadsRefreshKey}
+            <TabsContent value="stock" className="mt-4">
+              <SupplierStockManagementWrapper userId={userId} />
+            </TabsContent>
+
+            <TabsContent value="customers" className="mt-4">
+              <SupplierCustomersList
+                key={customersRefreshKey}
                 userId={userId}
-                onCreateLead={handleCreateLead}
-                onViewLead={handleViewLead}
-                onEditLead={handleEditLead}
+                onCreateCustomer={handleCreateCustomer}
+                onEditCustomer={handleEditCustomer}
+              />
+            </TabsContent>
+
+            <TabsContent value="sales" className="mt-4">
+              <SupplierSalesList
+                key={salesRefreshKey}
+                userId={userId}
+                onCreateSale={handleCreateSale}
+                onEditSale={handleEditSale}
+                onViewSale={handleViewSale}
               />
             </TabsContent>
 
@@ -160,10 +229,21 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
                 onEditNote={handleEditNote}
               />
             </TabsContent>
+
+            <TabsContent value="leads" className="mt-4">
+              <LeadsList
+                key={leadsRefreshKey}
+                userId={userId}
+                onCreateLead={handleCreateLead}
+                onViewLead={handleViewLead}
+                onEditLead={handleEditLead}
+              />
+            </TabsContent>
           </Tabs>
         </DialogContent>
       </Dialog>
 
+      {/* Document Forms */}
       <InvoiceForm
         open={invoiceFormOpen}
         onOpenChange={setInvoiceFormOpen}
@@ -198,6 +278,7 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
         onRefresh={handleRefresh}
       />
 
+      {/* Lead Forms */}
       <LeadForm
         open={leadFormOpen}
         onOpenChange={setLeadFormOpen}
@@ -211,6 +292,30 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
         onOpenChange={setLeadViewerOpen}
         leadId={viewLeadId}
         supplierId={userId}
+      />
+
+      {/* Customer Forms */}
+      <SupplierCustomerForm
+        open={customerFormOpen}
+        onOpenChange={setCustomerFormOpen}
+        userId={userId}
+        editId={editCustomerId}
+        onSuccess={handleCustomersRefresh}
+      />
+
+      {/* Sales Forms */}
+      <SupplierSaleForm
+        open={saleFormOpen}
+        onOpenChange={setSaleFormOpen}
+        userId={userId}
+        editId={editSaleId}
+        onSuccess={handleSalesRefresh}
+      />
+
+      <SupplierSaleViewer
+        open={saleViewerOpen}
+        onOpenChange={setSaleViewerOpen}
+        saleId={viewSaleId}
       />
     </>
   );
