@@ -286,7 +286,7 @@ const Signup = () => {
                       value={formData.referredByName === 'Priyanka' ? 'priyanka' : formData.referredByName ? 'other' : ''}
                       onValueChange={(value) => {
                         if (value === 'priyanka') {
-                          setFormData({ ...formData, referredByName: 'Priyanka', referredByPhone: '+91 8368127357' });
+                          setFormData({ ...formData, referredByName: 'Priyanka', referredByPhone: '+918368127357' });
                         } else if (value === 'other') {
                           setFormData({ ...formData, referredByName: '', referredByPhone: '' });
                         }
@@ -296,13 +296,13 @@ const Signup = () => {
                         <SelectValue placeholder="Select who referred you" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="priyanka">Priyanka (+91 8368127357)</SelectItem>
+                        <SelectItem value="priyanka">Priyanka (+918368127357)</SelectItem>
                         <SelectItem value="other">Other (Add manually)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
-                  {(formData.referredByName !== 'Priyanka' || formData.referredByPhone !== '+91 8368127357') && (
+                  {(formData.referredByName !== 'Priyanka' || formData.referredByPhone !== '+918368127357') && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="referredByName">Name *</Label>
