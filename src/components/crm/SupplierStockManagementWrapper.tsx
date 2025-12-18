@@ -1,15 +1,11 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Package } from 'lucide-react';
-import { SupplierCatalog } from '@/components/SupplierCatalog';
 
 interface SupplierStockManagementWrapperProps {
-  userId: string;
+  onOpenCatalog: () => void;
 }
 
-export const SupplierStockManagementWrapper = ({ userId }: SupplierStockManagementWrapperProps) => {
-  const [catalogOpen, setCatalogOpen] = useState(true);
-
+export const SupplierStockManagementWrapper = ({ onOpenCatalog }: SupplierStockManagementWrapperProps) => {
   return (
     <div className="space-y-4">
       <div className="text-center py-8">
@@ -18,17 +14,11 @@ export const SupplierStockManagementWrapper = ({ userId }: SupplierStockManageme
         <p className="text-sm text-muted-foreground mb-4">
           Add or update your product catalogue.
         </p>
-        <Button onClick={() => setCatalogOpen(true)}>
+        <Button onClick={onOpenCatalog}>
           <Package className="h-4 w-4 mr-2" />
           Open Product Catalogue
         </Button>
       </div>
-
-      <SupplierCatalog
-        open={catalogOpen}
-        onOpenChange={setCatalogOpen}
-        userId={userId}
-      />
     </div>
   );
 };
