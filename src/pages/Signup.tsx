@@ -81,9 +81,9 @@ const Signup = () => {
       return;
     }
 
-    // Validate yard location for suppliers
+    // Validate yard/warehouse location for suppliers
     if (formData.role === 'supplier' && !formData.yardLocation.trim()) {
-      setErrors({ yardLocation: 'Yard location is required for suppliers' });
+      setErrors({ yardLocation: 'Yard/Warehouse location is required for suppliers' });
       return;
     }
 
@@ -263,7 +263,7 @@ const Signup = () => {
 
               {formData.role === 'supplier' && (
                 <div className="space-y-2">
-                  <Label htmlFor="yardLocation">Yard Location *</Label>
+                  <Label htmlFor="yardLocation">Yard/Warehouse Location *</Label>
                   <Input
                     id="yardLocation"
                     placeholder="Enter your yard/warehouse location"
