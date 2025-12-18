@@ -426,7 +426,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
               <CardContent className="space-y-4">
                 <p>{selectedRequirement.description}</p>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Quantity:</strong> {selectedRequirement.quantity} {selectedRequirement.unit}</div>
+                  <div><strong>Quantity:</strong> {Number(selectedRequirement.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {selectedRequirement.unit}</div>
                   <div><strong>Budget:</strong> {selectedRequirement.budget_min && selectedRequirement.budget_max ? `₹${selectedRequirement.budget_min} - ₹${selectedRequirement.budget_max}` : 'Not specified'}</div>
                   <div className="flex items-center gap-1"><Calendar className="h-4 w-4" /> Deadline: {format(new Date(selectedRequirement.deadline), 'PPP')}</div>
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
@@ -465,7 +465,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                                   <div className="flex-1">
                                     <p className="font-medium">{item.item_name}</p>
                                     {item.description && <p className="text-muted-foreground text-xs">{item.description}</p>}
-                                    <p className="text-xs text-muted-foreground mt-1">{item.quantity} {item.unit}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {item.unit}</p>
                                     {(item.budget_min || item.budget_max) && (
                                       <p className="text-xs text-muted-foreground">
                                         Budget: {item.budget_min && item.budget_max 
@@ -614,7 +614,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">{req.description}</p>
                       <div className="flex gap-4 text-sm text-muted-foreground">
-                        <span>{req.quantity} {req.unit}</span>
+                        <span>{Number(req.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {req.unit}</span>
                         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{req.delivery_location}</span>
                         <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{format(new Date(req.deadline), 'PP')}</span>
                       </div>

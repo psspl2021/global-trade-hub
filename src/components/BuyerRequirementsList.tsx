@@ -262,7 +262,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                       <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Package className="h-3 w-3" />
-                          {req.quantity} {req.unit}
+                          {Number(req.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {req.unit}
                         </span>
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />

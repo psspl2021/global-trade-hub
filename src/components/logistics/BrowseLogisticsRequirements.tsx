@@ -261,7 +261,7 @@ export const BrowseLogisticsRequirements = ({ open, onOpenChange, userId }: Brow
                 )}
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Cargo:</strong> {selectedRequirement.quantity} {selectedRequirement.unit}</div>
+                  <div><strong>Cargo:</strong> {Number(selectedRequirement.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {selectedRequirement.unit}</div>
                   <div><strong>Budget:</strong> {selectedRequirement.budget_max ? `₹${selectedRequirement.budget_max.toLocaleString()}` : 'Not specified'}</div>
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />

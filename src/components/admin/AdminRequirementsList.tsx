@@ -209,7 +209,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
                         {req.title}
                       </TableCell>
                       <TableCell>{req.product_category}</TableCell>
-                      <TableCell>{req.quantity.toLocaleString()} {req.unit}</TableCell>
+                      <TableCell>{Number(req.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {req.unit}</TableCell>
                       <TableCell>
                         {req.budget_min && req.budget_max
                           ? `₹${req.budget_min.toLocaleString()} - ₹${req.budget_max.toLocaleString()}`
