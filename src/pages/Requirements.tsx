@@ -312,7 +312,7 @@ const RequirementCard = ({ requirement, isLoggedIn }: { requirement: Requirement
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <FileText className="h-3 w-3" aria-hidden="true" />
-              <span>{requirement.quantity} {requirement.unit}</span>
+              <span>{Number(requirement.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {requirement.unit}</span>
             </div>
             <div className="flex items-center gap-1">
               <MapPin className="h-3 w-3" aria-hidden="true" />
