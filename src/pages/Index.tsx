@@ -7,7 +7,8 @@ import {
   ShoppingBag, MessageSquare, MapPin, Mail, 
   Clock, FileText, CheckCircle, Send, Building2,
   Package, Trophy, Users, Shield, Target, Eye, Search,
-  Truck, Route, ClipboardCheck, Receipt, BadgeCheck
+  Truck, Route, ClipboardCheck, Receipt, BadgeCheck,
+  Menu, X
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,6 +19,7 @@ import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 import { EarlyAdopterBanner } from '@/components/landing/EarlyAdopterBanner';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 // Lazy load below-the-fold components to reduce initial bundle
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -40,6 +42,7 @@ const Index = () => {
   const { toast } = useToast();
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // SEO setup with social sharing meta tags
   useSEO({
@@ -133,6 +136,7 @@ const Index = () => {
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setMobileMenuOpen(false);
   };
 
   const handleCategoryClick = (categoryName: string) => {
@@ -174,50 +178,100 @@ const Index = () => {
     { icon: Target, title: 'Secure Transactions', description: 'Protected business dealings' },
   ];
 
+  const handleMobileNavigation = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top Info Bar */}
       <div className="bg-muted/50 border-b">
         <div className="container mx-auto px-4 py-2">
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center">
             <span className="font-semibold text-foreground">Important:</span> ProcureSaathi - The future of B2B procurement. 
-            Search 23+ product categories, browse live supplier stock, and get competitive sealed bids from verified partners.
+            <span className="hidden sm:inline"> Search 23+ product categories, browse live supplier stock, and get competitive sealed bids from verified partners.</span>
           </p>
         </div>
       </div>
 
       {/* Header */}
       <header className="bg-card border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-40 w-auto object-contain"
-              width={160}
-              height={160}
+              className="h-12 sm:h-16 md:h-20 w-auto object-contain"
+              width={80}
+              height={80}
               loading="eager"
             />
           </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Button variant="ghost" onClick={() => scrollToSection('about')}>About Us</Button>
-            <Button variant="ghost" onClick={() => scrollToSection('how-it-works')}>How It Works</Button>
-            <Button variant="ghost" onClick={() => navigate('/categories')}>Categories</Button>
-            <Button variant="ghost" onClick={() => navigate('/blogs')}>Blogs</Button>
-            <Button variant="ghost" onClick={() => scrollToSection('contact')}>Contact</Button>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => scrollToSection('about')}>About Us</Button>
+            <Button variant="ghost" size="sm" onClick={() => scrollToSection('how-it-works')}>How It Works</Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/categories')}>Categories</Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/blogs')}>Blogs</Button>
+            <Button variant="ghost" size="sm" onClick={() => scrollToSection('contact')}>Contact</Button>
           </nav>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/login')}>
+          
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button variant="ghost" size="sm" className="hidden sm:flex" onClick={() => navigate('/login')}>
               Login
             </Button>
-            <Button onClick={() => navigate('/signup')}>Join Now</Button>
+            <Button size="sm" onClick={() => navigate('/signup')}>Join Now</Button>
+            
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px] sm:w-[350px]">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/login')}>
+                    Login
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('about')}>
+                    About Us
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('how-it-works')}>
+                    How It Works
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/categories')}>
+                    Categories
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/blogs')}>
+                    Blogs
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('contact')}>
+                    Contact
+                  </Button>
+                  <div className="border-t pt-4 mt-4">
+                    <Button className="w-full" onClick={() => handleMobileNavigation('/signup?role=buyer')}>
+                      Join as Buyer
+                    </Button>
+                    <Button variant="outline" className="w-full mt-2" onClick={() => handleMobileNavigation('/signup?role=supplier')}>
+                      Join as Supplier
+                    </Button>
+                    <Button variant="outline" className="w-full mt-2" onClick={() => handleMobileNavigation('/signup?role=logistics_partner')}>
+                      Join as Logistics Partner
+                    </Button>
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
       <main>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-muted/30 via-background to-muted/50 py-12 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-muted/30 via-background to-muted/50 py-8 sm:py-12 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -228,80 +282,85 @@ const Index = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 leading-tight px-2">
               India's #1 <span className="text-primary">B2B Sourcing</span> & <span className="text-warning">Procurement Platform</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2">
               Connect with <strong>verified suppliers</strong> across <a href="/categories" className="text-primary hover:underline">23+ product categories</a>. 
-              <a href="/browse" className="text-primary hover:underline">Browse live stock</a>, post requirements, receive competitive sealed bids, and complete secure transactions.
+              <span className="hidden sm:inline"> <a href="/browse" className="text-primary hover:underline">Browse live stock</a>, post requirements, receive competitive sealed bids, and complete secure transactions.</span>
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
+            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-4 justify-center px-2">
               <Button 
-                size="lg" 
-                className="h-14 text-lg px-8"
+                size="default" 
+                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8"
                 onClick={() => navigate('/signup?role=buyer')}
               >
-                <ShoppingBag className="h-5 w-5 mr-2" />
-                Join as Buyer
+                <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Join as</span> Buyer
               </Button>
               <Button 
-                size="lg" 
+                size="default" 
                 variant="outline"
-                className="h-14 text-lg px-8"
+                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8"
                 onClick={() => navigate('/signup?role=supplier')}
               >
-                <Package className="h-5 w-5 mr-2" />
-                Join as Supplier
+                <Package className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                Supplier
               </Button>
               <Button 
-                size="lg" 
+                size="default" 
                 variant="outline"
-                className="h-14 text-lg px-8 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                 onClick={() => navigate('/signup?role=logistics_partner')}
               >
-                <Truck className="h-5 w-5 mr-2" />
-                Join as Logistics Partner
+                <Truck className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                Logistics
               </Button>
               <Button 
-                size="lg" 
-                className="h-14 text-lg px-8 bg-warning text-warning-foreground hover:bg-warning/90"
+                size="default" 
+                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8 bg-warning text-warning-foreground hover:bg-warning/90"
                 onClick={() => navigate('/book-truck')}
               >
-                <Route className="h-5 w-5 mr-2" />
-                Book a Truck
+                <Route className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                Book Truck
               </Button>
+            </div>
+            <div className="mt-4 sm:hidden">
+              <DemoRequestForm />
+            </div>
+            <div className="hidden sm:block mt-4">
               <DemoRequestForm />
             </div>
             
             {/* Feature Highlights */}
-            <div className="flex flex-wrap justify-center gap-6 mt-10 pt-8 border-t border-border/50">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-6 sm:mt-10 pt-6 sm:pt-8 border-t border-border/50 px-2">
               <button 
                 onClick={() => navigate('/categories')}
-                className="flex items-center gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
+                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
               >
-                <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-medium">Search Categories</span>
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-primary group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-medium">Categories</span>
               </button>
               <button 
                 onClick={handleLiveStockClick}
-                className="flex items-center gap-2 text-muted-foreground hover:text-success cursor-pointer transition-all group"
+                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-success cursor-pointer transition-all group"
               >
-                <Package className="h-5 w-5 text-success group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-medium">Live Stock</span>
+                <Package className="h-4 w-4 sm:h-5 sm:w-5 text-success group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-medium">Live Stock</span>
               </button>
               <button 
                 onClick={handleLiveRequirementsClick}
-                className="flex items-center gap-2 text-muted-foreground hover:text-warning cursor-pointer transition-all group"
+                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-warning cursor-pointer transition-all group"
               >
-                <FileText className="h-5 w-5 text-warning group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-medium">Live Requirements</span>
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-warning group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-medium">Requirements</span>
               </button>
               <button 
                 onClick={() => scrollToSection('about')}
-                className="flex items-center gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
+                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
               >
-                <CheckCircle className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-medium">Verified Partners</span>
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-medium">Verified</span>
               </button>
             </div>
           </div>
@@ -312,9 +371,9 @@ const Index = () => {
       <EarlyAdopterBanner />
 
       {/* Triple CTA Section */}
-      <section className="py-16">
+      <section className="py-8 sm:py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
             {/* Buyer CTA */}
             <Card className="bg-success/10 border-success/20">
               <CardContent className="p-6 text-center">
@@ -798,9 +857,9 @@ const Index = () => {
 
 
       {/* Footer */}
-      <footer className="border-t bg-card py-12">
+      <footer className="border-t bg-card py-8 sm:py-12">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
             {/* Company Info */}
             <div>
               <h4 className="font-semibold mb-4">PROCURESAATHI SOLUTIONS PRIVATE LIMITED</h4>
