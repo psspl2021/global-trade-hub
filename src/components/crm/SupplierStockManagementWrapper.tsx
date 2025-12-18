@@ -8,7 +8,7 @@ interface SupplierStockManagementWrapperProps {
 }
 
 export const SupplierStockManagementWrapper = ({ userId }: SupplierStockManagementWrapperProps) => {
-  const [stockOpen, setStockOpen] = useState(false);
+  const [stockOpen, setStockOpen] = useState(true);
 
   return (
     <div className="space-y-4">
