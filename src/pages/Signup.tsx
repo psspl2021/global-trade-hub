@@ -23,6 +23,7 @@ type FormErrors = {
   referredByName?: string;
   referredByPhone?: string;
   logisticsPartnerType?: string;
+  yardLocation?: string;
 };
 
 const Signup = () => {
@@ -60,6 +61,7 @@ const Signup = () => {
     referredByName: '',
     referredByPhone: '',
     logisticsPartnerType: '' as 'agent' | 'fleet_owner' | '',
+    yardLocation: '',
   });
 
   useEffect(() => {
@@ -76,6 +78,12 @@ const Signup = () => {
     // Validate logistics partner type if role is logistics_partner
     if (formData.role === 'logistics_partner' && !formData.logisticsPartnerType) {
       setErrors({ logisticsPartnerType: 'Please select whether you are an Agent or Fleet Owner' });
+      return;
+    }
+
+    // Validate yard location for suppliers
+    if (formData.role === 'supplier' && !formData.yardLocation.trim()) {
+      setErrors({ yardLocation: 'Yard location is required for suppliers' });
       return;
     }
 
@@ -143,6 +151,7 @@ const Signup = () => {
       referred_by_name: result.data.referredByName,
       referred_by_phone: result.data.referredByPhone,
       logistics_partner_type: formData.role === 'logistics_partner' ? formData.logisticsPartnerType : null,
+      address: formData.role === 'supplier' ? formData.yardLocation : null,
     }, referralCode);
     
     // Update referral record if signup was successful and referral code was used
@@ -251,6 +260,25 @@ const Signup = () => {
                   <p className="text-sm text-destructive">{errors.companyName}</p>
                 )}
               </div>
+
+              {formData.role === 'supplier' && (
+                <div className="space-y-2">
+                  <Label htmlFor="yardLocation">Yard Location *</Label>
+                  <Input
+                    id="yardLocation"
+                    placeholder="Enter your yard/warehouse location"
+                    value={formData.yardLocation}
+                    onChange={(e) => setFormData({ ...formData, yardLocation: e.target.value })}
+                    className={errors.yardLocation ? 'border-destructive' : ''}
+                  />
+                  {errors.yardLocation && (
+                    <p className="text-sm text-destructive">{errors.yardLocation}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Full address of your yard/warehouse where products are stored
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="contact">Contact Person</Label>
