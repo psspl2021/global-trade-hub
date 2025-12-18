@@ -44,13 +44,6 @@ const Signup = () => {
   const [breachWarning, setBreachWarning] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  useSEO({
-    title: "Free B2B Registration | Join ProcureSaathi as Buyer or Supplier",
-    description: "Register free on India's leading B2B platform. Join as buyer, supplier, or logistics partner. Connect with verified businesses today!",
-    canonical: "https://procuresaathi.com/signup",
-    keywords: "B2B registration, supplier registration, buyer signup, logistics partner India"
-  });
-
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -63,6 +56,121 @@ const Signup = () => {
     logisticsPartnerType: '' as 'agent' | 'fleet_owner' | '',
     yardLocation: '',
   });
+
+  // Dynamic SEO based on role
+  const getSEOConfig = () => {
+    if (formData.role === 'supplier') {
+      return {
+        title: "Supplier Registration | List Products & Get Buyer Leads | ProcureSaathi",
+        description: "Register as a verified supplier on India's top B2B marketplace. Get premium visibility, direct buyer connections, and grow your business. Free registration, unlimited product listings!",
+        keywords: "supplier registration India, B2B supplier platform, sell products online B2B, wholesale supplier registration, industrial supplier marketplace, verified supplier network"
+      };
+    }
+    if (formData.role === 'logistics_partner') {
+      return {
+        title: "Logistics Partner Registration | Fleet Owner & Agent Signup | ProcureSaathi",
+        description: "Join India's fastest-growing logistics network. Register as fleet owner or transport agent. Get freight bookings, track shipments, and grow your transport business.",
+        keywords: "logistics partner registration, fleet owner signup, transport agent India, freight booking platform, truck booking service"
+      };
+    }
+    return {
+      title: "Buyer Registration | Source Products from Verified Suppliers | ProcureSaathi",
+      description: "Register as a buyer on India's trusted B2B procurement platform. Access verified suppliers, compare quotes, and streamline your procurement process.",
+      keywords: "buyer registration India, B2B procurement platform, industrial buyer signup, wholesale buying platform"
+    };
+  };
+
+  const seoConfig = getSEOConfig();
+  useSEO({
+    title: seoConfig.title,
+    description: seoConfig.description,
+    canonical: `https://procuresaathi.com/signup${formData.role !== 'buyer' ? `?role=${formData.role}` : ''}`,
+    keywords: seoConfig.keywords
+  });
+
+  // Inject structured data for supplier signup
+  useEffect(() => {
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": seoConfig.title,
+      "description": seoConfig.description,
+      "url": `https://procuresaathi.com/signup${formData.role !== 'buyer' ? `?role=${formData.role}` : ''}`,
+      "mainEntity": {
+        "@type": "SoftwareApplication",
+        "name": "ProcureSaathi B2B Platform",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "INR",
+          "description": "Free supplier registration with premium visibility"
+        }
+      }
+    };
+
+    const faqData = formData.role === 'supplier' ? {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I register as a supplier on ProcureSaathi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Simply fill in your company details, add your yard/warehouse location, and complete the registration. You can start listing products immediately after signup."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is supplier registration free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, supplier registration is completely free. You get unlimited product listings and access to buyer requirements at no cost."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How can I increase my visibility as a supplier?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add complete product catalogs with detailed specifications, maintain accurate stock levels, respond quickly to buyer inquiries, and keep your profile updated for maximum visibility."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What products can I sell on ProcureSaathi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ProcureSaathi supports industrial materials including metals, chemicals, polymers, construction materials, and more. Check our categories page for the complete list."
+          }
+        }
+      ]
+    } : null;
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'signup-structured-data';
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+
+    let faqScript: HTMLScriptElement | null = null;
+    if (faqData) {
+      faqScript = document.createElement('script');
+      faqScript.type = 'application/ld+json';
+      faqScript.id = 'signup-faq-data';
+      faqScript.textContent = JSON.stringify(faqData);
+      document.head.appendChild(faqScript);
+    }
+
+    return () => {
+      const existingScript = document.getElementById('signup-structured-data');
+      if (existingScript) existingScript.remove();
+      const existingFaq = document.getElementById('signup-faq-data');
+      if (existingFaq) existingFaq.remove();
+    };
+  }, [formData.role, seoConfig]);
 
   useEffect(() => {
     if (user) {
