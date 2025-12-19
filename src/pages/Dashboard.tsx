@@ -87,8 +87,8 @@ const Dashboard = () => {
   const [showCustomerShipmentTracking, setShowCustomerShipmentTracking] = useState(false);
   const [logisticsRequirementsKey, setLogisticsRequirementsKey] = useState(0);
   const [logisticsAssets, setLogisticsAssets] = useState<{ vehicles: number; warehouses: number } | null>(null);
-  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
-  const [logisticsSubscription, setLogisticsSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number } | null>(null);
+  const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number; is_early_adopter?: boolean; early_adopter_expires_at?: string | null } | null>(null);
+  const [logisticsSubscription, setLogisticsSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number; is_early_adopter?: boolean; early_adopter_expires_at?: string | null } | null>(null);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
 
   // SEO for dashboard
@@ -101,7 +101,7 @@ const Dashboard = () => {
     if (!user?.id || role !== 'supplier') return;
     const { data } = await supabase
       .from('subscriptions')
-      .select('bids_used_this_month, bids_limit, premium_bids_balance')
+      .select('bids_used_this_month, bids_limit, premium_bids_balance, is_early_adopter, early_adopter_expires_at')
       .eq('user_id', user.id)
       .maybeSingle();
     setSubscription(data);
@@ -131,7 +131,7 @@ const Dashboard = () => {
     if (!user?.id || role !== 'logistics_partner') return;
     const { data } = await supabase
       .from('subscriptions')
-      .select('bids_used_this_month, bids_limit, premium_bids_balance')
+      .select('bids_used_this_month, bids_limit, premium_bids_balance, is_early_adopter, early_adopter_expires_at')
       .eq('user_id', user.id)
       .maybeSingle();
     setLogisticsSubscription(data);
@@ -617,17 +617,36 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Free Monthly Quotes */}
+                  {/* Early Adopter or Free Plan Display */}
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Free Plan (5 quotes/month)</div>
-                    <div className="text-xl font-bold text-primary mb-1">
-                      {logisticsSubscription?.bids_used_this_month ?? 0}/{logisticsSubscription?.bids_limit ?? 5}
-                    </div>
-                    <Progress 
-                      value={((logisticsSubscription?.bids_used_this_month ?? 0) / (logisticsSubscription?.bids_limit ?? 5)) * 100} 
-                      className="mb-1 h-2" 
-                    />
-                    <p className="text-xs text-muted-foreground">Monthly quotes used</p>
+                    {logisticsSubscription?.is_early_adopter ? (
+                      <>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                          <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">1 Year FREE Premium!</span>
+                        </div>
+                        <div className="text-xl font-bold text-primary mb-1">
+                          Unlimited Quotes
+                        </div>
+                        <div className="p-2 rounded-md bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-700">
+                          <p className="text-xs text-amber-700 dark:text-amber-300">
+                            🎉 Early Adopter Benefit - Valid until {logisticsSubscription?.early_adopter_expires_at ? new Date(logisticsSubscription.early_adopter_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '1 year from signup'}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-sm text-muted-foreground mb-1">Free Plan (5 quotes/month)</div>
+                        <div className="text-xl font-bold text-primary mb-1">
+                          {logisticsSubscription?.bids_used_this_month ?? 0}/{logisticsSubscription?.bids_limit ?? 5}
+                        </div>
+                        <Progress 
+                          value={((logisticsSubscription?.bids_used_this_month ?? 0) / (logisticsSubscription?.bids_limit ?? 5)) * 100} 
+                          className="mb-1 h-2" 
+                        />
+                        <p className="text-xs text-muted-foreground">Monthly quotes used</p>
+                      </>
+                    )}
                   </div>
 
                   {/* Premium Balance Display */}
@@ -863,17 +882,36 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Free Monthly Bids */}
+                  {/* Early Adopter or Free Plan Display */}
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Free Plan (5 bids/month)</div>
-                    <div className="text-xl font-bold text-primary mb-1">
-                      {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}
-                    </div>
-                    <Progress 
-                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                      className="mb-1 h-2" 
-                    />
-                    <p className="text-xs text-muted-foreground">Monthly bids used</p>
+                    {subscription?.is_early_adopter ? (
+                      <>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                          <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">1 Year FREE Premium!</span>
+                        </div>
+                        <div className="text-xl font-bold text-primary mb-1">
+                          Unlimited Bids
+                        </div>
+                        <div className="p-2 rounded-md bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-700">
+                          <p className="text-xs text-amber-700 dark:text-amber-300">
+                            🎉 Early Adopter Benefit - Valid until {subscription?.early_adopter_expires_at ? new Date(subscription.early_adopter_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '1 year from signup'}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-sm text-muted-foreground mb-1">Free Plan (5 bids/month)</div>
+                        <div className="text-xl font-bold text-primary mb-1">
+                          {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}
+                        </div>
+                        <Progress 
+                          value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                          className="mb-1 h-2" 
+                        />
+                        <p className="text-xs text-muted-foreground">Monthly bids used</p>
+                      </>
+                    )}
                   </div>
 
                   {/* Premium Balance Display */}
