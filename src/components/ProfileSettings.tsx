@@ -66,6 +66,18 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
+    if (!profile.company_name.trim()) {
+      newErrors.company_name = 'Company Name is required';
+    }
+    
+    if (!profile.contact_person.trim()) {
+      newErrors.contact_person = 'Contact Person is required';
+    }
+    
+    if (!profile.phone.trim()) {
+      newErrors.phone = 'Phone is required';
+    }
+    
     if (!profile.gstin.trim()) {
       newErrors.gstin = 'GSTIN is required';
     } else if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(profile.gstin.trim())) {
@@ -138,30 +150,51 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         ) : (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="company_name">Company Name</Label>
+              <Label htmlFor="company_name" className="flex items-center gap-1">
+                Company Name <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="company_name"
                 value={profile.company_name}
-                onChange={(e) => setProfile({ ...profile, company_name: e.target.value })}
+                onChange={(e) => {
+                  setProfile({ ...profile, company_name: e.target.value });
+                  if (errors.company_name) setErrors({ ...errors, company_name: '' });
+                }}
+                className={errors.company_name ? 'border-destructive' : ''}
               />
+              {errors.company_name && <p className="text-sm text-destructive">{errors.company_name}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact_person">Contact Person</Label>
+              <Label htmlFor="contact_person" className="flex items-center gap-1">
+                Contact Person <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="contact_person"
                 value={profile.contact_person}
-                onChange={(e) => setProfile({ ...profile, contact_person: e.target.value })}
+                onChange={(e) => {
+                  setProfile({ ...profile, contact_person: e.target.value });
+                  if (errors.contact_person) setErrors({ ...errors, contact_person: '' });
+                }}
+                className={errors.contact_person ? 'border-destructive' : ''}
               />
+              {errors.contact_person && <p className="text-sm text-destructive">{errors.contact_person}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone" className="flex items-center gap-1">
+                Phone <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="phone"
                 value={profile.phone}
-                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                onChange={(e) => {
+                  setProfile({ ...profile, phone: e.target.value });
+                  if (errors.phone) setErrors({ ...errors, phone: '' });
+                }}
+                className={errors.phone ? 'border-destructive' : ''}
               />
+              {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
             </div>
 
             <div className="space-y-2">
