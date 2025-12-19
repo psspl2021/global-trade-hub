@@ -333,12 +333,14 @@ const Signup = () => {
                     value={formData.logisticsPartnerType}
                     onValueChange={(value) => setFormData({ ...formData, logisticsPartnerType: value as 'agent' | 'fleet_owner' })}
                   >
-                    <SelectTrigger className={errors.logisticsPartnerType ? 'border-destructive' : ''}>
-                      <SelectValue placeholder="Select partner type" />
+                    <SelectTrigger 
+                      className={`min-h-[44px] ${errors.logisticsPartnerType ? 'border-destructive' : ''}`}
+                    >
+                      <SelectValue placeholder="Tap to select partner type" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="agent">Agent - I connect transporters with customers</SelectItem>
-                      <SelectItem value="fleet_owner">Fleet Owner - I own and operate vehicles</SelectItem>
+                    <SelectContent position="popper" sideOffset={4} className="max-h-[40vh]">
+                      <SelectItem value="agent" className="py-3">Agent - I connect transporters with customers</SelectItem>
+                      <SelectItem value="fleet_owner" className="py-3">Fleet Owner - I own and operate vehicles</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.logisticsPartnerType && (
@@ -362,7 +364,7 @@ const Signup = () => {
                   placeholder="Your Company Pvt Ltd"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className={errors.companyName ? 'border-destructive' : ''}
+                  className={`min-h-[44px] ${errors.companyName ? 'border-destructive' : ''}`}
                 />
                 {errors.companyName && (
                   <p className="text-sm text-destructive">{errors.companyName}</p>
@@ -377,7 +379,7 @@ const Signup = () => {
                     placeholder="Enter your yard/warehouse location"
                     value={formData.yardLocation}
                     onChange={(e) => setFormData({ ...formData, yardLocation: e.target.value })}
-                    className={errors.yardLocation ? 'border-destructive' : ''}
+                    className={`min-h-[44px] ${errors.yardLocation ? 'border-destructive' : ''}`}
                   />
                   {errors.yardLocation && (
                     <p className="text-sm text-destructive">{errors.yardLocation}</p>
@@ -395,7 +397,7 @@ const Signup = () => {
                   placeholder="John Doe"
                   value={formData.contactPerson}
                   onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                  className={errors.contactPerson ? 'border-destructive' : ''}
+                  className={`min-h-[44px] ${errors.contactPerson ? 'border-destructive' : ''}`}
                 />
                 {errors.contactPerson && (
                   <p className="text-sm text-destructive">{errors.contactPerson}</p>
@@ -410,7 +412,7 @@ const Signup = () => {
                   placeholder="+919876543210"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className={errors.phone ? 'border-destructive' : ''}
+                  className={`min-h-[44px] ${errors.phone ? 'border-destructive' : ''}`}
                 />
                 {errors.phone && (
                   <p className="text-sm text-destructive">{errors.phone}</p>
@@ -425,7 +427,7 @@ const Signup = () => {
                   placeholder="you@company.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={errors.email ? 'border-destructive' : ''}
+                  className={`min-h-[44px] ${errors.email ? 'border-destructive' : ''}`}
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive">{errors.email}</p>
@@ -440,7 +442,7 @@ const Signup = () => {
                   placeholder="Min 8 chars, uppercase, lowercase, number"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={errors.password ? 'border-destructive' : ''}
+                  className={`min-h-[44px] ${errors.password ? 'border-destructive' : ''}`}
                 />
                 {errors.password && (
                   <p className="text-sm text-destructive">{errors.password}</p>
@@ -457,22 +459,32 @@ const Signup = () => {
                       onValueChange={(value) => {
                         if (value === 'priyanka') {
                           setFormData({ ...formData, referredByName: 'Priyanka', referredByPhone: '+918368127357' });
+                          setErrors({ ...errors, referredByName: undefined, referredByPhone: undefined });
                         } else if (value === 'other') {
                           setFormData({ ...formData, referredByName: '', referredByPhone: '' });
                         }
                       }}
                     >
-                      <SelectTrigger className={errors.referredByName ? 'border-destructive' : ''}>
-                        <SelectValue placeholder="Select who referred you" />
+                      <SelectTrigger 
+                        className={`min-h-[44px] ${errors.referredByName && !formData.referredByName ? 'border-destructive' : ''}`}
+                      >
+                        <SelectValue placeholder="Tap to select who referred you" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="priyanka">Priyanka (+918368127357)</SelectItem>
-                        <SelectItem value="other">Other (Add manually)</SelectItem>
+                      <SelectContent 
+                        position="popper" 
+                        sideOffset={4}
+                        className="max-h-[40vh]"
+                      >
+                        <SelectItem value="priyanka" className="py-3">Priyanka (+918368127357)</SelectItem>
+                        <SelectItem value="other" className="py-3">Other (Add manually)</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.referredByName && !formData.referredByName && formData.referredByName !== 'Priyanka' && (
+                      <p className="text-sm text-destructive">Please select who referred you</p>
+                    )}
                   </div>
                   
-                  {(formData.referredByName !== 'Priyanka' || formData.referredByPhone !== '+918368127357') && (
+                  {formData.referredByName !== '' && formData.referredByName !== 'Priyanka' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="referredByName">Name *</Label>
@@ -481,7 +493,7 @@ const Signup = () => {
                           placeholder="Referrer's name"
                           value={formData.referredByName}
                           onChange={(e) => setFormData({ ...formData, referredByName: e.target.value })}
-                          className={errors.referredByName ? 'border-destructive' : ''}
+                          className={`min-h-[44px] ${errors.referredByName ? 'border-destructive' : ''}`}
                         />
                         {errors.referredByName && (
                           <p className="text-sm text-destructive">{errors.referredByName}</p>
@@ -495,7 +507,7 @@ const Signup = () => {
                           placeholder="+919876543210"
                           value={formData.referredByPhone}
                           onChange={(e) => setFormData({ ...formData, referredByPhone: e.target.value })}
-                          className={errors.referredByPhone ? 'border-destructive' : ''}
+                          className={`min-h-[44px] ${errors.referredByPhone ? 'border-destructive' : ''}`}
                         />
                         {errors.referredByPhone && (
                           <p className="text-sm text-destructive">{errors.referredByPhone}</p>
@@ -513,7 +525,7 @@ const Signup = () => {
                 </Alert>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading || checkingPassword}>
+              <Button type="submit" className="w-full min-h-[48px] text-base" disabled={loading || checkingPassword}>
                 {checkingPassword ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
