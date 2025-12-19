@@ -341,12 +341,14 @@ const RequirementCard = ({ requirement, isLoggedIn }: { requirement: Requirement
 
           <footer className="pt-3 border-t">
             {isLoggedIn ? (
-              <Button size="sm" className="w-full group-hover:bg-primary/90">
-                View & Bid <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              <Button size="sm" className="w-full group-hover:bg-primary/90" asChild>
+                <Link to="/dashboard">
+                  View & Bid <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                </Link>
               </Button>
             ) : (
               <Button size="sm" variant="outline" className="w-full" asChild>
-                <Link to="/signup">Sign Up to Bid</Link>
+                <Link to="/signup?role=supplier">Sign Up to Bid</Link>
               </Button>
             )}
           </footer>

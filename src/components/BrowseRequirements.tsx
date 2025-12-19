@@ -480,7 +480,16 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 {isGuest ? (
                   <div className="p-4 bg-primary/10 rounded-lg text-center space-y-3 border-t pt-4">
                     <p className="font-medium">Sign up as a supplier to bid on this requirement</p>
-                    <Button onClick={() => { onOpenChange(false); window.location.href = '/signup'; }}>
+                    <Button 
+                      type="button"
+                      onClick={() => { 
+                        onOpenChange(false); 
+                        // Use setTimeout to ensure dialog closes first on mobile
+                        setTimeout(() => {
+                          window.location.href = '/signup?role=supplier'; 
+                        }, 100);
+                      }}
+                    >
                       Sign Up to Bid
                     </Button>
                   </div>
