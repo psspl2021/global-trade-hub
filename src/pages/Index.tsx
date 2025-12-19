@@ -219,7 +219,7 @@ const Index = () => {
           </nav>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="sm" className="hidden sm:flex" onClick={() => navigate('/login')}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
               Login
             </Button>
             <Button size="sm" onClick={() => navigate('/signup')}>Join Now</Button>
