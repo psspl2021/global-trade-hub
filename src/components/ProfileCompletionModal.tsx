@@ -46,7 +46,7 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('company_name, contact_person, phone, gstin, city, state, address')
+        .select('company_name, contact_person, phone, gstin, city, state, address, is_test_account')
         .eq('id', userId)
         .single();
 
@@ -57,6 +57,13 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
       }
 
       if (data) {
+        // Skip validation for test accounts
+        if (data.is_test_account) {
+          setLoading(false);
+          onComplete();
+          return;
+        }
+
         setProfile({
           company_name: data.company_name || '',
           contact_person: data.contact_person || '',
