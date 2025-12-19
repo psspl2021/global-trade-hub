@@ -1305,6 +1305,7 @@ export type Database = {
           gstin: string | null
           house_address: string | null
           id: string
+          is_test_account: boolean
           logistics_partner_type:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -1329,6 +1330,7 @@ export type Database = {
           gstin?: string | null
           house_address?: string | null
           id: string
+          is_test_account?: boolean
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -1353,6 +1355,7 @@ export type Database = {
           gstin?: string | null
           house_address?: string | null
           id?: string
+          is_test_account?: boolean
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
