@@ -1314,6 +1314,7 @@ export type Database = {
           referred_by_phone: string | null
           state: string | null
           updated_at: string
+          yard_location: string | null
         }
         Insert: {
           address?: string | null
@@ -1337,6 +1338,7 @@ export type Database = {
           referred_by_phone?: string | null
           state?: string | null
           updated_at?: string
+          yard_location?: string | null
         }
         Update: {
           address?: string | null
@@ -1360,6 +1362,7 @@ export type Database = {
           referred_by_phone?: string | null
           state?: string | null
           updated_at?: string
+          yard_location?: string | null
         }
         Relationships: []
       }
