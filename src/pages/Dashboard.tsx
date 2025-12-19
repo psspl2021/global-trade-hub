@@ -49,6 +49,7 @@ import { CustomerShipmentTracking } from '@/components/logistics/CustomerShipmen
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
+import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ const Dashboard = () => {
   const [subscription, setSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number; is_early_adopter?: boolean; early_adopter_expires_at?: string | null } | null>(null);
   const [logisticsSubscription, setLogisticsSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number; is_early_adopter?: boolean; early_adopter_expires_at?: string | null } | null>(null);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
-
+  const [profileComplete, setProfileComplete] = useState(false);
   // SEO for dashboard
   useSEO({
     title: 'Dashboard | ProcureSaathi',
@@ -165,6 +166,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Profile Completion Modal - blocks until mandatory fields are filled */}
+      <ProfileCompletionModal userId={user?.id} onComplete={() => setProfileComplete(true)} />
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
