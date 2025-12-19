@@ -160,7 +160,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                   setProfile({ ...profile, company_name: e.target.value });
                   if (errors.company_name) setErrors({ ...errors, company_name: '' });
                 }}
-                className={errors.company_name ? 'border-destructive' : ''}
+                className={errors.company_name ? 'border-destructive animate-shake' : ''}
               />
               {errors.company_name && <p className="text-sm text-destructive">{errors.company_name}</p>}
             </div>
@@ -176,7 +176,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                   setProfile({ ...profile, contact_person: e.target.value });
                   if (errors.contact_person) setErrors({ ...errors, contact_person: '' });
                 }}
-                className={errors.contact_person ? 'border-destructive' : ''}
+                className={errors.contact_person ? 'border-destructive animate-shake' : ''}
               />
               {errors.contact_person && <p className="text-sm text-destructive">{errors.contact_person}</p>}
             </div>
@@ -192,7 +192,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                   setProfile({ ...profile, phone: e.target.value });
                   if (errors.phone) setErrors({ ...errors, phone: '' });
                 }}
-                className={errors.phone ? 'border-destructive' : ''}
+                className={errors.phone ? 'border-destructive animate-shake' : ''}
               />
               {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
             </div>
@@ -208,7 +208,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                   setProfile({ ...profile, gstin: e.target.value.toUpperCase() });
                   if (errors.gstin) setErrors({ ...errors, gstin: '' });
                 }}
-                className={errors.gstin ? 'border-destructive' : ''}
+                className={errors.gstin ? 'border-destructive animate-shake' : ''}
                 placeholder="e.g., 22AAAAA0000A1Z5"
               />
               {errors.gstin && <p className="text-sm text-destructive">{errors.gstin}</p>}
@@ -226,7 +226,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                     setProfile({ ...profile, city: e.target.value });
                     if (errors.city) setErrors({ ...errors, city: '' });
                   }}
-                  className={errors.city ? 'border-destructive' : ''}
+                  className={errors.city ? 'border-destructive animate-shake' : ''}
                 />
                 {errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
               </div>
@@ -241,7 +241,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                     setProfile({ ...profile, state: e.target.value });
                     if (errors.state) setErrors({ ...errors, state: '' });
                   }}
-                  className={errors.state ? 'border-destructive' : ''}
+                  className={errors.state ? 'border-destructive animate-shake' : ''}
                 />
                 {errors.state && <p className="text-sm text-destructive">{errors.state}</p>}
               </div>
@@ -258,7 +258,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                   setProfile({ ...profile, address: e.target.value });
                   if (errors.address) setErrors({ ...errors, address: '' });
                 }}
-                className={errors.address ? 'border-destructive' : ''}
+                className={errors.address ? 'border-destructive animate-shake' : ''}
               />
               {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
             </div>
@@ -274,7 +274,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                   setProfile({ ...profile, yard_location: e.target.value });
                   if (errors.yard_location) setErrors({ ...errors, yard_location: '' });
                 }}
-                className={errors.yard_location ? 'border-destructive' : ''}
+                className={errors.yard_location ? 'border-destructive animate-shake' : ''}
                 placeholder="Enter yard location"
               />
               {errors.yard_location && <p className="text-sm text-destructive">{errors.yard_location}</p>}
