@@ -621,16 +621,19 @@ const Dashboard = () => {
                   <div>
                     {logisticsSubscription?.is_early_adopter ? (
                       <>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                          <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">1 Year FREE Premium!</span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                          <span className="text-base font-bold text-amber-600 dark:text-amber-400">1 Year FREE Premium!</span>
                         </div>
-                        <div className="text-xl font-bold text-primary mb-1">
+                        <div className="text-xl font-bold text-primary mb-2">
                           Unlimited Quotes
                         </div>
-                        <div className="p-2 rounded-md bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-700">
-                          <p className="text-xs text-amber-700 dark:text-amber-300">
-                            🎉 Early Adopter Benefit - Valid until {logisticsSubscription?.early_adopter_expires_at ? new Date(logisticsSubscription.early_adopter_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '1 year from signup'}
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-300 dark:border-green-700">
+                          <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-1">
+                            🎉 Early Adopter - First 100 Partners!
+                          </p>
+                          <p className="text-xs text-green-600 dark:text-green-400">
+                            Free subscription ends on: <span className="font-semibold">{logisticsSubscription?.early_adopter_expires_at ? new Date(logisticsSubscription.early_adopter_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '1 year from signup'}</span>
                           </p>
                         </div>
                       </>
@@ -886,16 +889,19 @@ const Dashboard = () => {
                   <div>
                     {subscription?.is_early_adopter ? (
                       <>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                          <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">1 Year FREE Premium!</span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                          <span className="text-base font-bold text-amber-600 dark:text-amber-400">1 Year FREE Premium!</span>
                         </div>
-                        <div className="text-xl font-bold text-primary mb-1">
+                        <div className="text-xl font-bold text-primary mb-2">
                           Unlimited Bids
                         </div>
-                        <div className="p-2 rounded-md bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-700">
-                          <p className="text-xs text-amber-700 dark:text-amber-300">
-                            🎉 Early Adopter Benefit - Valid until {subscription?.early_adopter_expires_at ? new Date(subscription.early_adopter_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '1 year from signup'}
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-300 dark:border-green-700">
+                          <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-1">
+                            🎉 Early Adopter - First 100 Partners!
+                          </p>
+                          <p className="text-xs text-green-600 dark:text-green-400">
+                            Free subscription ends on: <span className="font-semibold">{subscription?.early_adopter_expires_at ? new Date(subscription.early_adopter_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '1 year from signup'}</span>
                           </p>
                         </div>
                       </>
