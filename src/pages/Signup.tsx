@@ -24,6 +24,8 @@ type FormErrors = {
   referredByPhone?: string;
   logisticsPartnerType?: string;
   yardLocation?: string;
+  location?: string;
+  gstin?: string;
 };
 
 const Signup = () => {
@@ -55,6 +57,8 @@ const Signup = () => {
     referredByPhone: '',
     logisticsPartnerType: '' as 'agent' | 'fleet_owner' | '',
     yardLocation: '',
+    location: '',
+    gstin: '',
   });
 
   // Dynamic SEO based on role
@@ -259,7 +263,8 @@ const Signup = () => {
       referred_by_name: result.data.referredByName,
       referred_by_phone: result.data.referredByPhone,
       logistics_partner_type: formData.role === 'logistics_partner' ? formData.logisticsPartnerType : null,
-      address: formData.role === 'supplier' ? formData.yardLocation : null,
+      address: formData.role === 'supplier' ? formData.yardLocation : result.data.location,
+      gstin: result.data.gstin,
     }, referralCode);
     
     // Update referral record if signup was successful and referral code was used
@@ -358,7 +363,7 @@ const Signup = () => {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="company">Company Name</Label>
+                <Label htmlFor="company">Company Name *</Label>
                 <Input
                   id="company"
                   placeholder="Your Company Pvt Ltd"
@@ -391,7 +396,7 @@ const Signup = () => {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="contact">Contact Person</Label>
+                <Label htmlFor="contact">Contact Person *</Label>
                 <Input
                   id="contact"
                   placeholder="John Doe"
@@ -405,7 +410,7 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">Phone Number *</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -420,7 +425,39 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="location">Location (City, State) *</Label>
+                <Input
+                  id="location"
+                  placeholder="Mumbai, Maharashtra"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  className={`min-h-[44px] ${errors.location ? 'border-destructive' : ''}`}
+                />
+                {errors.location && (
+                  <p className="text-sm text-destructive">{errors.location}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gstin">GSTIN *</Label>
+                <Input
+                  id="gstin"
+                  placeholder="22AAAAA0000A1Z5"
+                  value={formData.gstin}
+                  onChange={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
+                  className={`min-h-[44px] ${errors.gstin ? 'border-destructive' : ''}`}
+                  maxLength={15}
+                />
+                {errors.gstin && (
+                  <p className="text-sm text-destructive">{errors.gstin}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  15-character GST Identification Number
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -435,7 +472,7 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Password *</Label>
                 <Input
                   id="password"
                   type="password"

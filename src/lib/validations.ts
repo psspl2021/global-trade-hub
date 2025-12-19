@@ -42,6 +42,13 @@ export const signupSchema = z.object({
   referredByPhone: z.string()
     .trim()
     .regex(/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number (10-15 digits)'),
+  location: z.string()
+    .trim()
+    .min(2, 'Location is required')
+    .max(200, 'Location must be less than 200 characters'),
+  gstin: z.string()
+    .trim()
+    .regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Please enter a valid 15-character GSTIN'),
 });
 
 export const resetPasswordSchema = z.object({
