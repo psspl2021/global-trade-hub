@@ -16,6 +16,7 @@ interface ProfileSettingsProps {
 export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsProps) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [profile, setProfile] = useState({
     company_name: '',
     contact_person: '',
@@ -26,6 +27,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     state: '',
     gstin: '',
     address: '',
+    yard_location: '',
   });
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address')
+      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address, yard_location')
       .eq('id', userId)
       .single();
 
@@ -55,12 +57,47 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         state: data.state || '',
         gstin: data.gstin || '',
         address: data.address || '',
+        yard_location: (data as any).yard_location || '',
       });
     }
     setLoading(false);
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!profile.gstin.trim()) {
+      newErrors.gstin = 'GSTIN is required';
+    } else if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(profile.gstin.trim())) {
+      newErrors.gstin = 'Please enter a valid 15-character GSTIN';
+    }
+    
+    if (!profile.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+    
+    if (!profile.state.trim()) {
+      newErrors.state = 'State is required';
+    }
+    
+    if (!profile.address.trim()) {
+      newErrors.address = 'Address is required';
+    }
+    
+    if (!profile.yard_location.trim()) {
+      newErrors.yard_location = 'Yard Location is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
+    if (!validateForm()) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+
     setSaving(true);
     const { error } = await supabase
       .from('profiles')
@@ -70,10 +107,11 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         phone: profile.phone,
         referred_by_name: profile.referred_by_name || null,
         referred_by_phone: profile.referred_by_phone || null,
-        city: profile.city || null,
-        state: profile.state || null,
-        gstin: profile.gstin || null,
-        address: profile.address || null,
+        city: profile.city,
+        state: profile.state,
+        gstin: profile.gstin,
+        address: profile.address,
+        yard_location: profile.yard_location,
       })
       .eq('id', userId);
 
@@ -90,7 +128,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Profile Settings</DialogTitle>
+          <DialogTitle>User Profile</DialogTitle>
         </DialogHeader>
 
         {loading ? (
@@ -127,40 +165,86 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="gstin">GSTIN</Label>
+              <Label htmlFor="gstin" className="flex items-center gap-1">
+                GSTIN <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="gstin"
                 value={profile.gstin}
-                onChange={(e) => setProfile({ ...profile, gstin: e.target.value })}
+                onChange={(e) => {
+                  setProfile({ ...profile, gstin: e.target.value.toUpperCase() });
+                  if (errors.gstin) setErrors({ ...errors, gstin: '' });
+                }}
+                className={errors.gstin ? 'border-destructive' : ''}
+                placeholder="e.g., 22AAAAA0000A1Z5"
               />
+              {errors.gstin && <p className="text-sm text-destructive">{errors.gstin}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
+                <Label htmlFor="city" className="flex items-center gap-1">
+                  City <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="city"
                   value={profile.city}
-                  onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                  onChange={(e) => {
+                    setProfile({ ...profile, city: e.target.value });
+                    if (errors.city) setErrors({ ...errors, city: '' });
+                  }}
+                  className={errors.city ? 'border-destructive' : ''}
                 />
+                {errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="state">State</Label>
+                <Label htmlFor="state" className="flex items-center gap-1">
+                  State <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="state"
                   value={profile.state}
-                  onChange={(e) => setProfile({ ...profile, state: e.target.value })}
+                  onChange={(e) => {
+                    setProfile({ ...profile, state: e.target.value });
+                    if (errors.state) setErrors({ ...errors, state: '' });
+                  }}
+                  className={errors.state ? 'border-destructive' : ''}
                 />
+                {errors.state && <p className="text-sm text-destructive">{errors.state}</p>}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address" className="flex items-center gap-1">
+                Address <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="address"
                 value={profile.address}
-                onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                onChange={(e) => {
+                  setProfile({ ...profile, address: e.target.value });
+                  if (errors.address) setErrors({ ...errors, address: '' });
+                }}
+                className={errors.address ? 'border-destructive' : ''}
               />
+              {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="yard_location" className="flex items-center gap-1">
+                Yard Location <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="yard_location"
+                value={profile.yard_location}
+                onChange={(e) => {
+                  setProfile({ ...profile, yard_location: e.target.value });
+                  if (errors.yard_location) setErrors({ ...errors, yard_location: '' });
+                }}
+                className={errors.yard_location ? 'border-destructive' : ''}
+                placeholder="Enter yard location"
+              />
+              {errors.yard_location && <p className="text-sm text-destructive">{errors.yard_location}</p>}
             </div>
 
             <div className="border-t pt-4 mt-4">
