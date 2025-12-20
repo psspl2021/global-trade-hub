@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -42,6 +42,7 @@ interface AdminDashboardCardsProps {
   onOpenBlogManager: () => void;
   onOpenSEOTools: () => void;
   onOpenPartnerDocumentVerification: () => void;
+  onOpenSEMAnalytics: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -58,6 +59,7 @@ export function AdminDashboardCards({
   onOpenBlogManager,
   onOpenSEOTools,
   onOpenPartnerDocumentVerification,
+  onOpenSEMAnalytics,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -560,6 +562,24 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenSEOTools}>
             <Search className="h-4 w-4 mr-2" />
             Open SEO Tools
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-orange-500/20 bg-orange-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Target className="h-5 w-5 text-orange-600" />
+            SEM Analytics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            UTM campaigns, traffic sources & conversion tracking
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenSEMAnalytics}>
+            <Target className="h-4 w-4 mr-2" />
+            Open SEM Dashboard
           </Button>
         </CardContent>
       </Card>
