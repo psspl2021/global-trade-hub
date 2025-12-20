@@ -2525,6 +2525,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      send_email_notification: {
+        Args: { p_data: Json; p_subject: string; p_to: string; p_type: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "buyer" | "supplier" | "admin" | "logistics_partner"
