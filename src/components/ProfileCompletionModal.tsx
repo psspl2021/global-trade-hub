@@ -3,9 +3,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
+import { categoriesData } from '@/data/categories';
+import { industries } from '@/data/industries';
 
 interface ProfileCompletionModalProps {
   userId: string | undefined;
@@ -20,12 +25,15 @@ interface ProfileData {
   city: string;
   state: string;
   address: string;
+  supplier_categories: string[];
+  buyer_industry: string;
 }
 
 const REQUIRED_FIELDS: (keyof ProfileData)[] = ['company_name', 'contact_person', 'phone', 'gstin', 'city', 'state', 'address'];
 
 export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletionModalProps) => {
   const [open, setOpen] = useState(false);
+  const { role } = useUserRole(userId);
   const [profile, setProfile] = useState<ProfileData>({
     company_name: '',
     contact_person: '',
@@ -34,10 +42,14 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
     city: '',
     state: '',
     address: '',
+    supplier_categories: [],
+    buyer_industry: '',
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof ProfileData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof ProfileData | 'supplier_categories' | 'buyer_industry', string>>>({});
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const categoryNames = categoriesData.map(c => c.name);
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -46,7 +58,7 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('company_name, contact_person, phone, gstin, city, state, address, is_test_account')
+        .select('company_name, contact_person, phone, gstin, city, state, address, is_test_account, supplier_categories, buyer_industry')
         .eq('id', userId)
         .single();
 
@@ -72,10 +84,15 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
           city: data.city || '',
           state: data.state || '',
           address: data.address || '',
+          supplier_categories: data.supplier_categories || [],
+          buyer_industry: data.buyer_industry || '',
         });
 
         // Check if any required field is missing
-        const missingFields = REQUIRED_FIELDS.filter(field => !data[field] || data[field].trim() === '');
+        const missingFields = REQUIRED_FIELDS.filter(field => {
+          const value = data[field as keyof typeof data];
+          return !value || (typeof value === 'string' && value.trim() === '');
+        });
         
         if (missingFields.length > 0) {
           setOpen(true);
@@ -149,6 +166,8 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
         city: profile.city.trim(),
         state: profile.state.trim(),
         address: profile.address.trim(),
+        supplier_categories: profile.supplier_categories,
+        buyer_industry: profile.buyer_industry || null,
       })
       .eq('id', userId);
 
@@ -310,6 +329,57 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
             />
             {errors.address && <p className="text-sm text-destructive mt-1">{errors.address}</p>}
           </div>
+
+          {/* Supplier Categories - Only for suppliers */}
+          {role === 'supplier' && (
+            <div>
+              <Label>Supply Categories</Label>
+              <p className="text-sm text-muted-foreground mb-2">Select categories you supply raw materials in</p>
+              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                {categoryNames.map((category) => (
+                  <div key={category} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`cat-${category}`}
+                      checked={profile.supplier_categories.includes(category)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setProfile({ ...profile, supplier_categories: [...profile.supplier_categories, category] });
+                        } else {
+                          setProfile({ ...profile, supplier_categories: profile.supplier_categories.filter(c => c !== category) });
+                        }
+                      }}
+                    />
+                    <label htmlFor={`cat-${category}`} className="text-sm cursor-pointer truncate">
+                      {category}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Buyer Industry - Only for buyers */}
+          {role === 'buyer' && (
+            <div>
+              <Label htmlFor="buyer_industry">Industry</Label>
+              <p className="text-sm text-muted-foreground mb-2">Select the industry you work in</p>
+              <Select
+                value={profile.buyer_industry}
+                onValueChange={(value) => setProfile({ ...profile, buyer_industry: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  {industries.map((industry) => (
+                    <SelectItem key={industry} value={industry}>
+                      {industry}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <Button onClick={handleSave} disabled={saving} className="w-full">
