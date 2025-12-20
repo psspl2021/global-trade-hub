@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { getStoredUTMParams } from '@/lib/analytics';
 
 const generateId = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -94,6 +95,7 @@ export const VisitorTracker = () => {
           const source = parseTrafficSource(referrer);
           const deviceType = detectDeviceType();
           const browser = detectBrowser();
+          const utmParams = getStoredUTMParams();
 
           // Use edge function for server-side country detection via IP
           await supabase.functions.invoke('track-visit', {
@@ -108,6 +110,13 @@ export const VisitorTracker = () => {
               user_agent: navigator.userAgent,
               screen_width: window.screen.width,
               screen_height: window.screen.height,
+              // SEM tracking data
+              utm_source: utmParams?.utm_source || null,
+              utm_medium: utmParams?.utm_medium || null,
+              utm_campaign: utmParams?.utm_campaign || null,
+              utm_term: utmParams?.utm_term || null,
+              utm_content: utmParams?.utm_content || null,
+              gclid: utmParams?.gclid || null,
             },
           });
         } catch (error) {
