@@ -111,6 +111,14 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     if (!profile.yard_location.trim()) {
       newErrors.yard_location = 'Yard Location is required';
     }
+
+    // Role-specific validations
+    if (role === 'supplier' && profile.supplier_categories.length === 0) {
+      newErrors.supplier_categories = 'Please select at least one supply category';
+    }
+    if (role === 'buyer' && !profile.buyer_industry.trim()) {
+      newErrors.buyer_industry = 'Please select your industry';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -297,9 +305,9 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
             {/* Supplier Categories - Only for suppliers */}
             {role === 'supplier' && (
               <div className="border-t pt-4 mt-4">
-                <Label className="flex items-center gap-1 mb-2">Supply Categories</Label>
+                <Label className="flex items-center gap-1 mb-2">Supply Categories <span className="text-destructive">*</span></Label>
                 <p className="text-sm text-muted-foreground mb-3">Select categories you supply raw materials in</p>
-                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                <div className={`grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-3 ${errors.supplier_categories ? 'border-destructive' : ''}`}>
                   {categoryNames.map((category) => (
                     <div key={category} className="flex items-center space-x-2">
                       <Checkbox
@@ -311,6 +319,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                           } else {
                             setProfile({ ...profile, supplier_categories: profile.supplier_categories.filter(c => c !== category) });
                           }
+                          if (errors.supplier_categories) setErrors({ ...errors, supplier_categories: '' });
                         }}
                       />
                       <label htmlFor={`settings-cat-${category}`} className="text-sm cursor-pointer truncate">
@@ -319,19 +328,23 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                     </div>
                   ))}
                 </div>
+                {errors.supplier_categories && <p className="text-sm text-destructive mt-1">{errors.supplier_categories}</p>}
               </div>
             )}
 
             {/* Buyer Industry - Only for buyers */}
             {role === 'buyer' && (
               <div className="border-t pt-4 mt-4">
-                <Label htmlFor="buyer_industry" className="flex items-center gap-1 mb-2">Industry</Label>
+                <Label htmlFor="buyer_industry" className="flex items-center gap-1 mb-2">Industry <span className="text-destructive">*</span></Label>
                 <p className="text-sm text-muted-foreground mb-3">Select the industry you work in</p>
                 <Select
                   value={profile.buyer_industry}
-                  onValueChange={(value) => setProfile({ ...profile, buyer_industry: value })}
+                  onValueChange={(value) => {
+                    setProfile({ ...profile, buyer_industry: value });
+                    if (errors.buyer_industry) setErrors({ ...errors, buyer_industry: '' });
+                  }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.buyer_industry ? 'border-destructive' : ''}>
                     <SelectValue placeholder="Select your industry" />
                   </SelectTrigger>
                   <SelectContent>
@@ -342,6 +355,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.buyer_industry && <p className="text-sm text-destructive mt-1">{errors.buyer_industry}</p>}
               </div>
             )}
 
