@@ -29,6 +29,13 @@ serve(async (req) => {
       user_agent,
       screen_width,
       screen_height,
+      // SEM tracking fields
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      utm_term,
+      utm_content,
+      gclid,
     } = body;
 
     // Get client IP from request headers
@@ -61,7 +68,7 @@ serve(async (req) => {
       }
     }
 
-    // Insert the page visit with country data
+    // Insert the page visit with country data and SEM tracking
     const { error } = await supabase.from('page_visits').insert({
       visitor_id,
       session_id,
@@ -75,6 +82,13 @@ serve(async (req) => {
       screen_height,
       country,
       country_code: countryCode,
+      // SEM tracking fields
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      utm_term: utm_term || null,
+      utm_content: utm_content || null,
+      gclid: gclid || null,
     });
 
     if (error) {

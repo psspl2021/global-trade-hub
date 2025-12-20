@@ -8,6 +8,7 @@ import { AIChatBox } from "@/components/AIChatBox";
 import { GlobalSEOTools } from "@/components/admin/GlobalSEOTools";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { VisitorTracker } from "@/components/VisitorTracker";
+import { SEMTracker } from "@/components/SEMTracker";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -44,6 +45,7 @@ const App = () => (
         <GlobalSEOTools />
         <BrowserRouter>
           <VisitorTracker />
+          <SEMTracker />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
