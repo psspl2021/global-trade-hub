@@ -1295,6 +1295,7 @@ export type Database = {
         Row: {
           address: string | null
           business_type: string | null
+          buyer_industry: string | null
           city: string | null
           company_logo_url: string | null
           company_name: string
@@ -1314,12 +1315,14 @@ export type Database = {
           referred_by_name: string | null
           referred_by_phone: string | null
           state: string | null
+          supplier_categories: string[] | null
           updated_at: string
           yard_location: string | null
         }
         Insert: {
           address?: string | null
           business_type?: string | null
+          buyer_industry?: string | null
           city?: string | null
           company_logo_url?: string | null
           company_name: string
@@ -1339,12 +1342,14 @@ export type Database = {
           referred_by_name?: string | null
           referred_by_phone?: string | null
           state?: string | null
+          supplier_categories?: string[] | null
           updated_at?: string
           yard_location?: string | null
         }
         Update: {
           address?: string | null
           business_type?: string | null
+          buyer_industry?: string | null
           city?: string | null
           company_logo_url?: string | null
           company_name?: string
@@ -1364,6 +1369,7 @@ export type Database = {
           referred_by_name?: string | null
           referred_by_phone?: string | null
           state?: string | null
+          supplier_categories?: string[] | null
           updated_at?: string
           yard_location?: string | null
         }

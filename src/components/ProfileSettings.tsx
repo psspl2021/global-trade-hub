@@ -3,9 +3,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
+import { categoriesData } from '@/data/categories';
+import { industries } from '@/data/industries';
 
 interface ProfileSettingsProps {
   open: boolean;
@@ -17,6 +22,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { role } = useUserRole(userId);
   const [profile, setProfile] = useState({
     company_name: '',
     contact_person: '',
@@ -28,7 +34,11 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     gstin: '',
     address: '',
     yard_location: '',
+    supplier_categories: [] as string[],
+    buyer_industry: '',
   });
+
+  const categoryNames = categoriesData.map(c => c.name);
 
   useEffect(() => {
     if (open && userId) {
@@ -40,7 +50,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address, yard_location')
+      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address, yard_location, supplier_categories, buyer_industry')
       .eq('id', userId)
       .single();
 
@@ -58,6 +68,8 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         gstin: data.gstin || '',
         address: data.address || '',
         yard_location: (data as any).yard_location || '',
+        supplier_categories: data.supplier_categories || [],
+        buyer_industry: data.buyer_industry || '',
       });
     }
     setLoading(false);
@@ -124,6 +136,8 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         gstin: profile.gstin,
         address: profile.address,
         yard_location: profile.yard_location,
+        supplier_categories: profile.supplier_categories,
+        buyer_industry: profile.buyer_industry || null,
       })
       .eq('id', userId);
 
@@ -279,6 +293,57 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
               />
               {errors.yard_location && <p className="text-sm text-destructive">{errors.yard_location}</p>}
             </div>
+
+            {/* Supplier Categories - Only for suppliers */}
+            {role === 'supplier' && (
+              <div className="border-t pt-4 mt-4">
+                <Label className="flex items-center gap-1 mb-2">Supply Categories</Label>
+                <p className="text-sm text-muted-foreground mb-3">Select categories you supply raw materials in</p>
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                  {categoryNames.map((category) => (
+                    <div key={category} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`settings-cat-${category}`}
+                        checked={profile.supplier_categories.includes(category)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setProfile({ ...profile, supplier_categories: [...profile.supplier_categories, category] });
+                          } else {
+                            setProfile({ ...profile, supplier_categories: profile.supplier_categories.filter(c => c !== category) });
+                          }
+                        }}
+                      />
+                      <label htmlFor={`settings-cat-${category}`} className="text-sm cursor-pointer truncate">
+                        {category}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Buyer Industry - Only for buyers */}
+            {role === 'buyer' && (
+              <div className="border-t pt-4 mt-4">
+                <Label htmlFor="buyer_industry" className="flex items-center gap-1 mb-2">Industry</Label>
+                <p className="text-sm text-muted-foreground mb-3">Select the industry you work in</p>
+                <Select
+                  value={profile.buyer_industry}
+                  onValueChange={(value) => setProfile({ ...profile, buyer_industry: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {industries.map((industry) => (
+                      <SelectItem key={industry} value={industry}>
+                        {industry}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="border-t pt-4 mt-4">
               <p className="text-sm font-medium text-muted-foreground mb-3">Referred By</p>
