@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,8 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Search, TrendingUp, TrendingDown, Minus, FileText, Lightbulb, Trash2, Plus, RefreshCw, ArrowUp, ArrowDown, Target, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, Minus, FileText, Lightbulb, Trash2, Plus, RefreshCw, ArrowUp, ArrowDown, Target, AlertTriangle, CheckCircle, Link2, Globe } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+
+// Lazy load SEO sub-components
+const UTMLinkBuilder = lazy(() => import('./UTMLinkBuilder'));
+const SitemapManager = lazy(() => import('./SitemapManager'));
+const SEOAuditTool = lazy(() => import('./SEOAuditTool'));
 
 interface SEOToolsProps {
   open: boolean;
@@ -323,18 +328,30 @@ export const SEOTools = ({ open, onOpenChange }: SEOToolsProps) => {
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 w-full">
-            <TabsTrigger value="keywords" className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
+          <TabsList className="grid grid-cols-6 w-full">
+            <TabsTrigger value="keywords" className="flex items-center gap-1 text-xs">
+              <Target className="h-3 w-3" />
               Keywords
             </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Page Audit
+            <TabsTrigger value="audit" className="flex items-center gap-1 text-xs">
+              <FileText className="h-3 w-3" />
+              Audit
             </TabsTrigger>
-            <TabsTrigger value="suggestions" className="flex items-center gap-2">
-              <Lightbulb className="h-4 w-4" />
-              Content Ideas
+            <TabsTrigger value="suggestions" className="flex items-center gap-1 text-xs">
+              <Lightbulb className="h-3 w-3" />
+              Ideas
+            </TabsTrigger>
+            <TabsTrigger value="utm" className="flex items-center gap-1 text-xs">
+              <Link2 className="h-3 w-3" />
+              UTM Links
+            </TabsTrigger>
+            <TabsTrigger value="sitemap" className="flex items-center gap-1 text-xs">
+              <Globe className="h-3 w-3" />
+              Sitemap
+            </TabsTrigger>
+            <TabsTrigger value="seoaudit" className="flex items-center gap-1 text-xs">
+              <Search className="h-3 w-3" />
+              SEO Check
             </TabsTrigger>
           </TabsList>
 
@@ -595,6 +612,27 @@ export const SEOTools = ({ open, onOpenChange }: SEOToolsProps) => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* UTM Link Builder Tab */}
+          <TabsContent value="utm">
+            <Suspense fallback={<div className="flex items-center justify-center py-12"><RefreshCw className="h-6 w-6 animate-spin" /></div>}>
+              <UTMLinkBuilder />
+            </Suspense>
+          </TabsContent>
+
+          {/* Sitemap Manager Tab */}
+          <TabsContent value="sitemap">
+            <Suspense fallback={<div className="flex items-center justify-center py-12"><RefreshCw className="h-6 w-6 animate-spin" /></div>}>
+              <SitemapManager />
+            </Suspense>
+          </TabsContent>
+
+          {/* SEO Audit Tool Tab */}
+          <TabsContent value="seoaudit">
+            <Suspense fallback={<div className="flex items-center justify-center py-12"><RefreshCw className="h-6 w-6 animate-spin" /></div>}>
+              <SEOAuditTool />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </DialogContent>
