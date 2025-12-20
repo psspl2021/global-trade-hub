@@ -995,6 +995,7 @@ export type Database = {
           country_code: string | null
           created_at: string | null
           device_type: string | null
+          gclid: string | null
           id: string
           page_path: string
           referrer: string | null
@@ -1003,6 +1004,11 @@ export type Database = {
           session_id: string
           source: string | null
           user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
           visitor_id: string
         }
         Insert: {
@@ -1011,6 +1017,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string | null
           device_type?: string | null
+          gclid?: string | null
           id?: string
           page_path: string
           referrer?: string | null
@@ -1019,6 +1026,11 @@ export type Database = {
           session_id: string
           source?: string | null
           user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           visitor_id: string
         }
         Update: {
@@ -1027,6 +1039,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string | null
           device_type?: string | null
+          gclid?: string | null
           id?: string
           page_path?: string
           referrer?: string | null
@@ -1035,6 +1048,11 @@ export type Database = {
           session_id?: string
           source?: string | null
           user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           visitor_id?: string
         }
         Relationships: []
