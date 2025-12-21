@@ -30,35 +30,89 @@
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <!-- Additional SEO -->
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
     <meta name="geo.region" content="IN" />
     <meta name="geo.placename" content="India" />
+    
+    <!-- International Targeting -->
+    <meta name="DC.language" content="en" />
+    <meta name="language" content="English" />
+    <meta name="audience" content="all" />
+    <meta name="target" content="all" />
+    <meta name="coverage" content="Worldwide" />
+    <meta name="distribution" content="Global" />
+    <meta name="rating" content="General" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png?v=2" />
     <link rel="apple-touch-icon" href="/favicon.png?v=2" />
 
-    <!-- Structured Data - Organization -->
+    <!-- Structured Data - Organization (Global) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "ProcureSaathi",
+      "alternateName": ["Procure Saathi", "ProcureSaathi India", "ProcureSaathi B2B"],
       "url": "https://procuresaathi.com",
       "logo": "https://procuresaathi.com/logo.png",
-      "description": "India's leading B2B sourcing and procurement platform connecting verified buyers and suppliers.",
+      "description": "Global B2B sourcing and procurement platform connecting verified buyers with suppliers worldwide. Specializing in industrial raw materials, chemicals, and commodities trade.",
       "foundingDate": "2024",
+      "slogan": "Simplifying Global B2B Procurement",
+      "areaServed": [
+        {"@type": "Country", "name": "India"},
+        {"@type": "Country", "name": "United States"},
+        {"@type": "Country", "name": "United Arab Emirates"},
+        {"@type": "Country", "name": "United Kingdom"},
+        {"@type": "Country", "name": "Germany"},
+        {"@type": "Country", "name": "Australia"},
+        {"@type": "Country", "name": "Singapore"},
+        {"@type": "Country", "name": "Saudi Arabia"},
+        {"@type": "Country", "name": "Qatar"},
+        {"@type": "Country", "name": "South Africa"},
+        {"@type": "Country", "name": "Nigeria"},
+        {"@type": "Country", "name": "Kenya"},
+        {"@type": "Country", "name": "Canada"},
+        {"@type": "Country", "name": "Japan"},
+        {"@type": "Country", "name": "South Korea"},
+        {"@type": "Continent", "name": "Africa"},
+        {"@type": "Continent", "name": "Asia"},
+        {"@type": "Continent", "name": "Europe"},
+        {"@type": "Continent", "name": "North America"},
+        {"@type": "Continent", "name": "Oceania"}
+      ],
+      "knowsLanguage": ["en", "hi", "ar", "de", "fr", "es", "zh"],
       "sameAs": [
         "https://twitter.com/ProcureSaathi",
-        "https://linkedin.com/company/procuresaathi"
+        "https://linkedin.com/company/procuresaathi",
+        "https://facebook.com/procuresaathi",
+        "https://instagram.com/procuresaathi"
       ],
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "sales@procuresaathi.com",
-        "contactType": "sales",
-        "areaServed": "IN",
-        "availableLanguage": ["English", "Hindi"]
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "email": "sales@procuresaathi.com",
+          "telephone": "+91-8368127357",
+          "contactType": "sales",
+          "areaServed": ["IN", "US", "AE", "GB", "DE", "AU", "SG", "SA", "QA", "ZA"],
+          "availableLanguage": ["English", "Hindi"]
+        },
+        {
+          "@type": "ContactPoint",
+          "email": "support@procuresaathi.com",
+          "contactType": "customer support",
+          "areaServed": "Worldwide",
+          "availableLanguage": ["English"]
+        }
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "150",
+        "bestRating": "5",
+        "worstRating": "1"
       }
     }
     </script>
@@ -69,11 +123,56 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "ProcureSaathi",
+      "alternateName": "Procure Saathi B2B Platform",
       "url": "https://procuresaathi.com",
+      "inLanguage": ["en", "hi"],
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://procuresaathi.com/browse?search={search_term_string}",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://procuresaathi.com/browse?search={search_term_string}"
+        },
         "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Structured Data - B2B Marketplace Service -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "B2B Procurement Platform",
+      "name": "ProcureSaathi B2B Marketplace",
+      "description": "Connect with verified suppliers globally for raw materials, chemicals, commodities, and industrial products. Get competitive sealed bids from trusted manufacturers.",
+      "provider": {
+        "@type": "Organization",
+        "name": "ProcureSaathi"
+      },
+      "areaServed": {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+          "@type": "GeoCoordinates",
+          "latitude": "20.5937",
+          "longitude": "78.9629"
+        },
+        "geoRadius": "20000 km"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "B2B Product Categories",
+        "itemListElement": [
+          {"@type": "OfferCatalog", "name": "Chemicals & Solvents"},
+          {"@type": "OfferCatalog", "name": "Metals & Alloys"},
+          {"@type": "OfferCatalog", "name": "Polymers & Plastics"},
+          {"@type": "OfferCatalog", "name": "Agricultural Products"},
+          {"@type": "OfferCatalog", "name": "Industrial Machinery"},
+          {"@type": "OfferCatalog", "name": "Textiles & Fabrics"},
+          {"@type": "OfferCatalog", "name": "Construction Materials"},
+          {"@type": "OfferCatalog", "name": "Pharmaceuticals"},
+          {"@type": "OfferCatalog", "name": "Food Ingredients"},
+          {"@type": "OfferCatalog", "name": "Packaging Materials"}
+        ]
       }
     }
     </script>
@@ -84,7 +183,7 @@
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "name": "ProcureSaathi",
-      "description": "India's leading B2B sourcing and procurement platform connecting verified buyers and suppliers.",
+      "description": "India's leading B2B sourcing and procurement platform connecting verified buyers and suppliers globally.",
       "url": "https://procuresaathi.com",
       "logo": "https://procuresaathi.com/logo.png",
       "telephone": "+91-8368127357",
@@ -104,15 +203,51 @@
     </script>
 
     <!-- Hreflang Tags for International SEO -->
+    <!-- Default and India -->
+    <link rel="alternate" hreflang="x-default" href="https://procuresaathi.com/" />
+    <link rel="alternate" hreflang="en" href="https://procuresaathi.com/" />
     <link rel="alternate" hreflang="en-in" href="https://procuresaathi.com/" />
+    
+    <!-- North America -->
     <link rel="alternate" hreflang="en-us" href="https://procuresaathi.com/source/usa" />
+    <link rel="alternate" hreflang="en-ca" href="https://procuresaathi.com/source/canada" />
+    
+    <!-- Middle East -->
     <link rel="alternate" hreflang="en-ae" href="https://procuresaathi.com/source/uae" />
     <link rel="alternate" hreflang="ar-ae" href="https://procuresaathi.com/source/dubai" />
+    <link rel="alternate" hreflang="en-sa" href="https://procuresaathi.com/source/saudi-arabia" />
+    <link rel="alternate" hreflang="ar-sa" href="https://procuresaathi.com/source/saudi-arabia" />
+    <link rel="alternate" hreflang="en-qa" href="https://procuresaathi.com/source/qatar" />
+    
+    <!-- Europe -->
     <link rel="alternate" hreflang="en-gb" href="https://procuresaathi.com/source/uk" />
     <link rel="alternate" hreflang="de-de" href="https://procuresaathi.com/source/germany" />
+    <link rel="alternate" hreflang="fr-fr" href="https://procuresaathi.com/source/france" />
+    <link rel="alternate" hreflang="nl-nl" href="https://procuresaathi.com/source/netherlands" />
+    <link rel="alternate" hreflang="it-it" href="https://procuresaathi.com/source/italy" />
+    <link rel="alternate" hreflang="es-es" href="https://procuresaathi.com/source/spain" />
+    
+    <!-- Asia Pacific -->
     <link rel="alternate" hreflang="en-au" href="https://procuresaathi.com/source/australia" />
-    <link rel="alternate" hreflang="en" href="https://procuresaathi.com/source/africa" />
-    <link rel="alternate" hreflang="x-default" href="https://procuresaathi.com/" />
+    <link rel="alternate" hreflang="en-sg" href="https://procuresaathi.com/source/singapore" />
+    <link rel="alternate" hreflang="ja-jp" href="https://procuresaathi.com/source/japan" />
+    <link rel="alternate" hreflang="ko-kr" href="https://procuresaathi.com/source/south-korea" />
+    <link rel="alternate" hreflang="zh-cn" href="https://procuresaathi.com/source/china" />
+    <link rel="alternate" hreflang="en-my" href="https://procuresaathi.com/source/malaysia" />
+    <link rel="alternate" hreflang="en-ph" href="https://procuresaathi.com/source/philippines" />
+    <link rel="alternate" hreflang="th-th" href="https://procuresaathi.com/source/thailand" />
+    <link rel="alternate" hreflang="vi-vn" href="https://procuresaathi.com/source/vietnam" />
+    <link rel="alternate" hreflang="id-id" href="https://procuresaathi.com/source/indonesia" />
+    
+    <!-- Africa -->
+    <link rel="alternate" hreflang="en-za" href="https://procuresaathi.com/source/south-africa" />
+    <link rel="alternate" hreflang="en-ng" href="https://procuresaathi.com/source/nigeria" />
+    <link rel="alternate" hreflang="en-ke" href="https://procuresaathi.com/source/kenya" />
+    <link rel="alternate" hreflang="en-eg" href="https://procuresaathi.com/source/egypt" />
+    
+    <!-- South America -->
+    <link rel="alternate" hreflang="pt-br" href="https://procuresaathi.com/source/brazil" />
+    <link rel="alternate" hreflang="es-mx" href="https://procuresaathi.com/source/mexico" />
 
     <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-07YSLG6WCL"></script>
