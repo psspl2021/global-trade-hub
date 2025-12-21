@@ -2517,6 +2517,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auto_expire_requirements: { Args: never; Returns: undefined }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_lowest_bid_for_requirement: {
         Args: { req_id: string }
@@ -2568,7 +2569,7 @@ export type Database = {
       logistics_bid_status: "pending" | "accepted" | "rejected"
       logistics_partner_type: "agent" | "fleet_owner"
       logistics_requirement_status: "active" | "closed" | "cancelled"
-      requirement_status: "active" | "closed" | "awarded"
+      requirement_status: "active" | "closed" | "awarded" | "expired"
       shipment_status:
         | "awaiting_pickup"
         | "picked_up"
@@ -2744,7 +2745,7 @@ export const Constants = {
       logistics_bid_status: ["pending", "accepted", "rejected"],
       logistics_partner_type: ["agent", "fleet_owner"],
       logistics_requirement_status: ["active", "closed", "cancelled"],
-      requirement_status: ["active", "closed", "awarded"],
+      requirement_status: ["active", "closed", "awarded", "expired"],
       shipment_status: [
         "awaiting_pickup",
         "picked_up",
