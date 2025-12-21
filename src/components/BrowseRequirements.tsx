@@ -192,6 +192,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const fetchRequirements = async () => {
     setLoading(true);
     
+    // First, trigger auto-expire for any stale active requirements
+    await supabase.rpc('auto_expire_requirements');
+    
     // Fetch active requirements
     const { data: reqData, error: reqError } = await supabase
       .from('requirements')

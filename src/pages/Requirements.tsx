@@ -46,6 +46,34 @@ const TRADE_TYPES = [
   { value: 'export', label: 'Export' },
 ];
 
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'active', label: 'Active' },
+  { value: 'expired', label: 'Expired' },
+  { value: 'awarded', label: 'Awarded' },
+  { value: 'closed', label: 'Closed' },
+];
+
+const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+  switch (status) {
+    case 'active': return 'default';
+    case 'expired': return 'destructive';
+    case 'awarded': return 'secondary';
+    case 'closed': return 'outline';
+    default: return 'outline';
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'active': return 'Active';
+    case 'expired': return 'Expired';
+    case 'awarded': return 'Awarded';
+    case 'closed': return 'Closed';
+    default: return status;
+  }
+};
+
 const getTradeTypeLabel = (tradeType: string | undefined) => {
   switch (tradeType) {
     case 'import': return 'Import';
@@ -62,6 +90,7 @@ const Requirements = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTradeType, setSelectedTradeType] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
   const [categories, setCategories] = useState<string[]>([]);
 
   useSEO({
@@ -114,10 +143,13 @@ const Requirements = () => {
   const fetchRequirements = async () => {
     setLoading(true);
     
+    // First, trigger auto-expire for any stale active requirements
+    await supabase.rpc('auto_expire_requirements');
+    
+    // Fetch all requirements (not just active)
     const { data: reqData, error: reqError } = await supabase
       .from('requirements')
       .select('*')
-      .eq('status', 'active')
       .order('created_at', { ascending: false });
 
     if (reqError) {
@@ -157,9 +189,19 @@ const Requirements = () => {
     
     const matchesTradeType = selectedTradeType === 'all' || req.trade_type === selectedTradeType;
     const matchesCategory = selectedCategory === 'all' || req.product_category === selectedCategory;
+    const matchesStatus = selectedStatus === 'all' || req.status === selectedStatus;
     
-    return matchesSearch && matchesTradeType && matchesCategory;
+    return matchesSearch && matchesTradeType && matchesCategory && matchesStatus;
   });
+
+  // Get counts by status
+  const statusCounts = {
+    all: requirements.length,
+    active: requirements.filter(r => r.status === 'active').length,
+    expired: requirements.filter(r => r.status === 'expired').length,
+    awarded: requirements.filter(r => r.status === 'awarded').length,
+    closed: requirements.filter(r => r.status === 'closed').length,
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-primary/5 to-background">
@@ -201,7 +243,19 @@ const Requirements = () => {
               aria-label="Search requirements"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map(status => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label} ({statusCounts[status.value as keyof typeof statusCounts] || 0})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={selectedTradeType} onValueChange={setSelectedTradeType}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Trade Type" />
@@ -226,11 +280,41 @@ const Requirements = () => {
           </div>
         </nav>
 
+        {/* Status Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {STATUS_OPTIONS.map(status => (
+            <Button
+              key={status.value}
+              variant={selectedStatus === status.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedStatus(status.value)}
+              className="gap-2"
+            >
+              {status.label}
+              <Badge variant="secondary" className="ml-1">
+                {statusCounts[status.value as keyof typeof statusCounts] || 0}
+              </Badge>
+            </Button>
+          ))}
+        </div>
+
         {/* Stats */}
-        <div className="mb-8 p-4 bg-muted/50 rounded-lg">
+        <div className="mb-8 p-4 bg-muted/50 rounded-lg flex flex-wrap gap-4 items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground">{filteredRequirements.length}</strong> active requirements available for bidding
+            <strong className="text-foreground">{filteredRequirements.length}</strong> requirements 
+            {selectedStatus !== 'all' ? ` (${getStatusLabel(selectedStatus)})` : ''} found
           </p>
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Badge variant="default" className="h-2 w-2 p-0 rounded-full" /> Active: {statusCounts.active}
+            </span>
+            <span className="flex items-center gap-1">
+              <Badge variant="destructive" className="h-2 w-2 p-0 rounded-full" /> Expired: {statusCounts.expired}
+            </span>
+            <span className="flex items-center gap-1">
+              <Badge variant="secondary" className="h-2 w-2 p-0 rounded-full" /> Awarded: {statusCounts.awarded}
+            </span>
+          </div>
         </div>
 
         {/* Requirements List */}
@@ -284,20 +368,30 @@ const Requirements = () => {
 };
 
 const RequirementCard = ({ requirement, isLoggedIn }: { requirement: Requirement; isLoggedIn: boolean }) => {
+  const isExpired = requirement.status === 'expired' || new Date(requirement.deadline) < new Date();
+  const isAwarded = requirement.status === 'awarded';
+  const isClosed = requirement.status === 'closed';
+  const canBid = requirement.status === 'active' && !isExpired;
+
   return (
     <article>
-      <Card className="h-full hover:shadow-lg transition-shadow group">
+      <Card className={`h-full hover:shadow-lg transition-shadow group ${!canBid ? 'opacity-75' : ''}`}>
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
               {requirement.title}
             </CardTitle>
-            <Badge variant="secondary" className="shrink-0">
-              {getTradeTypeLabel(requirement.trade_type)}
-            </Badge>
+            <div className="flex flex-col gap-1 items-end shrink-0">
+              <Badge variant={getStatusBadgeVariant(requirement.status)}>
+                {getStatusLabel(requirement.status)}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {getTradeTypeLabel(requirement.trade_type)}
+              </Badge>
+            </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge>{requirement.product_category}</Badge>
+            <Badge variant="secondary">{requirement.product_category}</Badge>
             {requirement.buyer_profile && (
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Building2 className="h-3 w-3" aria-hidden="true" />
@@ -318,10 +412,11 @@ const RequirementCard = ({ requirement, isLoggedIn }: { requirement: Requirement
               <MapPin className="h-3 w-3" aria-hidden="true" />
               <span className="truncate">{requirement.delivery_location}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className={`flex items-center gap-1 ${isExpired ? 'text-destructive' : ''}`}>
               <Calendar className="h-3 w-3" aria-hidden="true" />
               <time dateTime={requirement.deadline}>
                 {format(new Date(requirement.deadline), 'MMM d, yyyy')}
+                {isExpired && ' (Expired)'}
               </time>
             </div>
             {(requirement.budget_min || requirement.budget_max) && (
@@ -340,16 +435,24 @@ const RequirementCard = ({ requirement, isLoggedIn }: { requirement: Requirement
           </div>
 
           <footer className="pt-3 border-t">
-            {isLoggedIn ? (
-              <Button size="sm" className="w-full group-hover:bg-primary/90" asChild>
-                <Link to="/dashboard">
-                  View & Bid <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
+            {canBid ? (
+              isLoggedIn ? (
+                <Button size="sm" className="w-full group-hover:bg-primary/90" asChild>
+                  <Link to="/dashboard">
+                    View & Bid <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="sm" variant="outline" className="w-full" asChild>
+                  <Link to="/signup?role=supplier">Sign Up to Bid</Link>
+                </Button>
+              )
             ) : (
-              <Button size="sm" variant="outline" className="w-full" asChild>
-                <Link to="/signup?role=supplier">Sign Up to Bid</Link>
-              </Button>
+              <div className="text-center text-xs text-muted-foreground py-2">
+                {isAwarded ? 'This requirement has been awarded' : 
+                 isClosed ? 'This requirement is closed' :
+                 'Bidding period has ended'}
+              </div>
             )}
           </footer>
         </CardContent>
