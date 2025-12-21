@@ -9,6 +9,11 @@ interface SEOProps {
   ogType?: string;
   twitterCard?: 'summary' | 'summary_large_image';
   ogSiteName?: string;
+  // International SEO props
+  hreflang?: { lang: string; url: string }[];
+  geoRegion?: string;
+  geoPlacename?: string;
+  targetCountry?: string;
 }
 
 const updateMetaTag = (selector: string, attribute: string, value: string, attrName: string = 'content') => {
@@ -25,6 +30,24 @@ const updateMetaTag = (selector: string, attribute: string, value: string, attrN
   meta.setAttribute(attrName, value);
 };
 
+const updateLinkTag = (rel: string, href: string, additionalAttrs?: Record<string, string>) => {
+  const selector = additionalAttrs?.hreflang 
+    ? `link[rel="${rel}"][hreflang="${additionalAttrs.hreflang}"]`
+    : `link[rel="${rel}"]`;
+  let link = document.querySelector(selector);
+  if (!link) {
+    link = document.createElement('link');
+    link.setAttribute('rel', rel);
+    if (additionalAttrs) {
+      Object.entries(additionalAttrs).forEach(([key, value]) => {
+        link!.setAttribute(key, value);
+      });
+    }
+    document.head.appendChild(link);
+  }
+  link.setAttribute('href', href);
+};
+
 export const useSEO = ({ 
   title, 
   description, 
@@ -33,7 +56,11 @@ export const useSEO = ({
   ogImage = 'https://procuresaathi.com/og-image.png',
   ogType = 'website',
   twitterCard = 'summary_large_image',
-  ogSiteName = 'ProcureSaathi'
+  ogSiteName = 'ProcureSaathi',
+  hreflang,
+  geoRegion,
+  geoPlacename,
+  targetCountry
 }: SEOProps) => {
   useEffect(() => {
     // Update document title
@@ -44,26 +71,42 @@ export const useSEO = ({
       updateMetaTag('meta[name="description"]', 'description', description);
     }
 
-    // Update or create meta keywords
-    if (keywords) {
-      updateMetaTag('meta[name="keywords"]', 'keywords', keywords);
-    }
+    // Update or create meta keywords with global B2B terms
+    const globalKeywords = keywords 
+      ? `${keywords}, B2B marketplace, procurement platform, sourcing, wholesale suppliers, global trade, import export, industrial suppliers, manufacturing`
+      : 'B2B marketplace, procurement platform, sourcing India, wholesale suppliers, bulk buying, industrial suppliers, manufacturing suppliers, trade platform, import export, global B2B trade';
+    updateMetaTag('meta[name="keywords"]', 'keywords', globalKeywords);
 
     // Update or create canonical URL
-    let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (canonical) {
-      if (!canonicalLink) {
-        canonicalLink = document.createElement('link');
-        canonicalLink.setAttribute('rel', 'canonical');
-        document.head.appendChild(canonicalLink);
-      }
-      canonicalLink.setAttribute('href', canonical);
+      updateLinkTag('canonical', canonical);
     }
 
-    // Open Graph tags
+    // Geo targeting meta tags
+    if (geoRegion) {
+      updateMetaTag('meta[name="geo.region"]', 'geo.region', geoRegion);
+    }
+    if (geoPlacename) {
+      updateMetaTag('meta[name="geo.placename"]', 'geo.placename', geoPlacename);
+    }
+    if (targetCountry) {
+      updateMetaTag('meta[name="geo.position"]', 'geo.position', targetCountry);
+      updateMetaTag('meta[name="ICBM"]', 'ICBM', targetCountry);
+    }
+
+    // Dynamic hreflang tags for specific pages
+    if (hreflang && hreflang.length > 0) {
+      hreflang.forEach(({ lang, url }) => {
+        updateLinkTag('alternate', url, { hreflang: lang });
+      });
+    }
+
+    // Open Graph tags with international targeting
     updateMetaTag('meta[property="og:title"]', 'og:title', title);
     updateMetaTag('meta[property="og:type"]', 'og:type', ogType);
     updateMetaTag('meta[property="og:site_name"]', 'og:site_name', ogSiteName);
+    updateMetaTag('meta[property="og:locale"]', 'og:locale', 'en_US');
+    updateMetaTag('meta[property="og:locale:alternate"]', 'og:locale:alternate', 'en_IN');
     if (description) {
       updateMetaTag('meta[property="og:description"]', 'og:description', description);
     }
@@ -88,7 +131,7 @@ export const useSEO = ({
       updateMetaTag('meta[name="twitter:image:alt"]', 'twitter:image:alt', title);
     }
 
-  }, [title, description, canonical, keywords, ogImage, ogType, twitterCard, ogSiteName]);
+  }, [title, description, canonical, keywords, ogImage, ogType, twitterCard, ogSiteName, hreflang, geoRegion, geoPlacename, targetCountry]);
 };
 
 // Helper to inject JSON-LD structured data
@@ -103,22 +146,39 @@ export const injectStructuredData = (data: object, id: string) => {
   script.textContent = JSON.stringify(data);
 };
 
-// Organization schema for homepage
+// Global Organization schema with international reach
 export const getOrganizationSchema = () => ({
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "ProcureSaathi",
+  "alternateName": ["Procure Saathi", "ProcureSaathi India", "ProcureSaathi Global"],
   "url": "https://procuresaathi.com",
   "logo": "https://procuresaathi.com/logo.png",
-  "description": "India's leading B2B sourcing and procurement platform connecting verified buyers and suppliers worldwide.",
+  "description": "Global B2B sourcing and procurement platform connecting verified buyers with suppliers worldwide for industrial raw materials, chemicals, and commodities.",
+  "areaServed": [
+    {"@type": "Country", "name": "India"},
+    {"@type": "Country", "name": "United States"},
+    {"@type": "Country", "name": "United Arab Emirates"},
+    {"@type": "Country", "name": "United Kingdom"},
+    {"@type": "Country", "name": "Germany"},
+    {"@type": "Country", "name": "Australia"},
+    {"@type": "Country", "name": "Singapore"},
+    {"@type": "Continent", "name": "Africa"},
+    {"@type": "Continent", "name": "Asia"},
+    {"@type": "Continent", "name": "Europe"}
+  ],
   "sameAs": [
     "https://twitter.com/ProcureSaathi",
-    "https://linkedin.com/company/procuresaathi"
+    "https://linkedin.com/company/procuresaathi",
+    "https://facebook.com/procuresaathi"
   ],
   "contactPoint": {
     "@type": "ContactPoint",
     "email": "sales@procuresaathi.com",
-    "contactType": "sales"
+    "telephone": "+91-8368127357",
+    "contactType": "sales",
+    "areaServed": "Worldwide",
+    "availableLanguage": ["English", "Hindi"]
   }
 });
 
@@ -178,7 +238,7 @@ export const getProductSchema = (product: {
   }
 });
 
-// Category page schema
+// Category page schema with international targeting
 export const getCategorySchema = (category: {
   name: string;
   description: string;
@@ -187,9 +247,15 @@ export const getCategorySchema = (category: {
 }) => ({
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": `${category.name} Suppliers & Manufacturers in India`,
+  "name": `${category.name} Suppliers & Manufacturers Worldwide`,
   "description": category.description,
   "url": category.url,
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "ProcureSaathi",
+    "url": "https://procuresaathi.com"
+  },
   "mainEntity": {
     "@type": "ItemList",
     "name": category.name,
@@ -208,7 +274,7 @@ export const getLocalBusinessSchema = () => ({
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "ProcureSaathi",
-  "description": "India's leading B2B sourcing and procurement platform connecting verified buyers and suppliers.",
+  "description": "Global B2B sourcing and procurement platform connecting verified buyers and suppliers worldwide.",
   "url": "https://procuresaathi.com",
   "logo": "https://procuresaathi.com/logo.png",
   "telephone": "+91-8368127357",
@@ -224,4 +290,64 @@ export const getLocalBusinessSchema = () => ({
     "https://twitter.com/ProcureSaathi",
     "https://linkedin.com/company/procuresaathi"
   ]
+});
+
+// International Trade Service schema
+export const getInternationalTradeSchema = (targetCountry?: string) => ({
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "International B2B Trade Platform",
+  "name": targetCountry 
+    ? `ProcureSaathi - Source from India to ${targetCountry}` 
+    : "ProcureSaathi Global B2B Marketplace",
+  "description": targetCountry
+    ? `Connect with verified Indian suppliers for export to ${targetCountry}. Get competitive quotes for raw materials, chemicals, and industrial products.`
+    : "Connect with verified suppliers globally for raw materials, chemicals, commodities, and industrial products.",
+  "provider": {
+    "@type": "Organization",
+    "name": "ProcureSaathi",
+    "url": "https://procuresaathi.com"
+  },
+  "areaServed": targetCountry 
+    ? { "@type": "Country", "name": targetCountry }
+    : { "@type": "GeoCircle", "geoRadius": "20000 km" },
+  "availableChannel": {
+    "@type": "ServiceChannel",
+    "serviceUrl": "https://procuresaathi.com",
+    "servicePhone": "+91-8368127357",
+    "availableLanguage": ["English", "Hindi"]
+  }
+});
+
+// Country-specific landing page schema
+export const getCountryLandingSchema = (country: {
+  name: string;
+  code: string;
+  description: string;
+  topCategories: string[];
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": `Source Products from India to ${country.name} | ProcureSaathi`,
+  "description": country.description,
+  "url": `https://procuresaathi.com/source/${country.code.toLowerCase()}`,
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "ProcureSaathi",
+    "url": "https://procuresaathi.com"
+  },
+  "about": {
+    "@type": "Thing",
+    "name": `India to ${country.name} B2B Trade`
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": `Top Export Categories to ${country.name}`,
+    "itemListElement": country.topCategories.map((cat, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": cat
+    }))
+  }
 });
