@@ -74,6 +74,8 @@ serve(async (req) => {
         totalVisitors: 0,
         totalPageviews: 0,
         pageviewsPerVisit: 0,
+        avgTimeSpentSeconds: 0,
+        avgTimePerPage: [],
         topPages: [],
         topSources: [],
         deviceBreakdown: { desktop: 0, mobile: 0, tablet: 0 },
@@ -105,6 +107,29 @@ serve(async (req) => {
     const uniqueVisitors = new Set(visits.map(v => v.visitor_id)).size;
     const totalPageviews = visits.length;
     const pageviewsPerVisit = uniqueVisitors > 0 ? Math.round((totalPageviews / uniqueVisitors) * 10) / 10 : 0;
+    
+    // Calculate average time spent
+    const visitsWithTime = visits.filter(v => v.time_spent_seconds != null && v.time_spent_seconds > 0);
+    const totalTimeSpent = visitsWithTime.reduce((sum, v) => sum + (v.time_spent_seconds || 0), 0);
+    const avgTimeSpentSeconds = visitsWithTime.length > 0 ? Math.round(totalTimeSpent / visitsWithTime.length) : 0;
+    
+    // Calculate average time per page
+    const pageTimeCounts: Record<string, { totalTime: number; count: number }> = {};
+    visitsWithTime.forEach(v => {
+      if (!pageTimeCounts[v.page_path]) {
+        pageTimeCounts[v.page_path] = { totalTime: 0, count: 0 };
+      }
+      pageTimeCounts[v.page_path].totalTime += v.time_spent_seconds || 0;
+      pageTimeCounts[v.page_path].count++;
+    });
+    const avgTimePerPage = Object.entries(pageTimeCounts)
+      .map(([page, data]) => ({
+        page,
+        avgSeconds: Math.round(data.totalTime / data.count),
+        visits: data.count,
+      }))
+      .sort((a, b) => b.avgSeconds - a.avgSeconds)
+      .slice(0, 10);
 
     // Top pages
     const pageCounts: Record<string, number> = {};
@@ -187,6 +212,8 @@ serve(async (req) => {
       totalVisitors: uniqueVisitors,
       totalPageviews,
       pageviewsPerVisit,
+      avgTimeSpentSeconds,
+      avgTimePerPage,
       topPages,
       topSources,
       deviceBreakdown,

@@ -1003,6 +1003,7 @@ export type Database = {
           screen_width: number | null
           session_id: string
           source: string | null
+          time_spent_seconds: number | null
           user_agent: string | null
           utm_campaign: string | null
           utm_content: string | null
@@ -1025,6 +1026,7 @@ export type Database = {
           screen_width?: number | null
           session_id: string
           source?: string | null
+          time_spent_seconds?: number | null
           user_agent?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
@@ -1047,6 +1049,7 @@ export type Database = {
           screen_width?: number | null
           session_id?: string
           source?: string | null
+          time_spent_seconds?: number | null
           user_agent?: string | null
           utm_campaign?: string | null
           utm_content?: string | null

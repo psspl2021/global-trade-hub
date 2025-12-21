@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { getStoredUTMParams } from '@/lib/analytics';
@@ -69,10 +69,51 @@ const parseTrafficSource = (referrer: string): string => {
   return 'Referral';
 };
 
+// Store page entry time in sessionStorage with page path as key
+const PAGE_ENTRY_KEY_PREFIX = 'ps_page_entry_';
+
+const getPageEntryKey = (path: string) => `${PAGE_ENTRY_KEY_PREFIX}${path}`;
+
+const recordPageEntry = (path: string) => {
+  sessionStorage.setItem(getPageEntryKey(path), Date.now().toString());
+};
+
+const getTimeSpentOnPage = (path: string): number | null => {
+  const entryTime = sessionStorage.getItem(getPageEntryKey(path));
+  if (!entryTime) return null;
+  const seconds = Math.round((Date.now() - parseInt(entryTime, 10)) / 1000);
+  // Cap at 30 minutes to filter out inactive tabs
+  return Math.min(seconds, 1800);
+};
+
 export const VisitorTracker = () => {
   const location = useLocation();
   const lastTrackedPath = useRef<string>('');
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const currentVisitId = useRef<string | null>(null);
+
+  // Function to update time spent on previous page
+  const updateTimeSpent = useCallback(async (path: string) => {
+    const timeSpent = getTimeSpentOnPage(path);
+    if (timeSpent === null || timeSpent < 1) return;
+
+    try {
+      const visitorId = getVisitorId();
+      const sessionId = getSessionId();
+      
+      await supabase.functions.invoke('track-visit', {
+        body: {
+          update_time_spent: true,
+          visitor_id: visitorId,
+          session_id: sessionId,
+          page_path: path,
+          time_spent_seconds: timeSpent,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to update time spent:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const trackPageVisit = async () => {
@@ -86,7 +127,15 @@ export const VisitorTracker = () => {
         
         // Skip if same path (prevents double tracking on initial load)
         if (currentPath === lastTrackedPath.current) return;
+        
+        // Update time spent on previous page before tracking new one
+        if (lastTrackedPath.current) {
+          await updateTimeSpent(lastTrackedPath.current);
+        }
+        
         lastTrackedPath.current = currentPath;
+        // Record entry time for current page
+        recordPageEntry(currentPath);
 
         try {
           const visitorId = getVisitorId();
@@ -98,7 +147,7 @@ export const VisitorTracker = () => {
           const utmParams = getStoredUTMParams();
 
           // Use edge function for server-side country detection via IP
-          await supabase.functions.invoke('track-visit', {
+          const response = await supabase.functions.invoke('track-visit', {
             body: {
               visitor_id: visitorId,
               session_id: sessionId,
@@ -119,6 +168,10 @@ export const VisitorTracker = () => {
               gclid: utmParams?.gclid || null,
             },
           });
+          
+          if (response.data?.visit_id) {
+            currentVisitId.current = response.data.visit_id;
+          }
         } catch (error) {
           // Silently fail - don't disrupt user experience
           console.error('Failed to track page visit:', error);
@@ -128,12 +181,37 @@ export const VisitorTracker = () => {
 
     trackPageVisit();
 
+    // Update time spent when user leaves the page
+    const handleBeforeUnload = () => {
+      if (lastTrackedPath.current) {
+        const timeSpent = getTimeSpentOnPage(lastTrackedPath.current);
+        if (timeSpent && timeSpent >= 1) {
+          const visitorId = getVisitorId();
+          const sessionId = getSessionId();
+          // Use sendBeacon for reliable delivery on page unload
+          navigator.sendBeacon(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/track-visit`,
+            JSON.stringify({
+              update_time_spent: true,
+              visitor_id: visitorId,
+              session_id: sessionId,
+              page_path: lastTrackedPath.current,
+              time_spent_seconds: timeSpent,
+            })
+          );
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [location.pathname]);
+  }, [location.pathname, updateTimeSpent]);
 
   return null;
 };
