@@ -50,7 +50,7 @@ interface Requirement {
   quality_standards?: string | null;
   certifications_required?: string | null;
   payment_terms?: string | null;
-  status: 'active' | 'closed' | 'awarded';
+  status: 'active' | 'closed' | 'awarded' | 'expired';
 }
 
 const requirementSchema = z.object({
@@ -59,7 +59,12 @@ const requirementSchema = z.object({
   trade_type: z.enum(['import', 'export', 'domestic_india'], {
     required_error: 'Please select a trade type'
   }),
-  deadline: z.string().min(1, 'Please select a deadline'),
+  deadline: z.string().min(1, 'Please select a deadline').refine((dateStr) => {
+    const deadline = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return deadline >= today;
+  }, 'Deadline must be today or a future date'),
   delivery_location: z.string().min(3, 'Please specify delivery location'),
   quality_standards: z.string().optional(),
   certifications_required: z.string().optional(),
@@ -240,24 +245,37 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
       const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
       const primaryCategory = items[0].category;
 
+      // Determine if we need to reactivate an expired requirement
+      const newDeadline = new Date(data.deadline);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const shouldReactivate = requirement.status === 'expired' && newDeadline >= today;
+
       // Update main requirement
+      const updateData: Record<string, unknown> = {
+        title: data.title,
+        description: data.description,
+        product_category: primaryCategory,
+        trade_type: data.trade_type,
+        quantity: totalQuantity,
+        unit: items[0].unit,
+        budget_min: items.reduce((sum, item) => sum + (item.budget_min || 0), 0) || null,
+        budget_max: items.reduce((sum, item) => sum + (item.budget_max || 0), 0) || null,
+        deadline: data.deadline,
+        delivery_location: data.delivery_location,
+        quality_standards: data.quality_standards || null,
+        certifications_required: data.certifications_required || null,
+        payment_terms: data.payment_terms || null,
+      };
+
+      // If the requirement was expired and we're extending the deadline, reactivate it
+      if (shouldReactivate) {
+        updateData.status = 'active';
+      }
+
       const { error: reqError } = await supabase
         .from('requirements')
-        .update({
-          title: data.title,
-          description: data.description,
-          product_category: primaryCategory,
-          trade_type: data.trade_type,
-          quantity: totalQuantity,
-          unit: items[0].unit,
-          budget_min: items.reduce((sum, item) => sum + (item.budget_min || 0), 0) || null,
-          budget_max: items.reduce((sum, item) => sum + (item.budget_max || 0), 0) || null,
-          deadline: data.deadline,
-          delivery_location: data.delivery_location,
-          quality_standards: data.quality_standards || null,
-          certifications_required: data.certifications_required || null,
-          payment_terms: data.payment_terms || null,
-        })
+        .update(updateData)
         .eq('id', requirement.id);
 
       if (reqError) throw reqError;
@@ -309,9 +327,8 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
     onOpenChange(isOpen);
   };
 
-  // Get minimum date (tomorrow)
+  // Get minimum date (today for editing, to allow extending expired requirements)
   const minDate = new Date();
-  minDate.setDate(minDate.getDate() + 1);
   const minDateStr = minDate.toISOString().split('T')[0];
 
   return (
@@ -496,6 +513,11 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
                   {...register('deadline')}
                 />
                 {errors.deadline && <p className="text-sm text-destructive">{errors.deadline.message}</p>}
+                {requirement.status === 'expired' && (
+                  <p className="text-xs text-muted-foreground">
+                    Extending the deadline will reactivate this expired requirement.
+                  </p>
+                )}
               </div>
             </div>
 
