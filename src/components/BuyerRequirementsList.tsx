@@ -35,7 +35,7 @@ interface Requirement {
   budget_max: number | null;
   deadline: string;
   delivery_location: string;
-  status: 'active' | 'closed' | 'awarded';
+  status: 'active' | 'closed' | 'awarded' | 'expired';
   created_at: string;
 }
 
@@ -208,6 +208,8 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
         return <Badge className="bg-success/20 text-success border-success/30">Active</Badge>;
       case 'awarded':
         return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
+      case 'expired':
+        return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Expired</Badge>;
       case 'closed':
         return <Badge variant="secondary">Closed</Badge>;
       default:
@@ -276,7 +278,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      {req.status === 'active' && (
+                      {(req.status === 'active' || req.status === 'expired') && (
                         <Button
                           size="sm"
                           variant="outline"
