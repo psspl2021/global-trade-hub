@@ -11,9 +11,9 @@ interface RegionalBusinessData {
   trafficShare?: string;
 }
 
-// Regional office data - Prioritized by actual traffic
+// Regional office data - Prioritized by actual traffic (Updated Dec 2024)
 const regionalOffices: Record<string, RegionalBusinessData> = {
-  // Primary market - 89% traffic
+  // Primary market - 85% traffic
   india: {
     country: "India",
     countryCode: "IN",
@@ -21,7 +21,7 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     currency: "INR",
     telephone: "+91-8368127357",
     languages: ["en-IN", "hi-IN"],
-    trafficShare: "89%",
+    trafficShare: "85%",
   },
   // Secondary markets by traffic
   usa: {
@@ -31,7 +31,7 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     currency: "USD",
     telephone: "+91-8368127357",
     languages: ["en-US"],
-    trafficShare: "4%",
+    trafficShare: "6%",
   },
   uk: {
     country: "United Kingdom",
@@ -40,7 +40,7 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     currency: "GBP",
     telephone: "+91-8368127357",
     languages: ["en-GB"],
-    trafficShare: "3%",
+    trafficShare: "2%",
   },
   france: {
     country: "France",
@@ -60,6 +60,15 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     languages: ["nl-NL", "en-NL"],
     trafficShare: "1%",
   },
+  romania: {
+    country: "Romania",
+    countryCode: "RO",
+    region: "Europe",
+    currency: "RON",
+    telephone: "+91-8368127357",
+    languages: ["ro-RO", "en-RO"],
+    trafficShare: "1%",
+  },
   spain: {
     country: "Spain",
     countryCode: "ES",
@@ -77,22 +86,6 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     telephone: "+91-8368127357",
     languages: ["en-CA", "fr-CA"],
   },
-  sweden: {
-    country: "Sweden",
-    countryCode: "SE",
-    region: "Europe",
-    currency: "SEK",
-    telephone: "+91-8368127357",
-    languages: ["sv-SE", "en-SE"],
-  },
-  georgia: {
-    country: "Georgia",
-    countryCode: "GE",
-    region: "Caucasus",
-    currency: "GEL",
-    telephone: "+91-8368127357",
-    languages: ["ka-GE", "en-GE"],
-  },
   germany: {
     country: "Germany",
     countryCode: "DE",
@@ -100,6 +93,14 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     currency: "EUR",
     telephone: "+91-8368127357",
     languages: ["de-DE", "en-DE"],
+  },
+  uae: {
+    country: "United Arab Emirates",
+    countryCode: "AE",
+    region: "Middle East",
+    currency: "AED",
+    telephone: "+91-8368127357",
+    languages: ["en-AE", "ar-AE"],
   },
 };
 
@@ -219,11 +220,11 @@ export const getExportActionSchema = () => ({
     { "@type": "Country", "name": "United Kingdom" },
     { "@type": "Country", "name": "France" },
     { "@type": "Country", "name": "Netherlands" },
+    { "@type": "Country", "name": "Romania" },
     { "@type": "Country", "name": "Spain" },
     { "@type": "Country", "name": "Canada" },
-    { "@type": "Country", "name": "Sweden" },
-    { "@type": "Country", "name": "Georgia" },
-    { "@type": "Country", "name": "Germany" }
+    { "@type": "Country", "name": "Germany" },
+    { "@type": "Country", "name": "United Arab Emirates" }
   ]
 });
 
