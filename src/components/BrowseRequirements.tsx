@@ -101,6 +101,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const [submitting, setSubmitting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('active');
   const [subscription, setSubscription] = useState<{ 
     bids_used_this_month: number; 
     bids_limit: number; 
@@ -115,11 +116,14 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     return categories.sort();
   }, [requirements]);
 
-  // Filter requirements based on selected category
+  // Filter requirements based on selected category and status
   const filteredRequirements = useMemo(() => {
-    if (categoryFilter === 'all') return requirements;
-    return requirements.filter(r => r.product_category === categoryFilter);
-  }, [requirements, categoryFilter]);
+    return requirements.filter(r => {
+      const matchesCategory = categoryFilter === 'all' || r.product_category === categoryFilter;
+      const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
+      return matchesCategory && matchesStatus;
+    });
+  }, [requirements, categoryFilter, statusFilter]);
 
   const handleShare = (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => {
     e.stopPropagation();
@@ -195,11 +199,11 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     // First, trigger auto-expire for any stale active requirements
     await supabase.rpc('auto_expire_requirements');
     
-    // Fetch active requirements
+    // Fetch all requirements (not just active) for filtering
     const { data: reqData, error: reqError } = await supabase
       .from('requirements')
       .select('*')
-      .eq('status', 'active')
+      .in('status', ['active', 'expired', 'awarded'])
       .order('created_at', { ascending: false });
 
     if (reqError) {
@@ -417,10 +421,21 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         </DialogHeader>
 
         {!selectedRequirement && requirements.length > 0 && (
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="active">Active ({requirements.filter(r => r.status === 'active').length})</SelectItem>
+                <SelectItem value="expired">Expired ({requirements.filter(r => r.status === 'expired').length})</SelectItem>
+                <SelectItem value="awarded">Awarded ({requirements.filter(r => r.status === 'awarded').length})</SelectItem>
+              </SelectContent>
+            </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[280px]">
+              <SelectTrigger className="w-[240px]">
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
@@ -432,8 +447,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 ))}
               </SelectContent>
             </Select>
-            {categoryFilter !== 'all' && (
-              <Button variant="ghost" size="sm" onClick={() => setCategoryFilter('all')}>
+            {(categoryFilter !== 'all' || statusFilter !== 'active') && (
+              <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter('all'); setStatusFilter('active'); }}>
                 Clear
               </Button>
             )}

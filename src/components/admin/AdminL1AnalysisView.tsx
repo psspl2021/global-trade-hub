@@ -32,11 +32,20 @@ interface AdminL1AnalysisViewProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'active', label: 'Active' },
+  { value: 'expired', label: 'Expired' },
+  { value: 'awarded', label: 'Awarded' },
+  { value: 'closed', label: 'Closed' },
+];
+
 export function AdminL1AnalysisView({ open, onOpenChange }: AdminL1AnalysisViewProps) {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     if (open) {
@@ -47,6 +56,9 @@ export function AdminL1AnalysisView({ open, onOpenChange }: AdminL1AnalysisViewP
   const fetchRequirements = async () => {
     setLoading(true);
     try {
+      // Trigger auto-expire first
+      await supabase.rpc('auto_expire_requirements');
+      
       const { data, error } = await supabase
         .from('requirements')
         .select('id, title, product_category, status, trade_type, created_at')
@@ -67,15 +79,19 @@ export function AdminL1AnalysisView({ open, onOpenChange }: AdminL1AnalysisViewP
     }
   };
 
-  const filteredRequirements = requirements.filter(req =>
-    req.title.toLowerCase().includes(search.toLowerCase()) ||
-    req.product_category.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredRequirements = requirements.filter(req => {
+    const matchesSearch = req.title.toLowerCase().includes(search.toLowerCase()) ||
+      req.product_category.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || req.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
         return <Badge className="bg-success/20 text-success border-success/30">Active</Badge>;
+      case 'expired':
+        return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Expired</Badge>;
       case 'awarded':
         return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
       case 'closed':
@@ -95,8 +111,8 @@ export function AdminL1AnalysisView({ open, onOpenChange }: AdminL1AnalysisViewP
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-4 mb-4">
-          <div className="relative flex-1">
+        <div className="flex gap-4 mb-4 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search requirements..."
@@ -105,6 +121,18 @@ export function AdminL1AnalysisView({ open, onOpenChange }: AdminL1AnalysisViewP
               className="pl-10"
             />
           </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Filter status" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select
             value={selectedRequirement?.id || ''}
             onValueChange={(value) => {
