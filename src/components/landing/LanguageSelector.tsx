@@ -16,14 +16,19 @@ interface LanguageSelectorProps {
 
 const languageLabels: Record<Language, { native: string; flag: string }> = {
   en: { native: "English", flag: "🇬🇧" },
-  ar: { native: "العربية", flag: "🇦🇪" },
+  hi: { native: "हिन्दी", flag: "🇮🇳" },
+  fr: { native: "Français", flag: "🇫🇷" },
+  nl: { native: "Nederlands", flag: "🇳🇱" },
+  ro: { native: "Română", flag: "🇷🇴" },
+  es: { native: "Español", flag: "🇪🇸" },
   de: { native: "Deutsch", flag: "🇩🇪" },
+  ar: { native: "العربية", flag: "🇦🇪" },
 };
 
 export const LanguageSelector = ({
   currentLanguage,
   onLanguageChange,
-  availableLanguages = ['en', 'ar', 'de'],
+  availableLanguages = ['en', 'hi', 'fr', 'nl', 'ro', 'es', 'de', 'ar'],
 }: LanguageSelectorProps) => {
   return (
     <DropdownMenu>
