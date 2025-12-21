@@ -8,10 +8,22 @@ interface RegionalBusinessData {
   currency: string;
   telephone: string;
   languages: string[];
+  trafficShare?: string;
 }
 
-// Regional office data for LocalBusiness schema
+// Regional office data - Prioritized by actual traffic
 const regionalOffices: Record<string, RegionalBusinessData> = {
+  // Primary market - 89% traffic
+  india: {
+    country: "India",
+    countryCode: "IN",
+    region: "South Asia",
+    currency: "INR",
+    telephone: "+91-8368127357",
+    languages: ["en-IN", "hi-IN"],
+    trafficShare: "89%",
+  },
+  // Secondary markets by traffic
   usa: {
     country: "United States",
     countryCode: "US",
@@ -19,67 +31,93 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     currency: "USD",
     telephone: "+91-8368127357",
     languages: ["en-US"],
-  },
-  uae: {
-    country: "United Arab Emirates",
-    countryCode: "AE",
-    region: "Middle East",
-    currency: "AED",
-    telephone: "+91-8368127357",
-    languages: ["ar-AE", "en-AE"],
-  },
-  dubai: {
-    country: "Dubai",
-    countryCode: "AE",
-    region: "Middle East",
-    currency: "AED",
-    telephone: "+91-8368127357",
-    languages: ["ar-AE", "en-AE"],
+    trafficShare: "4%",
   },
   uk: {
     country: "United Kingdom",
     countryCode: "GB",
     region: "Europe",
     currency: "GBP",
-    telephone: "+44-20-XXXX-XXXX",
+    telephone: "+91-8368127357",
     languages: ["en-GB"],
+    trafficShare: "3%",
+  },
+  france: {
+    country: "France",
+    countryCode: "FR",
+    region: "Europe",
+    currency: "EUR",
+    telephone: "+91-8368127357",
+    languages: ["fr-FR", "en-FR"],
+    trafficShare: "2%",
+  },
+  netherlands: {
+    country: "Netherlands",
+    countryCode: "NL",
+    region: "Europe",
+    currency: "EUR",
+    telephone: "+91-8368127357",
+    languages: ["nl-NL", "en-NL"],
+    trafficShare: "1%",
+  },
+  spain: {
+    country: "Spain",
+    countryCode: "ES",
+    region: "Europe",
+    currency: "EUR",
+    telephone: "+91-8368127357",
+    languages: ["es-ES", "en-ES"],
+    trafficShare: "1%",
+  },
+  canada: {
+    country: "Canada",
+    countryCode: "CA",
+    region: "North America",
+    currency: "CAD",
+    telephone: "+91-8368127357",
+    languages: ["en-CA", "fr-CA"],
+  },
+  sweden: {
+    country: "Sweden",
+    countryCode: "SE",
+    region: "Europe",
+    currency: "SEK",
+    telephone: "+91-8368127357",
+    languages: ["sv-SE", "en-SE"],
+  },
+  georgia: {
+    country: "Georgia",
+    countryCode: "GE",
+    region: "Caucasus",
+    currency: "GEL",
+    telephone: "+91-8368127357",
+    languages: ["ka-GE", "en-GE"],
   },
   germany: {
     country: "Germany",
     countryCode: "DE",
     region: "Europe",
     currency: "EUR",
-    telephone: "+49-30-XXXX-XXXX",
+    telephone: "+91-8368127357",
     languages: ["de-DE", "en-DE"],
-  },
-  australia: {
-    country: "Australia",
-    countryCode: "AU",
-    region: "Asia Pacific",
-    currency: "AUD",
-    telephone: "+61-2-XXXX-XXXX",
-    languages: ["en-AU"],
-  },
-  africa: {
-    country: "South Africa",
-    countryCode: "ZA",
-    region: "Africa",
-    currency: "USD",
-    telephone: "+27-11-XXX-XXXX",
-    languages: ["en-ZA"],
   },
 };
 
+// Get all target countries for schema
+export const getTargetCountries = () => Object.values(regionalOffices).map(r => r.country);
+
 // Generate LocalBusiness schema for a specific region
 export const getRegionalLocalBusinessSchema = (countryKey: string) => {
-  const regional = regionalOffices[countryKey.toLowerCase()] || regionalOffices.usa;
+  const regional = regionalOffices[countryKey.toLowerCase()] || regionalOffices.india;
   
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": `ProcureSaathi - ${regional.country}`,
     "description": `India's leading B2B sourcing platform serving importers in ${regional.country}. Connect with verified Indian suppliers for ${regional.region} market.`,
-    "url": `https://procuresaathi.com/source/${countryKey.toLowerCase()}`,
+    "url": countryKey.toLowerCase() === 'india' 
+      ? "https://procuresaathi.com" 
+      : `https://procuresaathi.com/source/${countryKey.toLowerCase()}`,
     "logo": "https://procuresaathi.com/logo.png",
     "image": "https://procuresaathi.com/logo.png",
     "telephone": "+91-8368127357",
@@ -152,10 +190,41 @@ export const getServiceSchema = (countryKey: string, countryName: string) => ({
   "serviceType": "B2B Trade Facilitation",
   "availableChannel": {
     "@type": "ServiceChannel",
-    "serviceUrl": `https://procuresaathi.com/source/${countryKey}`,
+    "serviceUrl": countryKey.toLowerCase() === 'india' 
+      ? "https://procuresaathi.com"
+      : `https://procuresaathi.com/source/${countryKey}`,
     "servicePhone": "+91-8368127357",
     "availableLanguage": ["en", "hi"]
   }
+});
+
+// Generate ExportAction schema for target markets
+export const getExportActionSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "TradeAction",
+  "name": "Export from India",
+  "agent": {
+    "@type": "Organization",
+    "name": "ProcureSaathi"
+  },
+  "object": {
+    "@type": "Product",
+    "category": "B2B Industrial Products"
+  },
+  "location": [
+    { "@type": "Country", "name": "India" }
+  ],
+  "result": [
+    { "@type": "Country", "name": "United States" },
+    { "@type": "Country", "name": "United Kingdom" },
+    { "@type": "Country", "name": "France" },
+    { "@type": "Country", "name": "Netherlands" },
+    { "@type": "Country", "name": "Spain" },
+    { "@type": "Country", "name": "Canada" },
+    { "@type": "Country", "name": "Sweden" },
+    { "@type": "Country", "name": "Georgia" },
+    { "@type": "Country", "name": "Germany" }
+  ]
 });
 
 // Hook to inject regional SEO schemas
@@ -184,11 +253,13 @@ export const useRegionalSEO = (countryKey: string, countryName: string) => {
     const regional = regionalOffices[countryKey.toLowerCase()];
     if (regional) {
       regional.languages.forEach(lang => {
-        if (!existingHreflangs.has(lang)) {
+        if (!existingHreflangs.has(lang.toLowerCase())) {
           const link = document.createElement('link');
           link.rel = 'alternate';
-          link.hreflang = lang;
-          link.href = `https://procuresaathi.com/source/${countryKey}`;
+          link.hreflang = lang.toLowerCase();
+          link.href = countryKey.toLowerCase() === 'india' 
+            ? 'https://procuresaathi.com'
+            : `https://procuresaathi.com/source/${countryKey}`;
           document.head.appendChild(link);
         }
       });
