@@ -31,8 +31,6 @@ interface RequirementItem {
   category: string;
   quantity: number;
   unit: string;
-  budget_min?: number;
-  budget_max?: number;
 }
 
 interface Requirement {
@@ -120,8 +118,6 @@ const defaultItem: RequirementItem = {
   category: '',
   quantity: 1,
   unit: 'Pieces',
-  budget_min: undefined,
-  budget_max: undefined,
 };
 
 export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess }: EditRequirementFormProps) {
@@ -188,8 +184,6 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
           category: requirement.product_category,
           quantity: requirement.quantity,
           unit: requirement.unit,
-          budget_min: requirement.budget_min || undefined,
-          budget_max: requirement.budget_max || undefined,
         }]);
         setExistingItemIds([]);
       }
@@ -259,8 +253,8 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
         trade_type: data.trade_type,
         quantity: totalQuantity,
         unit: items[0].unit,
-        budget_min: items.reduce((sum, item) => sum + (item.budget_min || 0), 0) || null,
-        budget_max: items.reduce((sum, item) => sum + (item.budget_max || 0), 0) || null,
+        budget_min: null,
+        budget_max: null,
         deadline: data.deadline,
         delivery_location: data.delivery_location,
         quality_standards: data.quality_standards || null,
@@ -298,8 +292,8 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
         category: item.category,
         quantity: item.quantity,
         unit: item.unit,
-        budget_min: item.budget_min || null,
-        budget_max: item.budget_max || null,
+        budget_min: null,
+        budget_max: null,
       }));
 
       const { error: itemsError } = await supabase
@@ -449,27 +443,6 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
                         </Select>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Budget Min (₹)</Label>
-                        <Input
-                          type="number"
-                          min={0}
-                          placeholder="Minimum budget"
-                          value={item.budget_min || ''}
-                          onChange={(e) => updateItem(index, 'budget_min', parseFloat(e.target.value) || 0)}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Budget Max (₹)</Label>
-                        <Input
-                          type="number"
-                          min={0}
-                          placeholder="Maximum budget"
-                          value={item.budget_max || ''}
-                          onChange={(e) => updateItem(index, 'budget_max', parseFloat(e.target.value) || 0)}
-                        />
-                      </div>
 
                       <div className="md:col-span-2 space-y-1.5">
                         <Label className="text-xs">Item Description</Label>
@@ -529,6 +502,9 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
                 {...register('delivery_location')}
               />
               {errors.delivery_location && <p className="text-sm text-destructive">{errors.delivery_location.message}</p>}
+              <p className="text-xs text-muted-foreground">
+                Note: Transport cost to the delivery location will be quoted separately by suppliers.
+              </p>
             </div>
 
             <div className="space-y-2">
