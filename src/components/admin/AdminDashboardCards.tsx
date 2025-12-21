@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -43,6 +43,7 @@ interface AdminDashboardCardsProps {
   onOpenSEOTools: () => void;
   onOpenPartnerDocumentVerification: () => void;
   onOpenSEMAnalytics: () => void;
+  onOpenL1Analysis: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -60,6 +61,7 @@ export function AdminDashboardCards({
   onOpenSEOTools,
   onOpenPartnerDocumentVerification,
   onOpenSEMAnalytics,
+  onOpenL1Analysis,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -437,6 +439,24 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenBidsList}>
             <Eye className="h-4 w-4 mr-2" />
             View All Bids
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-yellow-500/20 bg-yellow-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Trophy className="h-5 w-5 text-yellow-600" />
+            L1 Analysis
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Line-item level L1 supplier analysis
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenL1Analysis}>
+            <Trophy className="h-4 w-4 mr-2" />
+            View L1 Analysis
           </Button>
         </CardContent>
       </Card>

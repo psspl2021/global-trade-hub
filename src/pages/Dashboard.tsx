@@ -37,6 +37,7 @@ import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
 import AdminBlogManager from '@/components/admin/AdminBlogManager';
 import { SEOTools } from '@/components/admin/SEOTools';
 import { SEMAnalyticsDashboard } from '@/components/admin/SEMAnalyticsDashboard';
+import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -78,6 +79,7 @@ const Dashboard = () => {
   const [showBlogManager, setShowBlogManager] = useState(false);
   const [showSEOTools, setShowSEOTools] = useState(false);
   const [showSEMAnalytics, setShowSEMAnalytics] = useState(false);
+  const [showL1Analysis, setShowL1Analysis] = useState(false);
   const [showPartnerDocVerification, setShowPartnerDocVerification] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
@@ -233,6 +235,7 @@ const Dashboard = () => {
               onOpenSEOTools={() => setShowSEOTools(true)}
               onOpenPartnerDocumentVerification={() => setShowPartnerDocVerification(true)}
               onOpenSEMAnalytics={() => setShowSEMAnalytics(true)}
+              onOpenL1Analysis={() => setShowL1Analysis(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -283,6 +286,7 @@ const Dashboard = () => {
             )}
             <SEOTools open={showSEOTools} onOpenChange={setShowSEOTools} />
             <SEMAnalyticsDashboard open={showSEMAnalytics} onOpenChange={setShowSEMAnalytics} />
+            <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
             {user && (
               <PartnerDocumentVerification
                 open={showPartnerDocVerification}
