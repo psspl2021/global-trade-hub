@@ -55,6 +55,14 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
     const checkProfile = async () => {
       if (!userId) return;
       
+      // Check if user has already skipped the modal this session
+      const skippedKey = `profile_modal_skipped_${userId}`;
+      if (sessionStorage.getItem(skippedKey)) {
+        setLoading(false);
+        onComplete();
+        return;
+      }
+      
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
@@ -65,6 +73,7 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
       if (error) {
         console.error('Error fetching profile:', error);
         setLoading(false);
+        onComplete();
         return;
       }
 
@@ -405,6 +414,10 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
           <Button 
             variant="outline" 
             onClick={() => {
+              // Remember skip in sessionStorage so it doesn't keep appearing
+              if (userId) {
+                sessionStorage.setItem(`profile_modal_skipped_${userId}`, 'true');
+              }
               setOpen(false);
               onComplete();
             }} 
