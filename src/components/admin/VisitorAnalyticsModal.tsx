@@ -1,13 +1,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Globe, Monitor, Smartphone, Tablet, TrendingUp, Eye, FileText, Users } from 'lucide-react';
+import { Globe, Monitor, Smartphone, Tablet, TrendingUp, Eye, FileText, Users, Clock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 interface VisitorAnalytics {
   totalVisitors: number;
   totalPageviews: number;
   pageviewsPerVisit: number;
+  avgTimeSpentSeconds?: number;
+  avgTimePerPage?: Array<{ page: string; avgSeconds: number; visits: number }>;
   topPages: Array<{ page: string; views: number }>;
   topSources: Array<{ source: string; count: number; percentage: number }>;
   deviceBreakdown: { desktop: number; mobile: number; tablet: number };
@@ -41,6 +43,17 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
     date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
   }));
 
+  // Format time spent
+  const formatTime = (seconds: number): string => {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    if (minutes < 60) return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
   const getDateRangeLabel = () => {
     if (selectedDays === 365) return 'Last 365 days';
     if (selectedDays === 90) return 'Last 90 days';
@@ -61,7 +74,7 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
 
         <div className="space-y-6">
           {/* Summary Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card className="bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2">
@@ -87,6 +100,17 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
                   <span className="text-xs text-muted-foreground">Pages/Visit</span>
                 </div>
                 <div className="text-2xl font-bold text-green-600 mt-1">{analytics.pageviewsPerVisit}</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-amber-600" />
+                  <span className="text-xs text-muted-foreground">Avg Time/Visit</span>
+                </div>
+                <div className="text-2xl font-bold text-amber-600 mt-1">
+                  {formatTime(analytics.avgTimeSpentSeconds || 0)}
+                </div>
               </CardContent>
             </Card>
             <Card className="bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800">
@@ -269,6 +293,39 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
               </CardContent>
             </Card>
           </div>
+
+          {/* Average Time Per Page */}
+          {analytics.avgTimePerPage && analytics.avgTimePerPage.length > 0 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Average Time Per Page
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {analytics.avgTimePerPage.slice(0, 8).map((page, index) => {
+                    const maxTime = analytics.avgTimePerPage?.[0]?.avgSeconds || 1;
+                    const percentage = (page.avgSeconds / maxTime) * 100;
+                    return (
+                      <div key={index} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="truncate max-w-[250px]" title={page.page}>
+                            {page.page || '/'}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {formatTime(page.avgSeconds)} ({page.visits} visits)
+                          </span>
+                        </div>
+                        <Progress value={percentage} className="h-2" />
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </DialogContent>
     </Dialog>

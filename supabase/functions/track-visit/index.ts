@@ -18,6 +18,33 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
+    
+    // Handle time spent update
+    if (body.update_time_spent) {
+      const { visitor_id, session_id, page_path, time_spent_seconds } = body;
+      
+      // Find the most recent visit for this visitor/session/page and update time spent
+      const { error } = await supabase
+        .from('page_visits')
+        .update({ time_spent_seconds })
+        .eq('visitor_id', visitor_id)
+        .eq('session_id', session_id)
+        .eq('page_path', page_path)
+        .is('time_spent_seconds', null)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (error) {
+        console.error('Error updating time spent:', error);
+      } else {
+        console.log('Time spent updated:', time_spent_seconds, 'seconds for', page_path);
+      }
+      
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const {
       visitor_id,
       session_id,
@@ -69,7 +96,7 @@ serve(async (req) => {
     }
 
     // Insert the page visit with country data and SEM tracking
-    const { error } = await supabase.from('page_visits').insert({
+    const { data, error } = await supabase.from('page_visits').insert({
       visitor_id,
       session_id,
       page_path,
@@ -89,7 +116,7 @@ serve(async (req) => {
       utm_term: utm_term || null,
       utm_content: utm_content || null,
       gclid: gclid || null,
-    });
+    }).select('id').single();
 
     if (error) {
       console.error('Error inserting page visit:', error);
@@ -101,7 +128,7 @@ serve(async (req) => {
 
     console.log('Page visit tracked successfully with country:', country, countryCode);
 
-    return new Response(JSON.stringify({ success: true, country, countryCode }), {
+    return new Response(JSON.stringify({ success: true, country, countryCode, visit_id: data?.id }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
