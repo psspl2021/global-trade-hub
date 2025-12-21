@@ -224,15 +224,20 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
   if (loading || !open) return null;
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        setOpen(false);
+        onComplete();
+      }
+    }}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
-            <AlertTriangle className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
             Complete Your Profile
           </DialogTitle>
           <DialogDescription>
-            Please fill in all mandatory details to continue using the platform.
+            Fill in your details for a better experience. You can skip this for now.
           </DialogDescription>
         </DialogHeader>
 
@@ -396,10 +401,22 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
           )}
         </div>
 
-        <Button onClick={handleSave} disabled={saving} className="w-full">
-          {saving ? 'Saving...' : 'Save & Continue'}
-          {!saving && <CheckCircle className="ml-2 h-4 w-4" />}
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setOpen(false);
+              onComplete();
+            }} 
+            className="flex-1"
+          >
+            Skip for now
+          </Button>
+          <Button onClick={handleSave} disabled={saving} className="flex-1">
+            {saving ? 'Saving...' : 'Save & Continue'}
+            {!saving && <CheckCircle className="ml-2 h-4 w-4" />}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
