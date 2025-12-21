@@ -17,11 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
-
+import { LineItemL1View } from './LineItemL1View';
 interface Requirement {
   id: string;
   title: string;
@@ -304,7 +305,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
       {/* Bids Dialog */}
       <Dialog open={!!selectedRequirement} onOpenChange={() => setSelectedRequirement(null)}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Bids for: {selectedRequirement?.title}</DialogTitle>
           </DialogHeader>
@@ -313,112 +314,136 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
-          ) : bids.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No bids received yet for this requirement.
-            </div>
           ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Showing lowest bid only</p>
-              {bids.map((bid) => (
-                <Card key={bid.id} className="border-primary/50">
-                  <CardContent className="p-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">ProcureSaathi Solutions Pvt Ltd</span>
-                        {bid.status === 'accepted' && (
-                          <Badge className="bg-primary/20 text-primary">Accepted</Badge>
-                        )}
-                        {bid.status === 'rejected' && (
-                          <Badge variant="secondary">Rejected</Badge>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Delivery: <span className="font-medium text-foreground">{bid.delivery_timeline_days} days</span>
-                      </div>
-                    </div>
+            <Tabs defaultValue="l1-view" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="l1-view" className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4" />
+                  L1 Per Item
+                </TabsTrigger>
+                <TabsTrigger value="lowest-bid" className="flex items-center gap-2">
+                  <ListOrdered className="h-4 w-4" />
+                  Lowest Overall Bid
+                </TabsTrigger>
+              </TabsList>
 
-                    {/* Bid Items Table */}
-                    {bid.bid_items && bid.bid_items.length > 0 ? (
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-medium flex items-center gap-2">
-                          <Package className="h-4 w-4" />
-                          Item Breakdown
-                        </h4>
-                        <div className="border rounded-lg overflow-hidden">
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="bg-muted/50">
-                                <TableHead className="font-medium">Item</TableHead>
-                                <TableHead className="text-right font-medium">Qty</TableHead>
-                                <TableHead className="text-right font-medium">Rate</TableHead>
-                                <TableHead className="text-right font-medium">Amount</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {bid.bid_items.map((item) => {
-                                // Calculate service fee inclusive prices (0.5% for domestic, 1% for import/export)
-                                const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
-                                const inclusiveRate = item.unit_price * (1 + feeRate);
-                                const inclusiveTotal = item.total * (1 + feeRate);
-                                
-                                return (
-                                  <TableRow key={item.id}>
-                                    <TableCell className="font-medium">
-                                      {getItemName(item.requirement_item_id)}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                      {item.quantity} {getItemUnit(item.requirement_item_id)}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                      ₹{inclusiveRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                                    </TableCell>
-                                    <TableCell className="text-right font-medium">
-                                      ₹{inclusiveTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })}
-                            </TableBody>
-                          </Table>
-                        </div>
+              <TabsContent value="l1-view" className="mt-4">
+                {selectedRequirement && (
+                  <LineItemL1View 
+                    requirementId={selectedRequirement.id} 
+                    tradeType={selectedRequirement.trade_type}
+                    showAllSuppliers={false}
+                  />
+                )}
+              </TabsContent>
 
-                        {/* Total Amount Only */}
-                        <div className="bg-muted/30 rounded-lg p-4">
-                          <div className="flex justify-between font-semibold">
-                            <span>Total Amount</span>
-                            <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
+              <TabsContent value="lowest-bid" className="mt-4">
+                {bids.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No bids received yet for this requirement.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">Showing lowest overall bid</p>
+                    {bids.map((bid) => (
+                      <Card key={bid.id} className="border-primary/50">
+                        <CardContent className="p-4 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">ProcureSaathi Solutions Pvt Ltd</span>
+                              {bid.status === 'accepted' && (
+                                <Badge className="bg-primary/20 text-primary">Accepted</Badge>
+                              )}
+                              {bid.status === 'rejected' && (
+                                <Badge variant="secondary">Rejected</Badge>
+                              )}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Delivery: <span className="font-medium text-foreground">{bid.delivery_timeline_days} days</span>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    ) : (
-                      // Fallback for bids without itemized breakdown
-                      <div className="bg-muted/30 rounded-lg p-4">
-                        <div className="flex justify-between font-semibold">
-                          <span>Total Amount</span>
-                          <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    )}
 
-                    {bid.terms_and_conditions && (
-                      <div className="text-sm">
-                        <span className="font-medium text-muted-foreground">Terms:</span>
-                        <p className="mt-1 text-foreground">{bid.terms_and_conditions}</p>
-                      </div>
-                    )}
+                          {/* Bid Items Table */}
+                          {bid.bid_items && bid.bid_items.length > 0 ? (
+                            <div className="space-y-3">
+                              <h4 className="text-sm font-medium flex items-center gap-2">
+                                <Package className="h-4 w-4" />
+                                Item Breakdown
+                              </h4>
+                              <div className="border rounded-lg overflow-hidden">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                      <TableHead className="font-medium">Item</TableHead>
+                                      <TableHead className="text-right font-medium">Qty</TableHead>
+                                      <TableHead className="text-right font-medium">Rate</TableHead>
+                                      <TableHead className="text-right font-medium">Amount</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {bid.bid_items.map((item) => {
+                                      const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
+                                      const inclusiveRate = item.unit_price * (1 + feeRate);
+                                      const inclusiveTotal = item.total * (1 + feeRate);
+                                      
+                                      return (
+                                        <TableRow key={item.id}>
+                                          <TableCell className="font-medium">
+                                            {getItemName(item.requirement_item_id)}
+                                          </TableCell>
+                                          <TableCell className="text-right">
+                                            {item.quantity} {getItemUnit(item.requirement_item_id)}
+                                          </TableCell>
+                                          <TableCell className="text-right">
+                                            ₹{inclusiveRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                          </TableCell>
+                                          <TableCell className="text-right font-medium">
+                                            ₹{inclusiveTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                          </TableCell>
+                                        </TableRow>
+                                      );
+                                    })}
+                                  </TableBody>
+                                </Table>
+                              </div>
 
-                    {bid.status === 'pending' && selectedRequirement?.status === 'active' && (
-                      <div className="flex justify-end">
-                        <Button onClick={() => handleAcceptBid(bid.id)}>
-                          Accept Bid
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                              <div className="bg-muted/30 rounded-lg p-4">
+                                <div className="flex justify-between font-semibold">
+                                  <span>Total Amount</span>
+                                  <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-muted/30 rounded-lg p-4">
+                              <div className="flex justify-between font-semibold">
+                                <span>Total Amount</span>
+                                <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {bid.terms_and_conditions && (
+                            <div className="text-sm">
+                              <span className="font-medium text-muted-foreground">Terms:</span>
+                              <p className="mt-1 text-foreground">{bid.terms_and_conditions}</p>
+                            </div>
+                          )}
+
+                          {bid.status === 'pending' && selectedRequirement?.status === 'active' && (
+                            <div className="flex justify-end">
+                              <Button onClick={() => handleAcceptBid(bid.id)}>
+                                Accept Bid
+                              </Button>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           )}
         </DialogContent>
       </Dialog>
