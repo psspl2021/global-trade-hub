@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Loader2, Save } from 'lucide-react';
 
 interface NoteItem {
   description: string;
@@ -327,20 +327,30 @@ export const DebitCreditNoteForm = ({
                 <Label>{noteType === 'debit_note' ? 'Debit Note' : 'Credit Note'} Number *</Label>
                 <Input value={noteNumber} onChange={(e) => setNoteNumber(e.target.value)} />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label>Reference Invoice (Optional)</Label>
-                <Select value={referenceInvoiceId} onValueChange={handleInvoiceSelect}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select invoice..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {invoices.map((inv) => (
-                      <SelectItem key={inv.id} value={inv.id}>
-                        {inv.invoice_number} - {inv.buyer_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {invoices.length > 0 && (
+                  <Select value={referenceInvoiceId} onValueChange={handleInvoiceSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select from existing invoices..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {invoices.map((inv) => (
+                        <SelectItem key={inv.id} value={inv.id}>
+                          {inv.invoice_number} - {inv.buyer_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <Input 
+                  value={referenceInvoiceNumber} 
+                  onChange={(e) => {
+                    setReferenceInvoiceNumber(e.target.value);
+                    setReferenceInvoiceId(''); // Clear selected ID when manually typing
+                  }} 
+                  placeholder="Or enter invoice number manually..."
+                />
               </div>
             </div>
 
@@ -520,8 +530,8 @@ export const DebitCreditNoteForm = ({
                 Cancel
               </Button>
               <Button onClick={handleSubmit} disabled={saving}>
-                {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {editId ? 'Update' : 'Create'} {noteType === 'debit_note' ? 'Debit Note' : 'Credit Note'}
+                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                Save {noteType === 'debit_note' ? 'Debit Note' : 'Credit Note'}
               </Button>
             </div>
           </div>
