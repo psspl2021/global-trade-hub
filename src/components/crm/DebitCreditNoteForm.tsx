@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Save, UserPlus, Download } from 'lucide-react';
+import { Plus, Trash2, Loader2, Save, UserPlus, Download, Pencil } from 'lucide-react';
 import { generateDocumentPDF } from '@/lib/pdfGenerator';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
 import { SupplierCustomerForm } from './SupplierCustomerForm';
@@ -62,6 +62,7 @@ export const DebitCreditNoteForm = ({
   const [companyAddress, setCompanyAddress] = useState('');
   const [companyGstin, setCompanyGstin] = useState('');
   const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [editCustomerId, setEditCustomerId] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Form state
@@ -141,8 +142,23 @@ export const DebitCreditNoteForm = ({
     }
   };
 
-  const handleCustomerCreated = () => {
-    fetchCustomers();
+  const handleCustomerCreated = async () => {
+    await fetchCustomers();
+    // If editing, re-fetch and re-select the customer to update form fields
+    if (editCustomerId) {
+      const { data: updatedCustomer } = await supabase
+        .from('supplier_customers')
+        .select('id, customer_name, company_name, email, phone, address, gstin')
+        .eq('id', editCustomerId)
+        .maybeSingle();
+      if (updatedCustomer) {
+        setBuyerName(updatedCustomer.customer_name);
+        setBuyerAddress(updatedCustomer.address || '');
+        setBuyerGstin(updatedCustomer.gstin || '');
+        setBuyerEmail(updatedCustomer.email || '');
+        setBuyerPhone(updatedCustomer.phone || '');
+      }
+    }
   };
 
   const generateNoteNumber = () => {
@@ -456,16 +472,67 @@ export const DebitCreditNoteForm = ({
                     </SelectContent>
                   </Select>
                 </div>
+                {selectedCustomerId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="mt-5"
+                    onClick={() => {
+                      setEditCustomerId(selectedCustomerId);
+                      setShowCustomerForm(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   className="mt-5"
-                  onClick={() => setShowCustomerForm(true)}
+                  onClick={() => {
+                    setEditCustomerId(null);
+                    setShowCustomerForm(true);
+                  }}
                 >
                   <UserPlus className="h-4 w-4 mr-1" /> New
                 </Button>
               </div>
+
+              {/* Quick Customer List */}
+              {customers.length > 0 && (
+                <div className="border rounded-lg p-3 bg-muted/30">
+                  <p className="text-sm font-medium mb-2">All Customers ({customers.length})</p>
+                  <div className="max-h-32 overflow-y-auto space-y-1">
+                    {customers.map((customer) => (
+                      <div 
+                        key={customer.id} 
+                        className={`flex items-center justify-between text-sm p-2 rounded cursor-pointer hover:bg-muted ${selectedCustomerId === customer.id ? 'bg-muted' : ''}`}
+                        onClick={() => handleCustomerSelect(customer.id)}
+                      >
+                        <span>
+                          {customer.customer_name}
+                          {customer.company_name && <span className="text-muted-foreground ml-1">({customer.company_name})</span>}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditCustomerId(customer.id);
+                            setShowCustomerForm(true);
+                          }}
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -684,8 +751,12 @@ export const DebitCreditNoteForm = ({
       {/* Customer Form Modal */}
       <SupplierCustomerForm
         open={showCustomerForm}
-        onOpenChange={setShowCustomerForm}
+        onOpenChange={(open) => {
+          setShowCustomerForm(open);
+          if (!open) setEditCustomerId(null);
+        }}
         userId={userId}
+        editId={editCustomerId}
         onSuccess={handleCustomerCreated}
       />
     </Dialog>
