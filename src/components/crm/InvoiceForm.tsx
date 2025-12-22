@@ -364,6 +364,7 @@ export const InvoiceForm = ({
             notes: notes || null,
             terms_and_conditions: terms || null,
             bank_details: JSON.stringify({ bankName, bankAccount, bankIfsc, bankLocation }) || null,
+            status: 'sent' as const,
           })
           .eq('id', editId);
 
@@ -409,6 +410,7 @@ export const InvoiceForm = ({
             notes: notes || null,
             terms_and_conditions: terms || null,
             bank_details: JSON.stringify({ bankName, bankAccount, bankIfsc, bankLocation }) || null,
+            status: 'sent' as const,
           })
           .select('id')
           .single();
