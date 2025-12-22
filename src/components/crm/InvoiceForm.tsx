@@ -80,6 +80,9 @@ export const InvoiceForm = ({
     { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: 18, tax_amount: 0, total: 0 },
   ]);
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
+  const [companyGstin, setCompanyGstin] = useState('');
   const [savedBankDetails, setSavedBankDetails] = useState<{bankName: string; bankAccount: string; bankIfsc: string; bankLocation: string; label: string;}[]>([]);
   const [savedTerms, setSavedTerms] = useState<string[]>([]);
 
@@ -88,10 +91,13 @@ export const InvoiceForm = ({
     const fetchData = async () => {
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('company_logo_url')
+        .select('company_logo_url, company_name, address, gstin')
         .eq('id', userId)
         .maybeSingle();
       setCurrentLogoUrl(profileData?.company_logo_url || null);
+      setCompanyName(profileData?.company_name || '');
+      setCompanyAddress(profileData?.address || '');
+      setCompanyGstin(profileData?.gstin || '');
 
       // Fetch unique saved bank details
       const { data: invoicesData } = await supabase
@@ -441,6 +447,27 @@ export const InvoiceForm = ({
               currentLogoUrl={currentLogoUrl}
               onLogoChange={setCurrentLogoUrl}
             />
+
+            {/* Supplier Company Details */}
+            <Card>
+              <CardContent className="pt-4 space-y-4">
+                <h3 className="font-semibold">Your Company Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>Company Name</Label>
+                    <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Your company name" />
+                  </div>
+                  <div>
+                    <Label>Company GSTIN</Label>
+                    <Input value={companyGstin} onChange={(e) => setCompanyGstin(e.target.value)} placeholder="Your GSTIN" />
+                  </div>
+                  <div className="md:col-span-1">
+                    <Label>Company Address</Label>
+                    <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Your company address" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Invoice Header */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

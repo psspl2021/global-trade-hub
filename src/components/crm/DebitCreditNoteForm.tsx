@@ -57,6 +57,9 @@ export const DebitCreditNoteForm = ({
   const [invoices, setInvoices] = useState<any[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
+  const [companyGstin, setCompanyGstin] = useState('');
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const { toast } = useToast();
 
@@ -95,10 +98,15 @@ export const DebitCreditNoteForm = ({
   const fetchCompanyLogo = async () => {
     const { data } = await supabase
       .from('profiles')
-      .select('company_logo_url')
+      .select('company_logo_url, company_name, address, gstin')
       .eq('id', userId)
       .single();
-    if (data) setCompanyLogo(data.company_logo_url);
+    if (data) {
+      setCompanyLogo(data.company_logo_url);
+      setCompanyName(data.company_name || '');
+      setCompanyAddress(data.address || '');
+      setCompanyGstin(data.gstin || '');
+    }
   };
 
   const fetchCustomers = async () => {
@@ -371,6 +379,22 @@ export const DebitCreditNoteForm = ({
               currentLogoUrl={companyLogo}
               onLogoChange={setCompanyLogo}
             />
+
+            {/* Supplier Company Details */}
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>Company Name</Label>
+                <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Your company name" />
+              </div>
+              <div>
+                <Label>Company GSTIN</Label>
+                <Input value={companyGstin} onChange={(e) => setCompanyGstin(e.target.value)} placeholder="Your GSTIN" />
+              </div>
+              <div>
+                <Label>Company Address</Label>
+                <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Your company address" />
+              </div>
+            </div>
 
             {/* Note Number & Reference Invoice */}
             <div className="grid grid-cols-3 gap-4">
