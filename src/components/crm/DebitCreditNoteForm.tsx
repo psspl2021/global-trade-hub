@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2, Loader2, Save } from 'lucide-react';
+import { CompanyLogoUpload } from './CompanyLogoUpload';
 
 interface NoteItem {
   description: string;
@@ -321,6 +322,13 @@ export const DebitCreditNoteForm = ({
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Company Logo */}
+            <CompanyLogoUpload 
+              userId={userId} 
+              currentLogoUrl={companyLogo}
+              onLogoChange={setCompanyLogo}
+            />
+
             {/* Note Number & Reference Invoice */}
             <div className="grid grid-cols-2 gap-4">
               <div>
