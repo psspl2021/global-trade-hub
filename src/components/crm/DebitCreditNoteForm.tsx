@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Save, UserPlus } from 'lucide-react';
+import { Plus, Trash2, Loader2, Save, UserPlus, Download } from 'lucide-react';
+import { generateDocumentPDF } from '@/lib/pdfGenerator';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
 import { SupplierCustomerForm } from './SupplierCustomerForm';
 
@@ -640,6 +641,36 @@ export const DebitCreditNoteForm = ({
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const { subtotal, taxAmount, total } = calculateTotals();
+                  generateDocumentPDF({
+                    documentType: noteType,
+                    documentNumber: noteNumber,
+                    issueDate,
+                    referenceInvoiceNumber: referenceInvoiceNumber || undefined,
+                    referenceInvoiceDate: referenceInvoiceDate || undefined,
+                    companyName,
+                    companyAddress,
+                    companyGstin,
+                    companyLogo: companyLogo,
+                    buyerName,
+                    buyerAddress,
+                    buyerGstin,
+                    buyerEmail,
+                    buyerPhone,
+                    items,
+                    subtotal,
+                    taxAmount,
+                    totalAmount: total,
+                    notes,
+                    reason,
+                  });
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" /> Download PDF
               </Button>
               <Button onClick={handleSubmit} disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
