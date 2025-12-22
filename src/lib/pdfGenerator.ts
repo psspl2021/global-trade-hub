@@ -95,10 +95,10 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   // Load logo
   const logoData = await loadLogo();
 
-  // Add logo if available
+  // Add logo if available - larger size
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', margin, yPos, 35, 15);
+      doc.addImage(logoData, 'PNG', margin, yPos, 50, 22);
     } catch {
       // Skip if logo fails
     }
@@ -108,14 +108,61 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   doc.setFontSize(28);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(33, 37, 41);
-  doc.text(getDocumentTitle(data.documentType), pageWidth / 2, yPos + 10, { align: 'center' });
-  yPos += 25;
+  doc.text(getDocumentTitle(data.documentType), pageWidth / 2, yPos + 14, { align: 'center' });
+  yPos += 30;
 
   // Draw a decorative line under header
   doc.setDrawColor(0, 102, 204);
-  doc.setLineWidth(1);
+  doc.setLineWidth(1.5);
   doc.line(margin, yPos, pageWidth - margin, yPos);
-  yPos += 12;
+  
+  // Document Details (Right side) - positioned BELOW the blue line
+  const rightX = pageWidth - margin;
+  let rightY = yPos + 8; // Start below the blue line
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(100, 100, 100);
+  const labelKey = data.documentType.includes('invoice') ? 'Invoice No:' : 'Note No:';
+  doc.text(labelKey, rightX - 55, rightY);
+  doc.setTextColor(33, 37, 41);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.documentNumber, rightX, rightY, { align: 'right' });
+  rightY += 7;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(100, 100, 100);
+  doc.text('Date:', rightX - 55, rightY);
+  doc.setTextColor(33, 37, 41);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.issueDate, rightX, rightY, { align: 'right' });
+  rightY += 7;
+  
+  // Reference Invoice with DTD format: "77/2025-26 DTD 10/10/2025"
+  if (data.referenceInvoiceNumber) {
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Ref Invoice:', rightX - 55, rightY);
+    doc.setTextColor(33, 37, 41);
+    doc.setFont('helvetica', 'normal');
+    const refText = data.referenceInvoiceDate 
+      ? `${data.referenceInvoiceNumber} DTD ${data.referenceInvoiceDate}`
+      : data.referenceInvoiceNumber;
+    doc.text(refText, rightX, rightY, { align: 'right' });
+    rightY += 7;
+  }
+
+  if (data.dueDate) {
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Due Date:', rightX - 55, rightY);
+    doc.setTextColor(33, 37, 41);
+    doc.setFont('helvetica', 'normal');
+    doc.text(data.dueDate, rightX, rightY, { align: 'right' });
+    rightY += 7;
+  }
+  
+  yPos += 10;
 
   // From Section with company details (Left side)
   doc.setFontSize(9);
@@ -148,51 +195,6 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
     doc.setFont('helvetica', 'normal');
     doc.text(data.companyGstin, margin + 15, yPos);
     yPos += 5;
-  }
-
-  // Document Details (Right side) - positioned at top right
-  const rightX = pageWidth - margin;
-  let rightY = 37; // Start below the header line
-  
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(100, 100, 100);
-  const labelKey = data.documentType.includes('invoice') ? 'Invoice No:' : 'Note No:';
-  doc.text(labelKey, rightX - 55, rightY);
-  doc.setTextColor(33, 37, 41);
-  doc.setFont('helvetica', 'normal');
-  doc.text(data.documentNumber, rightX, rightY, { align: 'right' });
-  rightY += 7;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(100, 100, 100);
-  doc.text('Date:', rightX - 55, rightY);
-  doc.setTextColor(33, 37, 41);
-  doc.setFont('helvetica', 'normal');
-  doc.text(data.issueDate, rightX, rightY, { align: 'right' });
-  rightY += 7;
-  
-  // Reference Invoice with date in parentheses
-  if (data.referenceInvoiceNumber) {
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(100, 100, 100);
-    doc.text('Ref Invoice:', rightX - 55, rightY);
-    doc.setTextColor(33, 37, 41);
-    doc.setFont('helvetica', 'normal');
-    const refText = data.referenceInvoiceDate 
-      ? `${data.referenceInvoiceNumber} (${data.referenceInvoiceDate})`
-      : data.referenceInvoiceNumber;
-    doc.text(refText, rightX, rightY, { align: 'right' });
-    rightY += 7;
-  }
-
-  if (data.dueDate) {
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(100, 100, 100);
-    doc.text('Due Date:', rightX - 55, rightY);
-    doc.setTextColor(33, 37, 41);
-    doc.setFont('helvetica', 'normal');
-    doc.text(data.dueDate, rightX, rightY, { align: 'right' });
   }
 
   yPos = Math.max(yPos + 8, rightY + 5);
@@ -321,42 +323,43 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
 
   yPos = (doc as any).lastAutoTable.finalY + 15;
 
-  // Totals Section - Right aligned with styled box
-  const totalsBoxWidth = 90;
-  const totalsX = pageWidth - margin - totalsBoxWidth + 10;
+  // Totals Section - Right aligned with styled box - WIDER to fit numbers
+  const totalsBoxWidth = 110;
+  const totalsX = pageWidth - margin - totalsBoxWidth + 15;
+  const totalsValueX = pageWidth - margin - 10;
   
   doc.setDrawColor(0, 102, 204);
-  doc.setFillColor(248, 249, 250);
+  doc.setFillColor(255, 255, 255);
   
-  let totalsHeight = 35;
-  if (data.discountPercent && data.discountPercent > 0) totalsHeight += 10;
+  let totalsHeight = 40;
+  if (data.discountPercent && data.discountPercent > 0) totalsHeight += 12;
   
-  doc.roundedRect(totalsX - 10, yPos - 5, totalsBoxWidth, totalsHeight, 3, 3, 'FD');
+  doc.roundedRect(totalsX - 15, yPos - 8, totalsBoxWidth, totalsHeight, 3, 3, 'FD');
   
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(33, 37, 41);
   
   doc.text('Subtotal:', totalsX, yPos);
-  doc.text(formatCurrency(data.subtotal), pageWidth - margin - 5, yPos, { align: 'right' });
-  yPos += 8;
+  doc.text(formatCurrency(data.subtotal), totalsValueX, yPos, { align: 'right' });
+  yPos += 10;
 
   if (data.discountPercent && data.discountPercent > 0) {
     doc.text(`Discount (${data.discountPercent}%):`, totalsX, yPos);
-    doc.text(`-${formatCurrency(data.discountAmount || 0)}`, pageWidth - margin - 5, yPos, { align: 'right' });
-    yPos += 8;
+    doc.text(`-${formatCurrency(data.discountAmount || 0)}`, totalsValueX, yPos, { align: 'right' });
+    yPos += 10;
   }
 
   doc.text('Tax:', totalsX, yPos);
-  doc.text(formatCurrency(data.taxAmount), pageWidth - margin - 5, yPos, { align: 'right' });
-  yPos += 10;
+  doc.text(formatCurrency(data.taxAmount), totalsValueX, yPos, { align: 'right' });
+  yPos += 12;
 
   // Total line with emphasis
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
+  doc.setFontSize(13);
   doc.setTextColor(0, 102, 204);
   doc.text('Total:', totalsX, yPos);
-  doc.text(formatCurrency(data.totalAmount), pageWidth - margin - 5, yPos, { align: 'right' });
+  doc.text(formatCurrency(data.totalAmount), totalsValueX, yPos, { align: 'right' });
   doc.setTextColor(33, 37, 41);
   yPos += 20;
 
