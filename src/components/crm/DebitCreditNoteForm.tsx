@@ -51,6 +51,7 @@ export const DebitCreditNoteForm = ({
   const [noteNumber, setNoteNumber] = useState('');
   const [referenceInvoiceId, setReferenceInvoiceId] = useState('');
   const [referenceInvoiceNumber, setReferenceInvoiceNumber] = useState('');
+  const [referenceInvoiceDate, setReferenceInvoiceDate] = useState('');
   const [buyerName, setBuyerName] = useState('');
   const [buyerAddress, setBuyerAddress] = useState('');
   const [buyerGstin, setBuyerGstin] = useState('');
@@ -105,6 +106,7 @@ export const DebitCreditNoteForm = ({
     setNoteNumber('');
     setReferenceInvoiceId('');
     setReferenceInvoiceNumber('');
+    setReferenceInvoiceDate('');
     setBuyerName('');
     setBuyerAddress('');
     setBuyerGstin('');
@@ -330,7 +332,7 @@ export const DebitCreditNoteForm = ({
             />
 
             {/* Note Number & Reference Invoice */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>{noteType === 'debit_note' ? 'Debit Note' : 'Credit Note'} Number *</Label>
                 <Input value={noteNumber} onChange={(e) => setNoteNumber(e.target.value)} />
@@ -358,6 +360,14 @@ export const DebitCreditNoteForm = ({
                     setReferenceInvoiceId(''); // Clear selected ID when manually typing
                   }} 
                   placeholder="Or enter invoice number manually..."
+                />
+              </div>
+              <div>
+                <Label>Reference Invoice Date</Label>
+                <Input 
+                  type="date" 
+                  value={referenceInvoiceDate} 
+                  onChange={(e) => setReferenceInvoiceDate(e.target.value)} 
                 />
               </div>
             </div>
