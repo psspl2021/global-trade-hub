@@ -5,9 +5,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Download, Printer } from 'lucide-react';
+import { Loader2, Download, Printer, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { generateDocumentPDF } from '@/lib/pdfGenerator';
 
 interface DocumentViewerProps {
   open: boolean;
@@ -200,6 +201,65 @@ export const DocumentViewer = ({
     toast({ title: 'Exported', description: 'Document exported to Excel' });
   };
 
+  const handleDownloadPDF = () => {
+    if (!document) return;
+    
+    const docType = documentType === 'purchase_order' 
+      ? 'tax_invoice' as const
+      : (document.document_type || 'tax_invoice') as 'proforma_invoice' | 'tax_invoice' | 'debit_note' | 'credit_note';
+    
+    let bankDetails: { bankName: string; bankAccount: string; bankIfsc: string; bankLocation?: string } | undefined;
+    if (document.bank_details) {
+      try {
+        const parsed = JSON.parse(document.bank_details);
+        bankDetails = {
+          bankName: parsed.bankName,
+          bankAccount: parsed.bankAccount,
+          bankIfsc: parsed.bankIfsc,
+          bankLocation: parsed.bankLocation,
+        };
+      } catch {
+        // Legacy format - skip
+      }
+    }
+
+    generateDocumentPDF({
+      documentType: docType,
+      documentNumber: document.invoice_number || document.po_number,
+      issueDate: format(new Date(document.issue_date || document.order_date), 'dd-MM-yyyy'),
+      dueDate: document.due_date ? format(new Date(document.due_date), 'dd-MM-yyyy') : undefined,
+      referenceInvoiceNumber: document.reference_invoice_number || undefined,
+      companyName: supplier?.company_name || '',
+      companyAddress: supplier?.address || '',
+      companyGstin: supplier?.gstin || '',
+      companyLogo: supplier?.company_logo_url,
+      buyerName: document.buyer_name || document.vendor_name,
+      buyerAddress: document.buyer_address || document.vendor_address || '',
+      buyerGstin: document.buyer_gstin || document.vendor_gstin || '',
+      buyerEmail: document.buyer_email || document.vendor_email,
+      buyerPhone: document.buyer_phone || document.vendor_phone,
+      items: items.map((item) => ({
+        description: item.description,
+        hsn_code: item.hsn_code,
+        quantity: Number(item.quantity),
+        unit: item.unit || 'units',
+        unit_price: Number(item.unit_price),
+        tax_rate: Number(item.tax_rate),
+        tax_amount: Number(item.tax_amount),
+        total: Number(item.total),
+      })),
+      subtotal: Number(document.subtotal),
+      discountPercent: Number(document.discount_percent) || undefined,
+      discountAmount: Number(document.discount_amount) || undefined,
+      taxAmount: Number(document.tax_amount),
+      totalAmount: Number(document.total_amount),
+      notes: document.notes,
+      terms: document.terms_and_conditions,
+      bankDetails,
+      reason: (document.document_type === 'debit_note' || document.document_type === 'credit_note') ? document.notes : undefined,
+    });
+  };
+
   const getDocumentTypeName = () => {
     if (documentType === 'purchase_order') return 'PURCHASE ORDER';
     switch (document?.document_type) {
@@ -231,6 +291,9 @@ export const DocumentViewer = ({
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={handleExportExcel}>
                 <Download className="h-4 w-4 mr-1" /> Excel
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleDownloadPDF}>
+                <FileText className="h-4 w-4 mr-1" /> PDF
               </Button>
               <Button size="sm" variant="outline" onClick={handlePrint}>
                 <Printer className="h-4 w-4 mr-1" /> Print

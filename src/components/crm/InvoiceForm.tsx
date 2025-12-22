@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Trash2, Save, UserPlus } from 'lucide-react';
+import { Loader2, Plus, Trash2, Save, UserPlus, Download } from 'lucide-react';
+import { generateDocumentPDF } from '@/lib/pdfGenerator';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
 import { SupplierCustomerForm } from './SupplierCustomerForm';
 
@@ -763,6 +764,38 @@ export const InvoiceForm = ({
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const { subtotal, taxAmount, discountAmount, total } = calculateTotals();
+                  generateDocumentPDF({
+                    documentType,
+                    documentNumber: invoiceNumber,
+                    issueDate,
+                    dueDate: dueDate || undefined,
+                    companyName,
+                    companyAddress,
+                    companyGstin,
+                    companyLogo: currentLogoUrl,
+                    buyerName,
+                    buyerAddress,
+                    buyerGstin,
+                    buyerEmail,
+                    buyerPhone,
+                    items,
+                    subtotal,
+                    discountPercent,
+                    discountAmount,
+                    taxAmount,
+                    totalAmount: total,
+                    notes,
+                    terms,
+                    bankDetails: bankName ? { bankName, bankAccount, bankIfsc, bankLocation } : undefined,
+                  });
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" /> Download PDF
               </Button>
               <Button onClick={handleSubmit} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
