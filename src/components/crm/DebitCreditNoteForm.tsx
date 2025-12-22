@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Save } from 'lucide-react';
+import { Plus, Trash2, Loader2, Save, UserPlus } from 'lucide-react';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
+import { SupplierCustomerForm } from './SupplierCustomerForm';
 
 interface NoteItem {
   description: string;
@@ -19,6 +20,16 @@ interface NoteItem {
   tax_rate: number;
   tax_amount: number;
   total: number;
+}
+
+interface Customer {
+  id: string;
+  customer_name: string;
+  company_name: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  gstin: string | null;
 }
 
 interface DebitCreditNoteFormProps {
@@ -44,7 +55,9 @@ export const DebitCreditNoteForm = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
   const { toast } = useToast();
 
   // Form state
@@ -52,6 +65,7 @@ export const DebitCreditNoteForm = ({
   const [referenceInvoiceId, setReferenceInvoiceId] = useState('');
   const [referenceInvoiceNumber, setReferenceInvoiceNumber] = useState('');
   const [referenceInvoiceDate, setReferenceInvoiceDate] = useState('');
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [buyerName, setBuyerName] = useState('');
   const [buyerAddress, setBuyerAddress] = useState('');
   const [buyerGstin, setBuyerGstin] = useState('');
@@ -68,6 +82,7 @@ export const DebitCreditNoteForm = ({
     if (open) {
       fetchInvoices();
       fetchCompanyLogo();
+      fetchCustomers();
       if (editId) {
         loadNote(editId);
       } else {
@@ -86,6 +101,15 @@ export const DebitCreditNoteForm = ({
     if (data) setCompanyLogo(data.company_logo_url);
   };
 
+  const fetchCustomers = async () => {
+    const { data } = await supabase
+      .from('supplier_customers')
+      .select('id, customer_name, company_name, email, phone, address, gstin')
+      .eq('supplier_id', userId)
+      .order('customer_name');
+    setCustomers(data || []);
+  };
+
   const fetchInvoices = async () => {
     const { data } = await supabase
       .from('invoices')
@@ -94,6 +118,22 @@ export const DebitCreditNoteForm = ({
       .in('document_type', ['proforma_invoice', 'tax_invoice'])
       .order('created_at', { ascending: false });
     setInvoices(data || []);
+  };
+
+  const handleCustomerSelect = (customerId: string) => {
+    const customer = customers.find((c) => c.id === customerId);
+    if (customer) {
+      setSelectedCustomerId(customerId);
+      setBuyerName(customer.customer_name);
+      setBuyerAddress(customer.address || '');
+      setBuyerGstin(customer.gstin || '');
+      setBuyerEmail(customer.email || '');
+      setBuyerPhone(customer.phone || '');
+    }
+  };
+
+  const handleCustomerCreated = () => {
+    fetchCustomers();
   };
 
   const generateNoteNumber = () => {
@@ -107,6 +147,7 @@ export const DebitCreditNoteForm = ({
     setReferenceInvoiceId('');
     setReferenceInvoiceNumber('');
     setReferenceInvoiceDate('');
+    setSelectedCustomerId('');
     setBuyerName('');
     setBuyerAddress('');
     setBuyerGstin('');
@@ -373,14 +414,43 @@ export const DebitCreditNoteForm = ({
             </div>
 
             {/* Party Details */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Party Name *</Label>
-                <Input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Label>Select Customer</Label>
+                  <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select existing customer..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {customers.map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.customer_name} {customer.company_name ? `(${customer.company_name})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-5"
+                  onClick={() => setShowCustomerForm(true)}
+                >
+                  <UserPlus className="h-4 w-4 mr-1" /> New
+                </Button>
               </div>
-              <div>
-                <Label>GSTIN</Label>
-                <Input value={buyerGstin} onChange={(e) => setBuyerGstin(e.target.value)} />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Party Name *</Label>
+                  <Input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} />
+                </div>
+                <div>
+                  <Label>GSTIN</Label>
+                  <Input value={buyerGstin} onChange={(e) => setBuyerGstin(e.target.value)} />
+                </div>
               </div>
             </div>
 
@@ -555,6 +625,14 @@ export const DebitCreditNoteForm = ({
           </div>
         )}
       </DialogContent>
+
+      {/* Customer Form Modal */}
+      <SupplierCustomerForm
+        open={showCustomerForm}
+        onOpenChange={setShowCustomerForm}
+        userId={userId}
+        onSuccess={handleCustomerCreated}
+      />
     </Dialog>
   );
 };
