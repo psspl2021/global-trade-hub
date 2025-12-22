@@ -8,8 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Trash2, Save } from 'lucide-react';
+import { Loader2, Plus, Trash2, Save, UserPlus } from 'lucide-react';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
+import { SupplierCustomerForm } from './SupplierCustomerForm';
+
 interface InvoiceItem {
   id?: string;
   description: string;
@@ -20,6 +22,16 @@ interface InvoiceItem {
   tax_rate: number;
   tax_amount: number;
   total: number;
+}
+
+interface Customer {
+  id: string;
+  customer_name: string;
+  company_name: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  gstin: string | null;
 }
 
 interface InvoiceFormProps {
@@ -33,6 +45,7 @@ interface InvoiceFormProps {
 
 const GST_RATES = [0, 5, 12, 18, 28];
 const UNIT_OPTIONS = ['units', 'kg', 'g', 'ton', 'mt', 'quintal', 'ltr', 'ml', 'pcs', 'box', 'carton', 'bag', 'roll', 'mtr', 'sqft', 'sqm', 'dozen', 'pair', 'set'];
+
 export const InvoiceForm = ({
   open,
   onOpenChange,
@@ -43,6 +56,9 @@ export const InvoiceForm = ({
 }: InvoiceFormProps) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
   const { toast } = useToast();
 
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -110,8 +126,36 @@ export const InvoiceForm = ({
         setSavedBankDetails(parsedBankDetails);
       }
     };
-    if (open) fetchData();
+    if (open) {
+      fetchData();
+      fetchCustomers();
+    }
   }, [open, userId]);
+
+  const fetchCustomers = async () => {
+    const { data } = await supabase
+      .from('supplier_customers')
+      .select('id, customer_name, company_name, email, phone, address, gstin')
+      .eq('supplier_id', userId)
+      .order('customer_name');
+    setCustomers(data || []);
+  };
+
+  const handleCustomerSelect = (customerId: string) => {
+    const customer = customers.find((c) => c.id === customerId);
+    if (customer) {
+      setSelectedCustomerId(customerId);
+      setBuyerName(customer.customer_name);
+      setBuyerAddress(customer.address || '');
+      setBuyerGstin(customer.gstin || '');
+      setBuyerEmail(customer.email || '');
+      setBuyerPhone(customer.phone || '');
+    }
+  };
+
+  const handleCustomerCreated = () => {
+    fetchCustomers();
+  };
 
   useEffect(() => {
     if (open && !editId) {
@@ -129,6 +173,7 @@ export const InvoiceForm = ({
   };
 
   const resetForm = () => {
+    setSelectedCustomerId('');
     setBuyerName('');
     setBuyerAddress('');
     setBuyerGstin('');
@@ -412,7 +457,35 @@ export const InvoiceForm = ({
             {/* Buyer Details */}
             <Card>
               <CardContent className="pt-4 space-y-4">
-                <h3 className="font-semibold">Buyer Details</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Buyer Details</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCustomerForm(true)}
+                  >
+                    <UserPlus className="h-4 w-4 mr-1" /> New Customer
+                  </Button>
+                </div>
+                
+                {/* Customer Selection */}
+                <div>
+                  <Label>Select Customer</Label>
+                  <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select existing customer..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {customers.map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.customer_name} {customer.company_name ? `(${customer.company_name})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Name *</Label>
@@ -672,6 +745,14 @@ export const InvoiceForm = ({
           </div>
         )}
       </DialogContent>
+
+      {/* Customer Form Modal */}
+      <SupplierCustomerForm
+        open={showCustomerForm}
+        onOpenChange={setShowCustomerForm}
+        userId={userId}
+        onSuccess={handleCustomerCreated}
+      />
     </Dialog>
   );
 };
