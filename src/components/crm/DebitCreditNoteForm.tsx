@@ -304,7 +304,7 @@ export const DebitCreditNoteForm = ({
       total_amount: total,
       notes: reason,
       terms_and_conditions: notes,
-      status: 'draft' as const,
+      status: 'sent' as const,
     };
 
     try {
