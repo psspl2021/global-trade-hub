@@ -217,6 +217,9 @@ const Index = () => {
           
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/browse')}>Buyer</Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/seller')}>Seller</Button>
+            <Button variant="ghost" size="sm" onClick={() => scrollToSection('private-label')}>Private Label</Button>
             <Button variant="ghost" size="sm" onClick={() => scrollToSection('about')}>About Us</Button>
             <Button variant="ghost" size="sm" onClick={() => scrollToSection('how-it-works')}>How It Works</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/categories')}>Categories</Button>
@@ -241,6 +244,15 @@ const Index = () => {
                 <nav className="flex flex-col gap-4 mt-8">
                   <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/login')}>
                     Login
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/browse')}>
+                    Buyer
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/seller')}>
+                    Seller
+                  </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('private-label')}>
+                    Private Label
                   </Button>
                   <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('about')}>
                     About Us
