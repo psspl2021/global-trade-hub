@@ -102,6 +102,15 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     telephone: "+91-8368127357",
     languages: ["en-AE", "ar-AE"],
   },
+  china: {
+    country: "China",
+    countryCode: "CN",
+    region: "East Asia",
+    currency: "CNY",
+    telephone: "+91-8368127357",
+    languages: ["zh-CN", "en-CN"],
+    trafficShare: "3%",
+  },
 };
 
 // Get all target countries for schema
@@ -224,7 +233,8 @@ export const getExportActionSchema = () => ({
     { "@type": "Country", "name": "Spain" },
     { "@type": "Country", "name": "Canada" },
     { "@type": "Country", "name": "Germany" },
-    { "@type": "Country", "name": "United Arab Emirates" }
+    { "@type": "Country", "name": "United Arab Emirates" },
+    { "@type": "Country", "name": "China" }
   ]
 });
 

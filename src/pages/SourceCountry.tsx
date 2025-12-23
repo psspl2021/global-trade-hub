@@ -120,6 +120,19 @@ const countryData: Record<string, {
       { label: "ECTA Benefits", value: "Active" }
     ],
     certifications: ["TGA", "ACCC Approved", "ISO", "Organic Australia"]
+  },
+  china: {
+    name: "China",
+    flag: "🇨🇳",
+    headline: "India-China B2B Trade Partnership",
+    description: "Connect with verified Indian suppliers for seamless bilateral trade with China. Quality products, competitive pricing, and established trade routes to Shanghai, Shenzhen, and Guangzhou.",
+    topCategories: ["Pharmaceuticals", "Iron Ore", "Cotton", "Organic Chemicals", "Gems & Jewelry", "Seafood"],
+    tradeStats: [
+      { label: "India-China Trade", value: "$136B+" },
+      { label: "Active Suppliers", value: "1,500+" },
+      { label: "Avg. Delivery", value: "10-15 days" }
+    ],
+    certifications: ["CCC", "CFDA", "ISO", "AQSIQ"]
   }
 };
 
