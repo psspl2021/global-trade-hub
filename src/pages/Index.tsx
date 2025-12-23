@@ -742,36 +742,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">
-            Browse by Category
-          </h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Explore our comprehensive range of product categories
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-            {categories.map((category) => (
-              <Card 
-                key={category.name} 
-                className="hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer group"
-                onClick={() => handleCategoryClick(category.name)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">
-                    {category.icon}
-                  </div>
-                  <h3 className="font-medium text-xs leading-tight">
-                    {category.name}
-                  </h3>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Trust Badges Section */}
       <Suspense fallback={<SectionFallback />}>
         <TrustBadges />
