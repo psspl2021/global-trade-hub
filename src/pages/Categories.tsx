@@ -13,6 +13,7 @@ import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { categoriesData, searchCategories } from '@/data/categories';
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getCategorySchema } from '@/hooks/useSEO';
 import { nameToSlug } from './CategoryLanding';
+import { CategoryShowcase } from '@/components/landing/CategoryShowcase';
 
 const Categories = () => {
   const navigate = useNavigate();
@@ -114,6 +115,9 @@ const Categories = () => {
           </Button>
         </div>
       </section>
+
+      {/* Category Showcase with Images */}
+      <CategoryShowcase />
 
       {/* Search Bar */}
       <section className="py-8 bg-muted/50">
