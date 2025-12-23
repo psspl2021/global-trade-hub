@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Breadcrumb,
   BreadcrumbItem,
@@ -14,10 +15,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Search, Package, Building2, Radio, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Search, Package, Building2, Radio, Lock, Eye, EyeOff, Sparkles, Filter, ChevronDown, X } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
-import { getCategoryByName } from '@/data/categories';
+import { getCategoryByName, categoriesData } from '@/data/categories';
 
 interface Product {
   id: string;
@@ -43,6 +49,9 @@ const Browse = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(categoryParam ? [categoryParam] : []);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(true);
 
   // SEO
   const pageTitle = subcategoryParam 
@@ -146,7 +155,7 @@ const Browse = () => {
     fetchProducts();
   }, [categoryParam]);
 
-  // Filter by search and subcategory
+  // Filter by search, subcategory, and selected categories
   const filteredProducts = products.filter(product => {
     const matchesSearch = searchQuery === '' || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -156,11 +165,30 @@ const Browse = () => {
       product.name.toLowerCase().includes(subcategoryParam.toLowerCase()) ||
       product.description?.toLowerCase().includes(subcategoryParam.toLowerCase()) ||
       product.category.toLowerCase().includes(subcategoryParam.toLowerCase());
+
+    const matchesCategory = selectedCategories.length === 0 ||
+      selectedCategories.some(cat => 
+        product.category.toLowerCase().includes(cat.toLowerCase())
+      );
     
-    return matchesSearch && matchesSubcategory;
+    return matchesSearch && matchesSubcategory && matchesCategory;
   });
 
+  const handleCategoryToggle = (categoryName: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryName)
+        ? prev.filter(c => c !== categoryName)
+        : [...prev, categoryName]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setSearchQuery('');
+  };
+
   const displayTitle = subcategoryParam || categoryParam || 'All Products';
+  const mainCategories = categoriesData.slice(0, 15); // Show first 15 categories
 
   return (
     <div className="min-h-screen bg-background">
@@ -232,44 +260,136 @@ const Browse = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
+        {/* Mobile Filter Button */}
+        <div className="lg:hidden mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            Filters
+            {selectedCategories.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {selectedCategories.length}
+              </Badge>
+            )}
+          </Button>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar - Subcategory Filter */}
-          {categoryData && (
-            <aside className="lg:w-64 shrink-0">
-              <Card>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    {(() => {
-                      const IconComponent = categoryData.icon;
-                      return <IconComponent className="h-4 w-4 text-primary" />;
-                    })()}
-                    {categoryParam}
+          {/* Filter Sidebar */}
+          <aside className={`lg:w-64 shrink-0 ${showMobileFilters ? 'block' : 'hidden lg:block'}`}>
+            <Card className="sticky top-24">
+              <CardContent className="p-4">
+                {/* Filter Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-primary" />
+                    Filters
                   </h3>
-                  <div className="space-y-1">
+                  {(selectedCategories.length > 0 || searchQuery) && (
                     <Button
-                      variant={!subcategoryParam ? "secondary" : "ghost"}
+                      variant="ghost"
                       size="sm"
-                      className="w-full justify-start text-sm"
-                      onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}`)}
+                      onClick={clearAllFilters}
+                      className="text-xs h-7 text-muted-foreground hover:text-destructive"
                     >
-                      All in {categoryParam.split(' ')[0]}...
+                      <X className="h-3 w-3 mr-1" />
+                      Clear All
                     </Button>
-                    {categoryData.subcategories.map((sub) => (
-                      <Button
-                        key={sub}
-                        variant={subcategoryParam === sub ? "secondary" : "ghost"}
-                        size="sm"
-                        className="w-full justify-start text-sm"
-                        onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(sub)}`)}
-                      >
-                        {sub}
-                      </Button>
+                  )}
+                </div>
+
+                {/* Category Filter */}
+                <Collapsible open={isCategoryOpen} onOpenChange={setIsCategoryOpen}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium border-t pt-4">
+                    Category
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-2 pt-2">
+                    {mainCategories.map((category) => (
+                      <div key={category.name} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={category.name}
+                          checked={selectedCategories.includes(category.name)}
+                          onCheckedChange={() => handleCategoryToggle(category.name)}
+                        />
+                        <label
+                          htmlFor={category.name}
+                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1 truncate"
+                        >
+                          {category.name}
+                        </label>
+                      </div>
                     ))}
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => navigate('/categories')}
+                      className="text-xs p-0 h-auto text-primary"
+                    >
+                      View All Categories →
+                    </Button>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Subcategory Filter (if category selected) */}
+                {categoryData && (
+                  <div className="border-t mt-4 pt-4">
+                    <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                      {(() => {
+                        const IconComponent = categoryData.icon;
+                        return <IconComponent className="h-4 w-4 text-primary" />;
+                      })()}
+                      Subcategories
+                    </h4>
+                    <div className="space-y-1 max-h-48 overflow-y-auto">
+                      <Button
+                        variant={!subcategoryParam ? "secondary" : "ghost"}
+                        size="sm"
+                        className="w-full justify-start text-xs"
+                        onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}`)}
+                      >
+                        All in {categoryParam.split(' ')[0]}...
+                      </Button>
+                      {categoryData.subcategories.slice(0, 10).map((sub) => (
+                        <Button
+                          key={sub}
+                          variant={subcategoryParam === sub ? "secondary" : "ghost"}
+                          size="sm"
+                          className="w-full justify-start text-xs"
+                          onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(sub)}`)}
+                        >
+                          {sub}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </aside>
-          )}
+                )}
+
+                {/* Active Filters Summary */}
+                {selectedCategories.length > 0 && (
+                  <div className="border-t mt-4 pt-4">
+                    <h4 className="text-sm font-medium mb-2">Active Filters</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedCategories.map(cat => (
+                        <Badge 
+                          key={cat} 
+                          variant="secondary"
+                          className="text-xs cursor-pointer hover:bg-destructive/20"
+                          onClick={() => handleCategoryToggle(cat)}
+                        >
+                          {cat.split(' ')[0]}...
+                          <X className="h-3 w-3 ml-1" />
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </aside>
 
           {/* Main Content Area */}
           <div className="flex-1">
