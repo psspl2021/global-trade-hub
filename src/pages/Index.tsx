@@ -22,7 +22,7 @@ import { EarlyAdopterBanner } from '@/components/landing/EarlyAdopterBanner';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
-import { BuyerTypesSection } from '@/components/landing/BuyerTypesSection';
+
 import { BuyerSellerCTA } from '@/components/landing/BuyerSellerCTA';
 
 import { BecomeSellerSection } from '@/components/landing/BecomeSellerSection';
@@ -387,8 +387,6 @@ const Index = () => {
       {/* Become a Seller Section */}
       <BecomeSellerSection />
 
-      {/* Built for Every B2B Buyer */}
-      <BuyerTypesSection />
 
       {/* Explore Product Categories */}
       <section className="py-16 bg-gradient-to-b from-background to-muted/30">
