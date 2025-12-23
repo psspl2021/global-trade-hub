@@ -23,6 +23,20 @@ const languageLabels: Record<Language, { native: string; flag: string }> = {
   es: { native: "Español", flag: "🇪🇸" },
   de: { native: "Deutsch", flag: "🇩🇪" },
   ar: { native: "العربية", flag: "🇦🇪" },
+  ja: { native: "日本語", flag: "🇯🇵" },
+  zh: { native: "中文", flag: "🇨🇳" },
+  pt: { native: "Português", flag: "🇵🇹" },
+  it: { native: "Italiano", flag: "🇮🇹" },
+  ru: { native: "Русский", flag: "🇷🇺" },
+  th: { native: "ไทย", flag: "🇹🇭" },
+  vi: { native: "Tiếng Việt", flag: "🇻🇳" },
+  tr: { native: "Türkçe", flag: "🇹🇷" },
+  sv: { native: "Svenska", flag: "🇸🇪" },
+  no: { native: "Norsk", flag: "🇳🇴" },
+  el: { native: "Ελληνικά", flag: "🇬🇷" },
+  ne: { native: "नेपाली", flag: "🇳🇵" },
+  ms: { native: "Bahasa Melayu", flag: "🇲🇾" },
+  tl: { native: "Filipino", flag: "🇵🇭" },
 };
 
 export const LanguageSelector = ({
