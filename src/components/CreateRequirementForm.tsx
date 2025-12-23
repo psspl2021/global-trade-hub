@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -47,11 +47,29 @@ const requirementSchema = z.object({
 
 type RequirementFormData = z.infer<typeof requirementSchema>;
 
+interface AIGeneratedRFQ {
+  title: string;
+  description: string;
+  category: string;
+  items: {
+    item_name: string;
+    description: string;
+    quantity: number;
+    unit: string;
+  }[];
+  trade_type: 'import' | 'export' | 'domestic_india';
+  quality_standards?: string;
+  certifications_required?: string;
+  payment_terms?: string;
+}
+
 interface CreateRequirementFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId: string;
   onSuccess?: () => void;
+  prefillData?: AIGeneratedRFQ | null;
+  onClearPrefill?: () => void;
 }
 
 const categories = [
@@ -96,7 +114,7 @@ const defaultItem: RequirementItem = {
   unit: 'Pieces',
 };
 
-export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }: CreateRequirementFormProps) {
+export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, prefillData, onClearPrefill }: CreateRequirementFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
 
@@ -109,6 +127,28 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess }:
   } = useForm<RequirementFormData>({
     resolver: zodResolver(requirementSchema),
   });
+
+  // Pre-fill form when AI data is provided
+  useEffect(() => {
+    if (prefillData && open) {
+      setValue('title', prefillData.title);
+      setValue('description', prefillData.description);
+      setValue('trade_type', prefillData.trade_type);
+      if (prefillData.quality_standards) setValue('quality_standards', prefillData.quality_standards);
+      if (prefillData.certifications_required) setValue('certifications_required', prefillData.certifications_required);
+      if (prefillData.payment_terms) setValue('payment_terms', prefillData.payment_terms);
+      
+      // Map AI items to form items
+      const mappedItems: RequirementItem[] = prefillData.items.map(item => ({
+        item_name: item.item_name,
+        description: item.description,
+        category: prefillData.category,
+        quantity: item.quantity,
+        unit: item.unit,
+      }));
+      setItems(mappedItems.length > 0 ? mappedItems : [{ ...defaultItem }]);
+    }
+  }, [prefillData, open, setValue]);
 
   const addItem = () => {
     setItems([...items, { ...defaultItem }]);

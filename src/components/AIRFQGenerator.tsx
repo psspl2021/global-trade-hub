@@ -1,0 +1,245 @@
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap } from 'lucide-react';
+
+interface RFQItem {
+  item_name: string;
+  description: string;
+  quantity: number;
+  unit: string;
+}
+
+interface GeneratedRFQ {
+  title: string;
+  description: string;
+  category: string;
+  items: RFQItem[];
+  trade_type: 'import' | 'export' | 'domestic_india';
+  quality_standards?: string;
+  certifications_required?: string;
+  payment_terms?: string;
+}
+
+interface AIRFQGeneratorProps {
+  onRFQGenerated: (rfq: GeneratedRFQ) => void;
+}
+
+export function AIRFQGenerator({ onRFQGenerated }: AIRFQGeneratorProps) {
+  const [description, setDescription] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedRFQ, setGeneratedRFQ] = useState<GeneratedRFQ | null>(null);
+
+  const handleGenerate = async () => {
+    if (description.trim().length < 10) {
+      toast.error('Please provide a more detailed description');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratedRFQ(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-rfq', {
+        body: { description: description.trim() }
+      });
+
+      if (error) {
+        console.error('RFQ generation error:', error);
+        throw new Error(error.message || 'Failed to generate RFQ');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.rfq) {
+        setGeneratedRFQ(data.rfq);
+        toast.success('RFQ generated successfully!');
+      } else {
+        throw new Error('Invalid response from AI');
+      }
+    } catch (error: any) {
+      console.error('Error generating RFQ:', error);
+      toast.error(error.message || 'Failed to generate RFQ. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleProceed = () => {
+    if (generatedRFQ) {
+      onRFQGenerated(generatedRFQ);
+    }
+  };
+
+  const tradeTypeLabels = {
+    import: 'Import',
+    export: 'Export',
+    domestic_india: 'Domestic India'
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Hero Section */}
+      <div className="text-center space-y-3">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+          Post Your RFQ. Get Multiple Quotes.
+        </h2>
+        <p className="text-muted-foreground">
+          Connect with verified Indian suppliers in minutes. Free, fast, and secure.
+        </p>
+      </div>
+
+      {/* AI Generator Card */}
+      <Card className="border-primary/20 shadow-lg">
+        <CardHeader className="text-center pb-2">
+          <CardTitle className="text-primary flex items-center justify-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            AI-powered RFQ generator
+          </CardTitle>
+          <CardDescription>
+            Describe your needs — our AI will generate a complete RFQ.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Textarea
+            placeholder="Describe your sourcing requirement in detail. Include product name, quantity, specifications, and delivery requirements for best results.
+
+Example: I need 5000 kg of food-grade stainless steel containers for a dairy plant in Maharashtra. Looking for BIS certified products with 2mm thickness, 50L capacity each."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={5}
+            className="resize-none"
+          />
+
+          <div className="flex justify-end">
+            <Button 
+              onClick={handleGenerate} 
+              disabled={isGenerating || description.trim().length < 10}
+              className="gap-2"
+              size="lg"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Generate My RFQ
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground text-center">
+            Choose to describe your needs in detail. Include product name, quantity, specifications, and delivery requirements for best results.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Generated RFQ Preview */}
+      {generatedRFQ && (
+        <Card className="border-green-500/30 bg-green-50/50 dark:bg-green-950/20">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                <CheckCircle2 className="h-5 w-5" />
+                Generated RFQ Preview
+              </CardTitle>
+              <Badge variant="secondary">{tradeTypeLabels[generatedRFQ.trade_type]}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-lg">{generatedRFQ.title}</h4>
+              <p className="text-sm text-muted-foreground mt-1">{generatedRFQ.description}</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline">{generatedRFQ.category}</Badge>
+              {generatedRFQ.quality_standards && (
+                <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
+                  {generatedRFQ.quality_standards}
+                </Badge>
+              )}
+              {generatedRFQ.certifications_required && (
+                <Badge variant="outline" className="bg-purple-50 dark:bg-purple-950">
+                  {generatedRFQ.certifications_required}
+                </Badge>
+              )}
+            </div>
+
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="text-left p-2 font-medium">Item</th>
+                    <th className="text-left p-2 font-medium">Specifications</th>
+                    <th className="text-right p-2 font-medium">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {generatedRFQ.items.map((item, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="p-2 font-medium">{item.item_name}</td>
+                      <td className="p-2 text-muted-foreground">{item.description}</td>
+                      <td className="p-2 text-right">{item.quantity} {item.unit}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {generatedRFQ.payment_terms && (
+              <p className="text-sm">
+                <span className="font-medium">Suggested Payment Terms:</span>{' '}
+                <span className="text-muted-foreground">{generatedRFQ.payment_terms}</span>
+              </p>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setGeneratedRFQ(null)}
+              >
+                Edit Description
+              </Button>
+              <Button 
+                className="flex-1 gap-2"
+                onClick={handleProceed}
+              >
+                Proceed to Post RFQ
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Trust Badges */}
+      <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground py-4">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          <span>20,000+ Verified SMEs</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Shield className="h-4 w-4 text-primary" />
+          <span>Trusted by Procurement Teams</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Zap className="h-4 w-4 text-primary" />
+          <span>AI-Assisted Sourcing</span>
+        </div>
+      </div>
+    </div>
+  );
+}

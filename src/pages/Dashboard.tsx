@@ -51,6 +51,7 @@ import { CustomerShipmentTracking } from '@/components/logistics/CustomerShipmen
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
+import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 
 const Dashboard = () => {
@@ -96,6 +97,7 @@ const Dashboard = () => {
   const [logisticsSubscription, setLogisticsSubscription] = useState<{ bids_used_this_month: number; bids_limit: number; premium_bids_balance: number; is_early_adopter?: boolean; early_adopter_expires_at?: string | null } | null>(null);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [profileComplete, setProfileComplete] = useState(false);
+  const [aiGeneratedRFQ, setAIGeneratedRFQ] = useState<any>(null);
   // SEO for dashboard
   useSEO({
     title: 'Dashboard | ProcureSaathi',
@@ -299,17 +301,26 @@ const Dashboard = () => {
 
         {role === 'buyer' && (
           <div className="space-y-4 sm:space-y-6">
+            {/* AI-Powered RFQ Generator - Hero Section */}
+            <AIRFQGenerator 
+              onRFQGenerated={(rfq) => {
+                setAIGeneratedRFQ(rfq);
+                setShowRequirementForm(true);
+              }}
+            />
+
+            {/* Quick Actions Grid */}
             <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Post Requirement</CardTitle>
+                  <CardTitle>Manual RFQ</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Create a new procurement requirement and get competitive bids
+                    Create a requirement manually with full control
                   </p>
-                  <Button className="w-full" onClick={() => setShowRequirementForm(true)}>
-                    Create Requirement
+                  <Button variant="outline" className="w-full" onClick={() => setShowRequirementForm(true)}>
+                    Create Manually
                   </Button>
                 </CardContent>
               </Card>
@@ -1058,9 +1069,17 @@ const Dashboard = () => {
         {user && (
           <CreateRequirementForm
             open={showRequirementForm}
-            onOpenChange={setShowRequirementForm}
+            onOpenChange={(isOpen) => {
+              setShowRequirementForm(isOpen);
+              if (!isOpen) setAIGeneratedRFQ(null);
+            }}
             userId={user.id}
-            onSuccess={() => setRefreshKey(k => k + 1)}
+            onSuccess={() => {
+              setRefreshKey(k => k + 1);
+              setAIGeneratedRFQ(null);
+            }}
+            prefillData={aiGeneratedRFQ}
+            onClearPrefill={() => setAIGeneratedRFQ(null)}
           />
         )}
         
