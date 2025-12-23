@@ -143,7 +143,7 @@ export const CategoryShowcase = () => {
         <div className="text-center mt-8 space-y-3">
           <Button 
             size="lg" 
-            onClick={() => navigate('/categories')}
+            onClick={() => navigate('/browse')}
             className="h-12 px-8"
           >
             Browse Full Catalogue
