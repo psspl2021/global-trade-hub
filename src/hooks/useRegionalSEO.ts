@@ -366,6 +366,70 @@ const regionalOffices: Record<string, RegionalBusinessData> = {
     telephone: "+91-8368127357",
     languages: ["en-ZW"],
   },
+  greece: {
+    country: "Greece",
+    countryCode: "GR",
+    region: "Europe",
+    currency: "EUR",
+    telephone: "+91-8368127357",
+    languages: ["el-GR", "en-GR"],
+  },
+  norway: {
+    country: "Norway",
+    countryCode: "NO",
+    region: "Europe",
+    currency: "NOK",
+    telephone: "+91-8368127357",
+    languages: ["no-NO", "en-NO"],
+  },
+  philippines: {
+    country: "Philippines",
+    countryCode: "PH",
+    region: "Southeast Asia",
+    currency: "PHP",
+    telephone: "+91-8368127357",
+    languages: ["fil-PH", "en-PH"],
+  },
+  portugal: {
+    country: "Portugal",
+    countryCode: "PT",
+    region: "Europe",
+    currency: "EUR",
+    telephone: "+91-8368127357",
+    languages: ["pt-PT", "en-PT"],
+  },
+  "saudi-arabia": {
+    country: "Saudi Arabia",
+    countryCode: "SA",
+    region: "Middle East",
+    currency: "SAR",
+    telephone: "+91-8368127357",
+    languages: ["ar-SA", "en-SA"],
+  },
+  togo: {
+    country: "Togo",
+    countryCode: "TG",
+    region: "Africa",
+    currency: "XOF",
+    telephone: "+91-8368127357",
+    languages: ["fr-TG", "en-TG"],
+  },
+  qatar: {
+    country: "Qatar",
+    countryCode: "QA",
+    region: "Middle East",
+    currency: "QAR",
+    telephone: "+91-8368127357",
+    languages: ["ar-QA", "en-QA"],
+  },
+  oman: {
+    country: "Oman",
+    countryCode: "OM",
+    region: "Middle East",
+    currency: "OMR",
+    telephone: "+91-8368127357",
+    languages: ["ar-OM", "en-OM"],
+  },
 };
 
 // Get all target countries for schema
@@ -521,7 +585,15 @@ export const getExportActionSchema = () => ({
     { "@type": "Country", "name": "Uganda" },
     { "@type": "Country", "name": "Ukraine" },
     { "@type": "Country", "name": "Vietnam" },
-    { "@type": "Country", "name": "Zimbabwe" }
+    { "@type": "Country", "name": "Zimbabwe" },
+    { "@type": "Country", "name": "Greece" },
+    { "@type": "Country", "name": "Norway" },
+    { "@type": "Country", "name": "Philippines" },
+    { "@type": "Country", "name": "Portugal" },
+    { "@type": "Country", "name": "Saudi Arabia" },
+    { "@type": "Country", "name": "Togo" },
+    { "@type": "Country", "name": "Qatar" },
+    { "@type": "Country", "name": "Oman" }
   ]
 });
 

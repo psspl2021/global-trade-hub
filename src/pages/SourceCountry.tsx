@@ -562,6 +562,110 @@ const countryData: Record<string, {
       { label: "Avg. Delivery", value: "18-22 days" }
     ],
     certifications: ["WHO-GMP", "SAZ", "ISO"]
+  },
+  greece: {
+    name: "Greece",
+    flag: "🇬🇷",
+    headline: "India to Greece Trade Partnership",
+    description: "Quality products from verified Indian suppliers for the Greek market. Gateway to Southeastern Europe.",
+    topCategories: ["Textiles", "Pharmaceuticals", "Chemicals", "Machinery", "Food Products", "IT Services"],
+    tradeStats: [
+      { label: "India-Greece Trade", value: "$2B+" },
+      { label: "Active Suppliers", value: "200+" },
+      { label: "EU Gateway", value: "Strategic" }
+    ],
+    certifications: ["CE Mark", "EOF", "ISO", "REACH"]
+  },
+  norway: {
+    name: "Norway",
+    flag: "🇳🇴",
+    headline: "Indian Suppliers for Norwegian Market",
+    description: "Sustainable and quality products for the Norwegian market. Green solutions meeting strict environmental standards.",
+    topCategories: ["IT Services", "Textiles", "Pharmaceuticals", "Machinery", "Seafood", "Organic Products"],
+    tradeStats: [
+      { label: "India-Norway Trade", value: "$2B+" },
+      { label: "Active Suppliers", value: "180+" },
+      { label: "Sustainability Focus", value: "High" }
+    ],
+    certifications: ["CE Mark", "ISO 14001", "Nordic Swan", "EFTA Standards"]
+  },
+  philippines: {
+    name: "Philippines",
+    flag: "🇵🇭",
+    headline: "India-Philippines Trade Excellence",
+    description: "Growing ASEAN partner with strong bilateral ties. Quality products for the Filipino market.",
+    topCategories: ["Pharmaceuticals", "Machinery", "Iron & Steel", "Chemicals", "Textiles", "Food Products"],
+    tradeStats: [
+      { label: "India-Philippines Trade", value: "$3B+" },
+      { label: "Active Suppliers", value: "350+" },
+      { label: "ASEAN Partner", value: "Growing" }
+    ],
+    certifications: ["FDA Philippines", "BPS", "ISO", "HALAL"]
+  },
+  portugal: {
+    name: "Portugal",
+    flag: "🇵🇹",
+    headline: "Source from India to Portugal",
+    description: "Quality products from verified Indian suppliers for the Portuguese and Lusophone markets.",
+    topCategories: ["Textiles", "Pharmaceuticals", "Chemicals", "Machinery", "Leather Goods", "Food Products"],
+    tradeStats: [
+      { label: "India-Portugal Trade", value: "$1.5B+" },
+      { label: "Active Suppliers", value: "150+" },
+      { label: "EU Gateway", value: "Strategic" }
+    ],
+    certifications: ["CE Mark", "INFARMED", "ISO", "REACH"]
+  },
+  "saudi-arabia": {
+    name: "Saudi Arabia",
+    flag: "🇸🇦",
+    headline: "India-Saudi Arabia Strategic Trade",
+    description: "Major trade partner with HALAL-certified products. Direct shipping to Jeddah and Dammam ports.",
+    topCategories: ["Food Products", "Textiles", "Chemicals", "Machinery", "Jewelry", "Pharmaceuticals"],
+    tradeStats: [
+      { label: "India-Saudi Trade", value: "$52B+" },
+      { label: "Active Suppliers", value: "1,800+" },
+      { label: "Avg. Delivery", value: "7-10 days" }
+    ],
+    certifications: ["HALAL", "SASO", "SFDA", "ISO"]
+  },
+  togo: {
+    name: "Togo",
+    flag: "🇹🇬",
+    headline: "India to Togo Trade Solutions",
+    description: "Gateway to West Africa through Togo. Reliable suppliers for diverse product categories.",
+    topCategories: ["Pharmaceuticals", "Machinery", "Vehicles", "Textiles", "Rice & Grains", "Consumer Goods"],
+    tradeStats: [
+      { label: "India-Togo Trade", value: "$300M+" },
+      { label: "Active Suppliers", value: "80+" },
+      { label: "West Africa Hub", value: "Strategic" }
+    ],
+    certifications: ["WHO-GMP", "ISO", "ECOWAS Standards"]
+  },
+  qatar: {
+    name: "Qatar",
+    flag: "🇶🇦",
+    headline: "India-Qatar Premium Trade",
+    description: "HALAL-certified products and quality goods for the Qatari market. Strong bilateral relations.",
+    topCategories: ["Food Products", "Textiles", "Jewelry", "Machinery", "Chemicals", "Building Materials"],
+    tradeStats: [
+      { label: "India-Qatar Trade", value: "$15B+" },
+      { label: "Active Suppliers", value: "700+" },
+      { label: "Avg. Delivery", value: "6-8 days" }
+    ],
+    certifications: ["HALAL", "QS", "ISO", "GSO"]
+  },
+  oman: {
+    name: "Oman",
+    flag: "🇴🇲",
+    headline: "India-Oman Trade Partnership",
+    description: "Historic trade partner with HALAL-certified products. Direct shipping to Muscat and Sohar ports.",
+    topCategories: ["Food Products", "Textiles", "Machinery", "Vehicles", "Chemicals", "Spices"],
+    tradeStats: [
+      { label: "India-Oman Trade", value: "$12B+" },
+      { label: "Active Suppliers", value: "550+" },
+      { label: "FTA Benefits", value: "Active" }
+    ],
+    certifications: ["HALAL", "MOCI Oman", "ISO", "GSO"]
   }
 };
 
