@@ -43,7 +43,21 @@ export const useAuth = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific database errors with user-friendly messages
+        let errorMessage = error.message;
+        
+        if (error.message.includes('Database error saving new user')) {
+          // This usually means a unique constraint violation on email or phone
+          errorMessage = 'This email or phone number is already registered. Please use different credentials or try logging in.';
+        } else if (error.message.includes('duplicate key') || error.message.includes('already registered')) {
+          errorMessage = 'An account with this email already exists. Please try logging in instead.';
+        } else if (error.message.includes('User already registered')) {
+          errorMessage = 'This email is already registered. Please try logging in instead.';
+        }
+        
+        throw new Error(errorMessage);
+      }
 
       // If user was created and we have a referral code, update the referral record with their ID
       if (authData?.user && referralCode) {
