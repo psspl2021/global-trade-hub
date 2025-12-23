@@ -2521,7 +2521,19 @@ export type Database = {
     }
     Functions: {
       auto_expire_requirements: { Args: never; Returns: undefined }
+      can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
+      get_business_contact_profile: {
+        Args: { _profile_id: string }
+        Returns: {
+          city: string
+          company_name: string
+          contact_person: string
+          country: string
+          id: string
+          state: string
+        }[]
+      }
       get_lowest_bid_for_requirement: {
         Args: { req_id: string }
         Returns: {
