@@ -23,7 +23,6 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { BuyerTypesSection } from '@/components/landing/BuyerTypesSection';
-import { CategoryShowcase } from '@/components/landing/CategoryShowcase';
 
 // Lazy load below-the-fold components to reduce initial bundle
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -410,9 +409,6 @@ const Index = () => {
 
       {/* Built for Every B2B Buyer */}
       <BuyerTypesSection />
-
-      {/* Category Showcase with Images */}
-      <CategoryShowcase />
 
       {/* Triple CTA Section */}
       <section className="py-8 sm:py-16">
