@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/landing/PageHeader";
 import { 
   ArrowRight, 
   Users, 
@@ -140,6 +141,8 @@ const Buyer = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageHeader />
+      
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background overflow-hidden">
         <div className="container mx-auto px-4">
