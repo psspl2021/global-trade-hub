@@ -32,7 +32,6 @@ const StatsSection = lazy(() => import('@/components/landing/StatsSection').then
 const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
 const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed').then(m => ({ default: m.LiveActivityFeed })));
 const TrustBadges = lazy(() => import('@/components/landing/TrustBadges').then(m => ({ default: m.TrustBadges })));
-const InternationalTestimonials = lazy(() => import('@/components/landing/InternationalTestimonials').then(m => ({ default: m.InternationalTestimonials })));
 const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications').then(m => ({ default: m.ExportCertifications })));
 
 // Minimal loading fallback
@@ -632,10 +631,6 @@ const Index = () => {
         <StatsSection />
       </Suspense>
 
-      {/* International Testimonials Section */}
-      <Suspense fallback={<SectionFallback />}>
-        <InternationalTestimonials />
-      </Suspense>
 
       {/* Export Certifications Section */}
       <Suspense fallback={<SectionFallback />}>
