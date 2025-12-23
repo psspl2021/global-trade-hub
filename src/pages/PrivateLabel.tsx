@@ -314,7 +314,7 @@ const PrivateLabel = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="h-14 px-8 text-lg border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                className="h-14 px-8 text-lg bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary"
                 onClick={() => navigate('/categories')}
               >
                 Explore Categories
