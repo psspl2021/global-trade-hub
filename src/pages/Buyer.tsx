@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { 
   ArrowRight, 
   Users, 
   Globe, 
-  ArrowLeftRight, 
-  Network,
   Search,
   FileText,
   CheckCircle2,
@@ -16,7 +15,10 @@ import {
   Zap,
   Package,
   Target,
-  BadgeCheck
+  BadgeCheck,
+  Factory,
+  ShoppingCart,
+  Building2
 } from "lucide-react";
 
 const stats = [
@@ -35,30 +37,68 @@ const benefits = [
   { title: "Transparent Pricing", icon: Target },
 ];
 
+const buyerTypes = [
+  {
+    title: "Private Label Buyers",
+    description: "Get custom products made by verified Indian manufacturers with your branding",
+    icon: Factory,
+    features: ["Custom Manufacturing", "Quality Control", "Brand Development", "Low MOQs"],
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
+  },
+  {
+    title: "E-commerce Sellers",
+    description: "Source white-label goods fast, with competitive pricing and low minimum orders",
+    icon: ShoppingCart,
+    features: ["Fast Sourcing", "White-label Ready", "Competitive Prices", "Quick Delivery"],
+    iconBg: "bg-amber-100",
+    iconColor: "text-amber-600",
+  },
+  {
+    title: "Procurement Managers",
+    description: "Raise bulk RFQs, manage multiple suppliers efficiently with enterprise tools",
+    icon: Building2,
+    features: ["Bulk Orders", "Supplier Management", "RFQ System", "Compliance Tools"],
+    iconBg: "bg-green-100",
+    iconColor: "text-green-600",
+  },
+  {
+    title: "Foreign Buyers",
+    description: "Trusted sourcing from India with dedicated concierge support and guidance",
+    icon: Globe,
+    features: ["Cultural Bridge", "Export Assistance", "Quality Assurance", "End-to-end Support"],
+    iconBg: "bg-red-100",
+    iconColor: "text-red-600",
+  },
+];
+
 const howItWorks = [
   {
     step: 1,
-    title: "Post Your Requirement",
-    description: "Submit detailed specifications for products you need to source.",
+    title: "Describe What You Need",
+    description: "Tell us your product specs, quantity, timeline, and budget requirements.",
     icon: FileText,
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
+    badgeColor: "bg-primary text-primary-foreground",
   },
   {
     step: 2,
-    title: "Receive Sealed Bids",
-    description: "Get competitive quotes from multiple verified suppliers.",
-    icon: Shield,
+    title: "AI + Team Finds Suppliers",
+    description: "Our AI matches you with verified suppliers. Our team onboards new ones if needed.",
+    icon: Search,
+    iconBg: "bg-amber-100",
+    iconColor: "text-amber-600",
+    badgeColor: "bg-amber-500 text-white",
   },
   {
     step: 3,
-    title: "Compare & Select",
-    description: "Review bids, compare prices, and choose the best supplier.",
-    icon: Search,
-  },
-  {
-    step: 4,
-    title: "Complete Purchase",
-    description: "Finalize the order with full support from our team.",
+    title: "Evaluate & Place Orders",
+    description: "Compare quotes, negotiate terms, and place your purchase order with confidence.",
     icon: CheckCircle2,
+    iconBg: "bg-green-100",
+    iconColor: "text-green-600",
+    badgeColor: "bg-green-500 text-white",
   },
 ];
 
@@ -186,25 +226,85 @@ const Buyer = () => {
         </div>
       </section>
 
+      {/* Built for Every B2B Buyer */}
+      <section className="py-16 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Built for Every B2B Buyer
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Whether you're sourcing for private label, bulk procurement, or e-commerce, 
+              we have the right solution for your business needs
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {buyerTypes.map((type) => (
+              <Card 
+                key={type.title}
+                className="bg-card border border-border hover:shadow-lg transition-all"
+              >
+                <CardContent className="p-6">
+                  <div className={`w-14 h-14 rounded-xl ${type.iconBg} flex items-center justify-center mb-4`}>
+                    <type.icon className={`h-7 w-7 ${type.iconColor}`} />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">
+                    {type.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {type.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {type.features.map((feature) => (
+                      <Badge 
+                        key={feature} 
+                        variant="outline" 
+                        className="text-xs"
+                      >
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => navigate('/signup?role=buyer')}
+                  >
+                    Know more
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Simple 4-step process to source products at competitive prices.
+              Simple, transparent sourcing process designed for modern B2B buyers
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {howItWorks.map((item) => (
-              <Card key={item.step} className="relative border border-border">
-                <CardContent className="p-6">
-                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4">
-                    {item.step}
+              <Card key={item.step} className="relative border border-border text-center">
+                <CardContent className="p-8">
+                  <div className="relative inline-block mb-4">
+                    <div className={`w-16 h-16 rounded-xl ${item.iconBg} flex items-center justify-center`}>
+                      <item.icon className={`h-8 w-8 ${item.iconColor}`} />
+                    </div>
+                    <span className={`absolute -top-2 -right-2 w-7 h-7 rounded-full ${item.badgeColor} flex items-center justify-center text-sm font-bold`}>
+                      {String(item.step).padStart(2, '0')}
+                    </span>
                   </div>
-                  <item.icon className="h-8 w-8 text-primary mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                  <h3 className="text-lg font-semibold mb-3">{item.title}</h3>
                   <p className="text-sm text-muted-foreground">{item.description}</p>
                 </CardContent>
               </Card>
