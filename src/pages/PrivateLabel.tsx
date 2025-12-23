@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/landing/PageHeader";
+import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
 import { 
   ArrowRight, 
   Factory,
@@ -289,6 +290,9 @@ const PrivateLabel = () => {
           </div>
         </div>
       </section>
+
+      {/* Free CRM Section */}
+      <FreeCRMSection role="buyer" />
 
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-primary">
