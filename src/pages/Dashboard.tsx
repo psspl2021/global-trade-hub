@@ -154,6 +154,21 @@ const Dashboard = () => {
       fetchLogisticsAssets();
       fetchLogisticsSubscription();
     }
+    // Check for pending RFQ from AI generator (for buyers)
+    if (user?.id && role === 'buyer') {
+      const pendingRFQ = sessionStorage.getItem('pendingRFQ');
+      if (pendingRFQ) {
+        try {
+          const rfqData = JSON.parse(pendingRFQ);
+          setAIGeneratedRFQ(rfqData);
+          setShowRequirementForm(true);
+          sessionStorage.removeItem('pendingRFQ');
+        } catch (e) {
+          console.error('Failed to parse pending RFQ:', e);
+          sessionStorage.removeItem('pendingRFQ');
+        }
+      }
+    }
   }, [user?.id, role]);
 
   useEffect(() => {
