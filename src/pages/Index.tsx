@@ -410,6 +410,25 @@ const Index = () => {
       {/* Built for Every B2B Buyer */}
       <BuyerTypesSection />
 
+      {/* Explore Product Categories */}
+      <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Explore Product Categories
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Browse our AI-powered catalogue of verified suppliers across major product categories
+          </p>
+          <Button 
+            size="lg"
+            onClick={() => navigate('/categories')}
+            className="bg-primary hover:bg-primary/90"
+          >
+            View All Categories
+          </Button>
+        </div>
+      </section>
+
       {/* Triple CTA Section */}
       <section className="py-8 sm:py-16">
         <div className="container mx-auto px-4">
