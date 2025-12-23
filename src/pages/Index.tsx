@@ -20,6 +20,10 @@ import { NewsletterSignup } from '@/components/landing/NewsletterSignup';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 import { EarlyAdopterBanner } from '@/components/landing/EarlyAdopterBanner';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
+import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
+import { BuyerTypesSection } from '@/components/landing/BuyerTypesSection';
+import { CategoryShowcase } from '@/components/landing/CategoryShowcase';
 
 // Lazy load below-the-fold components to reduce initial bundle
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -285,25 +289,38 @@ const Index = () => {
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 leading-tight px-2">
               India's #1 <span className="text-primary">B2B Sourcing</span> & <span className="text-warning">Procurement Platform</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2">
-              Connect with <strong>verified suppliers</strong> across <a href="/categories" className="text-primary hover:underline">23+ product categories</a>. 
-              <span className="hidden sm:inline"> <a href="/browse" className="text-primary hover:underline">Browse live stock</a>, post requirements, receive competitive sealed bids, and complete secure transactions.</span>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6 max-w-3xl mx-auto px-2">
+              Need Private Label, Custom Manufacturing, or Bulk Supply? Let our AI + Team find the right Indian suppliers for you
             </p>
 
+            {/* Hero Trust Badges */}
+            <div className="mb-6">
+              <HeroTrustBadges />
+            </div>
+
             {/* AI RFQ Generator CTA - Prominent */}
-            <div className="mb-6 px-2">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4 px-2">
               <Button 
                 size="lg" 
-                className="h-14 sm:h-16 text-base sm:text-xl px-8 sm:px-12 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all"
+                className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-10 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all"
                 onClick={() => navigate('/post-rfq')}
               >
                 <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
-                Post RFQ with AI
+                Start Sourcing
               </Button>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-                Describe your needs — AI generates a complete RFQ in seconds
-              </p>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-10"
+                onClick={() => window.location.href = 'mailto:sales@procuresaathi.com'}
+              >
+                <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                Talk to Our Team
+              </Button>
             </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mb-6 px-2">
+              <a href="/post-rfq" className="text-primary hover:underline font-medium">Post an RFQ →</a>
+            </p>
 
             <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-4 justify-center px-2">
               <Button 
@@ -387,6 +404,15 @@ const Index = () => {
 
       {/* Early Adopter Banner */}
       <EarlyAdopterBanner />
+
+      {/* How It Works - GlobalLinker Style */}
+      <HowItWorksSection />
+
+      {/* Built for Every B2B Buyer */}
+      <BuyerTypesSection />
+
+      {/* Category Showcase with Images */}
+      <CategoryShowcase />
 
       {/* Triple CTA Section */}
       <section className="py-8 sm:py-16">
