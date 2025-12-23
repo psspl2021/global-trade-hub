@@ -193,43 +193,41 @@ const PrivateLabel = () => {
         </div>
       </section>
 
-      {/* Concierge Section */}
-      <section className="py-16 bg-muted/30">
+      {/* White-Glove Concierge Section */}
+      <section className="py-16 bg-primary/5">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Concierge Sourcing
-                </Badge>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Need a Hands-Off Experience?
-                </h2>
-                <p className="text-lg text-muted-foreground mb-6">
-                  Our dedicated sourcing team handles everything—so you can focus on building your brand
-                </p>
-                <Button 
-                  size="lg"
-                  className="h-14 px-8"
-                  onClick={() => navigate('/signup?role=buyer')}
-                >
-                  <MessageSquare className="mr-2 h-5 w-5" />
-                  Request Concierge Service
-                </Button>
-              </div>
-              <div className="space-y-4">
-                {conciergeServices.map((service, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-center gap-4 p-4 bg-card rounded-lg border border-border"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <service.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <span className="font-medium">{service.title}</span>
+            <div className="bg-card rounded-2xl p-8 md:p-12 border border-border">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                    White-Glove Concierge for Every Buyer
+                  </h2>
+                  <p className="text-muted-foreground mb-6">
+                    Our sourcing experts personally support you by:
+                  </p>
+                  <ul className="space-y-4">
+                    {conciergeServices.map((service, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>{service.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="bg-muted/50 rounded-xl p-8 text-center mb-6 w-full max-w-xs">
+                    <div className="text-5xl md:text-6xl font-bold text-primary mb-2">85%</div>
+                    <p className="text-muted-foreground">Matched in 5 days</p>
                   </div>
-                ))}
+                  <Button 
+                    size="lg"
+                    className="w-full max-w-xs h-14"
+                    onClick={() => navigate('/signup?role=buyer')}
+                  >
+                    Get Personalized Support
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
