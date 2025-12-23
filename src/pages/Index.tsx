@@ -24,7 +24,7 @@ import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { BuyerTypesSection } from '@/components/landing/BuyerTypesSection';
 import { BuyerSellerCTA } from '@/components/landing/BuyerSellerCTA';
-import { PrivateLabelSection } from '@/components/landing/PrivateLabelSection';
+
 import { BecomeSellerSection } from '@/components/landing/BecomeSellerSection';
 
 // Lazy load below-the-fold components to reduce initial bundle
@@ -383,8 +383,6 @@ const Index = () => {
       {/* How It Works - GlobalLinker Style */}
       <HowItWorksSection />
 
-      {/* Private Label Sourcing Section */}
-      <PrivateLabelSection />
 
       {/* Become a Seller Section */}
       <BecomeSellerSection />
