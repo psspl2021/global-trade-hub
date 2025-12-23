@@ -23,6 +23,9 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { BuyerTypesSection } from '@/components/landing/BuyerTypesSection';
+import { BuyerSellerCTA } from '@/components/landing/BuyerSellerCTA';
+import { PrivateLabelSection } from '@/components/landing/PrivateLabelSection';
+import { BecomeSellerSection } from '@/components/landing/BecomeSellerSection';
 
 // Lazy load below-the-fold components to reduce initial bundle
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -404,8 +407,17 @@ const Index = () => {
       {/* Early Adopter Banner */}
       <EarlyAdopterBanner />
 
+      {/* Buyer/Seller CTA - GlobalLinker Style */}
+      <BuyerSellerCTA />
+
       {/* How It Works - GlobalLinker Style */}
       <HowItWorksSection />
+
+      {/* Private Label Sourcing Section */}
+      <PrivateLabelSection />
+
+      {/* Become a Seller Section */}
+      <BecomeSellerSection />
 
       {/* Built for Every B2B Buyer */}
       <BuyerTypesSection />
