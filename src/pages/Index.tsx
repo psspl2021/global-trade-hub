@@ -614,11 +614,16 @@ const Index = () => {
             <p className="text-muted-foreground mb-4">Have questions? We'd love to hear from you!</p>
             <a 
               href="mailto:sales@procuresaathi.com"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
             >
               <Mail className="h-4 w-4" />
               Send us an Email
             </a>
+            <p className="text-sm text-muted-foreground mt-3">
+              <a href="mailto:sales@procuresaathi.com" className="text-primary hover:underline">
+                sales@procuresaathi.com
+              </a>
+            </p>
           </div>
         </div>
       </section>
