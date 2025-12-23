@@ -26,6 +26,8 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Requirements = lazy(() => import("./pages/Requirements"));
 const PostRFQ = lazy(() => import("./pages/PostRFQ"));
 const Seller = lazy(() => import("./pages/Seller"));
+const Buyer = lazy(() => import("./pages/Buyer"));
+const PrivateLabel = lazy(() => import("./pages/PrivateLabel"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Simple loading fallback
@@ -65,6 +67,8 @@ const App = () => (
               <Route path="/requirements" element={<Requirements />} />
               <Route path="/post-rfq" element={<PostRFQ />} />
               <Route path="/seller" element={<Seller />} />
+              <Route path="/buyer" element={<Buyer />} />
+              <Route path="/private-label" element={<PrivateLabel />} />
               <Route path="/source/:country" element={<SourceCountry />} />
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
