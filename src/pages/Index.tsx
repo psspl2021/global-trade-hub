@@ -320,48 +320,6 @@ const Index = () => {
                 Talk to Our Team
               </Button>
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mb-6 px-2">
-              <a href="/post-rfq" className="text-primary hover:underline font-medium">Post an RFQ →</a>
-            </p>
-
-            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-4 justify-center px-2">
-              <Button 
-                size="default" 
-                variant="outline"
-                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8"
-                onClick={() => navigate('/signup?role=buyer')}
-              >
-                <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline">Join as</span> Buyer
-              </Button>
-              <Button 
-                size="default" 
-                variant="outline"
-                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8"
-                onClick={() => navigate('/signup?role=supplier')}
-              >
-                <Package className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-                Supplier
-              </Button>
-              <Button 
-                size="default" 
-                variant="outline"
-                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                onClick={() => navigate('/signup?role=logistics_partner')}
-              >
-                <Truck className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-                Logistics
-              </Button>
-              <Button 
-                size="default" 
-                variant="outline"
-                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8"
-                onClick={() => navigate('/book-truck')}
-              >
-                <Route className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-                Book Truck
-              </Button>
-            </div>
             <div className="mt-4 sm:hidden">
               <DemoRequestForm />
             </div>
