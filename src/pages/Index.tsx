@@ -612,9 +612,11 @@ const Index = () => {
           {/* CTA */}
           <div className="text-center mt-12">
             <p className="text-muted-foreground mb-4">Have questions? We'd love to hear from you!</p>
-            <Button size="lg" onClick={() => window.location.href = 'mailto:sales@procuresaathi.com'}>
-              <Mail className="h-4 w-4 mr-2" />
-              Send us an Email
+            <Button size="lg" asChild>
+              <a href="mailto:sales@procuresaathi.com">
+                <Mail className="h-4 w-4 mr-2" />
+                Send us an Email
+              </a>
             </Button>
           </div>
         </div>
