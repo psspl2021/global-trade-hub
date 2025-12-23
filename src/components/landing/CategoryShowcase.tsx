@@ -64,7 +64,7 @@ const showcaseCategories = [
   },
   {
     name: 'Hardware & Tools',
-    image: 'https://images.unsplash.com/photo-1581147036324-c17ac41f3940?w=400&h=300&fit=crop',
+    image: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=400&h=300&fit=crop',
     description: 'Hand tools, power tools, fasteners & construction supplies',
     suppliers: '400+',
     moq: '100 pcs',
