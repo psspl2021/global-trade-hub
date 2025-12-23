@@ -211,7 +211,7 @@ const Index = () => {
           </div>
           
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-4">
+          <nav className="hidden md:flex items-center gap-2 lg:gap-4">
             <Button variant="ghost" size="sm" onClick={() => scrollToSection('about')}>About Us</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/buyer')}>Buyer</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/seller')}>Seller</Button>
@@ -229,7 +229,7 @@ const Index = () => {
             
             {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild className="lg:hidden">
+              <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon">
                   <Menu className="h-5 w-5" />
                 </Button>
