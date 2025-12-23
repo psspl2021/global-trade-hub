@@ -612,12 +612,13 @@ const Index = () => {
           {/* CTA */}
           <div className="text-center mt-12">
             <p className="text-muted-foreground mb-4">Have questions? We'd love to hear from you!</p>
-            <Button size="lg" asChild>
-              <a href="mailto:sales@procuresaathi.com">
-                <Mail className="h-4 w-4 mr-2" />
-                Send us an Email
-              </a>
-            </Button>
+            <a 
+              href="mailto:sales@procuresaathi.com"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
+            >
+              <Mail className="h-4 w-4" />
+              Send us an Email
+            </a>
           </div>
         </div>
       </section>
