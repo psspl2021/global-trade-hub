@@ -212,11 +212,10 @@ const Index = () => {
           
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => scrollToSection('about')}>About Us</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/buyer')}>Buyer</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/seller')}>Seller</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/private-label')}>Private Label</Button>
-            <Button variant="ghost" size="sm" onClick={() => scrollToSection('about')}>About Us</Button>
-            <Button variant="ghost" size="sm" onClick={() => scrollToSection('how-it-works')}>How It Works</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/categories')}>Categories</Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/blogs')}>Blogs</Button>
             <Button variant="ghost" size="sm" onClick={() => scrollToSection('contact')}>Contact</Button>
@@ -240,6 +239,9 @@ const Index = () => {
                   <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/login')}>
                     Login
                   </Button>
+                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('about')}>
+                    About Us
+                  </Button>
                   <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/buyer')}>
                     Buyer
                   </Button>
@@ -248,12 +250,6 @@ const Index = () => {
                   </Button>
                   <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/private-label')}>
                     Private Label
-                  </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('about')}>
-                    About Us
-                  </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('how-it-works')}>
-                    How It Works
                   </Button>
                   <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/categories')}>
                     Categories
