@@ -519,7 +519,7 @@ const Index = () => {
             </div>
 
             {/* Company Description */}
-            <div className="text-center mb-12">
+            <div className="text-center">
               <h3 className="text-xl font-semibold mb-4">#SourceRemotely - The New Reality</h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Since 2021, ProcureSaathi has revolutionized the B2B sourcing sector as India's first-ever 
