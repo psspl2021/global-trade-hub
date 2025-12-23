@@ -426,7 +426,7 @@ const Browse = () => {
                         Looking for {displayTitle}?
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Sign up to access 500+ verified suppliers, view full company details, and get competitive quotes
+                        Sign up to access 500+ verified suppliers and get competitive quotes
                       </p>
                     </div>
                   </div>
