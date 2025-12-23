@@ -51,7 +51,7 @@ export const PrivateLabelSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+    <section id="private-label" className="py-16 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
