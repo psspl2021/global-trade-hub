@@ -75,7 +75,6 @@ const Categories = () => {
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Button variant="ghost" onClick={() => navigate('/#about')}>About Us</Button>
-            <Button variant="ghost" onClick={() => navigate('/#how-it-works')}>How It Works</Button>
             <Button variant="ghost" className="text-primary font-medium border-b-2 border-primary rounded-none">Categories</Button>
             <Button variant="ghost" onClick={() => navigate('/#contact')}>Contact</Button>
           </nav>
