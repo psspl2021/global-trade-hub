@@ -8,7 +8,7 @@ import {
   Clock, FileText, CheckCircle, Send, Building2,
   Package, Trophy, Users, Shield, Target, Eye, Search,
   Truck, Route, ClipboardCheck, Receipt, BadgeCheck,
-  Menu, X
+  Menu, X, Sparkles
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { useAuth } from '@/hooks/useAuth';
@@ -289,9 +289,26 @@ const Index = () => {
               Connect with <strong>verified suppliers</strong> across <a href="/categories" className="text-primary hover:underline">23+ product categories</a>. 
               <span className="hidden sm:inline"> <a href="/browse" className="text-primary hover:underline">Browse live stock</a>, post requirements, receive competitive sealed bids, and complete secure transactions.</span>
             </p>
+
+            {/* AI RFQ Generator CTA - Prominent */}
+            <div className="mb-6 px-2">
+              <Button 
+                size="lg" 
+                className="h-14 sm:h-16 text-base sm:text-xl px-8 sm:px-12 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all"
+                onClick={() => navigate('/post-rfq')}
+              >
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                Post RFQ with AI
+              </Button>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+                Describe your needs — AI generates a complete RFQ in seconds
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-4 justify-center px-2">
               <Button 
                 size="default" 
+                variant="outline"
                 className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8"
                 onClick={() => navigate('/signup?role=buyer')}
               >
@@ -318,7 +335,8 @@ const Index = () => {
               </Button>
               <Button 
                 size="default" 
-                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8 bg-warning text-warning-foreground hover:bg-warning/90"
+                variant="outline"
+                className="h-11 sm:h-14 text-sm sm:text-lg px-4 sm:px-8"
                 onClick={() => navigate('/book-truck')}
               >
                 <Route className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
