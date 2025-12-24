@@ -173,15 +173,21 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           }
         });
 
-        // Sort by unit price (ascending) to find L1
-        allBidItemsForItem.sort((a, b) => a.bidItem.unit_price - b.bidItem.unit_price);
+        // Filter out rejected bids for L1 calculation - only consider active bids
+        const activeBidItems = allBidItemsForItem.filter(b => b.bid.status !== 'rejected');
 
-        // Mark the lowest as L1
-        if (allBidItemsForItem.length > 0) {
-          allBidItemsForItem[0].isL1 = true;
+        // Sort active bids by unit price (ascending) to find L1
+        activeBidItems.sort((a, b) => a.bidItem.unit_price - b.bidItem.unit_price);
+
+        // Mark the lowest active bid as L1
+        if (activeBidItems.length > 0) {
+          activeBidItems[0].isL1 = true;
         }
 
-        const lowestBidItemData = allBidItemsForItem[0] || null;
+        // For display, also sort all bid items
+        allBidItemsForItem.sort((a, b) => a.bidItem.unit_price - b.bidItem.unit_price);
+
+        const lowestBidItemData = activeBidItems[0] || null;
 
         return {
           requirementItem: reqItem,
