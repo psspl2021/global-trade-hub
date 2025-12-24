@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send, Building2, Star, Share2, Copy, Check, Filter } from 'lucide-react';
+import { Loader2, FileText, Calendar, MapPin, IndianRupee, Send, Building2, Star, Share2, Copy, Check, Filter, Edit2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
@@ -70,6 +70,15 @@ interface LowestBid {
   lowest_total: number;
 }
 
+interface MyBidDetails {
+  id: string;
+  bid_amount: number;
+  service_fee: number;
+  total_amount: number;
+  delivery_timeline_days: number;
+  terms_and_conditions: string | null;
+}
+
 const bidSchema = z.object({
   bid_amount: z.coerce.number().optional(),
   delivery_timeline_days: z.coerce.number().min(1, 'Delivery timeline is required'),
@@ -93,7 +102,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const isGuest = !userId;
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [lowestBids, setLowestBids] = useState<Record<string, number>>({});
+  const [lowestRates, setLowestRates] = useState<Record<string, number>>({});
   const [myBids, setMyBids] = useState<Set<string>>(new Set());
+  const [myBidDetails, setMyBidDetails] = useState<Record<string, MyBidDetails>>({});
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
   const [lineItems, setLineItems] = useState<RequirementItem[]>([]);
@@ -232,30 +244,48 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       setRequirements([]);
     }
 
-    // Fetch my existing bids (only for logged-in users)
+    // Fetch my existing bids with details (only for logged-in users)
     if (userId) {
       const { data: myBidsData } = await supabase
         .from('bids')
-        .select('requirement_id')
+        .select('id, requirement_id, bid_amount, service_fee, total_amount, delivery_timeline_days, terms_and_conditions')
         .eq('supplier_id', userId);
 
       if (myBidsData) {
         setMyBids(new Set(myBidsData.map(b => b.requirement_id)));
+        const detailsMap: Record<string, MyBidDetails> = {};
+        myBidsData.forEach(b => {
+          detailsMap[b.requirement_id] = {
+            id: b.id,
+            bid_amount: b.bid_amount,
+            service_fee: b.service_fee,
+            total_amount: b.total_amount,
+            delivery_timeline_days: b.delivery_timeline_days,
+            terms_and_conditions: b.terms_and_conditions,
+          };
+        });
+        setMyBidDetails(detailsMap);
       }
     }
 
     // Fetch lowest bids for each requirement using secure RPC function
+    // Also calculate lowest rate per unit (for requirements without line items)
     if (reqData && reqData.length > 0) {
       const lowestByReq: Record<string, number> = {};
+      const lowestRateByReq: Record<string, number> = {};
       
       for (const req of reqData) {
         const { data } = await supabase.rpc('get_lowest_bid_for_requirement', { req_id: req.id });
         if (data && data[0]?.lowest_bid_amount) {
           lowestByReq[req.id] = data[0].lowest_bid_amount;
+          // Calculate per-unit rate (lowest_bid_amount is stored as per-unit with fee)
+          // So we just use it directly as the per-unit rate to buyer
+          lowestRateByReq[req.id] = data[0].lowest_bid_amount;
         }
       }
       
       setLowestBids(lowestByReq);
+      setLowestRates(lowestRateByReq);
     }
 
     setLoading(false);
@@ -412,6 +442,48 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     setSubmitting(false);
   };
 
+  const onUpdateBid = async (data: BidFormData) => {
+    if (!selectedRequirement) return;
+    
+    const myBid = myBidDetails[selectedRequirement.id];
+    if (!myBid) return;
+
+    setSubmitting(true);
+    try {
+      const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
+      const perUnitRate = data.bid_amount || 0;
+      const perUnitWithFee = perUnitRate * (1 + feeRate);
+      const quantity = selectedRequirement.quantity;
+      const totalOrderValue = perUnitRate * quantity;
+      const serviceFee = totalOrderValue * feeRate;
+      const totalAmount = totalOrderValue + serviceFee;
+
+      const { error } = await supabase
+        .from('bids')
+        .update({
+          bid_amount: perUnitWithFee,
+          service_fee: serviceFee,
+          total_amount: totalAmount,
+          delivery_timeline_days: data.delivery_timeline_days,
+          terms_and_conditions: data.terms_and_conditions || null,
+        })
+        .eq('id', myBid.id)
+        .eq('supplier_id', userId);
+
+      if (error) throw error;
+
+      toast({ title: 'Success', description: 'Bid updated successfully!' });
+      setIsEditing(false);
+      setSelectedRequirement(null);
+      setLineItems([]);
+      form.reset();
+      fetchRequirements();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+    setSubmitting(false);
+  };
+
   // For legacy single-bid requirements
   const bidAmount = form.watch('bid_amount') || 0;
   const quantity = selectedRequirement?.quantity || 0;
@@ -476,7 +548,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           </div>
         ) : selectedRequirement ? (
           <div className="space-y-4">
-            <Button variant="outline" size="sm" onClick={() => { setSelectedRequirement(null); setLineItems([]); }}>← Back to list</Button>
+            <Button variant="outline" size="sm" onClick={() => { setSelectedRequirement(null); setLineItems([]); setIsEditing(false); }}>← Back to list</Button>
             
             <Card>
               <CardHeader>
@@ -501,9 +573,11 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
                 </div>
 
-                {lowestBids[selectedRequirement.id] && (
+                {lowestRates[selectedRequirement.id] && (
                   <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm font-medium">Current Lowest Bid: ₹{lowestBids[selectedRequirement.id].toLocaleString()}</p>
+                    <p className="text-sm font-medium">
+                      Current L1 Rate: ₹{lowestRates[selectedRequirement.id].toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}
+                    </p>
                   </div>
                 )}
 
@@ -523,14 +597,103 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       Sign Up to Bid
                     </Button>
                   </div>
-                ) : myBids.has(selectedRequirement.id) ? (
-                  <div className="p-4 bg-primary/10 rounded-lg text-center">
-                    <p className="font-medium">You have already submitted a bid for this requirement.</p>
-                  </div>
+                ) : myBids.has(selectedRequirement.id) && !isEditing ? (
+                  (() => {
+                    const myBid = myBidDetails[selectedRequirement.id];
+                    const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
+                    // bid_amount is stored as per-unit with fee
+                    const perUnitWithFee = myBid?.bid_amount || 0;
+                    const perUnitRate = perUnitWithFee / (1 + feeRate);
+                    const quantity = selectedRequirement.quantity;
+                    const totalOrderValue = perUnitRate * quantity;
+                    const isL1 = lowestRates[selectedRequirement.id] && perUnitWithFee <= lowestRates[selectedRequirement.id];
+                    
+                    return (
+                      <div className="space-y-4 border-t pt-4">
+                        <h4 className="font-medium">Your Submitted Bid</h4>
+                        
+                        {/* Bid details */}
+                        <div className="bg-muted/50 rounded-lg p-4">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Your Rate:</span>
+                              <p className="font-medium">₹{perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Price to Buyer:</span>
+                              <p className="font-bold text-primary">₹{perUnitWithFee.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Delivery:</span>
+                              <p className="font-medium">{myBid?.delivery_timeline_days} days</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Total Order Value:</span>
+                              <p className="font-medium">₹{totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Service Fee:</span>
+                              <p className="font-medium">₹{myBid?.service_fee?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Grand Total:</span>
+                              <p className="font-bold">₹{myBid?.total_amount?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* L1 comparison */}
+                        {lowestRates[selectedRequirement.id] && (
+                          <div className={`rounded-lg p-3 ${isL1 ? 'bg-green-500/10 border border-green-500/30' : 'bg-orange-500/10 border border-orange-500/30'}`}>
+                            {isL1 ? (
+                              <p className="text-sm font-medium text-green-600">You have the L1 (lowest) bid!</p>
+                            ) : (
+                              <div className="text-sm">
+                                <p className="font-medium text-orange-600">A lower bid exists</p>
+                                <p className="text-muted-foreground mt-1">
+                                  L1 Rate: ₹{lowestRates[selectedRequirement.id].toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}
+                                </p>
+                                <p className="text-orange-600 mt-1">
+                                  Your bid is ₹{(perUnitWithFee - lowestRates[selectedRequirement.id]).toLocaleString(undefined, { maximumFractionDigits: 2 })} higher per {selectedRequirement.unit}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => {
+                            setIsEditing(true);
+                            // Pre-fill form with existing values
+                            form.setValue('bid_amount', perUnitRate);
+                            form.setValue('delivery_timeline_days', myBid?.delivery_timeline_days || 7);
+                            form.setValue('terms_and_conditions', myBid?.terms_and_conditions || '');
+                          }}
+                        >
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Edit Bid
+                        </Button>
+                      </div>
+                    );
+                  })()
                 ) : (
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmitBid)} className="space-y-4 border-t pt-4">
-                      <h4 className="font-medium">Submit Your Bid</h4>
+                    <form onSubmit={form.handleSubmit(isEditing ? onUpdateBid : onSubmitBid)} className="space-y-4 border-t pt-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium">{isEditing ? 'Update Your Bid' : 'Submit Your Bid'}</h4>
+                        {isEditing && (
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => setIsEditing(false)}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
                       
                       {/* Per-line-item bidding */}
                       {hasLineItems ? (
@@ -660,7 +823,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         className="w-full"
                       >
                         {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                        {isPaidBid ? `Submit Bid (₹${BID_FEE})` : 'Submit Bid'}
+                        {isEditing ? 'Update Bid' : (isPaidBid ? `Submit Bid (₹${BID_FEE})` : 'Submit Bid')}
                       </Button>
                       {hasLineItems && !allItemsBidded && (
                         <p className="text-xs text-muted-foreground text-center">Please enter a bid for all items</p>
@@ -698,10 +861,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       </div>
                     </div>
                     <div className="text-right flex flex-col items-end gap-2">
-                      {lowestBids[req.id] && (
+                      {lowestRates[req.id] && (
                         <p className="text-sm">
-                          <span className="text-muted-foreground">Lowest: </span>
-                          <span className="font-medium">₹{lowestBids[req.id].toLocaleString()}</span>
+                          <span className="text-muted-foreground">L1 Rate: </span>
+                          <span className="font-medium">₹{lowestRates[req.id].toLocaleString(undefined, { maximumFractionDigits: 2 })}/{req.unit}</span>
                         </p>
                       )}
                       <div className="flex items-center gap-2">
