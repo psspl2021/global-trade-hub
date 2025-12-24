@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Download, Printer, FileText } from 'lucide-react';
+import { Loader2, Download, Printer, FileText, Mail, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 import { generateDocumentPDF } from '@/lib/pdfGenerator';
@@ -31,6 +34,11 @@ export const DocumentViewer = ({
   const [document, setDocument] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [supplier, setSupplier] = useState<any>(null);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailTo, setEmailTo] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -260,6 +268,46 @@ export const DocumentViewer = ({
     });
   };
 
+  const handleOpenEmailDialog = () => {
+    const recipientEmail = isInvoice ? document?.buyer_email : document?.vendor_email;
+    setEmailTo(recipientEmail || '');
+    setEmailSubject(`${getDocumentTypeName()} ${docNumber} from ${supplier?.company_name || 'Your Company'}`);
+    setEmailMessage('');
+    setEmailDialogOpen(true);
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailTo) {
+      toast({ title: 'Error', description: 'Please enter recipient email', variant: 'destructive' });
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-invoice-email', {
+        body: {
+          to: emailTo,
+          subject: emailSubject,
+          invoiceNumber: docNumber,
+          buyerName: partyName,
+          amount: `₹${Number(document.total_amount).toLocaleString()}`,
+          dueDate: document.due_date ? format(new Date(document.due_date), 'dd MMM yyyy') : undefined,
+          companyName: supplier?.company_name || 'Your Company',
+          documentType: document.document_type || 'invoice',
+          customMessage: emailMessage,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({ title: 'Email Sent', description: `Invoice sent to ${emailTo}` });
+      setEmailDialogOpen(false);
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'Failed to send email', variant: 'destructive' });
+    }
+    setSendingEmail(false);
+  };
+
   const getDocumentTypeName = () => {
     if (documentType === 'purchase_order') return 'PURCHASE ORDER';
     switch (document?.document_type) {
@@ -289,6 +337,11 @@ export const DocumentViewer = ({
           <DialogTitle className="flex items-center justify-between">
             <span>{getDocumentTypeName()}</span>
             <div className="flex gap-2">
+              {isInvoice && (
+                <Button size="sm" variant="outline" onClick={handleOpenEmailDialog}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
+                </Button>
+              )}
               <Button size="sm" variant="outline" onClick={handleExportExcel}>
                 <Download className="h-4 w-4 mr-1" /> Excel
               </Button>
@@ -491,6 +544,58 @@ export const DocumentViewer = ({
           </>
         )}
       </DialogContent>
+
+      {/* Email Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Send Invoice via Email
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Recipient Email *</Label>
+              <Input 
+                type="email" 
+                value={emailTo} 
+                onChange={(e) => setEmailTo(e.target.value)} 
+                placeholder="customer@example.com"
+              />
+            </div>
+            <div>
+              <Label>Subject</Label>
+              <Input 
+                value={emailSubject} 
+                onChange={(e) => setEmailSubject(e.target.value)} 
+              />
+            </div>
+            <div>
+              <Label>Custom Message (Optional)</Label>
+              <Textarea 
+                value={emailMessage} 
+                onChange={(e) => setEmailMessage(e.target.value)} 
+                placeholder="Add a personal message..."
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendEmail} disabled={sendingEmail}>
+              {sendingEmail ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4 mr-2" />
+              )}
+              Send Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };

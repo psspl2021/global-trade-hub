@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, FileText, ShoppingCart, Receipt, Loader2, Eye, Edit, Trash2, Download, MinusCircle, PlusCircle } from 'lucide-react';
+import { Plus, FileText, ShoppingCart, Receipt, Loader2, Eye, Edit, Trash2, Download, MinusCircle, PlusCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
@@ -19,6 +19,7 @@ interface DocumentListProps {
   onEditInvoice: (id: string) => void;
   onEditPO: (id: string) => void;
   onEditNote: (id: string, type: 'debit_note' | 'credit_note') => void;
+  onDuplicateInvoice?: (invoice: any) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -40,6 +41,7 @@ export const DocumentList = ({
   onEditInvoice,
   onEditPO,
   onEditNote,
+  onDuplicateInvoice,
 }: DocumentListProps) => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
@@ -101,6 +103,77 @@ export const DocumentList = ({
     } else {
       toast({ title: 'Deleted', description: 'Purchase order deleted successfully' });
       fetchDocuments();
+    }
+  };
+
+  const duplicateInvoice = async (invoice: any) => {
+    if (onDuplicateInvoice) {
+      onDuplicateInvoice(invoice);
+    } else {
+      // Create duplicate directly if no callback
+      try {
+        // Generate new invoice number
+        const prefix = invoice.document_type === 'proforma_invoice' ? 'PI' : 'INV';
+        const timestamp = Date.now().toString().slice(-6);
+        const newInvoiceNumber = `${prefix}-${timestamp}`;
+
+        // Create new invoice
+        const { data: newInvoice, error: insertError } = await supabase
+          .from('invoices')
+          .insert({
+            invoice_number: newInvoiceNumber,
+            supplier_id: userId,
+            buyer_name: invoice.buyer_name,
+            buyer_address: invoice.buyer_address,
+            buyer_gstin: invoice.buyer_gstin,
+            buyer_email: invoice.buyer_email,
+            buyer_phone: invoice.buyer_phone,
+            document_type: invoice.document_type,
+            issue_date: new Date().toISOString().split('T')[0],
+            due_date: invoice.due_date,
+            subtotal: invoice.subtotal,
+            tax_rate: invoice.tax_rate,
+            tax_amount: invoice.tax_amount,
+            discount_percent: invoice.discount_percent,
+            discount_amount: invoice.discount_amount,
+            total_amount: invoice.total_amount,
+            notes: invoice.notes,
+            terms_and_conditions: invoice.terms_and_conditions,
+            bank_details: invoice.bank_details,
+            status: 'draft',
+          })
+          .select('id')
+          .single();
+
+        if (insertError) throw insertError;
+
+        // Copy items
+        const { data: originalItems } = await supabase
+          .from('invoice_items')
+          .select('*')
+          .eq('invoice_id', invoice.id);
+
+        if (originalItems && newInvoice) {
+          const itemsToInsert = originalItems.map((item: any) => ({
+            invoice_id: newInvoice.id,
+            description: item.description,
+            hsn_code: item.hsn_code,
+            quantity: item.quantity,
+            unit: item.unit,
+            unit_price: item.unit_price,
+            tax_rate: item.tax_rate,
+            tax_amount: item.tax_amount,
+            total: item.total,
+          }));
+
+          await supabase.from('invoice_items').insert(itemsToInsert);
+        }
+
+        toast({ title: 'Success', description: `Invoice duplicated as ${newInvoiceNumber}` });
+        fetchDocuments();
+      } catch (error: any) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
     }
   };
 
@@ -181,6 +254,11 @@ export const DocumentList = ({
               >
                 <Edit className="h-4 w-4" />
               </Button>
+              {isInvoice && !docType && (
+                <Button size="icon" variant="ghost" title="Duplicate" onClick={() => duplicateInvoice(doc)}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+              )}
               <Button size="icon" variant="ghost" onClick={() => isInvoice ? deleteInvoice(doc.id) : deletePO(doc.id)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
