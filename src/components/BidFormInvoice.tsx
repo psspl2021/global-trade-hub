@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Plus, Loader2, Send } from 'lucide-react';
 
-const GST_RATE_OPTIONS = [5, 12, 18, 28] as const;
+const GST_RATE_OPTIONS = [0, 5, 12, 18, 28] as const;
 
 interface ProductLine {
   id: string;
@@ -74,6 +74,7 @@ export const BidFormInvoice = ({
   const [additionalCharges, setAdditionalCharges] = useState<AdditionalCharge[]>(
     initialData?.additionalCharges || []
   );
+  const [showDiscount, setShowDiscount] = useState(initialData?.discountPercent ? true : false);
   const [gstType, setGstType] = useState<'intra' | 'inter'>(initialData?.gstType || 'inter');
   const [deliveryDays, setDeliveryDays] = useState(initialData?.deliveryDays || 7);
   const [termsAndConditions, setTermsAndConditions] = useState(initialData?.termsAndConditions || '');
@@ -84,7 +85,7 @@ export const BidFormInvoice = ({
   const productNetAmount = productAmount - discountAmount;
 
   // Calculate additional charges total
-  const additionalChargesTotal = additionalCharges.reduce((sum, charge) => sum + charge.amount, 0);
+  const additionalChargesTotal = additionalCharges.reduce((sum, charge) => sum + (charge.amount || 0), 0);
 
   // Taxable value = product net amount + additional charges
   const taxableValue = productNetAmount + additionalChargesTotal;
@@ -137,106 +138,116 @@ export const BidFormInvoice = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Product Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+      <div className="overflow-x-auto rounded-lg border">
+        <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="bg-primary text-primary-foreground text-sm">
-              <th className="p-2 text-left border">Sl. No.</th>
-              <th className="p-2 text-left border min-w-[140px]">Product Name</th>
-              <th className="p-2 text-left border">HSN Code</th>
-              <th className="p-2 text-left border">GST (%)</th>
-              <th className="p-2 text-left border">Qty</th>
-              <th className="p-2 text-left border min-w-[100px]">Rate (₹)</th>
-              <th className="p-2 text-left border">Discount (%)</th>
-              <th className="p-2 text-right border min-w-[100px]">Amount</th>
+            <tr className="bg-primary text-primary-foreground">
+              <th className="p-2 text-left font-medium w-16">Sl. No.</th>
+              <th className="p-2 text-left font-medium min-w-[150px]">Product Name</th>
+              <th className="p-2 text-left font-medium w-24">HSN Code</th>
+              <th className="p-2 text-left font-medium w-24">GST Rate (%)</th>
+              <th className="p-2 text-left font-medium w-24">Quantity</th>
+              <th className="p-2 text-left font-medium w-28">Rate</th>
+              <th className="p-2 text-left font-medium w-24">Discount</th>
+              <th className="p-2 text-right font-medium w-28">Amount</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="text-sm">
-              <td className="p-2 border text-center">1</td>
-              <td className="p-2 border">
+            <tr className="border-b">
+              <td className="p-2 text-center align-top">1</td>
+              <td className="p-2 align-top">
                 <div className="font-medium">{product.productName}</div>
               </td>
-              <td className="p-2 border">
+              <td className="p-2 align-top">
                 <Input
                   type="text"
                   value={product.hsnCode}
                   onChange={(e) => setProduct({ ...product, hsnCode: e.target.value })}
-                  placeholder="HSN Code"
-                  className="h-8 w-24"
+                  placeholder="HSN Code*"
+                  className="h-8 w-full text-sm"
                 />
               </td>
-              <td className="p-2 border">
+              <td className="p-2 align-top">
                 <Select
                   value={product.gstRate.toString()}
                   onValueChange={(value) => setProduct({ ...product, gstRate: Number(value) })}
                 >
-                  <SelectTrigger className="h-8 w-20">
+                  <SelectTrigger className="h-8 w-full">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background border shadow-lg">
                     {GST_RATE_OPTIONS.map((rate) => (
                       <SelectItem key={rate} value={rate.toString()}>
-                        {rate}%
+                        {rate}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </td>
-              <td className="p-2 border">
-                <div className="whitespace-nowrap">
-                  {product.quantity.toLocaleString('en-IN')} {product.unit}
+              <td className="p-2 align-top">
+                <div className="space-y-1">
+                  <div className="font-medium">{product.quantity.toLocaleString('en-IN')}</div>
+                  <div className="text-muted-foreground text-xs">{product.unit}</div>
                 </div>
               </td>
-              <td className="p-2 border">
+              <td className="p-2 align-top">
                 <Input
                   type="number"
                   value={product.rate || ''}
                   onChange={(e) => setProduct({ ...product, rate: Number(e.target.value) })}
                   placeholder="Rate"
-                  className="h-8 w-24"
+                  className="h-8 w-full text-sm"
                   min={0}
                   required
                 />
               </td>
-              <td className="p-2 border">
-                <Input
-                  type="number"
-                  value={product.discountPercent || ''}
-                  onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
-                  placeholder="0"
-                  className="h-8 w-16"
-                  min={0}
-                  max={100}
-                />
+              <td className="p-2 align-top">
+                {showDiscount ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      value={product.discountPercent || ''}
+                      onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
+                      placeholder="0"
+                      className="h-8 w-16 text-sm"
+                      min={0}
+                      max={100}
+                    />
+                    <span className="text-xs text-muted-foreground">(%)</span>
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground text-xs">Discount(%)</span>
+                )}
               </td>
-              <td className="p-2 border text-right font-semibold">
-                {productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+              <td className="p-2 text-right align-top font-semibold">
+                {productNetAmount > 0 ? productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : ''}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      {/* Subtotal Row */}
-      <div className="flex justify-end">
-        <div className="text-right border-t border-b py-2 px-4 font-semibold">
-          Subtotal: ₹{productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+      {/* Product Subtotal */}
+      {productNetAmount > 0 && (
+        <div className="flex justify-end">
+          <div className="text-right font-semibold border-t border-b py-2 px-4 inline-block">
+            {productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Additional Charges Section */}
-      <div className="space-y-3">
-        {additionalCharges.map((charge, index) => (
-          <div key={charge.id} className="flex items-center gap-3">
+      <div className="space-y-2">
+        {additionalCharges.map((charge) => (
+          <div key={charge.id} className="flex items-center gap-2 pl-2">
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={() => removeCharge(charge.id)}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive shrink-0"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -244,35 +255,40 @@ export const BidFormInvoice = ({
               type="text"
               value={charge.description}
               onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
-              placeholder="Charge description (e.g., LABOUR CHARGES)"
-              className="flex-1"
+              placeholder="LABOUR CHARGES"
+              className="flex-1 h-8 text-sm uppercase"
             />
             <Input
               type="number"
               value={charge.amount || ''}
               onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
               placeholder="Amount"
-              className="w-32"
+              className="w-32 h-8 text-sm text-right"
               min={0}
             />
           </div>
         ))}
 
-        {/* GST on additional charges */}
-        {additionalChargesTotal > 0 && (
-          <div className="flex justify-end text-sm text-muted-foreground">
-            <span>
-              {gstType === 'inter' ? 'IGST' : 'CGST + SGST'} on Additional Charges ({product.gstRate}%): ₹
-              {(additionalChargesTotal * (product.gstRate / 100)).toLocaleString('en-IN', {
-                maximumFractionDigits: 2,
-              })}
-            </span>
+        {/* GST Line Item Display */}
+        {taxableValue > 0 && product.gstRate > 0 && (
+          <div className="flex items-center justify-between pl-10 pr-2 py-1">
+            <span className="font-medium text-sm">{gstType === 'inter' ? 'IGST' : 'CGST + SGST'}</span>
+            <span className="font-semibold text-sm">{gstAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
           </div>
         )}
       </div>
 
-      {/* Add Discount and Add Charges Links */}
-      <div className="space-y-2">
+      {/* Action Links */}
+      <div className="space-y-1 pt-2">
+        {!showDiscount && (
+          <button
+            type="button"
+            onClick={() => setShowDiscount(true)}
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" /> Give discount on total
+          </button>
+        )}
         <button
           type="button"
           onClick={addCharge}
@@ -283,7 +299,7 @@ export const BidFormInvoice = ({
       </div>
 
       {/* GST Type Selection */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 pt-2">
         <RadioGroup
           value={gstType}
           onValueChange={(v) => setGstType(v as 'intra' | 'inter')}
@@ -291,13 +307,13 @@ export const BidFormInvoice = ({
         >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="intra" id="intra" />
-            <Label htmlFor="intra" className="cursor-pointer">
+            <Label htmlFor="intra" className="cursor-pointer text-sm">
               Intra-state
             </Label>
           </div>
           <div className="flex items-center gap-2">
             <RadioGroupItem value="inter" id="inter" />
-            <Label htmlFor="inter" className="cursor-pointer">
+            <Label htmlFor="inter" className="cursor-pointer text-sm">
               Inter-state
             </Label>
           </div>
@@ -306,113 +322,110 @@ export const BidFormInvoice = ({
 
       {/* Total Amount */}
       <div className="flex justify-end border-t pt-4">
-        <div className="text-right space-y-1">
-          <div className="text-xl font-bold">
-            Total Amount: ₹{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-          </div>
+        <div className="flex items-baseline gap-4">
+          <span className="text-lg font-semibold">Total Amount</span>
+          <span className="text-2xl font-bold">{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
         </div>
       </div>
 
       {/* GST Break-up Table */}
-      <div className="space-y-2">
-        <h4 className="font-semibold text-center">GST Break-up</h4>
-        <div className="overflow-x-auto">
+      <div className="space-y-3">
+        <h4 className="font-semibold text-center text-base">GST Break-up</h4>
+        <div className="overflow-x-auto border rounded-lg">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-muted">
-                <th className="p-2 border text-left"></th>
-                <th className="p-2 border text-center">Taxable Value</th>
+              <tr className="border-b bg-muted/50">
+                <th className="p-2 text-left font-medium"></th>
+                <th className="p-2 text-center font-medium border-l">Taxable Value</th>
                 {gstType === 'inter' ? (
-                  <>
-                    <th className="p-2 border text-center" colSpan={2}>
-                      IGST
-                    </th>
-                  </>
+                  <th className="p-2 text-center font-medium border-l" colSpan={2}>
+                    IGST
+                  </th>
                 ) : (
                   <>
-                    <th className="p-2 border text-center" colSpan={2}>
+                    <th className="p-2 text-center font-medium border-l" colSpan={2}>
                       CGST
                     </th>
-                    <th className="p-2 border text-center" colSpan={2}>
+                    <th className="p-2 text-center font-medium border-l" colSpan={2}>
                       SGST
                     </th>
                   </>
                 )}
-                <th className="p-2 border text-center">Total</th>
+                <th className="p-2 text-center font-medium border-l">Total</th>
               </tr>
-              <tr className="bg-muted/50 text-xs">
-                <th className="p-2 border"></th>
-                <th className="p-2 border"></th>
+              <tr className="bg-muted/30 text-xs border-b">
+                <th className="p-2"></th>
+                <th className="p-2 border-l"></th>
                 {gstType === 'inter' ? (
                   <>
-                    <th className="p-2 border text-center">Rate</th>
-                    <th className="p-2 border text-center">Amount</th>
+                    <th className="p-2 text-center border-l">Rate</th>
+                    <th className="p-2 text-center">Amount</th>
                   </>
                 ) : (
                   <>
-                    <th className="p-2 border text-center">Rate</th>
-                    <th className="p-2 border text-center">Amount</th>
-                    <th className="p-2 border text-center">Rate</th>
-                    <th className="p-2 border text-center">Amount</th>
+                    <th className="p-2 text-center border-l">Rate</th>
+                    <th className="p-2 text-center">Amount</th>
+                    <th className="p-2 text-center border-l">Rate</th>
+                    <th className="p-2 text-center">Amount</th>
                   </>
                 )}
-                <th className="p-2 border text-center">Tax Amount</th>
+                <th className="p-2 text-center border-l">Tax Amount</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="p-2 border"></td>
-                <td className="p-2 border text-center">
+              <tr className="border-b">
+                <td className="p-2"></td>
+                <td className="p-2 text-center border-l">
                   {taxableValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                 </td>
                 {gstType === 'inter' ? (
                   <>
-                    <td className="p-2 border text-center">{product.gstRate}%</td>
-                    <td className="p-2 border text-center">
+                    <td className="p-2 text-center border-l">{product.gstRate}%</td>
+                    <td className="p-2 text-center">
                       {igst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="p-2 border text-center">{product.gstRate / 2}%</td>
-                    <td className="p-2 border text-center">
+                    <td className="p-2 text-center border-l">{product.gstRate / 2}%</td>
+                    <td className="p-2 text-center">
                       {cgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </td>
-                    <td className="p-2 border text-center">{product.gstRate / 2}%</td>
-                    <td className="p-2 border text-center">
+                    <td className="p-2 text-center border-l">{product.gstRate / 2}%</td>
+                    <td className="p-2 text-center">
                       {sgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </td>
                   </>
                 )}
-                <td className="p-2 border text-center">
+                <td className="p-2 text-center border-l">
                   {gstAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                 </td>
               </tr>
-              <tr className="font-semibold bg-muted/30">
-                <td className="p-2 border">Total</td>
-                <td className="p-2 border text-center">
+              <tr className="font-semibold bg-muted/20 border-t-2 border-primary/30">
+                <td className="p-2">Total</td>
+                <td className="p-2 text-center border-l font-bold">
                   {taxableValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                 </td>
                 {gstType === 'inter' ? (
                   <>
-                    <td className="p-2 border"></td>
-                    <td className="p-2 border text-center font-bold">
+                    <td className="p-2 border-l"></td>
+                    <td className="p-2 text-center font-bold">
                       {igst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="p-2 border"></td>
-                    <td className="p-2 border text-center font-bold">
+                    <td className="p-2 border-l"></td>
+                    <td className="p-2 text-center font-bold">
                       {cgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </td>
-                    <td className="p-2 border"></td>
-                    <td className="p-2 border text-center font-bold">
+                    <td className="p-2 border-l"></td>
+                    <td className="p-2 text-center font-bold">
                       {sgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </td>
                   </>
                 )}
-                <td className="p-2 border text-center font-bold">
+                <td className="p-2 text-center border-l font-bold">
                   {gstAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                 </td>
               </tr>
@@ -422,8 +435,8 @@ export const BidFormInvoice = ({
       </div>
 
       {/* Delivery Days */}
-      <div className="flex items-center gap-4">
-        <Label htmlFor="deliveryDays" className="whitespace-nowrap">
+      <div className="flex items-center gap-4 pt-2">
+        <Label htmlFor="deliveryDays" className="whitespace-nowrap font-medium">
           Delivery Timeline (days) *
         </Label>
         <Input
@@ -431,21 +444,23 @@ export const BidFormInvoice = ({
           type="number"
           value={deliveryDays}
           onChange={(e) => setDeliveryDays(Number(e.target.value))}
-          className="w-24"
+          className="w-24 h-9"
           min={1}
           required
         />
       </div>
 
       {/* Terms and Conditions */}
-      <div className="space-y-2 border rounded-lg p-4">
-        <h4 className="font-semibold text-center border-b pb-2">Terms and conditions</h4>
+      <div className="border rounded-lg overflow-hidden">
+        <div className="text-center font-semibold py-2 border-b border-dashed bg-muted/20">
+          Terms and conditions
+        </div>
         <Textarea
           value={termsAndConditions}
           onChange={(e) => setTermsAndConditions(e.target.value)}
           placeholder="Enter Terms and Conditions"
           rows={3}
-          className="border-0 focus-visible:ring-0 resize-none"
+          className="border-0 focus-visible:ring-0 resize-none rounded-none"
         />
       </div>
 
