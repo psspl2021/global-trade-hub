@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import { 
   ArrowRight, 
   Users, 
@@ -140,6 +142,41 @@ const features = [
 const Buyer = () => {
   const navigate = useNavigate();
 
+  // SEO optimization - title <60 chars, description <160 chars
+  useSEO({
+    title: "B2B Buyer Portal - Source from Verified Suppliers",
+    description: "Post RFQs, get sealed bids from 1000+ verified suppliers across 23+ categories. Save 50% on procurement with AI-powered matching.",
+    keywords: "B2B sourcing, verified suppliers India, bulk procurement, RFQ platform, supplier network, wholesale buying, procurement portal",
+    canonical: "https://www.procuresaathi.com/buyer",
+    ogImage: "/og-early-adopter.png"
+  });
+
+  // Inject structured data
+  useEffect(() => {
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "B2B Buyer Portal - ProcureSaathi",
+      "description": "Post RFQs and receive competitive sealed bids from verified suppliers across 23+ categories.",
+      "url": "https://www.procuresaathi.com/buyer",
+      "mainEntity": {
+        "@type": "Service",
+        "name": "B2B Procurement Platform",
+        "provider": {
+          "@type": "Organization",
+          "name": "ProcureSaathi"
+        },
+        "serviceType": "B2B Procurement",
+        "areaServed": "Worldwide"
+      }
+    }, "buyer-page-schema");
+
+    injectStructuredData(getBreadcrumbSchema([
+      { name: "Home", url: "https://www.procuresaathi.com" },
+      { name: "Buyer Portal", url: "https://www.procuresaathi.com/buyer" }
+    ]), "buyer-breadcrumb-schema");
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <PageHeader />
@@ -159,7 +196,9 @@ const Buyer = () => {
             
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Post your requirements and receive competitive sealed bids from 1000+ 
-              verified suppliers across 23+ categories.
+              verified suppliers across 23+ categories. Our AI-powered procurement 
+              platform connects businesses with quality manufacturers and traders 
+              across India, ensuring transparent pricing and reliable delivery.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -201,9 +240,14 @@ const Buyer = () => {
       {/* Why Buy Section */}
       <section className="py-16 bg-primary/5">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
             Why Buy on ProcureSaathi
           </h2>
+          <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-12">
+            Our platform streamlines B2B procurement by connecting you directly with verified 
+            manufacturers and suppliers. Eliminate middlemen, reduce costs, and access a 
+            curated network of quality-assured vendors who meet rigorous verification standards.
+          </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
             {benefits.map((benefit) => (
@@ -237,9 +281,12 @@ const Buyer = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Built for Every B2B Buyer
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Whether you're sourcing for private label, bulk procurement, or e-commerce, 
-              we have the right solution for your business needs
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Whether you're sourcing for private label manufacturing, bulk industrial 
+              procurement, or e-commerce inventory, our platform adapts to your unique 
+              business requirements. From startups to enterprises, we provide the tools 
+              and supplier network you need to scale efficiently and maintain quality 
+              standards across your supply chain.
             </p>
           </div>
           
@@ -291,8 +338,11 @@ const Buyer = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Simple, transparent sourcing process designed for modern B2B buyers
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Our simple, transparent sourcing process is designed for modern B2B buyers 
+              who value efficiency and reliability. From posting your first RFQ to 
+              receiving your order, our platform guides you through every step with 
+              AI-powered recommendations and dedicated support.
             </p>
           </div>
           
@@ -324,8 +374,11 @@ const Buyer = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Procurement Made <span className="text-primary">Simple</span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to source quality products at the best prices.
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Everything you need to source quality products at the best prices. Our 
+              comprehensive platform combines supplier verification, competitive bidding, 
+              and AI-powered matching to deliver a seamless procurement experience that 
+              saves you time and reduces costs by up to 50% compared to traditional methods.
             </p>
           </div>
           
@@ -352,12 +405,14 @@ const Buyer = () => {
       <section className="py-16 md:py-24 bg-primary">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <Search className="h-12 w-12 text-primary-foreground mx-auto mb-6" />
+            <Search className="h-12 w-12 text-primary-foreground mx-auto mb-6" aria-hidden="true" />
             <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
               Ready to Start Sourcing?
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8">
-              Join thousands of buyers already saving time and money on ProcureSaathi.
+              Join thousands of procurement professionals already saving time and money 
+              on ProcureSaathi. Create your free account today and post your first RFQ 
+              in minutes. Our verified supplier network is ready to compete for your business.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
