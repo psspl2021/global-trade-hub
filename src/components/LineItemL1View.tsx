@@ -173,8 +173,8 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           }
         });
 
-        // Filter out rejected bids for L1 calculation - only consider active bids
-        const activeBidItems = allBidItemsForItem.filter(b => b.bid.status !== 'rejected');
+        // Filter to only show awarded (accepted) bids for L1 calculation
+        const activeBidItems = allBidItemsForItem.filter(b => b.bid.status === 'accepted');
 
         // Sort active bids by unit price (ascending) to find L1
         activeBidItems.sort((a, b) => a.bidItem.unit_price - b.bidItem.unit_price);
