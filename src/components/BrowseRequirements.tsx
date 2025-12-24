@@ -82,6 +82,9 @@ interface MyBidDetails {
 const bidSchema = z.object({
   bid_amount: z.coerce.number().optional(),
   delivery_timeline_days: z.coerce.number().min(1, 'Delivery timeline is required'),
+  transport_cost: z.coerce.number().optional(),
+  freight_per_unit: z.coerce.number().optional(),
+  other_charges: z.string().optional(),
   terms_and_conditions: z.string().optional(),
 });
 
@@ -355,13 +358,23 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         totalAmount = subtotal + serviceFee;
         bidAmountToStore = totalOrderValue;
       } else {
-        // Legacy single bid
+        // Legacy single bid with transport and freight costs
         const perUnitRate = data.bid_amount || 0;
-        totalOrderValue = perUnitRate * selectedRequirement.quantity;
+        const transportCostValue = data.transport_cost || 0;
+        const freightPerUnitValue = data.freight_per_unit || 0;
+        const totalFreightCost = freightPerUnitValue * selectedRequirement.quantity;
+        totalOrderValue = perUnitRate * selectedRequirement.quantity + transportCostValue + totalFreightCost;
         serviceFee = totalOrderValue * feeRate;
         totalAmount = totalOrderValue + serviceFee;
         bidAmountToStore = perUnitRate * (1 + feeRate);
       }
+
+      // Build terms string including transport/freight info
+      let termsString = '';
+      if (data.transport_cost) termsString += `Transport Cost: ₹${data.transport_cost}\n`;
+      if (data.freight_per_unit) termsString += `Freight: ₹${data.freight_per_unit}/${selectedRequirement.unit}\n`;
+      if (data.other_charges) termsString += `Other Charges: ${data.other_charges}\n`;
+      if (data.terms_and_conditions) termsString += data.terms_and_conditions;
 
       // Insert parent bid
       const { data: bidData, error: bidError } = await supabase
@@ -373,7 +386,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           service_fee: serviceFee,
           total_amount: totalAmount,
           delivery_timeline_days: data.delivery_timeline_days,
-          terms_and_conditions: data.terms_and_conditions || null,
+          terms_and_conditions: termsString.trim() || null,
           is_paid_bid: isPaidBid ? true : false,
         })
         .select('id')
@@ -452,11 +465,21 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     try {
       const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
       const perUnitRate = data.bid_amount || 0;
+      const transportCostValue = data.transport_cost || 0;
+      const freightPerUnitValue = data.freight_per_unit || 0;
+      const totalFreightCost = freightPerUnitValue * selectedRequirement.quantity;
       const perUnitWithFee = perUnitRate * (1 + feeRate);
       const quantity = selectedRequirement.quantity;
-      const totalOrderValue = perUnitRate * quantity;
+      const totalOrderValue = perUnitRate * quantity + transportCostValue + totalFreightCost;
       const serviceFee = totalOrderValue * feeRate;
       const totalAmount = totalOrderValue + serviceFee;
+
+      // Build terms string including transport/freight info
+      let termsString = '';
+      if (data.transport_cost) termsString += `Transport Cost: ₹${data.transport_cost}\n`;
+      if (data.freight_per_unit) termsString += `Freight: ₹${data.freight_per_unit}/${selectedRequirement.unit}\n`;
+      if (data.other_charges) termsString += `Other Charges: ${data.other_charges}\n`;
+      if (data.terms_and_conditions) termsString += data.terms_and_conditions;
 
       const { error } = await supabase
         .from('bids')
@@ -465,7 +488,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           service_fee: serviceFee,
           total_amount: totalAmount,
           delivery_timeline_days: data.delivery_timeline_days,
-          terms_and_conditions: data.terms_and_conditions || null,
+          terms_and_conditions: termsString.trim() || null,
         })
         .eq('id', myBid.id)
         .eq('supplier_id', userId);
@@ -486,12 +509,16 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
   // For legacy single-bid requirements
   const bidAmount = form.watch('bid_amount') || 0;
+  const transportCost = form.watch('transport_cost') || 0;
+  const freightPerUnit = form.watch('freight_per_unit') || 0;
   const quantity = selectedRequirement?.quantity || 0;
   const currentFeeRate = isUsingPremiumBid ? PREMIUM_FEE_RATE : getServiceFeeRate(selectedRequirement?.trade_type);
   const feePercentage = currentFeeRate * 100;
+  const totalFreight = freightPerUnit * quantity;
   const singleBidOrderValue = bidAmount * quantity;
-  const singleBidServiceFee = singleBidOrderValue * currentFeeRate;
-  const singleBidTotal = singleBidOrderValue + singleBidServiceFee;
+  const singleBidWithExtras = singleBidOrderValue + transportCost + totalFreight;
+  const singleBidServiceFee = singleBidWithExtras * currentFeeRate;
+  const singleBidTotal = singleBidWithExtras + singleBidServiceFee;
 
   // For line-item bidding
   const { subtotal: itemSubtotal, serviceFee: itemServiceFee, total: itemTotal, feeRate: itemFeeRate } = calculateItemTotals();
@@ -780,11 +807,20 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                           
                           {bidAmount > 0 && (
                             <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                              <div className="flex justify-between"><span>Unit Price:</span><span>₹{bidAmount.toLocaleString()}</span></div>
+                              <div className="flex justify-between"><span>Unit Price:</span><span>₹{bidAmount.toLocaleString('en-IN')}</span></div>
                               <div className="flex justify-between"><span>Quantity:</span><span>{quantity} {selectedRequirement?.unit}</span></div>
-                              <div className="flex justify-between border-t pt-1"><span>Order Value:</span><span>₹{singleBidOrderValue.toLocaleString()}</span></div>
-                              <div className="flex justify-between text-muted-foreground"><span>Service Fee ({feePercentage}% of order):</span><span>₹{singleBidServiceFee.toLocaleString()}</span></div>
-                              <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{singleBidTotal.toLocaleString()}</span></div>
+                              <div className="flex justify-between border-t pt-1"><span>Order Value:</span><span>₹{singleBidOrderValue.toLocaleString('en-IN')}</span></div>
+                              {transportCost > 0 && (
+                                <div className="flex justify-between"><span>Transport Cost:</span><span>₹{transportCost.toLocaleString('en-IN')}</span></div>
+                              )}
+                              {freightPerUnit > 0 && (
+                                <div className="flex justify-between"><span>Freight ({quantity} × ₹{freightPerUnit}):</span><span>₹{totalFreight.toLocaleString('en-IN')}</span></div>
+                              )}
+                              {(transportCost > 0 || freightPerUnit > 0) && (
+                                <div className="flex justify-between font-medium"><span>Subtotal with Extras:</span><span>₹{singleBidWithExtras.toLocaleString('en-IN')}</span></div>
+                              )}
+                              <div className="flex justify-between text-muted-foreground"><span>Service Fee ({feePercentage}%):</span><span>₹{Math.round(singleBidServiceFee).toLocaleString('en-IN')}</span></div>
+                              <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{Math.round(singleBidTotal).toLocaleString('en-IN')}</span></div>
                             </div>
                           )}
                         </>
@@ -801,10 +837,35 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         )} />
                       )}
 
+                      {/* Additional cost fields */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField control={form.control} name="transport_cost" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Transport Cost (₹)</FormLabel>
+                            <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <FormField control={form.control} name="freight_per_unit" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Freight Per {selectedRequirement?.unit || 'Unit'} (₹)</FormLabel>
+                            <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </div>
+
+                      <FormField control={form.control} name="other_charges" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Any Other Charges (Optional)</FormLabel>
+                          <FormControl><Textarea {...field} rows={2} placeholder="E.g., Packaging charges ₹500, Loading/unloading charges..." /></FormControl>
+                        </FormItem>
+                      )} />
+
                       <FormField control={form.control} name="terms_and_conditions" render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Any Other Charges + Taxes (Optional)</FormLabel>
-                          <FormControl><Textarea {...field} rows={2} placeholder="E.g., Packaging charges ₹500, Transportation extra, 18% GST applicable..." /></FormControl>
+                          <FormLabel>Terms & Taxes (Optional)</FormLabel>
+                          <FormControl><Textarea {...field} rows={2} placeholder="E.g., 18% GST applicable, Payment terms..." /></FormControl>
                         </FormItem>
                       )} />
 
