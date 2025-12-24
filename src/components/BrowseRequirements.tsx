@@ -60,6 +60,58 @@ const getTradeTypeLabel = (tradeType: string | undefined) => {
   }
 };
 
+// Helper function to parse bid details from terms_and_conditions
+const parseBidTerms = (terms: string | null): { 
+  ratePerUnit?: number; 
+  gstRate?: number; 
+  discount?: number;
+  taxableValue?: number;
+  totalGst?: number;
+  grandTotal?: number;
+} => {
+  if (!terms) return {};
+  
+  const result: ReturnType<typeof parseBidTerms> = {};
+  
+  // Parse rate per unit
+  const rateMatch = terms.match(/Rate Per Unit:\s*₹?([\d,]+)/);
+  if (rateMatch) {
+    result.ratePerUnit = parseFloat(rateMatch[1].replace(/,/g, ''));
+  }
+  
+  // Parse GST rate
+  const gstRateMatch = terms.match(/GST Rate:\s*(\d+)%/);
+  if (gstRateMatch) {
+    result.gstRate = parseInt(gstRateMatch[1]);
+  }
+  
+  // Parse discount
+  const discountMatch = terms.match(/Discount:\s*(\d+)%/);
+  if (discountMatch) {
+    result.discount = parseInt(discountMatch[1]);
+  }
+  
+  // Parse taxable value
+  const taxableMatch = terms.match(/Taxable Value:\s*₹?([\d,]+)/);
+  if (taxableMatch) {
+    result.taxableValue = parseFloat(taxableMatch[1].replace(/,/g, ''));
+  }
+  
+  // Parse total GST
+  const totalGstMatch = terms.match(/Total GST:\s*₹?([\d,]+)/);
+  if (totalGstMatch) {
+    result.totalGst = parseFloat(totalGstMatch[1].replace(/,/g, ''));
+  }
+  
+  // Parse grand total
+  const grandTotalMatch = terms.match(/Grand Total:\s*₹?([\d,]+)/);
+  if (grandTotalMatch) {
+    result.grandTotal = parseFloat(grandTotalMatch[1].replace(/,/g, ''));
+  }
+  
+  return result;
+};
+
 interface MyBidDetails {
   id: string;
   bid_amount: number;
@@ -313,8 +365,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const totalAmount = totalOrderValue + serviceFee;
       const bidAmountToStore = data.rate * (1 + feeRate);
 
-      // Build terms string with all bid details
+      // Build terms string with all bid details - include rate for later retrieval
       let termsString = '';
+      termsString += `Rate Per Unit: ₹${data.rate}\n`;
       if (data.hsnCode) termsString += `HSN Code: ${data.hsnCode}\n`;
       termsString += `GST Rate: ${data.gstRate}%\n`;
       termsString += `GST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
@@ -404,8 +457,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const totalAmount = totalOrderValue + serviceFee;
       const bidAmountToStore = data.rate * (1 + feeRate);
 
-      // Build terms string
+      // Build terms string - include rate for later retrieval
       let termsString = '';
+      termsString += `Rate Per Unit: ₹${data.rate}\n`;
       if (data.hsnCode) termsString += `HSN Code: ${data.hsnCode}\n`;
       termsString += `GST Rate: ${data.gstRate}%\n`;
       termsString += `GST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
@@ -560,18 +614,26 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 ) : myBids.has(selectedRequirement.id) && !isEditing ? (
                   (() => {
                     const myBid = myBidDetails[selectedRequirement.id];
+                    const parsedTerms = parseBidTerms(myBid?.terms_and_conditions);
                     const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-                    const storedBidAmount = myBid?.bid_amount || 0;
-                    const perUnitRate = storedBidAmount / (1 + feeRate);
                     const quantity = selectedRequirement.quantity;
-                    const totalOrderValue = perUnitRate * quantity;
+                    
+                    // Use parsed rate if available, otherwise fallback to stored bid_amount calculation
+                    const perUnitRate = parsedTerms.ratePerUnit || (myBid?.bid_amount ? myBid.bid_amount / (1 + feeRate) : 0);
+                    const gstPercent = parsedTerms.gstRate || 18;
+                    
+                    // Calculate values - prefer parsed values if available
+                    const baseAmount = perUnitRate * quantity;
+                    const discountPercent = parsedTerms.discount || 0;
+                    const discountAmount = baseAmount * (discountPercent / 100);
+                    const taxableValue = parsedTerms.taxableValue || (baseAmount - discountAmount);
+                    const gstAmount = parsedTerms.totalGst || (taxableValue * (gstPercent / 100));
+                    const grandTotal = parsedTerms.grandTotal || (taxableValue + gstAmount);
+                    
                     const lowestL1Rate = lowestRates[selectedRequirement.id];
                     const lowestPerUnit = lowestL1Rate ? lowestL1Rate / (1 + feeRate) : 0;
+                    const storedBidAmount = myBid?.bid_amount || 0;
                     const isL1 = lowestL1Rate && storedBidAmount <= lowestL1Rate;
-                    
-                    const gstPercent = 18;
-                    const gstAmount = totalOrderValue * (gstPercent / 100);
-                    const grandTotal = totalOrderValue + gstAmount;
                     
                     return (
                       <div className="space-y-4 border-t pt-4">
@@ -588,8 +650,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                               <p className="font-medium">{myBid?.delivery_timeline_days} days</p>
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Total Order Value:</span>
-                              <p className="font-bold text-lg">₹{Math.round(totalOrderValue).toLocaleString('en-IN')}</p>
+                              <span className="text-muted-foreground">Taxable Value:</span>
+                              <p className="font-bold text-lg">₹{Math.round(taxableValue).toLocaleString('en-IN')}</p>
                             </div>
                             <div>
                               <span className="text-muted-foreground">GST ({gstPercent}%):</span>

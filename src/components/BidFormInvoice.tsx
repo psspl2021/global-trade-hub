@@ -4,7 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Plus, Loader2, Send } from 'lucide-react';
+
+const GST_RATE_OPTIONS = [5, 12, 18, 28] as const;
 
 interface ProductLine {
   id: string;
@@ -166,14 +169,21 @@ export const BidFormInvoice = ({
                 />
               </td>
               <td className="p-2 border">
-                <Input
-                  type="number"
-                  value={product.gstRate}
-                  onChange={(e) => setProduct({ ...product, gstRate: Number(e.target.value) })}
-                  className="h-8 w-16"
-                  min={0}
-                  max={28}
-                />
+                <Select
+                  value={product.gstRate.toString()}
+                  onValueChange={(value) => setProduct({ ...product, gstRate: Number(value) })}
+                >
+                  <SelectTrigger className="h-8 w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GST_RATE_OPTIONS.map((rate) => (
+                      <SelectItem key={rate} value={rate.toString()}>
+                        {rate}%
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </td>
               <td className="p-2 border">
                 <div className="whitespace-nowrap">
