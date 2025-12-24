@@ -601,43 +601,31 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   (() => {
                     const myBid = myBidDetails[selectedRequirement.id];
                     const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-                    // bid_amount is stored as per-unit with fee
-                    const perUnitWithFee = myBid?.bid_amount || 0;
-                    const perUnitRate = perUnitWithFee / (1 + feeRate);
+                    // bid_amount is the per-unit rate (what supplier entered)
+                    const perUnitRate = myBid?.bid_amount || 0;
                     const quantity = selectedRequirement.quantity;
                     const totalOrderValue = perUnitRate * quantity;
+                    const perUnitWithFee = perUnitRate * (1 + feeRate);
                     const isL1 = lowestRates[selectedRequirement.id] && perUnitWithFee <= lowestRates[selectedRequirement.id];
                     
                     return (
                       <div className="space-y-4 border-t pt-4">
                         <h4 className="font-medium">Your Submitted Bid</h4>
                         
-                        {/* Bid details */}
+                        {/* Bid details - simplified */}
                         <div className="bg-muted/50 rounded-lg p-4">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                          <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
                               <span className="text-muted-foreground">Your Rate:</span>
-                              <p className="font-medium">₹{perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Price to Buyer:</span>
-                              <p className="font-bold text-primary">₹{perUnitWithFee.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}</p>
+                              <p className="font-bold text-primary">₹{perUnitRate.toLocaleString('en-IN', { maximumFractionDigits: 2 })} per {selectedRequirement.unit}</p>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Delivery:</span>
                               <p className="font-medium">{myBid?.delivery_timeline_days} days</p>
                             </div>
-                            <div>
+                            <div className="col-span-2">
                               <span className="text-muted-foreground">Total Order Value:</span>
-                              <p className="font-medium">₹{totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Service Fee:</span>
-                              <p className="font-medium">₹{myBid?.service_fee?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Grand Total:</span>
-                              <p className="font-bold">₹{myBid?.total_amount?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                              <p className="font-bold text-lg">₹{totalOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
                             </div>
                           </div>
                         </div>
@@ -651,10 +639,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                               <div className="text-sm">
                                 <p className="font-medium text-orange-600">A lower bid exists</p>
                                 <p className="text-muted-foreground mt-1">
-                                  L1 Rate: ₹{lowestRates[selectedRequirement.id].toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}
+                                  L1 Rate: ₹{lowestRates[selectedRequirement.id].toLocaleString('en-IN', { maximumFractionDigits: 2 })} per {selectedRequirement.unit}
                                 </p>
                                 <p className="text-orange-600 mt-1">
-                                  Your bid is ₹{(perUnitWithFee - lowestRates[selectedRequirement.id]).toLocaleString(undefined, { maximumFractionDigits: 2 })} higher per {selectedRequirement.unit}
+                                  Your bid is ₹{(perUnitWithFee - lowestRates[selectedRequirement.id]).toLocaleString('en-IN', { maximumFractionDigits: 2 })} higher per {selectedRequirement.unit}
                                 </p>
                               </div>
                             )}
