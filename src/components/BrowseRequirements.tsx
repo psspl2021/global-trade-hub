@@ -802,10 +802,89 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
                         <Button 
                           type="button"
-                          onClick={() => {
-                            // Handle line items bid submission
-                            if (!allItemsBidded) return;
-                            // This would need a separate handler for line item bids
+                          onClick={async () => {
+                            if (!allItemsBidded || !selectedRequirement || !subscription) return;
+                            
+                            setSubmitting(true);
+                            try {
+                              const standardFeeRate = getServiceFeeRate(selectedRequirement.trade_type);
+                              const feeRate = isUsingPremiumBid ? 0.003 : standardFeeRate;
+                              
+                              const bidSubtotal = lineItems.reduce((sum, item) => {
+                                const bid = itemBids[item.id];
+                                return sum + (bid?.unitPrice || 0) * item.quantity;
+                              }, 0);
+                              
+                              const serviceFee = bidSubtotal * feeRate;
+                              const totalAmount = bidSubtotal + serviceFee;
+                              
+                              // For line items, store the first item rate as bid_amount for L1 comparison
+                              const firstItemRate = itemBids[lineItems[0]?.id]?.unitPrice || 0;
+                              const bidAmountToStore = firstItemRate * (1 + feeRate);
+                              
+                              if (isEditing) {
+                                // Update existing bid
+                                const myBid = myBidDetails[selectedRequirement.id];
+                                if (!myBid) throw new Error('Bid not found');
+                                
+                                const { error } = await supabase
+                                  .from('bids')
+                                  .update({
+                                    bid_amount: bidAmountToStore,
+                                    service_fee: serviceFee,
+                                    total_amount: totalAmount,
+                                    terms_and_conditions: `Rate Per Unit: ₹${firstItemRate}\nTotal Items: ${lineItems.length}`,
+                                  })
+                                  .eq('id', myBid.id)
+                                  .eq('supplier_id', userId);
+                                
+                                if (error) throw error;
+                                toast({ title: 'Success', description: 'Bid updated successfully!' });
+                              } else {
+                                // Insert new bid
+                                const { data: bidData, error: bidError } = await supabase
+                                  .from('bids')
+                                  .insert({
+                                    requirement_id: selectedRequirement.id,
+                                    supplier_id: userId,
+                                    bid_amount: bidAmountToStore,
+                                    service_fee: serviceFee,
+                                    total_amount: totalAmount,
+                                    delivery_timeline_days: 7,
+                                    terms_and_conditions: `Rate Per Unit: ₹${firstItemRate}\nTotal Items: ${lineItems.length}`,
+                                    is_paid_bid: isPaidBid ? true : false,
+                                  })
+                                  .select('id')
+                                  .single();
+                                
+                                if (bidError) throw bidError;
+                                
+                                // Update subscription
+                                if (isUsingPremiumBid) {
+                                  await supabase
+                                    .from('subscriptions')
+                                    .update({ premium_bids_balance: subscription.premium_bids_balance - 1 })
+                                    .eq('id', subscription.id);
+                                } else if (hasFreeBidsRemaining) {
+                                  await supabase
+                                    .from('subscriptions')
+                                    .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
+                                    .eq('id', subscription.id);
+                                }
+                                
+                                toast({ title: 'Success', description: 'Bid submitted successfully!' });
+                              }
+                              
+                              setIsEditing(false);
+                              setSelectedRequirement(null);
+                              setLineItems([]);
+                              setItemBids({});
+                              fetchRequirements();
+                              fetchSubscription();
+                            } catch (error: any) {
+                              toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                            }
+                            setSubmitting(false);
                           }}
                           disabled={submitting || !allItemsBidded} 
                           className="w-full"
