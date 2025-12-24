@@ -49,10 +49,12 @@ export const PlatformInvoices = ({ open, onOpenChange, userId }: PlatformInvoice
 
   const fetchInvoices = async () => {
     setLoading(true);
+    // Bill-to-ship-to model: Don't show service fee invoices to suppliers/logistics partners
     const { data, error } = await supabase
       .from('platform_invoices')
       .select('*')
       .eq('user_id', userId)
+      .neq('invoice_type', 'service_fee')
       .order('created_at', { ascending: false });
 
     if (error) {
