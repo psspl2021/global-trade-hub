@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Plus, Loader2, Send } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const GST_RATE_OPTIONS = [0, 5, 12, 18, 28] as const;
 
@@ -139,145 +140,137 @@ export const BidFormInvoice = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Product Table */}
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-primary text-primary-foreground">
-              <th className="p-2 text-left font-medium w-16">Sl. No.</th>
-              <th className="p-2 text-left font-medium min-w-[150px]">Product Name</th>
-              <th className="p-2 text-left font-medium w-24">HSN Code</th>
-              <th className="p-2 text-left font-medium w-24">GST Rate (%)</th>
-              <th className="p-2 text-left font-medium w-24">Quantity</th>
-              <th className="p-2 text-left font-medium w-28">Rate</th>
-              <th className="p-2 text-left font-medium w-24">Discount</th>
-              <th className="p-2 text-right font-medium w-28">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b">
-              <td className="p-2 text-center align-top">1</td>
-              <td className="p-2 align-top">
-                <div className="font-medium">{product.productName}</div>
-              </td>
-              <td className="p-2 align-top">
+      {/* Product Card */}
+      <Card className="overflow-hidden">
+        <div className="bg-primary text-primary-foreground px-4 py-3">
+          <h3 className="font-semibold text-sm">Product Details</h3>
+        </div>
+        <CardContent className="p-4 space-y-4">
+          {/* Product Name & Quantity - Read Only */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">Product Name</Label>
+              <p className="font-medium text-sm mt-1">{product.productName}</p>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Quantity</Label>
+              <p className="font-medium text-sm mt-1">{product.quantity.toLocaleString('en-IN')} {product.unit}</p>
+            </div>
+          </div>
+
+          {/* Input Fields Row 1 */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="hsnCode" className="text-xs">HSN Code</Label>
+              <Input
+                id="hsnCode"
+                type="text"
+                value={product.hsnCode}
+                onChange={(e) => setProduct({ ...product, hsnCode: e.target.value })}
+                placeholder="Enter HSN"
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="gstRate" className="text-xs">GST Rate (%)</Label>
+              <Select
+                value={product.gstRate.toString()}
+                onValueChange={(value) => setProduct({ ...product, gstRate: Number(value) })}
+              >
+                <SelectTrigger id="gstRate" className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background border shadow-lg z-50">
+                  {GST_RATE_OPTIONS.map((rate) => (
+                    <SelectItem key={rate} value={rate.toString()}>
+                      {rate}%
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="rate" className="text-xs">Rate per {unit} *</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
                 <Input
-                  type="text"
-                  value={product.hsnCode}
-                  onChange={(e) => setProduct({ ...product, hsnCode: e.target.value })}
-                  placeholder="HSN Code*"
-                  className="h-8 w-full text-sm"
-                />
-              </td>
-              <td className="p-2 align-top">
-                <Select
-                  value={product.gstRate.toString()}
-                  onValueChange={(value) => setProduct({ ...product, gstRate: Number(value) })}
-                >
-                  <SelectTrigger className="h-8 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border shadow-lg">
-                    {GST_RATE_OPTIONS.map((rate) => (
-                      <SelectItem key={rate} value={rate.toString()}>
-                        {rate}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </td>
-              <td className="p-2 align-top">
-                <div className="space-y-1">
-                  <div className="font-medium">{product.quantity.toLocaleString('en-IN')}</div>
-                  <div className="text-muted-foreground text-xs">{product.unit}</div>
-                </div>
-              </td>
-              <td className="p-2 align-top">
-                <Input
+                  id="rate"
                   type="number"
                   value={product.rate || ''}
                   onChange={(e) => setProduct({ ...product, rate: Number(e.target.value) })}
-                  placeholder="₹ Enter rate per unit"
-                  className="h-8 w-full text-sm border-primary/30 focus:border-primary"
+                  placeholder="0.00"
+                  className="h-9 pl-7"
                   min={0}
                   step="0.01"
                   required
                 />
-              </td>
-              <td className="p-2 align-top">
-                <div className="flex items-center gap-1">
-                  <Input
-                    type="number"
-                    value={product.discountPercent || ''}
-                    onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
-                    placeholder="0"
-                    className="h-8 w-20 text-sm border-primary/30 focus:border-primary"
-                    min={0}
-                    max={100}
-                    step="0.1"
-                  />
-                  <span className="text-xs text-muted-foreground font-medium">%</span>
-                </div>
-              </td>
-              <td className="p-2 text-right align-top font-semibold">
-                {productNetAmount > 0 ? productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : ''}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Product Subtotal */}
-      {productNetAmount > 0 && (
-        <div className="flex justify-end">
-          <div className="text-right font-semibold border-t border-b py-2 px-4 inline-block">
-            {productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="discount" className="text-xs">Discount (%)</Label>
+              <Input
+                id="discount"
+                type="number"
+                value={product.discountPercent || ''}
+                onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
+                placeholder="0"
+                className="h-9"
+                min={0}
+                max={100}
+                step="0.1"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Amount Display */}
+          {productNetAmount > 0 && (
+            <div className="flex justify-between items-center pt-2 border-t">
+              <span className="text-sm text-muted-foreground">Product Amount</span>
+              <span className="font-bold text-lg">₹{productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Additional Charges Section */}
       <div className="space-y-2">
-        {additionalCharges.map((charge) => (
-          <div key={charge.id} className="flex items-center gap-2 pl-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => removeCharge(charge.id)}
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive shrink-0"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-            <Input
-              type="text"
-              value={charge.description}
-              onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
-              placeholder="LABOUR CHARGES"
-              className="flex-1 h-8 text-sm uppercase"
-            />
-            <Input
-              type="number"
-              value={charge.amount || ''}
-              onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
-              placeholder="Amount"
-              className="w-32 h-8 text-sm text-right"
-              min={0}
-            />
-          </div>
-        ))}
-
-        {/* GST Line Item Display */}
-        {taxableValue > 0 && product.gstRate > 0 && (
-          <div className="flex items-center justify-between pl-10 pr-2 py-1">
-            <span className="font-medium text-sm">{gstType === 'inter' ? 'IGST' : 'CGST + SGST'}</span>
-            <span className="font-semibold text-sm">{gstAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+        {additionalCharges.length > 0 && (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Additional Charges</Label>
+            {additionalCharges.map((charge) => (
+              <div key={charge.id} className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeCharge(charge.id)}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive shrink-0"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <Input
+                  type="text"
+                  value={charge.description}
+                  onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
+                  placeholder="e.g., Labour, Transport"
+                  className="flex-1 h-9 text-sm"
+                />
+                <div className="relative w-32">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
+                  <Input
+                    type="number"
+                    value={charge.amount || ''}
+                    onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
+                    placeholder="0"
+                    className="h-9 text-sm text-right pl-7"
+                    min={0}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         )}
-      </div>
 
-      {/* Action Links */}
-      <div className="space-y-1 pt-2">
         <button
           type="button"
           onClick={addCharge}
@@ -288,7 +281,8 @@ export const BidFormInvoice = ({
       </div>
 
       {/* GST Type Selection */}
-      <div className="flex items-center gap-6 pt-2">
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">GST Type</Label>
         <RadioGroup
           value={gstType}
           onValueChange={(v) => setGstType(v as 'intra' | 'inter')}
@@ -296,160 +290,81 @@ export const BidFormInvoice = ({
         >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="intra" id="intra" />
-            <Label htmlFor="intra" className="cursor-pointer text-sm">
-              Intra-state
+            <Label htmlFor="intra" className="cursor-pointer text-sm font-normal">
+              Intra-state (CGST + SGST)
             </Label>
           </div>
           <div className="flex items-center gap-2">
             <RadioGroupItem value="inter" id="inter" />
-            <Label htmlFor="inter" className="cursor-pointer text-sm">
-              Inter-state
+            <Label htmlFor="inter" className="cursor-pointer text-sm font-normal">
+              Inter-state (IGST)
             </Label>
           </div>
         </RadioGroup>
       </div>
 
-      {/* Total Amount */}
-      <div className="flex justify-end border-t pt-4">
-        <div className="flex items-baseline gap-4">
-          <span className="text-lg font-semibold">Total Amount</span>
-          <span className="text-2xl font-bold">{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-        </div>
-      </div>
-
-      {/* GST Break-up Table */}
-      <div className="space-y-3">
-        <h4 className="font-semibold text-center text-base">GST Break-up</h4>
-        <div className="overflow-x-auto border rounded-lg">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="p-2 text-left font-medium"></th>
-                <th className="p-2 text-center font-medium border-l">Taxable Value</th>
-                {gstType === 'inter' ? (
-                  <th className="p-2 text-center font-medium border-l" colSpan={2}>
-                    IGST
-                  </th>
-                ) : (
-                  <>
-                    <th className="p-2 text-center font-medium border-l" colSpan={2}>
-                      CGST
-                    </th>
-                    <th className="p-2 text-center font-medium border-l" colSpan={2}>
-                      SGST
-                    </th>
-                  </>
-                )}
-                <th className="p-2 text-center font-medium border-l">Total</th>
-              </tr>
-              <tr className="bg-muted/30 text-xs border-b">
-                <th className="p-2"></th>
-                <th className="p-2 border-l"></th>
-                {gstType === 'inter' ? (
-                  <>
-                    <th className="p-2 text-center border-l">Rate</th>
-                    <th className="p-2 text-center">Amount</th>
-                  </>
-                ) : (
-                  <>
-                    <th className="p-2 text-center border-l">Rate</th>
-                    <th className="p-2 text-center">Amount</th>
-                    <th className="p-2 text-center border-l">Rate</th>
-                    <th className="p-2 text-center">Amount</th>
-                  </>
-                )}
-                <th className="p-2 text-center border-l">Tax Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2"></td>
-                <td className="p-2 text-center border-l">
-                  {taxableValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                </td>
-                {gstType === 'inter' ? (
-                  <>
-                    <td className="p-2 text-center border-l">{product.gstRate}%</td>
-                    <td className="p-2 text-center">
-                      {igst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="p-2 text-center border-l">{product.gstRate / 2}%</td>
-                    <td className="p-2 text-center">
-                      {cgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                    </td>
-                    <td className="p-2 text-center border-l">{product.gstRate / 2}%</td>
-                    <td className="p-2 text-center">
-                      {sgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                    </td>
-                  </>
-                )}
-                <td className="p-2 text-center border-l">
-                  {gstAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                </td>
-              </tr>
-              <tr className="font-semibold bg-muted/20 border-t-2 border-primary/30">
-                <td className="p-2">Total</td>
-                <td className="p-2 text-center border-l font-bold">
-                  {taxableValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                </td>
-                {gstType === 'inter' ? (
-                  <>
-                    <td className="p-2 border-l"></td>
-                    <td className="p-2 text-center font-bold">
-                      {igst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="p-2 border-l"></td>
-                    <td className="p-2 text-center font-bold">
-                      {cgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                    </td>
-                    <td className="p-2 border-l"></td>
-                    <td className="p-2 text-center font-bold">
-                      {sgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                    </td>
-                  </>
-                )}
-                <td className="p-2 text-center border-l font-bold">
-                  {gstAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Summary Card */}
+      {taxableValue > 0 && (
+        <Card className="bg-muted/30">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Taxable Value</span>
+              <span className="font-medium">₹{taxableValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+            </div>
+            {gstType === 'inter' ? (
+              <div className="flex justify-between text-sm">
+                <span>IGST ({product.gstRate}%)</span>
+                <span className="font-medium">₹{igst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span>CGST ({product.gstRate / 2}%)</span>
+                  <span className="font-medium">₹{cgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>SGST ({product.gstRate / 2}%)</span>
+                  <span className="font-medium">₹{sgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                </div>
+              </>
+            )}
+            <div className="flex justify-between text-base font-bold border-t pt-2 mt-2">
+              <span>Grand Total</span>
+              <span className="text-primary">₹{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Delivery Days */}
-      <div className="flex items-center gap-4 pt-2">
-        <Label htmlFor="deliveryDays" className="whitespace-nowrap font-medium">
-          Delivery Timeline (days) *
+      <div className="flex items-center gap-4">
+        <Label htmlFor="deliveryDays" className="whitespace-nowrap font-medium text-sm">
+          Delivery Timeline *
         </Label>
-        <Input
-          id="deliveryDays"
-          type="number"
-          value={deliveryDays}
-          onChange={(e) => setDeliveryDays(Number(e.target.value))}
-          className="w-24 h-9"
-          min={1}
-          required
-        />
+        <div className="flex items-center gap-2">
+          <Input
+            id="deliveryDays"
+            type="number"
+            value={deliveryDays}
+            onChange={(e) => setDeliveryDays(Number(e.target.value))}
+            className="w-20 h-9"
+            min={1}
+            required
+          />
+          <span className="text-sm text-muted-foreground">days</span>
+        </div>
       </div>
 
       {/* Terms and Conditions */}
-      <div className="border rounded-lg overflow-hidden">
-        <div className="text-center font-semibold py-2 border-b border-dashed bg-muted/20">
-          Terms and conditions
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="terms" className="text-sm font-medium">Terms and Conditions</Label>
         <Textarea
+          id="terms"
           value={termsAndConditions}
           onChange={(e) => setTermsAndConditions(e.target.value)}
-          placeholder="Enter Terms and Conditions"
+          placeholder="Enter any terms and conditions for this bid..."
           rows={3}
-          className="border-0 focus-visible:ring-0 resize-none rounded-none"
+          className="resize-none"
         />
       </div>
 
