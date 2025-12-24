@@ -114,260 +114,259 @@ export const BidFormInvoice = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-border rounded-lg shadow-lg overflow-hidden">
+    <form onSubmit={handleSubmit} className="bg-background border border-border rounded-lg overflow-hidden max-w-4xl mx-auto">
       {/* Header */}
-      <div className="bg-primary px-6 py-4">
-        <h2 className="text-xl font-bold text-primary-foreground text-center">BID QUOTATION</h2>
+      <div className="bg-primary text-primary-foreground text-center py-3">
+        <h2 className="text-lg font-semibold tracking-wide">QUOTATION</h2>
       </div>
 
-      <div className="p-6">
-        {/* Delivery Timeline Row */}
-        <div className="mb-6 flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
-          <Label className="font-semibold text-foreground">Delivery Timeline:</Label>
+      <div className="p-4 sm:p-6 space-y-5">
+        {/* Delivery Timeline */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <Label className="text-sm font-medium text-foreground whitespace-nowrap">Delivery Timeline:</Label>
           <div className="flex items-center gap-2">
             <Input
               type="number"
               value={deliveryDays}
               onChange={(e) => setDeliveryDays(Number(e.target.value))}
-              className="w-20 h-9 text-center"
+              className="w-20 h-9 text-center border-border"
               min={1}
               required
             />
-            <span className="text-muted-foreground">days</span>
+            <span className="text-sm text-muted-foreground">days</span>
           </div>
         </div>
 
-        {/* Items Table */}
-        <div className="border border-border rounded-lg overflow-hidden mb-6">
-          {/* Table Header */}
-          <div className="bg-muted/50 grid grid-cols-12 gap-2 p-3 text-sm font-semibold text-foreground border-b border-border">
-            <div className="col-span-1 text-center">#</div>
-            <div className="col-span-3">Item Details</div>
-            <div className="col-span-1 text-center">HSN</div>
-            <div className="col-span-1 text-center">GST</div>
-            <div className="col-span-1 text-center">Qty</div>
-            <div className="col-span-2 text-center">Rate (₹)</div>
-            <div className="col-span-1 text-center">Disc %</div>
-            <div className="col-span-2 text-right">Amount</div>
+        {/* Item Details Card */}
+        <div className="border border-border rounded-md overflow-hidden">
+          <div className="bg-muted/50 px-4 py-2 border-b border-border">
+            <span className="text-sm font-medium text-foreground">Item Details</span>
           </div>
+          <div className="p-4 space-y-4">
+            {/* Product Info */}
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">Product</span>
+              <span className="font-medium text-foreground">{productName}</span>
+            </div>
 
-          {/* Table Row */}
-          <div className="grid grid-cols-12 gap-2 p-3 items-center bg-white">
-            <div className="col-span-1 text-center text-muted-foreground font-medium">1</div>
-            
-            <div className="col-span-3">
-              <p className="font-medium text-foreground">{productName}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {/* HSN Code */}
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">HSN Code</Label>
+                <Input
+                  type="text"
+                  value={hsnCode}
+                  onChange={(e) => setHsnCode(e.target.value)}
+                  placeholder="e.g. 7214"
+                  className="h-9"
+                />
+              </div>
+
+              {/* GST Rate */}
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">GST Rate</Label>
+                <Select value={gstRate.toString()} onValueChange={(v) => setGstRate(Number(v))}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GST_RATE_OPTIONS.map((r) => (
+                      <SelectItem key={r} value={r.toString()}>{r}%</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Quantity */}
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Quantity</Label>
+                <div className="h-9 px-3 flex items-center bg-muted/30 border border-border rounded-md text-sm">
+                  {quantity.toLocaleString('en-IN')} {unit}
+                </div>
+              </div>
+
+              {/* Rate */}
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Rate (₹/{unit})</Label>
+                <Input
+                  type="number"
+                  value={rate || ''}
+                  onChange={(e) => setRate(Number(e.target.value))}
+                  placeholder="0.00"
+                  className="h-9"
+                  min={0}
+                  step="0.01"
+                  required
+                />
+              </div>
             </div>
-            
-            <div className="col-span-1">
-              <Input
-                type="text"
-                value={hsnCode}
-                onChange={(e) => setHsnCode(e.target.value)}
-                placeholder="HSN"
-                className="h-9 text-center text-sm"
-              />
-            </div>
-            
-            <div className="col-span-1">
-              <Select value={gstRate.toString()} onValueChange={(v) => setGstRate(Number(v))}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {GST_RATE_OPTIONS.map((r) => (
-                    <SelectItem key={r} value={r.toString()}>{r}%</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="col-span-1 text-center">
-              <span className="font-medium">{quantity}</span>
-              <span className="text-muted-foreground text-xs ml-1">{unit}</span>
-            </div>
-            
-            <div className="col-span-2">
-              <Input
-                type="number"
-                value={rate || ''}
-                onChange={(e) => setRate(Number(e.target.value))}
-                placeholder="0.00"
-                className="h-9 text-right"
-                min={0}
-                step="0.01"
-                required
-              />
-            </div>
-            
-            <div className="col-span-1">
+
+            {/* Discount */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <Label className="text-xs text-muted-foreground whitespace-nowrap">Discount %</Label>
               <Input
                 type="number"
                 value={discountPercent || ''}
                 onChange={(e) => setDiscountPercent(Number(e.target.value))}
                 placeholder="0"
-                className="h-9 text-center"
+                className="h-9 w-24"
                 min={0}
                 max={100}
                 step="0.1"
               />
+              {discountAmount > 0 && (
+                <span className="text-sm text-green-600">-₹{formatCurrency(discountAmount)}</span>
+              )}
             </div>
-            
-            <div className="col-span-2 text-right font-semibold text-foreground">
-              ₹{formatCurrency(productNetAmount)}
-            </div>
-          </div>
 
-          {/* Additional Charges */}
-          {additionalCharges.map((charge, index) => (
-            <div key={charge.id} className="grid grid-cols-12 gap-2 p-3 items-center bg-muted/20 border-t border-border">
-              <div className="col-span-1 text-center">
-                <button
-                  type="button"
-                  onClick={() => removeCharge(charge.id)}
-                  className="text-destructive hover:text-destructive/80"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-              
-              <div className="col-span-6">
-                <Input
-                  type="text"
-                  value={charge.description}
-                  onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
-                  placeholder="Additional charge description (e.g., Transport, Labour)"
-                  className="h-9"
-                />
-              </div>
-              
-              <div className="col-span-3">
-                <Input
-                  type="number"
-                  value={charge.amount || ''}
-                  onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
-                  placeholder="Amount"
-                  className="h-9 text-right"
-                  min={0}
-                />
-              </div>
-              
-              <div className="col-span-2 text-right font-semibold text-foreground">
-                ₹{formatCurrency(charge.amount || 0)}
-              </div>
+            {/* Product Amount */}
+            <div className="flex justify-between items-center pt-2 border-t border-border">
+              <span className="text-sm text-muted-foreground">Line Total</span>
+              <span className="font-semibold text-foreground">₹{formatCurrency(productNetAmount)}</span>
             </div>
-          ))}
-
-          {/* Add Charge Button */}
-          <div className="p-3 border-t border-border bg-muted/10">
-            <button
-              type="button"
-              onClick={addCharge}
-              className="flex items-center gap-2 text-primary hover:text-primary/80 text-sm font-medium"
-            >
-              <Plus className="h-4 w-4" />
-              Add Additional Charges
-            </button>
           </div>
         </div>
 
-        {/* GST Type Selection */}
-        <div className="mb-6 p-4 bg-muted/30 rounded-lg">
-          <Label className="font-semibold text-foreground mb-3 block">GST Type</Label>
+        {/* Additional Charges */}
+        <div className="border border-border rounded-md overflow-hidden">
+          <div className="bg-muted/50 px-4 py-2 border-b border-border flex justify-between items-center">
+            <span className="text-sm font-medium text-foreground">Additional Charges</span>
+            <button
+              type="button"
+              onClick={addCharge}
+              className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
+            >
+              <Plus className="h-3 w-3" /> Add
+            </button>
+          </div>
+          
+          {additionalCharges.length > 0 ? (
+            <div className="divide-y divide-border">
+              {additionalCharges.map((charge) => (
+                <div key={charge.id} className="p-3 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => removeCharge(charge.id)}
+                    className="text-destructive hover:text-destructive/80 shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <Input
+                    type="text"
+                    value={charge.description}
+                    onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
+                    placeholder="Description (e.g., Transport)"
+                    className="h-8 flex-1"
+                  />
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className="text-sm text-muted-foreground">₹</span>
+                    <Input
+                      type="number"
+                      value={charge.amount || ''}
+                      onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
+                      placeholder="0"
+                      className="h-8 w-24 text-right"
+                      min={0}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-3 text-center text-sm text-muted-foreground">
+              No additional charges added
+            </div>
+          )}
+        </div>
+
+        {/* GST Type */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-foreground">GST Type</Label>
           <RadioGroup
             value={gstType}
             onValueChange={(v) => setGstType(v as 'intra' | 'inter')}
-            className="flex gap-6"
+            className="flex flex-wrap gap-4"
           >
             <div className="flex items-center gap-2">
-              <RadioGroupItem value="intra" id="intra" />
-              <Label htmlFor="intra" className="cursor-pointer text-sm">
-                Intra-state (CGST + SGST)
-              </Label>
+              <RadioGroupItem value="intra" id="gst-intra" />
+              <Label htmlFor="gst-intra" className="text-sm cursor-pointer">Intra-state (CGST + SGST)</Label>
             </div>
             <div className="flex items-center gap-2">
-              <RadioGroupItem value="inter" id="inter" />
-              <Label htmlFor="inter" className="cursor-pointer text-sm">
-                Inter-state (IGST)
-              </Label>
+              <RadioGroupItem value="inter" id="gst-inter" />
+              <Label htmlFor="gst-inter" className="text-sm cursor-pointer">Inter-state (IGST)</Label>
             </div>
           </RadioGroup>
         </div>
 
-        {/* Summary Section */}
-        <div className="border border-border rounded-lg overflow-hidden mb-6">
+        {/* Summary */}
+        <div className="border border-border rounded-md overflow-hidden">
           <div className="bg-muted/50 px-4 py-2 border-b border-border">
-            <h3 className="font-semibold text-foreground">Summary</h3>
+            <span className="text-sm font-medium text-foreground">Summary</span>
           </div>
-          
-          <div className="p-4 space-y-2">
-            <div className="flex justify-between text-sm">
+          <div className="p-4 space-y-2 text-sm">
+            <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">₹{formatCurrency(productNetAmount + additionalChargesTotal)}</span>
+              <span>₹{formatCurrency(productNetAmount)}</span>
             </div>
-            
-            {discountAmount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Discount ({discountPercent}%)</span>
-                <span className="font-medium text-green-600">-₹{formatCurrency(discountAmount)}</span>
+            {additionalChargesTotal > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Additional Charges</span>
+                <span>₹{formatCurrency(additionalChargesTotal)}</span>
               </div>
             )}
-            
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between">
               <span className="text-muted-foreground">Taxable Value</span>
               <span className="font-medium">₹{formatCurrency(taxableValue)}</span>
             </div>
             
             {gstType === 'inter' ? (
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">IGST @ {gstRate}%</span>
-                <span className="font-medium">₹{formatCurrency(igst)}</span>
+                <span>₹{formatCurrency(igst)}</span>
               </div>
             ) : (
               <>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between">
                   <span className="text-muted-foreground">CGST @ {gstRate / 2}%</span>
-                  <span className="font-medium">₹{formatCurrency(cgst)}</span>
+                  <span>₹{formatCurrency(cgst)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between">
                   <span className="text-muted-foreground">SGST @ {gstRate / 2}%</span>
-                  <span className="font-medium">₹{formatCurrency(sgst)}</span>
+                  <span>₹{formatCurrency(sgst)}</span>
                 </div>
               </>
             )}
             
-            <div className="flex justify-between pt-3 mt-3 border-t-2 border-primary">
-              <span className="text-lg font-bold text-foreground">Grand Total</span>
-              <span className="text-lg font-bold text-primary">₹{formatCurrency(grandTotal)}</span>
+            <div className="flex justify-between pt-3 mt-2 border-t-2 border-primary">
+              <span className="font-bold text-foreground">Grand Total</span>
+              <span className="font-bold text-primary text-base">₹{formatCurrency(grandTotal)}</span>
             </div>
           </div>
         </div>
 
-        {/* Terms and Conditions */}
-        <div className="mb-6">
-          <Label htmlFor="terms" className="font-semibold text-foreground mb-2 block">
-            Terms & Conditions (Optional)
-          </Label>
+        {/* Terms */}
+        <div className="space-y-2">
+          <Label htmlFor="bid-terms" className="text-sm font-medium text-foreground">Terms & Conditions (Optional)</Label>
           <Textarea
-            id="terms"
+            id="bid-terms"
             value={termsAndConditions}
             onChange={(e) => setTermsAndConditions(e.target.value)}
-            placeholder="Enter any terms and conditions for this bid..."
-            rows={3}
+            placeholder="Enter any terms and conditions..."
+            rows={2}
             className="resize-none"
           />
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <Button
           type="submit"
           disabled={submitting || rate <= 0 || deliveryDays <= 0}
-          className="w-full h-12 text-base font-semibold"
+          className="w-full h-11"
           size="lg"
         >
           {submitting ? (
             <>
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
               Submitting...
             </>
           ) : (
@@ -376,9 +375,7 @@ export const BidFormInvoice = ({
         </Button>
 
         {rate <= 0 && (
-          <p className="text-center text-sm text-destructive mt-2">
-            Please enter a rate to submit your bid
-          </p>
+          <p className="text-center text-xs text-destructive">Please enter a rate to submit your bid</p>
         )}
       </div>
     </form>
