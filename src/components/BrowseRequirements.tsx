@@ -696,15 +696,14 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         
                         {itemSubtotal > 0 && (
                           <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                            <div className="flex justify-between"><span>Total Bid Amount:</span><span>₹{itemSubtotal.toLocaleString()}</span></div>
-                            <div className="flex justify-between text-muted-foreground"><span>Service Fee ({feePercentage}%):</span><span>₹{itemServiceFee.toLocaleString()}</span></div>
-                            <div className="flex justify-between font-medium border-t pt-1"><span>Total to Buyer:</span><span>₹{itemTotal.toLocaleString()}</span></div>
+                            <div className="flex justify-between font-medium"><span>Total Bid Amount:</span><span>₹{itemSubtotal.toLocaleString()}</span></div>
                           </div>
                         )}
                       </div>
                     ) : (
                       /* Invoice-style bid form for requirements without line items */
                       <BidFormInvoice
+                        key={isEditing ? `edit-${selectedRequirement.id}` : `new-${selectedRequirement.id}`}
                         productName={selectedRequirement.title}
                         quantity={selectedRequirement.quantity}
                         unit={selectedRequirement.unit}
