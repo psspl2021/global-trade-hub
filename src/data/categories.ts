@@ -164,6 +164,13 @@ export const categoriesData: CategoryData[] = [
       'Steel Channels',
       'Steel Beams',
       'Steel Columns',
+      // Structural Steel Products
+      'Purlins',
+      'C Purlins',
+      'Z Purlins',
+      'Monopoles',
+      'Transmission Poles',
+      'Telecom Monopoles',
       // Wire Products
       'Tata Wiron Products',
       'Binding Wire',
