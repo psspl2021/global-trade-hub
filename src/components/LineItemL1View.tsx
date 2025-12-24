@@ -8,8 +8,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Trophy, Package } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, Trophy, Package, Pencil } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface RequirementItem {
   id: string;
@@ -65,10 +76,33 @@ interface LineItemL1ViewProps {
 export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = false }: LineItemL1ViewProps) {
   const [loading, setLoading] = useState(true);
   const [l1Data, setL1Data] = useState<L1ItemData[]>([]);
+  
+  // Edit state
+  const [editingBidItem, setEditingBidItem] = useState<{
+    bidItem: BidItem;
+    supplier: SupplierProfile | null;
+    bid: Bid;
+    itemName: string;
+    unit: string;
+  } | null>(null);
+  const [editForm, setEditForm] = useState({
+    unit_price: 0,
+    quantity: 0,
+  });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchL1Data();
   }, [requirementId]);
+
+  useEffect(() => {
+    if (editingBidItem) {
+      setEditForm({
+        unit_price: editingBidItem.bidItem.unit_price,
+        quantity: editingBidItem.bidItem.quantity,
+      });
+    }
+  }, [editingBidItem]);
 
   const fetchL1Data = async () => {
     setLoading(true);
@@ -162,6 +196,58 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
       console.error('Error fetching L1 data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveBidItem = async () => {
+    if (!editingBidItem) return;
+    setSaving(true);
+    try {
+      const newTotal = editForm.unit_price * editForm.quantity;
+      
+      // Update bid_item
+      const { error: bidItemError } = await supabase
+        .from('bid_items')
+        .update({
+          unit_price: editForm.unit_price,
+          quantity: editForm.quantity,
+          total: newTotal,
+        })
+        .eq('id', editingBidItem.bidItem.id);
+
+      if (bidItemError) throw bidItemError;
+
+      // Recalculate parent bid total
+      const { data: allBidItems } = await supabase
+        .from('bid_items')
+        .select('total')
+        .eq('bid_id', editingBidItem.bid.id);
+
+      if (allBidItems) {
+        const newBidAmount = allBidItems.reduce((sum, item) => sum + item.total, 0);
+        const feeRate = tradeType === 'domestic_india' ? 0.005 : 0.01;
+        const serviceFee = newBidAmount * feeRate;
+        
+        const { error: bidError } = await supabase
+          .from('bids')
+          .update({
+            bid_amount: newBidAmount,
+            service_fee: serviceFee,
+            total_amount: newBidAmount + serviceFee,
+          })
+          .eq('id', editingBidItem.bid.id);
+
+        if (bidError) throw bidError;
+      }
+
+      toast.success('Bid item updated successfully');
+      setEditingBidItem(null);
+      fetchL1Data();
+    } catch (error: any) {
+      console.error('Error updating bid item:', error);
+      toast.error(error.message || 'Failed to update bid item');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -274,90 +360,164 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
     );
   }
 
-  // Admin view: Show all suppliers per item with L1 highlighted
+  // Admin view: Show all suppliers per item with L1 highlighted and edit option
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm font-medium">
-        <Trophy className="h-4 w-4 text-yellow-500" />
-        <span>Line-Item L1 Analysis</span>
+    <>
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Trophy className="h-4 w-4 text-yellow-500" />
+          <span>Line-Item L1 Analysis</span>
+        </div>
+
+        {l1Data.map((item) => (
+          <div key={item.requirementItem.id} className="border rounded-lg overflow-hidden">
+            <div className="bg-muted/50 px-4 py-3 border-b">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{item.requirementItem.item_name}</span>
+                  <Badge variant="secondary">{item.requirementItem.category}</Badge>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  Required: {item.requirementItem.quantity} {item.requirementItem.unit}
+                </span>
+              </div>
+            </div>
+
+            {item.allBidItems.length === 0 ? (
+              <div className="p-4 text-center text-muted-foreground">
+                No quotes received for this item
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="font-medium">Supplier</TableHead>
+                    <TableHead className="text-right font-medium">Rate/Unit</TableHead>
+                    <TableHead className="text-right font-medium">Qty</TableHead>
+                    <TableHead className="text-right font-medium">Total</TableHead>
+                    <TableHead className="font-medium">Status</TableHead>
+                    <TableHead className="w-[60px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {item.allBidItems.map((bidData) => (
+                    <TableRow 
+                      key={bidData.bidItem.id}
+                      className={bidData.isL1 ? 'bg-yellow-50/50' : ''}
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {bidData.isL1 && (
+                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                              <Trophy className="h-3 w-3 mr-1" />
+                              L1
+                            </Badge>
+                          )}
+                          <div>
+                            <div className="font-medium">{bidData.supplier?.company_name || 'Unknown'}</div>
+                            <div className="text-xs text-muted-foreground">{bidData.supplier?.email}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className={bidData.isL1 ? 'font-semibold text-success' : ''}>
+                          ₹{bidData.bidItem.unit_price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {bidData.bidItem.quantity} {item.requirementItem.unit}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        ₹{bidData.bidItem.total.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={
+                          bidData.bid.status === 'accepted' ? 'default' :
+                          bidData.bid.status === 'rejected' ? 'destructive' : 'outline'
+                        }>
+                          {bidData.bid.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setEditingBidItem({
+                            ...bidData,
+                            itemName: item.requirementItem.item_name,
+                            unit: item.requirementItem.unit,
+                          })}
+                          title="Edit Bid Item"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        ))}
       </div>
 
-      {l1Data.map((item) => (
-        <div key={item.requirementItem.id} className="border rounded-lg overflow-hidden">
-          <div className="bg-muted/50 px-4 py-3 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{item.requirementItem.item_name}</span>
-                <Badge variant="secondary">{item.requirementItem.category}</Badge>
-              </div>
-              <span className="text-sm text-muted-foreground">
-                Required: {item.requirementItem.quantity} {item.requirementItem.unit}
-              </span>
-            </div>
-          </div>
+      {/* Edit Bid Item Dialog */}
+      <Dialog open={!!editingBidItem} onOpenChange={(open) => !open && setEditingBidItem(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5" />
+              Edit Bid Item
+            </DialogTitle>
+          </DialogHeader>
 
-          {item.allBidItems.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">
-              No quotes received for this item
+          {editingBidItem && (
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                <p className="font-medium">{editingBidItem.itemName}</p>
+                <p className="text-muted-foreground">{editingBidItem.supplier?.company_name}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Unit Price (₹)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editForm.unit_price}
+                    onChange={(e) => setEditForm(f => ({ ...f, unit_price: Number(e.target.value) }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Quantity ({editingBidItem.unit})</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editForm.quantity}
+                    onChange={(e) => setEditForm(f => ({ ...f, quantity: Number(e.target.value) }))}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <div className="flex justify-between text-sm">
+                  <span>Total:</span>
+                  <span className="font-bold">₹{(editForm.unit_price * editForm.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                </div>
+              </div>
             </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="font-medium">Supplier</TableHead>
-                  <TableHead className="text-right font-medium">Rate/Unit</TableHead>
-                  <TableHead className="text-right font-medium">Qty</TableHead>
-                  <TableHead className="text-right font-medium">Total</TableHead>
-                  <TableHead className="font-medium">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {item.allBidItems.map((bidData) => (
-                  <TableRow 
-                    key={bidData.bidItem.id}
-                    className={bidData.isL1 ? 'bg-yellow-50/50' : ''}
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {bidData.isL1 && (
-                          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                            <Trophy className="h-3 w-3 mr-1" />
-                            L1
-                          </Badge>
-                        )}
-                        <div>
-                          <div className="font-medium">{bidData.supplier?.company_name || 'Unknown'}</div>
-                          <div className="text-xs text-muted-foreground">{bidData.supplier?.email}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className={bidData.isL1 ? 'font-semibold text-success' : ''}>
-                        ₹{bidData.bidItem.unit_price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {bidData.bidItem.quantity} {item.requirementItem.unit}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      ₹{bidData.bidItem.total.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={
-                        bidData.bid.status === 'accepted' ? 'default' :
-                        bidData.bid.status === 'rejected' ? 'destructive' : 'outline'
-                      }>
-                        {bidData.bid.status}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
           )}
-        </div>
-      ))}
-    </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingBidItem(null)}>Cancel</Button>
+            <Button onClick={handleSaveBidItem} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
