@@ -74,7 +74,7 @@ export const BidFormInvoice = ({
   const [additionalCharges, setAdditionalCharges] = useState<AdditionalCharge[]>(
     initialData?.additionalCharges || []
   );
-  const [showDiscount, setShowDiscount] = useState(initialData?.discountPercent ? true : false);
+  
   const [gstType, setGstType] = useState<'intra' | 'inter'>(initialData?.gstType || 'inter');
   const [deliveryDays, setDeliveryDays] = useState(initialData?.deliveryDays || 7);
   const [termsAndConditions, setTermsAndConditions] = useState(initialData?.termsAndConditions || '');
@@ -197,29 +197,25 @@ export const BidFormInvoice = ({
                   type="number"
                   value={product.rate || ''}
                   onChange={(e) => setProduct({ ...product, rate: Number(e.target.value) })}
-                  placeholder="Rate"
+                  placeholder="Enter rate"
                   className="h-8 w-full text-sm"
                   min={0}
                   required
                 />
               </td>
               <td className="p-2 align-top">
-                {showDiscount ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="number"
-                      value={product.discountPercent || ''}
-                      onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
-                      placeholder="0"
-                      className="h-8 w-16 text-sm"
-                      min={0}
-                      max={100}
-                    />
-                    <span className="text-xs text-muted-foreground">(%)</span>
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground text-xs">Discount(%)</span>
-                )}
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    value={product.discountPercent || ''}
+                    onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
+                    placeholder="0"
+                    className="h-8 w-16 text-sm"
+                    min={0}
+                    max={100}
+                  />
+                  <span className="text-xs text-muted-foreground">%</span>
+                </div>
               </td>
               <td className="p-2 text-right align-top font-semibold">
                 {productNetAmount > 0 ? productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : ''}
@@ -280,15 +276,6 @@ export const BidFormInvoice = ({
 
       {/* Action Links */}
       <div className="space-y-1 pt-2">
-        {!showDiscount && (
-          <button
-            type="button"
-            onClick={() => setShowDiscount(true)}
-            className="text-sm text-primary hover:underline flex items-center gap-1"
-          >
-            <Plus className="h-4 w-4" /> Give discount on total
-          </button>
-        )}
         <button
           type="button"
           onClick={addCharge}
