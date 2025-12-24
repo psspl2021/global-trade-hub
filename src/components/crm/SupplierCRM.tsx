@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Users, Package, UserCheck, ShoppingCart } from 'lucide-react';
+import { FileText, Users, Package, UserCheck, ShoppingCart, LayoutDashboard } from 'lucide-react';
 import { DocumentList } from './DocumentList';
 import { InvoiceForm } from './InvoiceForm';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
@@ -17,6 +17,7 @@ import { SupplierSaleForm } from './SupplierSaleForm';
 import { SupplierSaleViewer } from './SupplierSaleViewer';
 import { SupplierStockManagementWrapper } from './SupplierStockManagementWrapper';
 import { SupplierCatalog } from '@/components/SupplierCatalog';
+import { CRMDashboard } from './CRMDashboard';
 import { useCRMSEO } from '@/hooks/useCRMSEO';
 
 interface SupplierCRMProps {
@@ -179,8 +180,12 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+          <Tabs defaultValue="dashboard" className="w-full">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="dashboard" className="text-xs sm:text-sm">
+                <LayoutDashboard className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </TabsTrigger>
               <TabsTrigger value="stock" className="text-xs sm:text-sm">
                 <Package className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Stock</span>
@@ -202,6 +207,10 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
                 <span className="hidden sm:inline">Leads</span>
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="dashboard" className="mt-4">
+              <CRMDashboard userId={userId} userType="supplier" />
+            </TabsContent>
 
             <TabsContent value="stock" className="mt-4">
               <SupplierStockManagementWrapper onOpenCatalog={() => setCatalogOpen(true)} />
