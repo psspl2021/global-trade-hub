@@ -621,6 +621,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         )}
                         
                         <Button 
+                          type="button"
                           variant="outline" 
                           className="w-full"
                           onClick={() => setIsEditing(true)}
