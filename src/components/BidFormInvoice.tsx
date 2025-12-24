@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Plus, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const GST_RATE_OPTIONS = [0, 5, 12, 18, 28] as const;
 
@@ -15,10 +16,29 @@ interface AdditionalCharge {
   amount: number;
 }
 
-interface BidFormInvoiceProps {
-  productName: string;
+interface LineItem {
+  id: string;
+  item_name: string;
+  description?: string;
   quantity: number;
   unit: string;
+  category: string;
+  budget_min?: number;
+  budget_max?: number;
+}
+
+interface ItemBid {
+  rate: number;
+  hsnCode: string;
+  gstRate: number;
+  discountPercent: number;
+}
+
+interface BidFormInvoiceProps {
+  requirementId: string;
+  requirementTitle: string;
+  requirementQuantity: number;
+  requirementUnit: string;
   onSubmit: (data: BidFormInvoiceData) => void;
   submitting: boolean;
   isEditing?: boolean;
@@ -26,32 +46,40 @@ interface BidFormInvoiceProps {
 }
 
 export interface BidFormInvoiceData {
-  rate: number;
-  hsnCode: string;
-  gstRate: number;
-  discountPercent: number;
+  items: Array<{
+    itemId: string;
+    itemName: string;
+    quantity: number;
+    unit: string;
+    rate: number;
+    hsnCode: string;
+    gstRate: number;
+    discountPercent: number;
+    lineTotal: number;
+  }>;
   deliveryDays: number;
   additionalCharges: AdditionalCharge[];
   gstType: 'intra' | 'inter';
   termsAndConditions: string;
+  subtotal: number;
   taxableValue: number;
   totalGst: number;
   grandTotal: number;
 }
 
 export const BidFormInvoice = ({
-  productName,
-  quantity,
-  unit,
+  requirementId,
+  requirementTitle,
+  requirementQuantity,
+  requirementUnit,
   onSubmit,
   submitting,
   isEditing = false,
   initialData,
 }: BidFormInvoiceProps) => {
-  const [hsnCode, setHsnCode] = useState(initialData?.hsnCode || '');
-  const [gstRate, setGstRate] = useState(initialData?.gstRate || 18);
-  const [rate, setRate] = useState(initialData?.rate || 0);
-  const [discountPercent, setDiscountPercent] = useState(initialData?.discountPercent || 0);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [loadingItems, setLoadingItems] = useState(true);
+  const [itemBids, setItemBids] = useState<Record<string, ItemBid>>({});
   const [additionalCharges, setAdditionalCharges] = useState<AdditionalCharge[]>(
     initialData?.additionalCharges || []
   );
@@ -59,17 +87,93 @@ export const BidFormInvoice = ({
   const [deliveryDays, setDeliveryDays] = useState(initialData?.deliveryDays || 7);
   const [termsAndConditions, setTermsAndConditions] = useState(initialData?.termsAndConditions || '');
 
+  // Fetch line items from backend
+  useEffect(() => {
+    const fetchLineItems = async () => {
+      setLoadingItems(true);
+      const { data, error } = await supabase
+        .from('requirement_items')
+        .select('*')
+        .eq('requirement_id', requirementId);
+
+      if (!error && data && data.length > 0) {
+        setLineItems(data);
+        // Initialize item bids
+        const initialBids: Record<string, ItemBid> = {};
+        data.forEach(item => {
+          initialBids[item.id] = {
+            rate: 0,
+            hsnCode: '',
+            gstRate: 18,
+            discountPercent: 0,
+          };
+        });
+        setItemBids(initialBids);
+      } else {
+        // No line items - create a single item from requirement
+        const singleItem: LineItem = {
+          id: 'main',
+          item_name: requirementTitle,
+          quantity: requirementQuantity,
+          unit: requirementUnit,
+          category: '',
+        };
+        setLineItems([singleItem]);
+        setItemBids({
+          main: {
+            rate: initialData?.items?.[0]?.rate || 0,
+            hsnCode: initialData?.items?.[0]?.hsnCode || '',
+            gstRate: initialData?.items?.[0]?.gstRate || 18,
+            discountPercent: initialData?.items?.[0]?.discountPercent || 0,
+          },
+        });
+      }
+      setLoadingItems(false);
+    };
+
+    fetchLineItems();
+  }, [requirementId, requirementTitle, requirementQuantity, requirementUnit]);
+
+  const updateItemBid = (itemId: string, field: keyof ItemBid, value: number | string) => {
+    setItemBids(prev => ({
+      ...prev,
+      [itemId]: {
+        ...prev[itemId],
+        [field]: typeof value === 'string' && field !== 'hsnCode' ? Number(value) : value,
+      },
+    }));
+  };
+
+  // Calculate line totals
+  const calculateLineTotal = (item: LineItem, bid: ItemBid) => {
+    const amount = bid.rate * item.quantity;
+    const discount = amount * (bid.discountPercent / 100);
+    return amount - discount;
+  };
+
   // Calculations
-  const productAmount = rate * quantity;
-  const discountAmount = productAmount * (discountPercent / 100);
-  const productNetAmount = productAmount - discountAmount;
-  const additionalChargesTotal = additionalCharges.reduce((sum, charge) => sum + (charge.amount || 0), 0);
-  const taxableValue = productNetAmount + additionalChargesTotal;
-  const gstAmount = taxableValue * (gstRate / 100);
-  const grandTotal = taxableValue + gstAmount;
-  const cgst = gstType === 'intra' ? gstAmount / 2 : 0;
-  const sgst = gstType === 'intra' ? gstAmount / 2 : 0;
-  const igst = gstType === 'inter' ? gstAmount : 0;
+  const subtotal = lineItems.reduce((sum, item) => {
+    const bid = itemBids[item.id];
+    if (!bid) return sum;
+    return sum + calculateLineTotal(item, bid);
+  }, 0);
+
+  const additionalChargesTotal = additionalCharges.reduce((sum, c) => sum + (c.amount || 0), 0);
+  const taxableValue = subtotal + additionalChargesTotal;
+  
+  // Calculate total GST (weighted by each item's GST rate)
+  const totalGst = lineItems.reduce((sum, item) => {
+    const bid = itemBids[item.id];
+    if (!bid) return sum;
+    const lineTotal = calculateLineTotal(item, bid);
+    const proportionalAdditional = subtotal > 0 ? (lineTotal / subtotal) * additionalChargesTotal : 0;
+    return sum + (lineTotal + proportionalAdditional) * (bid.gstRate / 100);
+  }, 0);
+
+  const grandTotal = taxableValue + totalGst;
+  const cgst = gstType === 'intra' ? totalGst / 2 : 0;
+  const sgst = gstType === 'intra' ? totalGst / 2 : 0;
+  const igst = gstType === 'inter' ? totalGst : 0;
 
   const addCharge = () => {
     setAdditionalCharges([
@@ -79,32 +183,47 @@ export const BidFormInvoice = ({
   };
 
   const removeCharge = (id: string) => {
-    setAdditionalCharges(additionalCharges.filter((c) => c.id !== id));
+    setAdditionalCharges(additionalCharges.filter(c => c.id !== id));
   };
 
   const updateCharge = (id: string, field: 'description' | 'amount', value: string | number) => {
     setAdditionalCharges(
-      additionalCharges.map((c) =>
+      additionalCharges.map(c =>
         c.id === id ? { ...c, [field]: field === 'amount' ? Number(value) : value } : c
       )
     );
   };
 
+  const allItemsHaveRate = lineItems.every(item => itemBids[item.id]?.rate > 0);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (rate <= 0 || deliveryDays <= 0) return;
+    if (!allItemsHaveRate || deliveryDays <= 0) return;
+
+    const items = lineItems.map(item => {
+      const bid = itemBids[item.id];
+      return {
+        itemId: item.id,
+        itemName: item.item_name,
+        quantity: item.quantity,
+        unit: item.unit,
+        rate: bid.rate,
+        hsnCode: bid.hsnCode,
+        gstRate: bid.gstRate,
+        discountPercent: bid.discountPercent,
+        lineTotal: calculateLineTotal(item, bid),
+      };
+    });
 
     onSubmit({
-      rate,
-      hsnCode,
-      gstRate,
-      discountPercent,
+      items,
       deliveryDays,
       additionalCharges,
       gstType,
       termsAndConditions,
+      subtotal,
       taxableValue,
-      totalGst: gstAmount,
+      totalGst,
       grandTotal,
     });
   };
@@ -113,8 +232,17 @@ export const BidFormInvoice = ({
     return value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
+  if (loadingItems) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading items...</span>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="bg-background border border-border rounded-lg overflow-hidden max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="bg-background border border-border rounded-lg overflow-hidden">
       {/* Header */}
       <div className="bg-primary text-primary-foreground text-center py-3">
         <h2 className="text-lg font-semibold tracking-wide">QUOTATION</h2>
@@ -128,7 +256,7 @@ export const BidFormInvoice = ({
             <Input
               type="number"
               value={deliveryDays}
-              onChange={(e) => setDeliveryDays(Number(e.target.value))}
+              onChange={e => setDeliveryDays(Number(e.target.value))}
               className="w-20 h-9 text-center border-border"
               min={1}
               required
@@ -137,93 +265,176 @@ export const BidFormInvoice = ({
           </div>
         </div>
 
-        {/* Item Details Card */}
+        {/* Items Table */}
         <div className="border border-border rounded-md overflow-hidden">
           <div className="bg-muted/50 px-4 py-2 border-b border-border">
-            <span className="text-sm font-medium text-foreground">Item Details</span>
+            <span className="text-sm font-medium text-foreground">Line Items ({lineItems.length})</span>
           </div>
-          <div className="p-4 space-y-4">
-            {/* Product Info */}
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground uppercase tracking-wide">Product</span>
-              <span className="font-medium text-foreground">{productName}</span>
-            </div>
+          
+          {/* Table Header */}
+          <div className="hidden md:grid md:grid-cols-12 gap-2 px-4 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b border-border">
+            <div className="col-span-3">Item</div>
+            <div className="col-span-1 text-center">Qty</div>
+            <div className="col-span-2">HSN</div>
+            <div className="col-span-2">Rate (₹)</div>
+            <div className="col-span-1 text-center">GST%</div>
+            <div className="col-span-1 text-center">Disc%</div>
+            <div className="col-span-2 text-right">Total</div>
+          </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {/* HSN Code */}
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">HSN Code</Label>
-                <Input
-                  type="text"
-                  value={hsnCode}
-                  onChange={(e) => setHsnCode(e.target.value)}
-                  placeholder="e.g. 7214"
-                  className="h-9"
-                />
-              </div>
+          {/* Items */}
+          <div className="divide-y divide-border">
+            {lineItems.map((item, index) => {
+              const bid = itemBids[item.id] || { rate: 0, hsnCode: '', gstRate: 18, discountPercent: 0 };
+              const lineTotal = calculateLineTotal(item, bid);
 
-              {/* GST Rate */}
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">GST Rate</Label>
-                <Select value={gstRate.toString()} onValueChange={(v) => setGstRate(Number(v))}>
-                  <SelectTrigger className="h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GST_RATE_OPTIONS.map((r) => (
-                      <SelectItem key={r} value={r.toString()}>{r}%</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              return (
+                <div key={item.id} className="p-4">
+                  {/* Mobile View */}
+                  <div className="md:hidden space-y-3">
+                    <div>
+                      <span className="text-xs text-muted-foreground">#{index + 1}</span>
+                      <p className="font-medium text-foreground">{item.item_name}</p>
+                      {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {item.quantity.toLocaleString('en-IN')} {item.unit}
+                      </p>
+                      {(item.budget_min || item.budget_max) && (
+                        <p className="text-xs text-muted-foreground">
+                          Budget: {item.budget_min && item.budget_max
+                            ? `₹${item.budget_min.toLocaleString()} - ₹${item.budget_max.toLocaleString()}`
+                            : item.budget_max
+                              ? `Up to ₹${item.budget_max.toLocaleString()}`
+                              : `From ₹${item.budget_min?.toLocaleString()}`}
+                        </p>
+                      )}
+                    </div>
 
-              {/* Quantity */}
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Quantity</Label>
-                <div className="h-9 px-3 flex items-center bg-muted/30 border border-border rounded-md text-sm">
-                  {quantity.toLocaleString('en-IN')} {unit}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">HSN Code</Label>
+                        <Input
+                          type="text"
+                          value={bid.hsnCode}
+                          onChange={e => updateItemBid(item.id, 'hsnCode', e.target.value)}
+                          placeholder="e.g. 7214"
+                          className="h-9 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Rate (₹/{item.unit})</Label>
+                        <Input
+                          type="number"
+                          value={bid.rate || ''}
+                          onChange={e => updateItemBid(item.id, 'rate', e.target.value)}
+                          placeholder="0.00"
+                          className="h-9 mt-1"
+                          min={0}
+                          step="0.01"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">GST Rate</Label>
+                        <Select value={bid.gstRate.toString()} onValueChange={v => updateItemBid(item.id, 'gstRate', v)}>
+                          <SelectTrigger className="h-9 mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GST_RATE_OPTIONS.map(r => (
+                              <SelectItem key={r} value={r.toString()}>{r}%</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Discount %</Label>
+                        <Input
+                          type="number"
+                          value={bid.discountPercent || ''}
+                          onChange={e => updateItemBid(item.id, 'discountPercent', e.target.value)}
+                          placeholder="0"
+                          className="h-9 mt-1"
+                          min={0}
+                          max={100}
+                          step="0.1"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <span className="text-sm text-muted-foreground">Line Total</span>
+                      <span className="font-semibold text-foreground">₹{formatCurrency(lineTotal)}</span>
+                    </div>
+                  </div>
+
+                  {/* Desktop View */}
+                  <div className="hidden md:grid md:grid-cols-12 gap-2 items-center">
+                    <div className="col-span-3">
+                      <p className="font-medium text-foreground text-sm">{item.item_name}</p>
+                      {item.description && <p className="text-xs text-muted-foreground truncate">{item.description}</p>}
+                    </div>
+                    <div className="col-span-1 text-center text-sm">
+                      {item.quantity.toLocaleString('en-IN')} {item.unit}
+                    </div>
+                    <div className="col-span-2">
+                      <Input
+                        type="text"
+                        value={bid.hsnCode}
+                        onChange={e => updateItemBid(item.id, 'hsnCode', e.target.value)}
+                        placeholder="HSN"
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Input
+                        type="number"
+                        value={bid.rate || ''}
+                        onChange={e => updateItemBid(item.id, 'rate', e.target.value)}
+                        placeholder="Rate"
+                        className="h-8 text-sm"
+                        min={0}
+                        step="0.01"
+                        required
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Select value={bid.gstRate.toString()} onValueChange={v => updateItemBid(item.id, 'gstRate', v)}>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {GST_RATE_OPTIONS.map(r => (
+                            <SelectItem key={r} value={r.toString()}>{r}%</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="col-span-1">
+                      <Input
+                        type="number"
+                        value={bid.discountPercent || ''}
+                        onChange={e => updateItemBid(item.id, 'discountPercent', e.target.value)}
+                        placeholder="0"
+                        className="h-8 text-sm text-center"
+                        min={0}
+                        max={100}
+                        step="0.1"
+                      />
+                    </div>
+                    <div className="col-span-2 text-right font-medium text-sm">
+                      ₹{formatCurrency(lineTotal)}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
 
-              {/* Rate */}
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Rate (₹/{unit})</Label>
-                <Input
-                  type="number"
-                  value={rate || ''}
-                  onChange={(e) => setRate(Number(e.target.value))}
-                  placeholder="0.00"
-                  className="h-9"
-                  min={0}
-                  step="0.01"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Discount */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <Label className="text-xs text-muted-foreground whitespace-nowrap">Discount %</Label>
-              <Input
-                type="number"
-                value={discountPercent || ''}
-                onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                placeholder="0"
-                className="h-9 w-24"
-                min={0}
-                max={100}
-                step="0.1"
-              />
-              {discountAmount > 0 && (
-                <span className="text-sm text-green-600">-₹{formatCurrency(discountAmount)}</span>
-              )}
-            </div>
-
-            {/* Product Amount */}
-            <div className="flex justify-between items-center pt-2 border-t border-border">
-              <span className="text-sm text-muted-foreground">Line Total</span>
-              <span className="font-semibold text-foreground">₹{formatCurrency(productNetAmount)}</span>
-            </div>
+          {/* Subtotal */}
+          <div className="px-4 py-3 bg-muted/30 border-t border-border flex justify-between items-center">
+            <span className="text-sm font-medium text-muted-foreground">Subtotal</span>
+            <span className="font-semibold text-foreground">₹{formatCurrency(subtotal)}</span>
           </div>
         </div>
 
@@ -239,10 +450,10 @@ export const BidFormInvoice = ({
               <Plus className="h-3 w-3" /> Add
             </button>
           </div>
-          
+
           {additionalCharges.length > 0 ? (
             <div className="divide-y divide-border">
-              {additionalCharges.map((charge) => (
+              {additionalCharges.map(charge => (
                 <div key={charge.id} className="p-3 flex items-center gap-3">
                   <button
                     type="button"
@@ -254,7 +465,7 @@ export const BidFormInvoice = ({
                   <Input
                     type="text"
                     value={charge.description}
-                    onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
+                    onChange={e => updateCharge(charge.id, 'description', e.target.value)}
                     placeholder="Description (e.g., Transport)"
                     className="h-8 flex-1"
                   />
@@ -263,7 +474,7 @@ export const BidFormInvoice = ({
                     <Input
                       type="number"
                       value={charge.amount || ''}
-                      onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
+                      onChange={e => updateCharge(charge.id, 'amount', e.target.value)}
                       placeholder="0"
                       className="h-8 w-24 text-right"
                       min={0}
@@ -284,7 +495,7 @@ export const BidFormInvoice = ({
           <Label className="text-sm font-medium text-foreground">GST Type</Label>
           <RadioGroup
             value={gstType}
-            onValueChange={(v) => setGstType(v as 'intra' | 'inter')}
+            onValueChange={v => setGstType(v as 'intra' | 'inter')}
             className="flex flex-wrap gap-4"
           >
             <div className="flex items-center gap-2">
@@ -306,7 +517,7 @@ export const BidFormInvoice = ({
           <div className="p-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>₹{formatCurrency(productNetAmount)}</span>
+              <span>₹{formatCurrency(subtotal)}</span>
             </div>
             {additionalChargesTotal > 0 && (
               <div className="flex justify-between">
@@ -318,25 +529,25 @@ export const BidFormInvoice = ({
               <span className="text-muted-foreground">Taxable Value</span>
               <span className="font-medium">₹{formatCurrency(taxableValue)}</span>
             </div>
-            
+
             {gstType === 'inter' ? (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">IGST @ {gstRate}%</span>
+                <span className="text-muted-foreground">IGST</span>
                 <span>₹{formatCurrency(igst)}</span>
               </div>
             ) : (
               <>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">CGST @ {gstRate / 2}%</span>
+                  <span className="text-muted-foreground">CGST</span>
                   <span>₹{formatCurrency(cgst)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">SGST @ {gstRate / 2}%</span>
+                  <span className="text-muted-foreground">SGST</span>
                   <span>₹{formatCurrency(sgst)}</span>
                 </div>
               </>
             )}
-            
+
             <div className="flex justify-between pt-3 mt-2 border-t-2 border-primary">
               <span className="font-bold text-foreground">Grand Total</span>
               <span className="font-bold text-primary text-base">₹{formatCurrency(grandTotal)}</span>
@@ -350,7 +561,7 @@ export const BidFormInvoice = ({
           <Textarea
             id="bid-terms"
             value={termsAndConditions}
-            onChange={(e) => setTermsAndConditions(e.target.value)}
+            onChange={e => setTermsAndConditions(e.target.value)}
             placeholder="Enter any terms and conditions..."
             rows={2}
             className="resize-none"
@@ -360,7 +571,7 @@ export const BidFormInvoice = ({
         {/* Submit */}
         <Button
           type="submit"
-          disabled={submitting || rate <= 0 || deliveryDays <= 0}
+          disabled={submitting || !allItemsHaveRate || deliveryDays <= 0}
           className="w-full h-11"
           size="lg"
         >
@@ -374,8 +585,8 @@ export const BidFormInvoice = ({
           )}
         </Button>
 
-        {rate <= 0 && (
-          <p className="text-center text-xs text-destructive">Please enter a rate to submit your bid</p>
+        {!allItemsHaveRate && (
+          <p className="text-center text-xs text-destructive">Please enter a rate for all items</p>
         )}
       </div>
     </form>

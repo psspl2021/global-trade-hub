@@ -363,15 +363,24 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const totalOrderValue = data.grandTotal;
       const serviceFee = totalOrderValue * feeRate;
       const totalAmount = totalOrderValue + serviceFee;
-      const bidAmountToStore = data.rate * (1 + feeRate);
+      
+      // Use first item rate for L1 comparison
+      const firstItemRate = data.items[0]?.rate || 0;
+      const bidAmountToStore = firstItemRate * (1 + feeRate);
 
-      // Build terms string with all bid details - include rate for later retrieval
+      // Build terms string with all bid details
       let termsString = '';
-      termsString += `Rate Per Unit: ₹${data.rate}\n`;
-      if (data.hsnCode) termsString += `HSN Code: ${data.hsnCode}\n`;
-      termsString += `GST Rate: ${data.gstRate}%\n`;
-      termsString += `GST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
-      if (data.discountPercent > 0) termsString += `Discount: ${data.discountPercent}%\n`;
+      termsString += `Total Items: ${data.items.length}\n`;
+      data.items.forEach((item, index) => {
+        termsString += `\n--- Item ${index + 1}: ${item.itemName} ---\n`;
+        termsString += `Rate: ₹${item.rate}/${item.unit}\n`;
+        termsString += `Quantity: ${item.quantity} ${item.unit}\n`;
+        if (item.hsnCode) termsString += `HSN Code: ${item.hsnCode}\n`;
+        termsString += `GST Rate: ${item.gstRate}%\n`;
+        if (item.discountPercent > 0) termsString += `Discount: ${item.discountPercent}%\n`;
+        termsString += `Line Total: ₹${item.lineTotal.toLocaleString('en-IN')}\n`;
+      });
+      termsString += `\nGST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
       if (data.additionalCharges.length > 0) {
         termsString += 'Additional Charges:\n';
         data.additionalCharges.forEach(charge => {
@@ -380,6 +389,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           }
         });
       }
+      termsString += `\nSubtotal: ₹${data.subtotal.toLocaleString('en-IN')}\n`;
       termsString += `Taxable Value: ₹${data.taxableValue.toLocaleString('en-IN')}\n`;
       termsString += `Total GST: ₹${data.totalGst.toLocaleString('en-IN')}\n`;
       termsString += `Grand Total: ₹${data.grandTotal.toLocaleString('en-IN')}\n`;
@@ -402,6 +412,23 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         .single();
 
       if (bidError) throw bidError;
+
+      // Insert bid items if there are line items
+      if (bidData && data.items.length > 0 && data.items[0].itemId !== 'main') {
+        const bidItemsToInsert = data.items.map(item => ({
+          bid_id: bidData.id,
+          requirement_item_id: item.itemId,
+          unit_price: item.rate,
+          quantity: item.quantity,
+          total: item.lineTotal,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('bid_items')
+          .insert(bidItemsToInsert);
+
+        if (itemsError) console.error('Error inserting bid items:', itemsError);
+      }
 
       // Update subscription based on bid type
       if (isUsingPremiumBid) {
@@ -455,15 +482,24 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const totalOrderValue = data.grandTotal;
       const serviceFee = totalOrderValue * feeRate;
       const totalAmount = totalOrderValue + serviceFee;
-      const bidAmountToStore = data.rate * (1 + feeRate);
+      
+      // Use first item rate for L1 comparison
+      const firstItemRate = data.items[0]?.rate || 0;
+      const bidAmountToStore = firstItemRate * (1 + feeRate);
 
-      // Build terms string - include rate for later retrieval
+      // Build terms string
       let termsString = '';
-      termsString += `Rate Per Unit: ₹${data.rate}\n`;
-      if (data.hsnCode) termsString += `HSN Code: ${data.hsnCode}\n`;
-      termsString += `GST Rate: ${data.gstRate}%\n`;
-      termsString += `GST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
-      if (data.discountPercent > 0) termsString += `Discount: ${data.discountPercent}%\n`;
+      termsString += `Total Items: ${data.items.length}\n`;
+      data.items.forEach((item, index) => {
+        termsString += `\n--- Item ${index + 1}: ${item.itemName} ---\n`;
+        termsString += `Rate: ₹${item.rate}/${item.unit}\n`;
+        termsString += `Quantity: ${item.quantity} ${item.unit}\n`;
+        if (item.hsnCode) termsString += `HSN Code: ${item.hsnCode}\n`;
+        termsString += `GST Rate: ${item.gstRate}%\n`;
+        if (item.discountPercent > 0) termsString += `Discount: ${item.discountPercent}%\n`;
+        termsString += `Line Total: ₹${item.lineTotal.toLocaleString('en-IN')}\n`;
+      });
+      termsString += `\nGST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
       if (data.additionalCharges.length > 0) {
         termsString += 'Additional Charges:\n';
         data.additionalCharges.forEach(charge => {
@@ -472,6 +508,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           }
         });
       }
+      termsString += `\nSubtotal: ₹${data.subtotal.toLocaleString('en-IN')}\n`;
       termsString += `Taxable Value: ₹${data.taxableValue.toLocaleString('en-IN')}\n`;
       termsString += `Total GST: ₹${data.totalGst.toLocaleString('en-IN')}\n`;
       termsString += `Grand Total: ₹${data.grandTotal.toLocaleString('en-IN')}\n`;
@@ -710,192 +747,37 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       )}
                     </div>
                     
-                    {/* Per-line-item bidding */}
-                    {hasLineItems ? (
-                      <div className="space-y-3">
-                        <p className="text-sm text-muted-foreground">Enter your bid per item:</p>
-                        <div className="border rounded-lg divide-y">
-                          {lineItems.map((item) => (
-                            <div key={item.id} className="p-3 space-y-2">
-                              <div className="flex justify-between items-start gap-4">
-                                <div className="flex-1">
-                                  <p className="font-medium">{item.item_name}</p>
-                                  {item.description && <p className="text-muted-foreground text-xs">{item.description}</p>}
-                                  <p className="text-xs text-muted-foreground mt-1">{Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {item.unit}</p>
-                                  {(item.budget_min || item.budget_max) && (
-                                    <p className="text-xs text-muted-foreground">
-                                      Budget: {item.budget_min && item.budget_max 
-                                        ? `₹${item.budget_min.toLocaleString()} - ₹${item.budget_max.toLocaleString()}`
-                                        : item.budget_max 
-                                          ? `Up to ₹${item.budget_max.toLocaleString()}`
-                                          : `From ₹${item.budget_min?.toLocaleString()}`
-                                      }
-                                    </p>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm">₹</span>
-                                  <Input
-                                    type="number"
-                                    placeholder="Unit price"
-                                    className="w-28"
-                                    value={itemBids[item.id]?.unitPrice || ''}
-                                    onChange={(e) => setItemBids(prev => ({
-                                      ...prev,
-                                      [item.id]: { ...prev[item.id], unitPrice: Number(e.target.value) }
-                                    }))}
-                                  />
-                                  <span className="text-xs text-muted-foreground">/{item.unit}</span>
-                                </div>
-                              </div>
-                              {itemBids[item.id]?.unitPrice > 0 && (
-                                <div className="text-right text-sm text-muted-foreground">
-                                  Subtotal: ₹{((itemBids[item.id]?.unitPrice || 0) * item.quantity).toLocaleString()}
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                    {/* Unified Invoice-style bid form - loads items from backend */}
+                    <BidFormInvoice
+                      key={isEditing ? `edit-${selectedRequirement.id}` : `new-${selectedRequirement.id}`}
+                      requirementId={selectedRequirement.id}
+                      requirementTitle={selectedRequirement.title}
+                      requirementQuantity={selectedRequirement.quantity}
+                      requirementUnit={selectedRequirement.unit}
+                      onSubmit={isEditing ? handleBidUpdate : handleBidSubmit}
+                      submitting={submitting}
+                      isEditing={isEditing}
+                      initialData={isEditing && myBidDetails[selectedRequirement.id] ? {
+                        deliveryDays: myBidDetails[selectedRequirement.id].delivery_timeline_days,
+                        termsAndConditions: myBidDetails[selectedRequirement.id].terms_and_conditions || '',
+                      } : undefined}
+                    />
+
+                    {isUsingPremiumBid && (
+                      <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                          <strong>Using Premium Bid</strong>
                         </div>
-                        
-                        {itemSubtotal > 0 && (
-                          <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
-                            <div className="flex justify-between font-medium"><span>Total Bid Amount:</span><span>₹{itemSubtotal.toLocaleString()}</span></div>
-                          </div>
-                        )}
+                        <p className="mt-1">Balance after: {(subscription?.premium_bids_balance ?? 1) - 1} bids</p>
                       </div>
-                    ) : (
-                      /* Invoice-style bid form for requirements without line items */
-                      <BidFormInvoice
-                        key={isEditing ? `edit-${selectedRequirement.id}` : `new-${selectedRequirement.id}`}
-                        productName={selectedRequirement.title}
-                        quantity={selectedRequirement.quantity}
-                        unit={selectedRequirement.unit}
-                        onSubmit={isEditing ? handleBidUpdate : handleBidSubmit}
-                        submitting={submitting}
-                        isEditing={isEditing}
-                        initialData={isEditing && myBidDetails[selectedRequirement.id] ? {
-                          rate: Math.round(myBidDetails[selectedRequirement.id].bid_amount / (1 + getServiceFeeRate(selectedRequirement.trade_type))),
-                          deliveryDays: myBidDetails[selectedRequirement.id].delivery_timeline_days,
-                          termsAndConditions: myBidDetails[selectedRequirement.id].terms_and_conditions || '',
-                        } : undefined}
-                      />
                     )}
 
-                    {hasLineItems && (
-                      <>
-                        {isUsingPremiumBid && (
-                          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
-                            <div className="flex items-center gap-2">
-                              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                              <strong>Using Premium Bid</strong>
-                            </div>
-                            <p className="mt-1">Balance after: {(subscription?.premium_bids_balance ?? 1) - 1} bids</p>
-                          </div>
-                        )}
-
-                        {isPaidBid && (
-                          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800 dark:bg-orange-950/30 dark:border-orange-800 dark:text-orange-400">
-                            <strong>Paid Bid:</strong> You've used all {subscription?.bids_limit} free bids this month. 
-                            This bid will cost ₹{BID_FEE}.
-                          </div>
-                        )}
-
-                        <Button 
-                          type="button"
-                          onClick={async () => {
-                            if (!allItemsBidded || !selectedRequirement || !subscription) return;
-                            
-                            setSubmitting(true);
-                            try {
-                              const standardFeeRate = getServiceFeeRate(selectedRequirement.trade_type);
-                              const feeRate = isUsingPremiumBid ? 0.003 : standardFeeRate;
-                              
-                              const bidSubtotal = lineItems.reduce((sum, item) => {
-                                const bid = itemBids[item.id];
-                                return sum + (bid?.unitPrice || 0) * item.quantity;
-                              }, 0);
-                              
-                              const serviceFee = bidSubtotal * feeRate;
-                              const totalAmount = bidSubtotal + serviceFee;
-                              
-                              // For line items, store the first item rate as bid_amount for L1 comparison
-                              const firstItemRate = itemBids[lineItems[0]?.id]?.unitPrice || 0;
-                              const bidAmountToStore = firstItemRate * (1 + feeRate);
-                              
-                              if (isEditing) {
-                                // Update existing bid
-                                const myBid = myBidDetails[selectedRequirement.id];
-                                if (!myBid) throw new Error('Bid not found');
-                                
-                                const { error } = await supabase
-                                  .from('bids')
-                                  .update({
-                                    bid_amount: bidAmountToStore,
-                                    service_fee: serviceFee,
-                                    total_amount: totalAmount,
-                                    terms_and_conditions: `Rate Per Unit: ₹${firstItemRate}\nTotal Items: ${lineItems.length}`,
-                                  })
-                                  .eq('id', myBid.id)
-                                  .eq('supplier_id', userId);
-                                
-                                if (error) throw error;
-                                toast({ title: 'Success', description: 'Bid updated successfully!' });
-                              } else {
-                                // Insert new bid
-                                const { data: bidData, error: bidError } = await supabase
-                                  .from('bids')
-                                  .insert({
-                                    requirement_id: selectedRequirement.id,
-                                    supplier_id: userId,
-                                    bid_amount: bidAmountToStore,
-                                    service_fee: serviceFee,
-                                    total_amount: totalAmount,
-                                    delivery_timeline_days: 7,
-                                    terms_and_conditions: `Rate Per Unit: ₹${firstItemRate}\nTotal Items: ${lineItems.length}`,
-                                    is_paid_bid: isPaidBid ? true : false,
-                                  })
-                                  .select('id')
-                                  .single();
-                                
-                                if (bidError) throw bidError;
-                                
-                                // Update subscription
-                                if (isUsingPremiumBid) {
-                                  await supabase
-                                    .from('subscriptions')
-                                    .update({ premium_bids_balance: subscription.premium_bids_balance - 1 })
-                                    .eq('id', subscription.id);
-                                } else if (hasFreeBidsRemaining) {
-                                  await supabase
-                                    .from('subscriptions')
-                                    .update({ bids_used_this_month: subscription.bids_used_this_month + 1 })
-                                    .eq('id', subscription.id);
-                                }
-                                
-                                toast({ title: 'Success', description: 'Bid submitted successfully!' });
-                              }
-                              
-                              setIsEditing(false);
-                              setSelectedRequirement(null);
-                              setLineItems([]);
-                              setItemBids({});
-                              fetchRequirements();
-                              fetchSubscription();
-                            } catch (error: any) {
-                              toast({ title: 'Error', description: error.message, variant: 'destructive' });
-                            }
-                            setSubmitting(false);
-                          }}
-                          disabled={submitting || !allItemsBidded} 
-                          className="w-full"
-                        >
-                          {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                          {isEditing ? 'Update Bid' : (isPaidBid ? `Submit Bid (₹${BID_FEE})` : 'Submit Bid')}
-                        </Button>
-                        {!allItemsBidded && (
-                          <p className="text-xs text-muted-foreground text-center">Please enter a bid for all items</p>
-                        )}
-                      </>
+                    {isPaidBid && (
+                      <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800 dark:bg-orange-950/30 dark:border-orange-800 dark:text-orange-400">
+                        <strong>Paid Bid:</strong> You've used all {subscription?.bids_limit} free bids this month. 
+                        This bid will cost ₹{BID_FEE}.
+                      </div>
                     )}
                   </div>
                 )}
