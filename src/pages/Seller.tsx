@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import { 
   ArrowRight, 
   Users, 
@@ -100,6 +102,30 @@ const features = [
 const Seller = () => {
   const navigate = useNavigate();
 
+  // SEO optimization
+  useSEO({
+    title: "Sell on ProcureSaathi - B2B Supplier Portal",
+    description: "List products, reach 500+ verified buyers in 50+ countries. Zero commission, AI-powered tools, integrated logistics.",
+    canonical: "https://www.procuresaathi.com/seller",
+    keywords: "B2B supplier, sell products, export platform, verified buyers, global marketplace"
+  });
+
+  useEffect(() => {
+    // Inject structured data
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Sell on ProcureSaathi - B2B Supplier Portal",
+      "description": "List products, reach 500+ verified buyers in 50+ countries. Zero commission, AI-powered tools.",
+      "url": "https://www.procuresaathi.com/seller"
+    }, 'seller-webpage-schema');
+    
+    injectStructuredData(getBreadcrumbSchema([
+      { name: "Home", url: "https://www.procuresaathi.com" },
+      { name: "Seller", url: "https://www.procuresaathi.com/seller" }
+    ]), 'seller-breadcrumb-schema');
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <PageHeader />
@@ -146,7 +172,7 @@ const Seller = () => {
             {stats.map((stat) => (
               <Card key={stat.label} className="border border-border bg-card">
                 <CardContent className="p-6 text-center">
-                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary" />
+                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary" aria-hidden="true" />
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
                     {stat.value}
                   </div>
@@ -207,7 +233,7 @@ const Seller = () => {
                   <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4">
                     {item.step}
                   </div>
-                  <item.icon className="h-8 w-8 text-primary mb-3" />
+                  <item.icon className="h-8 w-8 text-primary mb-3" aria-hidden="true" />
                   <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                   <p className="text-sm text-muted-foreground">{item.description}</p>
                 </CardContent>
@@ -234,7 +260,7 @@ const Seller = () => {
               <Card key={feature.title} className="border border-border hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                    <feature.icon className="h-6 w-6 text-primary" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground">{feature.description}</p>
@@ -252,7 +278,7 @@ const Seller = () => {
       <section className="py-16 md:py-24 bg-primary">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <Zap className="h-12 w-12 text-primary-foreground mx-auto mb-6" />
+            <Zap className="h-12 w-12 text-primary-foreground mx-auto mb-6" aria-hidden="true" />
             <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
               Ready to Grow Your Business?
             </h2>
