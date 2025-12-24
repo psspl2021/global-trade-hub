@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import {
   Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap,
   ArrowLeft, FileText, Clock, Building2
 } from 'lucide-react';
-import { useSEO } from '@/hooks/useSEO';
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -40,10 +40,79 @@ const PostRFQ = () => {
   const [generatedRFQ, setGeneratedRFQ] = useState<GeneratedRFQ | null>(null);
 
   useSEO({
-    title: 'Post RFQ - AI Powered | ProcureSaathi',
-    description: 'Post your Request for Quotation using AI. Describe your needs and get a complete RFQ generated automatically. Connect with verified Indian suppliers.',
-    keywords: 'RFQ, Request for Quotation, AI RFQ generator, B2B sourcing, procurement India',
+    title: 'AI RFQ Generator - Free Request for Quotation Tool | ProcureSaathi',
+    description: 'Create professional RFQs instantly with AI. Post your procurement requirements and get competitive quotes from 20,000+ verified Indian suppliers. Free B2B sourcing platform.',
+    keywords: 'AI RFQ generator, Request for Quotation, B2B procurement India, supplier quotation, free RFQ tool, procurement automation, Indian manufacturers, industrial sourcing, bulk buying, wholesale suppliers',
+    canonical: 'https://procuresaathi.com/post-rfq',
+    ogImage: 'https://procuresaathi.com/procuresaathi-logo.png',
   });
+
+  // Inject structured data for SEO
+  useEffect(() => {
+    // WebApplication schema for AI RFQ tool
+    injectStructuredData({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'ProcureSaathi AI RFQ Generator',
+      description: 'AI-powered Request for Quotation generator for B2B procurement in India',
+      url: 'https://procuresaathi.com/post-rfq',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'INR',
+        description: 'Free AI-powered RFQ generation'
+      },
+      featureList: [
+        'AI-powered RFQ generation',
+        'Connect with verified suppliers',
+        'Receive competitive quotes',
+        'Secure sealed bidding'
+      ]
+    }, 'rfq-webapp-schema');
+
+    // Breadcrumb schema
+    injectStructuredData(getBreadcrumbSchema([
+      { name: 'Home', url: 'https://procuresaathi.com' },
+      { name: 'Post RFQ', url: 'https://procuresaathi.com/post-rfq' }
+    ]), 'rfq-breadcrumb-schema');
+
+    // HowTo schema for the RFQ process
+    injectStructuredData({
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: 'How to Create an AI-Powered RFQ',
+      description: 'Step-by-step guide to creating a Request for Quotation using AI on ProcureSaathi',
+      totalTime: 'PT5M',
+      step: [
+        {
+          '@type': 'HowToStep',
+          position: 1,
+          name: 'Describe Your Needs',
+          text: 'Enter your product requirements, quantity, and delivery details in the AI generator'
+        },
+        {
+          '@type': 'HowToStep',
+          position: 2,
+          name: 'AI Generates RFQ',
+          text: 'Our AI structures your requirements into a professional procurement document'
+        },
+        {
+          '@type': 'HowToStep',
+          position: 3,
+          name: 'Matched to Suppliers',
+          text: 'Your RFQ is sent to verified suppliers in your product category'
+        },
+        {
+          '@type': 'HowToStep',
+          position: 4,
+          name: 'Receive Quotes',
+          text: 'Get competitive sealed bids from multiple suppliers within hours'
+        }
+      ]
+    }, 'rfq-howto-schema');
+  }, []);
 
   const handleGenerate = async () => {
     if (description.trim().length < 10) {
