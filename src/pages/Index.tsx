@@ -521,11 +521,46 @@ const Index = () => {
             {/* Company Description */}
             <div className="text-center">
               <h3 className="text-xl font-semibold mb-4">#SourceRemotely - The New Reality</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                 Since 2021, ProcureSaathi has revolutionized the B2B sourcing sector as India's first-ever 
                 Reverse Marketplace Platform offering direct procurement services to businesses worldwide. 
                 Our innovative sealed bidding system ensures fair competition while maintaining complete transparency.
               </p>
+              <div className="grid md:grid-cols-2 gap-6 text-left mt-8">
+                <div className="bg-card p-6 rounded-lg border">
+                  <h4 className="font-semibold text-foreground mb-3">For Buyers & Procurement Teams</h4>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    Whether you're sourcing raw materials, industrial equipment, chemicals, textiles, or electronics, 
+                    ProcureSaathi connects you with verified Indian manufacturers and suppliers. Post your requirements 
+                    once and receive competitive sealed bids from multiple suppliers. Our AI-powered matching ensures 
+                    you find the right supplier for your specific needs, whether it's private label manufacturing, 
+                    custom OEM production, or bulk wholesale purchasing. Save 15-30% on procurement costs through 
+                    transparent bidding while reducing sourcing time from weeks to hours.
+                  </p>
+                </div>
+                <div className="bg-card p-6 rounded-lg border">
+                  <h4 className="font-semibold text-foreground mb-3">For Suppliers & Manufacturers</h4>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    Expand your business reach across India and globally with ProcureSaathi's B2B marketplace. 
+                    Access genuine buyer requirements in your product category, submit competitive bids, and win 
+                    new contracts. Our free CRM and GST invoice generator tools help you manage leads, track orders, 
+                    and streamline operations. Join 1000+ verified suppliers already growing their business on our 
+                    platform. From steel and chemicals to textiles and electronics, suppliers across all 23+ categories 
+                    are finding success through our transparent procurement ecosystem.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-8 bg-muted/50 p-6 rounded-lg">
+                <h4 className="font-semibold text-foreground mb-3">Complete B2B Procurement Ecosystem</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  ProcureSaathi offers a complete end-to-end B2B procurement solution covering sourcing, bidding, 
+                  supplier verification, logistics booking, and payment tracking. Our integrated logistics network 
+                  connects you with verified truck operators and warehouse partners across India, ensuring seamless 
+                  delivery of your orders. With features like real-time shipment tracking, automated invoicing, 
+                  GST compliance tools, and dedicated support, we're building India's most trusted B2B sourcing 
+                  platform for the modern digital economy.
+                </p>
+              </div>
             </div>
 
           </div>
