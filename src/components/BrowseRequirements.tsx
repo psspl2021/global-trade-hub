@@ -573,13 +573,17 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
                 </div>
 
-                {lowestRates[selectedRequirement.id] && (
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm font-medium">
-                      Current L1 Rate: ₹{lowestRates[selectedRequirement.id].toLocaleString(undefined, { maximumFractionDigits: 2 })} per {selectedRequirement.unit}
-                    </p>
-                  </div>
-                )}
+                {lowestRates[selectedRequirement.id] && (() => {
+                  const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
+                  const lowestPerUnit = lowestRates[selectedRequirement.id] / (1 + feeRate);
+                  return (
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-sm font-medium">
+                        Current L1 Rate: ₹{Math.round(lowestPerUnit).toLocaleString('en-IN')} per {selectedRequirement.unit}
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {isGuest ? (
                   <div className="p-4 bg-primary/10 rounded-lg text-center space-y-3 border-t pt-4">
@@ -601,37 +605,53 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   (() => {
                     const myBid = myBidDetails[selectedRequirement.id];
                     const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-                    // bid_amount is the per-unit rate (what supplier entered)
-                    const perUnitRate = myBid?.bid_amount || 0;
+                    // bid_amount is stored as perUnitRate * (1 + feeRate), so extract original rate
+                    const storedBidAmount = myBid?.bid_amount || 0;
+                    const perUnitRate = storedBidAmount / (1 + feeRate);
                     const quantity = selectedRequirement.quantity;
                     const totalOrderValue = perUnitRate * quantity;
-                    const perUnitWithFee = perUnitRate * (1 + feeRate);
-                    const isL1 = lowestRates[selectedRequirement.id] && perUnitWithFee <= lowestRates[selectedRequirement.id];
+                    // For L1 comparison, we compare stored amounts (which include fees)
+                    const lowestL1Rate = lowestRates[selectedRequirement.id];
+                    const lowestPerUnit = lowestL1Rate ? lowestL1Rate / (1 + feeRate) : 0;
+                    const isL1 = lowestL1Rate && storedBidAmount <= lowestL1Rate;
+                    
+                    // GST calculation
+                    const gstPercent = 18;
+                    const gstAmount = totalOrderValue * (gstPercent / 100);
+                    const grandTotal = totalOrderValue + gstAmount;
                     
                     return (
                       <div className="space-y-4 border-t pt-4">
                         <h4 className="font-medium">Your Submitted Bid</h4>
                         
-                        {/* Bid details - simplified */}
+                        {/* Bid details */}
                         <div className="bg-muted/50 rounded-lg p-4">
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
                               <span className="text-muted-foreground">Your Rate:</span>
-                              <p className="font-bold text-primary">₹{perUnitRate.toLocaleString('en-IN', { maximumFractionDigits: 2 })} per {selectedRequirement.unit}</p>
+                              <p className="font-bold text-primary">₹{Math.round(perUnitRate).toLocaleString('en-IN')} per {selectedRequirement.unit}</p>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Delivery:</span>
                               <p className="font-medium">{myBid?.delivery_timeline_days} days</p>
                             </div>
-                            <div className="col-span-2">
+                            <div>
                               <span className="text-muted-foreground">Total Order Value:</span>
-                              <p className="font-bold text-lg">₹{totalOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
+                              <p className="font-bold text-lg">₹{Math.round(totalOrderValue).toLocaleString('en-IN')}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">GST ({gstPercent}%):</span>
+                              <p className="font-medium">₹{Math.round(gstAmount).toLocaleString('en-IN')}</p>
+                            </div>
+                            <div className="col-span-2 border-t pt-2 mt-1">
+                              <span className="text-muted-foreground">Grand Total (incl. GST):</span>
+                              <p className="font-bold text-xl text-primary">₹{Math.round(grandTotal).toLocaleString('en-IN')}</p>
                             </div>
                           </div>
                         </div>
                         
                         {/* L1 comparison */}
-                        {lowestRates[selectedRequirement.id] && (
+                        {lowestL1Rate && (
                           <div className={`rounded-lg p-3 ${isL1 ? 'bg-green-500/10 border border-green-500/30' : 'bg-orange-500/10 border border-orange-500/30'}`}>
                             {isL1 ? (
                               <p className="text-sm font-medium text-green-600">You have the L1 (lowest) bid!</p>
@@ -639,10 +659,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                               <div className="text-sm">
                                 <p className="font-medium text-orange-600">A lower bid exists</p>
                                 <p className="text-muted-foreground mt-1">
-                                  L1 Rate: ₹{lowestRates[selectedRequirement.id].toLocaleString('en-IN', { maximumFractionDigits: 2 })} per {selectedRequirement.unit}
+                                  L1 Rate: ₹{Math.round(lowestPerUnit).toLocaleString('en-IN')} per {selectedRequirement.unit}
                                 </p>
                                 <p className="text-orange-600 mt-1">
-                                  Your bid is ₹{(perUnitWithFee - lowestRates[selectedRequirement.id]).toLocaleString('en-IN', { maximumFractionDigits: 2 })} higher per {selectedRequirement.unit}
+                                  Your bid is ₹{Math.round(perUnitRate - lowestPerUnit).toLocaleString('en-IN')} higher per {selectedRequirement.unit}
                                 </p>
                               </div>
                             )}
@@ -654,8 +674,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                           className="w-full"
                           onClick={() => {
                             setIsEditing(true);
-                            // Pre-fill form with existing values
-                            form.setValue('bid_amount', perUnitRate);
+                            // Pre-fill form with original per-unit rate
+                            form.setValue('bid_amount', Math.round(perUnitRate));
                             form.setValue('delivery_timeline_days', myBid?.delivery_timeline_days || 7);
                             form.setValue('terms_and_conditions', myBid?.terms_and_conditions || '');
                           }}
@@ -849,12 +869,16 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       </div>
                     </div>
                     <div className="text-right flex flex-col items-end gap-2">
-                      {lowestRates[req.id] && (
-                        <p className="text-sm">
-                          <span className="text-muted-foreground">L1 Rate: </span>
-                          <span className="font-medium">₹{lowestRates[req.id].toLocaleString(undefined, { maximumFractionDigits: 2 })}/{req.unit}</span>
-                        </p>
-                      )}
+                      {lowestRates[req.id] && (() => {
+                        const feeRate = getServiceFeeRate(req.trade_type);
+                        const lowestPerUnit = lowestRates[req.id] / (1 + feeRate);
+                        return (
+                          <p className="text-sm">
+                            <span className="text-muted-foreground">L1 Rate: </span>
+                            <span className="font-medium">₹{Math.round(lowestPerUnit).toLocaleString('en-IN')}/{req.unit}</span>
+                          </p>
+                        );
+                      })()}
                       <div className="flex items-center gap-2">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
