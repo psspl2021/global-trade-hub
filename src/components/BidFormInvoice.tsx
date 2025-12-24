@@ -197,9 +197,10 @@ export const BidFormInvoice = ({
                   type="number"
                   value={product.rate || ''}
                   onChange={(e) => setProduct({ ...product, rate: Number(e.target.value) })}
-                  placeholder="Enter rate"
-                  className="h-8 w-full text-sm"
+                  placeholder="₹ Enter rate per unit"
+                  className="h-8 w-full text-sm border-primary/30 focus:border-primary"
                   min={0}
+                  step="0.01"
                   required
                 />
               </td>
@@ -210,11 +211,12 @@ export const BidFormInvoice = ({
                     value={product.discountPercent || ''}
                     onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
                     placeholder="0"
-                    className="h-8 w-16 text-sm"
+                    className="h-8 w-20 text-sm border-primary/30 focus:border-primary"
                     min={0}
                     max={100}
+                    step="0.1"
                   />
-                  <span className="text-xs text-muted-foreground">%</span>
+                  <span className="text-xs text-muted-foreground font-medium">%</span>
                 </div>
               </td>
               <td className="p-2 text-right align-top font-semibold">
