@@ -1050,7 +1050,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    View and pay service fees & subscription invoices
+                    View and pay subscription invoices
                   </p>
                   <Button variant="outline" className="w-full" onClick={() => setShowPlatformInvoices(true)}>
                     View Invoices
