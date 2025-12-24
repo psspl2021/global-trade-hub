@@ -395,7 +395,19 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       fetchRequirements();
       fetchSubscription();
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      // Handle duplicate bid error with user-friendly message
+      if (error.message?.includes('bids_requirement_id_supplier_id_key') || 
+          error.code === '23505') {
+        toast({ 
+          title: 'Bid Already Exists', 
+          description: 'You have already submitted a bid for this requirement. You can view and edit your existing bid from the "My Bids" section.', 
+          variant: 'destructive' 
+        });
+        // Refresh the bids list to update UI
+        fetchRequirements();
+      } else {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
     }
     setSubmitting(false);
   };
