@@ -6,20 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Plus, Loader2, Send } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 
 const GST_RATE_OPTIONS = [0, 5, 12, 18, 28] as const;
-
-interface ProductLine {
-  id: string;
-  productName: string;
-  hsnCode: string;
-  gstRate: number;
-  quantity: number;
-  unit: string;
-  rate: number;
-  discountPercent: number;
-}
 
 interface AdditionalCharge {
   id: string;
@@ -46,7 +34,6 @@ export interface BidFormInvoiceData {
   additionalCharges: AdditionalCharge[];
   gstType: 'intra' | 'inter';
   termsAndConditions: string;
-  // Calculated values
   taxableValue: number;
   totalGst: number;
   grandTotal: number;
@@ -61,41 +48,25 @@ export const BidFormInvoice = ({
   isEditing = false,
   initialData,
 }: BidFormInvoiceProps) => {
-  const [product, setProduct] = useState<ProductLine>({
-    id: '1',
-    productName,
-    hsnCode: initialData?.hsnCode || '',
-    gstRate: initialData?.gstRate || 18,
-    quantity,
-    unit,
-    rate: initialData?.rate || 0,
-    discountPercent: initialData?.discountPercent || 0,
-  });
-
+  const [hsnCode, setHsnCode] = useState(initialData?.hsnCode || '');
+  const [gstRate, setGstRate] = useState(initialData?.gstRate || 18);
+  const [rate, setRate] = useState(initialData?.rate || 0);
+  const [discountPercent, setDiscountPercent] = useState(initialData?.discountPercent || 0);
   const [additionalCharges, setAdditionalCharges] = useState<AdditionalCharge[]>(
     initialData?.additionalCharges || []
   );
-  
   const [gstType, setGstType] = useState<'intra' | 'inter'>(initialData?.gstType || 'inter');
   const [deliveryDays, setDeliveryDays] = useState(initialData?.deliveryDays || 7);
   const [termsAndConditions, setTermsAndConditions] = useState(initialData?.termsAndConditions || '');
 
-  // Calculate product amount
-  const productAmount = product.rate * product.quantity;
-  const discountAmount = productAmount * (product.discountPercent / 100);
+  // Calculations
+  const productAmount = rate * quantity;
+  const discountAmount = productAmount * (discountPercent / 100);
   const productNetAmount = productAmount - discountAmount;
-
-  // Calculate additional charges total
   const additionalChargesTotal = additionalCharges.reduce((sum, charge) => sum + (charge.amount || 0), 0);
-
-  // Taxable value = product net amount + additional charges
   const taxableValue = productNetAmount + additionalChargesTotal;
-
-  // GST calculation
-  const gstAmount = taxableValue * (product.gstRate / 100);
+  const gstAmount = taxableValue * (gstRate / 100);
   const grandTotal = taxableValue + gstAmount;
-
-  // GST breakdown
   const cgst = gstType === 'intra' ? gstAmount / 2 : 0;
   const sgst = gstType === 'intra' ? gstAmount / 2 : 0;
   const igst = gstType === 'inter' ? gstAmount : 0;
@@ -121,13 +92,13 @@ export const BidFormInvoice = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (product.rate <= 0 || deliveryDays <= 0) return;
+    if (rate <= 0 || deliveryDays <= 0) return;
 
     onSubmit({
-      rate: product.rate,
-      hsnCode: product.hsnCode,
-      gstRate: product.gstRate,
-      discountPercent: product.discountPercent,
+      rate,
+      hsnCode,
+      gstRate,
+      discountPercent,
       deliveryDays,
       additionalCharges,
       gstType,
@@ -138,250 +109,244 @@ export const BidFormInvoice = ({
     });
   };
 
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Product Card */}
-      <Card className="overflow-hidden">
-        <div className="bg-primary text-primary-foreground px-4 py-3">
-          <h3 className="font-semibold text-sm">Product Details</h3>
-        </div>
-        <CardContent className="p-4 space-y-4">
-          {/* Product Name & Quantity - Read Only */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Product Name</Label>
-              <p className="font-medium text-sm mt-1">{product.productName}</p>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Quantity</Label>
-              <p className="font-medium text-sm mt-1">{product.quantity.toLocaleString('en-IN')} {product.unit}</p>
-            </div>
-          </div>
-
-          {/* Input Fields Row 1 */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor="hsnCode" className="text-xs">HSN Code</Label>
-              <Input
-                id="hsnCode"
-                type="text"
-                value={product.hsnCode}
-                onChange={(e) => setProduct({ ...product, hsnCode: e.target.value })}
-                placeholder="Enter HSN"
-                className="h-9"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="gstRate" className="text-xs">GST Rate (%)</Label>
-              <Select
-                value={product.gstRate.toString()}
-                onValueChange={(value) => setProduct({ ...product, gstRate: Number(value) })}
-              >
-                <SelectTrigger id="gstRate" className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background border shadow-lg z-50">
-                  {GST_RATE_OPTIONS.map((rate) => (
-                    <SelectItem key={rate} value={rate.toString()}>
-                      {rate}%
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="rate" className="text-xs">Rate per {unit} *</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
-                <Input
-                  id="rate"
-                  type="number"
-                  value={product.rate || ''}
-                  onChange={(e) => setProduct({ ...product, rate: Number(e.target.value) })}
-                  placeholder="0.00"
-                  className="h-9 pl-7"
-                  min={0}
-                  step="0.01"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="discount" className="text-xs">Discount (%)</Label>
-              <Input
-                id="discount"
-                type="number"
-                value={product.discountPercent || ''}
-                onChange={(e) => setProduct({ ...product, discountPercent: Number(e.target.value) })}
-                placeholder="0"
-                className="h-9"
-                min={0}
-                max={100}
-                step="0.1"
-              />
-            </div>
-          </div>
-
-          {/* Amount Display */}
-          {productNetAmount > 0 && (
-            <div className="flex justify-between items-center pt-2 border-t">
-              <span className="text-sm text-muted-foreground">Product Amount</span>
-              <span className="font-bold text-lg">₹{productNetAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Additional Charges Section */}
-      <div className="space-y-2">
-        {additionalCharges.length > 0 && (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Additional Charges</Label>
-            {additionalCharges.map((charge) => (
-              <div key={charge.id} className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeCharge(charge.id)}
-                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive shrink-0"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-                <Input
-                  type="text"
-                  value={charge.description}
-                  onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
-                  placeholder="e.g., Labour, Transport"
-                  className="flex-1 h-9 text-sm"
-                />
-                <div className="relative w-32">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
-                  <Input
-                    type="number"
-                    value={charge.amount || ''}
-                    onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
-                    placeholder="0"
-                    className="h-9 text-sm text-right pl-7"
-                    min={0}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={addCharge}
-          className="text-sm text-primary hover:underline flex items-center gap-1"
-        >
-          <Plus className="h-4 w-4" /> Add additional charges
-        </button>
+    <form onSubmit={handleSubmit} className="bg-card rounded-lg border shadow-sm">
+      {/* Header */}
+      <div className="bg-[#0a6e97] text-white text-center py-4 rounded-t-lg">
+        <h2 className="text-xl font-semibold">Bid Quotation</h2>
+        <p className="text-sm opacity-90">Submit your best offer for this requirement</p>
       </div>
 
-      {/* GST Type Selection */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">GST Type</Label>
-        <RadioGroup
-          value={gstType}
-          onValueChange={(v) => setGstType(v as 'intra' | 'inter')}
-          className="flex gap-6"
-        >
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="intra" id="intra" />
-            <Label htmlFor="intra" className="cursor-pointer text-sm font-normal">
-              Intra-state (CGST + SGST)
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="inter" id="inter" />
-            <Label htmlFor="inter" className="cursor-pointer text-sm font-normal">
-              Inter-state (IGST)
-            </Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      {/* Summary Card */}
-      {taxableValue > 0 && (
-        <Card className="bg-muted/30">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Taxable Value</span>
-              <span className="font-medium">₹{taxableValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-            </div>
-            {gstType === 'inter' ? (
-              <div className="flex justify-between text-sm">
-                <span>IGST ({product.gstRate}%)</span>
-                <span className="font-medium">₹{igst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-              </div>
-            ) : (
-              <>
-                <div className="flex justify-between text-sm">
-                  <span>CGST ({product.gstRate / 2}%)</span>
-                  <span className="font-medium">₹{cgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>SGST ({product.gstRate / 2}%)</span>
-                  <span className="font-medium">₹{sgst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-                </div>
-              </>
-            )}
-            <div className="flex justify-between text-base font-bold border-t pt-2 mt-2">
-              <span>Grand Total</span>
-              <span className="text-primary">₹{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Delivery Days */}
-      <div className="flex items-center gap-4">
-        <Label htmlFor="deliveryDays" className="whitespace-nowrap font-medium text-sm">
-          Delivery Timeline *
-        </Label>
-        <div className="flex items-center gap-2">
-          <Input
-            id="deliveryDays"
+      <div className="p-6 space-y-6">
+        {/* Delivery Timeline */}
+        <div className="flex items-center gap-3 pb-4 border-b">
+          <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+            Delivery Timeline*
+          </Label>
+          <input
             type="number"
             value={deliveryDays}
             onChange={(e) => setDeliveryDays(Number(e.target.value))}
-            className="w-20 h-9"
+            className="w-16 border-b border-muted-foreground/40 bg-transparent text-center focus:border-primary focus:outline-none py-1"
             min={1}
             required
           />
           <span className="text-sm text-muted-foreground">days</span>
         </div>
-      </div>
 
-      {/* Terms and Conditions */}
-      <div className="space-y-2">
-        <Label htmlFor="terms" className="text-sm font-medium">Terms and Conditions</Label>
-        <Textarea
-          id="terms"
-          value={termsAndConditions}
-          onChange={(e) => setTermsAndConditions(e.target.value)}
-          placeholder="Enter any terms and conditions for this bid..."
-          rows={3}
-          className="resize-none"
-        />
-      </div>
+        {/* Product Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-foreground/20">
+                <th className="text-left py-2 px-2 font-semibold text-muted-foreground">Sl.</th>
+                <th className="text-left py-2 px-2 font-semibold text-muted-foreground">Product Name</th>
+                <th className="text-left py-2 px-2 font-semibold text-muted-foreground">HSN Code</th>
+                <th className="text-left py-2 px-2 font-semibold text-muted-foreground">GST Rate</th>
+                <th className="text-right py-2 px-2 font-semibold text-muted-foreground">Qty</th>
+                <th className="text-right py-2 px-2 font-semibold text-muted-foreground">Rate (₹)</th>
+                <th className="text-right py-2 px-2 font-semibold text-muted-foreground">Discount %</th>
+                <th className="text-right py-2 px-2 font-semibold text-muted-foreground">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-muted/30">
+                <td className="py-3 px-2 text-muted-foreground">1</td>
+                <td className="py-3 px-2">
+                  <div className="font-medium">{productName}</div>
+                </td>
+                <td className="py-3 px-2">
+                  <input
+                    type="text"
+                    value={hsnCode}
+                    onChange={(e) => setHsnCode(e.target.value)}
+                    placeholder="Enter"
+                    className="w-20 border-b border-muted-foreground/40 bg-transparent focus:border-primary focus:outline-none py-1"
+                  />
+                </td>
+                <td className="py-3 px-2">
+                  <Select value={gstRate.toString()} onValueChange={(v) => setGstRate(Number(v))}>
+                    <SelectTrigger className="w-20 h-8 border-0 border-b border-muted-foreground/40 rounded-none bg-transparent focus:ring-0 focus:border-primary">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border shadow-lg z-50">
+                      {GST_RATE_OPTIONS.map((r) => (
+                        <SelectItem key={r} value={r.toString()}>{r}%</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </td>
+                <td className="py-3 px-2 text-right">
+                  <span className="font-medium">{quantity.toLocaleString('en-IN')}</span>
+                  <span className="text-muted-foreground ml-1">{unit}</span>
+                </td>
+                <td className="py-3 px-2">
+                  <input
+                    type="number"
+                    value={rate || ''}
+                    onChange={(e) => setRate(Number(e.target.value))}
+                    placeholder="0.00"
+                    className="w-24 border-b border-muted-foreground/40 bg-transparent text-right focus:border-primary focus:outline-none py-1"
+                    min={0}
+                    step="0.01"
+                    required
+                  />
+                </td>
+                <td className="py-3 px-2">
+                  <input
+                    type="number"
+                    value={discountPercent || ''}
+                    onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                    placeholder="0"
+                    className="w-16 border-b border-muted-foreground/40 bg-transparent text-right focus:border-primary focus:outline-none py-1"
+                    min={0}
+                    max={100}
+                    step="0.1"
+                  />
+                </td>
+                <td className="py-3 px-2 text-right font-medium">
+                  ₹{formatCurrency(productNetAmount)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      {/* Submit Button */}
-      <Button
-        type="submit"
-        disabled={submitting || product.rate <= 0 || deliveryDays <= 0}
-        className="w-full"
-        size="lg"
-      >
-        {submitting ? (
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        ) : (
-          <Send className="h-4 w-4 mr-2" />
-        )}
-        {isEditing ? 'Update Bid' : 'Submit Bid'}
-      </Button>
+        {/* Additional Charges */}
+        <div className="space-y-3">
+          {additionalCharges.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-muted-foreground">Additional Charges</Label>
+              {additionalCharges.map((charge, index) => (
+                <div key={charge.id} className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => removeCharge(charge.id)}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <span className="text-sm text-muted-foreground w-6">{index + 2}.</span>
+                  <input
+                    type="text"
+                    value={charge.description}
+                    onChange={(e) => updateCharge(charge.id, 'description', e.target.value)}
+                    placeholder="e.g., Transport, Labour"
+                    className="flex-1 border-b border-muted-foreground/40 bg-transparent focus:border-primary focus:outline-none py-1 text-sm"
+                  />
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">₹</span>
+                    <input
+                      type="number"
+                      value={charge.amount || ''}
+                      onChange={(e) => updateCharge(charge.id, 'amount', e.target.value)}
+                      placeholder="0.00"
+                      className="w-24 border-b border-muted-foreground/40 bg-transparent text-right focus:border-primary focus:outline-none py-1 text-sm"
+                      min={0}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={addCharge}
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" /> Add additional charges
+          </button>
+        </div>
+
+        {/* GST Type */}
+        <div className="flex items-center gap-4 py-3 border-t border-b">
+          <Label className="text-sm font-medium text-muted-foreground">GST Type:</Label>
+          <RadioGroup
+            value={gstType}
+            onValueChange={(v) => setGstType(v as 'intra' | 'inter')}
+            className="flex gap-6"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="intra" id="intra" />
+              <Label htmlFor="intra" className="cursor-pointer text-sm font-normal">
+                Intra-state (CGST + SGST)
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="inter" id="inter" />
+              <Label htmlFor="inter" className="cursor-pointer text-sm font-normal">
+                Inter-state (IGST)
+              </Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Summary Section */}
+        <div className="flex justify-end">
+          <div className="w-full max-w-xs space-y-2 text-sm">
+            <div className="flex justify-between py-1">
+              <span className="text-muted-foreground">Taxable Value</span>
+              <span className="font-medium">₹{formatCurrency(taxableValue)}</span>
+            </div>
+            {gstType === 'inter' ? (
+              <div className="flex justify-between py-1">
+                <span className="text-muted-foreground">IGST ({gstRate}%)</span>
+                <span className="font-medium">₹{formatCurrency(igst)}</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between py-1">
+                  <span className="text-muted-foreground">CGST ({gstRate / 2}%)</span>
+                  <span className="font-medium">₹{formatCurrency(cgst)}</span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-muted-foreground">SGST ({gstRate / 2}%)</span>
+                  <span className="font-medium">₹{formatCurrency(sgst)}</span>
+                </div>
+              </>
+            )}
+            <div className="flex justify-between py-2 border-t-2 border-foreground/20 text-base">
+              <span className="font-bold">Grand Total</span>
+              <span className="font-bold text-primary">₹{formatCurrency(grandTotal)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Terms and Conditions */}
+        <div className="space-y-2 pt-4 border-t">
+          <Label htmlFor="terms" className="text-sm font-medium text-muted-foreground">
+            Terms and Conditions
+          </Label>
+          <Textarea
+            id="terms"
+            value={termsAndConditions}
+            onChange={(e) => setTermsAndConditions(e.target.value)}
+            placeholder="Enter any terms and conditions for this bid..."
+            rows={3}
+            className="resize-none border-muted-foreground/40 focus:border-primary"
+          />
+        </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          disabled={submitting || rate <= 0 || deliveryDays <= 0}
+          className="w-full bg-[#0a6e97] hover:bg-[#085a7a] text-white"
+          size="lg"
+        >
+          {submitting ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : (
+            <Send className="h-4 w-4 mr-2" />
+          )}
+          {isEditing ? 'Update Bid' : 'Submit Bid'}
+        </Button>
+      </div>
     </form>
   );
 };
