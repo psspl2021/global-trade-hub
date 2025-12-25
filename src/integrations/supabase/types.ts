@@ -1582,6 +1582,7 @@ export type Database = {
           buyer_id: string
           certifications_required: string | null
           created_at: string
+          customer_name: string | null
           deadline: string
           delivery_location: string
           description: string
@@ -1603,6 +1604,7 @@ export type Database = {
           buyer_id: string
           certifications_required?: string | null
           created_at?: string
+          customer_name?: string | null
           deadline: string
           delivery_location: string
           description: string
@@ -1624,6 +1626,7 @@ export type Database = {
           buyer_id?: string
           certifications_required?: string | null
           created_at?: string
+          customer_name?: string | null
           deadline?: string
           delivery_location?: string
           description?: string

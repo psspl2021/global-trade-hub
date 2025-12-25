@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface RequirementItem {
   item_name: string;
@@ -117,6 +118,8 @@ const defaultItem: RequirementItem = {
 export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, prefillData, onClearPrefill }: CreateRequirementFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
+  const [customerName, setCustomerName] = useState('');
+  const { role } = useUserRole(userId);
 
   const {
     register,
@@ -216,6 +219,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
           quality_standards: data.quality_standards || null,
           certifications_required: data.certifications_required || null,
           payment_terms: data.payment_terms || null,
+          customer_name: role === 'admin' && customerName.trim() ? customerName.trim() : null,
         })
         .select('id')
         .single();
@@ -257,6 +261,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
     if (!isOpen) {
       reset();
       setItems([{ ...defaultItem }]);
+      setCustomerName('');
     }
     onOpenChange(isOpen);
   };
@@ -283,6 +288,25 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
             />
             {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>
+
+          {/* Customer Name - Only visible to Admin */}
+          {role === 'admin' && (
+            <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <Label htmlFor="customer_name" className="flex items-center gap-2">
+                Customer Name (Admin Only)
+                <span className="text-xs text-muted-foreground font-normal">(who is this requirement for?)</span>
+              </Label>
+              <Input
+                id="customer_name"
+                placeholder="e.g., A & A Business Impex"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the customer name you're buying this material for (commodity trading)
+              </p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
