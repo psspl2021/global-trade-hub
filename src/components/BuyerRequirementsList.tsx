@@ -62,6 +62,7 @@ interface BidItem {
 interface Bid {
   id: string;
   bid_amount: number;
+  buyer_visible_price?: number; // New field - what buyer sees
   service_fee: number;
   total_amount: number;
   delivery_timeline_days: number;
@@ -129,12 +130,13 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       if (itemsError) throw itemsError;
       setRequirementItems((itemsData || []) as RequirementItem[]);
 
-      // Fetch the lowest bid with bid_items
+      // Fetch the lowest bid with bid_items - use buyer_visible_price for ordering
       const { data: bidsData, error: bidsError } = await supabase
         .from('bids')
         .select(`
           id,
           bid_amount,
+          buyer_visible_price,
           service_fee,
           total_amount,
           delivery_timeline_days,
@@ -151,7 +153,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
           )
         `)
         .eq('requirement_id', requirementId)
-        .order('bid_amount', { ascending: true })
+        .order('buyer_visible_price', { ascending: true })
         .limit(1);
 
       if (bidsError) throw bidsError;
@@ -395,9 +397,10 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                   </TableHeader>
                                   <TableBody>
                                     {bid.bid_items.map((item) => {
-                                      const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
-                                      const inclusiveRate = item.unit_price * (1 + feeRate);
-                                      const inclusiveTotal = item.total * (1 + feeRate);
+                                      // Use markup rate for buyer-visible pricing
+                                      const markupRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.025;
+                                      const inclusiveRate = item.unit_price * (1 + markupRate);
+                                      const inclusiveTotal = item.total * (1 + markupRate);
                                       
                                       return (
                                         <TableRow key={item.id}>

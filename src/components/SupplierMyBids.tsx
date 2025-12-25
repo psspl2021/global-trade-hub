@@ -17,6 +17,8 @@ import {
 interface Bid {
   id: string;
   bid_amount: number;
+  supplier_net_price?: number; // New field - what supplier sees
+  buyer_visible_price?: number; // New field - hidden from supplier
   service_fee: number;
   total_amount: number;
   delivery_timeline_days: number;
@@ -35,10 +37,14 @@ interface Bid {
   };
 }
 
-// Helper function to get service fee rate based on trade type
-const getServiceFeeRate = (tradeType: string | undefined) => {
-  return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
+// Helper function to get markup rate based on trade type
+// Supplier sees their net price - no fee is deducted from them
+const getMarkupRate = (tradeType: string | undefined) => {
+  return tradeType === 'domestic_india' ? 0.005 : 0.025; // 0.5% domestic, 2.5% cross-border
 };
+
+// Legacy function alias
+const getServiceFeeRate = (tradeType: string | undefined) => getMarkupRate(tradeType);
 
 interface LowestBid {
   requirement_id: string;
@@ -61,12 +67,13 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
   const fetchBids = async () => {
     setLoading(true);
     try {
-      // Fetch supplier's bids with requirement details
+      // Fetch supplier's bids with requirement details - only fetch supplier_net_price (not markup/buyer price)
       const { data: bidsData, error: bidsError } = await supabase
         .from('bids')
         .select(`
           id,
           bid_amount,
+          supplier_net_price,
           service_fee,
           total_amount,
           delivery_timeline_days,
@@ -126,28 +133,19 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
   }, [userId]);
 
   const calculateBreakdown = (bid: Bid) => {
-    // Get fee rate based on trade type
-    const feeRate = getServiceFeeRate(bid.requirement?.trade_type);
-    const feePercentage = feeRate * 100;
-    // bid_amount is stored as per-unit rate + fee (perUnitWithFee)
-    const perUnitWithFee = bid.bid_amount;
-    const perUnitRate = perUnitWithFee / (1 + feeRate); // Reverse calculate supplier's original per-unit bid
-    const perUnitServiceFee = perUnitWithFee - perUnitRate;
+    // Supplier sees only their net price - no markup/fee visibility
+    // Use supplier_net_price if available, otherwise fallback to legacy calculation
     const quantity = bid.requirement?.quantity || 1;
-    const totalOrderValue = perUnitRate * quantity;
-    const totalServiceFee = bid.service_fee;
-    const grandTotal = bid.total_amount;
-
+    
+    // supplier_net_price is the total amount the supplier quoted
+    const supplierNetPrice = bid.supplier_net_price || bid.total_amount;
+    const perUnitRate = supplierNetPrice / quantity;
+    
     return {
       perUnitRate,
-      perUnitServiceFee,
-      perUnitWithFee,
       quantity,
-      totalOrderValue,
-      totalServiceFee,
-      grandTotal,
-      feeRate,
-      feePercentage,
+      totalOrderValue: supplierNetPrice,
+      grandTotal: supplierNetPrice, // Supplier sees their net price as grand total
     };
   };
 
@@ -261,38 +259,29 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Bid Breakdown */}
+                {/* Bid Breakdown - Supplier sees only their quoted price, no fees/markup shown */}
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="font-semibold mb-3 text-sm">Your Bid Breakdown</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                  <h4 className="font-semibold mb-3 text-sm">Your Bid Summary</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <span className="text-muted-foreground">Your Per-Unit Rate:</span>
                       <p className="font-medium">₹{breakdown.perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Service Fee ({breakdown.feePercentage}%):</span>
-                      <p className="font-medium">₹{breakdown.perUnitServiceFee.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Price to Buyer:</span>
-                      <p className="font-bold text-primary">₹{breakdown.perUnitWithFee.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <span className="text-muted-foreground">Quantity:</span>
+                      <p className="font-medium">{breakdown.quantity} {bid.requirement?.unit}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Total Order Value:</span>
-                      <p className="font-medium">₹{breakdown.totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="font-bold text-primary">₹{breakdown.totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Total Service Fee:</span>
-                      <p className="font-medium">₹{breakdown.totalServiceFee.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Grand Total:</span>
-                      <p className="font-bold">₹{breakdown.grandTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <span className="text-muted-foreground">Delivery Timeline:</span>
+                      <p className="font-medium">{bid.delivery_timeline_days} days</p>
                     </div>
                   </div>
-                  <div className="mt-3 pt-3 border-t border-border">
-                    <span className="text-muted-foreground text-sm">Delivery Timeline:</span>
-                    <p className="font-medium">{bid.delivery_timeline_days} days</p>
+                  <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
+                    <p>Platform fee: ₹0 (No deductions from your quoted price)</p>
                   </div>
                 </div>
 

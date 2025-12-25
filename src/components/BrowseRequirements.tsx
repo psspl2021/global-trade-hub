@@ -43,12 +43,18 @@ interface RequirementItem {
   budget_max: number | null;
 }
 
-// Helper function to get service fee rate based on trade type (standard rate)
-const getServiceFeeRate = (tradeType: string | undefined) => {
-  return tradeType === 'domestic_india' ? 0.005 : 0.01; // 0.5% for domestic, 1% for import/export
+// Helper function to get markup rate based on geography (NOT a fee deducted from supplier)
+// This markup is added to supplier's net price to get buyer visible price
+const getMarkupRate = (tradeType: string | undefined) => {
+  return tradeType === 'domestic_india' ? 0.005 : 0.025; // 0.5% domestic, 2.5% cross-border
 };
 
-// Premium bid fee rate (same as domestic)
+// Legacy function for backward compatibility - maps to markup
+const getServiceFeeRate = (tradeType: string | undefined) => {
+  return getMarkupRate(tradeType);
+};
+
+// Premium bid rate (same as domestic)
 const PREMIUM_FEE_RATE = 0.005; // 0.5%
 
 const getTradeTypeLabel = (tradeType: string | undefined) => {
@@ -58,6 +64,18 @@ const getTradeTypeLabel = (tradeType: string | undefined) => {
     case 'domestic_india': return 'Domestic India';
     default: return 'Domestic India';
   }
+};
+
+// Determine transaction type based on geography
+const getTransactionType = (buyerCountry?: string, shipToCountry?: string, supplierCountry?: string): 'domestic_india' | 'cross_border' => {
+  const buyer = (buyerCountry || 'india').toLowerCase();
+  const shipTo = (shipToCountry || 'india').toLowerCase();
+  const supplier = (supplierCountry || 'india').toLowerCase();
+  
+  if (buyer === 'india' && shipTo === 'india' && supplier === 'india') {
+    return 'domestic_india';
+  }
+  return 'cross_border';
 };
 
 // Helper function to parse bid details from terms_and_conditions
@@ -355,18 +373,25 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
     setSubmitting(true);
     try {
-      // Determine fee rate
-      const standardFeeRate = getServiceFeeRate(selectedRequirement.trade_type);
-      const feeRate = isUsingPremiumBid ? 0.003 : standardFeeRate;
+      // Determine markup rate based on trade type
+      // This is NOT a fee deducted from supplier - it's a markup added for buyer
+      const markupRate = getMarkupRate(selectedRequirement.trade_type);
+      const markupPercentage = markupRate * 100;
       
-      // Use the grand total from the invoice form as the total order value
-      const totalOrderValue = data.grandTotal;
-      const serviceFee = totalOrderValue * feeRate;
-      const totalAmount = totalOrderValue + serviceFee;
+      // supplier_net_price = what supplier quotes (grand total from invoice form)
+      const supplierNetPrice = data.grandTotal;
       
-      // Use first item rate for L1 comparison
+      // Calculate markup to add for buyer-visible price
+      const markupAmount = supplierNetPrice * markupRate;
+      const buyerVisiblePrice = supplierNetPrice + markupAmount;
+      
+      // Determine transaction type
+      const transactionType = selectedRequirement.trade_type === 'domestic_india' ? 'domestic_india' : 'cross_border';
+      
+      // Use first item rate for L1 comparison (supplier net price per unit)
       const firstItemRate = data.items[0]?.rate || 0;
-      const bidAmountToStore = firstItemRate * (1 + feeRate);
+      // bid_amount stores the buyer-visible rate per unit for L1 comparison
+      const bidAmountToStore = firstItemRate * (1 + markupRate);
 
       // Build terms string with all bid details
       let termsString = '';
@@ -395,15 +420,20 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       termsString += `Grand Total: ₹${data.grandTotal.toLocaleString('en-IN')}\n`;
       if (data.termsAndConditions) termsString += `\nTerms: ${data.termsAndConditions}`;
 
-      // Insert bid
+      // Insert bid with new markup-based pricing model
       const { data: bidData, error: bidError } = await supabase
         .from('bids')
         .insert({
           requirement_id: selectedRequirement.id,
           supplier_id: userId,
           bid_amount: bidAmountToStore,
-          service_fee: serviceFee,
-          total_amount: totalAmount,
+          supplier_net_price: supplierNetPrice,
+          buyer_visible_price: buyerVisiblePrice,
+          markup_percentage: markupPercentage,
+          markup_amount: markupAmount,
+          transaction_type: transactionType,
+          service_fee: 0, // No fee deducted from supplier
+          total_amount: buyerVisiblePrice,
           delivery_timeline_days: data.deliveryDays,
           terms_and_conditions: termsString.trim() || null,
           is_paid_bid: isPaidBid ? true : false,
@@ -478,14 +508,19 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
     setSubmitting(true);
     try {
-      const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-      const totalOrderValue = data.grandTotal;
-      const serviceFee = totalOrderValue * feeRate;
-      const totalAmount = totalOrderValue + serviceFee;
+      // Use markup-based pricing
+      const markupRate = getMarkupRate(selectedRequirement.trade_type);
+      const markupPercentage = markupRate * 100;
+      
+      const supplierNetPrice = data.grandTotal;
+      const markupAmount = supplierNetPrice * markupRate;
+      const buyerVisiblePrice = supplierNetPrice + markupAmount;
+      
+      const transactionType = selectedRequirement.trade_type === 'domestic_india' ? 'domestic_india' : 'cross_border';
       
       // Use first item rate for L1 comparison
       const firstItemRate = data.items[0]?.rate || 0;
-      const bidAmountToStore = firstItemRate * (1 + feeRate);
+      const bidAmountToStore = firstItemRate * (1 + markupRate);
 
       // Build terms string
       let termsString = '';
@@ -518,8 +553,13 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
         .from('bids')
         .update({
           bid_amount: bidAmountToStore,
-          service_fee: serviceFee,
-          total_amount: totalAmount,
+          supplier_net_price: supplierNetPrice,
+          buyer_visible_price: buyerVisiblePrice,
+          markup_percentage: markupPercentage,
+          markup_amount: markupAmount,
+          transaction_type: transactionType,
+          service_fee: 0,
+          total_amount: buyerVisiblePrice,
           delivery_timeline_days: data.deliveryDays,
           terms_and_conditions: termsString.trim() || null,
         })
