@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, FileText } from 'lucide-react';
+import { Loader2, Search, FileText, Pencil } from 'lucide-react';
+import { EditRequirementForm } from '@/components/EditRequirementForm';
 import { format } from 'date-fns';
 import {
   Pagination,
@@ -20,15 +22,19 @@ import {
 interface Requirement {
   id: string;
   title: string;
+  description: string;
   product_category: string;
   quantity: number;
   unit: string;
   budget_min: number | null;
   budget_max: number | null;
   deadline: string;
-  status: string;
-  trade_type: string | null;
+  status: 'active' | 'closed' | 'awarded' | 'expired';
+  trade_type?: 'import' | 'export' | 'domestic_india';
   delivery_location: string;
+  quality_standards?: string | null;
+  certifications_required?: string | null;
+  payment_terms?: string | null;
   created_at: string;
   customer_name: string | null;
   buyer: {
@@ -53,6 +59,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(15);
+  const [editingRequirement, setEditingRequirement] = useState<Requirement | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -98,6 +105,8 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
 
       const requirementsWithBuyers: Requirement[] = data.map(req => ({
         ...req,
+        trade_type: req.trade_type as 'import' | 'export' | 'domestic_india' | undefined,
+        status: req.status as 'active' | 'closed' | 'awarded' | 'expired',
         buyer: profiles?.find(p => p.id === req.buyer_id) || null,
       }));
 
@@ -145,6 +154,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
@@ -186,6 +196,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">Edit</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Quantity</TableHead>
@@ -201,13 +212,24 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
               <TableBody>
                 {filteredRequirements.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                       No requirements found
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredRequirements.map((req) => (
                     <TableRow key={req.id}>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setEditingRequirement(req)}
+                          title="Edit requirement"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                       <TableCell className="font-medium max-w-[200px] truncate" title={req.title}>
                         {req.title}
                       </TableCell>
@@ -301,5 +323,21 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
         )}
       </DialogContent>
     </Dialog>
+
+    {/* Edit Requirement Modal */}
+    {editingRequirement && (
+      <EditRequirementForm
+        open={!!editingRequirement}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setEditingRequirement(null);
+        }}
+        requirement={editingRequirement}
+        onSuccess={() => {
+          setEditingRequirement(null);
+          fetchRequirements();
+        }}
+      />
+    )}
+  </>
   );
 }

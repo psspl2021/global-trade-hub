@@ -119,7 +119,27 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
   const [customerName, setCustomerName] = useState('');
+  const [userBusinessType, setUserBusinessType] = useState<string | null>(null);
   const { role } = useUserRole(userId);
+
+  // Fetch user's business_type
+  useEffect(() => {
+    const fetchBusinessType = async () => {
+      if (!userId) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('business_type')
+        .eq('id', userId)
+        .single();
+      if (data) {
+        setUserBusinessType(data.business_type);
+      }
+    };
+    fetchBusinessType();
+  }, [userId]);
+
+  // Check if user can add customer name (admin, dealer, or distributor)
+  const canAddCustomerName = role === 'admin' || userBusinessType === 'dealer' || userBusinessType === 'distributor';
 
   const {
     register,
@@ -219,7 +239,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
           quality_standards: data.quality_standards || null,
           certifications_required: data.certifications_required || null,
           payment_terms: data.payment_terms || null,
-          customer_name: role === 'admin' && customerName.trim() ? customerName.trim() : null,
+          customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
         })
         .select('id')
         .single();
@@ -289,12 +309,12 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
             {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>
 
-          {/* Customer Name - Only visible to Admin */}
-          {role === 'admin' && (
+          {/* Customer Name - Visible to Admin, Dealers, and Distributors */}
+          {canAddCustomerName && (
             <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
               <Label htmlFor="customer_name" className="flex items-center gap-2">
-                Customer Name (Admin Only)
-                <span className="text-xs text-muted-foreground font-normal">(who is this requirement for?)</span>
+                Customer Name
+                <span className="text-xs text-muted-foreground font-normal">(who are you selling to?)</span>
               </Label>
               <Input
                 id="customer_name"
@@ -303,7 +323,7 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
                 onChange={(e) => setCustomerName(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Enter the customer name you're buying this material for (commodity trading)
+                Enter the customer name you're buying this material for (resale/distribution)
               </p>
             </div>
           )}
