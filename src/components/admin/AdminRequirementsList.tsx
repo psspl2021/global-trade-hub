@@ -42,7 +42,7 @@ interface AdminRequirementsListProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE_OPTIONS = [15, 25, 50, 100];
 
 export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsListProps) {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
@@ -51,22 +51,23 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [pageSize, setPageSize] = useState(15);
 
   useEffect(() => {
     if (open) {
       fetchRequirements();
     }
-  }, [open, statusFilter, currentPage]);
+  }, [open, statusFilter, currentPage, pageSize]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, search]);
+  }, [statusFilter, search, pageSize]);
 
   const fetchRequirements = async () => {
     setLoading(true);
     try {
-      const from = (currentPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
 
       let query = supabase
         .from('requirements')
@@ -124,7 +125,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const getPageNumbers = () => {
     const pages: (number | 'ellipsis')[] = [];
@@ -237,9 +238,21 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                <p className="text-sm text-muted-foreground">
-                  Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
-                </p>
+                <div className="flex items-center gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)} of {totalCount}
+                  </p>
+                  <Select value={pageSize.toString()} onValueChange={(v) => setPageSize(Number(v))}>
+                    <SelectTrigger className="w-[100px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAGE_SIZE_OPTIONS.map(size => (
+                        <SelectItem key={size} value={size.toString()}>{size} / page</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>

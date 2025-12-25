@@ -70,7 +70,7 @@ interface AdminBidsListProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE_OPTIONS = [15, 25, 50, 100];
 
 export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [bids, setBids] = useState<Bid[]>([]);
@@ -84,6 +84,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [logisticsPage, setLogisticsPage] = useState(1);
   const [logisticsTotal, setLogisticsTotal] = useState(0);
   const [tabCounts, setTabCounts] = useState({ supplier: 0, logistics: 0 });
+  const [pageSize, setPageSize] = useState(15);
 
   // Edit state
   const [editingBid, setEditingBid] = useState<Bid | null>(null);
@@ -123,12 +124,12 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
         fetchLogisticsBids();
       }
     }
-  }, [open, activeTab, supplierPage, logisticsPage]);
+  }, [open, activeTab, supplierPage, logisticsPage, pageSize]);
 
   useEffect(() => {
     setSupplierPage(1);
     setLogisticsPage(1);
-  }, [search]);
+  }, [search, pageSize]);
 
   useEffect(() => {
     if (editingBid) {
@@ -170,8 +171,8 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const fetchSupplierBids = async () => {
     setLoading(true);
     try {
-      const from = (supplierPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const from = (supplierPage - 1) * pageSize;
+      const to = from + pageSize - 1;
 
       const { data: supplierBids, count } = await supabase
         .from('bids')
@@ -212,8 +213,8 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const fetchLogisticsBids = async () => {
     setLoading(true);
     try {
-      const from = (logisticsPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const from = (logisticsPage - 1) * pageSize;
+      const to = from + pageSize - 1;
 
       const { data: logBids, count } = await supabase
         .from('logistics_bids')
@@ -339,7 +340,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const currentPage = activeTab === 'supplier' ? supplierPage : logisticsPage;
   const setCurrentPage = activeTab === 'supplier' ? setSupplierPage : setLogisticsPage;
   const totalCount = activeTab === 'supplier' ? supplierTotal : logisticsTotal;
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const getPageNumbers = () => {
     const pages: (number | 'ellipsis')[] = [];
@@ -520,9 +521,21 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
 
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                    <p className="text-sm text-muted-foreground">
-                      Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
-                    </p>
+                    <div className="flex items-center gap-4">
+                      <p className="text-sm text-muted-foreground">
+                        Showing {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)} of {totalCount}
+                      </p>
+                      <Select value={pageSize.toString()} onValueChange={(v) => setPageSize(Number(v))}>
+                        <SelectTrigger className="w-[100px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PAGE_SIZE_OPTIONS.map(size => (
+                            <SelectItem key={size} value={size.toString()}>{size} / page</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
