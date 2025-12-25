@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -56,6 +57,7 @@ const Signup = () => {
     referredByName: '',
     referredByPhone: '',
     logisticsPartnerType: '' as 'agent' | 'fleet_owner' | '',
+    buyerType: '' as 'end_buyer' | 'distributor' | 'dealer' | '',
     yardLocation: '',
     location: '',
     gstin: '',
@@ -193,6 +195,12 @@ const Signup = () => {
       return;
     }
 
+    // Validate buyer type if role is buyer
+    if (formData.role === 'buyer' && !formData.buyerType) {
+      toast.error('Please select your buyer type');
+      return;
+    }
+
     // Validate yard/warehouse location for suppliers
     if (formData.role === 'supplier' && !formData.yardLocation.trim()) {
       setErrors({ yardLocation: 'Yard/Warehouse location is required for suppliers' });
@@ -263,6 +271,7 @@ const Signup = () => {
       referred_by_name: result.data.referredByName,
       referred_by_phone: result.data.referredByPhone,
       logistics_partner_type: formData.role === 'logistics_partner' ? formData.logisticsPartnerType : null,
+      business_type: formData.role === 'buyer' ? formData.buyerType : null,
       address: formData.role === 'supplier' ? formData.yardLocation : result.data.location,
       gstin: result.data.gstin,
     }, referralCode);
@@ -330,6 +339,31 @@ const Signup = () => {
                   </div>
                 </RadioGroup>
               </div>
+
+              {/* Buyer Type - Only visible for buyers */}
+              {formData.role === 'buyer' && (
+                <div className="space-y-2">
+                  <Label>Buyer Type *</Label>
+                  <Select
+                    value={formData.buyerType}
+                    onValueChange={(value) => setFormData({ ...formData, buyerType: value as 'end_buyer' | 'distributor' | 'dealer' })}
+                  >
+                    <SelectTrigger className="min-h-[44px]">
+                      <SelectValue placeholder="Select buyer type" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" sideOffset={4} className="max-h-[40vh]">
+                      <SelectItem value="end_buyer" className="py-3">End Buyer - Direct consumer of products</SelectItem>
+                      <SelectItem value="distributor" className="py-3">Distributor - Distribute to multiple buyers</SelectItem>
+                      <SelectItem value="dealer" className="py-3">Dealer - Trade/resell to customers</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {formData.buyerType === 'distributor' || formData.buyerType === 'dealer'
+                      ? 'You can specify customer name when posting requirements'
+                      : 'Select your buyer type to continue'}
+                  </p>
+                </div>
+              )}
 
               {formData.role === 'logistics_partner' && (
                 <div className="space-y-2">
