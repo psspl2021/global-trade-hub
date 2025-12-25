@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import { 
   ArrowRight, 
   Factory,
@@ -15,10 +17,8 @@ import {
   CheckCircle,
   MessageSquare,
   Package,
-  Sparkles,
   Globe,
-  FileCheck,
-  Truck
+  FileCheck
 } from "lucide-react";
 
 const stats = [
@@ -109,19 +109,167 @@ const howItWorks = [
 const PrivateLabel = () => {
   const navigate = useNavigate();
 
+  // SEO optimization
+  useSEO({
+    title: "Private Label Manufacturing India | Custom Products | ProcureSaathi",
+    description: "Source private label products from 1000+ verified Indian manufacturers. Custom manufacturing for supplements, skincare, cosmetics, Ayurveda & more. Low MOQ, fast samples.",
+    canonical: "https://www.procuresaathi.com/private-label",
+    keywords: "private label manufacturing India, custom manufacturing, OEM India, contract manufacturing, white label products, bulk supply, private label supplements, private label cosmetics, skincare manufacturer India"
+  });
+
+  useEffect(() => {
+    // WebPage schema
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Private Label Manufacturing India | Custom Products",
+      "description": "Source private label products from 1000+ verified Indian manufacturers. Custom manufacturing for supplements, skincare, cosmetics & more.",
+      "url": "https://www.procuresaathi.com/private-label",
+      "mainEntity": {
+        "@type": "Service",
+        "name": "Private Label Manufacturing Services",
+        "provider": {
+          "@type": "Organization",
+          "name": "ProcureSaathi"
+        },
+        "serviceType": "Private Label Manufacturing",
+        "areaServed": "Worldwide",
+        "availableChannel": {
+          "@type": "ServiceChannel",
+          "serviceUrl": "https://www.procuresaathi.com/private-label"
+        }
+      }
+    }, 'private-label-webpage-schema');
+
+    // Breadcrumb schema
+    injectStructuredData(getBreadcrumbSchema([
+      { name: "Home", url: "https://www.procuresaathi.com" },
+      { name: "Private Label", url: "https://www.procuresaathi.com/private-label" }
+    ]), 'private-label-breadcrumb-schema');
+
+    // Service schema
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Private Label & Custom Manufacturing",
+      "description": "End-to-end private label manufacturing services from India. Connect with verified manufacturers for supplements, skincare, cosmetics, wellness products and more.",
+      "provider": {
+        "@type": "Organization",
+        "name": "ProcureSaathi",
+        "url": "https://www.procuresaathi.com"
+      },
+      "serviceType": ["Private Label Manufacturing", "Custom Manufacturing", "Contract Manufacturing", "OEM Manufacturing"],
+      "areaServed": {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+          "@type": "GeoCoordinates",
+          "latitude": "20.5937",
+          "longitude": "78.9629"
+        },
+        "geoRadius": "10000"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Private Label Categories",
+        "itemListElement": categories.map((cat, index) => ({
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": cat
+          },
+          "position": index + 1
+        }))
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "156",
+        "bestRating": "5"
+      }
+    }, 'private-label-service-schema');
+
+    // FAQ schema
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is private label manufacturing?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Private label manufacturing allows you to create products with your own brand name and packaging, manufactured by a third-party supplier. ProcureSaathi connects you with 1000+ verified Indian manufacturers for custom formulations."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the minimum order quantity (MOQ) for private label products?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "MOQ varies by product category and manufacturer. Many of our verified suppliers offer low MOQs starting from 100-500 units for startups and small businesses. Contact our concierge team for specific requirements."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which product categories are available for private labeling?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We offer private label manufacturing for Supplements & Nutraceuticals, Skincare & Cosmetics, Hair Care, Wellness & Ayurveda, Food & Beverages, Pet Care, Home Care, and Baby Care products."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does it take to get samples?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most of our verified manufacturers can deliver product samples within 48 hours for standard formulations. Custom formulations may take 7-14 days depending on complexity."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you help with product certifications and compliance?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, our white-glove concierge service includes guidance on certifications like FDA, GMP, ISO, FSSAI, and other compliance requirements for your target markets."
+          }
+        }
+      ]
+    }, 'private-label-faq-schema');
+
+    // HowTo schema
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Source Private Label Products from India",
+      "description": "Step-by-step guide to sourcing custom manufactured products from verified Indian manufacturers",
+      "step": howItWorks.map((item) => ({
+        "@type": "HowToStep",
+        "position": item.step,
+        "name": item.title,
+        "text": item.description
+      }))
+    }, 'private-label-howto-schema');
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <PageHeader />
       
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background overflow-hidden">
+      <section 
+        className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background overflow-hidden"
+        aria-labelledby="hero-heading"
+      >
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-4xl mx-auto">
+          <header className="text-center max-w-4xl mx-auto">
             <Badge variant="secondary" className="mb-6">
               1000+ Verified Manufacturers
             </Badge>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 
+              id="hero-heading"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+            >
               Source Private Label Products{" "}
               <span className="text-primary">Direct from India</span>
             </h1>
@@ -136,28 +284,30 @@ const PrivateLabel = () => {
                 size="lg" 
                 className="h-14 px-8 text-lg"
                 onClick={() => navigate('/signup?role=buyer')}
+                aria-label="Start sourcing private label products"
               >
                 Start Sourcing
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline"
                 className="h-14 px-8 text-lg"
                 onClick={() => navigate('/login')}
+                aria-label="Talk to sourcing concierge"
               >
-                <MessageSquare className="mr-2 h-5 w-5" />
+                <MessageSquare className="mr-2 h-5 w-5" aria-hidden="true" />
                 Talk to Concierge
               </Button>
             </div>
-          </div>
+          </header>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto" role="list" aria-label="Platform statistics">
             {stats.map((stat) => (
-              <Card key={stat.label} className="border border-border bg-card">
+              <Card key={stat.label} className="border border-border bg-card" role="listitem">
                 <CardContent className="p-6 text-center">
-                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary" />
+                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary" aria-hidden="true" />
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
                     {stat.value}
                   </div>
@@ -170,50 +320,50 @@ const PrivateLabel = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-16">
+      <section className="py-16" aria-labelledby="features-heading">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <header className="text-center mb-12">
+            <h2 id="features-heading" className="text-3xl md:text-4xl font-bold mb-4">
               Why Choose <span className="text-primary">Private Label</span> with Us
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Everything you need to launch your own branded product line
             </p>
-          </div>
+          </header>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto" role="list">
             {features.map((feature) => (
-              <Card key={feature.title} className="border border-border hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
+              <article key={feature.title} className="border border-border hover:shadow-lg transition-shadow rounded-lg bg-card" role="listitem">
+                <div className="p-6">
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                    <feature.icon className="h-6 w-6 text-primary" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
+                </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
       {/* White-Glove Concierge Section */}
-      <section className="py-16 bg-primary/5">
+      <section className="py-16 bg-primary/5" aria-labelledby="concierge-heading">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="bg-card rounded-2xl p-8 md:p-12 border border-border">
               <div className="grid md:grid-cols-2 gap-8 items-center">
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                  <h2 id="concierge-heading" className="text-2xl md:text-3xl font-bold mb-4">
                     White-Glove Concierge for Every Buyer
                   </h2>
                   <p className="text-muted-foreground mb-6">
                     Our sourcing experts personally support you by:
                   </p>
-                  <ul className="space-y-4">
+                  <ul className="space-y-4" role="list">
                     {conciergeServices.map((service, index) => (
                       <li key={index} className="flex items-center gap-3">
-                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" aria-hidden="true" />
                         <span>{service.title}</span>
                       </li>
                     ))}
@@ -228,6 +378,7 @@ const PrivateLabel = () => {
                     size="lg"
                     className="w-full max-w-xs h-14"
                     onClick={() => navigate('/signup?role=buyer')}
+                    aria-label="Get personalized sourcing support"
                   >
                     Get Personalized Support
                   </Button>
@@ -239,18 +390,18 @@ const PrivateLabel = () => {
       </section>
 
       {/* Categories */}
-      <section className="py-16">
+      <section className="py-16" aria-labelledby="categories-heading">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <header className="text-center mb-12">
+            <h2 id="categories-heading" className="text-3xl md:text-4xl font-bold mb-4">
               Popular Private Label Categories
             </h2>
             <p className="text-lg text-muted-foreground">
               Explore products across diverse categories
             </p>
-          </div>
+          </header>
           
-          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+          <nav className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto" aria-label="Product categories">
             {categories.map((category) => (
               <Badge 
                 key={category} 
@@ -260,34 +411,36 @@ const PrivateLabel = () => {
                 {category}
               </Badge>
             ))}
-          </div>
+          </nav>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-muted/30" aria-labelledby="how-it-works-heading">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+          <header className="text-center mb-12">
+            <h2 id="how-it-works-heading" className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               From idea to finished product in 4 simple steps
             </p>
-          </div>
+          </header>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <ol className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto list-none">
             {howItWorks.map((item) => (
-              <Card key={item.step} className="relative border border-border">
-                <CardContent className="p-6">
-                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4">
-                    {item.step}
+              <li key={item.step}>
+                <article className="relative border border-border rounded-lg bg-card h-full">
+                  <div className="p-6">
+                    <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4">
+                      {item.step}
+                    </div>
+                    <item.icon className="h-8 w-8 text-primary mb-3" aria-hidden="true" />
+                    <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
-                  <item.icon className="h-8 w-8 text-primary mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                </CardContent>
-              </Card>
+                </article>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
@@ -295,11 +448,11 @@ const PrivateLabel = () => {
       <FreeCRMSection role="buyer" />
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-primary">
+      <section className="py-16 md:py-24 bg-primary" aria-labelledby="cta-heading">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <Factory className="h-12 w-12 text-primary-foreground mx-auto mb-6" />
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+            <Factory className="h-12 w-12 text-primary-foreground mx-auto mb-6" aria-hidden="true" />
+            <h2 id="cta-heading" className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
               Ready to Launch Your Brand?
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8">
@@ -311,15 +464,17 @@ const PrivateLabel = () => {
                 variant="secondary"
                 className="h-14 px-8 text-lg"
                 onClick={() => navigate('/signup?role=buyer')}
+                aria-label="Get started with private label manufacturing"
               >
                 Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline"
                 className="h-14 px-8 text-lg bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary"
                 onClick={() => navigate('/categories')}
+                aria-label="Explore product categories"
               >
                 Explore Categories
               </Button>
@@ -329,7 +484,7 @@ const PrivateLabel = () => {
       </section>
 
       {/* Footer Link */}
-      <section className="py-8 text-center">
+      <footer className="py-8 text-center">
         <Button 
           variant="link" 
           className="text-muted-foreground"
@@ -337,7 +492,7 @@ const PrivateLabel = () => {
         >
           ← Back to Home
         </Button>
-      </section>
+      </footer>
     </div>
   );
 };
