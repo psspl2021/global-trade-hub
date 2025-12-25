@@ -35,8 +35,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Loader2, Search, CheckCircle, Clock, IndianRupee, AlertCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2, Search, CheckCircle, Clock, IndianRupee, AlertCircle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -74,8 +81,17 @@ export function AdminInvoiceManagement({ open, onOpenChange }: AdminInvoiceManag
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInvoice, setSelectedInvoice] = useState<PlatformInvoice | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [paymentReference, setPaymentReference] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [editForm, setEditForm] = useState({
+    amount: 0,
+    tax_amount: 0,
+    total_amount: 0,
+    description: '',
+    status: 'pending',
+  });
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -167,6 +183,72 @@ export function AdminInvoiceManagement({ open, onOpenChange }: AdminInvoiceManag
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error updating invoice:', error);
       toast.error('Failed to update invoice');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleEdit = (invoice: PlatformInvoice) => {
+    setSelectedInvoice(invoice);
+    setEditForm({
+      amount: Number(invoice.amount),
+      tax_amount: Number(invoice.tax_amount),
+      total_amount: Number(invoice.total_amount),
+      description: invoice.description || '',
+      status: invoice.status,
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedInvoice) return;
+
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('platform_invoices')
+        .update({
+          amount: editForm.amount,
+          tax_amount: editForm.tax_amount,
+          total_amount: editForm.total_amount,
+          description: editForm.description || null,
+          status: editForm.status,
+        })
+        .eq('id', selectedInvoice.id);
+
+      if (error) throw error;
+
+      toast.success('Invoice updated successfully');
+      setShowEditDialog(false);
+      setSelectedInvoice(null);
+      fetchInvoices();
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Error updating invoice:', error);
+      toast.error('Failed to update invoice');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedInvoice) return;
+
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('platform_invoices')
+        .delete()
+        .eq('id', selectedInvoice.id);
+
+      if (error) throw error;
+
+      toast.success('Invoice deleted successfully');
+      setShowDeleteDialog(false);
+      setSelectedInvoice(null);
+      fetchInvoices();
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Error deleting invoice:', error);
+      toast.error('Failed to delete invoice');
     } finally {
       setUpdating(false);
     }
@@ -300,22 +382,47 @@ export function AdminInvoiceManagement({ open, onOpenChange }: AdminInvoiceManag
                       </TableCell>
                       <TableCell>{format(new Date(invoice.created_at), 'dd MMM yyyy')}</TableCell>
                       <TableCell>
-                        {invoice.status === 'pending' && (
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setSelectedInvoice(invoice);
-                              setShowPaymentDialog(true);
-                            }}
-                          >
-                            Mark Paid
-                          </Button>
-                        )}
-                        {invoice.status === 'paid' && invoice.payment_reference && (
-                          <span className="text-xs text-muted-foreground">
-                            Ref: {invoice.payment_reference}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {invoice.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInvoice(invoice);
+                                setShowPaymentDialog(true);
+                              }}
+                            >
+                              Mark Paid
+                            </Button>
+                          )}
+                          {invoice.status === 'paid' && invoice.payment_reference && (
+                            <span className="text-xs text-muted-foreground">
+                              Ref: {invoice.payment_reference}
+                            </span>
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEdit(invoice)}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setSelectedInvoice(invoice);
+                                  setShowDeleteDialog(true);
+                                }}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -361,6 +468,137 @@ export function AdminInvoiceManagement({ open, onOpenChange }: AdminInvoiceManag
             <AlertDialogAction onClick={handleMarkAsPaid} disabled={updating || !paymentReference.trim()}>
               {updating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Confirm Payment
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Invoice Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Invoice</DialogTitle>
+          </DialogHeader>
+          {selectedInvoice && (
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground">
+                <strong>Invoice #:</strong> {selectedInvoice.invoice_number}
+              </div>
+              <div className="grid gap-4">
+                <div>
+                  <Label htmlFor="editAmount">Amount (₹)</Label>
+                  <Input
+                    id="editAmount"
+                    type="number"
+                    value={editForm.amount}
+                    onChange={(e) => {
+                      const amount = parseFloat(e.target.value) || 0;
+                      const tax = Math.round(amount * 0.18 * 100) / 100;
+                      setEditForm({
+                        ...editForm,
+                        amount,
+                        tax_amount: tax,
+                        total_amount: Math.round((amount + tax) * 100) / 100,
+                      });
+                    }}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editTax">Tax Amount (₹)</Label>
+                  <Input
+                    id="editTax"
+                    type="number"
+                    value={editForm.tax_amount}
+                    onChange={(e) => {
+                      const tax = parseFloat(e.target.value) || 0;
+                      setEditForm({
+                        ...editForm,
+                        tax_amount: tax,
+                        total_amount: Math.round((editForm.amount + tax) * 100) / 100,
+                      });
+                    }}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editTotal">Total Amount (₹)</Label>
+                  <Input
+                    id="editTotal"
+                    type="number"
+                    value={editForm.total_amount}
+                    readOnly
+                    className="mt-1 bg-muted"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editStatus">Status</Label>
+                  <Select
+                    value={editForm.status}
+                    onValueChange={(value) => setEditForm({ ...editForm, status: value })}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="editDescription">Description</Label>
+                  <Textarea
+                    id="editDescription"
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    className="mt-1"
+                    rows={2}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveEdit} disabled={updating}>
+                  {updating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this invoice? This action cannot be undone.
+              {selectedInvoice && (
+                <div className="mt-3 p-3 bg-muted rounded-lg">
+                  <p><strong>Invoice:</strong> {selectedInvoice.invoice_number}</p>
+                  <p><strong>Company:</strong> {selectedInvoice.profiles?.company_name}</p>
+                  <p><strong>Amount:</strong> ₹{Number(selectedInvoice.total_amount).toLocaleString()}</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedInvoice(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={updating}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {updating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Delete Invoice
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
