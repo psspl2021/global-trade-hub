@@ -30,6 +30,7 @@ interface Requirement {
   trade_type: string | null;
   delivery_location: string;
   created_at: string;
+  customer_name: string | null;
   buyer: {
     company_name: string;
     contact_person: string;
@@ -191,6 +192,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
                   <TableHead>Budget</TableHead>
                   <TableHead>Deadline</TableHead>
                   <TableHead>Trade Type</TableHead>
+                  <TableHead>Customer</TableHead>
                   <TableHead>Buyer</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Posted</TableHead>
@@ -199,7 +201,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
               <TableBody>
                 {filteredRequirements.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                       No requirements found
                     </TableCell>
                   </TableRow>
@@ -221,6 +223,13 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
                         <Badge variant="outline" className="capitalize">
                           {req.trade_type?.replace('_', ' ') || 'Domestic'}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {req.customer_name ? (
+                          <span className="font-medium text-primary">{req.customer_name}</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">

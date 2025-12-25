@@ -23,6 +23,8 @@ import {
 import { toast } from 'sonner';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useAuth } from '@/hooks/useAuth';
 
 interface RequirementItem {
   id?: string;
@@ -49,6 +51,7 @@ interface Requirement {
   certifications_required?: string | null;
   payment_terms?: string | null;
   status: 'active' | 'closed' | 'awarded' | 'expired';
+  customer_name?: string | null;
 }
 
 const requirementSchema = z.object({
@@ -125,6 +128,9 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
   const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
   const [existingItemIds, setExistingItemIds] = useState<string[]>([]);
+  const [customerName, setCustomerName] = useState('');
+  const { user } = useAuth();
+  const { role } = useUserRole(user?.id);
 
   const {
     register,
@@ -154,6 +160,7 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
       setValue('quality_standards', requirement.quality_standards || '');
       setValue('certifications_required', requirement.certifications_required || '');
       setValue('payment_terms', requirement.payment_terms || '');
+      setCustomerName(requirement.customer_name || '');
 
       // Fetch requirement items
       const { data: itemsData, error } = await supabase
@@ -260,6 +267,7 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
         quality_standards: data.quality_standards || null,
         certifications_required: data.certifications_required || null,
         payment_terms: data.payment_terms || null,
+        customer_name: role === 'admin' && customerName.trim() ? customerName.trim() : null,
       };
 
       // If the requirement was expired and we're extending the deadline, reactivate it
@@ -317,6 +325,7 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
     if (!isOpen) {
       reset();
       setItems([{ ...defaultItem }]);
+      setCustomerName('');
     }
     onOpenChange(isOpen);
   };
@@ -347,6 +356,25 @@ export function EditRequirementForm({ open, onOpenChange, requirement, onSuccess
               />
               {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
             </div>
+
+            {/* Customer Name - Only visible to Admin */}
+            {role === 'admin' && (
+              <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                <Label htmlFor="customer_name" className="flex items-center gap-2">
+                  Customer Name (Admin Only)
+                  <span className="text-xs text-muted-foreground font-normal">(who is this requirement for?)</span>
+                </Label>
+                <Input
+                  id="customer_name"
+                  placeholder="e.g., A & A Business Impex"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the customer name you're buying this material for (commodity trading)
+                </p>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="description">Description *</Label>

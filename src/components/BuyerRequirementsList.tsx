@@ -18,11 +18,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
 import { LineItemL1View } from './LineItemL1View';
+import { useUserRole } from '@/hooks/useUserRole';
+
 interface Requirement {
   id: string;
   title: string;
@@ -37,6 +39,7 @@ interface Requirement {
   delivery_location: string;
   status: 'active' | 'closed' | 'awarded' | 'expired';
   created_at: string;
+  customer_name?: string | null;
 }
 
 interface RequirementItem {
@@ -90,6 +93,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [bids, setBids] = useState<Bid[]>([]);
   const [bidsLoading, setBidsLoading] = useState(false);
   const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
+  const { role } = useUserRole(userId);
 
   useEffect(() => {
     fetchRequirements();
@@ -262,6 +266,13 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                           <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
                         )}
                       </div>
+                      {/* Customer Name - Only visible for admin */}
+                      {role === 'admin' && req.customer_name && (
+                        <div className="flex items-center gap-1 text-sm text-primary mb-1">
+                          <User className="h-3 w-3" />
+                          <span className="font-medium">Customer: {req.customer_name}</span>
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Package className="h-3 w-3" />
