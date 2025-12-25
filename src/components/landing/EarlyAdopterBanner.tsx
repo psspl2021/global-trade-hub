@@ -161,9 +161,18 @@ export const EarlyAdopterBanner = () => {
       className="relative py-8 overflow-hidden" 
       id="early-adopter-offer" 
       aria-labelledby="early-adopter-heading"
+      aria-describedby="early-adopter-description"
       itemScope 
       itemType="https://schema.org/Offer"
     >
+      {/* Hidden SEO content for search engines */}
+      <meta itemProp="price" content="0" />
+      <meta itemProp="priceCurrency" content="INR" />
+      <meta itemProp="availability" content="https://schema.org/LimitedAvailability" />
+      <meta itemProp="validFrom" content="2024-01-01" />
+      <meta itemProp="validThrough" content="2025-12-31" />
+      <link itemProp="url" href="https://procuresaathi.com/#early-adopter-offer" />
+      
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-r from-warning/20 via-primary/20 to-warning/20 animate-pulse" aria-hidden="true" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-transparent" aria-hidden="true" />
@@ -173,39 +182,51 @@ export const EarlyAdopterBanner = () => {
       <div className="absolute bottom-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" aria-hidden="true" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-5xl mx-auto">
+        <article className="max-w-5xl mx-auto" itemScope itemType="https://schema.org/SpecialAnnouncement">
           <div className="bg-card/95 backdrop-blur-sm border-2 border-warning/50 rounded-2xl p-6 md:p-8 shadow-lg">
             {/* Header with badge */}
             <header className="flex flex-col md:flex-row items-center gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <div className="relative">
+                <figure className="relative" aria-label="Trophy icon representing premium offer">
                   <div className="absolute inset-0 bg-warning/30 rounded-full blur-md animate-pulse" aria-hidden="true" />
                   <div className="relative bg-gradient-to-br from-warning to-warning/80 p-3 rounded-full">
-                    <Trophy className="h-8 w-8 text-warning-foreground" aria-hidden="true" />
+                    <Trophy className="h-8 w-8 text-warning-foreground" aria-hidden="true" role="img" />
                   </div>
-                </div>
+                </figure>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="bg-warning/20 text-warning text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">
+                    <span 
+                      className="bg-warning/20 text-warning text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide"
+                      role="status"
+                      aria-label="Limited time offer"
+                    >
                       Limited Offer
                     </span>
-                    <Sparkles className="h-4 w-4 text-warning animate-pulse" aria-hidden="true" />
+                    <Sparkles className="h-4 w-4 text-warning animate-pulse" aria-hidden="true" role="img" />
                   </div>
-                  <h2 id="early-adopter-heading" className="text-2xl md:text-3xl font-bold text-foreground mt-1" itemProp="name">
+                  <h2 
+                    id="early-adopter-heading" 
+                    className="text-2xl md:text-3xl font-bold text-foreground mt-1" 
+                    itemProp="name"
+                  >
                     First 100 Partners Get <span className="text-warning">1 Year FREE</span> Premium!
                   </h2>
-                  <p className="text-sm text-muted-foreground mt-1" itemProp="description">
-                    Free CRM & Tax Invoice Generator included with premium subscription
+                  <p 
+                    id="early-adopter-description"
+                    className="text-sm text-muted-foreground mt-1" 
+                    itemProp="description"
+                  >
+                    Free CRM Software & GST Tax Invoice Generator included with premium subscription worth ₹24,950 — India's best B2B procurement platform for suppliers and logistics partners
                   </p>
                 </div>
               </div>
             </header>
 
             {/* Progress bar and counter */}
-            <div className="mb-6">
+            <div className="mb-6" role="progressbar" aria-valuenow={filledSpots} aria-valuemin={0} aria-valuemax={100} aria-label="Early adopter spots claimed">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-muted-foreground">Early Adopter Spots Claimed</span>
-                <span className="text-sm font-bold text-warning">
+                <span className="text-sm font-bold text-warning" aria-live="polite">
                   {isLoading ? (
                     <span className="animate-pulse">Loading...</span>
                   ) : (
@@ -222,61 +243,83 @@ export const EarlyAdopterBanner = () => {
                 </div>
               </div>
               {remainingSlots !== null && remainingSlots > 0 && (
-                <p className="text-center mt-2 text-lg font-semibold text-foreground">
-                  🔥 Only <span className="text-warning text-xl">{remainingSlots}</span> spots remaining!
+                <p className="text-center mt-2 text-lg font-semibold text-foreground" aria-live="polite">
+                  🔥 Only <span className="text-warning text-xl" itemProp="inventoryLevel">{remainingSlots}</span> spots remaining!
                 </p>
               )}
             </div>
 
-            {/* Benefits grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              <div className="flex items-center gap-2 bg-success/10 rounded-lg p-3">
-                <Star className="h-5 w-5 text-success shrink-0" />
-                <span className="text-sm font-medium text-foreground">1 Year FREE</span>
-              </div>
-              <div className="flex items-center gap-2 bg-primary/10 rounded-lg p-3">
-                <Zap className="h-5 w-5 text-primary shrink-0" />
-                <span className="text-sm font-medium text-foreground">Unlimited Bids</span>
-              </div>
-              <div className="flex items-center gap-2 bg-warning/10 rounded-lg p-3">
-                <Trophy className="h-5 w-5 text-warning shrink-0" />
-                <span className="text-sm font-medium text-foreground">Early Adopter Badge</span>
-              </div>
-              <div className="flex items-center gap-2 bg-muted rounded-lg p-3">
-                <Sparkles className="h-5 w-5 text-muted-foreground shrink-0" />
-                <span className="text-sm font-medium text-foreground">Priority Support</span>
-              </div>
-            </div>
+            {/* Benefits grid - SEO optimized with semantic list */}
+            <nav aria-label="Premium benefits included" className="mb-6">
+              <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 list-none p-0 m-0" itemScope itemType="https://schema.org/ItemList">
+                <li className="flex items-center gap-2 bg-success/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <Star className="h-5 w-5 text-success shrink-0" aria-hidden="true" role="img" />
+                  <span className="text-sm font-medium text-foreground" itemProp="name">1 Year FREE Premium</span>
+                  <meta itemProp="position" content="1" />
+                </li>
+                <li className="flex items-center gap-2 bg-primary/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <Zap className="h-5 w-5 text-primary shrink-0" aria-hidden="true" role="img" />
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Unlimited Bids</span>
+                  <meta itemProp="position" content="2" />
+                </li>
+                <li className="flex items-center gap-2 bg-warning/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <Trophy className="h-5 w-5 text-warning shrink-0" aria-hidden="true" role="img" />
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Early Adopter Badge</span>
+                  <meta itemProp="position" content="3" />
+                </li>
+                <li className="flex items-center gap-2 bg-muted rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <Sparkles className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" role="img" />
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Priority Support</span>
+                  <meta itemProp="position" content="4" />
+                </li>
+              </ul>
+            </nav>
 
-            {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {/* CTA buttons with proper ARIA labels */}
+            <nav aria-label="Sign up options" className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
                 className="h-14 text-lg px-8 bg-warning hover:bg-warning/90 text-warning-foreground shadow-lg shadow-warning/25"
                 onClick={() => navigate('/signup?role=supplier')}
+                aria-label="Join ProcureSaathi as a Supplier - Get 1 Year FREE Premium"
               >
-                <Package className="h-5 w-5 mr-2" />
+                <Package className="h-5 w-5 mr-2" aria-hidden="true" />
                 Join as Supplier
               </Button>
               <Button 
                 size="lg"
                 className="h-14 text-lg px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
                 onClick={() => navigate('/signup?role=logistics_partner')}
+                aria-label="Join ProcureSaathi as a Logistics Partner - Get 1 Year FREE Premium"
               >
-                <Truck className="h-5 w-5 mr-2" />
+                <Truck className="h-5 w-5 mr-2" aria-hidden="true" />
                 Join as Logistics Partner
               </Button>
-            </div>
+            </nav>
 
-            {/* Fine print */}
-            <p className="text-center text-xs text-muted-foreground mt-4">
-              Premium subscription worth ₹24,950 — completely FREE for early adopters. No credit card required.
-            </p>
+            {/* Fine print with schema markup */}
+            <footer className="mt-4">
+              <p className="text-center text-xs text-muted-foreground">
+                <span itemProp="priceSpecification" itemScope itemType="https://schema.org/PriceSpecification">
+                  Premium subscription worth <span itemProp="price">₹24,950</span> — completely FREE for early adopters. 
+                  <meta itemProp="priceCurrency" content="INR" />
+                </span>
+                No credit card required.
+              </p>
+              
+              {/* Additional SEO text for crawlers */}
+              <p className="sr-only">
+                ProcureSaathi Early Adopter Program: Get free CRM software, GST tax invoice generator, proforma invoice maker, 
+                and B2B procurement tools. India's leading platform for raw material suppliers, manufacturers, distributors, 
+                wholesalers, and logistics partners. Free lead management, document management, activity tracking, 
+                and pipeline analytics for your business.
+              </p>
+            </footer>
 
             {/* Social Share Buttons */}
             <SocialShareButtons />
           </div>
-        </div>
+        </article>
       </div>
     </section>
   );
