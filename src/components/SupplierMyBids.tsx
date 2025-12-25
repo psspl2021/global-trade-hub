@@ -174,18 +174,29 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
     setSubmitting(true);
     try {
       const quantity = editingBid.requirement?.quantity || 1;
-      const feeRate = getServiceFeeRate(editingBid.requirement?.trade_type);
-      const perUnitWithFee = newPerUnitRate * (1 + feeRate);
-      const totalOrderValue = newPerUnitRate * quantity;
-      const serviceFee = totalOrderValue * feeRate;
-      const totalAmount = totalOrderValue + serviceFee;
+      const markupRate = getMarkupRate(editingBid.requirement?.trade_type);
+      const markupPercentage = markupRate * 100;
+      
+      // supplier_net_price = per unit rate * quantity (supplier's total quote)
+      const supplierNetPrice = newPerUnitRate * quantity;
+      
+      // Calculate markup for buyer-visible price
+      const markupAmount = supplierNetPrice * markupRate;
+      const buyerVisiblePrice = supplierNetPrice + markupAmount;
+      
+      // bid_amount = buyer-visible per-unit rate for L1 comparison
+      const bidAmountPerUnit = newPerUnitRate * (1 + markupRate);
 
       const { error } = await supabase
         .from('bids')
         .update({
-          bid_amount: perUnitWithFee,
-          service_fee: serviceFee,
-          total_amount: totalAmount,
+          bid_amount: bidAmountPerUnit,
+          supplier_net_price: supplierNetPrice,
+          buyer_visible_price: buyerVisiblePrice,
+          markup_percentage: markupPercentage,
+          markup_amount: markupAmount,
+          service_fee: 0, // No fee deducted from supplier
+          total_amount: buyerVisiblePrice,
           delivery_timeline_days: newDelivery,
         })
         .eq('id', editingBid.id)
@@ -373,8 +384,8 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                 />
                 {rebidAmount && editingBid && (
                   <p className="text-sm text-muted-foreground">
-                    Price shown to buyer: ₹{(parseFloat(rebidAmount) * (1 + getServiceFeeRate(editingBid.requirement?.trade_type))).toLocaleString(undefined, { maximumFractionDigits: 2 })} per {editingBid.requirement?.unit}
-                    <span className="ml-1 text-xs">({editingBid.requirement?.trade_type === 'domestic_india' ? '0.5%' : '1%'} fee)</span>
+                    Total Order Value: ₹{(parseFloat(rebidAmount) * (editingBid.requirement?.quantity || 1)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    <span className="ml-1 text-xs">(No platform fee deducted from your quote)</span>
                   </p>
                 )}
               </div>
@@ -392,28 +403,27 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
 
               {/* Live Preview */}
               {rebidAmount && editingBid && (() => {
-                const feeRate = getServiceFeeRate(editingBid.requirement?.trade_type);
-                const feePercentage = feeRate * 100;
                 const rate = parseFloat(rebidAmount);
+                const quantity = editingBid.requirement?.quantity || 1;
+                const totalOrderValue = rate * quantity;
                 return (
                 <div className="bg-muted/50 rounded-lg p-4 text-sm">
                   <h4 className="font-semibold mb-2">New Bid Preview</h4>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <span className="text-muted-foreground">Your Rate:</span>
-                      <p className="font-medium">₹{rate.toLocaleString()}</p>
+                      <p className="font-medium">₹{rate.toLocaleString()} per {editingBid.requirement?.unit}</p>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Service Fee ({feePercentage}%):</span>
-                      <p className="font-medium">₹{(rate * feeRate).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <span className="text-muted-foreground">Quantity:</span>
+                      <p className="font-medium">{quantity} {editingBid.requirement?.unit}</p>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">Price to Buyer:</span>
-                      <p className="font-bold text-primary">₹{(rate * (1 + feeRate)).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Total Order Value:</span>
+                      <p className="font-bold text-primary">₹{totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">Total Order:</span>
-                      <p className="font-bold">₹{(rate * (editingBid.requirement?.quantity || 1) * (1 + feeRate)).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                    <div className="col-span-2 text-xs text-muted-foreground">
+                      Platform fee: ₹0 (No deductions from your quote)
                     </div>
                   </div>
                 </div>
