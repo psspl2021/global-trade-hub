@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Calendar, MapPin, IndianRupee, Building2, FileText, ArrowRight, Filter } from 'lucide-react';
+import { Search, Calendar, MapPin, IndianRupee, Building2, FileText, ArrowRight, Filter, Share2, Copy, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import { useAuth } from '@/hooks/useAuth';
 import { maskCompanyName } from '@/lib/utils';
 import logo from '@/assets/procuresaathi-logo.png';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 import {
   Select,
   SelectContent,
@@ -85,6 +87,9 @@ const getTradeTypeLabel = (tradeType: string | undefined) => {
 
 const Requirements = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const rfqId = searchParams.get('rfq');
+  const { toast } = useToast();
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,6 +97,43 @@ const Requirements = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [categories, setCategories] = useState<string[]>([]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Scroll to specific RFQ if rfqId is present
+  useEffect(() => {
+    if (rfqId && !loading) {
+      const element = document.getElementById(`rfq-${rfqId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+        setTimeout(() => {
+          element.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+        }, 3000);
+      }
+    }
+  }, [rfqId, loading]);
+
+  const handleShare = (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => {
+    e.stopPropagation();
+    const baseUrl = window.location.origin;
+    const shareUrl = `${baseUrl}/requirements?rfq=${req.id}`;
+    const shareText = `Check out this RFQ: ${req.title} - ${req.quantity} ${req.unit} | ${req.product_category} | Deadline: ${format(new Date(req.deadline), 'PP')}`;
+
+    switch (platform) {
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank');
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(shareUrl);
+        setCopiedId(req.id);
+        setTimeout(() => setCopiedId(null), 2000);
+        toast({ title: 'Copied!', description: 'Link copied to clipboard' });
+        break;
+    }
+  };
 
   useSEO({
     title: 'Live RFQs & Buyer Requirements | B2B Procurement - ProcureSaathi',
@@ -344,7 +386,13 @@ const Requirements = () => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredRequirements.map((req) => (
-                <RequirementCard key={req.id} requirement={req} isLoggedIn={!!user} />
+                <RequirementCard 
+                  key={req.id} 
+                  requirement={req} 
+                  isLoggedIn={!!user}
+                  onShare={handleShare}
+                  copiedId={copiedId}
+                />
               ))}
             </div>
           )}
@@ -367,28 +415,59 @@ const Requirements = () => {
   );
 };
 
-const RequirementCard = ({ requirement, isLoggedIn }: { requirement: Requirement; isLoggedIn: boolean }) => {
+interface RequirementCardProps {
+  requirement: Requirement;
+  isLoggedIn: boolean;
+  onShare: (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => void;
+  copiedId: string | null;
+}
+
+const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: RequirementCardProps) => {
   const isExpired = requirement.status === 'expired' || new Date(requirement.deadline) < new Date();
   const isAwarded = requirement.status === 'awarded';
   const isClosed = requirement.status === 'closed';
   const canBid = requirement.status === 'active' && !isExpired;
 
   return (
-    <article>
+    <article id={`rfq-${requirement.id}`} className="transition-all duration-300">
       <Card className={`h-full hover:shadow-lg transition-shadow group ${!canBid ? 'opacity-75' : ''}`}>
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
               {requirement.title}
             </CardTitle>
-            <div className="flex flex-col gap-1 items-end shrink-0">
-              <Badge variant={getStatusBadgeVariant(requirement.status)}>
-                {getStatusLabel(requirement.status)}
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                {getTradeTypeLabel(requirement.trade_type)}
-              </Badge>
+            <div className="flex items-center gap-1 shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'whatsapp')}>
+                    Share on WhatsApp
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'linkedin')}>
+                    Share on LinkedIn
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'copy')}>
+                    {copiedId === requirement.id ? (
+                      <><Check className="h-4 w-4 mr-2" /> Copied!</>
+                    ) : (
+                      <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
+          </div>
+          <div className="flex gap-1 flex-wrap mt-1">
+            <Badge variant={getStatusBadgeVariant(requirement.status)}>
+              {getStatusLabel(requirement.status)}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {getTradeTypeLabel(requirement.trade_type)}
+            </Badge>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="secondary">{requirement.product_category}</Badge>
