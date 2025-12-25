@@ -98,44 +98,59 @@ export type Database = {
       bids: {
         Row: {
           bid_amount: number
+          buyer_visible_price: number
           created_at: string
           delivery_timeline_days: number
           id: string
           is_paid_bid: boolean
+          markup_amount: number | null
+          markup_percentage: number | null
           requirement_id: string
           service_fee: number
           status: Database["public"]["Enums"]["bid_status"]
           supplier_id: string
+          supplier_net_price: number
           terms_and_conditions: string | null
           total_amount: number
+          transaction_type: string | null
           updated_at: string
         }
         Insert: {
           bid_amount: number
+          buyer_visible_price: number
           created_at?: string
           delivery_timeline_days: number
           id?: string
           is_paid_bid?: boolean
+          markup_amount?: number | null
+          markup_percentage?: number | null
           requirement_id: string
           service_fee: number
           status?: Database["public"]["Enums"]["bid_status"]
           supplier_id: string
+          supplier_net_price: number
           terms_and_conditions?: string | null
           total_amount: number
+          transaction_type?: string | null
           updated_at?: string
         }
         Update: {
           bid_amount?: number
+          buyer_visible_price?: number
           created_at?: string
           delivery_timeline_days?: number
           id?: string
           is_paid_bid?: boolean
+          markup_amount?: number | null
+          markup_percentage?: number | null
           requirement_id?: string
           service_fee?: number
           status?: Database["public"]["Enums"]["bid_status"]
           supplier_id?: string
+          supplier_net_price?: number
           terms_and_conditions?: string | null
           total_amount?: number
+          transaction_type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -2524,8 +2539,46 @@ export type Database = {
     }
     Functions: {
       auto_expire_requirements: { Args: never; Returns: undefined }
+      calculate_bid_markup: {
+        Args: {
+          p_buyer_country: string
+          p_ship_to_country: string
+          p_supplier_country: string
+          p_supplier_net_price: number
+        }
+        Returns: {
+          buyer_visible_price: number
+          markup_amount: number
+          markup_percentage: number
+          transaction_type: string
+        }[]
+      }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
+      get_bids_for_buyer: {
+        Args: { p_requirement_id: string }
+        Returns: {
+          bid_amount: number
+          bid_id: string
+          created_at: string
+          delivery_timeline_days: number
+          status: string
+          supplier_name: string
+          terms_and_conditions: string
+        }[]
+      }
+      get_bids_for_supplier: {
+        Args: { p_supplier_id: string }
+        Returns: {
+          bid_amount: number
+          bid_id: string
+          created_at: string
+          delivery_timeline_days: number
+          requirement_id: string
+          requirement_title: string
+          status: string
+        }[]
+      }
       get_business_contact_profile: {
         Args: { _profile_id: string }
         Returns: {
