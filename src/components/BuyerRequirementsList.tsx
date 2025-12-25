@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
@@ -71,7 +71,13 @@ interface Bid {
   created_at: string;
   supplier_id: string;
   bid_items?: BidItem[];
+  logistics_execution_mode?: string; // Backend-controlled, hidden from buyer
 }
+
+// Constants for buyer-facing display - always show ProcureSaathi as handler
+const PLATFORM_SUPPLIER_NAME = 'ProcureSaathi Solutions Pvt Ltd';
+const PLATFORM_LOGISTICS_HANDLER = 'ProcureSaathi Solutions Pvt. Ltd.';
+const PLATFORM_LOGISTICS_CONTACT = 'logistics@procuresaathi.com';
 
 const getTradeTypeLabel = (tradeType: string) => {
   switch (tradeType) {
@@ -365,7 +371,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         <CardContent className="p-4 space-y-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">ProcureSaathi Solutions Pvt Ltd</span>
+                              <span className="font-medium">{PLATFORM_SUPPLIER_NAME}</span>
                               {bid.status === 'accepted' && (
                                 <Badge className="bg-primary/20 text-primary">Accepted</Badge>
                               )}
@@ -376,6 +382,18 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                             <div className="text-sm text-muted-foreground">
                               Delivery: <span className="font-medium text-foreground">{bid.delivery_timeline_days} days</span>
                             </div>
+                          </div>
+
+                          {/* Logistics Handler - Always shows ProcureSaathi regardless of internal execution mode */}
+                          <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-muted">
+                            <Truck className="h-5 w-5 text-primary" />
+                            <div className="flex-1">
+                              <div className="text-sm font-medium">Logistics Handler</div>
+                              <div className="text-sm text-muted-foreground">{PLATFORM_LOGISTICS_HANDLER}</div>
+                            </div>
+                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
+                              {bid.status === 'accepted' ? 'Logistics Arranged' : 'Pending Confirmation'}
+                            </Badge>
                           </div>
 
                           {/* Bid Items Table */}
