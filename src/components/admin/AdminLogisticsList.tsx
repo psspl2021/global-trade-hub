@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Search, Truck, Warehouse, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import {
@@ -73,7 +74,7 @@ interface AdminLogisticsListProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE_OPTIONS = [15, 25, 50, 100];
 
 export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListProps) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -90,6 +91,7 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
   const [requirementsPage, setRequirementsPage] = useState(1);
   const [requirementsTotal, setRequirementsTotal] = useState(0);
   const [tabCounts, setTabCounts] = useState({ vehicles: 0, warehouses: 0, requirements: 0 });
+  const [pageSize, setPageSize] = useState(15);
 
   useEffect(() => {
     if (open) {
@@ -107,13 +109,13 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
         fetchRequirements();
       }
     }
-  }, [open, activeTab, vehiclesPage, warehousesPage, requirementsPage]);
+  }, [open, activeTab, vehiclesPage, warehousesPage, requirementsPage, pageSize]);
 
   useEffect(() => {
     setVehiclesPage(1);
     setWarehousesPage(1);
     setRequirementsPage(1);
-  }, [search]);
+  }, [search, pageSize]);
 
   const fetchTabCounts = async () => {
     try {
@@ -131,8 +133,8 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
   const fetchVehicles = async () => {
     setLoading(true);
     try {
-      const from = (vehiclesPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const from = (vehiclesPage - 1) * pageSize;
+      const to = from + pageSize - 1;
 
       const { data: vehicleData, count } = await supabase
         .from('vehicles')
@@ -169,8 +171,8 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
   const fetchWarehouses = async () => {
     setLoading(true);
     try {
-      const from = (warehousesPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const from = (warehousesPage - 1) * pageSize;
+      const to = from + pageSize - 1;
 
       const { data: warehouseData, count } = await supabase
         .from('warehouses')
@@ -207,8 +209,8 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
   const fetchRequirements = async () => {
     setLoading(true);
     try {
-      const from = (requirementsPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const from = (requirementsPage - 1) * pageSize;
+      const to = from + pageSize - 1;
 
       const { data: reqData, count } = await supabase
         .from('logistics_requirements')
@@ -294,7 +296,7 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
   };
 
   const { page: currentPage, setPage: setCurrentPage, total: totalCount } = getCurrentPageData();
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const getPageNumbers = () => {
     const pages: (number | 'ellipsis')[] = [];
@@ -500,9 +502,21 @@ export function AdminLogisticsList({ open, onOpenChange }: AdminLogisticsListPro
 
               {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
-                  </p>
+                  <div className="flex items-center gap-4">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)} of {totalCount}
+                    </p>
+                    <Select value={pageSize.toString()} onValueChange={(v) => setPageSize(Number(v))}>
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAGE_SIZE_OPTIONS.map(size => (
+                          <SelectItem key={size} value={size.toString()}>{size} / page</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
