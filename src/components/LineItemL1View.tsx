@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Trophy, Package, Pencil } from 'lucide-react';
+import { Loader2, Trophy, Package, Pencil, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface RequirementItem {
@@ -72,6 +72,10 @@ interface LineItemL1ViewProps {
   tradeType?: string;
   showAllSuppliers?: boolean; // For admin view
 }
+
+// Constants for buyer-facing display - always show ProcureSaathi as handler
+const PLATFORM_SUPPLIER_NAME = 'ProcureSaathi Solutions Pvt Ltd';
+const PLATFORM_LOGISTICS_HANDLER = 'ProcureSaathi Solutions Pvt. Ltd.';
 
 export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = false }: LineItemL1ViewProps) {
   const [loading, setLoading] = useState(true);
@@ -321,7 +325,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                             <Trophy className="h-3 w-3 mr-1" />
                             L1
                           </Badge>
-                          <span className="text-sm">ProcureSaathi Solutions Pvt Ltd</span>
+                          <span className="text-sm">{PLATFORM_SUPPLIER_NAME}</span>
                         </div>
                       ) : (
                         <span className="text-muted-foreground">No quotes yet</span>
@@ -349,7 +353,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         </div>
 
         {/* Summary */}
-        <div className="bg-muted/30 rounded-lg p-4">
+        <div className="bg-muted/30 rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-center">
             <span className="font-medium">Total L1 Amount (all items)</span>
             <span className="text-lg font-semibold text-primary">
@@ -361,6 +365,20 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
               }, 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </span>
           </div>
+          
+          {/* Logistics Handler - Always shows ProcureSaathi regardless of internal execution mode */}
+          {l1Data.some(item => item.lowestBidItem) && (
+            <div className="flex items-center gap-3 pt-3 border-t border-muted">
+              <Truck className="h-5 w-5 text-primary" />
+              <div className="flex-1">
+                <div className="text-sm font-medium">Logistics Handler</div>
+                <div className="text-sm text-muted-foreground">{PLATFORM_LOGISTICS_HANDLER}</div>
+              </div>
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
+                Logistics Arranged
+              </Badge>
+            </div>
+          )}
         </div>
       </div>
     );

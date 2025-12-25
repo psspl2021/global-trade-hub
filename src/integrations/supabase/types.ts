@@ -103,6 +103,8 @@ export type Database = {
           delivery_timeline_days: number
           id: string
           is_paid_bid: boolean
+          logistics_execution_mode: string | null
+          logistics_notes: string | null
           markup_amount: number | null
           markup_percentage: number | null
           requirement_id: string
@@ -122,6 +124,8 @@ export type Database = {
           delivery_timeline_days: number
           id?: string
           is_paid_bid?: boolean
+          logistics_execution_mode?: string | null
+          logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
           requirement_id: string
@@ -141,6 +145,8 @@ export type Database = {
           delivery_timeline_days?: number
           id?: string
           is_paid_bid?: boolean
+          logistics_execution_mode?: string | null
+          logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
           requirement_id?: string
@@ -2588,6 +2594,24 @@ export type Database = {
           country: string
           id: string
           state: string
+        }[]
+      }
+      get_logistics_details_internal: {
+        Args: { p_bid_id: string }
+        Returns: {
+          actual_handler_id: string
+          bid_id: string
+          logistics_execution_mode: string
+          logistics_notes: string
+          supplier_id: string
+        }[]
+      }
+      get_logistics_handler_for_buyer: {
+        Args: { p_bid_id: string }
+        Returns: {
+          logistics_handler_contact: string
+          logistics_handler_name: string
+          logistics_status: string
         }[]
       }
       get_lowest_bid_for_requirement: {
