@@ -147,7 +147,7 @@ const Buyer = () => {
   }, []);
 
   const handleWhatsAppContact = () => {
-    window.open("https://wa.me/919876543210?text=Hi, I need help posting my RFQ on ProcureSaathi", "_blank");
+    window.open("https://wa.me/918368127357?text=Hi, I need help posting my RFQ on ProcureSaathi", "_blank");
   };
 
   return (
