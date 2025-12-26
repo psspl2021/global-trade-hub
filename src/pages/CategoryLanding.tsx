@@ -37,14 +37,16 @@ const getCategoryContent = (categoryName: string) => {
     faqs: { q: string; a: string }[];
   }> = {
     'Agriculture Equipment & Supplies': {
-      title: 'Agriculture Equipment Suppliers India | Farm Machinery, Irrigation, Seeds',
-      description: 'Connect with 400+ verified agricultural equipment suppliers in India. Source tractors, irrigation systems, seeds, fertilizers, and farm tools at wholesale prices. Export-quality agricultural supplies.',
-      keywords: ['agricultural equipment India', 'farm machinery suppliers', 'irrigation equipment dealers', 'tractor parts wholesale', 'seeds suppliers India', 'fertilizers manufacturers'],
-      benefits: ['Farm equipment financing', 'Technical support', 'Pan-India delivery', 'Quality seeds certified'],
+      title: 'Agriculture Equipment Suppliers India | Farm Machinery, Tractors, Seeds, Fertilizers Export',
+      description: 'India\'s largest B2B marketplace for agriculture equipment with 500+ verified suppliers. Source tractors, harvesters, irrigation systems, organic seeds, bio-fertilizers, pesticides & farm tools. APEDA certified, export-ready, bulk pricing for agri-dealers & exporters.',
+      keywords: ['agricultural equipment India', 'farm machinery suppliers', 'irrigation equipment dealers', 'tractor parts wholesale', 'seeds suppliers India', 'fertilizers manufacturers', 'agri equipment exporters', 'drip irrigation suppliers', 'sprinkler systems India', 'harvester manufacturers', 'power tiller dealers', 'rotavator suppliers', 'organic seeds wholesale', 'bio fertilizers India', 'pesticides dealers', 'farm implements manufacturers', 'greenhouse equipment', 'cold storage suppliers', 'grain storage silos', 'agricultural pumps', 'crop protection chemicals', 'animal feed suppliers', 'dairy equipment manufacturers', 'poultry equipment India', 'horticulture supplies', 'soil testing equipment'],
+      benefits: ['APEDA certified for exports', 'Farm equipment financing available', 'Technical agronomist support', 'Pan-India delivery network', 'Quality seeds ICAR certified', 'Organic & sustainable options', 'Bulk dealer discounts', 'After-sales service network'],
       faqs: [
-        { q: 'What agricultural equipment can I source?', a: 'We offer tractors, harvesters, irrigation systems, seeds, fertilizers, pesticides, and all farm tools.' },
-        { q: 'Do you have organic farming supplies?', a: 'Yes, we have verified suppliers for organic seeds, bio-fertilizers, and organic pesticides.' },
-        { q: 'Is export available for agricultural products?', a: 'Yes, many of our suppliers are export-certified for agricultural equipment and supplies.' },
+        { q: 'What agricultural equipment can I source from India?', a: 'We offer tractors (Mahindra, Swaraj, John Deere dealers), harvesters, rotavators, irrigation systems (drip, sprinkler), greenhouse structures, cold storage, seeds, fertilizers, pesticides, and all farm implements.' },
+        { q: 'Do you have organic farming supplies?', a: 'Yes, we have NPOP certified suppliers for organic seeds, bio-fertilizers, vermicompost, organic pesticides, and sustainable farming equipment.' },
+        { q: 'Is export available for agricultural products?', a: 'Yes, most suppliers are APEDA registered with phytosanitary certification for export to USA, EU, Middle East, and Africa.' },
+        { q: 'What irrigation equipment is available?', a: 'We supply drip irrigation systems, sprinkler systems, foggers, agricultural pumps, water tanks, and complete turnkey irrigation solutions.' },
+        { q: 'Do you supply for government PMKSY schemes?', a: 'Yes, our suppliers are empaneled for PM Krishi Sinchayee Yojana and other government subsidy schemes with documentation support.' },
       ]
     },
     'Apparel & Clothing': {
@@ -278,24 +280,31 @@ const getCategoryContent = (categoryName: string) => {
       ]
     },
     'Metals - Ferrous (Steel, Iron)': {
-      title: 'Steel & Iron Suppliers India | TMT Bars, HR Coils, Steel Sheets, Structural Steel',
-      description: 'Connect with 600+ verified steel manufacturers and iron suppliers in India. Get best prices on TMT bars, HR coils, CR sheets, steel pipes, rails, and structural steel. BIS certified, bulk orders.',
-      keywords: ['TMT bar suppliers India', 'steel manufacturers', 'HR coil dealers', 'iron suppliers', 'steel pipes wholesale', 'structural steel India', 'stainless steel suppliers'],
-      benefits: ['Direct factory prices', 'BIS/ISI certified', 'Pan-India delivery', 'Credit facility available'],
+      title: 'Steel & Iron Suppliers India | TMT Bars, HR Coils, MS Plates, Structural Steel Exporters',
+      description: 'India\'s premier B2B marketplace for ferrous metals with 700+ verified steel manufacturers & iron suppliers. Source TMT bars (Fe500D, Fe550D), HR coils, CR sheets, MS plates, stainless steel, alloy steel, railway tracks & structural steel. BIS/ISI certified, mill direct pricing, export quality.',
+      keywords: ['TMT bar suppliers India', 'steel manufacturers', 'HR coil dealers', 'iron suppliers', 'steel pipes wholesale', 'structural steel India', 'stainless steel suppliers', 'MS plate manufacturers', 'CR sheet dealers', 'alloy steel suppliers', 'tool steel India', 'rail steel suppliers', 'steel billets manufacturers', 'steel ingots wholesale', 'galvanized steel dealers', 'steel angles channels', 'I beam suppliers', 'H beam manufacturers', 'steel fabricators', 'steel scrap dealers', 'pig iron suppliers', 'sponge iron manufacturers', 'steel wire rod', 'reinforcement steel', 'boiler quality plates', 'shipbuilding steel', 'weathering steel India', 'high tensile steel', 'SAIL steel dealers', 'TATA steel distributors', 'JSW steel suppliers', 'Jindal steel dealers'],
+      benefits: ['Direct mill/factory prices', 'BIS/ISI certified products', 'Pan-India logistics network', 'Credit facility 30-90 days', 'Mill test certificates', 'Customized cutting & processing', 'Export quality with certifications', 'Real-time price updates'],
       faqs: [
-        { q: 'What is the minimum order quantity for TMT bars?', a: 'MOQ varies by supplier, typically starting from 5 MT for bulk orders.' },
-        { q: 'Do suppliers provide ISI certification?', a: 'Yes, all our verified steel suppliers provide BIS/ISI certified products.' },
-        { q: 'What are the payment terms?', a: 'Most suppliers offer 30-90 days credit for verified buyers.' },
+        { q: 'What is the minimum order quantity for TMT bars?', a: 'MOQ varies by supplier: 5-10 MT for dealers, 50+ MT for direct mill orders. We also facilitate smaller orders through stockists.' },
+        { q: 'Do suppliers provide ISI certification?', a: 'Yes, all ferrous metal suppliers provide BIS/ISI certified products with mill test certificates (MTC) and third-party inspection reports.' },
+        { q: 'What steel grades are available?', a: 'We supply TMT (Fe415, Fe500, Fe500D, Fe550D, CRS), HR (IS2062 E250/E350), CR (SPCC, SPCD), stainless (SS304, SS316, SS202), and alloy steels (EN series, SAE grades).' },
+        { q: 'Can I get current steel prices?', a: 'Yes, we provide real-time ex-factory and ex-godown prices updated daily for major steel products across India.' },
+        { q: 'Do you facilitate steel exports?', a: 'Yes, we have export-oriented steel suppliers with IS, ASTM, EN, JIS certifications catering to Middle East, Africa, Southeast Asia, and global markets.' },
+        { q: 'What are the payment terms?', a: 'Most suppliers offer advance payment or LC for new buyers. Credit terms of 30-90 days available for verified regular buyers with established track record.' },
       ]
     },
     'Metals - Non-Ferrous (Copper, Aluminium)': {
-      title: 'Non-Ferrous Metals Suppliers India | Copper, Aluminium, Brass, Zinc Products',
-      description: 'Source copper products, aluminium sheets, brass items, zinc products, and non-ferrous metals from verified suppliers. Ingots, sheets, coils, and scrap at competitive prices.',
-      keywords: ['copper suppliers India', 'aluminium dealers', 'brass manufacturers', 'non-ferrous metals wholesale', 'metal ingots suppliers'],
-      benefits: ['Quality certified', 'Competitive pricing', 'Pan-India delivery', 'Credit terms available'],
+      title: 'Non-Ferrous Metals Suppliers India | Copper, Aluminium, Brass, Zinc, Lead Exporters',
+      description: 'India\'s trusted B2B platform for non-ferrous metals with 500+ verified suppliers. Source copper cathodes, aluminium ingots/sheets/extrusions, brass rods, zinc ingots, lead products, nickel, tin & precious metals. LME linked pricing, quality certified, export ready.',
+      keywords: ['copper suppliers India', 'aluminium dealers', 'brass manufacturers', 'non-ferrous metals wholesale', 'metal ingots suppliers', 'copper cathode dealers', 'copper wire rod', 'copper pipes manufacturers', 'aluminium extrusion suppliers', 'aluminium coil dealers', 'aluminium ingot manufacturers', 'brass rod suppliers', 'brass sheet dealers', 'zinc ingot suppliers', 'lead ingot manufacturers', 'nickel suppliers India', 'tin ingot dealers', 'bronze suppliers', 'phosphor bronze manufacturers', 'gunmetal suppliers', 'metal scrap dealers', 'copper scrap buyers', 'aluminium scrap India', 'Hindalco dealers', 'Nalco suppliers', 'Vedanta aluminium', 'Hindustan Copper', 'die casting alloys', 'aluminium billets'],
+      benefits: ['LME linked competitive pricing', 'Quality certified (IS/ASTM/BS)', 'Mill test certificates provided', 'Pan-India delivery network', 'Credit terms for verified buyers', 'Custom sizes & specifications', 'Scrap trading facilitated', 'Real-time market updates'],
       faqs: [
-        { q: 'Do you have LME linked pricing?', a: 'Yes, many suppliers offer LME linked pricing for non-ferrous metals.' },
-        { q: 'Is scrap trading available?', a: 'Yes, we have verified buyers and sellers for metal scrap trading.' },
+        { q: 'Do you have LME linked pricing?', a: 'Yes, all major non-ferrous metals (copper, aluminium, zinc, lead, nickel) are priced based on LME with Indian market premiums updated daily.' },
+        { q: 'What copper products are available?', a: 'We supply copper cathodes, wire rods, pipes, tubes, strips, sheets, busbars, and copper alloys from major producers including HCL, Sterlite, and private manufacturers.' },
+        { q: 'Which aluminium grades can I source?', a: 'We offer primary aluminium ingots (EC, P1020), billets, wire rods, sheets (1050, 1100, 3003, 5052), extrusions (6061, 6063), and die casting alloys from Hindalco, Nalco, and Vedanta.' },
+        { q: 'Is metal scrap trading available?', a: 'Yes, we facilitate scrap trading for copper (Birch Cliff, Berry, Candy), aluminium (Taint Tabor, Tense, Troma), and brass scrap with verified buyers and sellers.' },
+        { q: 'Can I get small quantities?', a: 'Yes, while mill orders require higher MOQ, we have stockists and dealers offering smaller quantities from 100 kg onwards.' },
+        { q: 'Do you support non-ferrous metal exports?', a: 'Yes, we have export-oriented suppliers with quality certifications meeting international standards for exports to Middle East, Africa, Europe, and Asian markets.' },
       ]
     },
     'Mining & Minerals': {
