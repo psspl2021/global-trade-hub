@@ -1345,6 +1345,7 @@ export type Database = {
           country: string | null
           created_at: string
           email: string
+          email_notifications_enabled: boolean | null
           gstin: string | null
           house_address: string | null
           id: string
@@ -1372,6 +1373,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           email: string
+          email_notifications_enabled?: boolean | null
           gstin?: string | null
           house_address?: string | null
           id: string
@@ -1399,6 +1401,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           email?: string
+          email_notifications_enabled?: boolean | null
           gstin?: string | null
           house_address?: string | null
           id?: string
