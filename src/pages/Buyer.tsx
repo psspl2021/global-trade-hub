@@ -163,7 +163,7 @@ const Buyer = () => {
               <span className="text-sm font-medium text-muted-foreground">TRANSPARENT B2B BIDDING</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
               Post Your RFQ. Get Competitive Bids from{" "}
               <span className="text-primary">Verified Suppliers.</span>
             </h1>
@@ -238,7 +238,7 @@ const Buyer = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-              Built for Buyers Who:
+              Built for Buyers Who
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
               {buyerBenefits.map((benefit, index) => (
