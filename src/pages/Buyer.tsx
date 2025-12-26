@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { PostRFQModal } from "@/components/PostRFQModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
@@ -112,6 +113,7 @@ const buyerTypes = [
 
 const Buyer = () => {
   const navigate = useNavigate();
+  const [showRFQModal, setShowRFQModal] = useState(false);
 
   useSEO({
     title: "B2B Buyer Portal - Post RFQ, Get Competitive Bids",
@@ -193,9 +195,9 @@ const Buyer = () => {
                 <Button 
                   size="lg" 
                   className="h-14 px-8 text-lg"
-                  onClick={() => navigate('/signup?role=buyer')}
+                  onClick={() => setShowRFQModal(true)}
                 >
-                  <span className="mr-2">🟢</span>
+                  <span className="mr-2 inline-block w-3 h-3 rounded-full bg-green-500"></span>
                   Post RFQ – Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -462,6 +464,9 @@ const Buyer = () => {
           ← Back to Home
         </Button>
       </section>
+
+      {/* Post RFQ Modal */}
+      <PostRFQModal open={showRFQModal} onOpenChange={setShowRFQModal} />
     </div>
   );
 };
