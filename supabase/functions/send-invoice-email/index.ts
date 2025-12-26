@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-
-
+const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -116,19 +114,27 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    const emailResponse = await fetch("https://api.resend.com/emails", {
+    console.log(`Sending invoice email to ${to} for ${invoiceNumber}`);
+
+    const emailResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "api-key": BREVO_API_KEY || "",
       },
       body: JSON.stringify({
-        from: `${companyName} <onboarding@resend.dev>`,
-        to: [to],
+        sender: { name: companyName, email: "noreply@procuresaathi.com" },
+        to: [{ email: to }],
         subject: subject || `${documentTypeLabel} ${invoiceNumber} from ${companyName}`,
-        html: emailHtml,
+        htmlContent: emailHtml,
       }),
     });
+
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error("Brevo API error:", errorText);
+      throw new Error(`Brevo API error: ${errorText}`);
+    }
 
     const result = await emailResponse.json();
 
