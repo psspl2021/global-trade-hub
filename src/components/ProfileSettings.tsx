@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
@@ -36,6 +37,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     yard_location: '',
     supplier_categories: [] as string[],
     buyer_industry: '',
+    email_notifications_enabled: true,
   });
 
   const categoryNames = categoriesData.map(c => c.name);
@@ -50,7 +52,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address, yard_location, supplier_categories, buyer_industry')
+      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address, yard_location, supplier_categories, buyer_industry, email_notifications_enabled')
       .eq('id', userId)
       .single();
 
@@ -70,6 +72,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         yard_location: (data as any).yard_location || '',
         supplier_categories: data.supplier_categories || [],
         buyer_industry: data.buyer_industry || '',
+        email_notifications_enabled: (data as any).email_notifications_enabled !== false,
       });
     }
     setLoading(false);
@@ -146,6 +149,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         yard_location: profile.yard_location,
         supplier_categories: profile.supplier_categories,
         buyer_industry: profile.buyer_industry || null,
+        email_notifications_enabled: profile.email_notifications_enabled,
       })
       .eq('id', userId);
 
@@ -329,6 +333,19 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                   ))}
                 </div>
                 {errors.supplier_categories && <p className="text-sm text-destructive mt-1">{errors.supplier_categories}</p>}
+                
+                {/* Email Notifications Toggle for Suppliers */}
+                <div className="mt-4 flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="email_notifications" className="font-medium">Email Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Receive emails when new requirements match your categories</p>
+                  </div>
+                  <Switch
+                    id="email_notifications"
+                    checked={profile.email_notifications_enabled}
+                    onCheckedChange={(checked) => setProfile({ ...profile, email_notifications_enabled: checked })}
+                  />
+                </div>
               </div>
             )}
 
