@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSEO } from '@/hooks/useSEO';
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -73,11 +73,55 @@ const BookTruck = () => {
 
   // SEO
   useSEO({
-    title: 'Book Trucks & Warehouses | ProcureSaathi Logistics',
-    description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators.',
+    title: 'Book Trucks & Warehouses India | ProcureSaathi Logistics',
+    description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators. Book now!',
     canonical: 'https://procuresaathi.com/book-truck',
-    keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services'
+    keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services, truck hire, warehouse space, logistics marketplace'
   });
+
+  // Inject structured data for SEO
+  useEffect(() => {
+    injectStructuredData(getBreadcrumbSchema([
+      { name: 'Home', url: 'https://procuresaathi.com' },
+      { name: 'Book Truck & Warehouse', url: 'https://procuresaathi.com/book-truck' }
+    ]), 'booktruck-breadcrumb-schema');
+
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "ProcureSaathi Logistics Marketplace",
+      "description": "Find verified trucks and warehouses across India. Get instant quotes from verified logistics partners.",
+      "serviceType": "Logistics Services",
+      "provider": {
+        "@type": "Organization",
+        "name": "ProcureSaathi"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "India"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Logistics Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Truck Booking"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Warehouse Rental"
+            }
+          }
+        ]
+      }
+    }, 'booktruck-service-schema');
+  }, []);
   
   // Filter inputs
   const [fromLocation, setFromLocation] = useState('all');
