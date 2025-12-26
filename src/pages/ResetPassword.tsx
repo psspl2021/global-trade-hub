@@ -9,6 +9,7 @@ import { Package2, AlertTriangle, Loader2 } from 'lucide-react';
 import { resetPasswordSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useSEO } from '@/hooks/useSEO';
 
 type FormErrors = {
   password?: string;
@@ -24,6 +25,12 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useSEO({
+    title: "Reset Password | ProcureSaathi",
+    description: "Set a new secure password for your ProcureSaathi account. Access your B2B procurement dashboard.",
+    canonical: "https://procuresaathi.com/reset-password"
+  });
 
   useEffect(() => {
     // If no session, user hasn't clicked the reset link yet

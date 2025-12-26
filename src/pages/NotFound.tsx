@@ -1,10 +1,17 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useSEO({
+    title: "Page Not Found | ProcureSaathi",
+    description: "The page you're looking for doesn't exist. Return to ProcureSaathi's B2B marketplace to browse verified suppliers and products.",
+    canonical: "https://procuresaathi.com/404"
+  });
 
   useEffect(() => {
     // Check for double-encoded URLs (e.g., /signup%3Fcategory=... instead of /signup?category=...)
