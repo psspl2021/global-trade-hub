@@ -41,3 +41,9 @@ verify_jwt = true
 
 [functions.brevo-webhook]
 verify_jwt = false
+
+[functions.cashfree-create-order]
+verify_jwt = true
+
+[functions.cashfree-webhook]
+verify_jwt = false
