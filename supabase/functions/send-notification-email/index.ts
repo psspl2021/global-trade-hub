@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
+// Must match a "Sender" configured in Brevo (domain authentication alone may not be enough)
+const BREVO_SENDER_EMAIL = Deno.env.get("BREVO_SENDER_EMAIL") ?? "noreply@procuresaathi.com";
+const BREVO_SENDER_NAME = Deno.env.get("BREVO_SENDER_NAME") ?? "ProcureSaathi";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -173,12 +176,14 @@ const handler = async (req: Request): Promise<Response> => {
         "api-key": BREVO_API_KEY || "",
       },
       body: JSON.stringify({
-        sender: { name: "ProcureSaathi", email: "noreply@procuresaathi.com" },
+        sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
         to: [{ email: to }],
-        subject: subject,
+        subject,
         htmlContent: html,
       }),
     });
+
+    console.log(`Brevo response status: ${res.status}`);
 
     if (!res.ok) {
       const errorText = await res.text();
