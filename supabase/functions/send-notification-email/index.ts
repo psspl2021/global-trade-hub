@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
-// Must match a "Sender" configured in Brevo (domain authentication alone may not be enough)
 const BREVO_SENDER_EMAIL = Deno.env.get("BREVO_SENDER_EMAIL") ?? "noreply@procuresaathi.com";
 const BREVO_SENDER_NAME = Deno.env.get("BREVO_SENDER_NAME") ?? "ProcureSaathi";
 
@@ -15,6 +15,8 @@ interface EmailRequest {
   subject: string;
   type: "new_bid" | "new_requirement" | "bid_accepted" | "document_verified" | "new_logistics_requirement" | "referral_reward";
   data: Record<string, any>;
+  supplier_id?: string;
+  requirement_id?: string;
 }
 
 const getEmailTemplate = (type: string, data: Record<string, any>): string => {
@@ -201,12 +203,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, subject, type, data }: EmailRequest = await req.json();
+    const { to, subject, type, data, supplier_id, requirement_id }: EmailRequest = await req.json();
 
     console.log(`Sending ${type} email to ${to}`);
 
     const html = getEmailTemplate(type, data);
 
+    // Send via Brevo API
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
@@ -231,6 +234,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await res.json();
     console.log("Email sent successfully:", emailResponse);
+
+    // Log the email in our database if supplier_id is provided
+    if (supplier_id && emailResponse.messageId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        await supabase.from("supplier_email_logs").insert({
+          supplier_id,
+          requirement_id: requirement_id || null,
+          brevo_message_id: emailResponse.messageId,
+          recipient_email: to,
+          subject,
+          email_type: type,
+          status: "sent",
+        });
+
+        console.log(`Email logged for supplier ${supplier_id}`);
+      } catch (logError) {
+        console.error("Error logging email:", logError);
+        // Don't fail the request if logging fails
+      }
+    }
 
     return new Response(JSON.stringify({ success: true, data: emailResponse }), {
       status: 200,

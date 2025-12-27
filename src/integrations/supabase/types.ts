@@ -2155,6 +2155,69 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_email_logs: {
+        Row: {
+          bounce_reason: string | null
+          bounced_at: string | null
+          brevo_message_id: string | null
+          click_count: number | null
+          clicked_at: string | null
+          created_at: string
+          delivered_at: string | null
+          email_type: string
+          id: string
+          metadata: Json | null
+          open_count: number | null
+          opened_at: string | null
+          recipient_email: string
+          requirement_id: string | null
+          sent_at: string
+          status: string
+          subject: string
+          supplier_id: string
+        }
+        Insert: {
+          bounce_reason?: string | null
+          bounced_at?: string | null
+          brevo_message_id?: string | null
+          click_count?: number | null
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          email_type?: string
+          id?: string
+          metadata?: Json | null
+          open_count?: number | null
+          opened_at?: string | null
+          recipient_email: string
+          requirement_id?: string | null
+          sent_at?: string
+          status?: string
+          subject: string
+          supplier_id: string
+        }
+        Update: {
+          bounce_reason?: string | null
+          bounced_at?: string | null
+          brevo_message_id?: string | null
+          click_count?: number | null
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          email_type?: string
+          id?: string
+          metadata?: Json | null
+          open_count?: number | null
+          opened_at?: string | null
+          recipient_email?: string
+          requirement_id?: string | null
+          sent_at?: string
+          status?: string
+          subject?: string
+          supplier_id?: string
+        }
+        Relationships: []
+      }
       supplier_email_quotas: {
         Row: {
           created_at: string
@@ -2347,6 +2410,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      supplier_subscription_history: {
+        Row: {
+          admin_notes: string | null
+          amount_paid: number | null
+          created_at: string
+          created_by: string | null
+          emails_allowed: number
+          emails_used: number
+          id: string
+          payment_reference: string | null
+          payment_status: string | null
+          plan_expires_at: string | null
+          plan_started_at: string
+          plan_type: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_paid?: number | null
+          created_at?: string
+          created_by?: string | null
+          emails_allowed?: number
+          emails_used?: number
+          id?: string
+          payment_reference?: string | null
+          payment_status?: string | null
+          plan_expires_at?: string | null
+          plan_started_at?: string
+          plan_type?: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_paid?: number | null
+          created_at?: string
+          created_by?: string | null
+          emails_allowed?: number
+          emails_used?: number
+          id?: string
+          payment_reference?: string | null
+          payment_status?: string | null
+          plan_expires_at?: string | null
+          plan_started_at?: string
+          plan_type?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       transactions: {
         Row: {
@@ -2592,6 +2706,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_supplier_quota: {
+        Args: {
+          p_daily_adjustment?: number
+          p_monthly_adjustment?: number
+          p_set_subscription?: boolean
+          p_subscription_expires_at?: string
+          p_supplier_id: string
+        }
+        Returns: boolean
+      }
       auto_expire_requirements: { Args: never; Returns: undefined }
       calculate_bid_markup: {
         Args: {
@@ -2696,6 +2820,20 @@ export type Database = {
           lowest_bid_amount: number
         }[]
       }
+      get_supplier_email_stats: {
+        Args: { p_supplier_id?: string }
+        Returns: {
+          click_rate: number
+          delivery_rate: number
+          open_rate: number
+          supplier_id: string
+          total_bounced: number
+          total_clicked: number
+          total_delivered: number
+          total_opened: number
+          total_sent: number
+        }[]
+      }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean
@@ -2706,6 +2844,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_email_sent: {
+        Args: {
+          p_brevo_message_id: string
+          p_email_type?: string
+          p_recipient_email: string
+          p_requirement_id: string
+          p_subject: string
+          p_supplier_id: string
+        }
+        Returns: string
       }
       send_email_notification: {
         Args: { p_data: Json; p_subject: string; p_to: string; p_type: string }
