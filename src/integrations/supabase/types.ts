@@ -1359,6 +1359,7 @@ export type Database = {
           referred_by_phone: string | null
           state: string | null
           supplier_categories: string[] | null
+          supplier_notification_subcategories: string[] | null
           updated_at: string
           yard_location: string | null
         }
@@ -1387,6 +1388,7 @@ export type Database = {
           referred_by_phone?: string | null
           state?: string | null
           supplier_categories?: string[] | null
+          supplier_notification_subcategories?: string[] | null
           updated_at?: string
           yard_location?: string | null
         }
@@ -1415,6 +1417,7 @@ export type Database = {
           referred_by_phone?: string | null
           state?: string | null
           supplier_categories?: string[] | null
+          supplier_notification_subcategories?: string[] | null
           updated_at?: string
           yard_location?: string | null
         }
