@@ -262,7 +262,7 @@ export function SendRequirementEmailModal({ open, onOpenChange, requirement }: S
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <ScrollArea className="flex-1 max-h-[300px] border rounded-lg">
+          <ScrollArea className="flex-1 h-[350px] border rounded-lg overflow-auto">
             {matchingSuppliers.length > 0 && (
               <div>
                 <div className="sticky top-0 bg-background p-2 border-b">
