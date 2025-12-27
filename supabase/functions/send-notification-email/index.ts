@@ -55,20 +55,58 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
       `;
 
     case "new_requirement":
+      const formattedDeadline = data.deadline ? new Date(data.deadline).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) : 'Not specified';
+      
       return `
         <div style="${baseStyles}">
           <h1 style="color: #1e40af;">New Requirement in Your Category! 📦</h1>
-          <p>A new requirement matching your product categories has been posted.</p>
+          <p>A new requirement matching your product categories has been posted. Act fast to submit your bid!</p>
+          
           <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Title:</strong> ${data.requirement_title}</p>
-            <p><strong>Category:</strong> ${data.category}</p>
-            <p><strong>Quantity:</strong> ${data.quantity} ${data.unit}</p>
-            <p><strong>Location:</strong> ${data.location}</p>
-            <p><strong>Deadline:</strong> ${data.deadline}</p>
+            <h2 style="color: #1e40af; margin-top: 0; font-size: 18px;">${data.requirement_title}</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; width: 40%;"><strong>Category:</strong></td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${data.category}</td>
+              </tr>
+              ${data.items ? `
+              <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Items:</strong></td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${data.items}</td>
+              </tr>
+              ` : ''}
+              <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Quantity:</strong></td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${data.quantity} ${data.unit}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Delivery Location:</strong></td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${data.location}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0;"><strong>Last Date to Respond:</strong></td>
+                <td style="padding: 8px 0; color: #dc2626; font-weight: 600;">${formattedDeadline}</td>
+              </tr>
+            </table>
           </div>
-          <p>Be the first to submit a competitive bid!</p>
-          <a href="https://procuresaathi.lovable.app/browse" style="${buttonStyle}">Submit Bid</a>
+          
+          <p style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+            ⏰ <strong>Don't miss out!</strong> Submit your bid before the deadline to secure this opportunity.
+          </p>
+          
+          <div style="text-align: center; margin: 24px 0;">
+            <a href="https://procuresaathi.lovable.app/browse${data.requirement_id ? `?id=${data.requirement_id}` : ''}" style="${buttonStyle}">View Requirement & Submit Bid</a>
+          </div>
+          
           <p style="margin-top: 30px; color: #666; font-size: 12px;">
+            You're receiving this email because you've opted in to receive notifications for new requirements in your selected categories.
+            <br><br>
+            To manage your notification preferences, log in to your dashboard and visit Profile Settings.
+            <br><br>
             This email was sent by ProcureSaathi. If you have any questions, please contact our support team.
           </p>
         </div>
