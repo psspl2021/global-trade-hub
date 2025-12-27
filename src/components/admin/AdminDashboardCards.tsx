@@ -44,6 +44,7 @@ interface AdminDashboardCardsProps {
   onOpenPartnerDocumentVerification: () => void;
   onOpenSEMAnalytics: () => void;
   onOpenL1Analysis: () => void;
+  onOpenEmailTracking: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -62,6 +63,7 @@ export function AdminDashboardCards({
   onOpenPartnerDocumentVerification,
   onOpenSEMAnalytics,
   onOpenL1Analysis,
+  onOpenEmailTracking,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -600,6 +602,24 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenSEMAnalytics}>
             <Target className="h-4 w-4 mr-2" />
             Open SEM Dashboard
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-teal-500/20 bg-teal-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Mail className="h-5 w-5 text-teal-600" />
+            Email Tracking
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Supplier email quotas, Brevo tracking & subscriptions
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenEmailTracking}>
+            <Mail className="h-4 w-4 mr-2" />
+            Manage Email Tracking
           </Button>
         </CardContent>
       </Card>

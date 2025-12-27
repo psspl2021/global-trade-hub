@@ -37,6 +37,7 @@ import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
 import AdminBlogManager from '@/components/admin/AdminBlogManager';
 import { SEOTools } from '@/components/admin/SEOTools';
 import { SEMAnalyticsDashboard } from '@/components/admin/SEMAnalyticsDashboard';
+import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
 import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
@@ -81,6 +82,7 @@ const Dashboard = () => {
   const [showBlogManager, setShowBlogManager] = useState(false);
   const [showSEOTools, setShowSEOTools] = useState(false);
   const [showSEMAnalytics, setShowSEMAnalytics] = useState(false);
+  const [showEmailTracking, setShowEmailTracking] = useState(false);
   const [showL1Analysis, setShowL1Analysis] = useState(false);
   const [showPartnerDocVerification, setShowPartnerDocVerification] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
@@ -254,6 +256,7 @@ const Dashboard = () => {
               onOpenPartnerDocumentVerification={() => setShowPartnerDocVerification(true)}
               onOpenSEMAnalytics={() => setShowSEMAnalytics(true)}
               onOpenL1Analysis={() => setShowL1Analysis(true)}
+              onOpenEmailTracking={() => setShowEmailTracking(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -305,6 +308,19 @@ const Dashboard = () => {
             <SEOTools open={showSEOTools} onOpenChange={setShowSEOTools} />
             <SEMAnalyticsDashboard open={showSEMAnalytics} onOpenChange={setShowSEMAnalytics} />
             <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
+            {showEmailTracking && (
+              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">Email Tracking & Subscriptions</h2>
+                      <Button variant="outline" onClick={() => setShowEmailTracking(false)}>Close</Button>
+                    </div>
+                    <AdminEmailTracking />
+                  </div>
+                </div>
+              </div>
+            )}
             {user && (
               <PartnerDocumentVerification
                 open={showPartnerDocVerification}
