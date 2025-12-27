@@ -6,8 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, FileText, Pencil } from 'lucide-react';
+import { Loader2, Search, FileText, Pencil, Mail } from 'lucide-react';
 import { EditRequirementForm } from '@/components/EditRequirementForm';
+import { SendRequirementEmailModal } from './SendRequirementEmailModal';
 import { format } from 'date-fns';
 import {
   Pagination,
@@ -60,6 +61,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(15);
   const [editingRequirement, setEditingRequirement] = useState<Requirement | null>(null);
+  const [emailRequirement, setEmailRequirement] = useState<Requirement | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -197,6 +199,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">Edit</TableHead>
+                  <TableHead className="w-12">Email</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Quantity</TableHead>
@@ -212,7 +215,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
               <TableBody>
                 {filteredRequirements.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
                       No requirements found
                     </TableCell>
                   </TableRow>
@@ -227,7 +230,18 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
                           onClick={() => setEditingRequirement(req)}
                           title="Edit requirement"
                         >
-                          <Pencil className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-primary hover:text-primary"
+                          onClick={() => setEmailRequirement(req)}
+                          title="Send to suppliers"
+                        >
+                          <Mail className="h-4 w-4" />
                         </Button>
                       </TableCell>
                       <TableCell className="font-medium max-w-[200px] truncate" title={req.title}>
@@ -336,6 +350,17 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
           setEditingRequirement(null);
           fetchRequirements();
         }}
+      />
+    )}
+
+    {/* Send Email Modal */}
+    {emailRequirement && (
+      <SendRequirementEmailModal
+        open={!!emailRequirement}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setEmailRequirement(null);
+        }}
+        requirement={emailRequirement}
       />
     )}
   </>
