@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Mail, Crown, AlertTriangle, Check } from 'lucide-react';
+import { Mail, Crown, AlertTriangle, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -17,14 +17,54 @@ interface EmailQuotaStatus {
   subscription_expires_at: string | null;
 }
 
+// Declare Cashfree type for the SDK
+declare global {
+  interface Window {
+    Cashfree: any;
+  }
+}
+
 export const SupplierEmailQuotaCard = () => {
   const [quotaStatus, setQuotaStatus] = useState<EmailQuotaStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
+  const [cashfreeLoaded, setCashfreeLoaded] = useState(false);
 
   useEffect(() => {
     fetchQuotaStatus();
+    loadCashfreeSDK();
+    
+    // Check for payment status in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    if (paymentStatus === 'success') {
+      toast.success('Payment successful! Your premium subscription is now active.');
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      fetchQuotaStatus();
+    } else if (paymentStatus === 'failed') {
+      toast.error('Payment failed. Please try again.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
+
+  const loadCashfreeSDK = () => {
+    if (window.Cashfree) {
+      setCashfreeLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+    script.async = true;
+    script.onload = () => {
+      setCashfreeLoaded(true);
+    };
+    script.onerror = () => {
+      console.error('Failed to load Cashfree SDK');
+    };
+    document.body.appendChild(script);
+  };
 
   const fetchQuotaStatus = async () => {
     try {
@@ -65,12 +105,55 @@ export const SupplierEmailQuotaCard = () => {
         return;
       }
 
-      // For now, show a message about upgrading
-      // In production, this would integrate with a payment gateway
-      toast.info(
-        'To upgrade to Premium (₹300/month for 500 emails), please contact us at support@procuresaathi.com',
-        { duration: 10000 }
-      );
+      // Get user profile for customer details
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email, phone, contact_person')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile) {
+        toast.error('Please complete your profile first');
+        return;
+      }
+
+      // Create Cashfree order
+      const { data, error } = await supabase.functions.invoke('cashfree-create-order', {
+        body: {
+          supplier_id: user.id,
+          customer_email: profile.email || user.email,
+          customer_phone: profile.phone || '9999999999',
+          customer_name: profile.contact_person || 'Customer',
+        },
+      });
+
+      if (error) {
+        console.error('Error creating order:', error);
+        toast.error('Failed to create payment order. Please try again.');
+        return;
+      }
+
+      if (!data?.success || !data?.payment_session_id) {
+        console.error('Invalid order response:', data);
+        toast.error(data?.error || 'Failed to create payment order');
+        return;
+      }
+
+      // Initialize Cashfree checkout
+      if (!window.Cashfree) {
+        toast.error('Payment system is loading. Please try again in a moment.');
+        return;
+      }
+
+      const cashfree = window.Cashfree({
+        mode: 'production', // Change to 'sandbox' for testing
+      });
+
+      cashfree.checkout({
+        paymentSessionId: data.payment_session_id,
+        redirectTarget: '_self',
+      });
+
     } catch (error) {
       console.error('Error upgrading:', error);
       toast.error('Failed to process upgrade request');
@@ -184,10 +267,19 @@ export const SupplierEmailQuotaCard = () => {
             <Button 
               onClick={handleUpgrade} 
               className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-              disabled={upgrading}
+              disabled={upgrading || !cashfreeLoaded}
             >
-              <Crown className="h-4 w-4 mr-2" />
-              Upgrade to Premium - ₹300/month
+              {upgrading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Crown className="h-4 w-4 mr-2" />
+                  Upgrade to Premium - ₹300/month
+                </>
+              )}
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-2">
               Get 500 requirement notification emails per month

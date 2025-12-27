@@ -526,6 +526,54 @@ export type Database = {
         }
         Relationships: []
       }
+      email_subscription_payments: {
+        Row: {
+          amount: number
+          cf_payment_id: string | null
+          created_at: string
+          currency: string
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          order_id: string
+          paid_at: string | null
+          payment_method: string | null
+          payment_session_id: string | null
+          status: string
+          supplier_id: string
+        }
+        Insert: {
+          amount?: number
+          cf_payment_id?: string | null
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_session_id?: string | null
+          status?: string
+          supplier_id: string
+        }
+        Update: {
+          amount?: number
+          cf_payment_id?: string | null
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_session_id?: string | null
+          status?: string
+          supplier_id?: string
+        }
+        Relationships: []
+      }
       international_leads: {
         Row: {
           company_name: string | null
