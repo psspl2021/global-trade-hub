@@ -81,7 +81,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               ` : ''}
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Quantity:</strong></td>
-                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${data.quantity} ${data.unit}</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${typeof data.quantity === 'number' ? data.quantity.toFixed(2) : data.quantity} ${data.unit}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Delivery Location:</strong></td>
