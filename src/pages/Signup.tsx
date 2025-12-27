@@ -14,6 +14,8 @@ import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { useSEO } from '@/hooks/useSEO';
+import { SupplierCategorySelector } from '@/components/signup/SupplierCategorySelector';
+import { EmailNotificationConsent } from '@/components/signup/EmailNotificationConsent';
 
 type FormErrors = {
   email?: string;
@@ -27,6 +29,8 @@ type FormErrors = {
   yardLocation?: string;
   location?: string;
   gstin?: string;
+  categories?: string;
+  emailNotificationConsent?: string;
 };
 
 const Signup = () => {
@@ -46,6 +50,13 @@ const Signup = () => {
   const [checkingPassword, setCheckingPassword] = useState(false);
   const [breachWarning, setBreachWarning] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // Supplier category/subcategory selection
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  
+  // Email notification consent
+  const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -195,6 +206,24 @@ const Signup = () => {
       return;
     }
 
+    // Validate email notification consent for suppliers and logistics partners
+    if ((formData.role === 'supplier' || formData.role === 'logistics_partner') && !emailNotificationConsent) {
+      setErrors({ emailNotificationConsent: 'You must agree to receive email notifications to complete signup' });
+      return;
+    }
+
+    // Validate categories and subcategories for suppliers
+    if (formData.role === 'supplier') {
+      if (selectedCategories.length === 0) {
+        setErrors({ categories: 'Please select at least one category you deal in' });
+        return;
+      }
+      if (selectedSubcategories.length === 0) {
+        setErrors({ categories: 'Please select at least one subcategory within your selected categories' });
+        return;
+      }
+    }
+
     // Validate buyer type if role is buyer
     if (formData.role === 'buyer' && !formData.buyerType) {
       toast.error('Please select your buyer type');
@@ -274,6 +303,10 @@ const Signup = () => {
       business_type: formData.role === 'buyer' ? formData.buyerType : null,
       address: formData.role === 'supplier' ? formData.yardLocation : result.data.location,
       gstin: result.data.gstin,
+      // Supplier-specific fields
+      supplier_categories: formData.role === 'supplier' ? selectedCategories : null,
+      supplier_notification_subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
+      email_notifications_enabled: (formData.role === 'supplier' || formData.role === 'logistics_partner') ? emailNotificationConsent : true,
     }, referralCode);
     
     // Update referral record if signup was successful and referral code was used
@@ -519,6 +552,27 @@ const Signup = () => {
                   <p className="text-sm text-destructive">{errors.password}</p>
                 )}
               </div>
+
+              {/* Supplier Category Selection */}
+              {formData.role === 'supplier' && (
+                <SupplierCategorySelector
+                  selectedCategories={selectedCategories}
+                  selectedSubcategories={selectedSubcategories}
+                  onCategoriesChange={setSelectedCategories}
+                  onSubcategoriesChange={setSelectedSubcategories}
+                  error={errors.categories}
+                />
+              )}
+
+              {/* Email Notification Consent for Suppliers and Logistics Partners */}
+              {(formData.role === 'supplier' || formData.role === 'logistics_partner') && (
+                <EmailNotificationConsent
+                  checked={emailNotificationConsent}
+                  onChange={setEmailNotificationConsent}
+                  error={errors.emailNotificationConsent}
+                  role={formData.role}
+                />
+              )}
 
               <div className="border-t pt-4 mt-4">
                 <p className="text-sm font-medium text-muted-foreground mb-3">Referred By *</p>
