@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronRight, Mail, Bell } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { categoriesData } from '@/data/categories';
 import { industries } from '@/data/industries';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
 
 interface ProfileSettingsProps {
   open: boolean;
@@ -24,6 +26,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { role } = useUserRole(userId);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [profile, setProfile] = useState({
     company_name: '',
     contact_person: '',
@@ -36,6 +39,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     address: '',
     yard_location: '',
     supplier_categories: [] as string[],
+    supplier_notification_subcategories: [] as string[],
     buyer_industry: '',
     email_notifications_enabled: true,
   });
@@ -52,7 +56,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address, yard_location, supplier_categories, buyer_industry, email_notifications_enabled')
+      .select('company_name, contact_person, phone, referred_by_name, referred_by_phone, city, state, gstin, address, yard_location, supplier_categories, supplier_notification_subcategories, buyer_industry, email_notifications_enabled')
       .eq('id', userId)
       .single();
 
@@ -71,11 +75,74 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         address: data.address || '',
         yard_location: (data as any).yard_location || '',
         supplier_categories: data.supplier_categories || [],
+        supplier_notification_subcategories: (data as any).supplier_notification_subcategories || [],
         buyer_industry: data.buyer_industry || '',
         email_notifications_enabled: (data as any).email_notifications_enabled !== false,
       });
     }
     setLoading(false);
+  };
+
+  // Get subcategories for selected categories
+  const availableSubcategories = useMemo(() => {
+    const subcats: { category: string; subcategories: string[] }[] = [];
+    profile.supplier_categories.forEach(catName => {
+      const category = categoriesData.find(c => c.name === catName);
+      if (category && category.subcategories.length > 0) {
+        subcats.push({ category: catName, subcategories: category.subcategories });
+      }
+    });
+    return subcats;
+  }, [profile.supplier_categories]);
+
+  const toggleCategoryExpand = (categoryName: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryName)) {
+        newSet.delete(categoryName);
+      } else {
+        newSet.add(categoryName);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSubcategory = (subcategory: string) => {
+    setProfile(prev => {
+      const isSelected = prev.supplier_notification_subcategories.includes(subcategory);
+      return {
+        ...prev,
+        supplier_notification_subcategories: isSelected
+          ? prev.supplier_notification_subcategories.filter(s => s !== subcategory)
+          : [...prev.supplier_notification_subcategories, subcategory]
+      };
+    });
+  };
+
+  const selectAllSubcategories = (categoryName: string) => {
+    const category = categoriesData.find(c => c.name === categoryName);
+    if (!category) return;
+    
+    setProfile(prev => {
+      const allSubcats = category.subcategories;
+      const currentSelected = prev.supplier_notification_subcategories;
+      const allSelected = allSubcats.every(sub => currentSelected.includes(sub));
+      
+      if (allSelected) {
+        // Deselect all subcategories of this category
+        return {
+          ...prev,
+          supplier_notification_subcategories: currentSelected.filter(s => !allSubcats.includes(s))
+        };
+      } else {
+        // Select all subcategories of this category
+        const newSelection = [...new Set([...currentSelected, ...allSubcats])];
+        return {
+          ...prev,
+          supplier_notification_subcategories: newSelection
+        };
+      }
+    });
   };
 
   const validateForm = () => {
@@ -148,6 +215,7 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
         address: profile.address,
         yard_location: profile.yard_location,
         supplier_categories: profile.supplier_categories,
+        supplier_notification_subcategories: profile.supplier_notification_subcategories,
         buyer_industry: profile.buyer_industry || null,
         email_notifications_enabled: profile.email_notifications_enabled,
       })
@@ -161,6 +229,29 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
     }
     setSaving(false);
   };
+
+  // Clean up subcategories when categories change
+  useEffect(() => {
+    const validSubcategories = new Set<string>();
+    profile.supplier_categories.forEach(catName => {
+      const category = categoriesData.find(c => c.name === catName);
+      if (category) {
+        category.subcategories.forEach(sub => validSubcategories.add(sub));
+      }
+    });
+    
+    // Remove any subcategories that are no longer valid
+    const cleanedSubcategories = profile.supplier_notification_subcategories.filter(
+      sub => validSubcategories.has(sub)
+    );
+    
+    if (cleanedSubcategories.length !== profile.supplier_notification_subcategories.length) {
+      setProfile(prev => ({
+        ...prev,
+        supplier_notification_subcategories: cleanedSubcategories
+      }));
+    }
+  }, [profile.supplier_categories]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -334,17 +425,126 @@ export const ProfileSettings = ({ open, onOpenChange, userId }: ProfileSettingsP
                 </div>
                 {errors.supplier_categories && <p className="text-sm text-destructive mt-1">{errors.supplier_categories}</p>}
                 
-                {/* Email Notifications Toggle for Suppliers */}
-                <div className="mt-4 flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div>
-                    <Label htmlFor="email_notifications" className="font-medium">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive emails when new requirements match your categories</p>
+                {/* Email Notifications Section */}
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Mail className="h-5 w-5 text-primary" />
+                    <Label className="text-base font-semibold">Email Notification Preferences</Label>
                   </div>
-                  <Switch
-                    id="email_notifications"
-                    checked={profile.email_notifications_enabled}
-                    onCheckedChange={(checked) => setProfile({ ...profile, email_notifications_enabled: checked })}
-                  />
+                  
+                  {/* Master Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border">
+                    <div>
+                      <Label htmlFor="email_notifications" className="font-medium flex items-center gap-2">
+                        <Bell className="h-4 w-4" />
+                        Enable Email Notifications
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Receive emails when new requirements match your preferences
+                      </p>
+                    </div>
+                    <Switch
+                      id="email_notifications"
+                      checked={profile.email_notifications_enabled}
+                      onCheckedChange={(checked) => setProfile({ ...profile, email_notifications_enabled: checked })}
+                    />
+                  </div>
+
+                  {/* Subcategory Selection - Only show when notifications are enabled and categories are selected */}
+                  {profile.email_notifications_enabled && availableSubcategories.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        Select Subcategories for Notifications
+                      </Label>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Choose specific product subcategories to receive targeted notifications
+                      </p>
+                      
+                      {profile.supplier_notification_subcategories.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          <span className="text-xs text-muted-foreground">Selected:</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {profile.supplier_notification_subcategories.length} subcategories
+                          </Badge>
+                        </div>
+                      )}
+                      
+                      <div className="border rounded-md max-h-60 overflow-y-auto">
+                        {availableSubcategories.map(({ category, subcategories }) => {
+                          const isExpanded = expandedCategories.has(category);
+                          const selectedCount = subcategories.filter(
+                            sub => profile.supplier_notification_subcategories.includes(sub)
+                          ).length;
+                          const allSelected = selectedCount === subcategories.length;
+                          
+                          return (
+                            <Collapsible
+                              key={category}
+                              open={isExpanded}
+                              onOpenChange={() => toggleCategoryExpand(category)}
+                            >
+                              <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted/50 border-b">
+                                <div className="flex items-center gap-2">
+                                  {isExpanded ? (
+                                    <ChevronDown className="h-4 w-4" />
+                                  ) : (
+                                    <ChevronRight className="h-4 w-4" />
+                                  )}
+                                  <span className="text-sm font-medium">{category}</span>
+                                  {selectedCount > 0 && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {selectedCount}/{subcategories.length}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="pl-6 pr-2 py-2 bg-muted/20">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-xs mb-2 h-7"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    selectAllSubcategories(category);
+                                  }}
+                                >
+                                  {allSelected ? 'Deselect All' : 'Select All'}
+                                </Button>
+                                <div className="grid gap-1">
+                                  {subcategories.map((subcategory) => (
+                                    <div key={subcategory} className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id={`subcat-${subcategory}`}
+                                        checked={profile.supplier_notification_subcategories.includes(subcategory)}
+                                        onCheckedChange={() => toggleSubcategory(subcategory)}
+                                      />
+                                      <label
+                                        htmlFor={`subcat-${subcategory}`}
+                                        className="text-xs cursor-pointer"
+                                      >
+                                        {subcategory}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          );
+                        })}
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground mt-2">
+                        💡 If no subcategories are selected, you'll receive notifications for all products in your selected categories
+                      </p>
+                    </div>
+                  )}
+                  
+                  {profile.email_notifications_enabled && profile.supplier_categories.length === 0 && (
+                    <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded">
+                      Select at least one category above to configure notification subcategories
+                    </p>
+                  )}
                 </div>
               </div>
             )}
