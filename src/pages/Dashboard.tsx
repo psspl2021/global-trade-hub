@@ -53,6 +53,7 @@ import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
 import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
+import { SupplierEmailQuotaCard } from '@/components/SupplierEmailQuotaCard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -837,6 +838,11 @@ const Dashboard = () => {
 
         {role === 'supplier' && (
           <>
+            {/* Email Quota Card */}
+            <div className="mb-6">
+              <SupplierEmailQuotaCard />
+            </div>
+
             {/* Compulsory Products Reminder Banner */}
             <Card className="mb-6 border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 dark:border-amber-700">
               <CardContent className="py-4">

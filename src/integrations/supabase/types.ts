@@ -2155,6 +2155,48 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_email_quotas: {
+        Row: {
+          created_at: string
+          daily_emails_sent: number
+          has_email_subscription: boolean
+          id: string
+          last_daily_reset: string
+          last_monthly_reset: string
+          monthly_emails_sent: number
+          subscription_expires_at: string | null
+          subscription_started_at: string | null
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          daily_emails_sent?: number
+          has_email_subscription?: boolean
+          id?: string
+          last_daily_reset?: string
+          last_monthly_reset?: string
+          monthly_emails_sent?: number
+          subscription_expires_at?: string | null
+          subscription_started_at?: string | null
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          daily_emails_sent?: number
+          has_email_subscription?: boolean
+          id?: string
+          last_daily_reset?: string
+          last_monthly_reset?: string
+          monthly_emails_sent?: number
+          subscription_expires_at?: string | null
+          subscription_started_at?: string | null
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       supplier_leads: {
         Row: {
           company_name: string | null
@@ -2566,6 +2608,15 @@ export type Database = {
         }[]
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
+      check_and_increment_email_quota: {
+        Args: { p_supplier_id: string }
+        Returns: {
+          can_send: boolean
+          is_subscribed: boolean
+          remaining_daily: number
+          remaining_monthly: number
+        }[]
+      }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_bids_for_buyer: {
         Args: { p_requirement_id: string }
@@ -2600,6 +2651,17 @@ export type Database = {
           country: string
           id: string
           state: string
+        }[]
+      }
+      get_email_quota_status: {
+        Args: { p_supplier_id: string }
+        Returns: {
+          daily_limit: number
+          daily_sent: number
+          is_subscribed: boolean
+          monthly_limit: number
+          monthly_sent: number
+          subscription_expires_at: string
         }[]
       }
       get_logistics_details_internal: {
