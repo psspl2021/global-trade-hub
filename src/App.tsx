@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AIChatBox } from "@/components/AIChatBox";
 import { GlobalSEOTools } from "@/components/admin/GlobalSEOTools";
+import GlobalSEO from "@/components/GlobalSEO";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { VisitorTracker } from "@/components/VisitorTracker";
 import { SEMTracker } from "@/components/SEMTracker";
@@ -47,6 +48,7 @@ const App = () => (
         <Sonner />
         <AIChatBox />
         <GlobalSEOTools />
+        <GlobalSEO />
         <BrowserRouter>
           <VisitorTracker />
           <SEMTracker />
