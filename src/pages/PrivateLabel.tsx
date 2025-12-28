@@ -113,7 +113,7 @@ const PrivateLabel = () => {
   useSEO({
     title: "Private Label Manufacturing India | Custom Products | ProcureSaathi",
     description: "Source private label products from 1000+ verified Indian manufacturers. Custom manufacturing for supplements, skincare, cosmetics, Ayurveda & more. Low MOQ, fast samples.",
-    canonical: "https://www.procuresaathi.com/private-label",
+    canonical: "https://procuresaathi.com/private-label",
     keywords: "private label manufacturing India, custom manufacturing, OEM India, contract manufacturing, white label products, bulk supply, private label supplements, private label cosmetics, skincare manufacturer India"
   });
 
@@ -124,7 +124,7 @@ const PrivateLabel = () => {
       "@type": "WebPage",
       "name": "Private Label Manufacturing India | Custom Products",
       "description": "Source private label products from 1000+ verified Indian manufacturers. Custom manufacturing for supplements, skincare, cosmetics & more.",
-      "url": "https://www.procuresaathi.com/private-label",
+      "url": "https://procuresaathi.com/private-label",
       "mainEntity": {
         "@type": "Service",
         "name": "Private Label Manufacturing Services",
@@ -136,15 +136,15 @@ const PrivateLabel = () => {
         "areaServed": "Worldwide",
         "availableChannel": {
           "@type": "ServiceChannel",
-          "serviceUrl": "https://www.procuresaathi.com/private-label"
+          "serviceUrl": "https://procuresaathi.com/private-label"
         }
       }
     }, 'private-label-webpage-schema');
 
     // Breadcrumb schema
     injectStructuredData(getBreadcrumbSchema([
-      { name: "Home", url: "https://www.procuresaathi.com" },
-      { name: "Private Label", url: "https://www.procuresaathi.com/private-label" }
+      { name: "Home", url: "https://procuresaathi.com" },
+      { name: "Private Label", url: "https://procuresaathi.com/private-label" }
     ]), 'private-label-breadcrumb-schema');
 
     // Service schema
@@ -156,7 +156,7 @@ const PrivateLabel = () => {
       "provider": {
         "@type": "Organization",
         "name": "ProcureSaathi",
-        "url": "https://www.procuresaathi.com"
+        "url": "https://procuresaathi.com"
       },
       "serviceType": ["Private Label Manufacturing", "Custom Manufacturing", "Contract Manufacturing", "OEM Manufacturing"],
       "areaServed": {
