@@ -131,6 +131,13 @@ export function PremiumPackPurchase({
 
   if (hasPremiumBalance) {
     // Already has premium balance - show buy more option
+    // Calculate total with GST and transaction fee
+    const basePrice = 24950;
+    const gstAmount = Math.round(basePrice * 0.18);
+    const subtotalWithGst = basePrice + gstAmount;
+    const transactionFee = Math.round(subtotalWithGst * 0.0195);
+    const totalAmount = subtotalWithGst + transactionFee;
+    
     return (
       <div className="space-y-2">
         <p className="text-sm font-medium text-center mb-2">Buy More Premium {itemLabel.charAt(0).toUpperCase() + itemLabel.slice(1)}:</p>
@@ -144,8 +151,9 @@ export function PremiumPackPurchase({
           ) : (
             <CreditCard className="h-4 w-4 mr-2" />
           )}
-          Buy 50 More {itemLabel} - ₹24,950
+          Buy 50 More {itemLabel} - ₹{totalAmount.toLocaleString('en-IN')}
         </Button>
+        <p className="text-xs text-center text-muted-foreground">(Incl. GST 18% + 1.95% fees)</p>
         <p className="text-xs text-center text-muted-foreground">Or contact us:</p>
         <div className="flex gap-2">
           <a 
@@ -169,6 +177,13 @@ export function PremiumPackPurchase({
     );
   }
 
+  // Calculate total with GST and transaction fee
+  const basePrice = 24950;
+  const gstAmount = Math.round(basePrice * 0.18);
+  const subtotalWithGst = basePrice + gstAmount;
+  const transactionFee = Math.round(subtotalWithGst * 0.0195);
+  const totalAmount = subtotalWithGst + transactionFee;
+
   // Show full premium pack purchase UI
   return (
     <div className="p-4 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
@@ -176,8 +191,13 @@ export function PremiumPackPurchase({
         <Star className="h-5 w-5 text-amber-500" />
         <span className="font-bold text-foreground">Buy Premium Pack</span>
       </div>
-      <div className="text-2xl font-bold text-primary mb-1">₹24,950</div>
-      <p className="text-sm text-muted-foreground mb-3">50 lifetime {itemLabel} (₹499/{itemLabelSingular})</p>
+      <div className="text-2xl font-bold text-primary mb-1">₹{basePrice.toLocaleString('en-IN')}</div>
+      <p className="text-sm text-muted-foreground mb-1">50 lifetime {itemLabel} (₹499/{itemLabelSingular})</p>
+      <p className="text-xs text-muted-foreground mb-3">
+        + GST 18% (₹{gstAmount.toLocaleString('en-IN')}) + Platform fee 1.95% (₹{transactionFee.toLocaleString('en-IN')})
+        <br />
+        <span className="font-semibold">Total: ₹{totalAmount.toLocaleString('en-IN')}</span>
+      </p>
       <ul className="text-sm space-y-1 mb-4">
         <li className="flex items-center gap-2 text-muted-foreground">
           <Check className="h-4 w-4 text-green-500" /> Never expires - use anytime
@@ -201,7 +221,7 @@ export function PremiumPackPurchase({
           ) : (
             <CreditCard className="h-4 w-4 mr-2" />
           )}
-          {isLoading ? 'Processing...' : 'Buy Now - ₹24,950'}
+          {isLoading ? 'Processing...' : `Buy Now - ₹${totalAmount.toLocaleString('en-IN')}`}
         </Button>
         
         <p className="text-xs text-center text-muted-foreground mt-3">Or contact to purchase:</p>
