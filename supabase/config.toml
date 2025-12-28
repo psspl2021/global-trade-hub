@@ -47,3 +47,9 @@ verify_jwt = true
 
 [functions.cashfree-webhook]
 verify_jwt = false
+
+[functions.cashfree-create-premium-order]
+verify_jwt = true
+
+[functions.cashfree-premium-webhook]
+verify_jwt = false

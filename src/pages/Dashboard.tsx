@@ -55,6 +55,7 @@ import { ProfileSettings } from '@/components/ProfileSettings';
 import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 import { SupplierEmailQuotaCard } from '@/components/SupplierEmailQuotaCard';
+import { PremiumPackPurchase } from '@/components/PremiumPackPurchase';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -721,66 +722,14 @@ const Dashboard = () => {
                   )}
 
                   {/* Premium Pack Purchase Option */}
-                  {(logisticsSubscription?.premium_bids_balance ?? 0) === 0 ? (
-                    <div className="p-4 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="h-5 w-5 text-amber-500" />
-                        <span className="font-bold text-foreground">Buy Premium Pack</span>
-                      </div>
-                      <div className="text-2xl font-bold text-primary mb-1">₹24,950</div>
-                      <p className="text-sm text-muted-foreground mb-3">50 lifetime quotes (₹499/quote)</p>
-                      <ul className="text-sm space-y-1 mb-4">
-                        <li className="flex items-center gap-2 text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" /> Never expires - use anytime
-                        </li>
-                        <li className="flex items-center gap-2 text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" /> Priority in quote listings
-                        </li>
-                        <li className="flex items-center gap-2 text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" /> Dedicated support
-                        </li>
-                      </ul>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-center mb-2">Contact to Purchase:</p>
-                        <a 
-                          href="https://wa.me/918368127357?text=Hi, I would like to purchase the Logistics Premium Pack (₹24,950 for 50 lifetime quotes)."
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          WhatsApp: +91 8368127357
-                        </a>
-                        <a 
-                          href="mailto:sales@procuresaathi.com?subject=Logistics Premium Pack Purchase Request&body=Hi, I would like to purchase the Logistics Premium Pack (₹24,950 for 50 lifetime quotes)."
-                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
-                        >
-                          <Mail className="h-4 w-4" />
-                          sales@procuresaathi.com
-                        </a>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-center mb-2">Buy More Premium Quotes:</p>
-                      <a 
-                        href="https://wa.me/918368127357?text=Hi, I would like to purchase more premium quotes."
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        WhatsApp: +91 8368127357
-                      </a>
-                      <a 
-                        href="mailto:sales@procuresaathi.com?subject=Buy More Premium Quotes&body=Hi, I would like to purchase more premium quotes."
-                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
-                      >
-                        <Mail className="h-4 w-4" />
-                        sales@procuresaathi.com
-                      </a>
-                    </div>
-                  )}
+                  <PremiumPackPurchase
+                    userId={user?.id || ''}
+                    userEmail={user?.email || ''}
+                    userPhone={user?.user_metadata?.phone || ''}
+                    userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                    userType="logistics_partner"
+                    hasPremiumBalance={(logisticsSubscription?.premium_bids_balance ?? 0) > 0}
+                  />
 
                   {(logisticsSubscription?.bids_used_this_month ?? 0) >= (logisticsSubscription?.bids_limit ?? 5) && (logisticsSubscription?.premium_bids_balance ?? 0) === 0 && (
                     <p className="text-sm text-orange-600 font-medium">
@@ -994,66 +943,14 @@ const Dashboard = () => {
                   )}
 
                   {/* Premium Pack Purchase Option */}
-                  {(subscription?.premium_bids_balance ?? 0) === 0 ? (
-                    <div className="p-4 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="h-5 w-5 text-amber-500" />
-                        <span className="font-bold text-foreground">Buy Premium Pack</span>
-                      </div>
-                      <div className="text-2xl font-bold text-primary mb-1">₹24,950</div>
-                      <p className="text-sm text-muted-foreground mb-3">50 lifetime bids (₹499/bid)</p>
-                      <ul className="text-sm space-y-1 mb-4">
-                        <li className="flex items-center gap-2 text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" /> Never expires - use anytime
-                        </li>
-                        <li className="flex items-center gap-2 text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" /> Priority listing in search
-                        </li>
-                        <li className="flex items-center gap-2 text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" /> Dedicated support
-                        </li>
-                      </ul>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-center mb-2">Contact to Purchase:</p>
-                        <a 
-                          href="https://wa.me/918368127357?text=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime bids)."
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          WhatsApp: +91 8368127357
-                        </a>
-                        <a 
-                          href="mailto:sales@procuresaathi.com?subject=Premium Pack Purchase Request&body=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime bids)."
-                          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
-                        >
-                          <Mail className="h-4 w-4" />
-                          sales@procuresaathi.com
-                        </a>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-center mb-2">Buy More Premium Bids:</p>
-                      <a 
-                        href="https://wa.me/918368127357?text=Hi, I would like to purchase more premium bids."
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        WhatsApp: +91 8368127357
-                      </a>
-                      <a 
-                        href="mailto:sales@procuresaathi.com?subject=Buy More Premium Bids&body=Hi, I would like to purchase more premium bids."
-                        className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
-                      >
-                        <Mail className="h-4 w-4" />
-                        sales@procuresaathi.com
-                      </a>
-                    </div>
-                  )}
+                  <PremiumPackPurchase
+                    userId={user?.id || ''}
+                    userEmail={user?.email || ''}
+                    userPhone={user?.user_metadata?.phone || ''}
+                    userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                    userType="supplier"
+                    hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
+                  />
 
                   {(subscription?.bids_used_this_month ?? 0) >= (subscription?.bids_limit ?? 5) && (subscription?.premium_bids_balance ?? 0) === 0 && (
                     <p className="text-sm text-orange-600 font-medium">
