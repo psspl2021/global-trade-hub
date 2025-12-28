@@ -53,3 +53,12 @@ verify_jwt = true
 
 [functions.cashfree-premium-webhook]
 verify_jwt = false
+
+[functions.generate-payment-invoice]
+verify_jwt = false
+
+[functions.send-invoice-email]
+verify_jwt = false
+
+[functions.lead-reminders]
+verify_jwt = false

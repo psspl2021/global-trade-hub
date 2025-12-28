@@ -162,6 +162,57 @@ serve(async (req) => {
         message: "Your premium email subscription is now active. You can now receive up to 500 email notifications per month.",
         metadata: { order_id: orderId, expires_at: expiresAt },
       });
+
+      // Generate and send invoice
+      try {
+        // Get user profile for invoice details
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("contact_person, company_name, email, phone, address, gstin, state")
+          .eq("id", paymentRecord.supplier_id)
+          .single();
+
+        if (profile) {
+          const basePrice = 300; // Email subscription base price
+          const gstAmount = Math.round(basePrice * 0.18);
+          const totalAmount = basePrice + gstAmount;
+          
+          const invoiceResponse = await fetch(
+            `${SUPABASE_URL}/functions/v1/generate-payment-invoice`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                payment_type: "email_subscription",
+                payment_id: orderId,
+                user_id: paymentRecord.supplier_id,
+                amount: basePrice,
+                tax_amount: gstAmount,
+                total_amount: totalAmount,
+                description: "Premium Email Subscription - 500 Emails/Month (30 Days)",
+                customer_name: profile.company_name || profile.contact_person,
+                customer_email: profile.email,
+                customer_phone: profile.phone,
+                customer_address: profile.address,
+                customer_gstin: profile.gstin,
+                customer_state: profile.state,
+                metadata: {
+                  subscription_duration: "30 days",
+                  emails_included: 500,
+                },
+              }),
+            }
+          );
+
+          const invoiceResult = await invoiceResponse.json();
+          console.log("Invoice generation result:", invoiceResult);
+        }
+      } catch (invoiceError) {
+        console.error("Error generating invoice:", invoiceError);
+        // Don't fail the webhook if invoice generation fails
+      }
     }
 
     // If this was a GET request (return URL), redirect to dashboard
