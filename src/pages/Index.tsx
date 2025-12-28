@@ -10,6 +10,7 @@ import {
   Truck, Route, ClipboardCheck, Receipt, BadgeCheck,
   Menu, X, Sparkles
 } from 'lucide-react';
+const BrowseLogisticsPublic = lazy(() => import('@/components/logistics/BrowseLogisticsPublic'));
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -43,6 +44,7 @@ const Index = () => {
   const { toast } = useToast();
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
+  const [showLogisticsRequirements, setShowLogisticsRequirements] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // SEO setup with social sharing meta tags
@@ -107,6 +109,10 @@ const Index = () => {
 
   const handleLiveRequirementsClick = () => {
     setShowLiveRequirements(true);
+  };
+
+  const handleLogisticsRequirementsClick = () => {
+    setShowLogisticsRequirements(true);
   };
 
   const categories = [
@@ -352,6 +358,13 @@ const Index = () => {
               >
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-warning group-hover:scale-110 transition-transform" />
                 <span className="text-xs sm:text-sm font-medium">Requirements</span>
+              </button>
+              <button 
+                onClick={handleLogisticsRequirementsClick}
+                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
+              >
+                <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-primary group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-medium">Logistics</span>
               </button>
               <button 
                 onClick={() => scrollToSection('about')}
@@ -810,6 +823,16 @@ const Index = () => {
             open={showLiveRequirements} 
             onOpenChange={setShowLiveRequirements}
             userId={user?.id}
+          />
+        </Suspense>
+      )}
+
+      {/* Live Logistics Requirements Dialog - Only loaded when needed */}
+      {showLogisticsRequirements && (
+        <Suspense fallback={null}>
+          <BrowseLogisticsPublic 
+            open={showLogisticsRequirements} 
+            onOpenChange={setShowLogisticsRequirements}
           />
         </Suspense>
       )}
