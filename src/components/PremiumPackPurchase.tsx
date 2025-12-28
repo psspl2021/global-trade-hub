@@ -132,7 +132,7 @@ export function PremiumPackPurchase({
   if (hasPremiumBalance) {
     // Already has premium balance - show buy more option
     // Calculate total with GST and transaction fee
-    const basePrice = 24950;
+    const basePrice = 300;
     const gstAmount = Math.round(basePrice * 0.18);
     const subtotalWithGst = basePrice + gstAmount;
     const transactionFee = Math.round(subtotalWithGst * 0.0195);
@@ -178,7 +178,7 @@ export function PremiumPackPurchase({
   }
 
   // Calculate total with GST and transaction fee
-  const basePrice = 24950;
+  const basePrice = 300;
   const gstAmount = Math.round(basePrice * 0.18);
   const subtotalWithGst = basePrice + gstAmount;
   const transactionFee = Math.round(subtotalWithGst * 0.0195);
@@ -226,7 +226,7 @@ export function PremiumPackPurchase({
         
         <p className="text-xs text-center text-muted-foreground mt-3">Or contact to purchase:</p>
         <a 
-          href={`https://wa.me/918368127357?text=Hi, I would like to purchase the ${userType === 'logistics_partner' ? 'Logistics ' : ''}Premium Pack (₹24,950 for 50 lifetime ${itemLabel}).`}
+          href={`https://wa.me/918368127357?text=Hi, I would like to purchase the ${userType === 'logistics_partner' ? 'Logistics ' : ''}Premium Pack (₹300 for 50 lifetime ${itemLabel}).`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
@@ -235,7 +235,7 @@ export function PremiumPackPurchase({
           WhatsApp: +91 8368127357
         </a>
         <a 
-          href={`mailto:sales@procuresaathi.com?subject=${userType === 'logistics_partner' ? 'Logistics ' : ''}Premium Pack Purchase Request&body=Hi, I would like to purchase the Premium Pack (₹24,950 for 50 lifetime ${itemLabel}).`}
+          href={`mailto:sales@procuresaathi.com?subject=${userType === 'logistics_partner' ? 'Logistics ' : ''}Premium Pack Purchase Request&body=Hi, I would like to purchase the Premium Pack (₹300 for 50 lifetime ${itemLabel}).`}
           className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md border border-primary text-primary hover:bg-primary/10 font-medium transition-colors"
         >
           <Mail className="h-4 w-4" />
