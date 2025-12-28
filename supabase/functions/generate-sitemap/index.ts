@@ -26,14 +26,95 @@ const staticPages = [
   { url: '/signup', priority: 0.6, changefreq: 'monthly' },
 ];
 
-// International landing pages
+// International landing pages - 50+ countries for global SEO
 const internationalPages = [
-  { url: '/source/usa', priority: 0.8, changefreq: 'weekly' },
-  { url: '/source/uae', priority: 0.8, changefreq: 'weekly' },
-  { url: '/source/uk', priority: 0.8, changefreq: 'weekly' },
-  { url: '/source/germany', priority: 0.8, changefreq: 'weekly' },
-  { url: '/source/australia', priority: 0.8, changefreq: 'weekly' },
-  { url: '/source/africa', priority: 0.8, changefreq: 'weekly' },
+  // North America
+  { url: '/source/usa', priority: 0.85, changefreq: 'weekly', hreflang: 'en-us' },
+  { url: '/source/canada', priority: 0.8, changefreq: 'weekly', hreflang: 'en-ca' },
+  { url: '/source/mexico', priority: 0.75, changefreq: 'weekly', hreflang: 'es-mx' },
+  
+  // Europe
+  { url: '/source/uk', priority: 0.85, changefreq: 'weekly', hreflang: 'en-gb' },
+  { url: '/source/germany', priority: 0.8, changefreq: 'weekly', hreflang: 'de-de' },
+  { url: '/source/france', priority: 0.8, changefreq: 'weekly', hreflang: 'fr-fr' },
+  { url: '/source/italy', priority: 0.75, changefreq: 'weekly', hreflang: 'it-it' },
+  { url: '/source/spain', priority: 0.75, changefreq: 'weekly', hreflang: 'es-es' },
+  { url: '/source/netherlands', priority: 0.75, changefreq: 'weekly', hreflang: 'nl-nl' },
+  { url: '/source/belgium', priority: 0.7, changefreq: 'weekly', hreflang: 'nl-be' },
+  { url: '/source/poland', priority: 0.7, changefreq: 'weekly', hreflang: 'pl-pl' },
+  { url: '/source/sweden', priority: 0.7, changefreq: 'weekly', hreflang: 'sv-se' },
+  { url: '/source/denmark', priority: 0.7, changefreq: 'weekly', hreflang: 'da-dk' },
+  { url: '/source/norway', priority: 0.7, changefreq: 'weekly', hreflang: 'nb-no' },
+  { url: '/source/finland', priority: 0.7, changefreq: 'weekly', hreflang: 'fi-fi' },
+  { url: '/source/austria', priority: 0.7, changefreq: 'weekly', hreflang: 'de-at' },
+  { url: '/source/switzerland', priority: 0.75, changefreq: 'weekly', hreflang: 'de-ch' },
+  { url: '/source/ireland', priority: 0.7, changefreq: 'weekly', hreflang: 'en-ie' },
+  { url: '/source/portugal', priority: 0.7, changefreq: 'weekly', hreflang: 'pt-pt' },
+  { url: '/source/greece', priority: 0.7, changefreq: 'weekly', hreflang: 'el-gr' },
+  { url: '/source/czech-republic', priority: 0.7, changefreq: 'weekly', hreflang: 'cs-cz' },
+  { url: '/source/hungary', priority: 0.7, changefreq: 'weekly', hreflang: 'hu-hu' },
+  { url: '/source/romania', priority: 0.7, changefreq: 'weekly', hreflang: 'ro-ro' },
+  
+  // Middle East
+  { url: '/source/uae', priority: 0.85, changefreq: 'weekly', hreflang: 'en-ae' },
+  { url: '/source/dubai', priority: 0.8, changefreq: 'weekly', hreflang: 'en-ae' },
+  { url: '/source/saudi-arabia', priority: 0.8, changefreq: 'weekly', hreflang: 'ar-sa' },
+  { url: '/source/qatar', priority: 0.75, changefreq: 'weekly', hreflang: 'ar-qa' },
+  { url: '/source/kuwait', priority: 0.75, changefreq: 'weekly', hreflang: 'ar-kw' },
+  { url: '/source/oman', priority: 0.7, changefreq: 'weekly', hreflang: 'ar-om' },
+  { url: '/source/bahrain', priority: 0.7, changefreq: 'weekly', hreflang: 'ar-bh' },
+  { url: '/source/turkey', priority: 0.75, changefreq: 'weekly', hreflang: 'tr-tr' },
+  { url: '/source/israel', priority: 0.7, changefreq: 'weekly', hreflang: 'he-il' },
+  
+  // Asia Pacific
+  { url: '/source/china', priority: 0.85, changefreq: 'weekly', hreflang: 'zh-cn' },
+  { url: '/source/japan', priority: 0.8, changefreq: 'weekly', hreflang: 'ja-jp' },
+  { url: '/source/south-korea', priority: 0.75, changefreq: 'weekly', hreflang: 'ko-kr' },
+  { url: '/source/singapore', priority: 0.8, changefreq: 'weekly', hreflang: 'en-sg' },
+  { url: '/source/australia', priority: 0.8, changefreq: 'weekly', hreflang: 'en-au' },
+  { url: '/source/new-zealand', priority: 0.75, changefreq: 'weekly', hreflang: 'en-nz' },
+  { url: '/source/malaysia', priority: 0.75, changefreq: 'weekly', hreflang: 'ms-my' },
+  { url: '/source/thailand', priority: 0.75, changefreq: 'weekly', hreflang: 'th-th' },
+  { url: '/source/vietnam', priority: 0.75, changefreq: 'weekly', hreflang: 'vi-vn' },
+  { url: '/source/indonesia', priority: 0.75, changefreq: 'weekly', hreflang: 'id-id' },
+  { url: '/source/philippines', priority: 0.7, changefreq: 'weekly', hreflang: 'en-ph' },
+  { url: '/source/taiwan', priority: 0.7, changefreq: 'weekly', hreflang: 'zh-tw' },
+  { url: '/source/hong-kong', priority: 0.7, changefreq: 'weekly', hreflang: 'zh-hk' },
+  
+  // South Asia
+  { url: '/source/bangladesh', priority: 0.75, changefreq: 'weekly', hreflang: 'en-bd' },
+  { url: '/source/pakistan', priority: 0.7, changefreq: 'weekly', hreflang: 'en-pk' },
+  { url: '/source/sri-lanka', priority: 0.7, changefreq: 'weekly', hreflang: 'en-lk' },
+  { url: '/source/nepal', priority: 0.75, changefreq: 'weekly', hreflang: 'en-np' },
+  { url: '/source/bhutan', priority: 0.7, changefreq: 'weekly', hreflang: 'en-bt' },
+  { url: '/source/maldives', priority: 0.7, changefreq: 'weekly', hreflang: 'en-mv' },
+  
+  // Africa
+  { url: '/source/africa', priority: 0.8, changefreq: 'weekly', hreflang: 'en' },
+  { url: '/source/south-africa', priority: 0.8, changefreq: 'weekly', hreflang: 'en-za' },
+  { url: '/source/nigeria', priority: 0.75, changefreq: 'weekly', hreflang: 'en-ng' },
+  { url: '/source/kenya', priority: 0.75, changefreq: 'weekly', hreflang: 'en-ke' },
+  { url: '/source/ghana', priority: 0.7, changefreq: 'weekly', hreflang: 'en-gh' },
+  { url: '/source/egypt', priority: 0.75, changefreq: 'weekly', hreflang: 'ar-eg' },
+  { url: '/source/morocco', priority: 0.7, changefreq: 'weekly', hreflang: 'fr-ma' },
+  { url: '/source/tanzania', priority: 0.7, changefreq: 'weekly', hreflang: 'en-tz' },
+  { url: '/source/uganda', priority: 0.7, changefreq: 'weekly', hreflang: 'en-ug' },
+  { url: '/source/ethiopia', priority: 0.7, changefreq: 'weekly', hreflang: 'en-et' },
+  { url: '/source/malawi', priority: 0.65, changefreq: 'weekly', hreflang: 'en-mw' },
+  
+  // South America
+  { url: '/source/brazil', priority: 0.8, changefreq: 'weekly', hreflang: 'pt-br' },
+  { url: '/source/argentina', priority: 0.75, changefreq: 'weekly', hreflang: 'es-ar' },
+  { url: '/source/colombia', priority: 0.7, changefreq: 'weekly', hreflang: 'es-co' },
+  { url: '/source/chile', priority: 0.7, changefreq: 'weekly', hreflang: 'es-cl' },
+  { url: '/source/peru', priority: 0.7, changefreq: 'weekly', hreflang: 'es-pe' },
+  
+  // Russia & CIS
+  { url: '/source/russia', priority: 0.8, changefreq: 'weekly', hreflang: 'ru-ru' },
+  { url: '/source/ukraine', priority: 0.7, changefreq: 'weekly', hreflang: 'uk-ua' },
+  { url: '/source/kazakhstan', priority: 0.7, changefreq: 'weekly', hreflang: 'kk-kz' },
+  { url: '/source/azerbaijan', priority: 0.7, changefreq: 'weekly', hreflang: 'az-az' },
+  { url: '/source/armenia', priority: 0.65, changefreq: 'weekly', hreflang: 'hy-am' },
 ];
 
 // High-value categories (priority 0.9 for SEO)
@@ -156,7 +237,7 @@ async function generateSitemap(): Promise<string> {
 `;
   }
 
-  // International pages with hreflang
+  // International pages with hreflang annotations
   for (const page of internationalPages) {
     xml += `  <url>
     <loc>${baseUrl}${page.url}</loc>
@@ -164,9 +245,12 @@ async function generateSitemap(): Promise<string> {
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
     <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}/" />
+    <xhtml:link rel="alternate" hreflang="${page.hreflang}" href="${baseUrl}${page.url}" />
+    <xhtml:link rel="alternate" hreflang="en-in" href="${baseUrl}/" />
   </url>
 `;
   }
+
 
   // Category landing pages (SEO-optimized URLs)
   for (const category of categories) {
