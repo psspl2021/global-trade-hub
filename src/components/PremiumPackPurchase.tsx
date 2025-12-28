@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Star, Check, Loader2, CreditCard, MessageCircle, Mail } from 'lucide-react';
+import { Star, Check, Loader2, CreditCard, MessageCircle, Mail, Wallet, Smartphone } from 'lucide-react';
+import procuresaathiLogo from '@/assets/procuresaathi-logo.png';
 
 declare global {
   interface Window {
@@ -129,6 +130,24 @@ export function PremiumPackPurchase({
     }
   };
 
+  // Payment methods display
+  const PaymentMethods = () => (
+    <div className="flex items-center justify-center gap-3 py-2">
+      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <CreditCard className="h-3 w-3" />
+        <span>Cards</span>
+      </div>
+      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <Smartphone className="h-3 w-3" />
+        <span>UPI</span>
+      </div>
+      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <Wallet className="h-3 w-3" />
+        <span>Wallet</span>
+      </div>
+    </div>
+  );
+
   if (hasPremiumBalance) {
     // Already has premium balance - show buy more option
     // Calculate total with GST and transaction fee
@@ -140,6 +159,9 @@ export function PremiumPackPurchase({
     
     return (
       <div className="space-y-2">
+        <div className="flex justify-center mb-2">
+          <img src={procuresaathiLogo} alt="ProcureSaathi" className="h-8 w-auto" />
+        </div>
         <p className="text-sm font-medium text-center mb-2">Buy More Premium {itemLabel.charAt(0).toUpperCase() + itemLabel.slice(1)}:</p>
         <Button
           onClick={handlePurchase}
@@ -153,6 +175,7 @@ export function PremiumPackPurchase({
           )}
           Buy 50 More {itemLabel} - ₹{totalAmount.toLocaleString('en-IN')}
         </Button>
+        <PaymentMethods />
         <p className="text-xs text-center text-muted-foreground">(Incl. GST 18% + 1.95% fees)</p>
         <p className="text-xs text-center text-muted-foreground">Or contact us:</p>
         <div className="flex gap-2">
@@ -187,13 +210,16 @@ export function PremiumPackPurchase({
   // Show full premium pack purchase UI
   return (
     <div className="p-4 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex justify-center mb-3">
+        <img src={procuresaathiLogo} alt="ProcureSaathi" className="h-10 w-auto" />
+      </div>
+      <div className="flex items-center justify-center gap-2 mb-2">
         <Star className="h-5 w-5 text-amber-500" />
         <span className="font-bold text-foreground">Buy Premium Pack</span>
       </div>
-      <div className="text-2xl font-bold text-primary mb-1">₹{basePrice.toLocaleString('en-IN')}</div>
-      <p className="text-sm text-muted-foreground mb-1">50 lifetime {itemLabel} (₹499/{itemLabelSingular})</p>
-      <p className="text-xs text-muted-foreground mb-3">
+      <div className="text-2xl font-bold text-primary mb-1 text-center">₹{basePrice.toLocaleString('en-IN')}</div>
+      <p className="text-sm text-muted-foreground mb-1 text-center">50 lifetime {itemLabel} (₹499/{itemLabelSingular})</p>
+      <p className="text-xs text-muted-foreground mb-3 text-center">
         + GST 18% (₹{gstAmount.toLocaleString('en-IN')}) + Platform fee 1.95% (₹{transactionFee.toLocaleString('en-IN')})
         <br />
         <span className="font-semibold">Total: ₹{totalAmount.toLocaleString('en-IN')}</span>
@@ -223,6 +249,8 @@ export function PremiumPackPurchase({
           )}
           {isLoading ? 'Processing...' : `Buy Now - ₹${totalAmount.toLocaleString('en-IN')}`}
         </Button>
+        
+        <PaymentMethods />
         
         <p className="text-xs text-center text-muted-foreground mt-3">Or contact to purchase:</p>
         <a 
