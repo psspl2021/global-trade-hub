@@ -1295,6 +1295,57 @@ export type Database = {
           },
         ]
       }
+      premium_bid_payments: {
+        Row: {
+          amount: number
+          bids_credited: boolean
+          bids_purchased: number
+          cf_payment_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          order_id: string
+          paid_at: string | null
+          payment_method: string | null
+          payment_session_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          bids_credited?: boolean
+          bids_purchased?: number
+          cf_payment_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_session_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bids_credited?: boolean
+          bids_purchased?: number
+          cf_payment_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_session_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_images: {
         Row: {
           created_at: string
