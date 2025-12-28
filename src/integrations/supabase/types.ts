@@ -2128,6 +2128,111 @@ export type Database = {
           },
         ]
       }
+      subscription_invoices: {
+        Row: {
+          cgst_amount: number | null
+          company_address: string
+          company_gstin: string
+          company_name: string
+          created_at: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_gstin: string | null
+          customer_name: string
+          customer_phone: string | null
+          description: string
+          email_sent: boolean | null
+          email_sent_at: string | null
+          hsn_sac_code: string | null
+          id: string
+          igst_amount: number | null
+          invoice_date: string
+          invoice_number: string
+          payment_date: string | null
+          payment_id: string
+          payment_type: string
+          pdf_url: string | null
+          place_of_supply: string | null
+          quantity: number | null
+          sgst_amount: number | null
+          subtotal: number
+          tax_rate: number | null
+          total_amount: number
+          total_tax: number
+          unit_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cgst_amount?: number | null
+          company_address?: string
+          company_gstin?: string
+          company_name?: string
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_gstin?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          description: string
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          hsn_sac_code?: string | null
+          id?: string
+          igst_amount?: number | null
+          invoice_date?: string
+          invoice_number: string
+          payment_date?: string | null
+          payment_id: string
+          payment_type: string
+          pdf_url?: string | null
+          place_of_supply?: string | null
+          quantity?: number | null
+          sgst_amount?: number | null
+          subtotal: number
+          tax_rate?: number | null
+          total_amount: number
+          total_tax: number
+          unit_price: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cgst_amount?: number | null
+          company_address?: string
+          company_gstin?: string
+          company_name?: string
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_gstin?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          description?: string
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          hsn_sac_code?: string | null
+          id?: string
+          igst_amount?: number | null
+          invoice_date?: string
+          invoice_number?: string
+          payment_date?: string | null
+          payment_id?: string
+          payment_type?: string
+          pdf_url?: string | null
+          place_of_supply?: string | null
+          quantity?: number | null
+          sgst_amount?: number | null
+          subtotal?: number
+          tax_rate?: number | null
+          total_amount?: number
+          total_tax?: number
+          unit_price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           bids_limit: number

@@ -224,6 +224,58 @@ serve(async (req) => {
         message: `Your ${bidsToCredit} premium ${itemType} have been credited to your account. They never expire - use them anytime!`,
         metadata: { order_id: orderId, bids_credited: bidsToCredit },
       });
+
+      // Generate and send invoice
+      try {
+        // Get user profile for invoice details
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("contact_person, company_name, email, phone, address, gstin, state")
+          .eq("id", paymentRecord.user_id)
+          .single();
+
+        if (profile) {
+          const basePrice = paymentRecord.metadata?.base_price || 24950;
+          const gstAmount = paymentRecord.metadata?.gst_amount || Math.round(basePrice * 0.18);
+          const transactionFee = paymentRecord.metadata?.transaction_fee || 0;
+          
+          const invoiceResponse = await fetch(
+            `${SUPABASE_URL}/functions/v1/generate-payment-invoice`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                payment_type: "premium_pack",
+                payment_id: orderId,
+                user_id: paymentRecord.user_id,
+                amount: basePrice,
+                tax_amount: gstAmount,
+                total_amount: paymentRecord.amount,
+                description: `Premium Pack - ${bidsToCredit} Lifetime ${itemType.charAt(0).toUpperCase() + itemType.slice(1)} (₹499 per ${userType === 'logistics_partner' ? 'quote' : 'bid'})`,
+                customer_name: profile.company_name || profile.contact_person,
+                customer_email: profile.email,
+                customer_phone: profile.phone,
+                customer_address: profile.address,
+                customer_gstin: profile.gstin,
+                customer_state: profile.state,
+                metadata: {
+                  bids_purchased: bidsToCredit,
+                  user_type: userType,
+                  transaction_fee: transactionFee,
+                },
+              }),
+            }
+          );
+
+          const invoiceResult = await invoiceResponse.json();
+          console.log("Invoice generation result:", invoiceResult);
+        }
+      } catch (invoiceError) {
+        console.error("Error generating invoice:", invoiceError);
+        // Don't fail the webhook if invoice generation fails
+      }
     }
 
     // If this was a GET request (return URL), redirect to dashboard

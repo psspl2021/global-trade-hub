@@ -56,6 +56,7 @@ import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 import { SupplierEmailQuotaCard } from '@/components/SupplierEmailQuotaCard';
 import { PremiumPackPurchase } from '@/components/PremiumPackPurchase';
+import { SubscriptionInvoices } from '@/components/SubscriptionInvoices';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -804,8 +805,9 @@ const Dashboard = () => {
         {role === 'supplier' && (
           <>
             {/* Email Quota Card */}
-            <div className="mb-6">
+            <div className="mb-6 grid gap-6 grid-cols-1 lg:grid-cols-2">
               <SupplierEmailQuotaCard />
+              <SubscriptionInvoices />
             </div>
 
             {/* Compulsory Products Reminder Banner */}
