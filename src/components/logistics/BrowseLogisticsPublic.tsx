@@ -5,9 +5,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, MapPin, Calendar, Package, Truck, ArrowRight, Filter } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Loader2, MapPin, Calendar, Package, Truck, ArrowRight, Filter, Share2, Copy, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface LogisticsRequirement {
   id: string;
@@ -36,7 +38,46 @@ export const BrowseLogisticsPublic = ({ open, onOpenChange }: BrowseLogisticsPub
   const [requirements, setRequirements] = useState<LogisticsRequirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('active');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleShare = async (req: LogisticsRequirement) => {
+    const shareUrl = `${window.location.origin}/book-truck?ref=${req.id}`;
+    const shareText = `Transport Requirement: ${req.title}\n${req.quantity} ${req.unit} from ${req.pickup_location} to ${req.delivery_location}\nPickup: ${format(new Date(req.pickup_date), 'MMM dd, yyyy')}\n\nQuote now on ProcureSaathi!`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Transport: ${req.title}`,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        // User cancelled or error
+      }
+    } else {
+      // Fallback to copy
+      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      setCopiedId(req.id);
+      toast({
+        title: "Link copied!",
+        description: "Share link copied to clipboard",
+      });
+      setTimeout(() => setCopiedId(null), 2000);
+    }
+  };
+
+  const handleCopyLink = async (req: LogisticsRequirement) => {
+    const shareUrl = `${window.location.origin}/book-truck?ref=${req.id}`;
+    await navigator.clipboard.writeText(shareUrl);
+    setCopiedId(req.id);
+    toast({
+      title: "Link copied!",
+      description: "Direct link copied to clipboard",
+    });
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const fetchRequirements = async () => {
     setLoading(true);
@@ -187,17 +228,40 @@ export const BrowseLogisticsPublic = ({ open, onOpenChange }: BrowseLogisticsPub
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          onOpenChange(false);
-                          navigate('/signup?role=logistics');
-                        }}
-                        disabled={req.status !== 'active'}
-                      >
-                        Quote Now
-                      </Button>
+                    <div className="flex flex-col gap-2 items-end">
+                      <div className="flex items-center gap-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              {copiedId === req.id ? (
+                                <Check className="h-4 w-4 text-success" />
+                              ) : (
+                                <Share2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-popover z-50">
+                            <DropdownMenuItem onClick={() => handleShare(req)}>
+                              <Share2 className="h-4 w-4 mr-2" />
+                              Share
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCopyLink(req)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy Link
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            onOpenChange(false);
+                            navigate('/signup?role=logistics');
+                          }}
+                          disabled={req.status !== 'active'}
+                        >
+                          Quote Now
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
