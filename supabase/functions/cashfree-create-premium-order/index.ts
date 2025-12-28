@@ -36,6 +36,16 @@ serve(async (req) => {
       throw new Error("Missing required fields: user_id, customer_email, customer_phone");
     }
 
+    // Calculate pricing with GST and transaction fees
+    const basePrice = 24950;
+    const gstRate = 0.18;
+    const transactionFeeRate = 0.0195;
+    
+    const gstAmount = Math.round(basePrice * gstRate);
+    const subtotalWithGst = basePrice + gstAmount;
+    const transactionFee = Math.round(subtotalWithGst * transactionFeeRate);
+    const totalAmount = subtotalWithGst + transactionFee;
+
     // Generate unique order ID
     const orderPrefix = user_type === 'logistics_partner' ? 'LOG_PREM' : 'SUP_PREM';
     const orderId = `${orderPrefix}_${Date.now()}_${user_id.substring(0, 8)}`;
@@ -49,11 +59,18 @@ serve(async (req) => {
       .insert({
         user_id,
         order_id: orderId,
-        amount: 24950,
+        amount: totalAmount,
         currency: "INR",
         status: "pending",
         bids_purchased: 50,
-        metadata: { user_type }
+        metadata: { 
+          user_type,
+          base_price: basePrice,
+          gst_amount: gstAmount,
+          transaction_fee: transactionFee,
+          gst_rate: gstRate,
+          transaction_fee_rate: transactionFeeRate
+        }
       });
 
     if (dbError) {
@@ -66,7 +83,7 @@ serve(async (req) => {
 
     const orderPayload = {
       order_id: orderId,
-      order_amount: 24950,
+      order_amount: totalAmount,
       order_currency: "INR",
       customer_details: {
         customer_id: user_id.substring(0, 30),
@@ -78,7 +95,7 @@ serve(async (req) => {
         return_url: `${SUPABASE_URL}/functions/v1/cashfree-premium-webhook?order_id=${orderId}`,
         notify_url: `${SUPABASE_URL}/functions/v1/cashfree-premium-webhook`,
       },
-      order_note: `ProcureSaathi Premium Pack - 50 Lifetime ${user_type === 'logistics_partner' ? 'Quotes' : 'Bids'}`,
+      order_note: `ProcureSaathi Premium Pack - 50 Lifetime ${user_type === 'logistics_partner' ? 'Quotes' : 'Bids'} (Base: ₹${basePrice} + GST: ₹${gstAmount} + Fee: ₹${transactionFee})`,
     };
 
     console.log("Creating Cashfree premium order:", JSON.stringify(orderPayload));
