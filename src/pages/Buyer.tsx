@@ -119,7 +119,7 @@ const Buyer = () => {
     title: "B2B Buyer Portal - Post RFQ, Get Competitive Bids",
     description: "Post RFQs free, get sealed bids from 1000+ verified suppliers. Transparent B2B bidding for raw materials & components. No commission for buyers.",
     keywords: "B2B sourcing, verified suppliers India, bulk procurement, RFQ platform, supplier network, wholesale buying, procurement portal",
-    canonical: "https://www.procuresaathi.com/buyer",
+    canonical: "https://procuresaathi.com/buyer",
     ogImage: "/og-early-adopter.png"
   });
 
@@ -129,7 +129,7 @@ const Buyer = () => {
       "@type": "WebPage",
       "name": "B2B Buyer Portal - ProcureSaathi",
       "description": "Post RFQs and receive competitive sealed bids from verified suppliers across 23+ categories.",
-      "url": "https://www.procuresaathi.com/buyer",
+      "url": "https://procuresaathi.com/buyer",
       "mainEntity": {
         "@type": "Service",
         "name": "B2B Procurement Platform",
@@ -143,8 +143,8 @@ const Buyer = () => {
     }, "buyer-page-schema");
 
     injectStructuredData(getBreadcrumbSchema([
-      { name: "Home", url: "https://www.procuresaathi.com" },
-      { name: "Buyer Portal", url: "https://www.procuresaathi.com/buyer" }
+      { name: "Home", url: "https://procuresaathi.com" },
+      { name: "Buyer Portal", url: "https://procuresaathi.com/buyer" }
     ]), "buyer-breadcrumb-schema");
   }, []);
 

@@ -106,7 +106,7 @@ const Seller = () => {
   useSEO({
     title: "Sell on ProcureSaathi - B2B Supplier Portal",
     description: "List products, reach 500+ verified buyers in 50+ countries. Zero commission, AI-powered tools, integrated logistics.",
-    canonical: "https://www.procuresaathi.com/seller",
+    canonical: "https://procuresaathi.com/seller",
     keywords: "B2B supplier, sell products, export platform, verified buyers, global marketplace"
   });
 
@@ -117,12 +117,12 @@ const Seller = () => {
       "@type": "WebPage",
       "name": "Sell on ProcureSaathi - B2B Supplier Portal",
       "description": "List products, reach 500+ verified buyers in 50+ countries. Zero commission, AI-powered tools.",
-      "url": "https://www.procuresaathi.com/seller"
+      "url": "https://procuresaathi.com/seller"
     }, 'seller-webpage-schema');
     
     injectStructuredData(getBreadcrumbSchema([
-      { name: "Home", url: "https://www.procuresaathi.com" },
-      { name: "Seller", url: "https://www.procuresaathi.com/seller" }
+      { name: "Home", url: "https://procuresaathi.com" },
+      { name: "Seller", url: "https://procuresaathi.com/seller" }
     ]), 'seller-breadcrumb-schema');
   }, []);
 
