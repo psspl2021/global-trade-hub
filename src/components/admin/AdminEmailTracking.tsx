@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Mail, Eye, MousePointer, AlertTriangle, Check, Search, Settings, History, RefreshCw } from "lucide-react";
+import { Mail, Eye, MousePointer, AlertTriangle, Check, Search, Settings, History, RefreshCw, CreditCard, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 interface SupplierWithQuota {
@@ -26,7 +26,10 @@ interface SupplierWithQuota {
     daily_emails_sent: number;
     monthly_emails_sent: number;
     has_email_subscription: boolean;
+    subscription_started_at: string | null;
     subscription_expires_at: string | null;
+    last_daily_reset: string | null;
+    last_monthly_reset: string | null;
   };
   stats?: {
     total_sent: number;
@@ -34,6 +37,11 @@ interface SupplierWithQuota {
     total_opened: number;
     total_clicked: number;
     total_bounced: number;
+  };
+  latestPayment?: {
+    status: string;
+    amount: number;
+    paid_at: string | null;
   };
 }
 
@@ -96,6 +104,20 @@ export default function AdminEmailTracking() {
         .from("supplier_email_logs")
         .select("supplier_id, status, delivered_at, opened_at, clicked_at, bounced_at");
 
+      // Get latest payments for each supplier
+      const { data: payments } = await supabase
+        .from("email_subscription_payments")
+        .select("supplier_id, status, amount, paid_at")
+        .order("created_at", { ascending: false });
+
+      // Map latest payment per supplier
+      const paymentsMap = new Map<string, any>();
+      payments?.forEach(p => {
+        if (!paymentsMap.has(p.supplier_id)) {
+          paymentsMap.set(p.supplier_id, p);
+        }
+      });
+
       // Aggregate stats per supplier
       const statsMap = new Map<string, any>();
       logs?.forEach(log => {
@@ -113,7 +135,8 @@ export default function AdminEmailTracking() {
       return profiles?.map(p => ({
         ...p,
         quota: quotas?.find(q => q.supplier_id === p.id),
-        stats: statsMap.get(p.id) || { total_sent: 0, total_delivered: 0, total_opened: 0, total_clicked: 0, total_bounced: 0 }
+        stats: statsMap.get(p.id) || { total_sent: 0, total_delivered: 0, total_opened: 0, total_clicked: 0, total_bounced: 0 },
+        latestPayment: paymentsMap.get(p.id)
       })) as SupplierWithQuota[];
     },
   });
@@ -315,6 +338,8 @@ export default function AdminEmailTracking() {
                     <TableHead>Categories</TableHead>
                     <TableHead>Notifications</TableHead>
                     <TableHead>Plan</TableHead>
+                    <TableHead>Plan Period</TableHead>
+                    <TableHead>Payment Status</TableHead>
                     <TableHead>Daily Usage</TableHead>
                     <TableHead>Monthly Usage</TableHead>
                     <TableHead>Delivery Stats</TableHead>
@@ -352,6 +377,39 @@ export default function AdminEmailTracking() {
                         )}
                       </TableCell>
                       <TableCell>{getPlanBadge(supplier.quota)}</TableCell>
+                      <TableCell>
+                        {supplier.quota?.has_email_subscription ? (
+                          <div className="text-xs space-y-1">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3 text-muted-foreground" />
+                              <span>Start: {supplier.quota?.subscription_started_at ? format(new Date(supplier.quota.subscription_started_at), "MMM dd, yy") : "N/A"}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3 text-muted-foreground" />
+                              <span className={supplier.quota?.subscription_expires_at && new Date(supplier.quota.subscription_expires_at) < new Date() ? "text-red-500" : ""}>
+                                Exp: {supplier.quota?.subscription_expires_at ? format(new Date(supplier.quota.subscription_expires_at), "MMM dd, yy") : "N/A"}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">Free Plan</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {supplier.latestPayment ? (
+                          <div className="flex items-center gap-1">
+                            <CreditCard className="h-3 w-3" />
+                            <Badge 
+                              variant={supplier.latestPayment.status === "completed" ? "default" : "secondary"}
+                              className={supplier.latestPayment.status === "completed" ? "bg-green-500" : supplier.latestPayment.status === "pending" ? "bg-yellow-500" : ""}
+                            >
+                              {supplier.latestPayment.status}
+                            </Badge>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">No payments</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <span className={supplier.quota?.daily_emails_sent === 2 ? "text-red-500 font-medium" : ""}>
                           {supplier.quota?.daily_emails_sent || 0}/2
@@ -403,8 +461,9 @@ export default function AdminEmailTracking() {
                                   <TableHeader>
                                     <TableRow>
                                       <TableHead>Date</TableHead>
-                                      <TableHead>Subject</TableHead>
+                                      <TableHead>RFQ / Subject</TableHead>
                                       <TableHead>Type</TableHead>
+                                      <TableHead>Brevo ID</TableHead>
                                       <TableHead>Status</TableHead>
                                       <TableHead>Opens</TableHead>
                                       <TableHead>Clicks</TableHead>
@@ -416,20 +475,32 @@ export default function AdminEmailTracking() {
                                         <TableCell className="text-sm">
                                           {format(new Date(log.sent_at), "MMM dd, yyyy HH:mm")}
                                         </TableCell>
-                                        <TableCell className="max-w-[200px] truncate text-sm">
-                                          {log.subject}
+                                        <TableCell>
+                                          <div className="max-w-[180px]">
+                                            <div className="text-sm truncate font-medium">{log.subject}</div>
+                                            {log.requirement_id && (
+                                              <div className="text-xs text-muted-foreground truncate">
+                                                RFQ: {log.requirement_id.substring(0, 8)}...
+                                              </div>
+                                            )}
+                                          </div>
                                         </TableCell>
                                         <TableCell>
                                           <Badge variant="outline" className="text-xs">{log.email_type}</Badge>
                                         </TableCell>
+                                        <TableCell>
+                                          <span className="text-xs text-muted-foreground font-mono">
+                                            {log.brevo_message_id ? log.brevo_message_id.substring(0, 12) + "..." : "N/A"}
+                                          </span>
+                                        </TableCell>
                                         <TableCell>{getStatusBadge(log.status)}</TableCell>
-                                        <TableCell>{log.open_count}</TableCell>
-                                        <TableCell>{log.click_count}</TableCell>
+                                        <TableCell>{log.open_count || 0}</TableCell>
+                                        <TableCell>{log.click_count || 0}</TableCell>
                                       </TableRow>
                                     ))}
                                     {(!emailLogs || emailLogs.length === 0) && (
                                       <TableRow>
-                                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                                        <TableCell colSpan={7} className="text-center text-muted-foreground">
                                           No email logs found
                                         </TableCell>
                                       </TableRow>
