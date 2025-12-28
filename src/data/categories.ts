@@ -27,7 +27,6 @@ export const categoriesData: CategoryData[] = [
       'Harvesting Equipment',
       'Storage & Silos',
       'Dairy Equipment',
-      // Tata Agrico Agricultural Tools
       'Agricultural Spades',
       'Garden Spades',
       'Trenching Spades',
@@ -40,9 +39,6 @@ export const categoriesData: CategoryData[] = [
       'Garden Hoes',
       'Weeding Hoes',
       'Agricultural Rakes',
-      'Crowbars',
-      'Pickaxes',
-      'Mattocks',
       'Cane Knives',
       'Sugarcane Tools',
       'Plantation Tools',
@@ -117,7 +113,6 @@ export const categoriesData: CategoryData[] = [
       'Organic Beauty',
       'Salon Equipment',
       'Personal Hygiene',
-      // Specialty Ingredients
       'Emollients & Moisturizers',
       'Emulsifiers',
       'Conditioning Agents',
@@ -135,7 +130,6 @@ export const categoriesData: CategoryData[] = [
     icon: Building,
     subcategories: [
       'Cement & Concrete',
-      'Steel & Iron',
       'Tiles & Flooring',
       'Sanitary Ware',
       'Doors & Windows',
@@ -144,40 +138,18 @@ export const categoriesData: CategoryData[] = [
       'Plumbing Supplies',
       'Electrical Fittings',
       'Glass & Glazing',
-      // Tata Steel Construction Products
-      'TMT Rebars',
-      'Tata Tiscon TMT Bars',
-      'Fe-500D TMT Bars',
-      'Earthquake Resistant Rebars',
-      'Corrosion Resistant Rebars',
-      // Tata Shaktee Roofing
       'GC Roofing Sheets',
       'GP Roofing Sheets',
       'Color Coated Roofing Sheets',
       'Metal Roofing',
       'Galvanized Roofing',
       'Pre-Painted Roofing Sheets',
-      // Tata Structura
-      'Structural Steel Sections',
-      'Steel Hollow Sections',
-      'Steel Angles',
-      'Steel Channels',
-      'Steel Beams',
-      'Steel Columns',
-      // Structural Steel Products
-      'Purlins',
       'C Purlins',
       'Z Purlins',
       'Monopoles',
       'Transmission Poles',
       'Telecom Monopoles',
-      // Wire Products
       'Tata Wiron Products',
-      'Binding Wire',
-      'GI Wire',
-      'Barbed Wire',
-      'Chain Link Fence',
-      'Welded Wire Mesh',
     ]
   },
   {
@@ -192,7 +164,6 @@ export const categoriesData: CategoryData[] = [
       'Petrochemicals',
       'Agrochemicals',
       'Specialty Chemicals',
-      // Water Treatment Chemicals
       'Water Treatment Coagulants',
       'Flocculants',
       'Water Disinfectants',
@@ -201,7 +172,6 @@ export const categoriesData: CategoryData[] = [
       'Corrosion Inhibitors',
       'pH Adjusters',
       'Water Treatment Dispersants',
-      // Household & Personal Care Chemicals
       'Anionic Surfactants',
       'Nonionic Surfactants',
       'Amphoteric Surfactants',
@@ -209,7 +179,6 @@ export const categoriesData: CategoryData[] = [
       'Chelating Agents',
       'Industrial Preservatives',
       'Silicone Surfactants',
-      // Fine Chemicals
       'Fine Chemicals',
       'Electronic Chemicals',
       'Textile Chemicals',
@@ -218,7 +187,6 @@ export const categoriesData: CategoryData[] = [
       'Plastic Additives',
       'Foaming Agents',
       'Refrigerants',
-      // Paints & Coatings Chemicals
       'Paint Resins',
       'Coating Additives',
       'Paint Solvents',
@@ -266,7 +234,6 @@ export const categoriesData: CategoryData[] = [
       'Transformers',
       'Motors & Drives',
       'Control Panels',
-      'Electrical Fittings',
       'Power Distribution',
     ]
   },
@@ -324,7 +291,6 @@ export const categoriesData: CategoryData[] = [
       'Frozen Foods',
       'Organic Foods',
       'Snacks & Confectionery',
-      // Food Ingredients & Additives
       'Food Preservatives',
       'Food Emulsifiers',
       'Food Colorants',
@@ -334,7 +300,6 @@ export const categoriesData: CategoryData[] = [
       'Stabilizers',
       'Acidulants',
       'Antioxidants',
-      // Nutrition
       'Nutraceuticals',
       'Dietary Supplements',
       'Protein Ingredients',
@@ -357,11 +322,9 @@ export const categoriesData: CategoryData[] = [
       'Mint & Menthol',
       'Vanilla & Vanillin',
       'Citrus Flavors',
-      // Fragrances
       'Fine Fragrances',
       'Functional Fragrances',
       'Aroma Chemicals',
-      'Essential Oils',
       'Fragrance Oils',
       'Musk Compounds',
       'Floral Notes',
@@ -394,7 +357,6 @@ export const categoriesData: CategoryData[] = [
       'Measuring Tools',
       'Abrasives',
       'Tool Storage',
-      // Tata Agrico Hand Tools
       'Spades & Shovels',
       'D-Handle Spades',
       'Square Mouth Shovels',
@@ -409,7 +371,6 @@ export const categoriesData: CategoryData[] = [
       'Pliers & Cutters',
       'Wrenches & Spanners',
       'Screwdrivers',
-      // Tata Agrico Construction Tools
       'Masonry Tools',
       'Plastering Trowels',
       'Brick Trowels',
@@ -419,7 +380,6 @@ export const categoriesData: CategoryData[] = [
       'Tile Cutters',
       'Concrete Tools',
       'Leveling Tools',
-      // Industrial Hardware
       'Bolts & Nuts',
       'Washers',
       'Screws',
@@ -519,45 +479,32 @@ export const categoriesData: CategoryData[] = [
     name: 'Metals - Ferrous (Steel, Iron)',
     icon: Layers,
     subcategories: [
-      // Pig Iron
       'Pig Iron',
       'Basic Pig Iron',
       'Foundry Grade Pig Iron',
-      
-      // Cold Rolled Products
       'CR Sheet',
       'CR Coil',
       'Cold Rolled GP Sheets',
       'Cold Rolled Annealed Coils',
       'Full Hard Cold Rolled Coils',
-      
-      // Hot Rolled Products
       'HR Coil',
       'HR Sheet',
       'HR Plates',
       'Hot Rolled Pickled & Oiled (HRPO)',
       'Chequered Plates',
-      
-      // Galvanised Products
       'Galvanised Plain (GP) Sheets',
       'Galvanised Corrugated (GC) Sheets',
       'Galvanised Coils',
       'Color Coated Sheets',
-      
-      // Pipes
       'Steel Pipes',
       'ERW Pipes',
       'Spiral Welded Pipes',
       'Seamless Pipes',
       'API Grade Pipes',
-      
-      // Semis
       'Billets',
       'Blooms',
       'Slabs',
       'Ingots',
-      
-      // Structurals
       'Structural Steel',
       'Angles',
       'Channels',
@@ -565,8 +512,6 @@ export const categoriesData: CategoryData[] = [
       'Joists',
       'H-Beams',
       'I-Beams',
-      
-      // TMT Bars
       'TMT Bar',
       'TMT Bars Fe-500',
       'TMT Bars Fe-500D',
@@ -575,15 +520,11 @@ export const categoriesData: CategoryData[] = [
       'TMT Bars Fe-600',
       'SeQR TMT Bars',
       'Earthquake Resistant TMT',
-      
-      // Wire Rods
       'Wire Rods',
       'High Carbon Wire Rods',
       'Low Carbon Wire Rods',
       'Electrode Quality Wire Rods',
       'Cold Heading Quality Wire Rods',
-      
-      // Plates
       'PM Plates',
       'Boiler Quality Plates',
       'Shipbuilding Plates',
@@ -591,8 +532,6 @@ export const categoriesData: CategoryData[] = [
       'Pressure Vessel Plates',
       'High Tensile Plates',
       'Wear Resistant Plates',
-      
-      // Railway Products
       'Rails',
       'Crane Rails',
       'Fish Plates',
@@ -600,14 +539,10 @@ export const categoriesData: CategoryData[] = [
       '60 Kg Rails',
       '52 Kg Rails',
       'Head Hardened Rails',
-      
-      // Wheels and Axles
       'Railway Wheels',
       'Railway Axles',
       'Wheel Sets',
       'Forged Wheels',
-      
-      // Stainless Steel Products
       'Stainless Steel Sheets',
       'Stainless Steel Coils',
       'Stainless Steel Plates',
@@ -615,16 +550,12 @@ export const categoriesData: CategoryData[] = [
       'Austenitic Stainless Steel',
       'Ferritic Stainless Steel',
       'Duplex Stainless Steel',
-      
-      // Electrical Steels
       'Electrical Steel Sheets',
       'CRGO (Cold Rolled Grain Oriented)',
       'CRNGO (Cold Rolled Non-Grain Oriented)',
       'Silicon Steel',
       'Transformer Grade Steel',
       'Motor Grade Steel',
-      
-      // General Categories
       'Steel Sheets',
       'Steel Bars & Rods',
       'Iron Castings',
@@ -646,7 +577,6 @@ export const categoriesData: CategoryData[] = [
       'Nickel Alloys',
       'Titanium Products',
       'Bronze Products',
-      // Ingots & Billets
       'Aluminium Ingots',
       'Aluminium Billets',
       'Copper Cathodes',
@@ -654,12 +584,10 @@ export const categoriesData: CategoryData[] = [
       'Zinc Ingots',
       'Lead Ingots',
       'Tin Ingots',
-      // Sheets & Coils
       'Aluminium Sheets',
       'Aluminium Coils',
       'Copper Sheets',
       'Brass Sheets',
-      // Scrap
       'Aluminium Scrap',
       'Copper Scrap',
       'Brass Scrap',
@@ -670,7 +598,6 @@ export const categoriesData: CategoryData[] = [
     icon: Pickaxe,
     subcategories: [
       'Coal & Coke',
-      'Iron Ore',
       'Limestone',
       'Marble & Granite',
       'Sand & Gravel',
@@ -701,9 +628,7 @@ export const categoriesData: CategoryData[] = [
       'Office Equipment',
       'Filing & Storage',
       'Writing Instruments',
-      'Art Supplies',
       'Presentation Supplies',
-      'Office Furniture',
       'Educational Materials',
     ]
   },
@@ -715,7 +640,6 @@ export const categoriesData: CategoryData[] = [
       'Plastic Packaging',
       'Labels & Tags',
       'Printing Services',
-      'Packaging Machines',
       'Flexible Packaging',
       'Glass Packaging',
       'Promotional Printing',
@@ -747,7 +671,6 @@ export const categoriesData: CategoryData[] = [
       'OTC Products',
       'Pharmaceutical Packaging',
       'Medical Devices',
-      // Pharmaceutical Intermediates
       'Analgesic Intermediates',
       'Anesthetic Intermediates',
       'Antibacterial Intermediates',
@@ -758,7 +681,6 @@ export const categoriesData: CategoryData[] = [
       'CNS Drug Intermediates',
       'Anti-Inflammatory Intermediates',
       'Immunosuppressant Intermediates',
-      // Pharmaceutical Raw Materials
       'Excipients',
       'Pharmaceutical Solvents',
       'Pharmaceutical Catalysts',
@@ -815,7 +737,6 @@ export const categoriesData: CategoryData[] = [
       'Nylon & Polyamide',
       'Polycarbonate',
       'Engineering Plastics',
-      // Polymer Grades
       'HDPE Granules',
       'LDPE Granules',
       'LLDPE Granules',
@@ -825,7 +746,6 @@ export const categoriesData: CategoryData[] = [
       'PET Resins',
       'PS (Polystyrene)',
       'EVA Copolymer',
-      // Masterbatches
       'Color Masterbatch',
       'Additive Masterbatch',
       'Filler Masterbatch',
@@ -843,11 +763,8 @@ export const categoriesData: CategoryData[] = [
       'PVC Pipes',
       'GI Pipes',
       'MS Pipes',
-      'Seamless Pipes',
-      'ERW Pipes',
       'Copper Tubes',
       'Stainless Steel Pipes',
-      // Tata Pipes Products
       'Structural Steel Tubes',
       'Hollow Sections',
       'Square Hollow Sections (SHS)',
@@ -869,7 +786,6 @@ export const categoriesData: CategoryData[] = [
       'Galvanized Steel Pipes',
       'Pre-Galvanized Pipes',
       'Black Steel Pipes',
-      // Tata Ductura DI Pipes
       'Ductile Iron Pipes',
       'DI Fittings',
       'Centrifugal Cast DI Pipes',
@@ -908,14 +824,12 @@ export const categoriesData: CategoryData[] = [
       'Petroleum Coke',
       'Asphalt',
       'Crude Oil',
-      // Bitumen Grades
       'Bitumen VG10',
       'Bitumen VG30',
       'Bitumen VG40',
       'Emulsion Bitumen',
       'Polymer Modified Bitumen',
       'Cutback Bitumen',
-      // Industrial Fuels
       'Natural Gas',
       'LPG Industrial',
       'Methanol',
@@ -976,7 +890,6 @@ export const categoriesData: CategoryData[] = [
       'Technical Textiles',
       'Leather Products',
       'Leather Raw Materials',
-      'Textile Machinery',
       'Garment Accessories',
     ]
   },
@@ -984,7 +897,6 @@ export const categoriesData: CategoryData[] = [
     name: 'Toys & Games',
     icon: Gamepad2,
     subcategories: [
-      'Educational Toys',
       'Electronic Toys',
       'Board Games',
       'Outdoor Toys',
@@ -1062,63 +974,9 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
-    name: 'Steel & Metal Products',
-    icon: Layers,
-    subcategories: [
-      // TMT Bars & Rebars
-      'TMT Bars',
-      'Fe-500D TMT Bars',
-      'Fe-550D TMT Bars',
-      'Earthquake Resistant TMT Bars',
-      'Corrosion Resistant TMT Bars',
-      // MS (Mild Steel) Products
-      'MS Angles',
-      'MS Channels',
-      'MS Beams',
-      'MS Flats',
-      'MS Rounds',
-      'MS Squares',
-      'MS Pipes',
-      'MS Tubes',
-      // Plates & Sheets
-      'Chequered Plates',
-      'HR Sheets',
-      'HR Plates',
-      'CR Sheets',
-      'CR Coils',
-      'GP Sheets',
-      'GC Sheets',
-      'Color Coated Sheets',
-      'Stainless Steel Sheets',
-      // Wire Products
-      'Wire Rods',
-      'Binding Wire',
-      'GI Wire',
-      'MS Wire',
-      'Barbed Wire',
-      'Welded Wire Mesh',
-      'Chain Link Fence',
-      // Structural Steel
-      'I-Beams',
-      'H-Beams',
-      'ISMC Channels',
-      'ISMB Beams',
-      'Joist Beams',
-      'Steel Joists',
-      // Pipes & Tubes
-      'ERW Pipes',
-      'Seamless Pipes',
-      'Galvanized Pipes',
-      'Square Tubes',
-      'Rectangular Tubes',
-      'Hollow Sections',
-    ]
-  },
-  {
     name: 'Road Safety & Infrastructure',
     icon: Shield,
     subcategories: [
-      // Crash Barriers
       'Crash Barriers',
       'Metal Crash Barriers',
       'W-Beam Crash Barriers',
@@ -1131,7 +989,6 @@ export const categoriesData: CategoryData[] = [
       'Guardrails',
       'End Terminals',
       'Crash Cushions',
-      // Road Safety Equipment
       'Road Studs',
       'Cat Eyes',
       'Reflective Road Markers',
@@ -1141,19 +998,16 @@ export const categoriesData: CategoryData[] = [
       'Rumble Strips',
       'Bollards',
       'Parking Barriers',
-      // Signage
       'Traffic Signs',
       'Highway Signs',
       'Reflective Signs',
       'LED Traffic Signs',
       'Warning Signs',
       'Directional Signs',
-      // Road Marking
       'Thermoplastic Road Marking',
       'Road Paint',
       'Lane Marking',
       'Zebra Crossing Materials',
-      // Infrastructure
       'Street Light Poles',
       'Highway Lighting',
       'Toll Plaza Equipment',
