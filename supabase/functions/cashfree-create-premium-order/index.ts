@@ -37,7 +37,7 @@ serve(async (req) => {
     }
 
     // Calculate pricing with GST and transaction fees
-    const basePrice = 300;
+    const basePrice = 24950;
     const gstRate = 0.18;
     const transactionFeeRate = 0.0195;
     
