@@ -10,6 +10,7 @@ import { Search, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import logo from '@/assets/procuresaathi-logo.png';
+import heroBgBlogs from '@/assets/hero-bg-blogs.jpg';
 
 interface Blog {
   id: string;
@@ -145,8 +146,14 @@ const Blogs = () => {
   return (
     <main className="min-h-screen bg-gradient-to-b from-primary/5 to-background">
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary/10 to-primary/5 py-16">
-        <div className="container mx-auto px-4">
+      <header className="relative py-16 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBgBlogs})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
+        <div className="container mx-auto px-4 relative z-10">
           <nav className="flex justify-between items-start mb-6" aria-label="Blog header navigation">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">
               B2B Procurement Blog
