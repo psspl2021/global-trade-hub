@@ -93,7 +93,11 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
     return documentsUploaded.house_address_photo && documentsUploaded.office_address_photo;
   };
 
-  const canContinue = (vehicleAdded || warehouseAdded) && requiredDocsComplete();
+  // For agents: vehicle and warehouse are optional, only documents required
+  // For fleet owners: need at least one vehicle or warehouse plus documents
+  const canContinue = partnerType === 'agent' 
+    ? requiredDocsComplete() 
+    : (vehicleAdded || warehouseAdded) && requiredDocsComplete();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -101,7 +105,9 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
         <DialogHeader>
           <DialogTitle>Complete Your Registration</DialogTitle>
           <DialogDescription>
-            Upload verification documents and add at least one vehicle or warehouse to start receiving requests
+            {partnerType === 'agent' 
+              ? 'Upload verification documents to start receiving requests. Vehicle and warehouse are optional.'
+              : 'Upload verification documents and add at least one vehicle or warehouse to start receiving requests'}
           </DialogDescription>
         </DialogHeader>
 
@@ -234,7 +240,9 @@ export const LogisticsOnboarding = ({ open, onOpenChange, userId, onComplete }: 
         <div className="flex justify-between items-center pt-4 border-t mt-4">
           <p className="text-sm text-muted-foreground">
             {canContinue 
-              ? 'You can add more assets later from your dashboard'
+              ? partnerType === 'agent' 
+                ? 'You can add vehicles or warehouses later from your dashboard'
+                : 'You can add more assets later from your dashboard'
               : !requiredDocsComplete()
               ? 'Please upload all required verification documents'
               : 'Add at least one vehicle or warehouse to continue'
