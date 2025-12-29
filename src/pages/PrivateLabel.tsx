@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import heroBgPrivateLabel from "@/assets/hero-bg-private-label.jpg";
 import { 
   ArrowRight, 
   Factory,
@@ -257,10 +258,16 @@ const PrivateLabel = () => {
       
       {/* Hero Section */}
       <section 
-        className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background overflow-hidden"
+        className="relative py-16 md:py-24 overflow-hidden"
         aria-labelledby="hero-heading"
       >
-        <div className="container mx-auto px-4">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBgPrivateLabel})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
+        <div className="container mx-auto px-4 relative z-10">
           <header className="text-center max-w-4xl mx-auto">
             <Badge variant="secondary" className="mb-6">
               1000+ Verified Manufacturers

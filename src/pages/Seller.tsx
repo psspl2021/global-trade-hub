@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import heroBgSeller from "@/assets/hero-bg-seller.jpg";
 import { 
   ArrowRight, 
   Users, 
@@ -131,8 +132,14 @@ const Seller = () => {
       <PageHeader />
       
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background overflow-hidden">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16 md:py-24 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBgSeller})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/80 mb-6">
               <span className="text-sm font-medium text-muted-foreground">ALL-IN-ONE PLATFORM</span>
