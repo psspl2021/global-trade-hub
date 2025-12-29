@@ -8,11 +8,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Truck, Warehouse, Search, MapPin, ArrowLeft, 
-  Package, Fuel, CheckCircle, Route
+  Package, Fuel, CheckCircle, Route, FileText, Calendar
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { indianLocations } from '@/data/indianLocations';
+import { format } from 'date-fns';
 
 interface Vehicle {
   id: string;
@@ -44,6 +45,20 @@ interface WarehouseData {
   contact_phone: string | null;
 }
 
+interface LogisticsRequirement {
+  id: string;
+  title: string;
+  material_type: string;
+  quantity: number;
+  unit: string;
+  pickup_location: string;
+  delivery_location: string;
+  status: string;
+  pickup_date: string;
+  delivery_deadline: string;
+  created_at: string;
+}
+
 const vehicleTypeLabels: Record<string, string> = {
   truck: 'Truck',
   trailer: 'Trailer',
@@ -68,6 +83,7 @@ const BookTruck = () => {
   const navigate = useNavigate();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
+  const [requirements, setRequirements] = useState<LogisticsRequirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [availableRoutes, setAvailableRoutes] = useState<{ origin: string; destination: string }[]>([]);
 
@@ -146,12 +162,16 @@ const BookTruck = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [vehiclesRes, warehousesRes] = await Promise.all([
+      const [vehiclesRes, warehousesRes, requirementsRes] = await Promise.all([
         (supabase.from('vehicles') as any)
           .select('*')
           .eq('is_available', true)
           .eq('verification_status', 'verified'),
-        supabase.from('warehouses').select('*').eq('is_active', true)
+        supabase.from('warehouses').select('*').eq('is_active', true),
+        supabase.from('logistics_requirements')
+          .select('*')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
       ]);
 
       if (vehiclesRes.data) {
@@ -164,6 +184,7 @@ const BookTruck = () => {
         setAvailableRoutes(uniqueRoutes);
       }
       if (warehousesRes.data) setWarehouses(warehousesRes.data as WarehouseData[]);
+      if (requirementsRes.data) setRequirements(requirementsRes.data as LogisticsRequirement[]);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -213,6 +234,14 @@ const BookTruck = () => {
     return matchesLocation && matchesType;
   });
 
+  const filteredRequirements = requirements.filter(r => {
+    const matchesFrom = appliedFilters.from === 'all' || 
+      r.pickup_location.toLowerCase().includes(appliedFilters.from.toLowerCase());
+    const matchesTo = appliedFilters.to === 'all' || 
+      r.delivery_location.toLowerCase().includes(appliedFilters.to.toLowerCase());
+    return matchesFrom && matchesTo;
+  });
+
   const formatRoutes = (routes: { origin: string; destination: string }[] | null) => {
     if (!routes || routes.length === 0) return null;
     return routes.slice(0, 2).map((r, i) => (
@@ -220,6 +249,16 @@ const BookTruck = () => {
         {r.origin} → {r.destination}
       </Badge>
     ));
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
+      active: { variant: 'default', label: 'Active' },
+      closed: { variant: 'secondary', label: 'Closed' },
+      cancelled: { variant: 'destructive', label: 'Cancelled' },
+    };
+    const config = variants[status] || { variant: 'outline', label: status };
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   return (
@@ -341,9 +380,9 @@ const BookTruck = () => {
           </CardContent>
         </Card>
 
-        {/* Tabs for Vehicles and Warehouses */}
+        {/* Tabs for Vehicles, Warehouses and Requirements */}
         <Tabs defaultValue="vehicles" className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
             <TabsTrigger value="vehicles" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
               Vehicles ({filteredVehicles.length})
@@ -351,6 +390,10 @@ const BookTruck = () => {
             <TabsTrigger value="warehouses" className="flex items-center gap-2">
               <Warehouse className="h-4 w-4" />
               Warehouses ({filteredWarehouses.length})
+            </TabsTrigger>
+            <TabsTrigger value="requirements" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Requirements ({filteredRequirements.length})
             </TabsTrigger>
           </TabsList>
 
@@ -525,6 +568,79 @@ const BookTruck = () => {
                         onClick={() => navigate('/signup?role=buyer')}
                       >
                         Request Quote
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Requirements Tab */}
+          <TabsContent value="requirements">
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+                <p className="mt-4 text-muted-foreground">Loading requirements...</p>
+              </div>
+            ) : filteredRequirements.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No logistics requirements available</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {fromLocation !== 'all' || toLocation !== 'all'
+                      ? 'Try adjusting your filters' 
+                      : 'Check back later for logistics requirements'}
+                  </p>
+                  <Button variant="outline" onClick={() => navigate('/signup?role=buyer')}>
+                    Post a Logistics Requirement
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredRequirements.map((req) => (
+                  <Card key={req.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <Badge variant="outline" className="mb-2 capitalize">
+                            {req.material_type}
+                          </Badge>
+                          <CardTitle className="text-lg line-clamp-2">{req.title}</CardTitle>
+                        </div>
+                        {getStatusBadge(req.status)}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4 text-orange-500" />
+                        <span className="font-medium">From:</span>
+                        <span className="truncate">{req.pickup_location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4 text-green-500" />
+                        <span className="font-medium">To:</span>
+                        <span className="truncate">{req.delivery_location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Package className="h-4 w-4" />
+                        <span>{req.quantity} {req.unit}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4" />
+                        <span>Pickup: {format(new Date(req.pickup_date), 'dd MMM yyyy')}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4" />
+                        <span>Deadline: {format(new Date(req.delivery_deadline), 'dd MMM yyyy')}</span>
+                      </div>
+                      <Button 
+                        className="w-full mt-4" 
+                        onClick={() => navigate('/signup?role=logistics_partner')}
+                      >
+                        Submit Quote
                       </Button>
                     </CardContent>
                   </Card>
