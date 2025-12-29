@@ -29,7 +29,8 @@ interface ProfileData {
   buyer_industry: string;
 }
 
-const REQUIRED_FIELDS: (keyof ProfileData)[] = ['company_name', 'contact_person', 'phone', 'gstin', 'city', 'state', 'address'];
+const REQUIRED_FIELDS_BASE: (keyof ProfileData)[] = ['company_name', 'contact_person', 'phone', 'city', 'state', 'address'];
+const REQUIRED_FIELDS_WITH_GSTIN: (keyof ProfileData)[] = [...REQUIRED_FIELDS_BASE, 'gstin'];
 
 export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletionModalProps) => {
   const [open, setOpen] = useState(false);
@@ -97,8 +98,9 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
           buyer_industry: data.buyer_industry || '',
         });
 
-        // Check if any required field is missing
-        const missingFields = REQUIRED_FIELDS.filter(field => {
+        // Check if any required field is missing (GSTIN optional for logistics partners)
+        const requiredFields = role === 'logistics_partner' ? REQUIRED_FIELDS_BASE : REQUIRED_FIELDS_WITH_GSTIN;
+        const missingFields = requiredFields.filter(field => {
           const value = data[field as keyof typeof data];
           return !value || (typeof value === 'string' && value.trim() === '');
         });
@@ -135,9 +137,15 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
     } else if (!/^[6-9]\d{9}$/.test(profile.phone)) {
       newErrors.phone = 'Invalid phone number (10 digits starting with 6-9)';
     }
-    if (!profile.gstin?.trim()) {
-      newErrors.gstin = 'GSTIN is required';
-    } else if (!validateGSTIN(profile.gstin)) {
+    // GSTIN is optional for logistics partners
+    if (role !== 'logistics_partner') {
+      if (!profile.gstin?.trim()) {
+        newErrors.gstin = 'GSTIN is required';
+      } else if (!validateGSTIN(profile.gstin)) {
+        newErrors.gstin = 'Invalid GSTIN format';
+      }
+    } else if (profile.gstin?.trim() && !validateGSTIN(profile.gstin)) {
+      // If logistics partner provides GSTIN, validate it
       newErrors.gstin = 'Invalid GSTIN format';
     }
     if (!profile.city?.trim()) {
@@ -295,7 +303,10 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
           </div>
 
           <div>
-            <Label htmlFor="gstin">GSTIN <span className="text-destructive">*</span></Label>
+            <Label htmlFor="gstin">
+              GSTIN {role !== 'logistics_partner' && <span className="text-destructive">*</span>}
+              {role === 'logistics_partner' && <span className="text-muted-foreground font-normal">(Optional)</span>}
+            </Label>
             <Input
               id="gstin"
               value={profile.gstin}
