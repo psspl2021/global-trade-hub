@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import procureSaathiLogo from "@/assets/procuresaathi-logo.jpg";
+import procureSaathiLogo from "@/assets/procuresaathi-logo.png";
 
 export const PageHeader = () => {
   const navigate = useNavigate();
