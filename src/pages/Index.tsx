@@ -336,43 +336,59 @@ const Index = () => {
               <DemoRequestForm />
             </div>
             
-            {/* Feature Highlights */}
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-6 sm:mt-10 pt-6 sm:pt-8 border-t border-border/50 px-2">
-              <button 
-                onClick={() => navigate('/categories')}
-                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
-              >
-                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-primary group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-medium">Categories</span>
-              </button>
-              <button 
-                onClick={handleLiveStockClick}
-                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-success cursor-pointer transition-all group"
-              >
-                <Package className="h-4 w-4 sm:h-5 sm:w-5 text-success group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-medium">Live Stock</span>
-              </button>
-              <button 
-                onClick={handleLiveRequirementsClick}
-                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-warning cursor-pointer transition-all group"
-              >
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-warning group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-medium">Requirements</span>
-              </button>
-              <button 
-                onClick={handleLogisticsRequirementsClick}
-                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
-              >
-                <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-primary group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-medium">Logistics</span>
-              </button>
-              <button 
-                onClick={() => scrollToSection('about')}
-                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-all group"
-              >
-                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-medium">Verified</span>
-              </button>
+            {/* Quick Access - Explore Platform */}
+            <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-border/50 px-2">
+              <p className="text-sm text-muted-foreground mb-4">Explore what's happening on the platform</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto">
+                <button 
+                  onClick={() => navigate('/categories')}
+                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-primary hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Search className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <span className="text-sm font-semibold text-foreground block">Browse Categories</span>
+                    <span className="text-xs text-muted-foreground">23+ product types</span>
+                  </div>
+                </button>
+                <button 
+                  onClick={handleLiveStockClick}
+                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-success hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
+                    <Package className="h-5 w-5 text-success" />
+                  </div>
+                  <div className="text-center">
+                    <span className="text-sm font-semibold text-foreground block">View Live Stock</span>
+                    <span className="text-xs text-muted-foreground">Supplier inventory</span>
+                  </div>
+                </button>
+                <button 
+                  onClick={handleLiveRequirementsClick}
+                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-warning hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors">
+                    <FileText className="h-5 w-5 text-warning" />
+                  </div>
+                  <div className="text-center">
+                    <span className="text-sm font-semibold text-foreground block">Buyer Requirements</span>
+                    <span className="text-xs text-muted-foreground">Active RFQs</span>
+                  </div>
+                </button>
+                <button 
+                  onClick={handleLogisticsRequirementsClick}
+                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-primary hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Truck className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <span className="text-sm font-semibold text-foreground block">Logistics Requests</span>
+                    <span className="text-xs text-muted-foreground">Transport & Storage</span>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
