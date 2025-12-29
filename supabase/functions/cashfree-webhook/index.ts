@@ -50,29 +50,47 @@ serve(async (req) => {
       const statusData = await statusResponse.json();
       console.log("Cashfree order status:", JSON.stringify(statusData));
 
-      paymentStatus = statusData.order_status === "PAID" ? "paid" : statusData.order_status?.toLowerCase() || "pending";
-      
-      // Get payment details if paid
-      if (paymentStatus === "paid") {
-        const paymentsResponse = await fetch(
-          `https://api.cashfree.com/pg/orders/${orderId}/payments`,
-          {
-            method: "GET",
-            headers: {
-              "x-client-id": CASHFREE_APP_ID!,
-              "x-client-secret": CASHFREE_SECRET_KEY!,
-              "x-api-version": "2023-08-01",
-            },
-          }
-        );
-
-        const paymentsData = await paymentsResponse.json();
-        console.log("Payment details:", JSON.stringify(paymentsData));
-
-        if (paymentsData && paymentsData.length > 0) {
-          cfPaymentId = paymentsData[0].cf_payment_id?.toString();
-          paymentMethod = paymentsData[0].payment_method?.toString();
+      // Get payment details to check actual payment status
+      const paymentsResponse = await fetch(
+        `https://api.cashfree.com/pg/orders/${orderId}/payments`,
+        {
+          method: "GET",
+          headers: {
+            "x-client-id": CASHFREE_APP_ID!,
+            "x-client-secret": CASHFREE_SECRET_KEY!,
+            "x-api-version": "2023-08-01",
+          },
         }
+      );
+
+      const paymentsData = await paymentsResponse.json();
+      console.log("Payment details:", JSON.stringify(paymentsData));
+
+      // Check if any payment is successful
+      if (paymentsData && Array.isArray(paymentsData) && paymentsData.length > 0) {
+        const successfulPayment = paymentsData.find(
+          (p: any) => p.payment_status === "SUCCESS"
+        );
+        if (successfulPayment) {
+          paymentStatus = "paid";
+          cfPaymentId = successfulPayment.cf_payment_id?.toString();
+          paymentMethod = successfulPayment.payment_method?.toString();
+        } else {
+          // Check for pending or active payments
+          const pendingPayment = paymentsData.find(
+            (p: any) => p.payment_status === "PENDING" || p.payment_status === "NOT_ATTEMPTED"
+          );
+          if (pendingPayment) {
+            paymentStatus = "pending";
+          } else {
+            paymentStatus = statusData.order_status === "PAID" ? "paid" : statusData.order_status?.toLowerCase() || "pending";
+          }
+        }
+      } else {
+        // No payments yet, check order status
+        paymentStatus = statusData.order_status === "PAID" ? "paid" : 
+                       statusData.order_status === "ACTIVE" ? "pending" : 
+                       statusData.order_status?.toLowerCase() || "pending";
       }
     } else {
       // This is a webhook POST from Cashfree
@@ -217,9 +235,17 @@ serve(async (req) => {
 
     // If this was a GET request (return URL), redirect to dashboard
     if (orderIdFromQuery && req.method === "GET") {
-      const redirectUrl = paymentStatus === "paid" 
-        ? `${url.origin.replace('supabase.co/functions/v1/cashfree-webhook', 'lovable.app')}/dashboard?payment=success`
-        : `${url.origin.replace('supabase.co/functions/v1/cashfree-webhook', 'lovable.app')}/dashboard?payment=failed`;
+      // Determine the redirect status
+      let redirectStatus = "failed";
+      let statusMessage = "Failed ❌";
+      
+      if (paymentStatus === "paid") {
+        redirectStatus = "success";
+        statusMessage = "Successful ✅";
+      } else if (paymentStatus === "pending" || paymentStatus === "active") {
+        redirectStatus = "pending";
+        statusMessage = "Processing... ⏳";
+      }
       
       // For now, return a simple HTML page that redirects
       const html = `
@@ -227,14 +253,14 @@ serve(async (req) => {
         <html>
         <head>
           <meta charset="UTF-8">
-          <title>Payment ${paymentStatus === "paid" ? "Successful" : "Failed"}</title>
+          <title>Payment ${statusMessage}</title>
           <script>
-            window.location.href = window.location.origin.replace('hsybhjjtxdwtpfvcmoqk.supabase.co/functions/v1/cashfree-webhook', 'procuresaathi.com') + '/dashboard?payment=${paymentStatus === "paid" ? "success" : "failed"}';
+            window.location.href = window.location.origin.replace('hsybhjjtxdwtpfvcmoqk.supabase.co/functions/v1/cashfree-webhook', 'procuresaathi.com') + '/dashboard?payment=${redirectStatus}';
           </script>
         </head>
         <body>
           <p>Redirecting to dashboard...</p>
-          <p>Payment Status: ${paymentStatus === "paid" ? "Successful ✅" : "Failed ❌"}</p>
+          <p>Payment Status: ${statusMessage}</p>
         </body>
         </html>
       `;
