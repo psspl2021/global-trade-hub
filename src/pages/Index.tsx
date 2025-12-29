@@ -210,9 +210,9 @@ const Index = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-12 sm:h-16 md:h-20 w-auto object-contain"
-              width={80}
-              height={80}
+              className="h-16 sm:h-20 md:h-24 w-auto object-contain"
+              width={96}
+              height={96}
               loading="eager"
             />
           </div>
@@ -294,7 +294,7 @@ const Index = () => {
           style={{ backgroundImage: `url(${heroBgProcurement})` }}
         />
         {/* Overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background/80" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
