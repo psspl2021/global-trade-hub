@@ -236,6 +236,12 @@ const Signup = () => {
       return;
     }
 
+    // Validate GSTIN is required for buyers and suppliers (not logistics partners)
+    if (formData.role !== 'logistics_partner' && !formData.gstin.trim()) {
+      setErrors({ gstin: 'GSTIN is required' });
+      return;
+    }
+
     const result = signupSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: FormErrors = {};
@@ -506,7 +512,10 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gstin">GSTIN *</Label>
+                <Label htmlFor="gstin">
+                  GSTIN {formData.role !== 'logistics_partner' && '*'}
+                  {formData.role === 'logistics_partner' && <span className="text-muted-foreground font-normal">(Optional)</span>}
+                </Label>
                 <Input
                   id="gstin"
                   placeholder="22AAAAA0000A1Z5"
@@ -519,7 +528,7 @@ const Signup = () => {
                   <p className="text-sm text-destructive">{errors.gstin}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  15-character GST Identification Number
+                  15-character GST Identification Number {formData.role === 'logistics_partner' && '- not required for logistics partners'}
                 </p>
               </div>
 
