@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 const BrowseLogisticsPublic = lazy(() => import('@/components/logistics/BrowseLogisticsPublic'));
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import heroBgProcurement from '@/assets/hero-bg-procurement.jpg';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
@@ -286,14 +287,14 @@ const Index = () => {
 
       <main>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-muted/30 via-background to-muted/50 py-8 sm:py-12 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }}></div>
-        </div>
+      <section className="relative py-8 sm:py-12 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBgProcurement})` }}
+        />
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background/95" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
