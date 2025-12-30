@@ -34,6 +34,7 @@ const StatsSection = lazy(() => import('@/components/landing/StatsSection').then
 const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
 const LiveActivityFeed = lazy(() => import('@/components/landing/LiveActivityFeed').then(m => ({ default: m.LiveActivityFeed })));
 const TrustBadges = lazy(() => import('@/components/landing/TrustBadges').then(m => ({ default: m.TrustBadges })));
+const ReferralPromoSection = lazy(() => import('@/components/landing/ReferralPromoSection').then(m => ({ default: m.ReferralPromoSection })));
 const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications').then(m => ({ default: m.ExportCertifications })));
 
 // Minimal loading fallback
@@ -692,6 +693,11 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Referral Promo Section */}
+      <Suspense fallback={<SectionFallback />}>
+        <ReferralPromoSection />
+      </Suspense>
 
       {/* CTA Section */}
       <section className="bg-muted/30 py-16">
