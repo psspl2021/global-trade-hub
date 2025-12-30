@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
+import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import heroBgSeller from "@/assets/hero-bg-seller.jpg";
+
+const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
 import { 
   ArrowRight, 
   Users, 
@@ -105,10 +108,10 @@ const Seller = () => {
 
   // SEO optimization
   useSEO({
-    title: "Sell on ProcureSaathi - B2B Supplier Portal",
-    description: "List products, reach 500+ verified buyers in 50+ countries. Zero commission, AI-powered tools, integrated logistics.",
+    title: "Sell to 500+ Verified Buyers | Zero Listing Fees | ProcureSaathi Supplier Portal",
+    description: "Get genuine buyer leads daily. Zero listing fees, pay only on deals. Free GST invoicing + CRM. Join 1000+ suppliers growing 40% faster. Start in 5 mins.",
     canonical: "https://procuresaathi.com/seller",
-    keywords: "B2B supplier, sell products, export platform, verified buyers, global marketplace"
+    keywords: "B2B supplier portal, sell products online, export platform India, verified buyers, global marketplace, supplier leads, wholesale selling"
   });
 
   useEffect(() => {
@@ -326,6 +329,12 @@ const Seller = () => {
           ← Back to Home
         </Button>
       </section>
+      
+      {/* Lead Generation */}
+      <StickySignupBanner />
+      <Suspense fallback={null}>
+        <ExitIntentPopup />
+      </Suspense>
     </div>
   );
 };
