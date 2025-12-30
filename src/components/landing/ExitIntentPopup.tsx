@@ -87,7 +87,7 @@ export const ExitIntentPopup = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-background border border-border shadow-2xl">
         <button
           onClick={() => setOpen(false)}
           className="absolute right-4 top-4 rounded-full p-1 bg-muted/80 opacity-70 ring-offset-background transition-opacity hover:opacity-100 z-10"
