@@ -13,6 +13,7 @@ import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
+import authBg from '@/assets/auth-bg.jpg';
 import { useSEO } from '@/hooks/useSEO';
 import { SupplierCategorySelector } from '@/components/signup/SupplierCategorySelector';
 import { EmailNotificationConsent } from '@/components/signup/EmailNotificationConsent';
@@ -337,8 +338,10 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${authBg})` }} />
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+      <div className="w-full max-w-md relative z-10">
         <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
           <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 sm:h-32 w-auto object-contain" />
         </Link>
