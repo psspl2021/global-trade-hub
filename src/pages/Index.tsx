@@ -50,10 +50,10 @@ const Index = () => {
 
   // SEO setup with social sharing meta tags
   useSEO({
-    title: "ProcureSaathi | B2B Sourcing Platform India",
-    description: "India's #1 B2B sourcing platform. Connect with 1000+ verified suppliers across 23+ categories. Get competitive sealed bids. Join free!",
+    title: "ProcureSaathi | India's #1 B2B Sourcing Platform - Get 3 Quotes in 48hrs",
+    description: "Stop chasing suppliers! Post 1 RFQ, get 3+ competitive sealed bids from 1000+ verified Indian manufacturers. Free for buyers. Join 5000+ businesses saving 30%.",
     canonical: "https://procuresaathi.com/",
-    keywords: "B2B marketplace India, B2B sourcing platform, procurement platform, verified suppliers India, wholesale suppliers, bulk buying, industrial supplies, manufacturing",
+    keywords: "B2B marketplace India, B2B sourcing platform, procurement platform, verified suppliers India, wholesale suppliers, bulk buying, industrial supplies, manufacturing, RFQ platform, sealed bidding",
     ogImage: "https://procuresaathi.com/og-early-adopter.png",
     ogType: "website",
     twitterCard: "summary_large_image"

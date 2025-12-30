@@ -1,12 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { PostRFQModal } from "@/components/PostRFQModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
+import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import heroBgBuyer from "@/assets/hero-bg-buyer.jpg";
+
+const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
 import { 
   ArrowRight, 
   Users, 
@@ -117,9 +120,9 @@ const Buyer = () => {
   const [showRFQModal, setShowRFQModal] = useState(false);
 
   useSEO({
-    title: "B2B Buyer Portal - Post RFQ, Get Competitive Bids",
-    description: "Post RFQs free, get sealed bids from 1000+ verified suppliers. Transparent B2B bidding for raw materials & components. No commission for buyers.",
-    keywords: "B2B sourcing, verified suppliers India, bulk procurement, RFQ platform, supplier network, wholesale buying, procurement portal",
+    title: "B2B Buyer Portal - Post 1 RFQ, Get 3+ Sealed Bids in 48hrs | Free",
+    description: "Stop cold calling suppliers! Post your RFQ once, get 3+ competitive sealed bids from verified Indian manufacturers. Zero commission. 5000+ buyers trust us.",
+    keywords: "B2B sourcing, verified suppliers India, bulk procurement, RFQ platform, supplier network, wholesale buying, procurement portal, sealed bidding, transparent pricing",
     canonical: "https://procuresaathi.com/buyer",
     ogImage: "/og-early-adopter.png"
   });
@@ -474,6 +477,12 @@ const Buyer = () => {
 
       {/* Post RFQ Modal */}
       <PostRFQModal open={showRFQModal} onOpenChange={setShowRFQModal} />
+      
+      {/* Lead Generation */}
+      <StickySignupBanner />
+      <Suspense fallback={null}>
+        <ExitIntentPopup />
+      </Suspense>
     </div>
   );
 };
