@@ -3061,7 +3061,14 @@ export type Database = {
         Returns: string
       }
       send_email_notification: {
-        Args: { p_data: Json; p_subject: string; p_to: string; p_type: string }
+        Args: {
+          p_data: Json
+          p_requirement_id?: string
+          p_subject: string
+          p_supplier_id?: string
+          p_to: string
+          p_type: string
+        }
         Returns: undefined
       }
     }
