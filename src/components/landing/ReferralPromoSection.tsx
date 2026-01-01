@@ -34,12 +34,12 @@ export const ReferralPromoSection = () => {
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Coins className="h-7 w-7 text-success" />
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2">Earn Income</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-2">Earn Cash Rewards</h3>
               <p className="text-muted-foreground mb-4">
-                Get cash rewards for every user who signs up mentioning your name as referrer and completes a transaction. The more you refer, the more you earn!
+                Get paid when your referral signs up with your name and completes their first transaction. More referrals = more earnings!
               </p>
               <div className="flex items-center gap-2 text-success font-semibold">
-                <span className="text-lg">₹ Real Cash Rewards</span>
+                <span className="text-lg">₹ Instant Cash Rewards</span>
               </div>
             </div>
 
@@ -48,12 +48,12 @@ export const ReferralPromoSection = () => {
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-warning/20 to-warning/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Ticket className="h-7 w-7 text-warning" />
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2">1 Free Bid</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-2">Free Premium Bid</h3>
               <p className="text-muted-foreground mb-4">
-                Receive 1 free premium bid credit for each person who signs up mentioning your name as referrer. Use it to place bids on requirements!
+                Earn 1 free bid credit for each successful signup. Use it to bid on high-value procurement requirements!
               </p>
               <div className="flex items-center gap-2 text-warning font-semibold">
-                <span className="text-lg">Per Successful Referral</span>
+                <span className="text-lg">1 Bid Per Referral</span>
               </div>
             </div>
           </div>
