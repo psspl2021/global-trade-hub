@@ -922,36 +922,33 @@ const Dashboard = () => {
 
               <SupplierEmailQuotaCard expanded />
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-1">
-                    <Receipt className="h-4 w-4" />
-                    Platform Invoices
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    View & pay invoices
-                  </p>
-                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
-                    View
-                  </Button>
-                </CardContent>
-              </Card>
+              {/* Stacked small square cards */}
+              <div className="flex flex-col gap-3">
+                <Card className="aspect-square flex flex-col justify-between">
+                  <CardHeader className="pb-1 pt-3 px-3">
+                    <CardTitle className="text-sm flex items-center gap-1">
+                      <Receipt className="h-4 w-4" />
+                      Platform Invoices
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-3 pb-3">
+                    <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
+                      View
+                    </Button>
+                  </CardContent>
+                </Card>
 
-              <Card className="border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base text-amber-800 dark:text-amber-300">Add Products</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
-                    Get priority visibility
-                  </p>
-                  <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700" onClick={() => setShowCatalog(true)}>
-                    Add Now
-                  </Button>
-                </CardContent>
-              </Card>
+                <Card className="aspect-square flex flex-col justify-between border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                  <CardHeader className="pb-1 pt-3 px-3">
+                    <CardTitle className="text-sm text-amber-800 dark:text-amber-300">Add Products</CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-3 pb-3">
+                    <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700" onClick={() => setShowCatalog(true)}>
+                      Add Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             {/* Referral Section for Suppliers */}
