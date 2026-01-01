@@ -36,7 +36,7 @@ export const ReferralPromoSection = () => {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-2">Earn Income</h3>
               <p className="text-muted-foreground mb-4">
-                Get cash rewards for every user who signs up and transacts through your referral link. The more you refer, the more you earn!
+                Get cash rewards for every user who signs up mentioning your name as referrer and completes a transaction. The more you refer, the more you earn!
               </p>
               <div className="flex items-center gap-2 text-success font-semibold">
                 <span className="text-lg">₹ Real Cash Rewards</span>
@@ -50,7 +50,7 @@ export const ReferralPromoSection = () => {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-2">1 Free Bid</h3>
               <p className="text-muted-foreground mb-4">
-                Receive 1 free premium bid credit for each person who signs up using your referral. Use it to place bids on requirements!
+                Receive 1 free premium bid credit for each person who signs up mentioning your name as referrer. Use it to place bids on requirements!
               </p>
               <div className="flex items-center gap-2 text-warning font-semibold">
                 <span className="text-lg">Per Successful Referral</span>
@@ -66,19 +66,19 @@ export const ReferralPromoSection = () => {
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <span className="text-primary font-bold">1</span>
                 </div>
-                <p className="text-sm text-muted-foreground">Sign up & get your unique referral link</p>
+                <p className="text-sm text-muted-foreground">Tell your contacts about ProcureSaathi</p>
               </div>
               <div className="text-center">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <span className="text-primary font-bold">2</span>
                 </div>
-                <p className="text-sm text-muted-foreground">Share with friends & business contacts</p>
+                <p className="text-sm text-muted-foreground">They sign up & mention your name as referrer</p>
               </div>
               <div className="text-center">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <span className="text-primary font-bold">3</span>
                 </div>
-                <p className="text-sm text-muted-foreground">Earn income + free bids when they join</p>
+                <p className="text-sm text-muted-foreground">Earn income + free bids when they transact</p>
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@ export const ReferralPromoSection = () => {
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
             <p className="text-sm text-muted-foreground mt-3">
-              Already a member? <button onClick={() => navigate('/login')} className="text-primary hover:underline font-medium">Login to access your referral link</button>
+              Already a member? <button onClick={() => navigate('/login')} className="text-primary hover:underline font-medium">Login to your dashboard</button>
             </p>
           </div>
         </div>
