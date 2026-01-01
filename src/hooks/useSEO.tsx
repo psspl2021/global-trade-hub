@@ -53,7 +53,7 @@ export const useSEO = ({
   description, 
   canonical, 
   keywords,
-  ogImage = 'https://procuresaathi.com/og-image.png',
+  ogImage = 'https://procuresaathi.com/og-early-adopter.png',
   ogType = 'website',
   twitterCard = 'summary_large_image',
   ogSiteName = 'ProcureSaathi',
@@ -153,7 +153,7 @@ export const getOrganizationSchema = () => ({
   "name": "ProcureSaathi",
   "alternateName": ["Procure Saathi", "ProcureSaathi India", "ProcureSaathi Global"],
   "url": "https://procuresaathi.com",
-  "logo": "https://procuresaathi.com/logo.png",
+  "logo": "https://procuresaathi.com/procuresaathi-logo.png",
   "description": "Global B2B sourcing and procurement platform connecting verified buyers with suppliers worldwide for industrial raw materials, chemicals, and commodities.",
   "areaServed": [
     {"@type": "Country", "name": "India"},
@@ -222,7 +222,7 @@ export const getProductSchema = (product: {
   "@type": "Product",
   "name": product.name,
   "description": product.description,
-  "image": product.image || "https://procuresaathi.com/logo.png",
+  "image": product.image || "https://procuresaathi.com/procuresaathi-logo.png",
   "category": product.category,
   "offers": {
     "@type": "AggregateOffer",
@@ -276,7 +276,7 @@ export const getLocalBusinessSchema = () => ({
   "name": "ProcureSaathi",
   "description": "Global B2B sourcing and procurement platform connecting verified buyers and suppliers worldwide.",
   "url": "https://procuresaathi.com",
-  "logo": "https://procuresaathi.com/logo.png",
+  "logo": "https://procuresaathi.com/procuresaathi-logo.png",
   "telephone": "+91-8368127357",
   "email": "sales@procuresaathi.com",
   "address": {
