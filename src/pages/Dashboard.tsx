@@ -859,24 +859,68 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-1">
-                    {(subscription?.premium_bids_balance ?? 0) > 0 && (
-                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                    )}
+              <Card className="col-span-2 sm:col-span-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-amber-500" />
                     Subscription
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {subscription?.is_early_adopter ? 'Early Adopter - Free Premium' : `${subscription?.bids_used_this_month ?? 0}/${subscription?.bids_limit ?? 5} bids used`}
-                  </p>
-                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>Details</Button>
+                <CardContent className="space-y-4">
+                  {/* Early Adopter Badge */}
+                  {subscription?.is_early_adopter && subscription?.early_adopter_expires_at && (
+                    <div className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-950/50 dark:to-orange-950/50 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
+                          <Star className="h-3 w-3 mr-1 fill-white" />
+                          EARLY ADOPTER
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-amber-700 dark:text-amber-400">
+                        Free premium access until {new Date(subscription.early_adopter_expires_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Bid Usage Progress */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Monthly Bids Used</span>
+                      <span className="font-medium">{subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}</span>
+                    </div>
+                    <Progress 
+                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                      className="h-2" 
+                    />
+                  </div>
+
+                  {/* Premium Balance */}
+                  {(subscription?.premium_bids_balance ?? 0) > 0 && (
+                    <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                        <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Premium Balance</span>
+                      </div>
+                      <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                        {subscription?.premium_bids_balance ?? 0} bids
+                      </div>
+                      <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Lifetime bids (never expires)</p>
+                    </div>
+                  )}
+
+                  {/* Premium Pack Purchase */}
+                  <PremiumPackPurchase
+                    userId={user?.id || ''}
+                    userEmail={user?.email || ''}
+                    userPhone={user?.user_metadata?.phone || ''}
+                    userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                    userType="supplier"
+                    hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
+                  />
                 </CardContent>
               </Card>
 
-              <SupplierEmailQuotaCard />
+              <SupplierEmailQuotaCard expanded />
 
               <Card>
                 <CardHeader className="pb-2">
