@@ -242,7 +242,7 @@ const handler = async (req: Request): Promise<Response> => {
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        await supabase.from("supplier_email_logs").insert({
+        const { error: logError } = await supabase.from("supplier_email_logs").insert({
           supplier_id,
           requirement_id: requirement_id || null,
           brevo_message_id: emailResponse.messageId,
@@ -250,9 +250,23 @@ const handler = async (req: Request): Promise<Response> => {
           subject,
           email_type: type,
           status: "sent",
+          sent_at: new Date().toISOString(),
         });
 
-        console.log(`Email logged for supplier ${supplier_id}`);
+        if (logError) {
+          console.error("Error inserting email log:", logError);
+        } else {
+          console.log(`Email logged for supplier ${supplier_id}`);
+        }
+
+        // Also update or create supplier email quota
+        const { error: quotaError } = await supabase.rpc('check_and_increment_email_quota', {
+          p_supplier_id: supplier_id
+        });
+
+        if (quotaError) {
+          console.error("Error updating email quota:", quotaError);
+        }
       } catch (logError) {
         console.error("Error logging email:", logError);
         // Don't fail the request if logging fails
