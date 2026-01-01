@@ -16,7 +16,10 @@ interface EmailRequest {
   type: "new_bid" | "new_requirement" | "bid_accepted" | "document_verified" | "new_logistics_requirement" | "referral_reward";
   data: Record<string, any>;
   supplier_id?: string;
+  buyer_id?: string;
+  logistics_partner_id?: string;
   requirement_id?: string;
+  logistics_requirement_id?: string;
 }
 
 const getEmailTemplate = (type: string, data: Record<string, any>): string => {
@@ -203,9 +206,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, subject, type, data, supplier_id, requirement_id }: EmailRequest = await req.json();
+    const { to, subject, type, data, supplier_id, buyer_id, logistics_partner_id, requirement_id, logistics_requirement_id }: EmailRequest = await req.json();
 
-    console.log(`Sending ${type} email to ${to}`);
+    // Determine user_id and user_type for logging
+    const user_id = supplier_id || buyer_id || logistics_partner_id;
+    const user_type = supplier_id ? 'supplier' : buyer_id ? 'buyer' : logistics_partner_id ? 'logistics_partner' : null;
+
+    console.log(`Sending ${type} email to ${to} (user_type: ${user_type})`);
 
     const html = getEmailTemplate(type, data);
 
@@ -235,16 +242,19 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await res.json();
     console.log("Email sent successfully:", emailResponse);
 
-    // Log the email in our database if supplier_id is provided
-    if (supplier_id && emailResponse.messageId) {
+    // Log the email in our database if user_id is provided
+    if (user_id && emailResponse.messageId) {
       try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
         const { error: logError } = await supabase.from("supplier_email_logs").insert({
-          supplier_id,
+          supplier_id: supplier_id || user_id, // Keep backward compatibility
+          user_id: user_id,
+          user_type: user_type,
           requirement_id: requirement_id || null,
+          logistics_requirement_id: logistics_requirement_id || null,
           brevo_message_id: emailResponse.messageId,
           recipient_email: to,
           subject,
@@ -256,16 +266,18 @@ const handler = async (req: Request): Promise<Response> => {
         if (logError) {
           console.error("Error inserting email log:", logError);
         } else {
-          console.log(`Email logged for supplier ${supplier_id}`);
+          console.log(`Email logged for ${user_type} ${user_id}`);
         }
 
-        // Also update or create supplier email quota
-        const { error: quotaError } = await supabase.rpc('check_and_increment_email_quota', {
-          p_supplier_id: supplier_id
-        });
+        // Update email quota for suppliers only (buyers and logistics partners don't have quotas)
+        if (supplier_id) {
+          const { error: quotaError } = await supabase.rpc('check_and_increment_email_quota', {
+            p_supplier_id: supplier_id
+          });
 
-        if (quotaError) {
-          console.error("Error updating email quota:", quotaError);
+          if (quotaError) {
+            console.error("Error updating email quota:", quotaError);
+          }
         }
       } catch (logError) {
         console.error("Error logging email:", logError);

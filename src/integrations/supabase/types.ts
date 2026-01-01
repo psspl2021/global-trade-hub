@@ -2370,6 +2370,7 @@ export type Database = {
           delivered_at: string | null
           email_type: string
           id: string
+          logistics_requirement_id: string | null
           metadata: Json | null
           open_count: number | null
           opened_at: string | null
@@ -2379,6 +2380,8 @@ export type Database = {
           status: string
           subject: string
           supplier_id: string
+          user_id: string | null
+          user_type: string | null
         }
         Insert: {
           bounce_reason?: string | null
@@ -2390,6 +2393,7 @@ export type Database = {
           delivered_at?: string | null
           email_type?: string
           id?: string
+          logistics_requirement_id?: string | null
           metadata?: Json | null
           open_count?: number | null
           opened_at?: string | null
@@ -2399,6 +2403,8 @@ export type Database = {
           status?: string
           subject: string
           supplier_id: string
+          user_id?: string | null
+          user_type?: string | null
         }
         Update: {
           bounce_reason?: string | null
@@ -2410,6 +2416,7 @@ export type Database = {
           delivered_at?: string | null
           email_type?: string
           id?: string
+          logistics_requirement_id?: string | null
           metadata?: Json | null
           open_count?: number | null
           opened_at?: string | null
@@ -2419,8 +2426,18 @@ export type Database = {
           status?: string
           subject?: string
           supplier_id?: string
+          user_id?: string | null
+          user_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "supplier_email_logs_logistics_requirement_id_fkey"
+            columns: ["logistics_requirement_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_requirements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       supplier_email_quotas: {
         Row: {
@@ -2435,6 +2452,8 @@ export type Database = {
           subscription_started_at: string | null
           supplier_id: string
           updated_at: string
+          user_id: string | null
+          user_type: string | null
         }
         Insert: {
           created_at?: string
@@ -2448,6 +2467,8 @@ export type Database = {
           subscription_started_at?: string | null
           supplier_id: string
           updated_at?: string
+          user_id?: string | null
+          user_type?: string | null
         }
         Update: {
           created_at?: string
@@ -2461,6 +2482,8 @@ export type Database = {
           subscription_started_at?: string | null
           supplier_id?: string
           updated_at?: string
+          user_id?: string | null
+          user_type?: string | null
         }
         Relationships: []
       }
