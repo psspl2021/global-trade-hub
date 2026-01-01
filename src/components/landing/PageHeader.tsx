@@ -15,9 +15,9 @@ export const PageHeader = () => {
           <img 
             src={procureSaathiLogo} 
             alt="ProcureSaathi Logo" 
-            className="h-20 sm:h-24 md:h-28 w-auto object-contain"
-            width={112}
-            height={112}
+            className="h-24 sm:h-28 md:h-32 w-auto object-contain"
+            width={128}
+            height={128}
             loading="eager"
           />
         </div>
