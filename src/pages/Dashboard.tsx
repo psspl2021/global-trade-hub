@@ -805,7 +805,7 @@ const Dashboard = () => {
         {role === 'supplier' && (
           <>
             {/* Email Quota Card */}
-            <div className="mb-6 grid gap-6 grid-cols-1 lg:grid-cols-2">
+            <div className="mb-6 flex flex-col gap-6">
               <SupplierEmailQuotaCard />
               <SubscriptionInvoices />
             </div>
