@@ -942,6 +942,7 @@ const Dashboard = () => {
                       <Receipt className="h-4 w-4" />
                       Platform Invoices
                     </CardTitle>
+                    <p className="text-[10px] text-muted-foreground">WhatsApp: +91 8368127357</p>
                     <p className="text-[10px] text-muted-foreground">sales@procuresaathi.com</p>
                   </CardHeader>
                   <CardContent className="px-3 pb-3">
