@@ -805,177 +805,106 @@ const Dashboard = () => {
         {role === 'supplier' && (
           <>
             {/* Subscription Invoices */}
-            <div className="mb-6">
+            <div className="mb-4">
               <SubscriptionInvoices />
             </div>
 
-            {/* Compulsory Products Reminder Banner */}
-            <Card className="mb-6 border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 dark:border-amber-700">
-              <CardContent className="py-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-full">
-                      <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-amber-800 dark:text-amber-300">Add Products for Higher Visibility</p>
-                      <p className="text-sm text-amber-700 dark:text-amber-400">
-                        Adding products to your catalogue is compulsory. Suppliers with complete catalogues get priority in buyer searches.
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    onClick={() => setShowCatalog(true)} 
-                    className="bg-amber-600 hover:bg-amber-700 text-white shrink-0"
-                  >
-                    <Package className="h-4 w-4 mr-2" />
-                    Add Products Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Compact Grid - All boxes in one view */}
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
               <Card>
-                <CardHeader>
-                  <CardTitle>Manage Products</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Manage Products</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Add or update your product catalog
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Add or update catalog
                   </p>
-                  <Button className="w-full" onClick={() => setShowCatalog(true)}>Manage Catalog</Button>
+                  <Button className="w-full" size="sm" onClick={() => setShowCatalog(true)}>Manage</Button>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <CardTitle>Stock Management</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Stock Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Update inventory and import from Tally/Busy
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Update inventory
                   </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowStock(true)}>Update Stock</Button>
+                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowStock(true)}>Update</Button>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <CardTitle>Browse Requirements</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Requirements</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Find active requirements and submit bids
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Browse & submit bids
                   </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowRequirements(true)}>View Requirements</Button>
+                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowRequirements(true)}>Browse</Button>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <CardTitle>Invoices & PO</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Invoices & PO</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Create proforma, tax invoices & purchase orders
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Create invoices & POs
                   </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
+                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowCRM(true)}>Open CRM</Button>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-1">
                     {(subscription?.premium_bids_balance ?? 0) > 0 && (
-                      <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                     )}
                     Subscription
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Early Adopter or Free Plan Display */}
-                  <div>
-                    {subscription?.is_early_adopter ? (
-                      <>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-                          <span className="text-base font-bold text-amber-600 dark:text-amber-400">1 Year FREE Premium!</span>
-                        </div>
-                        <div className="text-xl font-bold text-primary mb-2">
-                          Unlimited Bids
-                        </div>
-                        <div className="p-3 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-300 dark:border-green-700">
-                          <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-1">
-                            🎉 Early Adopter - First 100 Partners!
-                          </p>
-                          <p className="text-xs text-green-600 dark:text-green-400">
-                            Free subscription ends on: <span className="font-semibold">{subscription?.early_adopter_expires_at ? new Date(subscription.early_adopter_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '1 year from signup'}</span>
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-sm text-muted-foreground mb-1">Free Plan (5 bids/month)</div>
-                        <div className="text-xl font-bold text-primary mb-1">
-                          {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}
-                        </div>
-                        <Progress 
-                          value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                          className="mb-1 h-2" 
-                        />
-                        <p className="text-xs text-muted-foreground">Monthly bids used</p>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Premium Balance Display */}
-                  {(subscription?.premium_bids_balance ?? 0) > 0 && (
-                    <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                        <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Premium Balance</span>
-                      </div>
-                      <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                        {subscription?.premium_bids_balance ?? 0} bids
-                      </div>
-                      <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Lifetime bids (never expires)</p>
-                    </div>
-                  )}
-
-                  {/* Premium Pack Purchase Option */}
-                  <PremiumPackPurchase
-                    userId={user?.id || ''}
-                    userEmail={user?.email || ''}
-                    userPhone={user?.user_metadata?.phone || ''}
-                    userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
-                    userType="supplier"
-                    hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
-                  />
-
-                  {(subscription?.bids_used_this_month ?? 0) >= (subscription?.bids_limit ?? 5) && (subscription?.premium_bids_balance ?? 0) === 0 && (
-                    <p className="text-sm text-orange-600 font-medium">
-                      Additional bids: ₹500 each
-                    </p>
-                  )}
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {subscription?.is_early_adopter ? 'Early Adopter - Free Premium' : `${subscription?.bids_used_this_month ?? 0}/${subscription?.bids_limit ?? 5} bids used`}
+                  </p>
+                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>Details</Button>
                 </CardContent>
               </Card>
 
               <SupplierEmailQuotaCard />
 
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Receipt className="h-5 w-5" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-1">
+                    <Receipt className="h-4 w-4" />
                     Platform Invoices
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    View and pay subscription invoices
+                  <p className="text-sm text-muted-foreground mb-3">
+                    View & pay invoices
                   </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowPlatformInvoices(true)}>
-                    View Invoices
+                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
+                    View
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base text-amber-800 dark:text-amber-300">Add Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
+                    Get priority visibility
+                  </p>
+                  <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700" onClick={() => setShowCatalog(true)}>
+                    Add Now
                   </Button>
                 </CardContent>
               </Card>

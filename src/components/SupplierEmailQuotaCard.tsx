@@ -24,7 +24,6 @@ interface EmailQuotaStatus {
   subscription_expires_at: string | null;
 }
 
-// Declare Cashfree type for the SDK
 declare global {
   interface Window {
     Cashfree: any;
@@ -42,12 +41,10 @@ export const SupplierEmailQuotaCard = () => {
     fetchQuotaStatus();
     loadCashfreeSDK();
     
-    // Check for payment status in URL
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
     if (paymentStatus === 'success') {
       toast.success('Payment successful! Your premium subscription is now active.');
-      // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
       fetchQuotaStatus();
     } else if (paymentStatus === 'failed') {
@@ -61,16 +58,11 @@ export const SupplierEmailQuotaCard = () => {
       setCashfreeLoaded(true);
       return;
     }
-
     const script = document.createElement('script');
     script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
     script.async = true;
-    script.onload = () => {
-      setCashfreeLoaded(true);
-    };
-    script.onerror = () => {
-      console.error('Failed to load Cashfree SDK');
-    };
+    script.onload = () => setCashfreeLoaded(true);
+    script.onerror = () => console.error('Failed to load Cashfree SDK');
     document.body.appendChild(script);
   };
 
@@ -87,7 +79,6 @@ export const SupplierEmailQuotaCard = () => {
       if (data && data.length > 0) {
         setQuotaStatus(data[0]);
       } else {
-        // Default values for new users
         setQuotaStatus({
           daily_sent: 0,
           monthly_sent: 0,
@@ -113,7 +104,6 @@ export const SupplierEmailQuotaCard = () => {
         return;
       }
 
-      // Get user profile for customer details
       const { data: profile } = await supabase
         .from('profiles')
         .select('email, phone, contact_person')
@@ -125,7 +115,6 @@ export const SupplierEmailQuotaCard = () => {
         return;
       }
 
-      // Create Cashfree order
       const { data, error } = await supabase.functions.invoke('cashfree-create-order', {
         body: {
           supplier_id: user.id,
@@ -147,16 +136,12 @@ export const SupplierEmailQuotaCard = () => {
         return;
       }
 
-      // Initialize Cashfree checkout
       if (!window.Cashfree) {
         toast.error('Payment system is loading. Please try again in a moment.');
         return;
       }
 
-      const cashfree = window.Cashfree({
-        mode: 'production', // Change to 'sandbox' for testing
-      });
-
+      const cashfree = window.Cashfree({ mode: 'production' });
       cashfree.checkout({
         paymentSessionId: data.payment_session_id,
         redirectTarget: '_self',
@@ -173,17 +158,12 @@ export const SupplierEmailQuotaCard = () => {
   if (loading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
-            Email Notifications
-          </CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Email Notifications</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse space-y-2">
-            <div className="h-4 bg-muted rounded w-2/3"></div>
-            <div className="h-8 bg-muted rounded w-full"></div>
-          </div>
+          <div className="animate-pulse h-4 bg-muted rounded w-2/3 mb-3"></div>
+          <div className="animate-pulse h-9 bg-muted rounded"></div>
         </CardContent>
       </Card>
     );
@@ -204,18 +184,12 @@ export const SupplierEmailQuotaCard = () => {
   return (
     <>
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
-            Email Notifications
-          </CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Email Notifications</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            {quotaStatus.is_subscribed 
-              ? `${remainingEmails} emails remaining this month`
-              : `${remainingEmails} free emails remaining today`
-            }
+          <p className="text-sm text-muted-foreground mb-3">
+            {remainingEmails} {quotaStatus.is_subscribed ? 'monthly' : 'daily'} emails left
           </p>
           <Button variant="outline" className="w-full" onClick={() => setShowDetails(true)}>
             View Details
@@ -249,7 +223,6 @@ export const SupplierEmailQuotaCard = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Progress Bar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
@@ -265,7 +238,6 @@ export const SupplierEmailQuotaCard = () => {
               <Progress value={Math.min(dailyProgress, 100)} className="h-2" />
             </div>
 
-            {/* Remaining Emails */}
             <div className={`flex items-center justify-between p-3 rounded-lg ${
               isQuotaExhausted ? 'bg-destructive/10' : 'bg-muted/50'
             }`}>
@@ -277,14 +249,13 @@ export const SupplierEmailQuotaCard = () => {
               </span>
             </div>
 
-            {/* Warning or Subscription Info */}
             {isQuotaExhausted && !quotaStatus.is_subscribed && (
               <div className="flex items-start space-x-2 p-3 bg-destructive/10 rounded-lg">
                 <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium text-destructive">Daily Quota Exhausted</p>
                   <p className="text-muted-foreground">
-                    Upgrade to Premium to receive up to 500 emails per month for just ₹300/month
+                    Upgrade to Premium for 500 emails/month at ₹300/month
                   </p>
                 </div>
               </div>
@@ -297,7 +268,6 @@ export const SupplierEmailQuotaCard = () => {
               </div>
             )}
 
-            {/* Upgrade Button for Free Users */}
             {!quotaStatus.is_subscribed && (
               <div className="pt-2">
                 <Button 
@@ -323,7 +293,6 @@ export const SupplierEmailQuotaCard = () => {
               </div>
             )}
 
-            {/* Feature Comparison */}
             <div className="pt-4 border-t space-y-2">
               <p className="text-xs font-medium text-muted-foreground uppercase">Plan Features</p>
               <div className="grid grid-cols-2 gap-4 text-sm">
