@@ -13,20 +13,21 @@ interface DocumentItem {
 }
 
 interface DocumentData {
-  documentType: 'proforma_invoice' | 'tax_invoice' | 'debit_note' | 'credit_note';
+  documentType: 'proforma_invoice' | 'tax_invoice' | 'debit_note' | 'credit_note' | 'purchase_order';
   documentNumber: string;
   issueDate: string;
   dueDate?: string;
   referenceInvoiceNumber?: string;
   referenceInvoiceDate?: string;
+  expectedDeliveryDate?: string; // For purchase orders
   
-  // Supplier details
+  // Supplier/Company details
   companyName: string;
   companyAddress: string;
   companyGstin: string;
   companyLogo?: string | null;
   
-  // Buyer details
+  // Buyer/Vendor details
   buyerName: string;
   buyerAddress: string;
   buyerGstin: string;
@@ -53,6 +54,7 @@ interface DocumentData {
     bankLocation?: string;
   };
   reason?: string; // For debit/credit notes
+  deliveryAddress?: string; // For purchase orders
 }
 
 const getDocumentTitle = (type: string): string => {
@@ -61,6 +63,7 @@ const getDocumentTitle = (type: string): string => {
     case 'tax_invoice': return 'TAX INVOICE';
     case 'debit_note': return 'DEBIT NOTE';
     case 'credit_note': return 'CREDIT NOTE';
+    case 'purchase_order': return 'PURCHASE ORDER';
     default: return 'INVOICE';
   }
 };
@@ -123,7 +126,8 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(100, 100, 100);
-  const labelKey = data.documentType.includes('invoice') ? 'Invoice No:' : 'Note No:';
+  const labelKey = data.documentType === 'purchase_order' ? 'PO No:' : 
+                   data.documentType.includes('invoice') ? 'Invoice No:' : 'Note No:';
   doc.text(labelKey, rightX - 55, rightY);
   doc.setTextColor(33, 37, 41);
   doc.setFont('helvetica', 'normal');
@@ -161,14 +165,25 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
     doc.text(data.dueDate, rightX, rightY, { align: 'right' });
     rightY += 7;
   }
+
+  if (data.expectedDeliveryDate) {
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Delivery Date:', rightX - 55, rightY);
+    doc.setTextColor(33, 37, 41);
+    doc.setFont('helvetica', 'normal');
+    doc.text(data.expectedDeliveryDate, rightX, rightY, { align: 'right' });
+    rightY += 7;
+  }
   
   yPos += 10;
 
-  // From Section with company details (Left side)
+  // From Section with company details (Left side) - For PO, this is "From" (buyer), for invoices it's supplier
+  const fromLabel = data.documentType === 'purchase_order' ? 'From:' : 'From:';
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(100, 100, 100);
-  doc.text('From:', margin, yPos);
+  doc.text(fromLabel, margin, yPos);
   doc.setTextColor(33, 37, 41);
   yPos += 5;
   
@@ -208,7 +223,8 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(100, 100, 100);
-  doc.text('Bill To:', margin, yPos);
+  const toLabel = data.documentType === 'purchase_order' ? 'Vendor:' : 'Bill To:';
+  doc.text(toLabel, margin, yPos);
   yPos += 6;
   
   // Buyer Name - uppercase and bold
@@ -247,6 +263,26 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
     doc.setFontSize(9);
     doc.text(`Email: ${data.buyerEmail}`, margin, yPos);
     yPos += 4;
+  }
+
+  // Delivery Address Section (for purchase orders)
+  if (data.deliveryAddress) {
+    yPos += 3;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 8;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Delivery Address:', margin, yPos);
+    doc.setTextColor(33, 37, 41);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    yPos += 5;
+    const deliveryLines = doc.splitTextToSize(data.deliveryAddress, pageWidth - 30);
+    doc.text(deliveryLines, margin, yPos);
+    yPos += deliveryLines.length * 5;
   }
 
   // Reason Section (for debit/credit notes)
