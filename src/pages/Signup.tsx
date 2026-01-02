@@ -46,7 +46,8 @@ const Signup = () => {
     return 'buyer';
   };
   const initialRole = getInitialRole();
-  const referralCode = searchParams.get('ref') || null;
+  const referralCodeFromUrl = searchParams.get('ref') || '';
+  const [referralCode, setReferralCode] = useState(referralCodeFromUrl);
   const [loading, setLoading] = useState(false);
   const [checkingPassword, setCheckingPassword] = useState(false);
   const [breachWarning, setBreachWarning] = useState<string | null>(null);
@@ -314,7 +315,7 @@ const Signup = () => {
       supplier_categories: formData.role === 'supplier' ? selectedCategories : null,
       supplier_notification_subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
       email_notifications_enabled: (formData.role === 'supplier' || formData.role === 'logistics_partner') ? emailNotificationConsent : true,
-    }, referralCode);
+    }, referralCode || null);
     
     // Update referral record if signup was successful and referral code was used
     if (!error && referralCode) {
@@ -585,6 +586,21 @@ const Signup = () => {
                   role={formData.role}
                 />
               )}
+
+              {/* Referral Code Input */}
+              <div className="space-y-2">
+                <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+                <Input
+                  id="referralCode"
+                  placeholder="e.g. PS-9EB6D491"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  className="min-h-[44px] font-mono"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter a referral code if someone referred you to ProcureSaathi
+                </p>
+              </div>
 
               <div className="border-t pt-4 mt-4">
                 <p className="text-sm font-medium text-muted-foreground mb-3">Referred By *</p>
