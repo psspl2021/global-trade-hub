@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Users, Package, UserCheck, ShoppingCart, LayoutDashboard } from 'lucide-react';
+import { FileText, Users, Package, UserCheck, ShoppingCart, LayoutDashboard, BarChart3 } from 'lucide-react';
 import { DocumentList } from './DocumentList';
 import { InvoiceForm } from './InvoiceForm';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
@@ -18,6 +18,7 @@ import { SupplierSaleViewer } from './SupplierSaleViewer';
 import { SupplierStockManagementWrapper } from './SupplierStockManagementWrapper';
 import { SupplierCatalog } from '@/components/SupplierCatalog';
 import { CRMDashboard } from './CRMDashboard';
+import { FinancialReports } from './FinancialReports';
 import { useCRMSEO } from '@/hooks/useCRMSEO';
 
 interface SupplierCRMProps {
@@ -181,7 +182,7 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
           </DialogHeader>
 
           <Tabs defaultValue="dashboard" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="dashboard" className="text-xs sm:text-sm">
                 <LayoutDashboard className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Dashboard</span>
@@ -201,6 +202,10 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
               <TabsTrigger value="documents" className="text-xs sm:text-sm">
                 <FileText className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Documents</span>
+              </TabsTrigger>
+              <TabsTrigger value="reports" className="text-xs sm:text-sm">
+                <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Reports</span>
               </TabsTrigger>
               <TabsTrigger value="leads" className="text-xs sm:text-sm">
                 <Users className="h-4 w-4 mr-1 sm:mr-2" />
@@ -248,6 +253,10 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
                 onEditPO={handleEditPO}
                 onEditNote={handleEditNote}
               />
+            </TabsContent>
+
+            <TabsContent value="reports" className="mt-4">
+              <FinancialReports userId={userId} userType="supplier" />
             </TabsContent>
 
             <TabsContent value="leads" className="mt-4">
