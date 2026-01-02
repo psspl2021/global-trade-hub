@@ -27,6 +27,7 @@ interface Bid {
   bid_amount: number;
   service_fee: number;
   total_amount: number;
+  buyer_visible_price: number;
   delivery_timeline_days: number;
   status: string;
   created_at: string;
@@ -35,6 +36,7 @@ interface Bid {
   requirement: {
     title: string;
     product_category: string;
+    quantity: number;
   } | null;
   supplier: {
     company_name: string;
@@ -192,7 +194,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
       const supplierIds = [...new Set(supplierBids.map(b => b.supplier_id))];
 
       const [reqRes, profRes] = await Promise.all([
-        supabase.from('requirements').select('id, title, product_category').in('id', reqIds),
+        supabase.from('requirements').select('id, title, product_category, quantity').in('id', reqIds),
         supabase.from('profiles').select('id, company_name, email').in('id', supplierIds),
       ]);
 
@@ -435,7 +437,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                             </TableCell>
                             <TableCell>₹{bid.bid_amount.toLocaleString()}</TableCell>
                             <TableCell>₹{bid.service_fee.toLocaleString()}</TableCell>
-                            <TableCell className="font-medium">₹{bid.total_amount.toLocaleString()}</TableCell>
+                            <TableCell className="font-medium">₹{(bid.buyer_visible_price * (bid.requirement?.quantity || 1)).toLocaleString()}</TableCell>
                             <TableCell>{bid.delivery_timeline_days} days</TableCell>
                             <TableCell>{getStatusBadge(bid.status)}</TableCell>
                             <TableCell>{format(new Date(bid.created_at), 'dd MMM yyyy')}</TableCell>
