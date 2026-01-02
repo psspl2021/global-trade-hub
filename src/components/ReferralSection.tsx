@@ -184,11 +184,12 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
           <div className="space-y-2">
             <label className="text-sm font-medium">Your Referral Link</label>
             <div className="flex gap-2">
-              <Input value={referralLink} readOnly className="font-mono text-sm" />
+              <Input value={`/signup?role=${roleParam}&ref=${referralCode}`} readOnly className="font-mono text-sm" />
               <Button onClick={copyToClipboard} variant="outline" className="shrink-0">
                 {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground">Full URL copied when you click the copy button</p>
           </div>
         ) : (
           <Button onClick={generateReferralCode} className="w-full">
