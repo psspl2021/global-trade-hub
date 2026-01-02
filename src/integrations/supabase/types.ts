@@ -1607,7 +1607,11 @@ export type Database = {
           id: string
           notes: string | null
           paid_at: string | null
+          platform_fee_amount: number | null
+          platform_fee_percentage: number | null
+          platform_net_revenue: number | null
           referral_id: string
+          referral_share_percentage: number | null
           referred_id: string
           referrer_id: string
           status: string
@@ -1622,7 +1626,11 @@ export type Database = {
           id?: string
           notes?: string | null
           paid_at?: string | null
+          platform_fee_amount?: number | null
+          platform_fee_percentage?: number | null
+          platform_net_revenue?: number | null
           referral_id: string
+          referral_share_percentage?: number | null
           referred_id: string
           referrer_id: string
           status?: string
@@ -1637,7 +1645,11 @@ export type Database = {
           id?: string
           notes?: string | null
           paid_at?: string | null
+          platform_fee_amount?: number | null
+          platform_fee_percentage?: number | null
+          platform_net_revenue?: number | null
           referral_id?: string
+          referral_share_percentage?: number | null
           referred_id?: string
           referrer_id?: string
           status?: string

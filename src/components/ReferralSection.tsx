@@ -26,8 +26,12 @@ interface ReferralCommission {
   bid_id: string;
   referred_id: string;
   bid_amount: number;
+  platform_fee_percentage: number;
+  platform_fee_amount: number;
+  referral_share_percentage: number;
   commission_percentage: number;
   commission_amount: number;
+  platform_net_revenue: number;
   status: string;
   paid_at: string | null;
   created_at: string;
@@ -193,7 +197,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                 <li>1. Share your unique referral link with other {role === 'supplier' ? 'suppliers' : 'logistics partners'}</li>
                 <li>2. When they sign up using your link, they're linked to you</li>
                 <li>3. When their first bid gets accepted, you earn <strong className="text-primary">1 free bid!</strong></li>
-                <li>4. Plus, earn <strong className="text-primary">1% commission</strong> on every bid they win!</li>
+                <li>4. Plus, earn <strong className="text-primary">20% of our platform fee</strong> (0.1% of order value) on every order they win!</li>
               </ul>
             </div>
           </div>
@@ -293,9 +297,9 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
-                      <TableHead>Bid Amount</TableHead>
-                      <TableHead>Rate</TableHead>
-                      <TableHead>Commission</TableHead>
+                      <TableHead>Order Value</TableHead>
+                      <TableHead>Platform Fee (0.5%)</TableHead>
+                      <TableHead>Your Share (20%)</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -308,8 +312,8 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                         <TableCell className="text-sm">
                           ₹{commission.bid_amount.toLocaleString('en-IN')}
                         </TableCell>
-                        <TableCell className="text-sm">
-                          {commission.commission_percentage}%
+                        <TableCell className="text-sm text-muted-foreground">
+                          ₹{(commission.platform_fee_amount || commission.bid_amount * 0.005).toLocaleString('en-IN')}
                         </TableCell>
                         <TableCell className="text-sm font-medium text-green-600">
                           ₹{commission.commission_amount.toLocaleString('en-IN')}
