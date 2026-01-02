@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, TrendingDown, TrendingUp, Edit2, Check, X } from 'lucide-react';
+import { Loader2, TrendingDown, TrendingUp, Edit2, Check, X, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -25,6 +25,7 @@ interface Bid {
   status: 'pending' | 'accepted' | 'rejected';
   created_at: string;
   requirement_id: string;
+  dispatched_qty?: number | null;
   requirement: {
     id: string;
     title: string;
@@ -63,6 +64,8 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
   const [rebidAmount, setRebidAmount] = useState('');
   const [rebidDelivery, setRebidDelivery] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [dispatchedQty, setDispatchedQty] = useState<Record<string, string>>({});
+  const [savingDispatch, setSavingDispatch] = useState<string | null>(null);
 
   const fetchBids = async () => {
     setLoading(true);
@@ -80,6 +83,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
           status,
           created_at,
           requirement_id,
+          dispatched_qty,
           requirements (
             id,
             title,
@@ -215,6 +219,37 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
     }
   };
 
+  const handleDispatchedQtyChange = (bidId: string, value: string) => {
+    setDispatchedQty(prev => ({ ...prev, [bidId]: value }));
+  };
+
+  const saveDispatchedQty = async (bidId: string) => {
+    const qty = parseFloat(dispatchedQty[bidId] || '');
+    if (isNaN(qty) || qty < 0) {
+      toast.error('Please enter a valid quantity');
+      return;
+    }
+
+    setSavingDispatch(bidId);
+    try {
+      const { error } = await supabase
+        .from('bids')
+        .update({ dispatched_qty: qty })
+        .eq('id', bidId)
+        .eq('supplier_id', userId);
+
+      if (error) throw error;
+
+      toast.success('Dispatched quantity saved!');
+      fetchBids();
+    } catch (error) {
+      console.error('Error saving dispatched qty:', error);
+      toast.error('Failed to save dispatched quantity');
+    } finally {
+      setSavingDispatch(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -338,10 +373,51 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
 
                 {/* Status Messages */}
                 {bid.status === 'accepted' && (
-                  <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
-                    <div className="flex items-center gap-2">
-                      <Check className="h-5 w-5 text-green-600" />
-                      <span className="font-semibold text-green-600">Congratulations! Your bid was accepted.</span>
+                  <div className="space-y-4">
+                    <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-5 w-5 text-green-600" />
+                        <span className="font-semibold text-green-600">Congratulations! Your bid was accepted.</span>
+                      </div>
+                    </div>
+                    
+                    {/* Dispatched Quantity Input */}
+                    <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Truck className="h-5 w-5 text-blue-600" />
+                        <span className="font-semibold text-blue-600">Dispatch Details</span>
+                      </div>
+                      <div className="flex items-end gap-3">
+                        <div className="flex-1">
+                          <Label htmlFor={`dispatch-${bid.id}`} className="text-sm text-muted-foreground">
+                            Dispatched Quantity ({bid.requirement?.unit})
+                          </Label>
+                          <Input
+                            id={`dispatch-${bid.id}`}
+                            type="number"
+                            placeholder={`Ordered: ${bid.requirement?.quantity}`}
+                            value={dispatchedQty[bid.id] ?? (bid.dispatched_qty?.toString() || '')}
+                            onChange={(e) => handleDispatchedQtyChange(bid.id, e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => saveDispatchedQty(bid.id)}
+                          disabled={savingDispatch === bid.id}
+                        >
+                          {savingDispatch === bid.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            'Save'
+                          )}
+                        </Button>
+                      </div>
+                      {bid.dispatched_qty && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Last saved: {bid.dispatched_qty} {bid.requirement?.unit}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}

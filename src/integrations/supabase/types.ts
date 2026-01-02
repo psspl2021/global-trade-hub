@@ -101,6 +101,7 @@ export type Database = {
           buyer_visible_price: number
           created_at: string
           delivery_timeline_days: number
+          dispatched_qty: number | null
           id: string
           is_paid_bid: boolean
           logistics_execution_mode: string | null
@@ -122,6 +123,7 @@ export type Database = {
           buyer_visible_price: number
           created_at?: string
           delivery_timeline_days: number
+          dispatched_qty?: number | null
           id?: string
           is_paid_bid?: boolean
           logistics_execution_mode?: string | null
@@ -143,6 +145,7 @@ export type Database = {
           buyer_visible_price?: number
           created_at?: string
           delivery_timeline_days?: number
+          dispatched_qty?: number | null
           id?: string
           is_paid_bid?: boolean
           logistics_execution_mode?: string | null
