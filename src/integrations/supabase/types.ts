@@ -1597,6 +1597,69 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_commissions: {
+        Row: {
+          bid_amount: number
+          bid_id: string
+          commission_amount: number
+          commission_percentage: number
+          created_at: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          referral_id: string
+          referred_id: string
+          referrer_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bid_amount: number
+          bid_id: string
+          commission_amount: number
+          commission_percentage?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          referral_id: string
+          referred_id: string
+          referrer_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bid_amount?: number
+          bid_id?: string
+          commission_amount?: number
+          commission_percentage?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          referral_id?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_commissions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: true
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referrals: {
         Row: {
           created_at: string | null
