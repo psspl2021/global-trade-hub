@@ -603,7 +603,10 @@ const Signup = () => {
               </div>
 
               <div className="border-t pt-4 mt-4">
-                <p className="text-sm font-medium text-muted-foreground mb-3">Referred By *</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Referred By *</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Referrers earn 20% of our platform fee (0.1% of order value) on your successful orders
+                </p>
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label>Select Referrer *</Label>
