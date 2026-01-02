@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Package, Users, Truck, ShoppingCart } from 'lucide-react';
+import { FileText, Package, Users, Truck, ShoppingCart, BarChart3 } from 'lucide-react';
 import { DocumentList } from './DocumentList';
 import { InvoiceForm } from './InvoiceForm';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
@@ -16,6 +16,7 @@ import { BuyerSupplierForm } from './BuyerSupplierForm';
 import { BuyerPurchasesList } from './BuyerPurchasesList';
 import { BuyerPurchaseForm } from './BuyerPurchaseForm';
 import { BuyerPurchaseViewer } from './BuyerPurchaseViewer';
+import { FinancialReports } from './FinancialReports';
 import { useCRMSEO } from '@/hooks/useCRMSEO';
 
 interface BuyerCRMProps {
@@ -177,7 +178,7 @@ export const BuyerCRM = ({ open, onOpenChange, userId }: BuyerCRMProps) => {
           </DialogHeader>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="stock" className="text-xs sm:text-sm">
                 <Package className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Inventory</span>
@@ -197,6 +198,10 @@ export const BuyerCRM = ({ open, onOpenChange, userId }: BuyerCRMProps) => {
                 <FileText className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Documents</span>
                 <span className="sm:hidden">Docs</span>
+              </TabsTrigger>
+              <TabsTrigger value="reports" className="text-xs sm:text-sm">
+                <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Reports</span>
               </TabsTrigger>
               <TabsTrigger value="contacts" className="text-xs sm:text-sm">
                 <Users className="h-4 w-4 mr-1 sm:mr-2" />
@@ -241,6 +246,10 @@ export const BuyerCRM = ({ open, onOpenChange, userId }: BuyerCRMProps) => {
                 onEditPO={handleEditPO}
                 onEditNote={handleEditNote}
               />
+            </TabsContent>
+
+            <TabsContent value="reports" className="mt-4">
+              <FinancialReports userId={userId} userType="buyer" />
             </TabsContent>
 
             <TabsContent value="contacts" className="mt-4">
