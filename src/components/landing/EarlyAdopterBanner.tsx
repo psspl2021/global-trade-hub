@@ -2,13 +2,38 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Trophy, Sparkles, Package, Truck, Star, Zap } from 'lucide-react';
+import { Trophy, Sparkles, Package, Truck, Star, Zap, Clock } from 'lucide-react';
 import { SocialShareButtons } from './SocialShareButtons';
+
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+const OFFER_END_DATE = new Date('2026-03-31T23:59:59');
+
+const calculateTimeLeft = (): TimeLeft => {
+  const difference = OFFER_END_DATE.getTime() - new Date().getTime();
+  
+  if (difference <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+  
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+};
 
 export const EarlyAdopterBanner = () => {
   const navigate = useNavigate();
   const [remainingSlots, setRemainingSlots] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
 
   const fetchCount = async () => {
     try {
@@ -148,6 +173,15 @@ export const EarlyAdopterBanner = () => {
     };
   }, []);
 
+  // Countdown timer effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   // Don't show banner if all spots are filled
   if (!isLoading && remainingSlots === 0) {
     return null;
@@ -155,6 +189,11 @@ export const EarlyAdopterBanner = () => {
 
   const filledSpots = remainingSlots !== null ? 100 - remainingSlots : 0;
   const progressPercentage = (filledSpots / 100) * 100;
+  const isOfferExpired = timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0;
+
+  if (isOfferExpired) {
+    return null;
+  }
 
   return (
     <section 
@@ -170,7 +209,7 @@ export const EarlyAdopterBanner = () => {
       <meta itemProp="priceCurrency" content="INR" />
       <meta itemProp="availability" content="https://schema.org/LimitedAvailability" />
       <meta itemProp="validFrom" content="2024-01-01" />
-      <meta itemProp="validThrough" content="2025-12-31" />
+      <meta itemProp="validThrough" content="2026-03-31" />
       <link itemProp="url" href="https://procuresaathi.com/#early-adopter-offer" />
       
       {/* Animated gradient background */}
@@ -221,6 +260,36 @@ export const EarlyAdopterBanner = () => {
                 </div>
               </div>
             </header>
+
+            {/* Countdown Timer */}
+            <div className="mb-6 bg-gradient-to-r from-destructive/10 via-warning/10 to-destructive/10 rounded-xl p-4 border border-warning/30">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Clock className="h-5 w-5 text-warning animate-pulse" aria-hidden="true" />
+                <span className="text-sm font-semibold text-foreground">Offer Ends March 31st, 2026</span>
+              </div>
+              <div 
+                className="flex justify-center gap-2 sm:gap-4" 
+                role="timer" 
+                aria-label={`Time remaining: ${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes, ${timeLeft.seconds} seconds`}
+              >
+                <div className="flex flex-col items-center bg-card border border-border rounded-lg px-3 py-2 sm:px-4 sm:py-3 min-w-[60px] sm:min-w-[70px]">
+                  <span className="text-xl sm:text-3xl font-bold text-warning tabular-nums">{timeLeft.days}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Days</span>
+                </div>
+                <div className="flex flex-col items-center bg-card border border-border rounded-lg px-3 py-2 sm:px-4 sm:py-3 min-w-[60px] sm:min-w-[70px]">
+                  <span className="text-xl sm:text-3xl font-bold text-foreground tabular-nums">{String(timeLeft.hours).padStart(2, '0')}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Hours</span>
+                </div>
+                <div className="flex flex-col items-center bg-card border border-border rounded-lg px-3 py-2 sm:px-4 sm:py-3 min-w-[60px] sm:min-w-[70px]">
+                  <span className="text-xl sm:text-3xl font-bold text-foreground tabular-nums">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Mins</span>
+                </div>
+                <div className="flex flex-col items-center bg-card border border-border rounded-lg px-3 py-2 sm:px-4 sm:py-3 min-w-[60px] sm:min-w-[70px]">
+                  <span className="text-xl sm:text-3xl font-bold text-destructive tabular-nums animate-pulse">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Secs</span>
+                </div>
+              </div>
+            </div>
 
             {/* Progress bar and counter */}
             <div className="mb-6" role="progressbar" aria-valuenow={filledSpots} aria-valuemin={0} aria-valuemax={100} aria-label="Early adopter spots claimed">
