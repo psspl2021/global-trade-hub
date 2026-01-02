@@ -8,8 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Trash2, Save } from 'lucide-react';
+import { Loader2, Plus, Trash2, Save, Download } from 'lucide-react';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
+import { generateDocumentPDF } from '@/lib/pdfGenerator';
 
 interface POItem {
   id?: string;
@@ -62,16 +63,22 @@ export const PurchaseOrderForm = ({
   ]);
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
   const [savedTerms, setSavedTerms] = useState<string[]>([]);
+  const [companyName, setCompanyName] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
+  const [companyGstin, setCompanyGstin] = useState('');
 
   useEffect(() => {
     // Fetch current logo and saved terms
     const fetchData = async () => {
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('company_logo_url')
+        .select('company_logo_url, company_name, address, gstin')
         .eq('id', userId)
         .maybeSingle();
       setCurrentLogoUrl(profileData?.company_logo_url || null);
+      setCompanyName(profileData?.company_name || '');
+      setCompanyAddress(profileData?.address || '');
+      setCompanyGstin(profileData?.gstin || '');
 
       // Fetch unique saved terms from purchase orders
       const { data: poData } = await supabase
@@ -564,6 +571,38 @@ export const PurchaseOrderForm = ({
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const { subtotal, taxAmount, discountAmount, total } = calculateTotals();
+                  generateDocumentPDF({
+                    documentType: 'purchase_order',
+                    documentNumber: poNumber,
+                    issueDate: orderDate,
+                    expectedDeliveryDate: expectedDeliveryDate || undefined,
+                    companyName,
+                    companyAddress,
+                    companyGstin,
+                    companyLogo: currentLogoUrl,
+                    buyerName: vendorName,
+                    buyerAddress: vendorAddress,
+                    buyerGstin: vendorGstin,
+                    buyerEmail: vendorEmail,
+                    buyerPhone: vendorPhone,
+                    items,
+                    subtotal,
+                    discountPercent,
+                    discountAmount,
+                    taxAmount,
+                    totalAmount: total,
+                    notes,
+                    terms,
+                    deliveryAddress: deliveryAddress || undefined,
+                  });
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" /> Download PDF
               </Button>
               <Button onClick={handleSubmit} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
