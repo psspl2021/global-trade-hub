@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Copy, Check, Users, Gift, Loader2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Copy, Check, Users, Gift, Loader2, IndianRupee, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
@@ -20,6 +21,18 @@ interface Referral {
   referred_id: string | null;
 }
 
+interface ReferralCommission {
+  id: string;
+  bid_id: string;
+  referred_id: string;
+  bid_amount: number;
+  commission_percentage: number;
+  commission_amount: number;
+  status: string;
+  paid_at: string | null;
+  created_at: string;
+}
+
 interface ReferralSectionProps {
   userId: string;
   role: 'supplier' | 'logistics_partner';
@@ -27,6 +40,7 @@ interface ReferralSectionProps {
 
 export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
   const [referrals, setReferrals] = useState<Referral[]>([]);
+  const [commissions, setCommissions] = useState<ReferralCommission[]>([]);
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -38,23 +52,36 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
 
   const fetchReferrals = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('referrals')
-      .select('*')
-      .eq('referrer_id', userId)
-      .order('created_at', { ascending: false });
+    
+    // Fetch referrals and commissions in parallel
+    const [referralsResult, commissionsResult] = await Promise.all([
+      supabase
+        .from('referrals')
+        .select('*')
+        .eq('referrer_id', userId)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('referral_commissions')
+        .select('*')
+        .eq('referrer_id', userId)
+        .order('created_at', { ascending: false })
+    ]);
 
-    if (!error && data) {
-      setReferrals(data);
-      if (data.length > 0) {
-        setReferralCode(data[0].referral_code);
+    if (!referralsResult.error && referralsResult.data) {
+      setReferrals(referralsResult.data);
+      if (referralsResult.data.length > 0) {
+        setReferralCode(referralsResult.data[0].referral_code);
       }
     }
+    
+    if (!commissionsResult.error && commissionsResult.data) {
+      setCommissions(commissionsResult.data as ReferralCommission[]);
+    }
+    
     setLoading(false);
   };
 
   const generateReferralCode = async () => {
-    // Call the database function to generate a unique code
     const { data: codeData, error: codeError } = await supabase.rpc('generate_referral_code', { 
       user_id: userId 
     });
@@ -70,7 +97,6 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
 
     const newCode = codeData as string;
 
-    // Insert the referral record
     const { error: insertError } = await supabase
       .from('referrals')
       .insert({
@@ -125,6 +151,8 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
         return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Signed Up</Badge>;
       case 'rewarded':
         return <Badge className="bg-green-500 hover:bg-green-600">Rewarded</Badge>;
+      case 'paid':
+        return <Badge className="bg-green-500 hover:bg-green-600">Paid</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -132,6 +160,9 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
 
   const totalRewards = referrals.filter(r => r.status === 'rewarded').length;
   const totalSignups = referrals.filter(r => r.status === 'signed_up' || r.status === 'rewarded').length;
+  const totalCommissionEarned = commissions.reduce((sum, c) => sum + c.commission_amount, 0);
+  const pendingCommission = commissions.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.commission_amount, 0);
+  const paidCommission = commissions.filter(c => c.status === 'paid').reduce((sum, c) => sum + c.commission_amount, 0);
 
   if (loading) {
     return (
@@ -148,7 +179,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5" />
-          Refer & Earn Free Bids
+          Refer & Earn
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -162,13 +193,14 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                 <li>1. Share your unique referral link with other {role === 'supplier' ? 'suppliers' : 'logistics partners'}</li>
                 <li>2. When they sign up using your link, they're linked to you</li>
                 <li>3. When their first bid gets accepted, you earn <strong className="text-primary">1 free bid!</strong></li>
+                <li>4. Plus, earn <strong className="text-primary">1% commission</strong> on every bid they win!</li>
               </ul>
             </div>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 rounded-lg bg-card border text-center">
             <div className="text-2xl font-bold text-primary">{totalSignups}</div>
             <div className="text-sm text-muted-foreground">Signups</div>
@@ -176,6 +208,20 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
           <div className="p-4 rounded-lg bg-card border text-center">
             <div className="text-2xl font-bold text-green-600">{totalRewards}</div>
             <div className="text-sm text-muted-foreground">Bids Earned</div>
+          </div>
+          <div className="p-4 rounded-lg bg-card border text-center">
+            <div className="text-2xl font-bold text-amber-600 flex items-center justify-center">
+              <IndianRupee className="h-5 w-5" />
+              {totalCommissionEarned.toLocaleString('en-IN')}
+            </div>
+            <div className="text-sm text-muted-foreground">Total Commission</div>
+          </div>
+          <div className="p-4 rounded-lg bg-card border text-center">
+            <div className="text-2xl font-bold text-blue-600 flex items-center justify-center">
+              <IndianRupee className="h-5 w-5" />
+              {pendingCommission.toLocaleString('en-IN')}
+            </div>
+            <div className="text-sm text-muted-foreground">Pending Payout</div>
           </div>
         </div>
 
@@ -197,38 +243,91 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
           </Button>
         )}
 
-        {/* Referrals Table */}
-        {referrals.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Your Referrals</h4>
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Signed Up</TableHead>
-                    <TableHead>Rewarded</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {referrals.map((referral) => (
-                    <TableRow key={referral.id}>
-                      <TableCell className="font-mono text-sm">{referral.referral_code}</TableCell>
-                      <TableCell>{getStatusBadge(referral.status)}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {referral.signed_up_at ? format(new Date(referral.signed_up_at), 'MMM d, yyyy') : '-'}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {referral.rewarded_at ? format(new Date(referral.rewarded_at), 'MMM d, yyyy') : '-'}
-                      </TableCell>
+        {/* Tabs for Referrals and Commissions */}
+        <Tabs defaultValue="referrals" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="referrals">Referrals ({referrals.length})</TabsTrigger>
+            <TabsTrigger value="commissions">Commissions ({commissions.length})</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="referrals">
+            {referrals.length > 0 ? (
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Code</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Signed Up</TableHead>
+                      <TableHead>Rewarded</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        )}
+                  </TableHeader>
+                  <TableBody>
+                    {referrals.map((referral) => (
+                      <TableRow key={referral.id}>
+                        <TableCell className="font-mono text-sm">{referral.referral_code}</TableCell>
+                        <TableCell>{getStatusBadge(referral.status)}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {referral.signed_up_at ? format(new Date(referral.signed_up_at), 'MMM d, yyyy') : '-'}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {referral.rewarded_at ? format(new Date(referral.rewarded_at), 'MMM d, yyyy') : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No referrals yet. Share your link to get started!</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="commissions">
+            {commissions.length > 0 ? (
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Bid Amount</TableHead>
+                      <TableHead>Rate</TableHead>
+                      <TableHead>Commission</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {commissions.map((commission) => (
+                      <TableRow key={commission.id}>
+                        <TableCell className="text-sm">
+                          {format(new Date(commission.created_at), 'MMM d, yyyy')}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          ₹{commission.bid_amount.toLocaleString('en-IN')}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {commission.commission_percentage}%
+                        </TableCell>
+                        <TableCell className="text-sm font-medium text-green-600">
+                          ₹{commission.commission_amount.toLocaleString('en-IN')}
+                        </TableCell>
+                        <TableCell>{getStatusBadge(commission.status)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No commissions yet. Commissions are earned when your referred accounts win bids!</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
