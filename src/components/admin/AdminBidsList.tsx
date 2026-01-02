@@ -649,7 +649,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
               <div className="bg-muted/50 p-3 rounded-lg">
                 <div className="flex justify-between text-sm">
                   <span>Total Amount:</span>
-                  <span className="font-bold">₹{(editForm.bid_amount + editForm.service_fee).toLocaleString()}</span>
+                  <span className="font-bold">₹{editForm.bid_amount.toLocaleString()}</span>
                 </div>
               </div>
             </div>
