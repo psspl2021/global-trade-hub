@@ -431,6 +431,9 @@ const Dashboard = () => {
             
             {/* Logistics Requirements List */}
             {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
+
+            {/* Referral Section for Buyers */}
+            {user && <ReferralSection userId={user.id} role="buyer" />}
             
             {user && (
               <>
