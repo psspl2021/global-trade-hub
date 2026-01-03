@@ -614,6 +614,9 @@ export const BidFormInvoice = ({
             rows={2}
             className="resize-none"
           />
+          <p className="text-xs text-muted-foreground">
+            <strong>Note:</strong> Please quote Ex-Works prices. Mention transport/freight charges separately under "Additional Charges" instead of quoting FOR prices. Do not include contact details.
+          </p>
         </div>
 
         {/* Submit */}
