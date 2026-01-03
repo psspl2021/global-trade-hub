@@ -701,6 +701,13 @@ const Signup = () => {
                 Sign In
               </Link>
             </p>
+
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Want to earn by referring?{' '}
+              <Link to="/affiliate-signup" className="text-primary hover:underline font-medium">
+                Join as Affiliate Partner
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>
