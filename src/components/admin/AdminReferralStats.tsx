@@ -534,7 +534,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                               <div className="flex flex-col items-end">
                                 <span>₹{commission.commission_amount.toLocaleString('en-IN')}</span>
                                 <span className="text-xs text-muted-foreground font-normal">
-                                  ₹44 × dispatch qty
+                                  0.1% commission
                                 </span>
                               </div>
                             </TableCell>
