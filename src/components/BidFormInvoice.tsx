@@ -7,6 +7,45 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Plus, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+// Validation to prevent contact info in terms
+const containsContactInfo = (text: string): { hasContact: boolean; type: string } => {
+  const normalized = text.toLowerCase().replace(/\s+/g, '');
+  
+  // Phone number patterns (Indian and international)
+  const phonePatterns = [
+    /\+?\d{10,13}/,
+    /\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/,
+    /\d{4}[-.\s]?\d{3}[-.\s]?\d{3}/,
+    /\d{5}[-.\s]?\d{5}/,
+  ];
+  
+  for (const pattern of phonePatterns) {
+    if (pattern.test(normalized)) {
+      return { hasContact: true, type: 'phone number' };
+    }
+  }
+  
+  // Email pattern
+  const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+  if (emailPattern.test(text)) {
+    return { hasContact: true, type: 'email address' };
+  }
+  
+  // Company name indicators (common patterns)
+  const companyIndicators = [
+    /\b(pvt\.?\s*ltd\.?|private\s+limited|llp|inc\.?|corp\.?|limited|enterprises?|trading|industries|solutions)\b/i,
+  ];
+  
+  for (const pattern of companyIndicators) {
+    if (pattern.test(text)) {
+      return { hasContact: true, type: 'company name' };
+    }
+  }
+  
+  return { hasContact: false, type: '' };
+};
 
 const GST_RATE_OPTIONS = [0, 5, 12, 18, 28] as const;
 
@@ -199,6 +238,15 @@ export const BidFormInvoice = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!allItemsHaveRate || deliveryDays <= 0) return;
+
+    // Validate terms don't contain contact info
+    if (termsAndConditions.trim()) {
+      const contactCheck = containsContactInfo(termsAndConditions);
+      if (contactCheck.hasContact) {
+        toast.error(`Terms cannot contain ${contactCheck.type}. Please remove it and try again.`);
+        return;
+      }
+    }
 
     const items = lineItems.map(item => {
       const bid = itemBids[item.id];
