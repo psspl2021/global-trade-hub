@@ -299,8 +299,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead>Order Value</TableHead>
-                      <TableHead>Platform Fee (0.5%)</TableHead>
-                      <TableHead>Your Share (20%)</TableHead>
+                      <TableHead>Your Commission</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -312,9 +311,6 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                         </TableCell>
                         <TableCell className="text-sm">
                           ₹{commission.bid_amount.toLocaleString('en-IN')}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          ₹{(commission.platform_fee_amount || commission.bid_amount * 0.005).toLocaleString('en-IN')}
                         </TableCell>
                         <TableCell className="text-sm font-medium text-green-600">
                           ₹{commission.commission_amount.toLocaleString('en-IN')}
