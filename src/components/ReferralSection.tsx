@@ -198,7 +198,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                 <li>1. Share your unique referral link with {roleLabel}</li>
                 <li>2. When they sign up using your link, they're linked to you</li>
                 {role !== 'buyer' && <li>3. When their first bid gets accepted, you earn <strong className="text-primary">1 free bid!</strong></li>}
-                <li>{role === 'buyer' ? '3' : '4'}. Earn <strong className="text-primary">₹44 × dispatch qty</strong> commission on every order they {role === 'buyer' ? 'place' : 'win'}!</li>
+                <li>{role === 'buyer' ? '3' : '4'}. Earn <strong className="text-primary">0.1% commission</strong> on every order they {role === 'buyer' ? 'place' : 'win'}!</li>
               </ul>
             </div>
           </div>
