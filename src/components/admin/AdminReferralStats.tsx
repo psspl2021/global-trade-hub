@@ -531,7 +531,12 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                               ₹{commission.bid_amount.toLocaleString('en-IN')}
                             </TableCell>
                             <TableCell className="text-right font-medium text-green-600">
-                              ₹{commission.commission_amount.toLocaleString('en-IN')}
+                              <div className="flex flex-col items-end">
+                                <span>₹{commission.commission_amount.toLocaleString('en-IN')}</span>
+                                <span className="text-xs text-muted-foreground font-normal">
+                                  ₹44 × dispatch qty
+                                </span>
+                              </div>
                             </TableCell>
                             <TableCell>{getStatusBadge(commission.status)}</TableCell>
                             <TableCell className="text-center">
