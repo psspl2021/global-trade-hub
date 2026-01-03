@@ -16,8 +16,8 @@ const AffiliatePortal = () => {
   const [showProfileSettings, setShowProfileSettings] = useState(false);
 
   useSEO({
-    title: 'Affiliate Portal | ProcureSaathi',
-    description: 'Track your referral earnings and commissions on ProcureSaathi affiliate portal.',
+    title: 'Affiliate Dashboard | Track Referral Earnings | ProcureSaathi',
+    description: 'Track your referral earnings, commissions (₹44 × dispatch qty), and payouts on ProcureSaathi affiliate portal.',
   });
 
   useEffect(() => {

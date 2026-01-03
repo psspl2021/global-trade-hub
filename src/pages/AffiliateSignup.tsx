@@ -23,8 +23,8 @@ const AffiliateSignup = () => {
   });
 
   useSEO({
-    title: 'Become an Affiliate Partner | ProcureSaathi',
-    description: 'Join ProcureSaathi affiliate program and earn 20% of platform fees on every referral order.',
+    title: 'Become an Affiliate Partner | Earn ₹44 × Dispatch Qty | ProcureSaathi',
+    description: 'Join ProcureSaathi affiliate program. Earn ₹44 per dispatch quantity commission on every referral order. Lifetime earnings, easy tracking, instant payouts.',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,9 +123,9 @@ const AffiliateSignup = () => {
                     <IndianRupee className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Earn 20% Commission</h3>
+                    <h3 className="font-semibold">Earn ₹44 × Dispatch Qty</h3>
                     <p className="text-sm text-muted-foreground">
-                      Get 20% of our platform fee (0.1% of order value) on every order from your referrals
+                      Get ₹44 commission per dispatch quantity on every order from your referrals
                     </p>
                   </div>
                 </div>
