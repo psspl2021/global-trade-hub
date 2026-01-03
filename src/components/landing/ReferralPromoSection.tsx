@@ -78,7 +78,7 @@ export const ReferralPromoSection = () => {
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <span className="text-primary font-bold">3</span>
                 </div>
-                <p className="text-sm text-muted-foreground">Earn income + free bids when they transact</p>
+                <p className="text-sm text-muted-foreground">Earn ₹44 × dispatch qty commission + free bids</p>
               </div>
             </div>
           </div>
