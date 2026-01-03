@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-type UserRole = 'buyer' | 'supplier' | 'admin' | 'logistics_partner' | null;
+export type UserRole = 'buyer' | 'supplier' | 'admin' | 'logistics_partner' | 'affiliate' | null;
 
 // Priority order: admin has highest priority
-const ROLE_PRIORITY: UserRole[] = ['admin', 'logistics_partner', 'supplier', 'buyer'];
+const ROLE_PRIORITY: UserRole[] = ['admin', 'logistics_partner', 'supplier', 'buyer', 'affiliate'];
 
 export const useUserRole = (userId: string | undefined) => {
   const [role, setRole] = useState<UserRole>(null);

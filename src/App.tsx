@@ -31,6 +31,8 @@ const Buyer = lazy(() => import("./pages/Buyer"));
 const PrivateLabel = lazy(() => import("./pages/PrivateLabel"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const InvoiceGenerator = lazy(() => import("./pages/InvoiceGenerator"));
+const AffiliatePortal = lazy(() => import("./pages/AffiliatePortal"));
+const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -74,6 +76,8 @@ const App = () => (
               <Route path="/private-label" element={<PrivateLabel />} />
               <Route path="/source/:country" element={<SourceCountry />} />
               <Route path="/invoice-generator" element={<InvoiceGenerator />} />
+              <Route path="/affiliate" element={<AffiliatePortal />} />
+              <Route path="/affiliate-signup" element={<AffiliateSignup />} />
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

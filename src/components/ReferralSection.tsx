@@ -39,7 +39,7 @@ interface ReferralCommission {
 
 interface ReferralSectionProps {
   userId: string;
-  role: 'supplier' | 'logistics_partner';
+  role: 'supplier' | 'logistics_partner' | 'buyer' | 'affiliate';
 }
 
 export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
@@ -50,9 +50,10 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const roleParam = role === 'supplier' ? 'supplier' : 'logistics_partner';
+  const roleParam = role === 'affiliate' ? 'supplier' : role;
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const referralLink = referralCode ? `${baseUrl}/signup?role=${roleParam}&ref=${referralCode}` : '';
+  const roleLabel = role === 'buyer' ? 'buyers' : role === 'affiliate' ? 'suppliers or logistics partners' : `${role}s`.replace('_', ' ');
 
   const fetchReferrals = async () => {
     setLoading(true);
@@ -194,10 +195,10 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
             <div>
               <h4 className="font-semibold mb-1">How it works</h4>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>1. Share your unique referral link with other {role === 'supplier' ? 'suppliers' : 'logistics partners'}</li>
+                <li>1. Share your unique referral link with {roleLabel}</li>
                 <li>2. When they sign up using your link, they're linked to you</li>
-                <li>3. When their first bid gets accepted, you earn <strong className="text-primary">1 free bid!</strong></li>
-                <li>4. Plus, earn <strong className="text-primary">20% of our platform fee</strong> (0.1% of order value) on every order they win!</li>
+                {role !== 'buyer' && <li>3. When their first bid gets accepted, you earn <strong className="text-primary">1 free bid!</strong></li>}
+                <li>{role === 'buyer' ? '3' : '4'}. Earn <strong className="text-primary">20% of our platform fee</strong> (0.1% of order value) on every order they {role === 'buyer' ? 'place' : 'win'}!</li>
               </ul>
             </div>
           </div>
