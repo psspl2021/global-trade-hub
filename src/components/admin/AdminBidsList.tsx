@@ -435,9 +435,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                 <div className="text-muted-foreground text-xs">{bid.supplier?.email}</div>
                               </div>
                             </TableCell>
-                            <TableCell>₹{bid.bid_amount.toLocaleString()}</TableCell>
+                            <TableCell>₹{(bid.bid_amount * (bid.requirement?.quantity || 1)).toLocaleString()}</TableCell>
                             <TableCell>₹{bid.service_fee.toLocaleString()}</TableCell>
-                            <TableCell className="font-medium">₹{(bid.buyer_visible_price * (bid.requirement?.quantity || 1)).toLocaleString()}</TableCell>
+                            <TableCell className="font-medium">₹{bid.buyer_visible_price.toLocaleString()}</TableCell>
                             <TableCell>{bid.delivery_timeline_days} days</TableCell>
                             <TableCell>{getStatusBadge(bid.status)}</TableCell>
                             <TableCell>{format(new Date(bid.created_at), 'dd MMM yyyy')}</TableCell>
