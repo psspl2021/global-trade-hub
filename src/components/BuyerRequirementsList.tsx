@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
 import { LineItemL1View } from './LineItemL1View';
 import { useUserRole } from '@/hooks/useUserRole';
+import { DispatchQuantityModal } from './DispatchQuantityModal';
 
 interface Requirement {
   id: string;
@@ -72,6 +73,7 @@ interface Bid {
   supplier_id: string;
   bid_items?: BidItem[];
   logistics_execution_mode?: string; // Backend-controlled, hidden from buyer
+  dispatched_qty?: number | null;
 }
 
 // Constants for buyer-facing display - always show ProcureSaathi as handler
@@ -101,6 +103,14 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [bidsLoading, setBidsLoading] = useState(false);
   const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
   const { role } = useUserRole(userId);
+  const [dispatchModalData, setDispatchModalData] = useState<{
+    bidId: string;
+    requirementId: string;
+    requirementTitle: string;
+    totalQuantity: number;
+    unit: string;
+    currentDispatchedQty?: number | null;
+  } | null>(null);
 
   useEffect(() => {
     fetchRequirements();
@@ -150,6 +160,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
           terms_and_conditions,
           created_at,
           supplier_id,
+          dispatched_qty,
           bid_items (
             id,
             requirement_item_id,
@@ -471,6 +482,35 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                               </Button>
                             </div>
                           )}
+
+                          {/* Dispatch button for awarded requirements */}
+                          {bid.status === 'accepted' && selectedRequirement?.status === 'awarded' && (
+                            <div className="flex items-center justify-between pt-3 border-t">
+                              <div className="text-sm">
+                                {bid.dispatched_qty ? (
+                                  <span className="text-success">
+                                    Dispatched: {bid.dispatched_qty.toLocaleString('en-IN')} {selectedRequirement.unit}
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground">Not yet dispatched</span>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={() => setDispatchModalData({
+                                  bidId: bid.id,
+                                  requirementId: selectedRequirement.id,
+                                  requirementTitle: selectedRequirement.title,
+                                  totalQuantity: selectedRequirement.quantity,
+                                  unit: selectedRequirement.unit,
+                                  currentDispatchedQty: bid.dispatched_qty,
+                                })}
+                              >
+                                <Truck className="h-4 w-4 mr-1" />
+                                {bid.dispatched_qty ? 'Update Dispatch' : 'Record Dispatch'}
+                              </Button>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
@@ -491,6 +531,26 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
           onSuccess={() => {
             setEditingRequirement(null);
             fetchRequirements();
+          }}
+        />
+      )}
+
+      {/* Dispatch Quantity Modal */}
+      {dispatchModalData && (
+        <DispatchQuantityModal
+          open={!!dispatchModalData}
+          onOpenChange={(open) => !open && setDispatchModalData(null)}
+          bidId={dispatchModalData.bidId}
+          requirementId={dispatchModalData.requirementId}
+          requirementTitle={dispatchModalData.requirementTitle}
+          totalQuantity={dispatchModalData.totalQuantity}
+          unit={dispatchModalData.unit}
+          currentDispatchedQty={dispatchModalData.currentDispatchedQty}
+          onSuccess={() => {
+            fetchRequirements();
+            if (selectedRequirement) {
+              fetchBids(selectedRequirement.id);
+            }
           }}
         />
       )}

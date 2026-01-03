@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CheckCircle, Calendar, MapPin, Package } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, CheckCircle, Calendar, MapPin, Package, Truck } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { DispatchQuantityModal } from './DispatchQuantityModal';
 
 interface AcceptedBid {
   id: string;
@@ -13,6 +15,7 @@ interface AcceptedBid {
   total_amount: number;
   delivery_timeline_days: number;
   created_at: string;
+  dispatched_qty?: number | null;
   requirements: {
     id: string;
     title: string;
@@ -21,6 +24,7 @@ interface AcceptedBid {
     delivery_location: string;
     deadline: string;
     product_category: string;
+    status: string;
   };
 }
 
@@ -31,6 +35,14 @@ interface SupplierAcceptedBidsProps {
 export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
   const [acceptedBids, setAcceptedBids] = useState<AcceptedBid[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dispatchModalData, setDispatchModalData] = useState<{
+    bidId: string;
+    requirementId: string;
+    requirementTitle: string;
+    totalQuantity: number;
+    unit: string;
+    currentDispatchedQty?: number | null;
+  } | null>(null);
 
   useEffect(() => {
     fetchAcceptedBids();
@@ -47,6 +59,7 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
           total_amount,
           delivery_timeline_days,
           created_at,
+          dispatched_qty,
           requirements (
             id,
             title,
@@ -54,7 +67,8 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
             unit,
             delivery_location,
             deadline,
-            product_category
+            product_category,
+            status
           )
         `)
         .eq('supplier_id', userId)
@@ -111,11 +125,14 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <h4 className="font-medium">{bid.requirements?.title}</h4>
                       <Badge className="bg-success/20 text-success border-success/30">
                         Accepted
                       </Badge>
+                      {bid.requirements?.status === 'closed' && (
+                        <Badge variant="secondary">Closed</Badge>
+                      )}
                     </div>
                     <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
                       <span className="flex items-center gap-1">
@@ -149,6 +166,47 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
                         <span className="ml-2">{bid.delivery_timeline_days} days</span>
                       </div>
                     </div>
+
+                    {/* Dispatch section */}
+                    {bid.requirements?.status === 'awarded' && (
+                      <div className="flex items-center justify-between pt-3 mt-3 border-t border-success/20">
+                        <div className="text-sm">
+                          {bid.dispatched_qty ? (
+                            <span className="text-success flex items-center gap-1">
+                              <Truck className="h-4 w-4" />
+                              Dispatched: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Not yet dispatched</span>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setDispatchModalData({
+                            bidId: bid.id,
+                            requirementId: bid.requirements.id,
+                            requirementTitle: bid.requirements.title,
+                            totalQuantity: bid.requirements.quantity,
+                            unit: bid.requirements.unit,
+                            currentDispatchedQty: bid.dispatched_qty,
+                          })}
+                        >
+                          <Truck className="h-4 w-4 mr-1" />
+                          {bid.dispatched_qty ? 'Update Dispatch' : 'Record Dispatch'}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Closed dispatch info */}
+                    {bid.requirements?.status === 'closed' && bid.dispatched_qty && (
+                      <div className="pt-3 mt-3 border-t border-success/20">
+                        <span className="text-sm text-success flex items-center gap-1">
+                          <CheckCircle className="h-4 w-4" />
+                          Completed: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit} dispatched
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -156,6 +214,21 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
           </div>
         )}
       </CardContent>
+
+      {/* Dispatch Quantity Modal */}
+      {dispatchModalData && (
+        <DispatchQuantityModal
+          open={!!dispatchModalData}
+          onOpenChange={(open) => !open && setDispatchModalData(null)}
+          bidId={dispatchModalData.bidId}
+          requirementId={dispatchModalData.requirementId}
+          requirementTitle={dispatchModalData.requirementTitle}
+          totalQuantity={dispatchModalData.totalQuantity}
+          unit={dispatchModalData.unit}
+          currentDispatchedQty={dispatchModalData.currentDispatchedQty}
+          onSuccess={fetchAcceptedBids}
+        />
+      )}
     </Card>
   );
 }
