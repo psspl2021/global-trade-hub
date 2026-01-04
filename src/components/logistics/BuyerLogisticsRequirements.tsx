@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, MapPin, Calendar, Package, Truck, CheckCircle } from 'lucide-react';
+import { Loader2, MapPin, Calendar, Package, Truck, CheckCircle, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface LogisticsRequirement {
@@ -48,6 +49,9 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
   const [selectedRequirement, setSelectedRequirement] = useState<LogisticsRequirement | null>(null);
   const [bids, setBids] = useState<LogisticsBid[]>([]);
   const [bidsLoading, setBidsLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
   const { toast } = useToast();
 
   const fetchRequirements = async () => {
@@ -128,11 +132,28 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active': return <Badge className="bg-green-500">Active</Badge>;
-      case 'closed': return <Badge variant="secondary">Closed</Badge>;
+      case 'closed': return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
       case 'cancelled': return <Badge variant="destructive">Cancelled</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  // Filter and paginate
+  const filteredRequirements = requirements.filter(req => {
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'awarded') return req.status === 'closed';
+    return req.status === statusFilter;
+  });
+
+  const totalItems = filteredRequirements.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const paginatedRequirements = filteredRequirements.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
 
   if (loading) {
     return (
@@ -147,20 +168,36 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
   return (
     <>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="flex items-center gap-2">
             <Truck className="h-5 w-5" />
             My Logistics Requirements
           </CardTitle>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[130px] bg-background">
+                <SelectValue placeholder="Filter" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border shadow-lg z-50">
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="awarded">Awarded</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
-          {requirements.length === 0 ? (
+          {filteredRequirements.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">
-              No logistics requirements posted yet.
+              {requirements.length === 0 
+                ? 'No logistics requirements posted yet.'
+                : 'No requirements match the selected filter.'}
             </p>
           ) : (
             <div className="space-y-4">
-              {requirements.map(req => (
+              {paginatedRequirements.map(req => (
                 <Card key={req.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
@@ -191,6 +228,36 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
                   </CardContent>
                 </Card>
               ))}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1}-{endIndex} of {totalItems}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm font-medium px-2">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
