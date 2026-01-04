@@ -455,7 +455,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                               <div className="bg-muted/30 rounded-lg p-4">
                                 <div className="flex justify-between font-semibold">
                                   <span>Total Amount</span>
-                                  <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                                  <span className="text-primary">₹{bid.buyer_visible_price.toLocaleString()}</span>
                                 </div>
                               </div>
                             </div>
@@ -463,7 +463,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                             <div className="bg-muted/30 rounded-lg p-4">
                               <div className="flex justify-between font-semibold">
                                 <span>Total Amount</span>
-                                <span className="text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                                <span className="text-primary">₹{bid.buyer_visible_price.toLocaleString()}</span>
                               </div>
                             </div>
                           )}
