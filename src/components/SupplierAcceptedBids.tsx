@@ -174,10 +174,15 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
                       <div className="flex items-center justify-between pt-3 mt-3 border-t border-success/20">
                         <div className="text-sm">
                           {bid.dispatched_qty ? (
-                            <span className="text-success flex items-center gap-1">
-                              <Truck className="h-4 w-4" />
-                              Dispatched: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit}
-                            </span>
+                            <div className="space-y-1">
+                              <span className="text-success flex items-center gap-1">
+                                <Truck className="h-4 w-4" />
+                                Dispatched: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit}
+                              </span>
+                              <span className="text-muted-foreground block ml-5">
+                                Your Earnings: ₹{(((bid.supplier_net_price || bid.bid_amount) / bid.requirements.quantity) * bid.dispatched_qty).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                              </span>
+                            </div>
                           ) : (
                             <span className="text-muted-foreground">Not yet dispatched</span>
                           )}
@@ -203,10 +208,15 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
                     {/* Closed dispatch info */}
                     {bid.requirements?.status === 'closed' && bid.dispatched_qty && (
                       <div className="pt-3 mt-3 border-t border-success/20">
-                        <span className="text-sm text-success flex items-center gap-1">
-                          <CheckCircle className="h-4 w-4" />
-                          Completed: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit} dispatched
-                        </span>
+                        <div className="space-y-1">
+                          <span className="text-sm text-success flex items-center gap-1">
+                            <CheckCircle className="h-4 w-4" />
+                            Completed: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit} dispatched
+                          </span>
+                          <span className="text-sm text-muted-foreground ml-5">
+                            Your Earnings: ₹{(((bid.supplier_net_price || bid.bid_amount) / bid.requirements.quantity) * bid.dispatched_qty).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>
