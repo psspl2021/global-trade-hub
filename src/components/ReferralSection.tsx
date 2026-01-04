@@ -331,7 +331,6 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
-                      <TableHead>Order Value</TableHead>
                       <TableHead>Dispatched Qty</TableHead>
                       <TableHead>Platform Fee</TableHead>
                       <TableHead>Your Commission (20%)</TableHead>
@@ -343,9 +342,6 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                       <TableRow key={commission.id}>
                         <TableCell className="text-sm">
                           {format(new Date(commission.created_at), 'MMM d, yyyy')}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          ₹{commission.bid_amount.toLocaleString('en-IN')}
                         </TableCell>
                         <TableCell className="text-sm">
                           {commission.dispatched_qty?.toFixed(2) || '0'} tons
