@@ -313,7 +313,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                           {format(new Date(commission.created_at), 'MMM d, yyyy')}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {commission.dispatched_qty?.toFixed(2) || '0'} tons
+                          {(commission.dispatched_qty ?? 0).toFixed(2)} tons
                         </TableCell>
                         <TableCell className="text-sm font-medium text-green-600">
                           ₹{(commission.commission_amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
