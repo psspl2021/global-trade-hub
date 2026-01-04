@@ -17,8 +17,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
@@ -103,6 +116,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [bidsLoading, setBidsLoading] = useState(false);
   const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
   const { role } = useUserRole(userId);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dispatchModalData, setDispatchModalData] = useState<{
     bidId: string;
     requirementId: string;
@@ -234,11 +248,18 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       case 'expired':
         return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Expired</Badge>;
       case 'closed':
-        return <Badge variant="secondary">Closed</Badge>;
+        return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  // Filter requirements based on status
+  const filteredRequirements = requirements.filter(req => {
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'awarded') return req.status === 'awarded' || req.status === 'closed';
+    return req.status === statusFilter;
+  });
 
   const getItemName = (requirementItemId: string) => {
     const item = requirementItems.find(i => i.id === requirementItemId);
@@ -261,17 +282,34 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   return (
     <>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle>My Requirements</CardTitle>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px] bg-background">
+                <SelectValue placeholder="Filter status" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border shadow-lg z-50">
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="awarded">Awarded</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
-          {requirements.length === 0 ? (
+          {filteredRequirements.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
-              No requirements posted yet. Create your first requirement to get started!
+              {requirements.length === 0 
+                ? 'No requirements posted yet. Create your first requirement to get started!'
+                : 'No requirements match the selected filter.'
+              }
             </p>
           ) : (
             <div className="space-y-3">
-              {requirements.map((req) => (
+              {filteredRequirements.map((req) => (
                 <div
                   key={req.id}
                   className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -307,17 +345,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         </span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      {(req.status === 'active' || req.status === 'expired') && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setEditingRequirement(req)}
-                        >
-                          <Edit2 className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
-                      )}
+                    <div className="flex items-center gap-2">
                       <Button
                         size="sm"
                         variant="outline"
@@ -326,6 +354,25 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         <Eye className="h-4 w-4 mr-1" />
                         View Bids
                       </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                          {(req.status === 'active' || req.status === 'expired') && (
+                            <DropdownMenuItem onClick={() => setEditingRequirement(req)}>
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              Edit Requirement
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => handleViewBids(req)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
