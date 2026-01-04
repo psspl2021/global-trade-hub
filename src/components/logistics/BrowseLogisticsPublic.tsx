@@ -114,7 +114,9 @@ export const BrowseLogisticsPublic = ({ open, onOpenChange }: BrowseLogisticsPub
       case 'in_progress':
         return <Badge className="bg-warning text-warning-foreground">In Progress</Badge>;
       case 'closed':
-        return <Badge variant="secondary">Closed</Badge>;
+        return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
+      case 'awarded':
+        return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

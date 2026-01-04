@@ -417,8 +417,8 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                   </div>
                 )}
 
-                {/* Re-bid Button for pending bids */}
-                {bid.status === 'pending' && (
+                {/* Re-bid Button for pending bids - only if requirement is still active */}
+                {bid.status === 'pending' && bid.requirement?.status === 'active' && (
                   <Button 
                     variant="outline" 
                     className="w-full"
@@ -427,6 +427,16 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                     <Edit2 className="h-4 w-4 mr-2" />
                     Update Bid
                   </Button>
+                )}
+
+                {/* Awarded to Other message */}
+                {bid.status === 'pending' && (bid.requirement?.status === 'closed' || bid.requirement?.status === 'awarded') && (
+                  <div className="bg-muted rounded-lg p-4 border">
+                    <div className="flex items-center gap-2">
+                      <X className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-semibold text-muted-foreground">This requirement was awarded to another supplier.</span>
+                    </div>
+                  </div>
                 )}
 
                 {/* Status Messages */}

@@ -759,15 +759,23 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                           </div>
                         )}
                         
-                        <Button 
-                          type="button"
-                          variant="outline" 
-                          className="w-full"
-                          onClick={() => setIsEditing(true)}
-                        >
-                          <Edit2 className="h-4 w-4 mr-2" />
-                          Edit Bid
-                        </Button>
+                        {selectedRequirement.status === 'active' ? (
+                          <Button 
+                            type="button"
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => setIsEditing(true)}
+                          >
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit Bid
+                          </Button>
+                        ) : (
+                          <div className="bg-muted rounded-lg p-4 border">
+                            <p className="font-semibold text-muted-foreground text-center">
+                              This requirement was awarded to another supplier.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     );
                   })()
