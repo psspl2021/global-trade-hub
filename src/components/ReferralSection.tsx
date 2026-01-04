@@ -332,7 +332,6 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead>Dispatched Qty</TableHead>
-                      <TableHead>Platform Fee</TableHead>
                       <TableHead>Your Commission (20%)</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
@@ -345,9 +344,6 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                         </TableCell>
                         <TableCell className="text-sm">
                           {commission.dispatched_qty?.toFixed(2) || '0'} tons
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          ₹{(commission.calculated_platform_fee || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                         </TableCell>
                         <TableCell className="text-sm font-medium text-green-600">
                           ₹{(commission.calculated_commission || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
