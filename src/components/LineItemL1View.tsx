@@ -119,7 +119,25 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
 
       if (itemsError) throw itemsError;
 
-      const requirementItems = (itemsData || []) as RequirementItem[];
+      let requirementItems = (itemsData || []) as RequirementItem[];
+
+      // Fetch requirement details for fallback
+      const { data: reqData } = await supabase
+        .from('requirements')
+        .select('title, quantity, unit, product_category')
+        .eq('id', requirementId)
+        .maybeSingle();
+
+      // If no requirement items, create a virtual one from the requirement
+      if (requirementItems.length === 0 && reqData) {
+        requirementItems = [{
+          id: 'main',
+          item_name: reqData.title,
+          quantity: reqData.quantity,
+          unit: reqData.unit,
+          category: reqData.product_category,
+        }];
+      }
 
       // Fetch all bids with bid_items for this requirement
       const { data: bidsData, error: bidsError } = await supabase
@@ -150,7 +168,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
       const { data: profilesData } = await supabase
         .from('profiles')
         .select('id, company_name, email')
-        .in('id', supplierIds);
+        .in('id', supplierIds.length > 0 ? supplierIds : ['no-match']);
 
       const profiles = (profilesData || []) as SupplierProfile[];
 
@@ -165,7 +183,24 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         }> = [];
 
         bids.forEach(bid => {
-          const bidItem = bid.bid_items?.find(bi => bi.requirement_item_id === reqItem.id);
+          // Try to find a matching bid_item
+          let bidItem = bid.bid_items?.find(bi => bi.requirement_item_id === reqItem.id);
+          
+          // Fallback: If no bid_items exist for this bid, create a virtual bid_item from the bid itself
+          // This handles legacy bids that were created before line-item bidding
+          if (!bidItem && (!bid.bid_items || bid.bid_items.length === 0)) {
+            // bid_amount is rate per unit, so calculate total
+            const quantity = reqItem.quantity;
+            bidItem = {
+              id: `virtual-${bid.id}`,
+              bid_id: bid.id,
+              requirement_item_id: reqItem.id,
+              unit_price: bid.bid_amount,
+              quantity: quantity,
+              total: bid.bid_amount * quantity,
+            };
+          }
+          
           if (bidItem) {
             const supplier = profiles.find(p => p.id === bid.supplier_id) || null;
             allBidItemsForItem.push({
