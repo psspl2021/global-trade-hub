@@ -356,6 +356,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                 <TableHead className="font-medium">L1 Supplier</TableHead>
                 <TableHead className="text-right font-medium">L1 Rate</TableHead>
                 <TableHead className="text-right font-medium">L1 Amount</TableHead>
+                <TableHead className="text-right font-medium">Dispatched</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -366,6 +367,11 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                 const inclusiveTotal = item.lowestBidItem 
                   ? item.lowestBidItem.total * (1 + feeRate) 
                   : 0;
+                
+                // Get dispatched qty from the accepted bid
+                const acceptedBid = item.allBidItems.find(b => b.bid.status === 'accepted');
+                const dispatchedQty = acceptedBid?.bid.dispatched_qty || 0;
+                const dispatchedValue = dispatchedQty > 0 ? dispatchedQty * inclusiveRate : 0;
 
                 return (
                   <TableRow key={item.requirementItem.id}>
@@ -405,6 +411,20 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                         </span>
                       ) : '-'}
                     </TableCell>
+                    <TableCell className="text-right">
+                      {dispatchedQty > 0 ? (
+                        <div className="text-sm">
+                          <div className="font-medium text-success">
+                            {dispatchedQty} {item.requirementItem.unit}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            ₹{dispatchedValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">-</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -414,17 +434,60 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
 
         {/* Summary */}
         <div className="bg-muted/30 rounded-lg p-4 space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="font-medium">Total L1 Amount (all items)</span>
-            <span className="text-lg font-semibold text-primary">
-              ₹{l1Data.reduce((sum, item) => {
-                if (item.lowestBidItem) {
-                  return sum + item.lowestBidItem.total * (1 + feeRate);
-                }
-                return sum;
-              }, 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            </span>
-          </div>
+          {(() => {
+            // Calculate totals including dispatch
+            const totalL1Amount = l1Data.reduce((sum, item) => {
+              if (item.lowestBidItem) {
+                return sum + item.lowestBidItem.total * (1 + feeRate);
+              }
+              return sum;
+            }, 0);
+            
+            const totalDispatchedValue = l1Data.reduce((sum, item) => {
+              const acceptedBid = item.allBidItems.find(b => b.bid.status === 'accepted');
+              const dispatchedQty = acceptedBid?.bid.dispatched_qty || 0;
+              if (item.lowestBidItem && dispatchedQty > 0) {
+                const inclusiveRate = item.lowestBidItem.unit_price * (1 + feeRate);
+                return sum + dispatchedQty * inclusiveRate;
+              }
+              return sum;
+            }, 0);
+            
+            const totalDispatchedQty = l1Data.reduce((sum, item) => {
+              const acceptedBid = item.allBidItems.find(b => b.bid.status === 'accepted');
+              return sum + (acceptedBid?.bid.dispatched_qty || 0);
+            }, 0);
+            
+            const unit = l1Data[0]?.requirementItem?.unit || 'units';
+
+            return (
+              <>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Total L1 Amount (all items)</span>
+                  <span className="text-lg font-semibold text-primary">
+                    ₹{totalL1Amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+                
+                {totalDispatchedQty > 0 && (
+                  <div className="flex justify-between items-center pt-2 border-t border-muted">
+                    <span className="font-medium flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-success" />
+                      Dispatched Value
+                    </span>
+                    <div className="text-right">
+                      <div className="font-semibold text-success">
+                        ₹{totalDispatchedValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {totalDispatchedQty} {unit}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
           
           {/* Logistics Handler - Always shows ProcureSaathi regardless of internal execution mode */}
           {l1Data.some(item => item.lowestBidItem) && (
