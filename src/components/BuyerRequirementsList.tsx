@@ -471,7 +471,26 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                           {bid.terms_and_conditions && (
                             <div className="text-sm">
                               <span className="font-medium text-muted-foreground">Terms:</span>
-                              <p className="mt-1 text-foreground">{bid.terms_and_conditions}</p>
+                              <p className="mt-1 text-foreground whitespace-pre-line">
+                                {/* Filter out supplier pricing details from terms - only show non-price info */}
+                                {bid.terms_and_conditions
+                                  .split('\n')
+                                  .filter(line => {
+                                    const lowerLine = line.toLowerCase();
+                                    // Filter out lines containing pricing info
+                                    return !lowerLine.includes('rate:') &&
+                                           !lowerLine.includes('rate per unit') &&
+                                           !lowerLine.includes('line total') &&
+                                           !lowerLine.includes('subtotal') &&
+                                           !lowerLine.includes('taxable value') &&
+                                           !lowerLine.includes('total gst') &&
+                                           !lowerLine.includes('grand total') &&
+                                           !lowerLine.includes('service fee') &&
+                                           !lowerLine.includes('platform fee');
+                                  })
+                                  .join('\n')
+                                  .trim() || 'Standard terms apply'}
+                              </p>
                             </div>
                           )}
 
