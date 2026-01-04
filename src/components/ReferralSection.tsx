@@ -35,6 +35,10 @@ interface ReferralCommission {
   status: string;
   paid_at: string | null;
   created_at: string;
+  // Calculated fields
+  dispatched_qty?: number;
+  calculated_commission?: number;
+  calculated_platform_fee?: number;
 }
 
 interface ReferralSectionProps {
@@ -80,7 +84,36 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
     }
     
     if (!commissionsResult.error && commissionsResult.data) {
-      setCommissions(commissionsResult.data as ReferralCommission[]);
+      // Fetch bid details for accurate commission calculation
+      const bidIds = [...new Set(commissionsResult.data.map(c => c.bid_id))];
+      let bids: { id: string; dispatched_qty: number | null }[] = [];
+      
+      if (bidIds.length > 0) {
+        const { data: bidData } = await supabase
+          .from('bids')
+          .select('id, dispatched_qty')
+          .in('id', bidIds);
+        bids = bidData || [];
+      }
+      
+      // Calculate proper commission based on dispatched qty
+      const commissionsWithCalculation = commissionsResult.data.map(c => {
+        const bid = bids.find(b => b.id === c.bid_id);
+        const platformFeePerTon = c.platform_fee_amount || 220;
+        const dispatchedQty = bid?.dispatched_qty || 0;
+        const totalPlatformFee = platformFeePerTon * dispatchedQty;
+        const referralSharePercentage = c.referral_share_percentage || 20;
+        const calculatedCommission = totalPlatformFee * (referralSharePercentage / 100);
+        
+        return {
+          ...c,
+          dispatched_qty: dispatchedQty,
+          calculated_commission: calculatedCommission,
+          calculated_platform_fee: totalPlatformFee,
+        };
+      });
+      
+      setCommissions(commissionsWithCalculation as ReferralCommission[]);
     }
     
     setLoading(false);
@@ -165,9 +198,9 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
 
   const totalRewards = referrals.filter(r => r.status === 'rewarded').length;
   const totalSignups = referrals.filter(r => r.status === 'signed_up' || r.status === 'rewarded').length;
-  const totalCommissionEarned = commissions.reduce((sum, c) => sum + c.commission_amount, 0);
-  const pendingCommission = commissions.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.commission_amount, 0);
-  const paidCommission = commissions.filter(c => c.status === 'paid').reduce((sum, c) => sum + c.commission_amount, 0);
+  const totalCommissionEarned = commissions.reduce((sum, c) => sum + (c.calculated_commission || 0), 0);
+  const pendingCommission = commissions.filter(c => c.status === 'pending').reduce((sum, c) => sum + (c.calculated_commission || 0), 0);
+  const paidCommission = commissions.filter(c => c.status === 'paid').reduce((sum, c) => sum + (c.calculated_commission || 0), 0);
 
   if (loading) {
     return (
@@ -198,7 +231,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                 <li>1. Share your unique referral link with {roleLabel}</li>
                 <li>2. When they sign up using your link, they're linked to you</li>
                 {role !== 'buyer' && <li>3. When their first bid gets accepted, you earn <strong className="text-primary">1 free bid!</strong></li>}
-                <li>{role === 'buyer' ? '3' : '4'}. Earn <strong className="text-primary">0.1% commission</strong> on every order they {role === 'buyer' ? 'place' : 'win'}!</li>
+                <li>{role === 'buyer' ? '3' : '4'}. Earn <strong className="text-primary">20% of platform fees</strong> on every order they {role === 'buyer' ? 'place' : 'win'}!</li>
               </ul>
             </div>
           </div>
@@ -299,7 +332,9 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead>Order Value</TableHead>
-                      <TableHead>Your Commission</TableHead>
+                      <TableHead>Dispatched Qty</TableHead>
+                      <TableHead>Platform Fee</TableHead>
+                      <TableHead>Your Commission (20%)</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -312,8 +347,14 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                         <TableCell className="text-sm">
                           ₹{commission.bid_amount.toLocaleString('en-IN')}
                         </TableCell>
+                        <TableCell className="text-sm">
+                          {commission.dispatched_qty?.toFixed(2) || '0'} tons
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          ₹{(commission.calculated_platform_fee || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                        </TableCell>
                         <TableCell className="text-sm font-medium text-green-600">
-                          ₹{commission.commission_amount.toLocaleString('en-IN')}
+                          ₹{(commission.calculated_commission || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                         </TableCell>
                         <TableCell>{getStatusBadge(commission.status)}</TableCell>
                       </TableRow>
