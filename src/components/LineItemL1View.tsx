@@ -19,7 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Trophy, Package, Pencil, Truck } from 'lucide-react';
+import { Loader2, Trophy, Package, Pencil, Truck, CheckCircle } from 'lucide-react';
+import { DispatchQuantityModal } from './DispatchQuantityModal';
 import { toast } from 'sonner';
 
 interface RequirementItem {
@@ -46,6 +47,7 @@ interface Bid {
   bid_amount: number;
   total_amount: number;
   status: string;
+  dispatched_qty: number | null;
   bid_items: BidItem[];
 }
 
@@ -80,6 +82,19 @@ const PLATFORM_LOGISTICS_HANDLER = 'ProcureSaathi Solutions Pvt. Ltd.';
 export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = false }: LineItemL1ViewProps) {
   const [loading, setLoading] = useState(true);
   const [l1Data, setL1Data] = useState<L1ItemData[]>([]);
+  const [requirementDetails, setRequirementDetails] = useState<{
+    title: string;
+    quantity: number;
+    unit: string;
+  } | null>(null);
+  
+  // Dispatch modal state
+  const [dispatchModalData, setDispatchModalData] = useState<{
+    bidId: string;
+    totalQuantity: number;
+    unit: string;
+    currentDispatchedQty: number | null;
+  } | null>(null);
   
   // Edit state
   const [editingBidItem, setEditingBidItem] = useState<{
@@ -128,6 +143,15 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         .eq('id', requirementId)
         .maybeSingle();
 
+      // Store requirement details for dispatch modal
+      if (reqData) {
+        setRequirementDetails({
+          title: reqData.title,
+          quantity: reqData.quantity,
+          unit: reqData.unit,
+        });
+      }
+
       // If no requirement items, create a virtual one from the requirement
       if (requirementItems.length === 0 && reqData) {
         requirementItems = [{
@@ -148,6 +172,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           bid_amount,
           total_amount,
           status,
+          dispatched_qty,
           bid_items (
             id,
             bid_id,
@@ -491,26 +516,52 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                         ₹{bidData.bidItem.total.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={
-                          bidData.bid.status === 'accepted' ? 'default' :
-                          bidData.bid.status === 'rejected' ? 'destructive' : 'outline'
-                        }>
-                          {bidData.bid.status}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={
+                            bidData.bid.status === 'accepted' ? 'default' :
+                            bidData.bid.status === 'rejected' ? 'destructive' : 'outline'
+                          }>
+                            {bidData.bid.status}
+                          </Badge>
+                          {bidData.bid.status === 'accepted' && bidData.bid.dispatched_qty && (
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              {bidData.bid.dispatched_qty} dispatched
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditingBidItem({
-                            ...bidData,
-                            itemName: item.requirementItem.item_name,
-                            unit: item.requirementItem.unit,
-                          })}
-                          title="Edit Bid Item"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingBidItem({
+                              ...bidData,
+                              itemName: item.requirementItem.item_name,
+                              unit: item.requirementItem.unit,
+                            })}
+                            title="Edit Bid Item"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          {bidData.bid.status === 'accepted' && requirementDetails && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDispatchModalData({
+                                bidId: bidData.bid.id,
+                                totalQuantity: requirementDetails.quantity,
+                                unit: requirementDetails.unit,
+                                currentDispatchedQty: bidData.bid.dispatched_qty,
+                              })}
+                              title="Record Dispatch"
+                              className="text-primary hover:text-primary"
+                            >
+                              <Truck className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -577,6 +628,21 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dispatch Quantity Modal */}
+      {dispatchModalData && requirementDetails && (
+        <DispatchQuantityModal
+          open={!!dispatchModalData}
+          onOpenChange={(open) => !open && setDispatchModalData(null)}
+          bidId={dispatchModalData.bidId}
+          requirementId={requirementId}
+          requirementTitle={requirementDetails.title}
+          totalQuantity={dispatchModalData.totalQuantity}
+          unit={dispatchModalData.unit}
+          currentDispatchedQty={dispatchModalData.currentDispatchedQty}
+          onSuccess={fetchL1Data}
+        />
+      )}
     </>
   );
 }
