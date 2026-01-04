@@ -35,10 +35,8 @@ interface ReferralCommission {
   status: string;
   paid_at: string | null;
   created_at: string;
-  // Calculated fields
+  // Display field
   dispatched_qty?: number;
-  calculated_commission?: number;
-  calculated_platform_fee?: number;
 }
 
 interface ReferralSectionProps {
@@ -84,7 +82,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
     }
     
     if (!commissionsResult.error && commissionsResult.data) {
-      // Fetch bid details for accurate commission calculation
+      // Fetch bid details to get dispatched_qty for display
       const bidIds = [...new Set(commissionsResult.data.map(c => c.bid_id))];
       let bids: { id: string; dispatched_qty: number | null }[] = [];
       
@@ -96,24 +94,16 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
         bids = bidData || [];
       }
       
-      // Calculate proper commission based on dispatched qty
-      const commissionsWithCalculation = commissionsResult.data.map(c => {
+      // Use commission_amount from database (already calculated correctly in backend)
+      const commissionsWithDispatch = commissionsResult.data.map(c => {
         const bid = bids.find(b => b.id === c.bid_id);
-        const platformFeePerTon = c.platform_fee_amount || 220;
-        const dispatchedQty = bid?.dispatched_qty || 0;
-        const totalPlatformFee = platformFeePerTon * dispatchedQty;
-        const referralSharePercentage = c.referral_share_percentage || 20;
-        const calculatedCommission = totalPlatformFee * (referralSharePercentage / 100);
-        
         return {
           ...c,
-          dispatched_qty: dispatchedQty,
-          calculated_commission: calculatedCommission,
-          calculated_platform_fee: totalPlatformFee,
+          dispatched_qty: bid?.dispatched_qty || 0,
         };
       });
       
-      setCommissions(commissionsWithCalculation as ReferralCommission[]);
+      setCommissions(commissionsWithDispatch as ReferralCommission[]);
     }
     
     setLoading(false);
@@ -198,9 +188,9 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
 
   const totalRewards = referrals.filter(r => r.status === 'rewarded').length;
   const totalSignups = referrals.filter(r => r.status === 'signed_up' || r.status === 'rewarded').length;
-  const totalCommissionEarned = commissions.reduce((sum, c) => sum + (c.calculated_commission || 0), 0);
-  const pendingCommission = commissions.filter(c => c.status === 'pending').reduce((sum, c) => sum + (c.calculated_commission || 0), 0);
-  const paidCommission = commissions.filter(c => c.status === 'paid').reduce((sum, c) => sum + (c.calculated_commission || 0), 0);
+  const totalCommissionEarned = commissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
+  const pendingCommission = commissions.filter(c => c.status === 'pending').reduce((sum, c) => sum + (c.commission_amount || 0), 0);
+  const paidCommission = commissions.filter(c => c.status === 'paid').reduce((sum, c) => sum + (c.commission_amount || 0), 0);
 
   if (loading) {
     return (
@@ -346,7 +336,7 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                           {commission.dispatched_qty?.toFixed(2) || '0'} tons
                         </TableCell>
                         <TableCell className="text-sm font-medium text-green-600">
-                          ₹{(commission.calculated_commission || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                          ₹{(commission.commission_amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                         </TableCell>
                         <TableCell>{getStatusBadge(commission.status)}</TableCell>
                       </TableRow>
