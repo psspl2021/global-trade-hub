@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
@@ -117,6 +117,8 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
   const { role } = useUserRole(userId);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
   const [dispatchModalData, setDispatchModalData] = useState<{
     bidId: string;
     requirementId: string;
@@ -261,6 +263,18 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
     return req.status === statusFilter;
   });
 
+  // Pagination
+  const totalItems = filteredRequirements.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const paginatedRequirements = filteredRequirements.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
+
   const getItemName = (requirementItemId: string) => {
     const item = requirementItems.find(i => i.id === requirementItemId);
     return item?.item_name || 'Unknown Item';
@@ -309,7 +323,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
             </p>
           ) : (
             <div className="space-y-3">
-              {filteredRequirements.map((req) => (
+              {paginatedRequirements.map((req) => (
                 <div
                   key={req.id}
                   className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -377,6 +391,36 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                   </div>
                 </div>
               ))}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1}-{endIndex} of {totalItems}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm font-medium px-2">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
