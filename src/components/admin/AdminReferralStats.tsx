@@ -28,6 +28,7 @@ interface PendingCommission {
   bid_amount: number;
   commission_amount: number;
   platform_fee_amount: number;
+  dispatched_qty: number;
   status: string;
   created_at: string;
 }
@@ -151,13 +152,13 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       profiles = data || [];
     }
 
-// Fetch bid details for accurate commission calculation
+    // Fetch bid details for dispatched qty display
     const bidIds = [...new Set(commissions?.map(c => c.bid_id) || [])];
-    let bids: { id: string; dispatched_qty: number | null; service_fee: number }[] = [];
+    let bids: { id: string; dispatched_qty: number | null }[] = [];
     if (bidIds.length > 0) {
       const { data: bidData } = await supabase
         .from('bids')
-        .select('id, dispatched_qty, service_fee')
+        .select('id, dispatched_qty')
         .in('id', bidIds);
       bids = bidData || [];
     }
@@ -167,13 +168,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       const referredProfile = profiles.find(p => p.id === c.referred_id);
       const bid = bids.find(b => b.id === c.bid_id);
       
-      // Calculate commission based on dispatched qty: (platform_fee_per_ton × dispatched_qty) × 20%
-      const platformFeePerTon = c.platform_fee_amount || 220; // ₹220 per ton
-      const dispatchedQty = bid?.dispatched_qty || 0;
-      const totalPlatformFee = platformFeePerTon * dispatchedQty;
-      const referralSharePercentage = c.referral_share_percentage || 20;
-      const calculatedCommission = totalPlatformFee * (referralSharePercentage / 100);
-      
+      // Use commission_amount from database (already calculated correctly in backend)
       return {
         id: c.id,
         referrer_id: c.referrer_id,
@@ -181,8 +176,9 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         referrer_contact: referrerProfile?.contact_person || 'Unknown',
         referred_company: referredProfile?.company_name || 'Unknown',
         bid_amount: c.bid_amount,
-        commission_amount: calculatedCommission,
-        platform_fee_amount: totalPlatformFee,
+        commission_amount: c.commission_amount,
+        platform_fee_amount: c.platform_fee_amount * (bid?.dispatched_qty || 0),
+        dispatched_qty: bid?.dispatched_qty || 0,
         status: c.status,
         created_at: c.created_at,
       };
