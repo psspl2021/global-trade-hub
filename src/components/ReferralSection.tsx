@@ -82,28 +82,8 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
     }
     
     if (!commissionsResult.error && commissionsResult.data) {
-      // Fetch bid details to get dispatched_qty for display
-      const bidIds = [...new Set(commissionsResult.data.map(c => c.bid_id))];
-      let bids: { id: string; dispatched_qty: number | null }[] = [];
-      
-      if (bidIds.length > 0) {
-        const { data: bidData } = await supabase
-          .from('bids')
-          .select('id, dispatched_qty')
-          .in('id', bidIds);
-        bids = bidData || [];
-      }
-      
-      // Use commission_amount from database (already calculated correctly in backend)
-      const commissionsWithDispatch = commissionsResult.data.map(c => {
-        const bid = bids.find(b => b.id === c.bid_id);
-        return {
-          ...c,
-          dispatched_qty: bid?.dispatched_qty || 0,
-        };
-      });
-      
-      setCommissions(commissionsWithDispatch as ReferralCommission[]);
+      // dispatched_qty is now stored directly in referral_commissions
+      setCommissions(commissionsResult.data as ReferralCommission[]);
     }
     
     setLoading(false);

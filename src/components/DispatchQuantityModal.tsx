@@ -74,6 +74,7 @@ export function DispatchQuantityModal({
           .update({
             commission_amount: calculatedCommission,
             platform_net_revenue: platformNetRevenue,
+            dispatched_qty: qty,
             updated_at: new Date().toISOString(),
           })
           .eq('id', commissionData.id);
