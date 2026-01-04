@@ -54,6 +54,35 @@ export function DispatchQuantityModal({
 
       if (bidError) throw bidError;
 
+      // Update referral commission if exists for this bid
+      // Commission = platform_fee_per_ton × dispatched_qty × referral_share_percentage
+      const { data: commissionData } = await supabase
+        .from('referral_commissions')
+        .select('id, platform_fee_amount, referral_share_percentage')
+        .eq('bid_id', bidId)
+        .maybeSingle();
+
+      if (commissionData) {
+        const platformFeePerTon = commissionData.platform_fee_amount || 220;
+        const referralSharePercentage = commissionData.referral_share_percentage || 20;
+        const totalPlatformFee = platformFeePerTon * qty;
+        const calculatedCommission = totalPlatformFee * (referralSharePercentage / 100);
+        const platformNetRevenue = totalPlatformFee - calculatedCommission;
+
+        const { error: commissionError } = await supabase
+          .from('referral_commissions')
+          .update({
+            commission_amount: calculatedCommission,
+            platform_net_revenue: platformNetRevenue,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', commissionData.id);
+
+        if (commissionError) {
+          console.error('Error updating referral commission:', commissionError);
+        }
+      }
+
       // If marking as closed, update requirement status
       if (markAsClosed) {
         const { error: reqError } = await supabase
