@@ -151,9 +151,29 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       profiles = data || [];
     }
 
+// Fetch bid details for accurate commission calculation
+    const bidIds = [...new Set(commissions?.map(c => c.bid_id) || [])];
+    let bids: { id: string; dispatched_qty: number | null; service_fee: number }[] = [];
+    if (bidIds.length > 0) {
+      const { data: bidData } = await supabase
+        .from('bids')
+        .select('id, dispatched_qty, service_fee')
+        .in('id', bidIds);
+      bids = bidData || [];
+    }
+
     const pendingList: PendingCommission[] = (commissions || []).map(c => {
       const referrerProfile = profiles.find(p => p.id === c.referrer_id);
       const referredProfile = profiles.find(p => p.id === c.referred_id);
+      const bid = bids.find(b => b.id === c.bid_id);
+      
+      // Calculate commission based on dispatched qty: (platform_fee_per_ton × dispatched_qty) × 20%
+      const platformFeePerTon = c.platform_fee_amount || 220; // ₹220 per ton
+      const dispatchedQty = bid?.dispatched_qty || 0;
+      const totalPlatformFee = platformFeePerTon * dispatchedQty;
+      const referralSharePercentage = c.referral_share_percentage || 20;
+      const calculatedCommission = totalPlatformFee * (referralSharePercentage / 100);
+      
       return {
         id: c.id,
         referrer_id: c.referrer_id,
@@ -161,8 +181,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         referrer_contact: referrerProfile?.contact_person || 'Unknown',
         referred_company: referredProfile?.company_name || 'Unknown',
         bid_amount: c.bid_amount,
-        commission_amount: c.commission_amount,
-        platform_fee_amount: c.platform_fee_amount || 0,
+        commission_amount: calculatedCommission,
+        platform_fee_amount: totalPlatformFee,
         status: c.status,
         created_at: c.created_at,
       };
@@ -532,9 +552,9 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                             </TableCell>
                             <TableCell className="text-right font-medium text-green-600">
                               <div className="flex flex-col items-end">
-                                <span>₹{commission.commission_amount.toLocaleString('en-IN')}</span>
+                                <span>₹{commission.commission_amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                                 <span className="text-xs text-muted-foreground font-normal">
-                                  0.1% commission
+                                  20% of platform fee (₹{commission.platform_fee_amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })})
                                 </span>
                               </div>
                             </TableCell>
