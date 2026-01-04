@@ -141,12 +141,17 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
     setSubmitting(false);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const getStatusBadge = (bidStatus: string, requirementStatus?: string) => {
+    // If bid is pending but requirement is closed/awarded, show "Awarded to Other"
+    if (bidStatus === 'pending' && (requirementStatus === 'closed' || requirementStatus === 'awarded')) {
+      return <Badge variant="outline" className="bg-muted text-muted-foreground">Awarded to Other</Badge>;
+    }
+    
+    switch (bidStatus) {
       case 'pending': return <Badge variant="outline">Pending</Badge>;
       case 'accepted': return <Badge className="bg-green-500">Accepted</Badge>;
       case 'rejected': return <Badge variant="destructive">Not Selected</Badge>;
-      default: return <Badge variant="outline">{status}</Badge>;
+      default: return <Badge variant="outline">{bidStatus}</Badge>;
     }
   };
 
@@ -186,7 +191,7 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{bid.logistics_requirement?.title}</h4>
-                        {getStatusBadge(bid.status)}
+                        {getStatusBadge(bid.status, bid.logistics_requirement?.status)}
                       </div>
                       
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
