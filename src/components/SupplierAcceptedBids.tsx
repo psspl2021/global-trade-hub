@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, Calendar, MapPin, Package, Truck } from 'lucide-react';
+import { Loader2, CheckCircle, Calendar, MapPin, Package, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { DispatchQuantityModal } from './DispatchQuantityModal';
@@ -36,6 +36,8 @@ interface SupplierAcceptedBidsProps {
 export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
   const [acceptedBids, setAcceptedBids] = useState<AcceptedBid[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
   const [dispatchModalData, setDispatchModalData] = useState<{
     bidId: string;
     requirementId: string;
@@ -105,6 +107,13 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
     );
   }
 
+  // Pagination
+  const totalItems = acceptedBids.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const paginatedBids = acceptedBids.slice(startIndex, endIndex);
+
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -120,7 +129,7 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
           </p>
         ) : (
           <div className="space-y-4">
-            {acceptedBids.map((bid) => (
+            {paginatedBids.map((bid) => (
               <div
                 key={bid.id}
                 className="p-4 border rounded-lg bg-success/5 border-success/20"
@@ -223,6 +232,36 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
                 </div>
               </div>
             ))}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-4 border-t">
+                <p className="text-sm text-muted-foreground">
+                  Showing {startIndex + 1}-{endIndex} of {totalItems}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm font-medium px-2">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

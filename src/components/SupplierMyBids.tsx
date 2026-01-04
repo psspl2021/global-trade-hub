@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, TrendingDown, TrendingUp, Edit2, Check, X, Truck } from 'lucide-react';
+import { Loader2, TrendingDown, TrendingUp, Edit2, Check, X, Truck, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -66,6 +66,9 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
   const [submitting, setSubmitting] = useState(false);
   const [dispatchedQty, setDispatchedQty] = useState<Record<string, string>>({});
   const [savingDispatch, setSavingDispatch] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   const fetchBids = async () => {
     setLoading(true);
@@ -263,6 +266,22 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
     }
   };
 
+  // Filter and paginate
+  const filteredBids = bids.filter(bid => {
+    if (statusFilter === 'all') return true;
+    return bid.status === statusFilter;
+  });
+
+  const totalItems = filteredBids.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const paginatedBids = filteredBids.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
@@ -283,13 +302,37 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
 
   return (
     <div className="mt-6">
-      <h2 className="text-2xl font-bold mb-4">My Bids</h2>
-      <div className="grid gap-4">
-        {bids.map((bid) => {
-          const breakdown = calculateBreakdown(bid);
-          const lowestBid = lowestBids[bid.requirement_id];
-          const isLowest = lowestBid && bid.bid_amount <= lowestBid;
-          const difference = lowestBid ? bid.bid_amount - lowestBid : 0;
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold">My Bids</h2>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border rounded-md px-3 py-1.5 text-sm bg-background"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+      
+      {filteredBids.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            No bids match the selected filter.
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <div className="grid gap-4">
+            {paginatedBids.map((bid) => {
+              const breakdown = calculateBreakdown(bid);
+              const lowestBid = lowestBids[bid.requirement_id];
+              const isLowest = lowestBid && bid.bid_amount <= lowestBid;
+              const difference = lowestBid ? bid.bid_amount - lowestBid : 0;
 
           return (
             <Card key={bid.id} className="overflow-hidden">
@@ -434,8 +477,39 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
             </Card>
           );
         })}
-      </div>
+          </div>
 
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 mt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Showing {startIndex + 1}-{endIndex} of {totalItems}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium px-2">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
       {/* Re-bid Dialog */}
       <Dialog open={!!editingBid} onOpenChange={() => setEditingBid(null)}>
         <DialogContent>
