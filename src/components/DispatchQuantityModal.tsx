@@ -43,11 +43,7 @@ export function DispatchQuantityModal({
       return;
     }
 
-    if (qty > totalQuantity) {
-      toast.error(`Dispatch quantity cannot exceed total quantity (${totalQuantity} ${unit})`);
-      return;
-    }
-
+    // Allow dispatch qty to exceed total quantity (for extra shipments, replacements, etc.)
     setSaving(true);
     try {
       // Update dispatch quantity on bid
