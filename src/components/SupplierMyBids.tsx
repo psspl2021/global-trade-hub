@@ -35,6 +35,7 @@ interface Bid {
     unit: string;
     delivery_location: string;
     deadline: string;
+    status?: 'active' | 'closed' | 'awarded' | 'expired';
   };
 }
 
@@ -95,7 +96,8 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
             quantity,
             unit,
             delivery_location,
-            deadline
+            deadline,
+            status
           )
         `)
         .eq('supplier_id', userId)
@@ -253,8 +255,13 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const getStatusBadge = (bidStatus: string, requirementStatus?: string) => {
+    // If bid is pending but requirement is closed/awarded, show "Awarded to Other"
+    if (bidStatus === 'pending' && (requirementStatus === 'closed' || requirementStatus === 'awarded')) {
+      return <Badge variant="outline" className="bg-muted text-muted-foreground border-muted-foreground/30">Awarded to Other</Badge>;
+    }
+    
+    switch (bidStatus) {
       case 'pending':
         return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30">Pending</Badge>;
       case 'accepted':
@@ -262,13 +269,20 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
       case 'rejected':
         return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/30">Rejected</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{bidStatus}</Badge>;
     }
   };
 
   // Filter and paginate
   const filteredBids = bids.filter(bid => {
     if (statusFilter === 'all') return true;
+    if (statusFilter === 'awarded_to_other') {
+      return bid.status === 'pending' && (bid.requirement?.status === 'closed' || bid.requirement?.status === 'awarded');
+    }
+    // For pending filter, only show actually pending (not awarded to other)
+    if (statusFilter === 'pending') {
+      return bid.status === 'pending' && bid.requirement?.status === 'active';
+    }
     return bid.status === statusFilter;
   });
 
@@ -315,6 +329,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
             <option value="pending">Pending</option>
             <option value="accepted">Accepted</option>
             <option value="rejected">Rejected</option>
+            <option value="awarded_to_other">Awarded to Other</option>
           </select>
         </div>
       </div>
@@ -344,7 +359,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                       {bid.requirement?.product_category} • {bid.requirement?.quantity} {bid.requirement?.unit}
                     </p>
                   </div>
-                  {getStatusBadge(bid.status)}
+                  {getStatusBadge(bid.status, bid.requirement?.status)}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
