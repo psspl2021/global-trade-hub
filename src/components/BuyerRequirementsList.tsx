@@ -507,9 +507,14 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                             <div className="flex items-center justify-between pt-3 border-t">
                               <div className="text-sm">
                                 {bid.dispatched_qty ? (
-                                  <span className="text-success">
-                                    Dispatched: {bid.dispatched_qty.toLocaleString('en-IN')} {selectedRequirement.unit}
-                                  </span>
+                                  <div className="space-y-1">
+                                    <span className="text-success block">
+                                      Dispatched: {bid.dispatched_qty.toLocaleString('en-IN')} {selectedRequirement.unit}
+                                    </span>
+                                    <span className="text-muted-foreground block">
+                                      Value: ₹{((bid.buyer_visible_price / selectedRequirement.quantity) * bid.dispatched_qty).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                    </span>
+                                  </div>
                                 ) : (
                                   <span className="text-muted-foreground">Not yet dispatched</span>
                                 )}

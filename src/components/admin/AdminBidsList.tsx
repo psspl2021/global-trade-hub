@@ -28,6 +28,9 @@ interface Bid {
   service_fee: number;
   total_amount: number;
   buyer_visible_price: number;
+  supplier_net_price: number;
+  markup_amount: number;
+  dispatched_qty: number | null;
   delivery_timeline_days: number;
   status: string;
   created_at: string;
@@ -37,6 +40,7 @@ interface Bid {
     title: string;
     product_category: string;
     quantity: number;
+    unit: string;
   } | null;
   supplier: {
     company_name: string;
@@ -194,7 +198,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
       const supplierIds = [...new Set(supplierBids.map(b => b.supplier_id))];
 
       const [reqRes, profRes] = await Promise.all([
-        supabase.from('requirements').select('id, title, product_category, quantity').in('id', reqIds),
+        supabase.from('requirements').select('id, title, product_category, quantity, unit').in('id', reqIds),
         supabase.from('profiles').select('id, company_name, email').in('id', supplierIds),
       ]);
 
@@ -404,12 +408,11 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Requirement</TableHead>
-                        <TableHead>Category</TableHead>
                         <TableHead>Supplier</TableHead>
-                        <TableHead>Bid Amount</TableHead>
-                        <TableHead>Service Fee</TableHead>
-                        <TableHead>Total</TableHead>
-                        <TableHead>Delivery</TableHead>
+                        <TableHead>Supplier Amount</TableHead>
+                        <TableHead>Buyer Amount</TableHead>
+                        <TableHead>Platform Fee</TableHead>
+                        <TableHead>Dispatched</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead className="w-[60px]">Actions</TableHead>
@@ -418,41 +421,95 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                     <TableBody>
                       {filteredSupplierBids.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                             No bids found
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredSupplierBids.map((bid) => (
-                          <TableRow key={bid.id}>
-                            <TableCell className="font-medium max-w-[180px] truncate" title={bid.requirement?.title}>
-                              {bid.requirement?.title || '-'}
-                            </TableCell>
-                            <TableCell>{bid.requirement?.product_category || '-'}</TableCell>
-                            <TableCell>
-                              <div className="text-sm">
-                                <div className="font-medium">{bid.supplier?.company_name || '-'}</div>
-                                <div className="text-muted-foreground text-xs">{bid.supplier?.email}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>₹{(bid.bid_amount * (bid.requirement?.quantity || 1)).toLocaleString()}</TableCell>
-                            <TableCell>₹{bid.service_fee.toLocaleString()}</TableCell>
-                            <TableCell className="font-medium">₹{bid.buyer_visible_price.toLocaleString()}</TableCell>
-                            <TableCell>{bid.delivery_timeline_days} days</TableCell>
-                            <TableCell>{getStatusBadge(bid.status)}</TableCell>
-                            <TableCell>{format(new Date(bid.created_at), 'dd MMM yyyy')}</TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setEditingBid(bid)}
-                                title="Edit Bid"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                        filteredSupplierBids.map((bid) => {
+                          const qty = bid.requirement?.quantity || 1;
+                          const unit = bid.requirement?.unit || 'unit';
+                          const dispatchedQty = bid.dispatched_qty || 0;
+                          const ratePerUnit = bid.buyer_visible_price / qty;
+                          const supplierRatePerUnit = bid.supplier_net_price / qty;
+                          const markupPerUnit = (bid.markup_amount || 0) / qty;
+                          
+                          // Calculate dispatched values
+                          const dispatchedBuyerValue = ratePerUnit * dispatchedQty;
+                          const dispatchedSupplierValue = supplierRatePerUnit * dispatchedQty;
+                          const dispatchedPlatformFee = markupPerUnit * dispatchedQty;
+                          const referrerAmount = dispatchedPlatformFee * 0.2; // 20% referrer share
+
+                          return (
+                            <TableRow key={bid.id}>
+                              <TableCell className="font-medium max-w-[160px]">
+                                <div className="truncate" title={bid.requirement?.title}>
+                                  {bid.requirement?.title || '-'}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {qty} {unit} • {bid.requirement?.product_category}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  <div className="font-medium truncate max-w-[120px]">{bid.supplier?.company_name || '-'}</div>
+                                  <div className="text-muted-foreground text-xs truncate">{bid.supplier?.email}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  <div>₹{bid.supplier_net_price.toLocaleString()}</div>
+                                  <div className="text-xs text-muted-foreground">₹{supplierRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{unit}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  <div className="font-medium">₹{bid.buyer_visible_price.toLocaleString()}</div>
+                                  <div className="text-xs text-muted-foreground">₹{ratePerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{unit}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  <div className="text-success font-medium">₹{(bid.markup_amount || 0).toLocaleString()}</div>
+                                  <div className="text-xs text-muted-foreground">₹{markupPerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{unit}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {dispatchedQty > 0 ? (
+                                  <div className="text-sm space-y-0.5">
+                                    <div className="font-medium">{dispatchedQty} {unit}</div>
+                                    <div className="text-xs text-muted-foreground">
+                                      Buyer: ₹{dispatchedBuyerValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      Supplier: ₹{dispatchedSupplierValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                    </div>
+                                    <div className="text-xs text-success">
+                                      Fee: ₹{dispatchedPlatformFee.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                    </div>
+                                    <div className="text-xs text-orange-500">
+                                      Referrer (20%): ₹{referrerAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground text-xs">-</span>
+                                )}
+                              </TableCell>
+                              <TableCell>{getStatusBadge(bid.status)}</TableCell>
+                              <TableCell className="text-xs">{format(new Date(bid.created_at), 'dd MMM yy')}</TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setEditingBid(bid)}
+                                  title="Edit Bid"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       )}
                     </TableBody>
                   </Table>
