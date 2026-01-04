@@ -11,6 +11,7 @@ import { DispatchQuantityModal } from './DispatchQuantityModal';
 interface AcceptedBid {
   id: string;
   bid_amount: number;
+  supplier_net_price: number | null;
   service_fee: number;
   total_amount: number;
   delivery_timeline_days: number;
@@ -55,6 +56,7 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
         .select(`
           id,
           bid_amount,
+          supplier_net_price,
           service_fee,
           total_amount,
           delivery_timeline_days,
@@ -148,18 +150,18 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
                         Deadline: {bid.requirements?.deadline ? format(new Date(bid.requirements.deadline), 'MMM d, yyyy') : 'N/A'}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                       <div>
-                        <span className="text-muted-foreground">Bid Amount:</span>
-                        <span className="ml-2 font-medium">₹{bid.bid_amount.toLocaleString()}</span>
+                        <span className="text-muted-foreground">Your Rate:</span>
+                        <span className="ml-2 font-medium">
+                          ₹{((bid.supplier_net_price || bid.bid_amount) / (bid.requirements?.quantity || 1)).toLocaleString(undefined, { maximumFractionDigits: 2 })}/{bid.requirements?.unit || 'unit'}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Service Fee:</span>
-                        <span className="ml-2">₹{bid.service_fee.toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Total:</span>
-                        <span className="ml-2 font-bold text-primary">₹{bid.total_amount.toLocaleString()}</span>
+                        <span className="text-muted-foreground">Total Value:</span>
+                        <span className="ml-2 font-bold text-primary">
+                          ₹{(bid.supplier_net_price || bid.bid_amount).toLocaleString()}
+                        </span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Delivery:</span>
