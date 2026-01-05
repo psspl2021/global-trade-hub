@@ -53,8 +53,37 @@ interface AdditionalCharge {
   id: string;
   description: string;
   amount: number;
-  rateType: 'flat' | 'per_unit'; // flat = total amount, per_unit = rate per unit (e.g., per ton)
+  rateType: 'flat' | 'per_ton' | 'per_quintal' | 'per_kg' | 'per_unit'; // flat = total amount, others = rate per unit
 }
+
+// Unit conversion factors to tons (base unit for calculations)
+const UNIT_TO_TONS: Record<string, number> = {
+  'Tons': 1,
+  'MT': 1,
+  'Quintal': 0.1,
+  'Quintals': 0.1,
+  'KG': 0.001,
+  'Kg': 0.001,
+  'kg': 0.001,
+};
+
+// Get quantity in the charge unit
+const getQuantityInChargeUnit = (totalQuantityInPrimaryUnit: number, primaryUnit: string, chargeRateType: string): number => {
+  if (chargeRateType === 'flat') return 1;
+  if (chargeRateType === 'per_unit') return totalQuantityInPrimaryUnit;
+  
+  // Convert primary unit quantity to tons first
+  const toTonsFactor = UNIT_TO_TONS[primaryUnit] || 1;
+  const quantityInTons = totalQuantityInPrimaryUnit * toTonsFactor;
+  
+  // Then convert to the charge unit
+  switch (chargeRateType) {
+    case 'per_ton': return quantityInTons;
+    case 'per_quintal': return quantityInTons * 10; // 1 ton = 10 quintals
+    case 'per_kg': return quantityInTons * 1000; // 1 ton = 1000 kg
+    default: return totalQuantityInPrimaryUnit;
+  }
+};
 
 interface LineItem {
   id: string;
@@ -202,12 +231,13 @@ export const BidFormInvoice = ({
   const totalQuantity = lineItems.reduce((sum, item) => sum + item.quantity, 0);
   const primaryUnit = lineItems[0]?.unit || requirementUnit;
   
-  // Calculate additional charges - per_unit charges are multiplied by total quantity
+  // Calculate additional charges with unit conversion
   const additionalChargesTotal = additionalCharges.reduce((sum, c) => {
-    if (c.rateType === 'per_unit') {
-      return sum + (c.amount || 0) * totalQuantity;
+    if (c.rateType === 'flat') {
+      return sum + (c.amount || 0);
     }
-    return sum + (c.amount || 0);
+    const qty = getQuantityInChargeUnit(totalQuantity, primaryUnit, c.rateType);
+    return sum + (c.amount || 0) * qty;
   }, 0);
   const taxableValue = subtotal + additionalChargesTotal;
   
@@ -228,7 +258,7 @@ export const BidFormInvoice = ({
   const addCharge = () => {
     setAdditionalCharges([
       ...additionalCharges,
-      { id: Date.now().toString(), description: '', amount: 0, rateType: 'per_unit' },
+      { id: Date.now().toString(), description: '', amount: 0, rateType: 'per_ton' },
     ]);
   };
 
@@ -532,10 +562,13 @@ export const BidFormInvoice = ({
                     value={charge.rateType}
                     onValueChange={(v) => updateCharge(charge.id, 'rateType', v)}
                   >
-                    <SelectTrigger className="h-8 w-[100px] shrink-0">
+                    <SelectTrigger className="h-8 w-[110px] shrink-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-background border border-border z-50">
+                      <SelectItem value="per_ton">Per Ton</SelectItem>
+                      <SelectItem value="per_quintal">Per Quintal</SelectItem>
+                      <SelectItem value="per_kg">Per KG</SelectItem>
                       <SelectItem value="per_unit">Per {primaryUnit}</SelectItem>
                       <SelectItem value="flat">Flat</SelectItem>
                     </SelectContent>
@@ -551,9 +584,9 @@ export const BidFormInvoice = ({
                       min={0}
                     />
                   </div>
-                  {charge.amount > 0 && charge.rateType === 'per_unit' && (
+                  {charge.amount > 0 && charge.rateType !== 'flat' && (
                     <div className="w-full sm:w-auto text-xs text-muted-foreground ml-6 sm:ml-0">
-                      Total: ₹{formatCurrency(charge.amount * totalQuantity)}
+                      Total: ₹{formatCurrency(charge.amount * getQuantityInChargeUnit(totalQuantity, primaryUnit, charge.rateType))}
                     </div>
                   )}
                 </div>

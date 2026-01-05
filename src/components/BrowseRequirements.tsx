@@ -407,13 +407,15 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       });
       termsString += `\nGST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
       if (data.additionalCharges.length > 0) {
-        const totalQty = data.items.reduce((sum, item) => sum + item.quantity, 0);
-        const unit = data.items[0]?.unit || 'unit';
+        const primaryUnit = data.items[0]?.unit || 'unit';
         termsString += 'Additional Charges:\n';
         data.additionalCharges.forEach(charge => {
           if (charge.description && charge.amount > 0) {
-            const chargeTotal = charge.rateType === 'per_unit' ? charge.amount * totalQty : charge.amount;
-            termsString += `  - ${charge.description}: ₹${charge.amount}/${unit} (Total: ₹${chargeTotal.toLocaleString('en-IN')})\n`;
+            const rateLabel = charge.rateType === 'flat' ? ' (Flat)' : 
+              charge.rateType === 'per_ton' ? '/Ton' :
+              charge.rateType === 'per_quintal' ? '/Quintal' :
+              charge.rateType === 'per_kg' ? '/KG' : `/${primaryUnit}`;
+            termsString += `  - ${charge.description}: ₹${charge.amount}${rateLabel}\n`;
           }
         });
       }
@@ -539,13 +541,15 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       });
       termsString += `\nGST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
       if (data.additionalCharges.length > 0) {
-        const totalQty = data.items.reduce((sum, item) => sum + item.quantity, 0);
-        const unit = data.items[0]?.unit || 'unit';
+        const primaryUnit = data.items[0]?.unit || 'unit';
         termsString += 'Additional Charges:\n';
         data.additionalCharges.forEach(charge => {
           if (charge.description && charge.amount > 0) {
-            const chargeTotal = charge.rateType === 'per_unit' ? charge.amount * totalQty : charge.amount;
-            termsString += `  - ${charge.description}: ₹${charge.amount}/${unit} (Total: ₹${chargeTotal.toLocaleString('en-IN')})\n`;
+            const rateLabel = charge.rateType === 'flat' ? ' (Flat)' : 
+              charge.rateType === 'per_ton' ? '/Ton' :
+              charge.rateType === 'per_quintal' ? '/Quintal' :
+              charge.rateType === 'per_kg' ? '/KG' : `/${primaryUnit}`;
+            termsString += `  - ${charge.description}: ₹${charge.amount}${rateLabel}\n`;
           }
         });
       }
