@@ -60,6 +60,7 @@ interface SupplierProfile {
 interface L1ItemData {
   requirementItem: RequirementItem;
   lowestBidItem: BidItem | null;
+  lowestBid: Bid | null;
   lowestSupplier: SupplierProfile | null;
   allBidItems: Array<{
     bidItem: BidItem;
@@ -243,22 +244,24 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           b.bid.status === 'accepted' || b.bid.status === 'pending'
         );
 
-        // Sort active bids by unit price (ascending) to find L1
-        activeBidItems.sort((a, b) => a.bidItem.unit_price - b.bidItem.unit_price);
+        // Sort active bids by bid_amount (buyer rate per unit including transport + markup) to find L1
+        // bid_amount includes base rate + additional charges (like transport) + platform markup
+        activeBidItems.sort((a, b) => a.bid.bid_amount - b.bid.bid_amount);
 
         // Mark the lowest active bid as L1
         if (activeBidItems.length > 0) {
           activeBidItems[0].isL1 = true;
         }
 
-        // For display, also sort all bid items
-        allBidItemsForItem.sort((a, b) => a.bidItem.unit_price - b.bidItem.unit_price);
+        // For display, also sort all bid items by bid_amount (buyer rate)
+        allBidItemsForItem.sort((a, b) => a.bid.bid_amount - b.bid.bid_amount);
 
         const lowestBidItemData = activeBidItems[0] || null;
 
         return {
           requirementItem: reqItem,
           lowestBidItem: lowestBidItemData?.bidItem || null,
+          lowestBid: lowestBidItemData?.bid || null,
           lowestSupplier: lowestBidItemData?.supplier || null,
           allBidItems: allBidItemsForItem,
         };
@@ -364,12 +367,10 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
             </TableHeader>
             <TableBody>
               {l1Data.map((item) => {
-                const inclusiveRate = item.lowestBidItem 
-                  ? item.lowestBidItem.unit_price * (1 + feeRate) 
-                  : 0;
-                const inclusiveTotal = item.lowestBidItem 
-                  ? item.lowestBidItem.total * (1 + feeRate) 
-                  : 0;
+                // bid_amount already includes base rate + additional charges (transport) + platform markup
+                // So use it directly for the buyer rate per unit
+                const inclusiveRate = item.lowestBid?.bid_amount || 0;
+                const inclusiveTotal = inclusiveRate * item.requirementItem.quantity;
                 
                 // Get dispatched qty from the accepted bid
                 const acceptedBid = item.allBidItems.find(b => b.bid.status === 'accepted');
@@ -401,14 +402,14 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      {item.lowestBidItem ? (
+                      {item.lowestBid ? (
                         <span className="font-medium text-success">
                           ₹{inclusiveRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </span>
                       ) : '-'}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {item.lowestBidItem ? (
+                      {item.lowestBid ? (
                         <span className="text-primary">
                           ₹{inclusiveTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </span>
@@ -438,10 +439,11 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         {/* Summary */}
         <div className="bg-muted/30 rounded-lg p-4 space-y-3">
           {(() => {
-            // Calculate totals including dispatch
+            // Calculate totals including dispatch using bid_amount (includes transport + markup)
             const totalL1Amount = l1Data.reduce((sum, item) => {
-              if (item.lowestBidItem) {
-                return sum + item.lowestBidItem.total * (1 + feeRate);
+              if (item.lowestBid) {
+                // bid_amount is per unit, multiply by quantity
+                return sum + (item.lowestBid.bid_amount * item.requirementItem.quantity);
               }
               return sum;
             }, 0);
@@ -449,9 +451,9 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
             const totalDispatchedValue = l1Data.reduce((sum, item) => {
               const acceptedBid = item.allBidItems.find(b => b.bid.status === 'accepted');
               const dispatchedQty = acceptedBid?.bid.dispatched_qty || 0;
-              if (item.lowestBidItem && dispatchedQty > 0) {
-                const inclusiveRate = item.lowestBidItem.unit_price * (1 + feeRate);
-                return sum + dispatchedQty * inclusiveRate;
+              if (item.lowestBid && dispatchedQty > 0) {
+                // bid_amount already includes transport + markup
+                return sum + dispatchedQty * item.lowestBid.bid_amount;
               }
               return sum;
             }, 0);
