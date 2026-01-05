@@ -440,19 +440,23 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           
                           // Calculate per-unit rate based on taxable value (excluding GST)
                           const taxableValue = parseTaxableFromTerms(bid.terms_and_conditions);
-                          const gstAmount = taxableValue > 0 
-                            ? bid.supplier_net_price - taxableValue 
-                            : bid.supplier_net_price - (bid.supplier_net_price / 1.18);
-                          const supplierRatePerUnit = taxableValue > 0 
-                            ? taxableValue / qty 
-                            : (bid.supplier_net_price / 1.18) / qty; // Fallback: remove 18% GST
-                          const ratePerUnit = supplierRatePerUnit * 1.005; // Add 0.5% markup for buyer rate
-                          const markupPerUnit = (bid.markup_amount || 0) / qty;
+                          const supplierTaxable = taxableValue > 0 ? taxableValue : (bid.supplier_net_price / 1.18);
+                          const gstAmount = bid.supplier_net_price - supplierTaxable;
+                          const supplierRatePerUnit = supplierTaxable / qty;
                           
-                          // Calculate dispatched values
-                          const dispatchedBuyerValue = ratePerUnit * dispatchedQty;
+                          // Buyer taxable and rate
+                          const buyerTaxable = bid.buyer_visible_price / 1.18;
+                          const buyerGstAmount = bid.buyer_visible_price - buyerTaxable;
+                          const buyerRatePerUnit = buyerTaxable / qty;
+                          
+                          // Platform fee (excl. GST) = difference between buyer taxable and supplier taxable
+                          const platformFeeExclGst = buyerTaxable - supplierTaxable;
+                          const platformFeePerUnit = platformFeeExclGst / qty;
+                          
+                          // Calculate dispatched values (excl. GST for clarity)
+                          const dispatchedBuyerValue = buyerRatePerUnit * dispatchedQty;
                           const dispatchedSupplierValue = supplierRatePerUnit * dispatchedQty;
-                          const dispatchedPlatformFee = markupPerUnit * dispatchedQty;
+                          const dispatchedPlatformFee = platformFeePerUnit * dispatchedQty;
                           const referrerAmount = dispatchedPlatformFee * 0.2; // 20% referrer share
 
                           return (
@@ -474,23 +478,23 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               <TableCell>
                                 <div className="text-sm space-y-0.5">
                                   <div className="font-medium">₹{supplierRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
-                                  <div className="text-muted-foreground">₹{(taxableValue || bid.supplier_net_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-muted-foreground">₹{supplierTaxable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                   <div className="text-blue-600">+GST: ₹{gstAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                   <div className="font-medium">Total: ₹{bid.supplier_net_price.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm space-y-0.5">
-                                  <div className="font-medium">₹{ratePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
-                                  <div className="text-muted-foreground">₹{(bid.buyer_visible_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="text-blue-600">+GST: ₹{(bid.buyer_visible_price - bid.buyer_visible_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="font-medium">₹{buyerRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
+                                  <div className="text-muted-foreground">₹{buyerTaxable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-blue-600">+GST: ₹{buyerGstAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                   <div className="font-medium">Total: ₹{bid.buyer_visible_price.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
-                                  <div className="text-success font-medium">₹{(bid.markup_amount || 0).toLocaleString()}</div>
-                                  <div className="text-xs text-muted-foreground">₹{markupPerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{unit}</div>
+                                  <div className="text-success font-medium">₹{platformFeeExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-xs text-muted-foreground">₹{platformFeePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -558,40 +562,64 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredLogisticsBids.map((bid) => (
-                          <TableRow key={bid.id}>
-                            <TableCell className="font-medium max-w-[150px] truncate" title={bid.requirement?.title}>
-                              {bid.requirement?.title || '-'}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {bid.requirement ? (
-                                <span>{bid.requirement.pickup_location} → {bid.requirement.delivery_location}</span>
-                              ) : '-'}
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm">
-                                <div className="font-medium">{bid.transporter?.company_name || '-'}</div>
-                                <div className="text-muted-foreground text-xs">{bid.transporter?.email}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>₹{bid.bid_amount.toLocaleString()}</TableCell>
-                            <TableCell>₹{bid.service_fee.toLocaleString()}</TableCell>
-                            <TableCell className="font-medium">₹{bid.total_amount.toLocaleString()}</TableCell>
-                            <TableCell>{bid.estimated_transit_days} days</TableCell>
-                            <TableCell>{getStatusBadge(bid.status)}</TableCell>
-                            <TableCell>{format(new Date(bid.created_at), 'dd MMM yyyy')}</TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setEditingLogisticsBid(bid)}
-                                title="Edit Bid"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                        filteredLogisticsBids.map((bid) => {
+                          const bidExclGst = bid.bid_amount / 1.18;
+                          const bidGst = bid.bid_amount - bidExclGst;
+                          const serviceFeeExclGst = bid.service_fee / 1.18;
+                          const totalExclGst = bid.total_amount / 1.18;
+                          const totalGst = bid.total_amount - totalExclGst;
+                          
+                          return (
+                            <TableRow key={bid.id}>
+                              <TableCell className="font-medium max-w-[150px] truncate" title={bid.requirement?.title}>
+                                {bid.requirement?.title || '-'}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {bid.requirement ? (
+                                  <span>{bid.requirement.pickup_location} → {bid.requirement.delivery_location}</span>
+                                ) : '-'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  <div className="font-medium">{bid.transporter?.company_name || '-'}</div>
+                                  <div className="text-muted-foreground text-xs">{bid.transporter?.email}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm space-y-0.5">
+                                  <div className="text-muted-foreground">₹{bidExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-blue-600 text-xs">+GST: ₹{bidGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="font-medium">₹{bid.bid_amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  <div className="text-success">₹{serviceFeeExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm space-y-0.5">
+                                  <div className="text-muted-foreground">₹{totalExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-blue-600 text-xs">+GST: ₹{totalGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="font-medium">₹{bid.total_amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{bid.estimated_transit_days} days</TableCell>
+                              <TableCell>{getStatusBadge(bid.status)}</TableCell>
+                              <TableCell>{format(new Date(bid.created_at), 'dd MMM yyyy')}</TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setEditingLogisticsBid(bid)}
+                                  title="Edit Bid"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       )}
                     </TableBody>
                   </Table>
