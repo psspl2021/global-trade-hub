@@ -367,15 +367,16 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
             </TableHeader>
             <TableBody>
               {l1Data.map((item) => {
-                // bid_amount already includes base rate + additional charges (transport) + platform markup
-                // So use it directly for the buyer rate per unit
-                const inclusiveRate = item.lowestBid?.bid_amount || 0;
-                const inclusiveTotal = inclusiveRate * item.requirementItem.quantity;
+                // bid_amount is supplier's rate per unit (base + transport)
+                // Buyer rate = bid_amount * (1 + feeRate) where feeRate is 0.5% for domestic
+                const supplierRate = item.lowestBid?.bid_amount || 0;
+                const buyerRate = supplierRate * (1 + feeRate);
+                const buyerTotal = buyerRate * item.requirementItem.quantity;
                 
                 // Get dispatched qty from the accepted bid
                 const acceptedBid = item.allBidItems.find(b => b.bid.status === 'accepted');
                 const dispatchedQty = acceptedBid?.bid.dispatched_qty || 0;
-                const dispatchedValue = dispatchedQty > 0 ? dispatchedQty * inclusiveRate : 0;
+                const dispatchedValue = dispatchedQty > 0 ? dispatchedQty * buyerRate : 0;
 
                 return (
                   <TableRow key={item.requirementItem.id}>
@@ -404,14 +405,14 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                     <TableCell className="text-right">
                       {item.lowestBid ? (
                         <span className="font-medium text-success">
-                          ₹{inclusiveRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          ₹{buyerRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </span>
                       ) : '-'}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {item.lowestBid ? (
                         <span className="text-primary">
-                          ₹{inclusiveTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          ₹{buyerTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </span>
                       ) : '-'}
                     </TableCell>
@@ -439,11 +440,11 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         {/* Summary */}
         <div className="bg-muted/30 rounded-lg p-4 space-y-3">
           {(() => {
-            // Calculate totals including dispatch using bid_amount (includes transport + markup)
+            // Calculate totals: buyer rate = supplier rate * (1 + feeRate)
             const totalL1Amount = l1Data.reduce((sum, item) => {
               if (item.lowestBid) {
-                // bid_amount is per unit, multiply by quantity
-                return sum + (item.lowestBid.bid_amount * item.requirementItem.quantity);
+                const buyerRate = item.lowestBid.bid_amount * (1 + feeRate);
+                return sum + (buyerRate * item.requirementItem.quantity);
               }
               return sum;
             }, 0);
@@ -452,8 +453,8 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
               const acceptedBid = item.allBidItems.find(b => b.bid.status === 'accepted');
               const dispatchedQty = acceptedBid?.bid.dispatched_qty || 0;
               if (item.lowestBid && dispatchedQty > 0) {
-                // bid_amount already includes transport + markup
-                return sum + dispatchedQty * item.lowestBid.bid_amount;
+                const buyerRate = item.lowestBid.bid_amount * (1 + feeRate);
+                return sum + dispatchedQty * buyerRate;
               }
               return sum;
             }, 0);
