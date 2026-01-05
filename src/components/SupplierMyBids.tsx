@@ -345,9 +345,12 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
           <div className="grid gap-4">
             {paginatedBids.map((bid) => {
               const breakdown = calculateBreakdown(bid);
-              const lowestBid = lowestBids[bid.requirement_id];
-              const isLowest = lowestBid && bid.bid_amount <= lowestBid;
-              const difference = lowestBid ? bid.bid_amount - lowestBid : 0;
+              const lowestBidWithMarkup = lowestBids[bid.requirement_id];
+              // Convert lowest bid (per-unit with markup) to supplier net rate (without markup) for fair comparison
+              const markupRate = getMarkupRate(bid.requirement?.trade_type);
+              const lowestSupplierRate = lowestBidWithMarkup ? lowestBidWithMarkup / (1 + markupRate) : null;
+              const isLowest = lowestSupplierRate && breakdown.perUnitRate <= lowestSupplierRate;
+              const difference = lowestSupplierRate ? breakdown.perUnitRate - lowestSupplierRate : 0;
 
           return (
             <Card key={bid.id} className="overflow-hidden">
@@ -390,7 +393,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                 </div>
 
                 {/* Lowest Bid Comparison - Only for pending bids */}
-                {bid.status === 'pending' && lowestBid && (
+                {bid.status === 'pending' && lowestSupplierRate && (
                   <div className={`rounded-lg p-4 ${isLowest ? 'bg-green-500/10 border border-green-500/30' : 'bg-orange-500/10 border border-orange-500/30'}`}>
                     <div className="flex items-center gap-2 mb-2">
                       {isLowest ? (
@@ -407,7 +410,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                     </div>
                     <div className="text-sm">
                       <span className="text-muted-foreground">Current Lowest Bid:</span>
-                      <span className="ml-2 font-bold">₹{lowestBid.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {bid.requirement?.unit}</span>
+                      <span className="ml-2 font-bold">₹{lowestSupplierRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {bid.requirement?.unit}</span>
                       {!isLowest && (
                         <p className="text-orange-600 mt-1">
                           Your bid is ₹{difference.toLocaleString(undefined, { maximumFractionDigits: 2 })} higher
