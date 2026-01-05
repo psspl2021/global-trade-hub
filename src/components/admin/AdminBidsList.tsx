@@ -472,16 +472,19 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="text-sm">
-                                  <div>₹{(taxableValue || bid.supplier_net_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="text-xs text-muted-foreground">₹{supplierRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{unit}</div>
-                                  <div className="text-xs text-blue-600">+GST: ₹{gstAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                <div className="text-sm space-y-0.5">
+                                  <div className="font-medium">₹{supplierRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
+                                  <div className="text-muted-foreground">₹{(taxableValue || bid.supplier_net_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-blue-600">+GST: ₹{gstAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="font-medium">Total: ₹{bid.supplier_net_price.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="text-sm">
-                                  <div className="font-medium">₹{bid.buyer_visible_price.toLocaleString()}</div>
-                                  <div className="text-xs text-muted-foreground">₹{ratePerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{unit}</div>
+                                <div className="text-sm space-y-0.5">
+                                  <div className="font-medium">₹{ratePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
+                                  <div className="text-muted-foreground">₹{(bid.buyer_visible_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-blue-600">+GST: ₹{(bid.buyer_visible_price - bid.buyer_visible_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="font-medium">Total: ₹{bid.buyer_visible_price.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
