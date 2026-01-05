@@ -588,12 +588,12 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                             <div className="text-sm">
                               <span className="font-medium text-muted-foreground">Terms:</span>
                               <p className="mt-1 text-foreground whitespace-pre-line">
-                                {/* Filter out supplier pricing details from terms - only show non-price info */}
+                                {/* Filter out supplier pricing details and additional charges from terms */}
                                 {bid.terms_and_conditions
                                   .split('\n')
                                   .filter(line => {
                                     const lowerLine = line.toLowerCase();
-                                    // Filter out lines containing pricing info
+                                    // Filter out lines containing pricing info and additional charges (already in rate)
                                     return !lowerLine.includes('rate:') &&
                                            !lowerLine.includes('rate per unit') &&
                                            !lowerLine.includes('line total') &&
@@ -602,7 +602,10 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                            !lowerLine.includes('total gst') &&
                                            !lowerLine.includes('grand total') &&
                                            !lowerLine.includes('service fee') &&
-                                           !lowerLine.includes('platform fee');
+                                           !lowerLine.includes('platform fee') &&
+                                           !lowerLine.includes('additional charges') &&
+                                           !lowerLine.includes('transport:') &&
+                                           !lowerLine.includes('- transport');
                                   })
                                   .join('\n')
                                   .trim() || 'Standard terms apply'}
