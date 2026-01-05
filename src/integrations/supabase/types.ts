@@ -3011,7 +3011,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_totp_status: {
+        Row: {
+          backup_codes_remaining: number | null
+          created_at: string | null
+          is_enabled: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          backup_codes_remaining?: never
+          created_at?: string | null
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          backup_codes_remaining?: never
+          created_at?: string | null
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_adjust_supplier_quota: {
@@ -3049,6 +3072,7 @@ export type Database = {
           remaining_monthly: number
         }[]
       }
+      consume_backup_code: { Args: { p_code: string }; Returns: boolean }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_bids_for_buyer: {
         Args: { p_requirement_id: string }
@@ -3175,6 +3199,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      verify_totp_securely: { Args: { p_code: string }; Returns: boolean }
     }
     Enums: {
       app_role:
