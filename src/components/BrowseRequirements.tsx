@@ -393,22 +393,40 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       const primaryUnit = data.items[0]?.unit || 'unit';
       
       // Calculate per-unit portion of additional charges
+      // Convert all charge rates to the primaryUnit rate
       let additionalChargesPerUnit = 0;
+      
+      // Unit conversion factors (how many of X in 1 ton)
+      const UNITS_PER_TON: Record<string, number> = {
+        'Tons': 1, 'MT': 1, 'Ton': 1,
+        'Quintal': 10, 'Quintals': 10,
+        'KG': 1000, 'Kg': 1000, 'kg': 1000, 'Kilograms': 1000,
+      };
+      
+      const primaryUnitsPerTon = UNITS_PER_TON[primaryUnit] || 1;
+      
       data.additionalCharges.forEach(charge => {
         if (charge.amount > 0) {
-          if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton' || charge.rateType === 'per_quintal' || charge.rateType === 'per_kg') {
-            // Per-unit charges: convert to primary unit rate
-            if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton') {
-              additionalChargesPerUnit += charge.amount;
-            } else if (charge.rateType === 'per_quintal') {
-              additionalChargesPerUnit += charge.amount * 10; // 10 quintals = 1 ton
-            } else if (charge.rateType === 'per_kg') {
-              additionalChargesPerUnit += charge.amount * 1000; // 1000 kg = 1 ton
-            }
-          } else if (charge.rateType === 'flat' && totalQuantity > 0) {
+          let chargePerPrimaryUnit = 0;
+          
+          if (charge.rateType === 'flat' && totalQuantity > 0) {
             // Flat charges: divide by quantity to get per-unit
-            additionalChargesPerUnit += charge.amount / totalQuantity;
+            chargePerPrimaryUnit = charge.amount / totalQuantity;
+          } else if (charge.rateType === 'per_unit') {
+            // Already in primary unit
+            chargePerPrimaryUnit = charge.amount;
+          } else if (charge.rateType === 'per_ton') {
+            // Convert per-ton to per-primaryUnit
+            chargePerPrimaryUnit = charge.amount / primaryUnitsPerTon;
+          } else if (charge.rateType === 'per_quintal') {
+            // Convert per-quintal to per-primaryUnit (10 quintals = 1 ton)
+            chargePerPrimaryUnit = (charge.amount * 10) / primaryUnitsPerTon;
+          } else if (charge.rateType === 'per_kg') {
+            // Convert per-kg to per-primaryUnit (1000 kg = 1 ton)
+            chargePerPrimaryUnit = (charge.amount * 1000) / primaryUnitsPerTon;
           }
+          
+          additionalChargesPerUnit += chargePerPrimaryUnit;
         }
       });
       
@@ -550,22 +568,43 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       
       // Calculate effective per-unit rate including per-unit additional charges
       const totalQuantity = data.items.reduce((sum, item) => sum + item.quantity, 0);
+      const primaryUnit = data.items[0]?.unit || 'unit';
       
       // Calculate per-unit portion of additional charges
+      // Convert all charge rates to the primaryUnit rate
       let additionalChargesPerUnit = 0;
+      
+      // Unit conversion factors (how many of X in 1 ton)
+      const UNITS_PER_TON: Record<string, number> = {
+        'Tons': 1, 'MT': 1, 'Ton': 1,
+        'Quintal': 10, 'Quintals': 10,
+        'KG': 1000, 'Kg': 1000, 'kg': 1000, 'Kilograms': 1000,
+      };
+      
+      const primaryUnitsPerTon = UNITS_PER_TON[primaryUnit] || 1;
+      
       data.additionalCharges.forEach(charge => {
         if (charge.amount > 0) {
-          if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton' || charge.rateType === 'per_quintal' || charge.rateType === 'per_kg') {
-            if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton') {
-              additionalChargesPerUnit += charge.amount;
-            } else if (charge.rateType === 'per_quintal') {
-              additionalChargesPerUnit += charge.amount * 10;
-            } else if (charge.rateType === 'per_kg') {
-              additionalChargesPerUnit += charge.amount * 1000;
-            }
-          } else if (charge.rateType === 'flat' && totalQuantity > 0) {
-            additionalChargesPerUnit += charge.amount / totalQuantity;
+          let chargePerPrimaryUnit = 0;
+          
+          if (charge.rateType === 'flat' && totalQuantity > 0) {
+            // Flat charges: divide by quantity to get per-unit
+            chargePerPrimaryUnit = charge.amount / totalQuantity;
+          } else if (charge.rateType === 'per_unit') {
+            // Already in primary unit
+            chargePerPrimaryUnit = charge.amount;
+          } else if (charge.rateType === 'per_ton') {
+            // Convert per-ton to per-primaryUnit
+            chargePerPrimaryUnit = charge.amount / primaryUnitsPerTon;
+          } else if (charge.rateType === 'per_quintal') {
+            // Convert per-quintal to per-primaryUnit (10 quintals = 1 ton)
+            chargePerPrimaryUnit = (charge.amount * 10) / primaryUnitsPerTon;
+          } else if (charge.rateType === 'per_kg') {
+            // Convert per-kg to per-primaryUnit (1000 kg = 1 ton)
+            chargePerPrimaryUnit = (charge.amount * 1000) / primaryUnitsPerTon;
           }
+          
+          additionalChargesPerUnit += chargePerPrimaryUnit;
         }
       });
       
