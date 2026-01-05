@@ -526,8 +526,20 @@ export const BidFormInvoice = ({
                     value={charge.description}
                     onChange={e => updateCharge(charge.id, 'description', e.target.value)}
                     placeholder="Description (e.g., Transport)"
-                    className="h-8 flex-1 min-w-[120px]"
+                    className="h-8 flex-1 min-w-[100px]"
                   />
+                  <Select
+                    value={charge.rateType}
+                    onValueChange={(v) => updateCharge(charge.id, 'rateType', v)}
+                  >
+                    <SelectTrigger className="h-8 w-[100px] shrink-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border border-border z-50">
+                      <SelectItem value="per_unit">Per {primaryUnit}</SelectItem>
+                      <SelectItem value="flat">Flat</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className="text-sm text-muted-foreground">₹</span>
                     <Input
@@ -538,9 +550,8 @@ export const BidFormInvoice = ({
                       className="h-8 w-20 text-right"
                       min={0}
                     />
-                    <span className="text-xs text-muted-foreground">/{primaryUnit}</span>
                   </div>
-                  {charge.amount > 0 && (
+                  {charge.amount > 0 && charge.rateType === 'per_unit' && (
                     <div className="w-full sm:w-auto text-xs text-muted-foreground ml-6 sm:ml-0">
                       Total: ₹{formatCurrency(charge.amount * totalQuantity)}
                     </div>
