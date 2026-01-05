@@ -64,13 +64,25 @@ const faqData = [
 export const FAQ = () => {
   // Inject FAQ structured data for SEO
   useEffect(() => {
+    const schemaId = 'landing-faq-schema';
+    
+    // Remove any existing FAQ schema first to prevent duplicates
+    const existingScript = document.getElementById(schemaId);
+    if (existingScript) existingScript.remove();
+    
     const allFaqs = faqData.flatMap(category => 
       category.questions.map(q => ({
         question: q.question,
         answer: q.answer
       }))
     );
-    injectStructuredData(getFAQSchema(allFaqs), 'faq-schema');
+    injectStructuredData(getFAQSchema(allFaqs), schemaId);
+    
+    // Cleanup on unmount
+    return () => {
+      const script = document.getElementById(schemaId);
+      if (script) script.remove();
+    };
   }, []);
 
   return (
