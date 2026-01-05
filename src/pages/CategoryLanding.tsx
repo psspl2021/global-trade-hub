@@ -577,6 +577,12 @@ const CategoryLanding = () => {
 
   // Inject structured data
   useEffect(() => {
+    const faqSchemaId = `category-faq-schema-${categorySlug}${subcategorySlug ? `-${subcategorySlug}` : ''}`;
+    
+    // Cleanup any existing schemas first
+    const existingFaqScript = document.getElementById(faqSchemaId);
+    if (existingFaqScript) existingFaqScript.remove();
+    
     // Breadcrumb schema
     const breadcrumbs = [
       { name: "Home", url: "https://procuresaathi.com/" },
@@ -598,7 +604,7 @@ const CategoryLanding = () => {
       category: categoryName,
     }), 'product-schema');
 
-    // FAQ schema
+    // FAQ schema with unique ID per category
     if (content.faqs.length > 0) {
       injectStructuredData({
         "@context": "https://schema.org",
@@ -611,9 +617,15 @@ const CategoryLanding = () => {
             "text": faq.a
           }
         }))
-      }, 'faq-schema');
+      }, faqSchemaId);
     }
-  }, [categorySlug, subcategorySlug, categoryName, subcategoryName]);
+    
+    // Cleanup on unmount
+    return () => {
+      const scriptToRemove = document.getElementById(faqSchemaId);
+      if (scriptToRemove) scriptToRemove.remove();
+    };
+  }, [categorySlug, subcategorySlug, categoryName, subcategoryName, content.faqs, pageDescription]);
 
   if (!category && categorySlug) {
     return (
