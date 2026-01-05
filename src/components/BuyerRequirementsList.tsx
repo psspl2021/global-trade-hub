@@ -517,10 +517,16 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                   </TableHeader>
                                   <TableBody>
                                     {bid.bid_items.map((item) => {
-                                      // Use markup rate for buyer-visible pricing
-                                      const markupRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.025;
-                                      const inclusiveRate = item.unit_price * (1 + markupRate);
-                                      const inclusiveTotal = item.total * (1 + markupRate);
+                                      // Parse transport from terms_and_conditions
+                                      const terms = bid.terms_and_conditions || '';
+                                      const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+                                      const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+                                      
+                                      // Calculate buyer rate: (base + transport) * (1 + feeRate)
+                                      const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
+                                      const totalSupplierRate = item.unit_price + transportPerUnit;
+                                      const buyerRate = totalSupplierRate * (1 + feeRate);
+                                      const buyerTotal = buyerRate * item.quantity;
                                       
                                       return (
                                         <TableRow key={item.id}>
@@ -531,10 +537,10 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                             {item.quantity} {getItemUnit(item.requirement_item_id)}
                                           </TableCell>
                                           <TableCell className="text-right">
-                                            ₹{inclusiveRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                            ₹{buyerRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                                           </TableCell>
                                           <TableCell className="text-right font-medium">
-                                            ₹{inclusiveTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                            ₹{buyerTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                                           </TableCell>
                                         </TableRow>
                                       );
@@ -544,10 +550,29 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                               </div>
 
                               <div className="bg-muted/30 rounded-lg p-4">
-                                <div className="flex justify-between font-semibold">
-                                  <span>Total Amount</span>
-                                  <span className="text-primary">₹{bid.buyer_visible_price.toLocaleString()}</span>
-                                </div>
+                                {(() => {
+                                  // Calculate total with transport + markup
+                                  const terms = bid.terms_and_conditions || '';
+                                  const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+                                  const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+                                  const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
+                                  
+                                  const totalBuyerAmount = (bid.bid_items || []).reduce((sum, item) => {
+                                    const totalSupplierRate = item.unit_price + transportPerUnit;
+                                    const buyerRate = totalSupplierRate * (1 + feeRate);
+                                    return sum + (buyerRate * item.quantity);
+                                  }, 0);
+                                  
+                                  // Add GST (18%)
+                                  const totalWithGst = totalBuyerAmount * 1.18;
+                                  
+                                  return (
+                                    <div className="flex justify-between font-semibold">
+                                      <span>Total Amount</span>
+                                      <span className="text-primary">₹{totalWithGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             </div>
                           ) : (
