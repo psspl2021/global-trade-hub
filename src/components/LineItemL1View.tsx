@@ -237,8 +237,11 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           }
         });
 
-        // Filter to only show awarded (accepted) bids for L1 calculation
-        const activeBidItems = allBidItemsForItem.filter(b => b.bid.status === 'accepted');
+        // For L1 tab: Show all bids (pending, accepted) - not just accepted
+        // This allows buyers to see L1 among all submitted bids
+        const activeBidItems = allBidItemsForItem.filter(b => 
+          b.bid.status === 'accepted' || b.bid.status === 'pending'
+        );
 
         // Sort active bids by unit price (ascending) to find L1
         activeBidItems.sort((a, b) => a.bidItem.unit_price - b.bidItem.unit_price);
