@@ -53,6 +53,7 @@ interface AdditionalCharge {
   id: string;
   description: string;
   amount: number;
+  rateType: 'flat' | 'per_unit'; // flat = total amount, per_unit = rate per unit (e.g., per ton)
 }
 
 interface LineItem {
@@ -197,7 +198,17 @@ export const BidFormInvoice = ({
     return sum + calculateLineTotal(item, bid);
   }, 0);
 
-  const additionalChargesTotal = additionalCharges.reduce((sum, c) => sum + (c.amount || 0), 0);
+  // Calculate total quantity from all line items
+  const totalQuantity = lineItems.reduce((sum, item) => sum + item.quantity, 0);
+  const primaryUnit = lineItems[0]?.unit || requirementUnit;
+  
+  // Calculate additional charges - per_unit charges are multiplied by total quantity
+  const additionalChargesTotal = additionalCharges.reduce((sum, c) => {
+    if (c.rateType === 'per_unit') {
+      return sum + (c.amount || 0) * totalQuantity;
+    }
+    return sum + (c.amount || 0);
+  }, 0);
   const taxableValue = subtotal + additionalChargesTotal;
   
   // Calculate total GST (weighted by each item's GST rate)
@@ -217,7 +228,7 @@ export const BidFormInvoice = ({
   const addCharge = () => {
     setAdditionalCharges([
       ...additionalCharges,
-      { id: Date.now().toString(), description: '', amount: 0 },
+      { id: Date.now().toString(), description: '', amount: 0, rateType: 'per_unit' },
     ]);
   };
 
@@ -225,7 +236,7 @@ export const BidFormInvoice = ({
     setAdditionalCharges(additionalCharges.filter(c => c.id !== id));
   };
 
-  const updateCharge = (id: string, field: 'description' | 'amount', value: string | number) => {
+  const updateCharge = (id: string, field: 'description' | 'amount' | 'rateType', value: string | number) => {
     setAdditionalCharges(
       additionalCharges.map(c =>
         c.id === id ? { ...c, [field]: field === 'amount' ? Number(value) : value } : c
@@ -502,7 +513,7 @@ export const BidFormInvoice = ({
           {additionalCharges.length > 0 ? (
             <div className="divide-y divide-border">
               {additionalCharges.map(charge => (
-                <div key={charge.id} className="p-3 flex items-center gap-3">
+                <div key={charge.id} className="p-3 flex flex-wrap items-center gap-2 sm:gap-3">
                   <button
                     type="button"
                     onClick={() => removeCharge(charge.id)}
@@ -515,7 +526,7 @@ export const BidFormInvoice = ({
                     value={charge.description}
                     onChange={e => updateCharge(charge.id, 'description', e.target.value)}
                     placeholder="Description (e.g., Transport)"
-                    className="h-8 flex-1"
+                    className="h-8 flex-1 min-w-[120px]"
                   />
                   <div className="flex items-center gap-1 shrink-0">
                     <span className="text-sm text-muted-foreground">₹</span>
@@ -524,10 +535,16 @@ export const BidFormInvoice = ({
                       value={charge.amount || ''}
                       onChange={e => updateCharge(charge.id, 'amount', e.target.value)}
                       placeholder="0"
-                      className="h-8 w-24 text-right"
+                      className="h-8 w-20 text-right"
                       min={0}
                     />
+                    <span className="text-xs text-muted-foreground">/{primaryUnit}</span>
                   </div>
+                  {charge.amount > 0 && (
+                    <div className="w-full sm:w-auto text-xs text-muted-foreground ml-6 sm:ml-0">
+                      Total: ₹{formatCurrency(charge.amount * totalQuantity)}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

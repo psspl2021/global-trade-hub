@@ -407,10 +407,13 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       });
       termsString += `\nGST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
       if (data.additionalCharges.length > 0) {
+        const totalQty = data.items.reduce((sum, item) => sum + item.quantity, 0);
+        const unit = data.items[0]?.unit || 'unit';
         termsString += 'Additional Charges:\n';
         data.additionalCharges.forEach(charge => {
           if (charge.description && charge.amount > 0) {
-            termsString += `  - ${charge.description}: ₹${charge.amount}\n`;
+            const chargeTotal = charge.rateType === 'per_unit' ? charge.amount * totalQty : charge.amount;
+            termsString += `  - ${charge.description}: ₹${charge.amount}/${unit} (Total: ₹${chargeTotal.toLocaleString('en-IN')})\n`;
           }
         });
       }
@@ -536,10 +539,13 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       });
       termsString += `\nGST Type: ${data.gstType === 'inter' ? 'Inter-state (IGST)' : 'Intra-state (CGST+SGST)'}\n`;
       if (data.additionalCharges.length > 0) {
+        const totalQty = data.items.reduce((sum, item) => sum + item.quantity, 0);
+        const unit = data.items[0]?.unit || 'unit';
         termsString += 'Additional Charges:\n';
         data.additionalCharges.forEach(charge => {
           if (charge.description && charge.amount > 0) {
-            termsString += `  - ${charge.description}: ₹${charge.amount}\n`;
+            const chargeTotal = charge.rateType === 'per_unit' ? charge.amount * totalQty : charge.amount;
+            termsString += `  - ${charge.description}: ₹${charge.amount}/${unit} (Total: ₹${chargeTotal.toLocaleString('en-IN')})\n`;
           }
         });
       }
