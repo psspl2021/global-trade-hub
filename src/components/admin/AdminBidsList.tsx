@@ -78,6 +78,13 @@ interface AdminBidsListProps {
 
 const PAGE_SIZE_OPTIONS = [15, 25, 50, 100];
 
+// Helper to parse taxable value from terms_and_conditions
+const parseTaxableFromTerms = (terms: string | null): number => {
+  if (!terms) return 0;
+  const match = terms.match(/Taxable Value:\s*₹?([\d,]+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1].replace(/,/g, '')) : 0;
+};
+
 export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [bids, setBids] = useState<Bid[]>([]);
   const [logisticsBids, setLogisticsBids] = useState<LogisticsBid[]>([]);
@@ -430,8 +437,13 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const qty = bid.requirement?.quantity || 1;
                           const unit = bid.requirement?.unit || 'unit';
                           const dispatchedQty = bid.dispatched_qty || 0;
-                          const ratePerUnit = bid.buyer_visible_price / qty;
-                          const supplierRatePerUnit = bid.supplier_net_price / qty;
+                          
+                          // Calculate per-unit rate based on taxable value (excluding GST)
+                          const taxableValue = parseTaxableFromTerms(bid.terms_and_conditions);
+                          const supplierRatePerUnit = taxableValue > 0 
+                            ? taxableValue / qty 
+                            : (bid.supplier_net_price / 1.18) / qty; // Fallback: remove 18% GST
+                          const ratePerUnit = supplierRatePerUnit * 1.005; // Add 0.5% markup for buyer rate
                           const markupPerUnit = (bid.markup_amount || 0) / qty;
                           
                           // Calculate dispatched values

@@ -26,6 +26,7 @@ interface Bid {
   created_at: string;
   requirement_id: string;
   dispatched_qty?: number | null;
+  terms_and_conditions?: string;
   requirement: {
     id: string;
     title: string;
@@ -88,6 +89,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
           created_at,
           requirement_id,
           dispatched_qty,
+          terms_and_conditions,
           requirements (
             id,
             title,
@@ -141,20 +143,50 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
     }
   }, [userId]);
 
+  // Helper to parse taxable value and GST from terms_and_conditions
+  const parseGstFromTerms = (terms: string | undefined): { taxableValue: number; totalGst: number } => {
+    if (!terms) return { taxableValue: 0, totalGst: 0 };
+    
+    const taxableMatch = terms.match(/Taxable Value:\s*₹?([\d,]+(?:\.\d+)?)/);
+    const gstMatch = terms.match(/Total GST:\s*₹?([\d,]+(?:\.\d+)?)/);
+    
+    return {
+      taxableValue: taxableMatch ? parseFloat(taxableMatch[1].replace(/,/g, '')) : 0,
+      totalGst: gstMatch ? parseFloat(gstMatch[1].replace(/,/g, '')) : 0,
+    };
+  };
+
   const calculateBreakdown = (bid: Bid) => {
     // Supplier sees only their net price - no markup/fee visibility
-    // Use supplier_net_price if available, otherwise fallback to legacy calculation
     const quantity = bid.requirement?.quantity || 1;
     
-    // supplier_net_price is the total amount the supplier quoted
+    // Parse taxable value and GST from terms
+    const { taxableValue, totalGst } = parseGstFromTerms(bid.terms_and_conditions);
+    
+    // supplier_net_price is the total amount the supplier quoted (includes GST)
     const supplierNetPrice = bid.supplier_net_price || bid.total_amount;
-    const perUnitRate = supplierNetPrice / quantity;
+    
+    // Per-unit rate should be based on taxable value (excluding GST)
+    // If taxable value is available, use it; otherwise calculate by removing GST from net price
+    let perUnitRate: number;
+    let gstAmount = totalGst;
+    
+    if (taxableValue > 0) {
+      perUnitRate = taxableValue / quantity;
+      gstAmount = totalGst || (supplierNetPrice - taxableValue);
+    } else {
+      // Fallback: assume 18% GST if not parseable
+      const estimatedTaxable = supplierNetPrice / 1.18;
+      perUnitRate = estimatedTaxable / quantity;
+      gstAmount = supplierNetPrice - estimatedTaxable;
+    }
     
     return {
       perUnitRate,
       quantity,
-      totalOrderValue: supplierNetPrice,
-      grandTotal: supplierNetPrice, // Supplier sees their net price as grand total
+      totalOrderValue: taxableValue || (supplierNetPrice / 1.18), // Taxable value (excl GST)
+      gstAmount,
+      grandTotal: supplierNetPrice, // Total including GST
     };
   };
 
@@ -372,7 +404,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <span className="text-muted-foreground">Your Per-Unit Rate:</span>
-                      <p className="font-medium">₹{breakdown.perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="font-medium">₹{breakdown.perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{bid.requirement?.unit}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Quantity:</span>
@@ -380,12 +412,24 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                     </div>
                     <div>
                       <span className="text-muted-foreground">Total Order Value:</span>
-                      <p className="font-bold text-primary">₹{breakdown.totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="font-bold">₹{breakdown.totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Delivery Timeline:</span>
                       <p className="font-medium">{bid.delivery_timeline_days} days</p>
                     </div>
+                    {breakdown.gstAmount > 0 && (
+                      <>
+                        <div>
+                          <span className="text-muted-foreground">GST (18%):</span>
+                          <p className="font-medium">₹{breakdown.gstAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Grand Total:</span>
+                          <p className="font-bold text-primary">₹{breakdown.grandTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
                     <p>Platform fee: ₹0 (No deductions from your quoted price)</p>
