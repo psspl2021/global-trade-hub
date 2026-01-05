@@ -388,10 +388,35 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       // Determine transaction type
       const transactionType = selectedRequirement.trade_type === 'domestic_india' ? 'domestic_india' : 'cross_border';
       
-      // Use first item rate for L1 comparison (supplier net price per unit)
+      // Calculate effective per-unit rate including per-unit additional charges
+      const totalQuantity = data.items.reduce((sum, item) => sum + item.quantity, 0);
+      const primaryUnit = data.items[0]?.unit || 'unit';
+      
+      // Calculate per-unit portion of additional charges
+      let additionalChargesPerUnit = 0;
+      data.additionalCharges.forEach(charge => {
+        if (charge.amount > 0) {
+          if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton' || charge.rateType === 'per_quintal' || charge.rateType === 'per_kg') {
+            // Per-unit charges: convert to primary unit rate
+            if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton') {
+              additionalChargesPerUnit += charge.amount;
+            } else if (charge.rateType === 'per_quintal') {
+              additionalChargesPerUnit += charge.amount * 10; // 10 quintals = 1 ton
+            } else if (charge.rateType === 'per_kg') {
+              additionalChargesPerUnit += charge.amount * 1000; // 1000 kg = 1 ton
+            }
+          } else if (charge.rateType === 'flat' && totalQuantity > 0) {
+            // Flat charges: divide by quantity to get per-unit
+            additionalChargesPerUnit += charge.amount / totalQuantity;
+          }
+        }
+      });
+      
+      // Effective per-unit rate = base rate + per-unit additional charges
       const firstItemRate = data.items[0]?.rate || 0;
+      const effectiveRatePerUnit = firstItemRate + additionalChargesPerUnit;
       // bid_amount stores the buyer-visible rate per unit for L1 comparison
-      const bidAmountToStore = firstItemRate * (1 + markupRate);
+      const bidAmountToStore = effectiveRatePerUnit * (1 + markupRate);
 
       // Build terms string with all bid details
       let termsString = '';
@@ -523,9 +548,31 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       
       const transactionType = selectedRequirement.trade_type === 'domestic_india' ? 'domestic_india' : 'cross_border';
       
-      // Use first item rate for L1 comparison
+      // Calculate effective per-unit rate including per-unit additional charges
+      const totalQuantity = data.items.reduce((sum, item) => sum + item.quantity, 0);
+      
+      // Calculate per-unit portion of additional charges
+      let additionalChargesPerUnit = 0;
+      data.additionalCharges.forEach(charge => {
+        if (charge.amount > 0) {
+          if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton' || charge.rateType === 'per_quintal' || charge.rateType === 'per_kg') {
+            if (charge.rateType === 'per_unit' || charge.rateType === 'per_ton') {
+              additionalChargesPerUnit += charge.amount;
+            } else if (charge.rateType === 'per_quintal') {
+              additionalChargesPerUnit += charge.amount * 10;
+            } else if (charge.rateType === 'per_kg') {
+              additionalChargesPerUnit += charge.amount * 1000;
+            }
+          } else if (charge.rateType === 'flat' && totalQuantity > 0) {
+            additionalChargesPerUnit += charge.amount / totalQuantity;
+          }
+        }
+      });
+      
+      // Effective per-unit rate = base rate + per-unit additional charges
       const firstItemRate = data.items[0]?.rate || 0;
-      const bidAmountToStore = firstItemRate * (1 + markupRate);
+      const effectiveRatePerUnit = firstItemRate + additionalChargesPerUnit;
+      const bidAmountToStore = effectiveRatePerUnit * (1 + markupRate);
 
       // Build terms string
       let termsString = '';
