@@ -498,25 +498,26 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                             </Badge>
                           </div>
 
-                          {/* Bid Items Table */}
-                          {bid.bid_items && bid.bid_items.length > 0 ? (
-                            <div className="space-y-3">
-                              <h4 className="text-sm font-medium flex items-center gap-2">
-                                <Package className="h-4 w-4" />
-                                Item Breakdown
-                              </h4>
-                              <div className="border rounded-lg overflow-hidden">
-                                <Table>
-                                  <TableHeader>
-                                    <TableRow className="bg-muted/50">
-                                      <TableHead className="font-medium">Item</TableHead>
-                                      <TableHead className="text-right font-medium">Qty</TableHead>
-                                      <TableHead className="text-right font-medium">Rate</TableHead>
-                                      <TableHead className="text-right font-medium">Amount</TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {bid.bid_items.map((item) => {
+                          {/* Bid Items Table - Show breakdown for all bids */}
+                          <div className="space-y-3">
+                            <h4 className="text-sm font-medium flex items-center gap-2">
+                              <Package className="h-4 w-4" />
+                              Item Breakdown
+                            </h4>
+                            <div className="border rounded-lg overflow-hidden">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="font-medium">Item</TableHead>
+                                    <TableHead className="text-right font-medium">Qty</TableHead>
+                                    <TableHead className="text-right font-medium">Rate</TableHead>
+                                    <TableHead className="text-right font-medium">Amount</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {bid.bid_items && bid.bid_items.length > 0 ? (
+                                    // Use actual bid_items when available
+                                    bid.bid_items.map((item) => {
                                       // Parse transport from terms_and_conditions
                                       const terms = bid.terms_and_conditions || '';
                                       const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
@@ -544,45 +545,81 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                           </TableCell>
                                         </TableRow>
                                       );
-                                    })}
-                                  </TableBody>
-                                </Table>
-                              </div>
+                                    })
+                                  ) : (
+                                    // Fallback: Create virtual item from requirement data when bid_items is empty
+                                    (() => {
+                                      const terms = bid.terms_and_conditions || '';
+                                      const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+                                      const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+                                      const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
+                                      
+                                      // bid_amount is the supplier's rate per unit
+                                      const supplierBaseRate = bid.bid_amount;
+                                      const totalSupplierRate = supplierBaseRate + transportPerUnit;
+                                      const buyerRate = totalSupplierRate * (1 + feeRate);
+                                      const quantity = selectedRequirement?.quantity || 0;
+                                      const buyerTotal = buyerRate * quantity;
+                                      
+                                      return (
+                                        <TableRow>
+                                          <TableCell className="font-medium">
+                                            {selectedRequirement?.title || 'Item'}
+                                          </TableCell>
+                                          <TableCell className="text-right">
+                                            {quantity} {selectedRequirement?.unit || 'units'}
+                                          </TableCell>
+                                          <TableCell className="text-right">
+                                            ₹{buyerRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                          </TableCell>
+                                          <TableCell className="text-right font-medium">
+                                            ₹{buyerTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                          </TableCell>
+                                        </TableRow>
+                                      );
+                                    })()
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </div>
 
-                              <div className="bg-muted/30 rounded-lg p-4">
-                                {(() => {
-                                  // Calculate total with transport + markup
-                                  const terms = bid.terms_and_conditions || '';
-                                  const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
-                                  const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
-                                  const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
-                                  
-                                  const totalBuyerAmount = (bid.bid_items || []).reduce((sum, item) => {
+                            <div className="bg-muted/30 rounded-lg p-4">
+                              {(() => {
+                                // Calculate total with transport + markup
+                                const terms = bid.terms_and_conditions || '';
+                                const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+                                const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+                                const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
+                                
+                                let totalBuyerAmount = 0;
+                                
+                                if (bid.bid_items && bid.bid_items.length > 0) {
+                                  totalBuyerAmount = bid.bid_items.reduce((sum, item) => {
                                     const totalSupplierRate = item.unit_price + transportPerUnit;
                                     const buyerRate = totalSupplierRate * (1 + feeRate);
                                     return sum + (buyerRate * item.quantity);
                                   }, 0);
-                                  
-                                  // Add GST (18%)
-                                  const totalWithGst = totalBuyerAmount * 1.18;
-                                  
-                                  return (
-                                    <div className="flex justify-between font-semibold">
-                                      <span>Total Amount</span>
-                                      <span className="text-primary">₹{totalWithGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                    </div>
-                                  );
-                                })()}
-                              </div>
+                                } else {
+                                  // Fallback calculation using bid_amount
+                                  const supplierBaseRate = bid.bid_amount;
+                                  const totalSupplierRate = supplierBaseRate + transportPerUnit;
+                                  const buyerRate = totalSupplierRate * (1 + feeRate);
+                                  const quantity = selectedRequirement?.quantity || 0;
+                                  totalBuyerAmount = buyerRate * quantity;
+                                }
+                                
+                                // Add GST (18%)
+                                const totalWithGst = totalBuyerAmount * 1.18;
+                                
+                                return (
+                                  <div className="flex justify-between font-semibold">
+                                    <span>Total Amount</span>
+                                    <span className="text-primary">₹{totalWithGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                  </div>
+                                );
+                              })()}
                             </div>
-                          ) : (
-                            <div className="bg-muted/30 rounded-lg p-4">
-                              <div className="flex justify-between font-semibold">
-                                <span>Total Amount</span>
-                                <span className="text-primary">₹{bid.buyer_visible_price.toLocaleString()}</span>
-                              </div>
-                            </div>
-                          )}
+                          </div>
 
                           {bid.terms_and_conditions && (
                             <div className="text-sm">
