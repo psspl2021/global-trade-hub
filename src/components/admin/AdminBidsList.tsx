@@ -440,6 +440,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           
                           // Calculate per-unit rate based on taxable value (excluding GST)
                           const taxableValue = parseTaxableFromTerms(bid.terms_and_conditions);
+                          const gstAmount = taxableValue > 0 
+                            ? bid.supplier_net_price - taxableValue 
+                            : bid.supplier_net_price - (bid.supplier_net_price / 1.18);
                           const supplierRatePerUnit = taxableValue > 0 
                             ? taxableValue / qty 
                             : (bid.supplier_net_price / 1.18) / qty; // Fallback: remove 18% GST
@@ -470,8 +473,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
-                                  <div>₹{bid.supplier_net_price.toLocaleString()}</div>
+                                  <div>₹{(taxableValue || bid.supplier_net_price / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                   <div className="text-xs text-muted-foreground">₹{supplierRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{unit}</div>
+                                  <div className="text-xs text-blue-600">+GST: ₹{gstAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>

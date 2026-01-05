@@ -210,12 +210,20 @@ export const TransporterMyBids = ({ open, onOpenChange, userId }: TransporterMyB
 
                       <div className="p-3 bg-muted rounded-lg text-sm space-y-1">
                         <div className="flex justify-between">
-                          <span>Rate:</span>
-                          <span>₹{(bid.bid_amount / (bid.logistics_requirement?.quantity || 1)).toLocaleString()} per {bid.logistics_requirement?.unit}</span>
+                          <span>Rate (excl. GST):</span>
+                          <span>₹{((bid.bid_amount / 1.18) / (bid.logistics_requirement?.quantity || 1)).toLocaleString(undefined, { maximumFractionDigits: 2 })} per {bid.logistics_requirement?.unit}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Your Quote:</span>
-                          <span>₹{bid.bid_amount.toLocaleString()} ({(bid.bid_amount / (bid.logistics_requirement?.quantity || 1)).toLocaleString()} × {bid.logistics_requirement?.quantity})</span>
+                          <span>Your Quote (excl. GST):</span>
+                          <span>₹{(bid.bid_amount / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                        </div>
+                        <div className="flex justify-between text-blue-600">
+                          <span>GST (18%):</span>
+                          <span>₹{(bid.bid_amount - bid.bid_amount / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                        </div>
+                        <div className="flex justify-between font-medium border-t pt-1">
+                          <span>Your Total Quote:</span>
+                          <span>₹{bid.bid_amount.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between text-muted-foreground">
                           <span>Platform Fee (₹{PLATFORM_FEE_PER_UNIT}/{bid.logistics_requirement?.unit}):</span>
