@@ -146,25 +146,30 @@ const Blogs = () => {
   return (
     <main className="min-h-screen bg-gradient-to-b from-primary/5 to-background">
       {/* Header */}
-      <header className="relative py-16 overflow-hidden">
+      <header className="relative py-16 md:py-20 overflow-hidden">
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroBgBlogs})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background/95" />
         <div className="container mx-auto px-4 relative z-10">
-          <nav className="flex justify-between items-start mb-6" aria-label="Blog header navigation">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-              B2B Procurement Blog
-            </h1>
+          <nav className="flex justify-between items-start mb-8" aria-label="Blog header navigation">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-4">
+                <span className="text-sm font-semibold text-primary">📚 Industry Insights</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground">
+                B2B Procurement Blog
+              </h1>
+            </div>
             <Link to="/" className="inline-block" aria-label="Go to ProcureSaathi homepage">
               <img 
                 src={logo} 
                 alt="ProcureSaathi - B2B Procurement Platform" 
-                className="h-20 md:h-24 hover:opacity-80 transition-opacity" 
-                width="96"
-                height="96"
+                className="h-16 md:h-20 hover:opacity-80 transition-opacity hover:scale-105" 
+                width="80"
+                height="80"
               />
             </Link>
           </nav>
@@ -254,7 +259,7 @@ const BlogCard = ({ blog, featured = false }: { blog: Blog; featured?: boolean }
   return (
     <article className="h-full">
       <Link to={`/blogs/${blog.slug}`} aria-label={`Read blog: ${blog.title}`}>
-        <Card className="h-full hover:shadow-lg transition-shadow group overflow-hidden">
+        <Card className="h-full hover:shadow-large transition-all duration-300 group overflow-hidden border-border/50 hover:-translate-y-1">
           <figure className="relative h-48 bg-muted overflow-hidden">
             {blog.cover_image ? (
               <img
