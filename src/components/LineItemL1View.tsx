@@ -240,23 +240,41 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           }
         });
 
+        // Helper to calculate buyer rate for a bid item
+        const calculateBuyerRate = (bidItem: BidItem, bid: Bid, feeRate: number) => {
+          const baseRate = bidItem.unit_price;
+          const terms = bid.terms_and_conditions || '';
+          const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+          const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+          return (baseRate + transportPerUnit) * (1 + feeRate);
+        };
+        
+        const currentFeeRate = tradeType === 'domestic_india' ? 0.005 : 0.01;
+
         // For L1 tab: Show all bids (pending, accepted) - not just accepted
         // This allows buyers to see L1 among all submitted bids
         const activeBidItems = allBidItemsForItem.filter(b => 
           b.bid.status === 'accepted' || b.bid.status === 'pending'
         );
 
-        // Sort active bids by bid_amount (buyer rate per unit including transport + markup) to find L1
-        // bid_amount includes base rate + additional charges (like transport) + platform markup
-        activeBidItems.sort((a, b) => a.bid.bid_amount - b.bid.bid_amount);
+        // Sort active bids by calculated buyer rate for this specific item (not bid_amount which is total)
+        activeBidItems.sort((a, b) => {
+          const rateA = calculateBuyerRate(a.bidItem, a.bid, currentFeeRate);
+          const rateB = calculateBuyerRate(b.bidItem, b.bid, currentFeeRate);
+          return rateA - rateB;
+        });
 
         // Mark the lowest active bid as L1
         if (activeBidItems.length > 0) {
           activeBidItems[0].isL1 = true;
         }
 
-        // For display, also sort all bid items by bid_amount (buyer rate)
-        allBidItemsForItem.sort((a, b) => a.bid.bid_amount - b.bid.bid_amount);
+        // For display, also sort all bid items by calculated buyer rate for this item
+        allBidItemsForItem.sort((a, b) => {
+          const rateA = calculateBuyerRate(a.bidItem, a.bid, currentFeeRate);
+          const rateB = calculateBuyerRate(b.bidItem, b.bid, currentFeeRate);
+          return rateA - rateB;
+        });
 
         const lowestBidItemData = activeBidItems[0] || null;
 

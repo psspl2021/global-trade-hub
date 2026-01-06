@@ -554,11 +554,21 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                       const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
                                       const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
                                       
-                                      // bid_amount is the supplier's rate per unit
-                                      const supplierBaseRate = bid.bid_amount;
-                                      const totalSupplierRate = supplierBaseRate + transportPerUnit;
-                                      const buyerRate = totalSupplierRate * (1 + feeRate);
+                                      // Use buyer_visible_price if available, otherwise calculate from bid_amount
+                                      // buyer_visible_price already includes transport + markup
                                       const quantity = selectedRequirement?.quantity || 0;
+                                      let buyerRate: number;
+                                      
+                                      if (bid.buyer_visible_price && quantity > 0) {
+                                        // buyer_visible_price is the total, so divide by quantity for rate
+                                        buyerRate = bid.buyer_visible_price / quantity;
+                                      } else {
+                                        // Fallback: bid_amount is rate per unit from supplier
+                                        const supplierBaseRate = bid.bid_amount / quantity; // bid_amount might be total
+                                        const totalSupplierRate = supplierBaseRate + transportPerUnit;
+                                        buyerRate = totalSupplierRate * (1 + feeRate);
+                                      }
+                                      
                                       const buyerTotal = buyerRate * quantity;
                                       
                                       return (
@@ -567,7 +577,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                             {selectedRequirement?.title || 'Item'}
                                           </TableCell>
                                           <TableCell className="text-right">
-                                            {quantity} {selectedRequirement?.unit || 'units'}
+                                            {Math.round(quantity * 100) / 100} {selectedRequirement?.unit || 'units'}
                                           </TableCell>
                                           <TableCell className="text-right">
                                             ₹{buyerRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
@@ -600,12 +610,16 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                     return sum + (buyerRate * item.quantity);
                                   }, 0);
                                 } else {
-                                  // Fallback calculation using bid_amount
-                                  const supplierBaseRate = bid.bid_amount;
-                                  const totalSupplierRate = supplierBaseRate + transportPerUnit;
-                                  const buyerRate = totalSupplierRate * (1 + feeRate);
+                                  // Fallback calculation - use buyer_visible_price if available
                                   const quantity = selectedRequirement?.quantity || 0;
-                                  totalBuyerAmount = buyerRate * quantity;
+                                  if (bid.buyer_visible_price) {
+                                    totalBuyerAmount = bid.buyer_visible_price;
+                                  } else if (quantity > 0) {
+                                    const supplierBaseRate = bid.bid_amount / quantity;
+                                    const totalSupplierRate = supplierBaseRate + transportPerUnit;
+                                    const buyerRate = totalSupplierRate * (1 + feeRate);
+                                    totalBuyerAmount = buyerRate * quantity;
+                                  }
                                 }
                                 
                                 // Add GST (18%)
