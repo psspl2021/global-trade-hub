@@ -209,9 +209,9 @@ export const GlobalSEO = () => {
     addMetaTag('MobileOptimized', '320');
     addMetaTag('format-detection', 'telephone=yes');
     
-    // Verification tags placeholder
-    addMetaTag('google-site-verification', 'YOUR_GOOGLE_VERIFICATION_CODE');
-    addMetaTag('msvalidate.01', 'YOUR_BING_VERIFICATION_CODE');
+    // Note: Add verification codes via index.html or environment variables when available
+    // addMetaTag('google-site-verification', 'YOUR_CODE');
+    // addMetaTag('msvalidate.01', 'YOUR_CODE');
 
     // Cleanup on unmount
     return () => {
