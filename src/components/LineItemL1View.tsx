@@ -560,6 +560,16 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
   }
 
   // Admin view: Side-by-side supplier comparison table
+  // Helper to get buyer rate for a bid item
+  const getBuyerRate = (bidItem: BidItem | undefined, bid: Bid | undefined) => {
+    if (!bidItem || !bid) return null;
+    const baseRate = bidItem.unit_price;
+    const terms = bid.terms_and_conditions || '';
+    const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+    const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+    return (baseRate + transportPerUnit) * (1 + feeRate);
+  };
+
   // Collect all unique suppliers across all items
   const allSuppliers = new Map<string, { supplier: SupplierProfile | null; bid: Bid }>();
   l1Data.forEach(item => {
@@ -572,21 +582,10 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
       }
     });
   });
-  const suppliersArray = Array.from(allSuppliers.entries());
 
-  // Helper to get buyer rate for a bid item
-  const getBuyerRate = (bidItem: BidItem | undefined, bid: Bid | undefined) => {
-    if (!bidItem || !bid) return null;
-    const baseRate = bidItem.unit_price;
-    const terms = bid.terms_and_conditions || '';
-    const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
-    const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
-    return (baseRate + transportPerUnit) * (1 + feeRate);
-  };
-
-  // Calculate totals per supplier
+  // Calculate totals per supplier FIRST (before creating sorted array)
   const supplierTotals = new Map<string, number>();
-  suppliersArray.forEach(([supplierId]) => {
+  allSuppliers.forEach((_, supplierId) => {
     let total = 0;
     l1Data.forEach(item => {
       const bidData = item.allBidItems.find(b => b.bid.supplier_id === supplierId);
@@ -600,7 +599,14 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
     supplierTotals.set(supplierId, total);
   });
 
-  // Find overall L1 supplier (lowest total)
+  // Sort suppliers by total amount (lowest first = L1 first)
+  const suppliersArray = Array.from(allSuppliers.entries()).sort((a, b) => {
+    const totalA = supplierTotals.get(a[0]) || Infinity;
+    const totalB = supplierTotals.get(b[0]) || Infinity;
+    return totalA - totalB;
+  });
+
+  // Find overall L1 supplier (lowest total) - will be first in sorted array
   let overallL1SupplierId: string | null = null;
   let lowestTotal = Infinity;
   supplierTotals.forEach((total, supplierId) => {
