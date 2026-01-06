@@ -195,87 +195,89 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Info Bar */}
-      <div className="bg-muted/50 border-b">
-        <div className="container mx-auto px-4 py-2">
+      <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-b border-border/50">
+        <div className="container mx-auto px-4 py-2.5">
           <p className="text-xs sm:text-sm text-muted-foreground text-center">
-            <span className="font-semibold text-foreground">Important:</span> ProcureSaathi - The future of B2B procurement. 
-            <span className="hidden sm:inline"> Search 23+ product categories, browse live supplier stock, and get competitive sealed bids from verified partners.</span>
+            <span className="font-semibold text-primary">🚀 New:</span> ProcureSaathi - The future of B2B procurement. 
+            <span className="hidden sm:inline"> Search 23+ product categories, browse live supplier stock, and get competitive sealed bids.</span>
           </p>
         </div>
       </div>
 
       {/* Header */}
-      <header className="bg-card border-b sticky top-0 z-50">
+      <header className="bg-card/95 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-16 sm:h-20 md:h-24 w-auto object-contain"
-              width={96}
-              height={96}
+              className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform hover:scale-105"
+              width={80}
+              height={80}
               loading="eager"
             />
           </div>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-2 lg:gap-4">
-            <Button variant="ghost" size="sm" onClick={() => scrollToSection('about')}>About Us</Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/buyer')}>Buyer</Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/seller')}>Seller</Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/private-label')}>Private Label</Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/categories')}>Categories</Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/blogs')}>Blogs</Button>
-            <Button variant="ghost" size="sm" onClick={() => scrollToSection('contact')}>Contact</Button>
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => scrollToSection('about')}>About Us</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/buyer')}>Buyer</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/seller')}>Seller</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/private-label')}>Private Label</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/categories')}>Categories</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/blogs')}>Blogs</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => scrollToSection('contact')}>Contact</Button>
           </nav>
           
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/login')}>
               Login
             </Button>
-            <Button size="sm" onClick={() => navigate('/signup')}>Join Now</Button>
+            <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" onClick={() => navigate('/signup')}>
+              Join Now
+            </Button>
             
             {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hover:bg-primary/5">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] sm:w-[350px]">
-                <nav className="flex flex-col gap-4 mt-8">
-                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/login')}>
+              <SheetContent side="right" className="w-[300px] sm:w-[380px] bg-card/95 backdrop-blur-lg">
+                <nav className="flex flex-col gap-3 mt-8">
+                  <Button variant="ghost" className="justify-start text-base font-medium" onClick={() => handleMobileNavigation('/login')}>
                     Login
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('about')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => scrollToSection('about')}>
                     About Us
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/buyer')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/buyer')}>
                     Buyer
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/seller')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/seller')}>
                     Seller
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/private-label')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/private-label')}>
                     Private Label
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/categories')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/categories')}>
                     Categories
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => handleMobileNavigation('/blogs')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/blogs')}>
                     Blogs
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => scrollToSection('contact')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => scrollToSection('contact')}>
                     Contact
                   </Button>
-                  <div className="border-t pt-4 mt-4">
-                    <Button className="w-full" onClick={() => handleMobileNavigation('/signup?role=buyer')}>
+                  <div className="border-t border-border/50 pt-5 mt-4 space-y-3">
+                    <Button className="w-full font-semibold" onClick={() => handleMobileNavigation('/signup?role=buyer')}>
                       Join as Buyer
                     </Button>
-                    <Button variant="outline" className="w-full mt-2" onClick={() => handleMobileNavigation('/signup?role=supplier')}>
+                    <Button variant="outline" className="w-full" onClick={() => handleMobileNavigation('/signup?role=supplier')}>
                       Join as Supplier
                     </Button>
-                    <Button variant="outline" className="w-full mt-2" onClick={() => handleMobileNavigation('/signup?role=logistics_partner')}>
+                    <Button variant="outline" className="w-full" onClick={() => handleMobileNavigation('/signup?role=logistics_partner')}>
                       Join as Logistics Partner
                     </Button>
                   </div>
@@ -288,66 +290,73 @@ const Index = () => {
 
       <main>
       {/* Hero Section */}
-      <section className="relative py-8 sm:py-12 overflow-hidden">
+      <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroBgProcurement})` }}
         />
-        {/* Overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background/80" />
+        {/* Refined overlay with gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 leading-tight px-2">
-              India's #1 <span className="text-primary">B2B Sourcing</span> & <span className="text-warning">Procurement Platform</span>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-fade-in">
+              <span className="text-primary text-sm font-medium">🇮🇳 India's #1 B2B Platform</span>
+            </div>
+            
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-2 animate-slide-up">
+              <span className="text-primary">B2B Sourcing</span> & <span className="text-warning">Procurement</span>
+              <br className="hidden sm:block" />
+              <span className="text-foreground"> Made Simple</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6 max-w-3xl mx-auto px-2">
-              Need Private Label, Custom Manufacturing, or Bulk Supply? Let our AI + Team find the right Indian suppliers for you
+            
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2 animate-slide-up delay-100">
+              Need Private Label, Custom Manufacturing, or Bulk Supply? 
+              <span className="text-foreground font-medium"> Let our AI + Team find the right Indian suppliers for you.</span>
             </p>
 
             {/* Hero Trust Badges */}
-            <div className="mb-6">
+            <div className="mb-8 animate-slide-up delay-200">
               <HeroTrustBadges />
             </div>
 
-            {/* AI RFQ Generator CTA - Prominent */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4 px-2">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 px-2 animate-slide-up delay-300">
               <Button 
                 size="lg" 
-                className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-10 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all"
+                className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-12 font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
                 onClick={() => navigate('/post-rfq')}
               >
                 <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
-                Start Sourcing
+                Start Sourcing Free
               </Button>
               <Button 
                 size="lg" 
                 variant="outline"
-                className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-10"
+                className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-12 font-medium bg-card/80 backdrop-blur-sm hover:bg-card border-border/80 hover:border-primary/50 transition-all"
                 onClick={() => window.location.href = 'mailto:sales@procuresaathi.com'}
               >
                 <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                 Talk to Our Team
               </Button>
             </div>
-            <div className="mt-4 sm:hidden">
-              <DemoRequestForm />
-            </div>
-            <div className="hidden sm:block mt-4">
+            
+            <div className="mt-4 animate-slide-up delay-400">
               <DemoRequestForm />
             </div>
             
             {/* Quick Access - Explore Platform */}
-            <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-border/50 px-2">
-              <p className="text-sm text-muted-foreground mb-4">Explore what's happening on the platform</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto">
+            <div className="mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-border/30 px-2">
+              <p className="text-sm font-medium text-muted-foreground mb-6">Explore what's happening on the platform</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 max-w-4xl mx-auto">
                 <button 
                   onClick={() => navigate('/categories')}
-                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-primary hover:shadow-lg transition-all cursor-pointer"
+                  className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 hover:shadow-large transition-all duration-300 cursor-pointer hover:-translate-y-1"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Search className="h-5 w-5 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                    <Search className="h-6 w-6 text-primary" />
                   </div>
                   <div className="text-center">
                     <span className="text-sm font-semibold text-foreground block">Browse Categories</span>
@@ -356,10 +365,10 @@ const Index = () => {
                 </button>
                 <button 
                   onClick={handleLiveStockClick}
-                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-success hover:shadow-lg transition-all cursor-pointer"
+                  className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-success/50 hover:shadow-large transition-all duration-300 cursor-pointer hover:-translate-y-1"
                 >
-                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
-                    <Package className="h-5 w-5 text-success" />
+                  <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center group-hover:bg-success/20 group-hover:scale-110 transition-all duration-300">
+                    <Package className="h-6 w-6 text-success" />
                   </div>
                   <div className="text-center">
                     <span className="text-sm font-semibold text-foreground block">View Live Stock</span>
@@ -368,10 +377,10 @@ const Index = () => {
                 </button>
                 <button 
                   onClick={handleLiveRequirementsClick}
-                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-warning hover:shadow-lg transition-all cursor-pointer"
+                  className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-warning/50 hover:shadow-large transition-all duration-300 cursor-pointer hover:-translate-y-1"
                 >
-                  <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors">
-                    <FileText className="h-5 w-5 text-warning" />
+                  <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 group-hover:scale-110 transition-all duration-300">
+                    <FileText className="h-6 w-6 text-warning" />
                   </div>
                   <div className="text-center">
                     <span className="text-sm font-semibold text-foreground block">Buyer Requirements</span>
@@ -380,10 +389,10 @@ const Index = () => {
                 </button>
                 <button 
                   onClick={handleLogisticsRequirementsClick}
-                  className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-primary hover:shadow-lg transition-all cursor-pointer"
+                  className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 hover:shadow-large transition-all duration-300 cursor-pointer hover:-translate-y-1"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Truck className="h-5 w-5 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                    <Truck className="h-6 w-6 text-primary" />
                   </div>
                   <div className="text-center">
                     <span className="text-sm font-semibold text-foreground block">Logistics Requests</span>
@@ -400,22 +409,30 @@ const Index = () => {
       <EarlyAdopterBanner />
 
       {/* CTA Section */}
-      <section className="py-8 sm:py-16">
+      <section className="section-padding bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="section-title font-display">Get Started Today</h2>
+            <p className="section-subtitle">Choose your path to growth</p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 max-w-7xl mx-auto">
             {/* AI RFQ CTA */}
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
-              <CardContent className="p-6 text-center">
-                <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h2 className="text-xl font-bold mb-3 text-foreground">
+            <Card className="group bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-primary/20 hover:border-primary/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+              <CardContent className="p-6 text-center relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Sparkles className="h-7 w-7 text-primary" />
+                </div>
+                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
                   Post AI-Powered RFQ
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm">
+                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
                   Let AI help you create detailed requirements and find the best suppliers instantly.
                 </p>
                 <Button 
                   size="lg" 
-                  className="w-full"
+                  className="w-full font-semibold shadow-md hover:shadow-lg transition-all"
                   onClick={() => navigate('/post-rfq')}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
@@ -425,18 +442,21 @@ const Index = () => {
             </Card>
 
             {/* Buyer CTA */}
-            <Card className="bg-success/10 border-success/20">
-              <CardContent className="p-6 text-center">
-                <ShoppingBag className="h-12 w-12 text-success mx-auto mb-4" />
-                <h2 className="text-xl font-bold mb-3 text-foreground">
-                  Sourcing Products? It's FREE!
+            <Card className="group bg-gradient-to-br from-success/5 via-success/10 to-success/5 border-success/20 hover:border-success/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+              <CardContent className="p-6 text-center relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-success/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                <div className="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <ShoppingBag className="h-7 w-7 text-success" />
+                </div>
+                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
+                  Sourcing Products?
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm">
-                  Post requirements and get competitive bids from verified suppliers worldwide.
+                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
+                  Post requirements and get competitive bids from verified suppliers. <span className="font-semibold text-success">It's FREE!</span>
                 </p>
                 <Button 
                   size="lg" 
-                  className="w-full bg-success text-success-foreground hover:bg-success/90"
+                  className="w-full bg-success text-success-foreground hover:bg-success/90 font-semibold shadow-md hover:shadow-lg transition-all"
                   onClick={() => navigate('/signup?role=buyer')}
                 >
                   Join as Buyer
@@ -445,18 +465,21 @@ const Index = () => {
             </Card>
 
             {/* Supplier CTA */}
-            <Card className="bg-warning/10 border-warning/20">
-              <CardContent className="p-6 text-center">
-                <MessageSquare className="h-12 w-12 text-warning mx-auto mb-4" />
-                <h2 className="text-xl font-bold mb-3 text-foreground">
-                  Manufacturer? Connect Now!
+            <Card className="group bg-gradient-to-br from-warning/5 via-warning/10 to-warning/5 border-warning/20 hover:border-warning/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+              <CardContent className="p-6 text-center relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-warning/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                <div className="w-14 h-14 rounded-2xl bg-warning/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <MessageSquare className="h-7 w-7 text-warning" />
+                </div>
+                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
+                  Manufacturer?
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm">
-                  List your company and start connecting with buyers. Multiple subscription tiers.
+                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
+                  List your company and start connecting with buyers across India and globally.
                 </p>
                 <Button 
                   size="lg"
-                  className="w-full bg-warning text-warning-foreground hover:bg-warning/90"
+                  className="w-full bg-warning text-warning-foreground hover:bg-warning/90 font-semibold shadow-md hover:shadow-lg transition-all"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
                   Join as Supplier
@@ -465,19 +488,22 @@ const Index = () => {
             </Card>
 
             {/* Logistics CTA */}
-            <Card className="bg-primary/10 border-primary/20">
-              <CardContent className="p-6 text-center">
-                <Truck className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h2 className="text-xl font-bold mb-3 text-foreground">
-                  Need Transportation?
+            <Card className="group bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-primary/20 hover:border-primary/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+              <CardContent className="p-6 text-center relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Truck className="h-7 w-7 text-primary" />
+                </div>
+                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
+                  Need Transport?
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm">
+                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
                   Find verified trucks, trailers & warehousing services across India.
                 </p>
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="w-full"
+                  className="w-full font-semibold border-primary/30 hover:bg-primary/5 hover:border-primary transition-all"
                   onClick={() => navigate('/book-truck')}
                 >
                   Book a Truck
@@ -489,33 +515,39 @@ const Index = () => {
       </section>
 
       {/* About Section */}
-      <section id="about" className="bg-muted/30 py-16">
+      <section id="about" className="section-padding bg-muted/20">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-4">About ProcureSaathi</h2>
-            <p className="text-center text-muted-foreground mb-12">Your Trusted B2B Procurement Partner</p>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="section-title font-display">About ProcureSaathi</h2>
+              <p className="section-subtitle">Your Trusted B2B Procurement Partner Since 2021</p>
+            </div>
             
             {/* Mission & Vision */}
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Target className="h-6 w-6 text-primary" />
-                    <h3 className="text-xl font-semibold">Our Mission</h3>
+            <div className="grid md:grid-cols-2 gap-6 mb-14">
+              <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
+                <CardContent className="p-7">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Target className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-display font-semibold">Our Mission</h3>
                   </div>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground leading-relaxed">
                     To revolutionize B2B procurement by creating a transparent, efficient, and secure platform 
                     that connects verified buyers and suppliers across India and globally.
                   </p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Eye className="h-6 w-6 text-primary" />
-                    <h3 className="text-xl font-semibold">Our Vision</h3>
+              <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
+                <CardContent className="p-7">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Eye className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-display font-semibold">Our Vision</h3>
                   </div>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground leading-relaxed">
                     To become India's most trusted B2B sourcing platform, enabling businesses to source 
                     remotely with confidence and complete transparency.
                   </p>
@@ -524,26 +556,26 @@ const Index = () => {
             </div>
 
             {/* Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-              {stats.map((stat) => (
-                <Card key={stat.label} className="text-center">
-                  <CardContent className="p-6">
-                    <p className="text-3xl font-bold text-primary mb-1">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </CardContent>
-                </Card>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-14">
+              {stats.map((stat, index) => (
+                <div key={stat.label} className="stat-card group hover:shadow-large transition-all duration-300 hover:-translate-y-1" style={{ animationDelay: `${index * 100}ms` }}>
+                  <p className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-primary mb-1">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
+                </div>
               ))}
             </div>
 
             {/* Core Values */}
-            <h3 className="text-xl font-semibold text-center mb-6">Our Core Values</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-              {coreValues.map((value) => (
-                <Card key={value.title} className="text-center hover:shadow-lg transition-shadow">
-                  <CardContent className="p-4">
-                    <value.icon className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <h4 className="font-medium text-sm mb-1">{value.title}</h4>
-                    <p className="text-xs text-muted-foreground">{value.description}</p>
+            <h3 className="text-2xl font-display font-semibold text-center mb-8">Our Core Values</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-14">
+              {coreValues.map((value, index) => (
+                <Card key={value.title} className="group text-center hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
+                  <CardContent className="p-5">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                      <value.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h4 className="font-display font-semibold text-sm mb-1.5">{value.title}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{value.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -551,15 +583,17 @@ const Index = () => {
 
             {/* Company Description */}
             <div className="text-center">
-              <h3 className="text-xl font-semibold mb-4">#SourceRemotely - The New Reality</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+                <span className="text-primary text-sm font-semibold">#SourceRemotely - The New Reality</span>
+              </div>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-3xl mx-auto">
                 Since 2021, ProcureSaathi has revolutionized the B2B sourcing sector as India's first-ever 
                 Reverse Marketplace Platform offering direct procurement services to businesses worldwide. 
                 Our innovative sealed bidding system ensures fair competition while maintaining complete transparency.
               </p>
-              <div className="grid md:grid-cols-2 gap-6 text-left mt-8">
-                <div className="bg-card p-6 rounded-lg border">
-                  <h4 className="font-semibold text-foreground mb-3">For Buyers & Procurement Teams</h4>
+              <div className="grid md:grid-cols-2 gap-6 text-left mt-10">
+                <div className="bg-card p-7 rounded-2xl border border-border/50 hover:shadow-large transition-all duration-300">
+                  <h4 className="font-display font-semibold text-foreground mb-4 text-lg">For Buyers & Procurement Teams</h4>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Whether you're sourcing raw materials, industrial equipment, chemicals, textiles, or electronics, 
                     ProcureSaathi connects you with verified Indian manufacturers and suppliers. Post your requirements 
@@ -569,8 +603,8 @@ const Index = () => {
                     transparent bidding while reducing sourcing time from weeks to hours.
                   </p>
                 </div>
-                <div className="bg-card p-6 rounded-lg border">
-                  <h4 className="font-semibold text-foreground mb-3">For Suppliers & Manufacturers</h4>
+                <div className="bg-card p-7 rounded-2xl border border-border/50 hover:shadow-large transition-all duration-300">
+                  <h4 className="font-display font-semibold text-foreground mb-4 text-lg">For Suppliers & Manufacturers</h4>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Expand your business reach across India and globally with ProcureSaathi's B2B marketplace. 
                     Access genuine buyer requirements in your product category, submit competitive bids, and win 
@@ -581,9 +615,9 @@ const Index = () => {
                   </p>
                 </div>
               </div>
-              <div className="mt-8 bg-muted/50 p-6 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-3">Complete B2B Procurement Ecosystem</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+              <div className="mt-8 bg-gradient-to-br from-muted/50 to-muted/30 p-7 rounded-2xl border border-border/30">
+                <h4 className="font-display font-semibold text-foreground mb-4 text-lg">Complete B2B Procurement Ecosystem</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl mx-auto">
                   ProcureSaathi offers a complete end-to-end B2B procurement solution covering sourcing, bidding, 
                   supplier verification, logistics booking, and payment tracking. Our integrated logistics network 
                   connects you with verified truck operators and warehouse partners across India, ensuring seamless 
@@ -624,18 +658,22 @@ const Index = () => {
       <LazyFAQ />
 
       {/* Contact Section */}
-      <section id="contact" className="py-16">
+      <section id="contact" className="section-padding">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Contact Us</h2>
-          <p className="text-center text-muted-foreground mb-12">Get in touch with our team</p>
+          <div className="text-center mb-12">
+            <h2 className="section-title font-display">Contact Us</h2>
+            <p className="section-subtitle">Get in touch with our team</p>
+          </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
             {/* Address */}
-            <Card>
+            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
               <CardContent className="p-6 text-center">
-                <MapPin className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Address</h4>
-                <p className="text-sm text-muted-foreground">
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <MapPin className="h-7 w-7 text-primary" />
+                </div>
+                <h4 className="font-display font-semibold mb-2">Address</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   PROCURESAATHI SOLUTIONS PRIVATE LIMITED<br />
                   Metro Pillar Number 564, 14/3 Mathura Road, Sector-31, Haryana - 121003
                 </p>
@@ -643,30 +681,36 @@ const Index = () => {
             </Card>
             
             {/* Email */}
-            <Card>
+            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
               <CardContent className="p-6 text-center">
-                <Mail className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Email</h4>
-                <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline">
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <Mail className="h-7 w-7 text-primary" />
+                </div>
+                <h4 className="font-display font-semibold mb-2">Email</h4>
+                <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline font-medium">
                   sales@procuresaathi.com
                 </a>
               </CardContent>
             </Card>
             
             {/* GSTIN */}
-            <Card>
+            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
               <CardContent className="p-6 text-center">
-                <Building2 className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">GSTIN</h4>
-                <p className="text-sm text-muted-foreground">06AAMCP4662L1ZW</p>
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <Building2 className="h-7 w-7 text-primary" />
+                </div>
+                <h4 className="font-display font-semibold mb-2">GSTIN</h4>
+                <p className="text-sm text-muted-foreground font-mono">06AAMCP4662L1ZW</p>
               </CardContent>
             </Card>
             
             {/* Business Hours */}
-            <Card>
+            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
               <CardContent className="p-6 text-center">
-                <Clock className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Business Hours</h4>
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <Clock className="h-7 w-7 text-primary" />
+                </div>
+                <h4 className="font-display font-semibold mb-2">Business Hours</h4>
                 <p className="text-sm text-muted-foreground">
                   Monday - Saturday<br />
                   9:00 AM - 6:00 PM IST
@@ -676,20 +720,15 @@ const Index = () => {
           </div>
           
           {/* CTA */}
-          <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-4">Have questions? We'd love to hear from you!</p>
+          <div className="text-center mt-14">
+            <p className="text-muted-foreground mb-5">Have questions? We'd love to hear from you!</p>
             <a 
               href="mailto:sales@procuresaathi.com"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
+              className="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
             >
               <Mail className="h-4 w-4" />
               Send us an Email
             </a>
-            <p className="text-sm text-muted-foreground mt-3">
-              <a href="mailto:sales@procuresaathi.com" className="text-primary hover:underline">
-                sales@procuresaathi.com
-              </a>
-            </p>
           </div>
         </div>
       </section>
@@ -699,16 +738,20 @@ const Index = () => {
         <ReferralPromoSection />
       </Suspense>
 
-      {/* CTA Section */}
-      <section className="bg-muted/30 py-16">
+      {/* Final CTA Section */}
+      <section className="section-padding bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
+          <h2 className="section-title font-display mb-4">
             Ready to Transform Your Business?
           </h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
             Join ProcureSaathi today and experience the future of B2B procurement
           </p>
-          <Button size="lg" onClick={() => navigate('/signup')}>
+          <Button 
+            size="lg" 
+            className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
+            onClick={() => navigate('/signup')}
+          >
             Start Free Trial
           </Button>
         </div>
@@ -728,35 +771,35 @@ const Index = () => {
 
 
       {/* Footer */}
-      <footer className="border-t bg-card py-8 sm:py-12">
+      <footer className="border-t border-border/50 bg-card py-12 sm:py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 sm:gap-10 mb-10">
             {/* Company Info */}
-            <div>
-              <h4 className="font-semibold mb-4">PROCURESAATHI SOLUTIONS PRIVATE LIMITED</h4>
-              <p className="text-sm text-muted-foreground mb-2">
+            <div className="col-span-2 md:col-span-1">
+              <h4 className="font-display font-bold text-sm mb-4 text-foreground">PROCURESAATHI</h4>
+              <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
                 Metro Pillar Number 564, 14/3 Mathura Road, Sector-31, Haryana - 121003
               </p>
-              <p className="text-sm text-muted-foreground">GSTIN: 06AAMCP4662L1ZW</p>
+              <p className="text-sm text-muted-foreground font-mono">GSTIN: 06AAMCP4662L1ZW</p>
             </div>
             
             {/* Quick Links */}
             <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <div className="flex flex-col gap-2">
-                <button onClick={() => scrollToSection('about')} className="text-sm text-muted-foreground hover:text-primary text-left">
+              <h4 className="font-display font-semibold text-sm mb-4">Quick Links</h4>
+              <div className="flex flex-col gap-2.5">
+                <button onClick={() => scrollToSection('about')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   About Us
                 </button>
-                <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   How It Works
                 </button>
-                <button onClick={() => navigate('/categories')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => navigate('/categories')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Categories
                 </button>
-                <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   FAQ
                 </button>
-                <button onClick={() => scrollToSection('contact')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => scrollToSection('contact')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Contact Us
                 </button>
               </div>
@@ -764,21 +807,21 @@ const Index = () => {
 
             {/* For Business */}
             <div>
-              <h4 className="font-semibold mb-4">For Business</h4>
-              <div className="flex flex-col gap-2">
-                <button onClick={() => navigate('/signup?role=buyer')} className="text-sm text-muted-foreground hover:text-primary text-left">
+              <h4 className="font-display font-semibold text-sm mb-4">For Business</h4>
+              <div className="flex flex-col gap-2.5">
+                <button onClick={() => navigate('/signup?role=buyer')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Join as Buyer
                 </button>
-                <button onClick={() => navigate('/signup?role=supplier')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => navigate('/signup?role=supplier')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Join as Supplier
                 </button>
-                <button onClick={() => navigate('/signup?role=logistics_partner')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => navigate('/signup?role=logistics_partner')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Logistics Partner
                 </button>
-                <button onClick={() => navigate('/book-truck')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => navigate('/book-truck')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Book a Truck
                 </button>
-                <button onClick={() => navigate('/blogs')} className="text-sm text-muted-foreground hover:text-primary text-left">
+                <button onClick={() => navigate('/blogs')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Blogs
                 </button>
               </div>
@@ -786,45 +829,42 @@ const Index = () => {
 
             {/* International Markets */}
             <div>
-              <h4 className="font-semibold mb-4">International Markets</h4>
-              <div className="flex flex-col gap-2">
-                <a href="/source/usa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+              <h4 className="font-display font-semibold text-sm mb-4">International Markets</h4>
+              <div className="flex flex-col gap-2.5">
+                <a href="/source/usa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
                   <span>🇺🇸</span> Source from India to USA
                 </a>
-                <a href="/source/uae" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                <a href="/source/uae" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
                   <span>🇦🇪</span> India to UAE Trade
                 </a>
-                <a href="/source/uk" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                <a href="/source/uk" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
                   <span>🇬🇧</span> Indian Suppliers for UK
                 </a>
-                <a href="/source/germany" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                <a href="/source/germany" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
                   <span>🇩🇪</span> India to Germany Trade
                 </a>
-                <a href="/source/australia" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
+                <a href="/source/australia" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
                   <span>🇦🇺</span> Source from India to Australia
-                </a>
-                <a href="/source/africa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2">
-                  <span>🌍</span> Export to Africa
                 </a>
               </div>
             </div>
             
             {/* Newsletter */}
             <div>
-              <h4 className="font-semibold mb-4">Stay Updated</h4>
-              <p className="text-sm text-muted-foreground mb-3">
+              <h4 className="font-display font-semibold text-sm mb-4">Stay Updated</h4>
+              <p className="text-sm text-muted-foreground mb-4">
                 Get weekly B2B sourcing tips & market insights
               </p>
               <NewsletterSignup source="footer" />
-              <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline block mt-4">
+              <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline block mt-4 font-medium">
                 sales@procuresaathi.com
               </a>
             </div>
           </div>
           
-          <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
-            <p className="mt-2">India's #1 B2B Sourcing & Procurement Platform</p>
+          <div className="border-t border-border/50 pt-8 text-center">
+            <p className="text-sm text-muted-foreground">&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
+            <p className="mt-2 text-sm font-medium text-primary">India's #1 B2B Sourcing & Procurement Platform</p>
           </div>
         </div>
       </footer>
