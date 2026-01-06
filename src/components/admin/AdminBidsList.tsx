@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Search, Gavel, Package, Truck, Pencil } from 'lucide-react';
+import { Loader2, Search, Gavel, Package, Truck, Pencil, Trophy } from 'lucide-react';
+import { LineItemL1View } from '@/components/LineItemL1View';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import {
@@ -96,8 +97,12 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [supplierTotal, setSupplierTotal] = useState(0);
   const [logisticsPage, setLogisticsPage] = useState(1);
   const [logisticsTotal, setLogisticsTotal] = useState(0);
-  const [tabCounts, setTabCounts] = useState({ supplier: 0, logistics: 0 });
+  const [tabCounts, setTabCounts] = useState({ supplier: 0, logistics: 0, comparison: 0 });
   const [pageSize, setPageSize] = useState(15);
+  
+  // Comparison tab state
+  const [requirements, setRequirements] = useState<Array<{ id: string; title: string; product_category: string; trade_type?: string }>>([]);
+  const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
 
   // Edit state
   const [editingBid, setEditingBid] = useState<Bid | null>(null);
@@ -133,9 +138,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
     if (open) {
       if (activeTab === 'supplier') {
         fetchSupplierBids();
-      } else {
+      } else if (activeTab === 'logistics') {
         fetchLogisticsBids();
       }
+      // Comparison tab doesn't need separate fetch - uses LineItemL1View
     }
   }, [open, activeTab, supplierPage, logisticsPage, pageSize]);
 
@@ -171,11 +177,18 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
 
   const fetchTabCounts = async () => {
     try {
-      const [{ count: sCount }, { count: lCount }] = await Promise.all([
+      const [{ count: sCount }, { count: lCount }, { data: reqs }] = await Promise.all([
         supabase.from('bids').select('*', { count: 'exact', head: true }),
         supabase.from('logistics_bids').select('*', { count: 'exact', head: true }),
+        supabase.from('requirements').select('id, title, product_category, trade_type').order('created_at', { ascending: false }).limit(50),
       ]);
-      setTabCounts({ supplier: sCount || 0, logistics: lCount || 0 });
+      setTabCounts({ supplier: sCount || 0, logistics: lCount || 0, comparison: reqs?.length || 0 });
+      if (reqs) {
+        setRequirements(reqs);
+        if (reqs.length > 0 && !selectedRequirementId) {
+          setSelectedRequirementId(reqs[0].id);
+        }
+      }
     } catch (error) {
       console.error('Error fetching counts:', error);
     }
@@ -393,7 +406,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="supplier" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
                 Supplier Bids ({tabCounts.supplier})
@@ -401,6 +414,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
               <TabsTrigger value="logistics" className="flex items-center gap-2">
                 <Truck className="h-4 w-4" />
                 Logistics Bids ({tabCounts.logistics})
+              </TabsTrigger>
+              <TabsTrigger value="comparison" className="flex items-center gap-2">
+                <Trophy className="h-4 w-4" />
+                L1 Comparison ({tabCounts.comparison})
               </TabsTrigger>
             </TabsList>
 
@@ -625,7 +642,45 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   </Table>
                 </TabsContent>
 
-                {totalPages > 1 && (
+                <TabsContent value="comparison" className="flex-1 overflow-auto mt-4">
+                  <div className="space-y-4">
+                    {/* Requirement Selector */}
+                    <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
+                      <Label className="text-sm font-medium whitespace-nowrap">Select Requirement:</Label>
+                      <Select 
+                        value={selectedRequirementId || ''} 
+                        onValueChange={setSelectedRequirementId}
+                      >
+                        <SelectTrigger className="w-full max-w-md">
+                          <SelectValue placeholder="Choose a requirement..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {requirements.map(req => (
+                            <SelectItem key={req.id} value={req.id}>
+                              <span className="truncate">{req.title}</span>
+                              <Badge variant="outline" className="ml-2 text-xs">{req.product_category}</Badge>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* L1 Comparison View */}
+                    {selectedRequirementId ? (
+                      <LineItemL1View 
+                        requirementId={selectedRequirementId} 
+                        tradeType={requirements.find(r => r.id === selectedRequirementId)?.trade_type}
+                        showAllSuppliers={true}
+                      />
+                    ) : (
+                      <div className="text-center py-12 text-muted-foreground">
+                        Select a requirement to view L1 comparison
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+
+                {totalPages > 1 && activeTab !== 'comparison' && (
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <div className="flex items-center gap-4">
                       <p className="text-sm text-muted-foreground">
