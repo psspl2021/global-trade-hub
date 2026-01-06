@@ -516,16 +516,18 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                 </TableHeader>
                                 <TableBody>
                                   {bid.bid_items && bid.bid_items.length > 0 ? (
-                                    // Use actual bid_items when available
+                                    // Use actual bid_items when available - each item has its own rate
                                     bid.bid_items.map((item) => {
                                       // Parse transport from terms_and_conditions
                                       const terms = bid.terms_and_conditions || '';
                                       const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
                                       const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
                                       
-                                      // Calculate buyer rate: (base + transport) * (1 + feeRate)
+                                      // Calculate buyer rate for THIS specific item
+                                      // Each item uses its OWN unit_price from bid_items
                                       const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
-                                      const totalSupplierRate = item.unit_price + transportPerUnit;
+                                      const itemBaseRate = item.unit_price; // This is the item-specific rate
+                                      const totalSupplierRate = itemBaseRate + transportPerUnit;
                                       const buyerRate = totalSupplierRate * (1 + feeRate);
                                       const buyerTotal = buyerRate * item.quantity;
                                       
@@ -595,7 +597,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
                             <div className="bg-muted/30 rounded-lg p-4">
                               {(() => {
-                                // Calculate total with transport + markup
+                                // Calculate total with transport + markup for each item
                                 const terms = bid.terms_and_conditions || '';
                                 const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
                                 const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
@@ -604,8 +606,10 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                 let totalBuyerAmount = 0;
                                 
                                 if (bid.bid_items && bid.bid_items.length > 0) {
+                                  // Sum each item's buyer total using its own unit_price
                                   totalBuyerAmount = bid.bid_items.reduce((sum, item) => {
-                                    const totalSupplierRate = item.unit_price + transportPerUnit;
+                                    const itemBaseRate = item.unit_price;
+                                    const totalSupplierRate = itemBaseRate + transportPerUnit;
                                     const buyerRate = totalSupplierRate * (1 + feeRate);
                                     return sum + (buyerRate * item.quantity);
                                   }, 0);
