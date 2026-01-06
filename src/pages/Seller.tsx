@@ -135,33 +135,34 @@ const Seller = () => {
       <PageHeader />
       
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroBgSeller})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background/95" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/80 mb-6">
-              <span className="text-sm font-medium text-muted-foreground">ALL-IN-ONE PLATFORM</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-warning/20 bg-warning/5 backdrop-blur-sm mb-6 animate-fade-in">
+              <Sparkles className="h-4 w-4 text-warning" />
+              <span className="text-sm font-semibold text-warning">ALL-IN-ONE PLATFORM</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up">
               World of Opportunities on a{" "}
               <span className="text-primary">Single Platform</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-slide-up delay-100">
               Boost your business's global visibility and reach. Connect with verified buyers 
               from 50+ countries and grow your exports.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up delay-200">
               <Button 
                 size="lg" 
-                className="h-14 px-8 text-lg"
+                className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-warning text-warning-foreground hover:bg-warning/90"
                 onClick={() => navigate('/signup?role=supplier')}
               >
                 Sign Up For Free
@@ -169,7 +170,7 @@ const Seller = () => {
               </Button>
               <Button 
                 variant="link" 
-                className="text-primary text-lg"
+                className="text-primary text-lg font-medium"
                 onClick={() => navigate('/login')}
               >
                 Already a Seller? Sign In
@@ -178,15 +179,17 @@ const Seller = () => {
           </div>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-16 max-w-4xl mx-auto">
             {stats.map((stat) => (
-              <Card key={stat.label} className="border border-border bg-card">
+              <Card key={stat.label} className="group border-border/50 bg-card/80 backdrop-blur-sm hover:shadow-large transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="p-6 text-center">
-                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary" aria-hidden="true" />
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <stat.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="text-3xl md:text-4xl font-display font-bold text-primary mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -195,19 +198,19 @@ const Seller = () => {
       </section>
 
       {/* Why Sell Section */}
-      <section className="py-16 bg-amber-50/50 dark:bg-amber-950/10">
+      <section className="section-padding bg-gradient-to-br from-warning/5 via-warning/10 to-warning/5">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="section-title font-display text-center mb-12">
             Why Sell on ProcureSaathi
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto mb-12">
             {benefits.map((benefit) => (
               <div 
                 key={benefit.title} 
-                className="flex items-center gap-3 p-4 bg-card rounded-lg border border-border"
+                className="group flex items-center gap-4 p-5 bg-card rounded-2xl border border-border/50 hover:shadow-large transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0" />
+                <div className="w-4 h-4 rounded-full bg-warning flex-shrink-0 group-hover:scale-125 transition-transform" />
                 <span className="font-medium">{benefit.title}</span>
               </div>
             ))}
@@ -216,7 +219,7 @@ const Seller = () => {
           <div className="text-center">
             <Button 
               size="lg" 
-              className="h-14 px-10 text-lg bg-amber-500 hover:bg-amber-600 text-white"
+              className="h-14 px-12 text-lg font-semibold bg-warning hover:bg-warning/90 text-warning-foreground shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
               onClick={() => navigate('/signup?role=supplier')}
             >
               Start Selling Today
@@ -227,25 +230,27 @@ const Seller = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16 md:py-24">
+      <section className="section-padding">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="section-title font-display">How It Works</h2>
+            <p className="section-subtitle">
               Get started in minutes and start receiving inquiries from global buyers.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {howItWorks.map((item) => (
-              <Card key={item.step} className="relative border border-border">
+              <Card key={item.step} className="group relative border-border/50 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="p-6">
-                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4">
+                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4 group-hover:scale-110 transition-transform shadow-md">
                     {item.step}
                   </div>
-                  <item.icon className="h-8 w-8 text-primary mb-3" aria-hidden="true" />
-                  <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <item.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-lg font-display font-semibold mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -254,26 +259,26 @@ const Seller = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-16 bg-muted/30">
+      <section className="section-padding bg-muted/20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <div className="text-center mb-14">
+            <h2 className="section-title font-display">
               Everything You Need to <span className="text-primary">Succeed</span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="section-subtitle">
               Powerful tools and features designed to help you grow your export business.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {features.map((feature) => (
-              <Card key={feature.title} className="border border-border hover:shadow-lg transition-shadow">
+              <Card key={feature.title} className="group border-border/50 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="h-7 w-7 text-primary" aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <h3 className="text-lg font-display font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -285,14 +290,16 @@ const Seller = () => {
       <FreeCRMSection role="supplier" />
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-primary">
+      <section className="section-padding gradient-primary">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <Zap className="h-12 w-12 text-primary-foreground mx-auto mb-6" aria-hidden="true" />
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-primary-foreground/10 flex items-center justify-center mx-auto mb-6">
+              <Zap className="h-8 w-8 text-primary-foreground" aria-hidden="true" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-primary-foreground mb-4">
               Ready to Grow Your Business?
             </h2>
-            <p className="text-lg text-primary-foreground/80 mb-8">
+            <p className="text-lg text-primary-foreground/80 mb-10">
               Join thousands of suppliers already selling on ProcureSaathi. 
               Start for free and scale globally.
             </p>
@@ -300,7 +307,7 @@ const Seller = () => {
               <Button 
                 size="lg" 
                 variant="secondary"
-                className="h-14 px-8 text-lg"
+                className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
                 onClick={() => navigate('/signup?role=supplier')}
               >
                 Get Started Free
@@ -309,7 +316,7 @@ const Seller = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="h-14 px-8 text-lg bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary"
+                className="h-14 px-10 text-lg font-medium bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary transition-all"
                 onClick={() => navigate('/login')}
               >
                 Sign In
@@ -320,10 +327,10 @@ const Seller = () => {
       </section>
 
       {/* Footer Link */}
-      <section className="py-8 text-center">
+      <section className="py-10 text-center bg-muted/20">
         <Button 
           variant="link" 
-          className="text-muted-foreground"
+          className="text-muted-foreground font-medium"
           onClick={() => navigate('/')}
         >
           ← Back to Home

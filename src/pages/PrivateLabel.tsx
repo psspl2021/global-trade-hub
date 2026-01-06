@@ -258,7 +258,7 @@ const PrivateLabel = () => {
       
       {/* Hero Section */}
       <section 
-        className="relative py-16 md:py-24 overflow-hidden"
+        className="relative py-16 md:py-24 lg:py-28 overflow-hidden"
         aria-labelledby="hero-heading"
       >
         {/* Background Image */}
@@ -266,30 +266,30 @@ const PrivateLabel = () => {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroBgPrivateLabel})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background/95" />
         <div className="container mx-auto px-4 relative z-10">
           <header className="text-center max-w-4xl mx-auto">
-            <Badge variant="secondary" className="mb-6">
-              1000+ Verified Manufacturers
+            <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-semibold animate-fade-in">
+              🏭 1000+ Verified Manufacturers
             </Badge>
             
             <h1 
               id="hero-heading"
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up"
             >
               Source Private Label Products{" "}
               <span className="text-primary">Direct from India</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto animate-slide-up delay-100">
               From supplements to skincare, ProcureSaathi makes sourcing simple, smart, 
               and supported—powered by AI and backed by human expertise
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up delay-200">
               <Button 
                 size="lg" 
-                className="h-14 px-8 text-lg"
+                className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
                 onClick={() => navigate('/signup?role=buyer')}
                 aria-label="Start sourcing private label products"
               >
@@ -299,7 +299,7 @@ const PrivateLabel = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="h-14 px-8 text-lg"
+                className="h-14 px-10 text-lg font-medium bg-card/80 backdrop-blur-sm hover:bg-card border-border/80 hover:border-primary/50 transition-all"
                 onClick={() => navigate('/login')}
                 aria-label="Talk to sourcing concierge"
               >
@@ -310,15 +310,17 @@ const PrivateLabel = () => {
           </header>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto" role="list" aria-label="Platform statistics">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-16 max-w-4xl mx-auto" role="list" aria-label="Platform statistics">
             {stats.map((stat) => (
-              <Card key={stat.label} className="border border-border bg-card" role="listitem">
+              <Card key={stat.label} className="group border-border/50 bg-card/80 backdrop-blur-sm hover:shadow-large transition-all duration-300 hover:-translate-y-1" role="listitem">
                 <CardContent className="p-6 text-center">
-                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary" aria-hidden="true" />
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <stat.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="text-3xl md:text-4xl font-display font-bold text-primary mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -327,26 +329,26 @@ const PrivateLabel = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-16" aria-labelledby="features-heading">
+      <section className="section-padding" aria-labelledby="features-heading">
         <div className="container mx-auto px-4">
-          <header className="text-center mb-12">
-            <h2 id="features-heading" className="text-3xl md:text-4xl font-bold mb-4">
+          <header className="text-center mb-14">
+            <h2 id="features-heading" className="section-title font-display">
               Why Choose <span className="text-primary">Private Label</span> with Us
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="section-subtitle">
               Everything you need to launch your own branded product line
             </p>
           </header>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto" role="list">
             {features.map((feature) => (
-              <article key={feature.title} className="border border-border hover:shadow-lg transition-shadow rounded-lg bg-card" role="listitem">
+              <article key={feature.title} className="group border-border/50 hover:shadow-large transition-all duration-300 hover:-translate-y-1 rounded-2xl bg-card" role="listitem">
                 <div className="p-6">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="h-7 w-7 text-primary" aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <h3 className="text-lg font-display font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                 </div>
               </article>
             ))}
@@ -355,13 +357,13 @@ const PrivateLabel = () => {
       </section>
 
       {/* White-Glove Concierge Section */}
-      <section className="py-16 bg-primary/5" aria-labelledby="concierge-heading">
+      <section className="section-padding bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5" aria-labelledby="concierge-heading">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="bg-card rounded-2xl p-8 md:p-12 border border-border">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="bg-card rounded-3xl p-8 md:p-12 border border-border/50 shadow-large">
+              <div className="grid md:grid-cols-2 gap-10 items-center">
                 <div>
-                  <h2 id="concierge-heading" className="text-2xl md:text-3xl font-bold mb-4">
+                  <h2 id="concierge-heading" className="text-2xl md:text-3xl font-display font-bold mb-4">
                     White-Glove Concierge for Every Buyer
                   </h2>
                   <p className="text-muted-foreground mb-6">
@@ -370,20 +372,22 @@ const PrivateLabel = () => {
                   <ul className="space-y-4" role="list">
                     {conciergeServices.map((service, index) => (
                       <li key={index} className="flex items-center gap-3">
-                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" aria-hidden="true" />
-                        <span>{service.title}</span>
+                        <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center flex-shrink-0">
+                          <CheckCircle className="h-5 w-5 text-success" aria-hidden="true" />
+                        </div>
+                        <span className="font-medium">{service.title}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="bg-muted/50 rounded-xl p-8 text-center mb-6 w-full max-w-xs">
-                    <div className="text-5xl md:text-6xl font-bold text-primary mb-2">85%</div>
-                    <p className="text-muted-foreground">Matched in 5 days</p>
+                  <div className="bg-gradient-to-br from-muted/80 to-muted/50 rounded-2xl p-8 text-center mb-6 w-full max-w-xs border border-border/50">
+                    <div className="text-5xl md:text-6xl font-display font-bold text-primary mb-2">85%</div>
+                    <p className="text-muted-foreground font-medium">Matched in 5 days</p>
                   </div>
                   <Button 
                     size="lg"
-                    className="w-full max-w-xs h-14"
+                    className="w-full max-w-xs h-14 font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
                     onClick={() => navigate('/signup?role=buyer')}
                     aria-label="Get personalized sourcing support"
                   >
@@ -397,13 +401,13 @@ const PrivateLabel = () => {
       </section>
 
       {/* Categories */}
-      <section className="py-16" aria-labelledby="categories-heading">
+      <section className="section-padding" aria-labelledby="categories-heading">
         <div className="container mx-auto px-4">
           <header className="text-center mb-12">
-            <h2 id="categories-heading" className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 id="categories-heading" className="section-title font-display">
               Popular Private Label Categories
             </h2>
-            <p className="text-lg text-muted-foreground">
+            <p className="section-subtitle">
               Explore products across diverse categories
             </p>
           </header>
@@ -413,7 +417,7 @@ const PrivateLabel = () => {
               <Badge 
                 key={category} 
                 variant="outline" 
-                className="px-4 py-2 text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="px-5 py-2.5 text-sm font-medium cursor-pointer hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
               >
                 {category}
               </Badge>
@@ -423,11 +427,11 @@ const PrivateLabel = () => {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-muted/30" aria-labelledby="how-it-works-heading">
+      <section className="section-padding bg-muted/20" aria-labelledby="how-it-works-heading">
         <div className="container mx-auto px-4">
-          <header className="text-center mb-12">
-            <h2 id="how-it-works-heading" className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <header className="text-center mb-14">
+            <h2 id="how-it-works-heading" className="section-title font-display">How It Works</h2>
+            <p className="section-subtitle">
               From idea to finished product in 4 simple steps
             </p>
           </header>
@@ -435,14 +439,16 @@ const PrivateLabel = () => {
           <ol className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto list-none">
             {howItWorks.map((item) => (
               <li key={item.step}>
-                <article className="relative border border-border rounded-lg bg-card h-full">
+                <article className="group relative border-border/50 rounded-2xl bg-card h-full hover:shadow-large transition-all duration-300 hover:-translate-y-1">
                   <div className="p-6">
-                    <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4">
+                    <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mb-4 group-hover:scale-110 transition-transform shadow-md">
                       {item.step}
                     </div>
-                    <item.icon className="h-8 w-8 text-primary mb-3" aria-hidden="true" />
-                    <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                      <item.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                    </div>
+                    <h3 className="text-lg font-display font-semibold mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                   </div>
                 </article>
               </li>
@@ -455,21 +461,23 @@ const PrivateLabel = () => {
       <FreeCRMSection role="buyer" />
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-primary" aria-labelledby="cta-heading">
+      <section className="section-padding gradient-primary" aria-labelledby="cta-heading">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <Factory className="h-12 w-12 text-primary-foreground mx-auto mb-6" aria-hidden="true" />
-            <h2 id="cta-heading" className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-primary-foreground/10 flex items-center justify-center mx-auto mb-6">
+              <Factory className="h-8 w-8 text-primary-foreground" aria-hidden="true" />
+            </div>
+            <h2 id="cta-heading" className="text-3xl md:text-4xl font-display font-bold text-primary-foreground mb-4">
               Ready to Launch Your Brand?
             </h2>
-            <p className="text-lg text-primary-foreground/80 mb-8">
+            <p className="text-lg text-primary-foreground/80 mb-10">
               Connect with verified manufacturers and bring your product vision to life.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
                 variant="secondary"
-                className="h-14 px-8 text-lg"
+                className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
                 onClick={() => navigate('/signup?role=buyer')}
                 aria-label="Get started with private label manufacturing"
               >
@@ -479,7 +487,7 @@ const PrivateLabel = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="h-14 px-8 text-lg bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary"
+                className="h-14 px-10 text-lg font-medium bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary transition-all"
                 onClick={() => navigate('/categories')}
                 aria-label="Explore product categories"
               >
@@ -491,10 +499,10 @@ const PrivateLabel = () => {
       </section>
 
       {/* Footer Link */}
-      <footer className="py-8 text-center">
+      <footer className="py-10 text-center bg-muted/20">
         <Button 
           variant="link" 
-          className="text-muted-foreground"
+          className="text-muted-foreground font-medium"
           onClick={() => navigate('/')}
         >
           ← Back to Home

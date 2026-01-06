@@ -58,56 +58,60 @@ const Categories = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card border-b sticky top-0 z-50">
+      <header className="bg-card/95 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div 
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer group"
             onClick={() => navigate('/')}
           >
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-20 w-auto object-contain"
+              className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105"
               width={80}
               height={80}
               loading="eager"
             />
           </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Button variant="ghost" onClick={() => navigate('/#about')}>About Us</Button>
-            <Button variant="ghost" className="text-primary font-medium border-b-2 border-primary rounded-none">Categories</Button>
-            <Button variant="ghost" onClick={() => navigate('/#contact')}>Contact</Button>
+          <nav className="hidden md:flex items-center gap-2">
+            <Button variant="ghost" className="font-medium hover:text-primary hover:bg-primary/5 transition-colors" onClick={() => navigate('/#about')}>About Us</Button>
+            <Button variant="ghost" className="text-primary font-semibold bg-primary/5">Categories</Button>
+            <Button variant="ghost" className="font-medium hover:text-primary hover:bg-primary/5 transition-colors" onClick={() => navigate('/#contact')}>Contact</Button>
           </nav>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/login')}>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" className="font-medium" onClick={() => navigate('/login')}>
               Login
             </Button>
-            <Button onClick={() => navigate('/signup')}>Join Now</Button>
+            <Button className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" onClick={() => navigate('/signup')}>Join Now</Button>
           </div>
         </div>
       </header>
 
       {/* Hero Banner */}
-      <section className="relative bg-gradient-to-r from-primary/90 to-primary py-16 overflow-hidden">
+      <section className="relative py-16 md:py-20 overflow-hidden">
         <img 
           src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80"
           alt="B2B industrial suppliers and manufacturers warehouse"
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          className="absolute inset-0 w-full h-full object-cover"
           width={1920}
           height={600}
           loading="eager"
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/90 via-primary/85 to-primary/95" />
         <div className="container mx-auto px-4 relative z-10 text-center">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 backdrop-blur-sm mb-6">
+            <span className="text-sm font-semibold text-primary-foreground">40+ Product Categories</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-primary-foreground mb-6">
             B2B Product Categories
           </h1>
-          <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-primary-foreground/90 mb-10 max-w-2xl mx-auto">
             Find verified <strong>B2B suppliers</strong>, <strong>manufacturers</strong>, and <strong>exporters</strong> across 40+ industrial categories. Source steel, machinery, textiles, chemicals, and more from India.
           </p>
           <Button 
             size="lg" 
             variant="secondary"
-            className="text-lg px-8"
+            className="text-lg px-10 h-14 font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
             onClick={() => navigate('/signup')}
           >
             Join Now - It's Free
@@ -119,19 +123,19 @@ const Categories = () => {
       <CategoryShowcase />
 
       {/* Search Bar */}
-      <section className="py-8 bg-muted/50">
+      <section className="py-10 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-xl mx-auto relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               placeholder="Search categories or products..."
-              className="pl-12 py-6 text-lg"
+              className="pl-12 py-6 text-lg rounded-xl border-border/50 focus:border-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           {searchQuery && (
-            <p className="text-center text-sm text-muted-foreground mt-2">
+            <p className="text-center text-sm text-muted-foreground mt-3 font-medium">
               Found {filteredCategories.length} categories matching "{searchQuery}"
             </p>
           )}
@@ -139,42 +143,44 @@ const Categories = () => {
       </section>
 
       {/* Categories Accordion */}
-      <section className="py-12">
+      <section className="section-padding">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
-            Browse All Categories
-          </h2>
-          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Explore <a href="/category/building-construction" className="text-primary hover:underline">Building & Construction</a>, <a href="/category/machinery-equipment" className="text-primary hover:underline">Machinery</a>, <a href="/category/textiles-fabrics" className="text-primary hover:underline">Textiles</a>, and more categories with verified suppliers.
-          </p>
+          <div className="text-center mb-10">
+            <h2 className="section-title font-display">
+              Browse All Categories
+            </h2>
+            <p className="section-subtitle">
+              Explore <a href="/category/building-construction" className="text-primary hover:underline font-medium">Building & Construction</a>, <a href="/category/machinery-equipment" className="text-primary hover:underline font-medium">Machinery</a>, <a href="/category/textiles-fabrics" className="text-primary hover:underline font-medium">Textiles</a>, and more categories with verified suppliers.
+            </p>
+          </div>
           
           <div className="max-w-4xl mx-auto">
-            <Accordion type="multiple" className="space-y-2">
+            <Accordion type="multiple" className="space-y-3">
               {filteredCategories.map((category) => {
                 const IconComponent = category.icon;
                 return (
                   <AccordionItem 
                     key={category.name} 
                     value={category.name}
-                    className="border rounded-lg px-4 bg-card"
+                    className="border border-border/50 rounded-2xl px-5 bg-card hover:shadow-medium transition-shadow"
                   >
-                    <AccordionTrigger className="hover:no-underline py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
+                    <AccordionTrigger className="hover:no-underline py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2.5 rounded-xl bg-primary/10 group-hover:scale-110 transition-transform">
                           <IconComponent className="h-5 w-5 text-primary" />
                         </div>
-                        <span className="font-medium text-left">{category.name}</span>
-                        <span className="text-xs text-muted-foreground ml-2">
+                        <span className="font-display font-semibold text-left">{category.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2 font-medium">
                           ({category.subcategories.length})
                         </span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-4">
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pt-2">
+                    <AccordionContent className="pb-5">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pt-3">
                         {/* View All Link */}
                         <button
                           onClick={() => handleCategoryClick(category.name)}
-                          className="text-left text-sm text-primary font-medium hover:underline flex items-center gap-1 p-2 rounded hover:bg-primary/5 transition-colors"
+                          className="text-left text-sm text-primary font-semibold hover:underline flex items-center gap-1 p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
                         >
                           View All
                           <ChevronRight className="h-3 w-3" />
@@ -184,7 +190,7 @@ const Categories = () => {
                           <button
                             key={sub}
                             onClick={() => handleSubcategoryClick(category.name, sub)}
-                            className="text-left text-sm text-muted-foreground hover:text-primary hover:underline p-2 rounded hover:bg-muted/50 transition-colors truncate"
+                            className="text-left text-sm text-muted-foreground hover:text-primary hover:underline p-2.5 rounded-lg hover:bg-muted/50 transition-colors truncate"
                             title={sub}
                           >
                             {sub}
@@ -198,11 +204,11 @@ const Categories = () => {
             </Accordion>
 
             {filteredCategories.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">
+              <div className="text-center py-16">
+                <p className="text-muted-foreground mb-6 text-lg">
                   No categories found matching "{searchQuery}"
                 </p>
-                <Button variant="outline" onClick={() => setSearchQuery('')}>
+                <Button variant="outline" className="font-medium" onClick={() => setSearchQuery('')}>
                   Clear Search
                 </Button>
               </div>
@@ -212,19 +218,19 @@ const Categories = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-muted py-16">
+      <section className="section-padding bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+          <h2 className="section-title font-display">
             Ready to Source Products?
           </h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+          <p className="section-subtitle mb-10">
             Join thousands of buyers and suppliers on ProcureSaathi. Post your requirements and get competitive bids from verified suppliers.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate('/signup')}>
+            <Button size="lg" className="h-14 px-10 font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1" onClick={() => navigate('/signup')}>
               Create Free Account
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/browse')}>
+            <Button size="lg" variant="outline" className="h-14 px-10 font-medium" onClick={() => navigate('/browse')}>
               Browse Requirements
             </Button>
           </div>
@@ -232,14 +238,14 @@ const Categories = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t py-8">
+      <footer className="bg-card border-t border-border/50 py-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/')}>
               <img 
                 src={procureSaathiLogo} 
                 alt="ProcureSaathi B2B sourcing platform logo" 
-                className="h-12 w-auto object-contain"
+                className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
                 width={48}
                 height={48}
                 loading="lazy"
@@ -248,9 +254,9 @@ const Categories = () => {
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} ProcureSaathi. All rights reserved.
             </p>
-            <div className="flex gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Login</Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/signup')}>Sign Up</Button>
+            <div className="flex gap-3">
+              <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/login')}>Login</Button>
+              <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/signup')}>Sign Up</Button>
             </div>
           </div>
         </div>
