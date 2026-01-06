@@ -307,8 +307,13 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
 
   yPos += 8;
 
-  // Items Table with professional styling
+  // Items Table with professional styling - optimized column widths for large numbers
   const tableColumns = ['#', 'Description', 'HSN', 'Qty', 'Unit', 'Rate', 'Tax %', 'Tax Amt', 'Total'];
+
+  // Format currency without symbol for table (compact)
+  const formatTableCurrency = (amount: number): string => {
+    return amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   const tableData = data.items.map((item, index) => [
     (index + 1).toString(),
@@ -316,10 +321,10 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
     item.hsn_code || '-',
     item.quantity.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     item.unit,
-    formatCurrency(item.unit_price),
+    formatTableCurrency(item.unit_price),
     item.tax_rate ? `${item.tax_rate}%` : '-',
-    formatCurrency(item.tax_amount),
-    formatCurrency(item.total),
+    formatTableCurrency(item.tax_amount),
+    formatTableCurrency(item.total),
   ]);
 
   autoTable(doc, {
@@ -331,48 +336,52 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
       fillColor: [0, 102, 204], 
       textColor: 255, 
       fontStyle: 'bold',
-      fontSize: 9,
-      halign: 'center'
+      fontSize: 8,
+      halign: 'center',
+      cellPadding: 3
     },
     styles: { 
-      fontSize: 9, 
-      cellPadding: 4,
+      fontSize: 8, 
+      cellPadding: 3,
       lineColor: [220, 220, 220],
       lineWidth: 0.1,
-      textColor: [33, 37, 41]
+      textColor: [33, 37, 41],
+      overflow: 'linebreak'
     },
     alternateRowStyles: {
       fillColor: [248, 249, 250]
     },
     columnStyles: {
-      0: { cellWidth: 10, halign: 'center' },
-      1: { cellWidth: 45 },
-      2: { cellWidth: 18, halign: 'center' },
-      3: { cellWidth: 15, halign: 'right' },
-      4: { cellWidth: 15, halign: 'center' },
-      5: { cellWidth: 22, halign: 'right' },
-      6: { cellWidth: 15, halign: 'center' },
-      7: { cellWidth: 22, halign: 'right' },
-      8: { cellWidth: 28, halign: 'right' },
+      0: { cellWidth: 8, halign: 'center' },   // #
+      1: { cellWidth: 42 },                     // Description - allow wrapping
+      2: { cellWidth: 16, halign: 'center' },   // HSN
+      3: { cellWidth: 14, halign: 'right' },    // Qty
+      4: { cellWidth: 14, halign: 'center' },   // Unit
+      5: { cellWidth: 24, halign: 'right' },    // Rate
+      6: { cellWidth: 12, halign: 'center' },   // Tax %
+      7: { cellWidth: 24, halign: 'right' },    // Tax Amt
+      8: { cellWidth: 26, halign: 'right' },    // Total
     },
+    margin: { left: margin, right: margin },
+    tableWidth: 'auto',
   });
 
   yPos = (doc as any).lastAutoTable.finalY + 15;
 
-  // Totals Section - Right aligned with styled box - WIDER to fit numbers
-  const totalsBoxWidth = 110;
-  const totalsX = pageWidth - margin - totalsBoxWidth + 15;
-  const totalsValueX = pageWidth - margin - 10;
+  // Totals Section - Right aligned with wider box for large numbers
+  const totalsBoxWidth = 130;
+  const totalsX = pageWidth - margin - totalsBoxWidth + 10;
+  const totalsValueX = pageWidth - margin - 8;
   
   doc.setDrawColor(0, 102, 204);
   doc.setFillColor(255, 255, 255);
   
-  let totalsHeight = 40;
+  let totalsHeight = 45;
   if (data.discountPercent && data.discountPercent > 0) totalsHeight += 12;
   
-  doc.roundedRect(totalsX - 15, yPos - 8, totalsBoxWidth, totalsHeight, 3, 3, 'FD');
+  doc.roundedRect(totalsX - 5, yPos - 8, totalsBoxWidth, totalsHeight, 3, 3, 'FD');
   
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(33, 37, 41);
   
@@ -392,7 +401,7 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
 
   // Total line with emphasis
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
+  doc.setFontSize(12);
   doc.setTextColor(0, 102, 204);
   doc.text('Total:', totalsX, yPos);
   doc.text(formatCurrency(data.totalAmount), totalsValueX, yPos, { align: 'right' });
