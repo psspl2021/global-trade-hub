@@ -559,132 +559,266 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
     );
   }
 
-  // Admin view: Show all suppliers per item with L1 highlighted and edit option
+  // Admin view: Side-by-side supplier comparison table
+  // Collect all unique suppliers across all items
+  const allSuppliers = new Map<string, { supplier: SupplierProfile | null; bid: Bid }>();
+  l1Data.forEach(item => {
+    item.allBidItems.forEach(bidData => {
+      if (!allSuppliers.has(bidData.bid.supplier_id)) {
+        allSuppliers.set(bidData.bid.supplier_id, { 
+          supplier: bidData.supplier, 
+          bid: bidData.bid 
+        });
+      }
+    });
+  });
+  const suppliersArray = Array.from(allSuppliers.entries());
+
+  // Helper to get buyer rate for a bid item
+  const getBuyerRate = (bidItem: BidItem | undefined, bid: Bid | undefined) => {
+    if (!bidItem || !bid) return null;
+    const baseRate = bidItem.unit_price;
+    const terms = bid.terms_and_conditions || '';
+    const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+    const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+    return (baseRate + transportPerUnit) * (1 + feeRate);
+  };
+
+  // Calculate totals per supplier
+  const supplierTotals = new Map<string, number>();
+  suppliersArray.forEach(([supplierId]) => {
+    let total = 0;
+    l1Data.forEach(item => {
+      const bidData = item.allBidItems.find(b => b.bid.supplier_id === supplierId);
+      if (bidData) {
+        const rate = getBuyerRate(bidData.bidItem, bidData.bid);
+        if (rate !== null) {
+          total += rate * item.requirementItem.quantity;
+        }
+      }
+    });
+    supplierTotals.set(supplierId, total);
+  });
+
+  // Find overall L1 supplier (lowest total)
+  let overallL1SupplierId: string | null = null;
+  let lowestTotal = Infinity;
+  supplierTotals.forEach((total, supplierId) => {
+    if (total > 0 && total < lowestTotal) {
+      lowestTotal = total;
+      overallL1SupplierId = supplierId;
+    }
+  });
+
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Trophy className="h-4 w-4 text-yellow-500" />
-          <span>Line-Item L1 Analysis</span>
+          <span>Supplier Rate Comparison</span>
         </div>
 
-        {l1Data.map((item) => (
-          <div key={item.requirementItem.id} className="border rounded-lg overflow-hidden">
-            <div className="bg-muted/50 px-4 py-3 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{item.requirementItem.item_name}</span>
-                  <Badge variant="secondary">{item.requirementItem.category}</Badge>
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  Required: {item.requirementItem.quantity} {item.requirementItem.unit}
-                </span>
-              </div>
-            </div>
-
-            {item.allBidItems.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">
-                No quotes received for this item
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="font-medium">Supplier</TableHead>
-                    <TableHead className="text-right font-medium">Rate/Unit</TableHead>
-                    <TableHead className="text-right font-medium">Qty</TableHead>
-                    <TableHead className="text-right font-medium">Total</TableHead>
-                    <TableHead className="font-medium">Status</TableHead>
-                    <TableHead className="w-[60px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {item.allBidItems.map((bidData) => (
-                    <TableRow 
-                      key={bidData.bidItem.id}
-                      className={bidData.isL1 ? 'bg-yellow-50/50' : ''}
+        {suppliersArray.length === 0 ? (
+          <div className="border rounded-lg p-6 text-center text-muted-foreground">
+            No bids received yet
+          </div>
+        ) : (
+          <div className="border rounded-lg overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="font-semibold min-w-[180px] sticky left-0 bg-muted/50 z-10">
+                    Size & Grade
+                  </TableHead>
+                  <TableHead className="text-center font-semibold min-w-[80px]">Qty</TableHead>
+                  {suppliersArray.map(([supplierId, data], idx) => (
+                    <TableHead 
+                      key={supplierId} 
+                      className={`text-center font-semibold min-w-[120px] ${
+                        supplierId === overallL1SupplierId ? 'bg-green-50' : ''
+                      }`}
                     >
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {bidData.isL1 && (
-                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                              <Trophy className="h-3 w-3 mr-1" />
-                              L1
-                            </Badge>
-                          )}
-                          <div>
-                            <div className="font-medium">{bidData.supplier?.company_name || 'Unknown'}</div>
-                            <div className="text-xs text-muted-foreground">{bidData.supplier?.email}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <span className={bidData.isL1 ? 'font-semibold text-success' : ''}>
-                          ₹{bidData.bidItem.unit_price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {bidData.bidItem.quantity} {item.requirementItem.unit}
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        ₹{bidData.bidItem.total.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={
-                            bidData.bid.status === 'accepted' ? 'default' :
-                            bidData.bid.status === 'rejected' ? 'destructive' : 'outline'
-                          }>
-                            {bidData.bid.status}
+                      <div className="flex flex-col items-center gap-1">
+                        {supplierId === overallL1SupplierId && (
+                          <Badge className="bg-green-100 text-green-800 border-green-300 text-xs">
+                            <Trophy className="h-3 w-3 mr-1" />
+                            Overall L1
                           </Badge>
-                          {bidData.bid.status === 'accepted' && bidData.bid.dispatched_qty && (
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              {bidData.bid.dispatched_qty} dispatched
-                            </Badge>
-                          )}
+                        )}
+                        <span className="text-xs truncate max-w-[100px]" title={data.supplier?.company_name || 'Unknown'}>
+                          Supplier {idx + 1}
+                        </span>
+                      </div>
+                    </TableHead>
+                  ))}
+                  <TableHead className="text-center font-semibold min-w-[100px] bg-yellow-50">
+                    <div className="flex flex-col items-center">
+                      <Trophy className="h-4 w-4 text-yellow-600 mb-1" />
+                      <span>L1 Rate</span>
+                    </div>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {l1Data.map((item) => {
+                  // Find L1 bid item for this specific item
+                  const l1BidData = item.allBidItems.find(b => b.isL1);
+                  const l1Rate = l1BidData ? getBuyerRate(l1BidData.bidItem, l1BidData.bid) : null;
+
+                  return (
+                    <TableRow key={item.requirementItem.id}>
+                      <TableCell className="font-medium sticky left-0 bg-background z-10">
+                        <div className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="truncate">{item.requirementItem.item_name}</span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingBidItem({
-                              ...bidData,
-                              itemName: item.requirementItem.item_name,
-                              unit: item.requirementItem.unit,
-                            })}
-                            title="Edit Bid Item"
+                      <TableCell className="text-center">
+                        <span className="font-medium">{item.requirementItem.quantity}</span>
+                        <span className="text-xs text-muted-foreground ml-1">{item.requirementItem.unit}</span>
+                      </TableCell>
+                      {suppliersArray.map(([supplierId]) => {
+                        const bidData = item.allBidItems.find(b => b.bid.supplier_id === supplierId);
+                        const rate = bidData ? getBuyerRate(bidData.bidItem, bidData.bid) : null;
+                        const isL1ForItem = bidData?.isL1 || false;
+
+                        return (
+                          <TableCell 
+                            key={supplierId} 
+                            className={`text-center ${
+                              isL1ForItem ? 'bg-yellow-50 font-semibold' : ''
+                            } ${supplierId === overallL1SupplierId ? 'bg-green-50/50' : ''}`}
                           >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          {bidData.bid.status === 'accepted' && requirementDetails && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setDispatchModalData({
-                                bidId: bidData.bid.id,
-                                totalQuantity: requirementDetails.quantity,
-                                unit: requirementDetails.unit,
-                                currentDispatchedQty: bidData.bid.dispatched_qty,
-                              })}
-                              title="Record Dispatch"
-                              className="text-primary hover:text-primary"
-                            >
-                              <Truck className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
+                            {rate !== null ? (
+                              <div className="flex flex-col items-center">
+                                <span className={isL1ForItem ? 'text-yellow-700' : ''}>
+                                  ₹{rate.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                </span>
+                                {isL1ForItem && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 mt-1 bg-yellow-100 text-yellow-700 border-yellow-300">
+                                    L1
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                      <TableCell className="text-center bg-yellow-50 font-semibold">
+                        {l1Rate !== null ? (
+                          <span className="text-yellow-700">
+                            ₹{l1Rate.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                  );
+                })}
+
+                {/* Total Row */}
+                <TableRow className="bg-muted/30 font-semibold border-t-2">
+                  <TableCell className="sticky left-0 bg-muted/30 z-10">
+                    <span className="font-bold">TOTAL VALUE</span>
+                  </TableCell>
+                  <TableCell></TableCell>
+                  {suppliersArray.map(([supplierId]) => {
+                    const total = supplierTotals.get(supplierId) || 0;
+                    const isOverallL1 = supplierId === overallL1SupplierId;
+                    
+                    return (
+                      <TableCell 
+                        key={supplierId} 
+                        className={`text-center ${isOverallL1 ? 'bg-green-100' : ''}`}
+                      >
+                        <div className="flex flex-col items-center">
+                          <span className={isOverallL1 ? 'text-green-700 font-bold' : ''}>
+                            ₹{total.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                          </span>
+                          {isOverallL1 && (
+                            <Badge className="bg-green-600 text-white text-[10px] px-1.5 py-0 mt-1">
+                              LOWEST
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell className="text-center bg-yellow-100">
+                    <span className="text-yellow-700 font-bold">
+                      ₹{l1Data.reduce((sum, item) => {
+                        const l1BidData = item.allBidItems.find(b => b.isL1);
+                        const rate = l1BidData ? getBuyerRate(l1BidData.bidItem, l1BidData.bid) : null;
+                        return sum + (rate !== null ? rate * item.requirementItem.quantity : 0);
+                      }, 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-        ))}
+        )}
+
+        {/* Overall L1 Supplier Summary */}
+        {overallL1SupplierId && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-green-100 p-2 rounded-full">
+                <Trophy className="h-5 w-5 text-green-700" />
+              </div>
+              <div className="flex-1">
+                <div className="text-sm font-medium text-green-800">Overall L1 Supplier</div>
+                <div className="text-lg font-bold text-green-900">
+                  {allSuppliers.get(overallL1SupplierId)?.supplier?.company_name || 'Unknown'}
+                </div>
+                <div className="text-xs text-green-700">
+                  {allSuppliers.get(overallL1SupplierId)?.supplier?.email}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-green-700">Total Value</div>
+                <div className="text-xl font-bold text-green-800">
+                  ₹{lowestTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Supplier Legend */}
+        {suppliersArray.length > 0 && (
+          <div className="bg-muted/30 rounded-lg p-4">
+            <div className="text-sm font-medium mb-3">Supplier Details</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {suppliersArray.map(([supplierId, data], idx) => (
+                <div 
+                  key={supplierId} 
+                  className={`flex items-center gap-3 p-2 rounded-lg border ${
+                    supplierId === overallL1SupplierId ? 'bg-green-50 border-green-200' : 'bg-background'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    supplierId === overallL1SupplierId 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">{data.supplier?.company_name || 'Unknown'}</div>
+                    <div className="text-xs text-muted-foreground truncate">{data.supplier?.email}</div>
+                  </div>
+                  {supplierId === overallL1SupplierId && (
+                    <Trophy className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Edit Bid Item Dialog */}
