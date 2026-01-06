@@ -292,28 +292,6 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-07YSLG6WCL');
-      
-      // Google Ads Geo-Targeting for USA and Dubai
-      gtag('config', 'AW-XXXXXXXXXX'); // Replace with your Google Ads ID
-      gtag('event', 'conversion', {
-        'send_to': 'AW-XXXXXXXXXX/YYYYYYYY', // Replace with your conversion ID
-        'value': 1.0,
-        'currency': 'USD'
-      });
-    </script>
-
-    <!-- Facebook Pixel for USA and Dubai Audience Tracking -->
-    <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', 'XXXXXXXXXXXXXXXXX'); // Replace with your Facebook Pixel ID
-      fbq('track', 'PageView');
     </script>
 
     <!-- Shown.io Analytics -->
@@ -321,11 +299,6 @@
   </head>
 
   <body>
-    <!-- Facebook Pixel noscript fallback -->
-    <noscript>
-      <img height="1" width="1" style="display:none" alt=""
-        src="https://www.facebook.com/tr?id=XXXXXXXXXXXXXXXXX&ev=PageView&noscript=1"/>
-    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
