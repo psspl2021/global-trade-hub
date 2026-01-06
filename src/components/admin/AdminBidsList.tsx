@@ -91,7 +91,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [logisticsBids, setLogisticsBids] = useState<LogisticsBid[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('supplier');
+  const [activeTab, setActiveTab] = useState('comparison');
   
   const [supplierPage, setSupplierPage] = useState(1);
   const [supplierTotal, setSupplierTotal] = useState(0);
