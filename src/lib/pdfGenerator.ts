@@ -69,7 +69,7 @@ const getDocumentTitle = (type: string): string => {
 };
 
 const formatCurrency = (amount: number): string => {
-  return `₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return 'Rs. ' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 // Load the Procuresaathi logo
@@ -95,13 +95,18 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   const margin = 15;
   let yPos = 15;
 
-  // Load logo
-  const logoData = await loadLogo();
+  // Load company logo if provided, otherwise load default logo
+  let logoData: string | null = null;
+  if (data.companyLogo) {
+    logoData = data.companyLogo;
+  } else {
+    logoData = await loadLogo();
+  }
 
-  // Add logo if available - larger size
+  // Add logo if available - properly sized
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', margin, yPos, 50, 22);
+      doc.addImage(logoData, 'PNG', margin, yPos, 40, 18);
     } catch {
       // Skip if logo fails
     }
