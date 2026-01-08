@@ -420,20 +420,6 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
-    name: 'Jewelry & Watches',
-    icon: Gem,
-    subcategories: [
-      'Gold Jewelry',
-      'Silver Jewelry',
-      'Fashion Jewelry',
-      'Gemstones',
-      'Watches',
-      'Jewelry Components',
-      'Wedding Jewelry',
-      'Men\'s Jewelry',
-    ]
-  },
-  {
     name: 'Lights & Lighting',
     icon: Lightbulb,
     subcategories: [
@@ -853,20 +839,6 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
-    name: 'Sports & Outdoor',
-    icon: Dumbbell,
-    subcategories: [
-      'Sports Equipment',
-      'Fitness Equipment',
-      'Outdoor Gear',
-      'Camping Equipment',
-      'Sports Apparel',
-      'Water Sports',
-      'Team Sports',
-      'Adventure Sports',
-    ]
-  },
-  {
     name: 'Telecommunication',
     icon: Radio,
     subcategories: [
@@ -891,19 +863,6 @@ export const categoriesData: CategoryData[] = [
       'Leather Products',
       'Leather Raw Materials',
       'Garment Accessories',
-    ]
-  },
-  {
-    name: 'Toys & Games',
-    icon: Gamepad2,
-    subcategories: [
-      'Electronic Toys',
-      'Board Games',
-      'Outdoor Toys',
-      'Plush Toys',
-      'Action Figures',
-      'Building Toys',
-      'Party Supplies',
     ]
   },
   {
@@ -953,24 +912,6 @@ export const categoriesData: CategoryData[] = [
       'Industrial Ladders',
       'Steel Staircases',
       'Support Structures',
-    ]
-  },
-  {
-    name: 'Logistics & Transportation',
-    icon: Truck,
-    subcategories: [
-      'Freight Forwarding',
-      'Warehousing & Distribution',
-      'Road Transportation',
-      'Sea Freight',
-      'Air Cargo',
-      'Rail Freight',
-      'Customs Brokerage',
-      'Cold Chain Logistics',
-      'Last-Mile Delivery',
-      'Container Services',
-      'Fleet Management',
-      'Supply Chain Solutions',
     ]
   },
   {
