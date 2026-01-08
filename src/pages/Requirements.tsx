@@ -137,10 +137,11 @@ const Requirements = () => {
 
   useSEO({
     title: 'Live RFQs & Buyer Requirements | B2B Procurement - ProcureSaathi',
-    description: 'Browse active RFQs and buyer requirements for industrial materials, chemicals, steel, polymers, and more. Submit competitive bids on ProcureSaathi B2B marketplace.',
+    description: 'Browse 40+ active RFQs and buyer requirements for industrial materials, chemicals, steel, polymers, and more. Submit competitive bids on ProcureSaathi B2B marketplace.',
     canonical: 'https://procuresaathi.com/requirements',
-    keywords: 'RFQ, buyer requirements, B2B procurement, industrial materials, steel requirements, chemical requirements, supplier bidding, tender, quotation request',
+    keywords: 'RFQ, buyer requirements, B2B procurement, industrial materials, steel requirements, chemical requirements, supplier bidding, tender, quotation request, live tenders India',
     ogType: 'website',
+    ogImage: 'https://procuresaathi.com/og-early-adopter.png',
   });
 
   useEffect(() => {
@@ -361,7 +362,9 @@ const Requirements = () => {
 
         {/* Requirements List */}
         <section aria-labelledby="requirements-heading">
-          <h2 id="requirements-heading" className="sr-only">Active Requirements</h2>
+          <h2 id="requirements-heading" className="text-2xl font-semibold mb-6">
+            {selectedStatus === 'all' ? 'All Requirements' : `${getStatusLabel(selectedStatus)} Requirements`}
+          </h2>
           
           {loading ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true">
