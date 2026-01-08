@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSEO } from '@/hooks/useSEO';
@@ -23,9 +23,86 @@ const AffiliateSignup = () => {
   });
 
   useSEO({
-    title: 'Become an Affiliate Partner | Earn 0.1% Commission | ProcureSaathi',
-    description: 'Join ProcureSaathi affiliate program. Earn 0.1% commission on every referral order. Lifetime earnings, easy tracking, instant payouts.',
+    title: 'Become an Affiliate Partner | Earn 20% Commission | ProcureSaathi',
+    description: 'Join ProcureSaathi affiliate program. Earn 20% commission on platform fees from every referral order. Lifetime earnings, easy tracking, instant payouts. Start earning passive income today!',
   });
+
+  // Add structured data for affiliate program
+  useEffect(() => {
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "ProcureSaathi Affiliate Partner Program",
+      "description": "Join ProcureSaathi affiliate program and earn 20% commission on platform fees from every referral order. Lifetime earnings with easy tracking.",
+      "url": "https://www.procuresaathi.com/affiliate-signup",
+      "mainEntity": {
+        "@type": "Offer",
+        "name": "ProcureSaathi Affiliate Partnership",
+        "description": "Earn 20% commission on platform fees from referral orders. Lifetime passive income opportunity.",
+        "offeredBy": {
+          "@type": "Organization",
+          "name": "ProcureSaathi",
+          "url": "https://www.procuresaathi.com"
+        },
+        "eligibleRegion": {
+          "@type": "Country",
+          "name": "India"
+        }
+      },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://www.procuresaathi.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Affiliate Signup",
+            "item": "https://www.procuresaathi.com/affiliate-signup"
+          }
+        ]
+      }
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    script.id = 'affiliate-structured-data';
+    document.head.appendChild(script);
+
+    // Add Open Graph and Twitter meta tags
+    const metaTags = [
+      { property: 'og:title', content: 'Become an Affiliate Partner | Earn 20% Commission | ProcureSaathi' },
+      { property: 'og:description', content: 'Join ProcureSaathi affiliate program. Earn 20% commission on platform fees. Lifetime earnings, easy tracking, instant payouts.' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: 'https://www.procuresaathi.com/affiliate-signup' },
+      { property: 'og:image', content: 'https://www.procuresaathi.com/og-early-adopter.png' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'Become an Affiliate Partner | ProcureSaathi' },
+      { name: 'twitter:description', content: 'Earn 20% commission on platform fees from referral orders. Join free today!' },
+      { name: 'keywords', content: 'affiliate program India, B2B referral program, earn commission, passive income, procurement affiliate, supplier referral, logistics partner program, ProcureSaathi affiliate' },
+    ];
+
+    const addedTags: HTMLMetaElement[] = [];
+    metaTags.forEach(tag => {
+      const meta = document.createElement('meta');
+      if (tag.property) meta.setAttribute('property', tag.property);
+      if (tag.name) meta.setAttribute('name', tag.name);
+      meta.setAttribute('content', tag.content);
+      document.head.appendChild(meta);
+      addedTags.push(meta);
+    });
+
+    return () => {
+      const existingScript = document.getElementById('affiliate-structured-data');
+      if (existingScript) existingScript.remove();
+      addedTags.forEach(tag => tag.remove());
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,9 +200,9 @@ const AffiliateSignup = () => {
                     <IndianRupee className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Earn 0.1% Commission</h3>
+                    <h3 className="font-semibold">Earn 20% Commission</h3>
                     <p className="text-sm text-muted-foreground">
-                      Get 0.1% commission on every order from your referrals
+                      Get 20% of platform fees on every order from your referrals
                     </p>
                   </div>
                 </div>
