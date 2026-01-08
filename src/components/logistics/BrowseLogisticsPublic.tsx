@@ -186,7 +186,7 @@ export const BrowseLogisticsPublic = ({ open, onOpenChange }: BrowseLogisticsPub
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
                   <span className="font-semibold">Quantity: </span>
-                  <span>{selectedRequirement.quantity} {selectedRequirement.unit}</span>
+                  <span>{Number(selectedRequirement.quantity).toFixed(2)} {selectedRequirement.unit}</span>
                 </div>
                 <div>
                   <span className="font-semibold">Budget: </span>

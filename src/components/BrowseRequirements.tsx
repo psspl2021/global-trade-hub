@@ -751,7 +751,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
               <CardContent className="space-y-4">
                 <p>{selectedRequirement.description}</p>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Quantity:</strong> {Number(selectedRequirement.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {selectedRequirement.unit}</div>
+                  <div><strong>Quantity:</strong> {Number(selectedRequirement.quantity).toFixed(2)} {selectedRequirement.unit}</div>
                   <div><strong>Budget:</strong> {selectedRequirement.budget_min && selectedRequirement.budget_max ? `₹${selectedRequirement.budget_min} - ₹${selectedRequirement.budget_max}` : 'Not specified'}</div>
                   <div className="flex items-center gap-1"><Calendar className="h-4 w-4" /> Deadline: {format(new Date(selectedRequirement.deadline), 'PPP')}</div>
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
