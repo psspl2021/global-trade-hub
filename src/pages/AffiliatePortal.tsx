@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, LogOut, Settings } from 'lucide-react';
 import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
+import { ReferrerKYCUpload } from '@/components/affiliate/ReferrerKYCUpload';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const AffiliatePortal = () => {
@@ -92,8 +93,13 @@ const AffiliatePortal = () => {
           </p>
         </div>
 
+        {/* KYC Documents Section */}
+        {user && <ReferrerKYCUpload userId={user.id} />}
+
         {/* Referral Section */}
-        {user && <ReferralSection userId={user.id} role="affiliate" />}
+        <div className="mt-6">
+          {user && <ReferralSection userId={user.id} role="affiliate" />}
+        </div>
       </main>
 
       {/* Profile Settings Modal */}
