@@ -1,9 +1,9 @@
 import { 
   Tractor, Car, Cpu, FlaskConical, Building, Shirt, Palette, 
-  Briefcase, Gem, Lightbulb, Cog, Stethoscope, Factory, Smartphone,
+  Briefcase, Lightbulb, Cog, Stethoscope, Factory, Smartphone,
   Baby, BookOpen, Package, FileText, Pill, Layers, Shield, 
-  GraduationCap, Dumbbell, Radio, Scissors, Gamepad2, Utensils,
-  Home, Heart, Leaf, Pickaxe, Truck, LucideIcon
+  GraduationCap, Radio, Scissors, Utensils,
+  Home, Heart, Leaf, Pickaxe, LucideIcon
 } from 'lucide-react';
 
 export interface CategoryData {
