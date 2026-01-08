@@ -26,14 +26,14 @@ const SUPPORTED_COUNTRIES = [
   { code: 'en-IN', country: 'in', url: 'https://procuresaathi.com' },
 ];
 
-// Global website schema
+// Global website schema for export/import
 const getWebsiteSchema = () => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "ProcureSaathi",
-  "alternateName": "Procure Saathi",
+  "alternateName": ["Procure Saathi", "ProcureSaathi Global", "India Export Platform"],
   "url": "https://procuresaathi.com",
-  "description": "India's #1 B2B sourcing platform connecting verified buyers with suppliers worldwide for industrial raw materials, chemicals, and commodities.",
+  "description": "Global B2B export import platform connecting international buyers with verified Indian exporters & manufacturers for steel, chemicals, textiles, machinery, and industrial commodities.",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
@@ -42,7 +42,7 @@ const getWebsiteSchema = () => ({
     },
     "query-input": "required name=search_term_string"
   },
-  "inLanguage": ["en", "hi", "de", "fr", "es", "zh", "ja", "ar", "pt", "ru", "nl", "it"],
+  "inLanguage": ["en", "hi", "de", "fr", "es", "zh", "ja", "ar", "pt", "ru", "nl", "it", "ko"],
   "publisher": {
     "@type": "Organization",
     "name": "ProcureSaathi",
@@ -50,16 +50,20 @@ const getWebsiteSchema = () => ({
       "@type": "ImageObject",
       "url": "https://procuresaathi.com/procuresaathi-logo.png"
     }
+  },
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Global Importers, International Buyers, Trading Companies, Export Agents, Procurement Managers"
   }
 });
 
-// B2B Marketplace schema
+// B2B Export Import Marketplace schema
 const getB2BMarketplaceSchema = () => ({
   "@context": "https://schema.org",
   "@type": "OnlineBusiness",
   "@id": "https://procuresaathi.com/#business",
-  "name": "ProcureSaathi B2B Marketplace",
-  "description": "Global B2B sourcing and procurement platform with 1000+ verified suppliers across 23+ categories. Serving buyers in 50+ countries.",
+  "name": "ProcureSaathi Global Export Import Marketplace",
+  "description": "Connect with 1000+ verified Indian exporters & manufacturers. Global buyers source steel, chemicals, textiles, machinery. Trusted by importers in 50+ countries across all continents.",
   "url": "https://procuresaathi.com",
   "logo": "https://procuresaathi.com/procuresaathi-logo.png",
   "image": "https://procuresaathi.com/og-early-adopter.png",
@@ -85,6 +89,7 @@ const getB2BMarketplaceSchema = () => ({
     { "@type": "Country", "name": "Australia" },
     { "@type": "Country", "name": "Canada" },
     { "@type": "Country", "name": "Japan" },
+    { "@type": "Country", "name": "South Korea" },
     { "@type": "Country", "name": "China" },
     { "@type": "Country", "name": "Singapore" },
     { "@type": "Country", "name": "Saudi Arabia" },
@@ -92,13 +97,17 @@ const getB2BMarketplaceSchema = () => ({
     { "@type": "Country", "name": "Brazil" },
     { "@type": "Country", "name": "Nigeria" },
     { "@type": "Country", "name": "Kenya" },
+    { "@type": "Country", "name": "Netherlands" },
+    { "@type": "Country", "name": "Italy" },
+    { "@type": "Country", "name": "Spain" },
     { "@type": "Continent", "name": "Africa" },
     { "@type": "Continent", "name": "Asia" },
     { "@type": "Continent", "name": "Europe" },
     { "@type": "Continent", "name": "North America" },
-    { "@type": "Continent", "name": "South America" }
+    { "@type": "Continent", "name": "South America" },
+    { "@type": "Continent", "name": "Oceania" }
   ],
-  "knowsLanguage": ["en", "hi", "de", "fr", "es", "zh", "ja", "ar", "pt", "ru"],
+  "knowsLanguage": ["en", "hi", "de", "fr", "es", "zh", "ja", "ar", "pt", "ru", "ko"],
   "sameAs": [
     "https://twitter.com/ProcureSaathi",
     "https://linkedin.com/company/procuresaathi",
@@ -106,18 +115,20 @@ const getB2BMarketplaceSchema = () => ({
   ],
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
-    "name": "B2B Product Categories",
+    "name": "Indian Export Categories",
     "itemListElement": [
-      { "@type": "OfferCatalog", "name": "Metals - Ferrous (Steel, Iron)" },
-      { "@type": "OfferCatalog", "name": "Metals - Non-Ferrous (Copper, Aluminium)" },
-      { "@type": "OfferCatalog", "name": "Industrial Supplies" },
-      { "@type": "OfferCatalog", "name": "Machinery & Equipment" },
-      { "@type": "OfferCatalog", "name": "Chemicals & Petrochemicals" },
-      { "@type": "OfferCatalog", "name": "Textiles & Fabrics" },
-      { "@type": "OfferCatalog", "name": "Food & Beverages" },
-      { "@type": "OfferCatalog", "name": "Pharmaceuticals" },
-      { "@type": "OfferCatalog", "name": "Consumer Electronics" },
-      { "@type": "OfferCatalog", "name": "Building & Construction" }
+      { "@type": "OfferCatalog", "name": "Steel & Iron Products - Export from India" },
+      { "@type": "OfferCatalog", "name": "Chemicals & Solvents - Indian Manufacturers" },
+      { "@type": "OfferCatalog", "name": "Textiles & Fabrics - Made in India" },
+      { "@type": "OfferCatalog", "name": "Machinery & Equipment - Indian Exporters" },
+      { "@type": "OfferCatalog", "name": "Pharmaceuticals & APIs" },
+      { "@type": "OfferCatalog", "name": "Agricultural Products & Spices" },
+      { "@type": "OfferCatalog", "name": "Gems & Jewelry" },
+      { "@type": "OfferCatalog", "name": "Leather & Footwear" },
+      { "@type": "OfferCatalog", "name": "Handicrafts & Home Decor" },
+      { "@type": "OfferCatalog", "name": "Auto Parts & Accessories" },
+      { "@type": "OfferCatalog", "name": "Plastics & Polymers" },
+      { "@type": "OfferCatalog", "name": "Electronics & Components" }
     ]
   }
 });
