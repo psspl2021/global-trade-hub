@@ -197,24 +197,30 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     setPayoutStats({ totalPending, totalPaid, count: pendingCount });
   };
 
-  const markAsPaid = async (commissionId: string) => {
+  const updateCommissionStatus = async (commissionId: string, newStatus: 'pending' | 'paid') => {
     setProcessingPayout(commissionId);
     try {
+      const updateData = newStatus === 'paid' 
+        ? { status: 'paid', paid_at: new Date().toISOString() }
+        : { status: 'pending', paid_at: null };
+
       const { error } = await supabase
         .from('referral_commissions')
-        .update({ status: 'paid', paid_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', commissionId);
 
       if (error) throw error;
 
       toast({
-        title: 'Payout marked as paid',
-        description: 'The commission has been marked as paid successfully.',
+        title: newStatus === 'paid' ? 'Payout marked as paid' : 'Status reverted to pending',
+        description: newStatus === 'paid' 
+          ? 'The commission has been marked as paid successfully.'
+          : 'The commission status has been reverted to pending.',
       });
 
       fetchCommissions();
     } catch (error) {
-      console.error('Error marking payout:', error);
+      console.error('Error updating payout status:', error);
       toast({
         title: 'Error',
         description: 'Failed to update payout status.',
@@ -223,6 +229,14 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     } finally {
       setProcessingPayout(null);
     }
+  };
+
+  const markAsPaid = async (commissionId: string) => {
+    await updateCommissionStatus(commissionId, 'paid');
+  };
+
+  const markAsPending = async (commissionId: string) => {
+    await updateCommissionStatus(commissionId, 'pending');
   };
 
   const markAllPending = async () => {
@@ -562,15 +576,34 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                                   variant="outline"
                                   onClick={() => markAsPaid(commission.id)}
                                   disabled={processingPayout === commission.id}
+                                  className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
                                 >
                                   {processingPayout === commission.id ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                   ) : (
-                                    'Mark Paid'
+                                    <>
+                                      <CheckCircle2 className="h-4 w-4 mr-1" />
+                                      Mark Paid
+                                    </>
                                   )}
                                 </Button>
                               ) : (
-                                <span className="text-xs text-muted-foreground">Completed</span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => markAsPending(commission.id)}
+                                  disabled={processingPayout === commission.id}
+                                  className="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border-yellow-200"
+                                >
+                                  {processingPayout === commission.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <>
+                                      <Clock className="h-4 w-4 mr-1" />
+                                      Revert to Pending
+                                    </>
+                                  )}
+                                </Button>
                               )}
                             </TableCell>
                           </TableRow>
