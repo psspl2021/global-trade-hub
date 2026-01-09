@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -45,6 +45,7 @@ interface AdminDashboardCardsProps {
   onOpenSEMAnalytics: () => void;
   onOpenL1Analysis: () => void;
   onOpenEmailTracking: () => void;
+  onOpenSupplierSelection: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -64,6 +65,7 @@ export function AdminDashboardCards({
   onOpenSEMAnalytics,
   onOpenL1Analysis,
   onOpenEmailTracking,
+  onOpenSupplierSelection,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -459,6 +461,24 @@ export function AdminDashboardCards({
           <Button className="w-full" variant="outline" onClick={onOpenL1Analysis}>
             <Trophy className="h-4 w-4 mr-2" />
             View L1 Analysis
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-indigo-500/20 bg-indigo-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Brain className="h-5 w-5 text-indigo-600" />
+            AI Selection Engine
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            AI-powered supplier selection with anonymity
+          </p>
+          <Button className="w-full" variant="outline" onClick={onOpenSupplierSelection}>
+            <Brain className="h-4 w-4 mr-2" />
+            Open AI Engine
           </Button>
         </CardContent>
       </Card>

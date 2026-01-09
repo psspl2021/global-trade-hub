@@ -2440,6 +2440,45 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_category_performance: {
+        Row: {
+          avg_price_per_unit: number | null
+          category: string
+          created_at: string
+          id: string
+          l1_wins: number | null
+          last_order_date: string | null
+          successful_deliveries: number | null
+          supplier_id: string
+          total_orders: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_price_per_unit?: number | null
+          category: string
+          created_at?: string
+          id?: string
+          l1_wins?: number | null
+          last_order_date?: string | null
+          successful_deliveries?: number | null
+          supplier_id: string
+          total_orders?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_price_per_unit?: number | null
+          category?: string
+          created_at?: string
+          id?: string
+          l1_wins?: number | null
+          last_order_date?: string | null
+          successful_deliveries?: number | null
+          supplier_id?: string
+          total_orders?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       supplier_customers: {
         Row: {
           address: string | null
@@ -2610,6 +2649,42 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_inventory_signals: {
+        Row: {
+          available_quantity: number | null
+          category: string
+          created_at: string
+          id: string
+          last_updated: string
+          location: string | null
+          product_name: string | null
+          supplier_id: string
+          unit: string | null
+        }
+        Insert: {
+          available_quantity?: number | null
+          category: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          location?: string | null
+          product_name?: string | null
+          supplier_id: string
+          unit?: string | null
+        }
+        Update: {
+          available_quantity?: number | null
+          category?: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          location?: string | null
+          product_name?: string | null
+          supplier_id?: string
+          unit?: string | null
+        }
+        Relationships: []
+      }
       supplier_leads: {
         Row: {
           company_name: string | null
@@ -2657,6 +2732,57 @@ export type Database = {
           source?: string | null
           status?: string
           supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      supplier_performance: {
+        Row: {
+          avg_delivery_days: number | null
+          created_at: string
+          delivery_success_rate: number | null
+          id: string
+          last_order_date: string | null
+          late_deliveries: number | null
+          on_time_deliveries: number | null
+          quality_complaints: number | null
+          quality_rejections: number | null
+          quality_score: number | null
+          successful_deliveries: number | null
+          supplier_id: string
+          total_orders: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_delivery_days?: number | null
+          created_at?: string
+          delivery_success_rate?: number | null
+          id?: string
+          last_order_date?: string | null
+          late_deliveries?: number | null
+          on_time_deliveries?: number | null
+          quality_complaints?: number | null
+          quality_rejections?: number | null
+          quality_score?: number | null
+          successful_deliveries?: number | null
+          supplier_id: string
+          total_orders?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_delivery_days?: number | null
+          created_at?: string
+          delivery_success_rate?: number | null
+          id?: string
+          last_order_date?: string | null
+          late_deliveries?: number | null
+          on_time_deliveries?: number | null
+          quality_complaints?: number | null
+          quality_rejections?: number | null
+          quality_score?: number | null
+          successful_deliveries?: number | null
+          supplier_id?: string
+          total_orders?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -2757,6 +2883,75 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "supplier_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_selection_log: {
+        Row: {
+          ai_reasoning: Json | null
+          created_at: string
+          delivery_success_probability: number | null
+          fallback_reason: string | null
+          fallback_triggered: boolean | null
+          id: string
+          logistics_cost: number | null
+          material_cost: number | null
+          quality_risk_score: number | null
+          requirement_id: string
+          runner_up_suppliers: Json | null
+          selected_bid_id: string | null
+          selected_supplier_id: string
+          selection_mode: string
+          total_landed_cost: number | null
+        }
+        Insert: {
+          ai_reasoning?: Json | null
+          created_at?: string
+          delivery_success_probability?: number | null
+          fallback_reason?: string | null
+          fallback_triggered?: boolean | null
+          id?: string
+          logistics_cost?: number | null
+          material_cost?: number | null
+          quality_risk_score?: number | null
+          requirement_id: string
+          runner_up_suppliers?: Json | null
+          selected_bid_id?: string | null
+          selected_supplier_id: string
+          selection_mode: string
+          total_landed_cost?: number | null
+        }
+        Update: {
+          ai_reasoning?: Json | null
+          created_at?: string
+          delivery_success_probability?: number | null
+          fallback_reason?: string | null
+          fallback_triggered?: boolean | null
+          id?: string
+          logistics_cost?: number | null
+          material_cost?: number | null
+          quality_risk_score?: number | null
+          requirement_id?: string
+          runner_up_suppliers?: Json | null
+          selected_bid_id?: string | null
+          selected_supplier_id?: string
+          selection_mode?: string
+          total_landed_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_selection_log_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
+            columns: ["selected_bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
             referencedColumns: ["id"]
           },
         ]
@@ -3103,6 +3298,10 @@ export type Database = {
           markup_percentage: number
           transaction_type: string
         }[]
+      }
+      calculate_delivery_success_rate: {
+        Args: { p_supplier_id: string }
+        Returns: number
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       check_and_increment_email_quota: {

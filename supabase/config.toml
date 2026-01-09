@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.lead-reminders]
 verify_jwt = false
+
+[functions.supplier-selection]
+verify_jwt = true
