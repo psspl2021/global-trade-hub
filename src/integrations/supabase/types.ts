@@ -3493,15 +3493,24 @@ export type Database = {
         Args: { p_supplier_id: string }
         Returns: number
       }
-      calculate_price_confidence: {
-        Args: {
-          p_bid_id?: string
-          p_buyer_visible_price?: number
-          p_requirement_id: string
-          p_selection_mode?: string
-        }
-        Returns: Json
-      }
+      calculate_price_confidence:
+        | {
+            Args: {
+              p_bid_id?: string
+              p_buyer_visible_price?: number
+              p_requirement_id: string
+              p_selection_mode?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_bid_id?: string
+              p_requirement_id: string
+              p_selection_mode?: string
+            }
+            Returns: Json
+          }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       check_and_increment_email_quota: {
         Args: { p_supplier_id: string }
