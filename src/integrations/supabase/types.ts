@@ -2761,9 +2761,12 @@ export type Database = {
         Row: {
           avg_delivery_days: number | null
           created_at: string
+          current_load: number | null
+          daily_capacity: number | null
           id: string
           last_order_date: string | null
           late_deliveries: number | null
+          load_reset_date: string | null
           on_time_deliveries: number | null
           quality_complaints: number | null
           quality_rejections: number | null
@@ -2776,9 +2779,12 @@ export type Database = {
         Insert: {
           avg_delivery_days?: number | null
           created_at?: string
+          current_load?: number | null
+          daily_capacity?: number | null
           id?: string
           last_order_date?: string | null
           late_deliveries?: number | null
+          load_reset_date?: string | null
           on_time_deliveries?: number | null
           quality_complaints?: number | null
           quality_rejections?: number | null
@@ -2791,9 +2797,12 @@ export type Database = {
         Update: {
           avg_delivery_days?: number | null
           created_at?: string
+          current_load?: number | null
+          daily_capacity?: number | null
           id?: string
           last_order_date?: string | null
           late_deliveries?: number | null
+          load_reset_date?: string | null
           on_time_deliveries?: number | null
           quality_complaints?: number | null
           quality_rejections?: number | null
@@ -2908,6 +2917,7 @@ export type Database = {
       supplier_selection_log: {
         Row: {
           ai_reasoning: Json | null
+          composite_score: number | null
           created_at: string
           delivery_success_probability: number | null
           fallback_reason: string | null
@@ -2925,6 +2935,7 @@ export type Database = {
         }
         Insert: {
           ai_reasoning?: Json | null
+          composite_score?: number | null
           created_at?: string
           delivery_success_probability?: number | null
           fallback_reason?: string | null
@@ -2942,6 +2953,7 @@ export type Database = {
         }
         Update: {
           ai_reasoning?: Json | null
+          composite_score?: number | null
           created_at?: string
           delivery_success_probability?: number | null
           fallback_reason?: string | null
