@@ -1012,6 +1012,51 @@ export type Database = {
           },
         ]
       }
+      market_price_indices: {
+        Row: {
+          average_market_price: number
+          created_at: string
+          data_source: string | null
+          demand_index: number
+          id: string
+          last_updated: string
+          max_market_price: number
+          min_market_price: number
+          price_std_deviation: number
+          product_category: string
+          supply_index: number
+          volatility_index: number
+        }
+        Insert: {
+          average_market_price?: number
+          created_at?: string
+          data_source?: string | null
+          demand_index?: number
+          id?: string
+          last_updated?: string
+          max_market_price?: number
+          min_market_price?: number
+          price_std_deviation?: number
+          product_category: string
+          supply_index?: number
+          volatility_index?: number
+        }
+        Update: {
+          average_market_price?: number
+          created_at?: string
+          data_source?: string | null
+          demand_index?: number
+          id?: string
+          last_updated?: string
+          max_market_price?: number
+          min_market_price?: number
+          price_std_deviation?: number
+          product_category?: string
+          supply_index?: number
+          volatility_index?: number
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string
@@ -1357,6 +1402,84 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      price_confidence_scores: {
+        Row: {
+          bid_id: string | null
+          buyer_message: string
+          buyer_visible_price: number
+          competition_score: number | null
+          confidence_label: string
+          confidence_score: number
+          created_at: string
+          historical_price_variance: number | null
+          id: string
+          logistics_note: string | null
+          margin_type: string | null
+          market_stability: number | null
+          price_behavior_note: string | null
+          price_position: number | null
+          price_spread_ratio: number | null
+          requirement_id: string
+          selection_mode: string
+          total_bids: number | null
+        }
+        Insert: {
+          bid_id?: string | null
+          buyer_message: string
+          buyer_visible_price: number
+          competition_score?: number | null
+          confidence_label: string
+          confidence_score: number
+          created_at?: string
+          historical_price_variance?: number | null
+          id?: string
+          logistics_note?: string | null
+          margin_type?: string | null
+          market_stability?: number | null
+          price_behavior_note?: string | null
+          price_position?: number | null
+          price_spread_ratio?: number | null
+          requirement_id: string
+          selection_mode: string
+          total_bids?: number | null
+        }
+        Update: {
+          bid_id?: string | null
+          buyer_message?: string
+          buyer_visible_price?: number
+          competition_score?: number | null
+          confidence_label?: string
+          confidence_score?: number
+          created_at?: string
+          historical_price_variance?: number | null
+          id?: string
+          logistics_note?: string | null
+          margin_type?: string | null
+          market_stability?: number | null
+          price_behavior_note?: string | null
+          price_position?: number | null
+          price_spread_ratio?: number | null
+          requirement_id?: string
+          selection_mode?: string
+          total_bids?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_confidence_scores_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_confidence_scores_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       procurement_config: {
         Row: {
@@ -3363,6 +3486,15 @@ export type Database = {
       calculate_delivery_success_rate: {
         Args: { p_supplier_id: string }
         Returns: number
+      }
+      calculate_price_confidence: {
+        Args: {
+          p_bid_id?: string
+          p_buyer_visible_price?: number
+          p_requirement_id: string
+          p_selection_mode?: string
+        }
+        Returns: Json
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       check_and_increment_email_quota: {
