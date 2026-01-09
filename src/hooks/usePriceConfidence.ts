@@ -6,6 +6,7 @@ interface PriceConfidenceData {
   price_confidence_score: number;
   confidence_label: "HIGH" | "MEDIUM" | "LOW";
   buyer_message: string;
+  competition_message: string;
   price_behavior_note: string;
   logistics_note: string;
   mode: "bidding" | "auto_assign";
@@ -14,9 +15,12 @@ interface PriceConfidenceData {
     market_stability: number;
     competition_score: number;
     price_spread_ratio: number;
+    market_pressure: number;
     margin_type: string;
     total_bids: number | null;
     historical_price_variance: number | null;
+    sample_size: number;
+    confidence_suppressed: boolean;
   };
 }
 
@@ -101,6 +105,7 @@ export const usePriceConfidence = () => {
             price_confidence_score: score.confidence_score,
             confidence_label: score.confidence_label as "HIGH" | "MEDIUM" | "LOW",
             buyer_message: score.buyer_message,
+            competition_message: "Market-driven pricing applied",
             price_behavior_note:
               score.price_behavior_note || "Prices may vary due to market conditions.",
             logistics_note:
@@ -111,9 +116,12 @@ export const usePriceConfidence = () => {
               market_stability: score.market_stability || 0,
               competition_score: score.competition_score || 0,
               price_spread_ratio: score.price_spread_ratio || 0,
+              market_pressure: 0,
               margin_type: score.margin_type || "",
               total_bids: score.total_bids,
               historical_price_variance: score.historical_price_variance,
+              sample_size: 0,
+              confidence_suppressed: (score as any).confidence_suppressed || false,
             },
           };
           setData(confidenceData);
