@@ -100,14 +100,17 @@ export type Database = {
           bid_amount: number
           buyer_visible_price: number
           created_at: string
+          delivered_at: string | null
           delivery_timeline_days: number
           dispatched_qty: number | null
+          expected_delivery_date: string | null
           id: string
           is_paid_bid: boolean
           logistics_execution_mode: string | null
           logistics_notes: string | null
           markup_amount: number | null
           markup_percentage: number | null
+          quality_status: string | null
           requirement_id: string
           service_fee: number
           status: Database["public"]["Enums"]["bid_status"]
@@ -122,14 +125,17 @@ export type Database = {
           bid_amount: number
           buyer_visible_price: number
           created_at?: string
+          delivered_at?: string | null
           delivery_timeline_days: number
           dispatched_qty?: number | null
+          expected_delivery_date?: string | null
           id?: string
           is_paid_bid?: boolean
           logistics_execution_mode?: string | null
           logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
+          quality_status?: string | null
           requirement_id: string
           service_fee: number
           status?: Database["public"]["Enums"]["bid_status"]
@@ -144,14 +150,17 @@ export type Database = {
           bid_amount?: number
           buyer_visible_price?: number
           created_at?: string
+          delivered_at?: string | null
           delivery_timeline_days?: number
           dispatched_qty?: number | null
+          expected_delivery_date?: string | null
           id?: string
           is_paid_bid?: boolean
           logistics_execution_mode?: string | null
           logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
+          quality_status?: string | null
           requirement_id?: string
           service_fee?: number
           status?: Database["public"]["Enums"]["bid_status"]
@@ -1835,11 +1844,13 @@ export type Database = {
           deadline: string
           delivery_location: string
           description: string
+          fast_track: boolean | null
           id: string
           payment_terms: string | null
           product_category: string
           quality_standards: string | null
           quantity: number
+          selection_mode: string | null
           specifications: Json | null
           status: Database["public"]["Enums"]["requirement_status"]
           title: string
@@ -1857,11 +1868,13 @@ export type Database = {
           deadline: string
           delivery_location: string
           description: string
+          fast_track?: boolean | null
           id?: string
           payment_terms?: string | null
           product_category: string
           quality_standards?: string | null
           quantity: number
+          selection_mode?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title: string
@@ -1879,11 +1892,13 @@ export type Database = {
           deadline?: string
           delivery_location?: string
           description?: string
+          fast_track?: boolean | null
           id?: string
           payment_terms?: string | null
           product_category?: string
           quality_standards?: string | null
           quantity?: number
+          selection_mode?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title?: string
@@ -2653,6 +2668,7 @@ export type Database = {
         Row: {
           available_quantity: number | null
           category: string
+          confidence_score: number | null
           created_at: string
           id: string
           last_updated: string
@@ -2660,10 +2676,12 @@ export type Database = {
           product_name: string | null
           supplier_id: string
           unit: string | null
+          valid_until: string | null
         }
         Insert: {
           available_quantity?: number | null
           category: string
+          confidence_score?: number | null
           created_at?: string
           id?: string
           last_updated?: string
@@ -2671,10 +2689,12 @@ export type Database = {
           product_name?: string | null
           supplier_id: string
           unit?: string | null
+          valid_until?: string | null
         }
         Update: {
           available_quantity?: number | null
           category?: string
+          confidence_score?: number | null
           created_at?: string
           id?: string
           last_updated?: string
@@ -2682,6 +2702,7 @@ export type Database = {
           product_name?: string | null
           supplier_id?: string
           unit?: string | null
+          valid_until?: string | null
         }
         Relationships: []
       }
@@ -2740,14 +2761,13 @@ export type Database = {
         Row: {
           avg_delivery_days: number | null
           created_at: string
-          delivery_success_rate: number | null
           id: string
           last_order_date: string | null
           late_deliveries: number | null
           on_time_deliveries: number | null
           quality_complaints: number | null
           quality_rejections: number | null
-          quality_score: number | null
+          quality_risk_score: number | null
           successful_deliveries: number | null
           supplier_id: string
           total_orders: number | null
@@ -2756,14 +2776,13 @@ export type Database = {
         Insert: {
           avg_delivery_days?: number | null
           created_at?: string
-          delivery_success_rate?: number | null
           id?: string
           last_order_date?: string | null
           late_deliveries?: number | null
           on_time_deliveries?: number | null
           quality_complaints?: number | null
           quality_rejections?: number | null
-          quality_score?: number | null
+          quality_risk_score?: number | null
           successful_deliveries?: number | null
           supplier_id: string
           total_orders?: number | null
@@ -2772,14 +2791,13 @@ export type Database = {
         Update: {
           avg_delivery_days?: number | null
           created_at?: string
-          delivery_success_rate?: number | null
           id?: string
           last_order_date?: string | null
           late_deliveries?: number | null
           on_time_deliveries?: number | null
           quality_complaints?: number | null
           quality_rejections?: number | null
-          quality_score?: number | null
+          quality_risk_score?: number | null
           successful_deliveries?: number | null
           supplier_id?: string
           total_orders?: number | null
@@ -3284,6 +3302,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      auto_assign_supplier: {
+        Args: { p_requirement_id: string }
+        Returns: Json
+      }
       auto_expire_requirements: { Args: never; Returns: undefined }
       calculate_bid_markup: {
         Args: {
@@ -3349,6 +3371,10 @@ export type Database = {
           id: string
           state: string
         }[]
+      }
+      get_delivery_success_rate: {
+        Args: { p_supplier_id: string }
+        Returns: number
       }
       get_email_quota_status: {
         Args: { p_supplier_id: string }
@@ -3428,6 +3454,10 @@ export type Database = {
           p_supplier_id: string
         }
         Returns: string
+      }
+      select_supplier_with_bidding: {
+        Args: { p_requirement_id: string }
+        Returns: Json
       }
       send_email_notification: {
         Args: {

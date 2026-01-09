@@ -121,205 +121,109 @@ serve(async (req) => {
 });
 
 async function selectFromBids(supabase: any, requirement: any): Promise<SelectionResult> {
-  // Fetch all bids for this requirement
-  const { data: bids, error: bidsError } = await supabase
-    .from("bids")
-    .select("*")
-    .eq("requirement_id", requirement.id)
-    .eq("status", "pending");
+  // Use the database function for bidding mode selection
+  const { data: dbResult, error: dbError } = await supabase
+    .rpc("select_supplier_with_bidding", { p_requirement_id: requirement.id });
 
-  if (bidsError || !bids || bids.length === 0) {
-    // Fallback to auto-assign if no bids
+  if (dbError) {
+    console.error("Database selection error:", dbError);
+    // Fallback to auto-assign if DB function fails
     const autoResult = await autoAssignSupplier(supabase, requirement);
     return {
       ...autoResult,
       fallbackTriggered: true,
-      fallbackReason: "No bids received, auto-assigned based on historical data"
+      fallbackReason: "Bidding selection failed, auto-assigned: " + dbError.message
     };
   }
 
-  // Score each bid
-  const scoredSuppliers: SupplierScore[] = await Promise.all(
-    bids.map(async (bid: any) => {
-      const performance = await getSupplierPerformance(supabase, bid.supplier_id);
-      const categoryPerf = await getCategoryPerformance(supabase, bid.supplier_id, requirement.product_category);
-      
-      // Calculate logistics cost (from logistics bids or estimate)
-      const logisticsCost = await getLogisticsCost(supabase, requirement.id, bid.supplier_id);
-      
-      const materialCost = bid.bid_amount;
-      const totalLandedCost = materialCost + logisticsCost;
-      
-      // Calculate AI scores
-      const deliverySuccessProbability = calculateDeliveryProbability(performance, categoryPerf, requirement);
-      const qualityRiskScore = calculateQualityRisk(performance);
-      
-      // Composite score (lower is better)
-      // Weight: 60% cost, 25% delivery probability (inverted), 15% quality risk
-      const normalizedCost = totalLandedCost / (requirement.budget_max || totalLandedCost * 1.5);
-      const compositeScore = (normalizedCost * 0.6) + 
-                            ((1 - deliverySuccessProbability) * 0.25) + 
-                            (qualityRiskScore * 0.15);
-      
-      const reasoning: string[] = [];
-      reasoning.push(`Total Landed Cost: ₹${totalLandedCost.toLocaleString()}`);
-      reasoning.push(`Delivery Success Rate: ${(deliverySuccessProbability * 100).toFixed(1)}%`);
-      reasoning.push(`Quality Risk: ${(qualityRiskScore * 100).toFixed(1)}%`);
-      if (categoryPerf?.l1_wins > 0) {
-        reasoning.push(`Previous L1 wins in category: ${categoryPerf.l1_wins}`);
-      }
-      
-      return {
-        supplierId: bid.supplier_id,
-        bidId: bid.id,
-        materialCost,
-        logisticsCost,
-        totalLandedCost,
-        deliverySuccessProbability,
-        qualityRiskScore,
-        compositeScore,
-        reasoning
-      };
-    })
-  );
-
-  // Sort by composite score (lower is better)
-  scoredSuppliers.sort((a, b) => a.compositeScore - b.compositeScore);
-
-  const selected = scoredSuppliers[0];
-  const runnerUps = scoredSuppliers.slice(1, 4);
-
-  // Check risk thresholds for failsafe
-  if (selected.qualityRiskScore > 0.7 || selected.deliverySuccessProbability < 0.5) {
-    // Try next best supplier
-    if (runnerUps.length > 0 && runnerUps[0].qualityRiskScore < 0.7 && runnerUps[0].deliverySuccessProbability >= 0.5) {
-      return {
-        selectedSupplier: runnerUps[0],
-        runnerUps: [selected, ...runnerUps.slice(1)],
-        mode: 'bidding',
-        fallbackTriggered: true,
-        fallbackReason: `Primary L1 (${selected.supplierId.slice(0, 8)}) exceeded risk thresholds. Selected next best.`
-      };
-    }
+  if (!dbResult?.success) {
+    // No suitable supplier from bidding, try auto-assign
+    const autoResult = await autoAssignSupplier(supabase, requirement);
+    return {
+      ...autoResult,
+      fallbackTriggered: true,
+      fallbackReason: dbResult?.error || "No bids met risk thresholds"
+    };
   }
 
+  // Fetch the selected bid details for response
+  const { data: selectedBid } = await supabase
+    .from("bids")
+    .select("*")
+    .eq("id", dbResult.selection_log_id ? undefined : dbResult.supplier_id)
+    .single();
+
+  // Get performance data for response
+  const performance = await getSupplierPerformance(supabase, dbResult.supplier_id);
+  const deliveryRate = await getDynamicDeliveryRate(supabase, dbResult.supplier_id);
+
   return {
-    selectedSupplier: selected,
-    runnerUps,
+    selectedSupplier: {
+      supplierId: dbResult.supplier_id,
+      bidId: selectedBid?.id,
+      materialCost: dbResult.total_price || 0,
+      logisticsCost: 0,
+      totalLandedCost: dbResult.total_price || 0,
+      deliverySuccessProbability: deliveryRate,
+      qualityRiskScore: performance?.quality_risk_score || 0,
+      compositeScore: 0,
+      reasoning: ["Selected via L1 bidding logic", `Delivery days: ${dbResult.delivery_days}`]
+    },
+    runnerUps: [],
     mode: 'bidding',
-    fallbackTriggered: false
+    fallbackTriggered: dbResult.fallback_triggered || false,
+    fallbackReason: dbResult.fallback_reason
   };
 }
 
 async function autoAssignSupplier(supabase: any, requirement: any): Promise<SelectionResult> {
-  // Find suppliers who have won L1 for this category before
-  const { data: categoryWinners, error: catError } = await supabase
-    .from("supplier_category_performance")
-    .select("*")
-    .eq("category", requirement.product_category)
-    .order("l1_wins", { ascending: false })
-    .limit(10);
+  // Use the database function for auto-assignment
+  const { data: dbResult, error: dbError } = await supabase
+    .rpc("auto_assign_supplier", { p_requirement_id: requirement.id });
 
-  if (catError || !categoryWinners || categoryWinners.length === 0) {
-    // Fallback: Get any supplier with inventory
-    const { data: inventorySuppliers } = await supabase
-      .from("supplier_inventory_signals")
-      .select("*")
-      .eq("category", requirement.product_category)
-      .gte("available_quantity", requirement.quantity)
-      .order("last_updated", { ascending: false })
-      .limit(5);
-
-    if (!inventorySuppliers || inventorySuppliers.length === 0) {
-      throw new Error("No suitable suppliers found for auto-assignment");
-    }
-
-    // Use inventory-based assignment
-    return await scoreAndSelectFromInventory(supabase, inventorySuppliers, requirement);
+  if (dbError) {
+    console.error("Auto-assign error:", dbError);
+    throw new Error("Auto-assignment failed: " + dbError.message);
   }
 
-  // Score category winners
-  const scoredSuppliers: SupplierScore[] = await Promise.all(
-    categoryWinners.map(async (catPerf: any) => {
-      const performance = await getSupplierPerformance(supabase, catPerf.supplier_id);
-      
-      // Estimate cost from historical average
-      const estimatedMaterialCost = (catPerf.avg_price_per_unit || 0) * requirement.quantity;
-      const estimatedLogisticsCost = estimatedMaterialCost * 0.05; // Estimate 5% for logistics
-      const totalLandedCost = estimatedMaterialCost + estimatedLogisticsCost;
-      
-      const deliverySuccessProbability = calculateDeliveryProbability(performance, catPerf, requirement);
-      const qualityRiskScore = calculateQualityRisk(performance);
-      
-      // For auto-assign, weight delivery reliability higher
-      const compositeScore = ((totalLandedCost / (requirement.budget_max || totalLandedCost * 1.5)) * 0.4) + 
-                            ((1 - deliverySuccessProbability) * 0.35) + 
-                            (qualityRiskScore * 0.25);
-      
-      const reasoning: string[] = [];
-      reasoning.push(`Historical avg price: ₹${catPerf.avg_price_per_unit?.toLocaleString() || 'N/A'}/unit`);
-      reasoning.push(`L1 wins in category: ${catPerf.l1_wins}`);
-      reasoning.push(`Delivery Success Rate: ${(deliverySuccessProbability * 100).toFixed(1)}%`);
-      reasoning.push(`Auto-assigned based on historical performance`);
-      
-      return {
-        supplierId: catPerf.supplier_id,
-        materialCost: estimatedMaterialCost,
-        logisticsCost: estimatedLogisticsCost,
-        totalLandedCost,
-        deliverySuccessProbability,
-        qualityRiskScore,
-        compositeScore,
-        reasoning
-      };
-    })
-  );
+  if (!dbResult?.success) {
+    throw new Error(dbResult?.error || "No suitable supplier found for auto-assignment");
+  }
 
-  scoredSuppliers.sort((a, b) => a.compositeScore - b.compositeScore);
+  // Get performance data
+  const performance = await getSupplierPerformance(supabase, dbResult.supplier_id);
 
   return {
-    selectedSupplier: scoredSuppliers[0],
-    runnerUps: scoredSuppliers.slice(1, 4),
+    selectedSupplier: {
+      supplierId: dbResult.supplier_id,
+      materialCost: dbResult.estimated_price || 0,
+      logisticsCost: 0,
+      totalLandedCost: dbResult.estimated_price || 0,
+      deliverySuccessProbability: dbResult.delivery_rate || 0.85,
+      qualityRiskScore: performance?.quality_risk_score || 0,
+      compositeScore: 0,
+      reasoning: [
+        "Auto-assigned based on historical L1 wins",
+        `Inventory fresh: ${dbResult.inventory_fresh ? 'Yes' : 'No'}`,
+        `Delivery rate: ${(dbResult.delivery_rate * 100).toFixed(0)}%`
+      ]
+    },
+    runnerUps: [],
     mode: 'auto_assign',
-    fallbackTriggered: false
+    fallbackTriggered: !dbResult.inventory_fresh,
+    fallbackReason: !dbResult.inventory_fresh ? "Inventory data may be stale" : undefined
   };
 }
 
-async function scoreAndSelectFromInventory(supabase: any, inventorySuppliers: any[], requirement: any): Promise<SelectionResult> {
-  const scoredSuppliers: SupplierScore[] = await Promise.all(
-    inventorySuppliers.map(async (inv: any) => {
-      const performance = await getSupplierPerformance(supabase, inv.supplier_id);
-      
-      // Estimate cost (use market average or default)
-      const estimatedMaterialCost = requirement.budget_min || requirement.quantity * 1000;
-      const estimatedLogisticsCost = estimatedMaterialCost * 0.05;
-      const totalLandedCost = estimatedMaterialCost + estimatedLogisticsCost;
-      
-      const deliverySuccessProbability = performance?.delivery_success_rate || 0.85;
-      const qualityRiskScore = 1 - (performance?.quality_score || 0.9);
-      
-      const compositeScore = 0.5; // Default score for inventory-based
-      
-      return {
-        supplierId: inv.supplier_id,
-        materialCost: estimatedMaterialCost,
-        logisticsCost: estimatedLogisticsCost,
-        totalLandedCost,
-        deliverySuccessProbability,
-        qualityRiskScore,
-        compositeScore,
-        reasoning: [`Inventory-based selection: ${inv.available_quantity} ${inv.unit} available`]
-      };
-    })
-  );
-
-  return {
-    selectedSupplier: scoredSuppliers[0],
-    runnerUps: scoredSuppliers.slice(1),
-    mode: 'auto_assign',
-    fallbackTriggered: true,
-    fallbackReason: "No historical L1 data, selected based on inventory availability"
-  };
+// Dynamic delivery success rate using database function
+async function getDynamicDeliveryRate(supabase: any, supplierId: string): Promise<number> {
+  const { data, error } = await supabase
+    .rpc("get_delivery_success_rate", { p_supplier_id: supplierId });
+  
+  if (error || data === null) {
+    return 0.85; // Default for new suppliers
+  }
+  return data;
 }
 
 async function getSupplierPerformance(supabase: any, supplierId: string) {
@@ -356,58 +260,6 @@ async function getLogisticsCost(supabase: any, requirementId: string, supplierId
   
   // Estimate: typically 3-7% of material cost
   return 0; // Will be added when logistics bid is available
-}
-
-function calculateDeliveryProbability(performance: any, categoryPerf: any, requirement: any): number {
-  if (!performance) {
-    return 0.85; // Default for new suppliers
-  }
-  
-  let probability = performance.delivery_success_rate || 0.85;
-  
-  // Adjust based on category performance
-  if (categoryPerf?.successful_deliveries > 0) {
-    const categoryRate = categoryPerf.successful_deliveries / categoryPerf.total_orders;
-    probability = (probability * 0.6) + (categoryRate * 0.4);
-  }
-  
-  // Penalize for recent late deliveries
-  if (performance.late_deliveries > 0) {
-    const lateRatio = performance.late_deliveries / performance.total_orders;
-    probability = probability * (1 - (lateRatio * 0.2));
-  }
-  
-  // Bonus for frequent orders (active supplier)
-  if (performance.total_orders > 10) {
-    probability = Math.min(probability * 1.05, 0.99);
-  }
-  
-  return Math.max(0.1, Math.min(probability, 0.99));
-}
-
-function calculateQualityRisk(performance: any): number {
-  if (!performance) {
-    return 0.15; // Default moderate-low risk for new suppliers
-  }
-  
-  let risk = 0;
-  
-  // Base risk from quality score
-  risk = 1 - (performance.quality_score || 0.9);
-  
-  // Add risk from rejections
-  if (performance.quality_rejections > 0 && performance.total_orders > 0) {
-    const rejectionRate = performance.quality_rejections / performance.total_orders;
-    risk += rejectionRate * 0.3;
-  }
-  
-  // Add risk from complaints
-  if (performance.quality_complaints > 0 && performance.total_orders > 0) {
-    const complaintRate = performance.quality_complaints / performance.total_orders;
-    risk += complaintRate * 0.2;
-  }
-  
-  return Math.max(0, Math.min(risk, 1));
 }
 
 async function getEstimatedDeliveryDays(supabase: any, supplierId: string, category: string): Promise<number> {

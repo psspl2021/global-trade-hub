@@ -48,8 +48,8 @@ interface SupplierPerformance {
   late_deliveries: number;
   quality_rejections: number;
   quality_complaints: number;
-  delivery_success_rate: number;
-  quality_score: number;
+  quality_risk_score: number; // 0 = low risk, 1 = high risk
+  avg_delivery_days: number | null;
   last_order_date: string | null;
   profiles?: {
     company_name: string;
@@ -441,10 +441,10 @@ export function SupplierSelectionEngine({ open, onOpenChange }: SupplierSelectio
                         </div>
                         <div className="flex gap-2">
                           <Badge variant="outline" className="text-green-600 border-green-600">
-                            {((perf.delivery_success_rate || 0) * 100).toFixed(0)}% Delivery
+                            {perf.total_orders > 0 ? ((perf.successful_deliveries / perf.total_orders) * 100).toFixed(0) : 85}% Delivery
                           </Badge>
-                          <Badge variant="outline" className="text-blue-600 border-blue-600">
-                            {((perf.quality_score || 1) * 100).toFixed(0)}% Quality
+                          <Badge variant="outline" className={`${(perf.quality_risk_score || 0) > 0.3 ? 'text-amber-600 border-amber-600' : 'text-blue-600 border-blue-600'}`}>
+                            {((1 - (perf.quality_risk_score || 0)) * 100).toFixed(0)}% Quality
                           </Badge>
                         </div>
                       </div>
