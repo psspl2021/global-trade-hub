@@ -1024,6 +1024,7 @@ export type Database = {
           min_market_price: number
           price_std_deviation: number
           product_category: string
+          sample_size: number | null
           supply_index: number
           volatility_index: number
         }
@@ -1038,6 +1039,7 @@ export type Database = {
           min_market_price?: number
           price_std_deviation?: number
           product_category: string
+          sample_size?: number | null
           supply_index?: number
           volatility_index?: number
         }
@@ -1052,6 +1054,7 @@ export type Database = {
           min_market_price?: number
           price_std_deviation?: number
           product_category?: string
+          sample_size?: number | null
           supply_index?: number
           volatility_index?: number
         }
@@ -1411,6 +1414,7 @@ export type Database = {
           competition_score: number | null
           confidence_label: string
           confidence_score: number
+          confidence_suppressed: boolean | null
           created_at: string
           historical_price_variance: number | null
           id: string
@@ -1431,6 +1435,7 @@ export type Database = {
           competition_score?: number | null
           confidence_label: string
           confidence_score: number
+          confidence_suppressed?: boolean | null
           created_at?: string
           historical_price_variance?: number | null
           id?: string
@@ -1451,6 +1456,7 @@ export type Database = {
           competition_score?: number | null
           confidence_label?: string
           confidence_score?: number
+          confidence_suppressed?: boolean | null
           created_at?: string
           historical_price_variance?: number | null
           id?: string
