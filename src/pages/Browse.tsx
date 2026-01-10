@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useSEO } from '@/hooks/useSEO';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +26,7 @@ import { Search, Package, Building2, Radio, Lock, Eye, EyeOff, Sparkles, Filter,
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { getCategoryByName, categoriesData } from '@/data/categories';
+import { SupplierInventorySaleAI } from '@/components/SupplierInventorySaleAI';
 
 interface Product {
   id: string;
@@ -45,6 +48,11 @@ const Browse = () => {
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get('category') || '';
   const subcategoryParam = searchParams.get('subcategory') || '';
+  
+  // Auth for showing AI Verified Stock to logged-in buyers
+  const { user } = useAuth();
+  const { role } = useUserRole(user?.id);
+  const isBuyer = user && role === 'buyer';
   
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -499,29 +507,38 @@ const Browse = () => {
               </div>
             </div>
 
-            {/* Category-Specific Sign Up Prompt */}
-            <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-              <CardContent className="p-4 md:p-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-full bg-primary/10">
-                      <Sparkles className="h-6 w-6 text-primary" />
+            {/* AI Verified Stock for logged-in buyers */}
+            {isBuyer && user && (
+              <div className="mb-8">
+                <SupplierInventorySaleAI userId={user.id} userRole="buyer" />
+              </div>
+            )}
+
+            {/* Category-Specific Sign Up Prompt - Only for non-authenticated users */}
+            {!user && (
+              <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <Sparkles className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-lg">
+                          Looking for {displayTitle}?
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Sign up to access 500+ verified suppliers and get competitive quotes
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-lg">
-                        Looking for {displayTitle}?
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Sign up to access 500+ verified suppliers and get competitive quotes
-                      </p>
-                    </div>
+                    <Button onClick={() => navigate('/signup')} className="shrink-0">
+                      Create Free Account
+                    </Button>
                   </div>
-                  <Button onClick={() => navigate('/signup')} className="shrink-0">
-                    Create Free Account
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Products Grid */}
             {loading ? (
