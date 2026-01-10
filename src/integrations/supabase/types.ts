@@ -2006,7 +2006,10 @@ export type Database = {
           product_category: string
           quality_standards: string | null
           quantity: number
+          rfq_source: string | null
           selection_mode: string | null
+          source_metadata: Json | null
+          source_product_id: string | null
           specifications: Json | null
           status: Database["public"]["Enums"]["requirement_status"]
           title: string
@@ -2030,7 +2033,10 @@ export type Database = {
           product_category: string
           quality_standards?: string | null
           quantity: number
+          rfq_source?: string | null
           selection_mode?: string | null
+          source_metadata?: Json | null
+          source_product_id?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title: string
@@ -2054,7 +2060,10 @@ export type Database = {
           product_category?: string
           quality_standards?: string | null
           quantity?: number
+          rfq_source?: string | null
           selection_mode?: string | null
+          source_metadata?: Json | null
+          source_product_id?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title?: string
@@ -2062,7 +2071,15 @@ export type Database = {
           unit?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "requirements_source_product_id_fkey"
+            columns: ["source_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seo_content_suggestions: {
         Row: {
