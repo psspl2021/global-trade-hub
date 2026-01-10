@@ -60,6 +60,7 @@ import { SupplierEmailQuotaCard } from '@/components/SupplierEmailQuotaCard';
 import { PremiumPackPurchase } from '@/components/PremiumPackPurchase';
 import { SubscriptionInvoices } from '@/components/SubscriptionInvoices';
 import { SupplierAIPerformanceCard } from '@/components/SupplierAIPerformanceCard';
+import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -363,6 +364,9 @@ const Dashboard = () => {
                 setShowRequirementForm(true);
               }}
             />
+
+            {/* AI-Verified Available Stock - Fast Revenue Flow */}
+            {user && <AIInventoryDiscoveryCard userId={user.id} />}
 
             {/* Quick Actions Grid */}
             <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
