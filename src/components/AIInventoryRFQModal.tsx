@@ -137,9 +137,9 @@ export function AIInventoryRFQModal({
           .from('requirements')
           .select('id')
           .eq('buyer_id', userId)
-          .eq('rfq_source' as any, 'ai_inventory')
-          .eq('source_product_id' as any, stock.id)
-          .eq('status', 'open')
+          .eq('rfq_source', 'ai_inventory')
+          .eq('source_product_id', stock.id)
+          .eq('status', 'active')
           .gte('created_at', twentyFourHoursAgo.toISOString())
           .limit(1);
 
@@ -207,7 +207,7 @@ export function AIInventoryRFQModal({
         unit: stock.unit,
         delivery_location: buyerCity,
         deadline: deadline.toISOString(),
-        status: 'open' as const,
+        status: 'active' as const,
         // Let backend determine trade_type based on locations
         trade_type: null,
         // Use bidding mode - let suppliers compete, AI selection happens after bids
