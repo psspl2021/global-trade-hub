@@ -225,10 +225,13 @@ export const SupplierInventorySaleAI = ({
     }
   };
 
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [lastCalculatedAt, setLastCalculatedAt] = useState<string | null>(null);
+
   const fetchSupplierInventoryMatches = async () => {
     setLoading(true);
     try {
-      // Fetch supplier's products with stock
+      // Fetch supplier's products with stock (for display data)
       const { data: products, error: productsError } = await supabase
         .from('products')
         .select(`
@@ -238,7 +241,6 @@ export const SupplierInventorySaleAI = ({
           stock_inventory (
             quantity,
             unit,
-            low_stock_threshold,
             last_updated
           )
         `)
@@ -247,100 +249,46 @@ export const SupplierInventorySaleAI = ({
 
       if (productsError) throw productsError;
 
-      // Fetch active requirements for matching
-      const { data: requirements, error: reqError } = await supabase
-        .from('requirements')
-        .select('id, title, product_category, quantity, delivery_location, deadline, buyer_id')
-        .eq('status', 'active')
-        .limit(100);
-
-      if (reqError) throw reqError;
-
-      // Fetch buyer locations for proximity calculation
-      const buyerIds = [...new Set((requirements || []).map(r => r.buyer_id))];
-      const { data: buyerProfiles } = await supabase
-        .from('profiles')
-        .select('id, city, state')
-        .in('id', buyerIds);
-
-      const buyerCityMap: Record<string, string> = {};
-      (buyerProfiles || []).forEach(p => {
-        if (p.city) buyerCityMap[p.id] = p.city.toLowerCase();
-      });
-
-      // Fetch persisted match data
-      const { data: persistedMatches } = await supabase
+      // Fetch PERSISTED match scores (calculated by backend)
+      const { data: persistedMatches, error: matchError } = await supabase
         .from('supplier_inventory_matches')
         .select('*')
         .eq('supplier_id', userId);
 
+      if (matchError) throw matchError;
+
       const persistedMatchMap: Record<string, any> = {};
       (persistedMatches || []).forEach(m => {
         persistedMatchMap[m.product_id] = m;
+        // Track when last calculated
+        if (m.last_calculated_at && (!lastCalculatedAt || m.last_calculated_at > lastCalculatedAt)) {
+          setLastCalculatedAt(m.last_calculated_at);
+        }
       });
 
-      // Get supplier city for proximity calculation
       const supplierCity = supplierProfile?.city?.toLowerCase() || '';
 
-      // Generate AI-powered inventory matches with DETERMINISTIC values
+      // Build display data from products + persisted scores
       const matches: InventoryMatch[] = (products || [])
         .filter(p => p.stock_inventory && (p.stock_inventory as any).quantity > 0)
         .map(product => {
           const stock = product.stock_inventory as any;
-          const matchingRfqs = (requirements || []).filter(r => 
-            r.product_category.toLowerCase().includes(product.category.toLowerCase()) ||
-            product.category.toLowerCase().includes(r.product_category.toLowerCase())
-          );
-
-          // DETERMINISTIC: Calculate location proximity based on actual city match
-          let locationProximity = 0.6; // default neutral
-          if (supplierCity && matchingRfqs.length > 0) {
-            const matchingBuyerCities = matchingRfqs
-              .map(r => buyerCityMap[r.buyer_id] || '')
-              .filter(city => city);
-            
-            const sameCity = matchingBuyerCities.filter(city => city === supplierCity).length;
-            const sameState = matchingBuyerCities.filter(city => {
-              // Same state check - using consistent heuristic
-              return city.length > 0;
-            }).length;
-            
-            if (matchingBuyerCities.length > 0) {
-              locationProximity = sameCity > 0 ? 1.0 : (sameState > 0 ? 0.75 : 0.6);
-            }
-          }
-
-          // DETERMINISTIC: Use persisted historical acceptance or calculate based on past bids
           const persisted = persistedMatchMap[product.id];
-          const historicalAcceptance = persisted?.historical_acceptance || 0.6;
-
-          // Calculate stock freshness deterministically
-          const stockFreshness = Math.max(0, 1 - (getDaysSinceUpdate(stock.last_updated) / 30));
-
-          // Calculate match score based on multiple signals
-          const exactSkuMatch = matchingRfqs.length > 0;
-          const quantityAlignment = Math.min(1, matchingRfqs.reduce((acc, r) => acc + (r.quantity <= stock.quantity ? 0.3 : 0.1), 0));
-
-          const matchScore = (
-            (exactSkuMatch ? 30 : 10) +
-            (quantityAlignment * 25) +
-            (locationProximity * 20) +
-            (historicalAcceptance * 15) +
-            (stockFreshness * 10)
-          );
-
+          
+          // Use persisted match score or default
+          const matchScore = persisted?.match_score ?? 0;
           const matchStrength: 'high' | 'medium' | 'low' = 
             matchScore >= 70 ? 'high' : matchScore >= 40 ? 'medium' : 'low';
-
-          // DETERMINISTIC: Generate price band based on category hash, not random
-          const categoryHash = hashString(product.category + product.id);
-          const basePrice = 100 + (categoryHash % 500);
-          const priceVariance = basePrice * 0.15;
 
           // Check if boosted
           const isBoosted = persisted?.is_boosted && 
             persisted?.boost_expires_at && 
             new Date(persisted.boost_expires_at) > new Date();
+
+          // Generate deterministic price band
+          const categoryHash = hashString(product.category + product.id);
+          const basePrice = 100 + (categoryHash % 500);
+          const priceVariance = basePrice * 0.15;
 
           return {
             id: product.id,
@@ -351,13 +299,13 @@ export const SupplierInventorySaleAI = ({
             unit: stock.unit || 'units',
             matchStrength,
             matchScore,
-            matchingRfqCount: matchingRfqs.length,
+            matchingRfqCount: persisted?.matching_rfq_count ?? 0,
             demandSignals: {
-              exactSkuMatch,
-              quantityAlignment,
-              locationProximity,
-              historicalAcceptance,
-              stockFreshness,
+              exactSkuMatch: (persisted?.matching_rfq_count ?? 0) > 0,
+              quantityAlignment: 0.6,
+              locationProximity: persisted?.location_proximity ?? 0.6,
+              historicalAcceptance: persisted?.historical_acceptance ?? 0.6,
+              stockFreshness: Math.max(0, 1 - (getDaysSinceUpdate(stock.last_updated) / 30)),
             },
             suggestedPriceBand: {
               min: Math.round(basePrice - priceVariance),
@@ -374,25 +322,16 @@ export const SupplierInventorySaleAI = ({
             supplierCity: supplierCity,
           };
         })
-        // STABLE SORTING: Primary by matchScore, secondary by stockAgeDays (older first for liquidation)
         .sort((a, b) => {
-          // Boosted items first
           if (a.isBoosted && !b.isBoosted) return -1;
           if (!a.isBoosted && b.isBoosted) return 1;
-          // Then by match score
           if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
-          // Then by stock age (older first for liquidation)
           return b.stockAgeDays - a.stockAgeDays;
         });
 
-      // Extract unique categories
       const categories = [...new Set(matches.map(m => m.category))];
       setAvailableCategories(categories);
-
       setInventoryMatches(matches);
-
-      // Persist match scores to database
-      await persistMatchScores(matches, userId);
     } catch (error) {
       console.error('Error fetching inventory matches:', error);
     } finally {
@@ -400,29 +339,57 @@ export const SupplierInventorySaleAI = ({
     }
   };
 
-  const persistMatchScores = async (matches: InventoryMatch[], supplierId: string) => {
-    for (const match of matches) {
-      try {
-        const { error } = await supabase
-          .from('supplier_inventory_matches')
-          .upsert({
-            product_id: match.productId,
-            supplier_id: supplierId,
-            match_score: Math.min(100, Math.max(0, match.matchScore)), // Clamp to 0-100
-            matching_rfq_count: match.matchingRfqCount,
-            location_proximity: match.demandSignals.locationProximity,
-            historical_acceptance: match.demandSignals.historicalAcceptance,
-            supplier_city: match.supplierCity || null,
-            ai_version: 'inventory_match_v1',
-            last_calculated_at: new Date().toISOString(),
-          }, {
-            onConflict: 'supplier_id,product_id'
-          });
-
-        if (error) console.error('Error persisting match score:', error);
-      } catch (err) {
-        console.error('Error upserting match:', err);
+  // Trigger backend recalculation (rate-limited by edge function)
+  const triggerRecalculation = async () => {
+    setIsRecalculating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({ title: 'Error', description: 'Please log in to recalculate', variant: 'destructive' });
+        return;
       }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/calculate-inventory-matches`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 429) {
+        toast({
+          title: 'Please wait',
+          description: 'Match recalculation is rate-limited. Try again in a few minutes.',
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to recalculate');
+      }
+
+      toast({
+        title: 'Matches recalculated',
+        description: `${result.matches_calculated} products analyzed`,
+      });
+
+      // Refresh the display
+      await fetchSupplierInventoryMatches();
+    } catch (error: any) {
+      console.error('Recalculation error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to recalculate matches',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRecalculating(false);
     }
   };
 
@@ -591,10 +558,43 @@ export const SupplierInventorySaleAI = ({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <Badge variant="outline" className="flex items-center gap-1">
-          <Activity className="h-3 w-3 text-green-500 animate-pulse" />
-          Live Analysis
-        </Badge>
+        <div className="flex items-center gap-2">
+          {/* Supplier City Badge */}
+          {supplierProfile?.city && (
+            <Badge variant="outline" className="text-xs">
+              <MapPin className="h-3 w-3 mr-1" />
+              Serving buyers in: {supplierProfile.city}
+            </Badge>
+          )}
+          {/* Recalculate Button */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={triggerRecalculation}
+                  disabled={isRecalculating}
+                  className="gap-1"
+                >
+                  {isRecalculating ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3" />
+                  )}
+                  Recalculate
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Recalculate match scores (rate-limited)</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Activity className="h-3 w-3 text-green-500 animate-pulse" />
+            Live Analysis
+          </Badge>
+        </div>
       </header>
 
       <p className="text-sm text-muted-foreground" itemProp="description">
@@ -714,6 +714,13 @@ export const SupplierInventorySaleAI = ({
                         <Badge variant="outline" className={priceConfig.className}>
                           {priceConfig.label}
                         </Badge>
+                        {/* High Demand Badge for high match strength */}
+                        {match.matchStrength === 'high' && (
+                          <Badge className="bg-green-100 text-green-700 text-xs border-0">
+                            <Zap className="h-3 w-3 mr-1" />
+                            High demand in last 7 days
+                          </Badge>
+                        )}
                         {match.stockAgeDays > 7 && (
                           <Badge variant="outline" className="text-xs border-orange-300 text-orange-600">
                             <Clock className="h-3 w-3 mr-1" />
