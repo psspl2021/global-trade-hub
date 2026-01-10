@@ -92,28 +92,37 @@ export function AdminControlTower() {
   const fetchData = async () => {
     setLoading(true);
     try {
+      // Fetch all admin views through the secure edge function
+      const fetchView = async (view: string, limit = 50) => {
+        const { data, error } = await supabase.functions.invoke('admin-analytics', {
+          body: { view, limit }
+        });
+        if (error) throw error;
+        return data?.data;
+      };
+
       const [
-        overviewRes,
-        profitRes,
-        dealsRes,
-        aiSuppliersRes,
-        revenueRes,
-        kpisRes
+        overviewData,
+        profitData,
+        dealsData,
+        aiSuppliersData,
+        revenueData,
+        kpisData
       ] = await Promise.all([
-        supabase.from('admin_overview_metrics').select('*').single(),
-        supabase.from('admin_profit_summary').select('*').order('date', { ascending: false }).limit(30),
-        supabase.from('admin_deal_analytics').select('*').order('bid_created_at', { ascending: false }).limit(50),
-        supabase.from('admin_ai_inventory_suppliers').select('*').order('ai_matched_products', { ascending: false }).limit(20),
-        supabase.from('admin_revenue_by_trade_type').select('*'),
-        supabase.from('admin_daily_kpis').select('*').order('date', { ascending: false }).limit(30),
+        fetchView('admin_overview_metrics'),
+        fetchView('admin_profit_summary', 30),
+        fetchView('admin_deal_analytics', 50),
+        fetchView('admin_ai_inventory_suppliers', 20),
+        fetchView('admin_revenue_by_trade_type'),
+        fetchView('admin_daily_kpis', 30),
       ]);
 
-      if (overviewRes.data) setOverview(overviewRes.data);
-      if (profitRes.data) setProfitSummary(profitRes.data);
-      if (dealsRes.data) setDealAnalytics(dealsRes.data);
-      if (aiSuppliersRes.data) setAISuppliers(aiSuppliersRes.data);
-      if (revenueRes.data) setRevenueByType(revenueRes.data);
-      if (kpisRes.data) setDailyKPIs(kpisRes.data);
+      if (overviewData) setOverview(overviewData);
+      if (profitData) setProfitSummary(profitData);
+      if (dealsData) setDealAnalytics(dealsData);
+      if (aiSuppliersData) setAISuppliers(aiSuppliersData);
+      if (revenueData) setRevenueByType(revenueData);
+      if (kpisData) setDailyKPIs(kpisData);
     } catch (error) {
       console.error('Error fetching control tower data:', error);
     } finally {
