@@ -11,7 +11,8 @@ import {
   Minus, 
   TrendingDown,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Zap
 } from 'lucide-react';
 import { AIInventoryRFQModal } from '@/components/AIInventoryRFQModal';
 
@@ -24,6 +25,7 @@ interface DiscoveryItem {
   unit: string;
   matchStrength: 'high' | 'medium' | 'low';
   isVerified: boolean;
+  supplierCity: string | null;
 }
 
 interface AIInventoryDiscoveryCardProps {
@@ -33,12 +35,12 @@ interface AIInventoryDiscoveryCardProps {
 const getMatchStrengthConfig = (strength: 'high' | 'medium' | 'low') => {
   const configs = {
     high: {
-      label: 'High Match',
+      label: 'High Demand',
       color: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-800',
       icon: TrendingUp,
     },
     medium: {
-      label: 'Medium Match',
+      label: 'Medium Demand',
       color: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-400 dark:border-yellow-800',
       icon: Minus,
     },
@@ -51,24 +53,36 @@ const getMatchStrengthConfig = (strength: 'high' | 'medium' | 'low') => {
   return configs[strength];
 };
 
-const determineMatchStrength = (matchScore: number): 'high' | 'medium' | 'low' => {
-  if (matchScore >= 0.7) return 'high';
-  if (matchScore >= 0.4) return 'medium';
+const determineMatchStrength = (relevanceScore: number): 'high' | 'medium' | 'low' => {
+  if (relevanceScore >= 0.7) return 'high';
+  if (relevanceScore >= 0.4) return 'medium';
   return 'low';
 };
 
 export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardProps) {
   const [items, setItems] = useState<DiscoveryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [buyerCity, setBuyerCity] = useState<string | null>(null);
   const [selectedStock, setSelectedStock] = useState<DiscoveryItem | null>(null);
   const [showRFQModal, setShowRFQModal] = useState(false);
 
   useEffect(() => {
-    const fetchAIInventory = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch AI-matched inventory from stock_inventory + supplier_inventory_matches + products
-        // Only show active stock with quantity > 0 from verified suppliers
+        // First, fetch buyer's city for location-aware sorting
+        const { data: buyerProfile } = await supabase
+          .from('profiles')
+          .select('city')
+          .eq('id', userId)
+          .single();
+        
+        const userCity = buyerProfile?.city || null;
+        setBuyerCity(userCity);
+
+        // Fetch AI-matched inventory with supplier verification status
+        // Join: stock_inventory → products → profiles (for verification)
+        // Also join supplier_inventory_matches for relevance scores
         const { data, error } = await supabase
           .from('stock_inventory')
           .select(`
@@ -82,15 +96,11 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
               category,
               supplier_id,
               is_active
-            ),
-            supplier_inventory_matches (
-              match_score,
-              supplier_id
             )
           `)
           .gt('quantity', 0)
           .eq('products.is_active', true)
-          .limit(10);
+          .limit(20);
 
         if (error) {
           console.error('Error fetching AI inventory:', error);
@@ -103,14 +113,42 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
           return;
         }
 
-        // Process and sort items by match strength and quantity
+        // Get supplier IDs to fetch verification status
+        const supplierIds = [...new Set(data.map((item: any) => item.products.supplier_id))];
+        
+        // Fetch supplier profiles with verification status
+        const { data: suppliersData } = await supabase
+          .from('profiles')
+          .select('id, city, is_verified_supplier')
+          .in('id', supplierIds);
+
+        const suppliersMap = new Map(
+          (suppliersData || []).map((s: any) => [s.id, s])
+        );
+
+        // Fetch match scores for products
+        const productIds = data.map((item: any) => item.product_id);
+        const { data: matchesData } = await supabase
+          .from('supplier_inventory_matches')
+          .select('product_id, match_score')
+          .in('product_id', productIds);
+
+        const matchScoresMap = new Map<string, number>();
+        (matchesData || []).forEach((m: any) => {
+          const existing = matchScoresMap.get(m.product_id) || 0;
+          matchScoresMap.set(m.product_id, Math.max(existing, m.match_score || 0));
+        });
+
+        // Process items - ONLY include verified suppliers
         const processedItems: DiscoveryItem[] = data
           .map((item: any) => {
             const product = item.products;
-            const matches = item.supplier_inventory_matches || [];
-            const bestMatch = matches.length > 0 
-              ? Math.max(...matches.map((m: any) => m.match_score || 0))
-              : 0.5; // Default score for items without matches
+            const supplier = suppliersMap.get(product.supplier_id);
+            const isVerified = supplier?.is_verified_supplier === true;
+            const supplierCity = supplier?.city || null;
+            
+            // Get relevance score (not buyer-specific "match")
+            const relevanceScore = matchScoresMap.get(item.product_id) || 0.5;
 
             return {
               id: item.id,
@@ -119,21 +157,48 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
               category: product.category,
               availableQuantity: item.quantity,
               unit: item.unit,
-              matchStrength: determineMatchStrength(bestMatch),
-              isVerified: true, // All products in catalog are from verified suppliers
+              matchStrength: determineMatchStrength(relevanceScore),
+              isVerified,
+              supplierCity,
             };
           })
-          // Sort by match strength (high first) then by quantity (descending)
+          // CRITICAL: Only show verified suppliers
+          .filter((item) => item.isVerified)
+          // Sort by: 1) Same city as buyer, 2) Match strength, 3) Quantity
           .sort((a, b) => {
+            // Location-aware sorting - same city first
+            if (userCity) {
+              const aInCity = a.supplierCity?.toLowerCase() === userCity.toLowerCase();
+              const bInCity = b.supplierCity?.toLowerCase() === userCity.toLowerCase();
+              if (aInCity && !bInCity) return -1;
+              if (!aInCity && bInCity) return 1;
+            }
+            
+            // Then by match strength
             const strengthOrder = { high: 0, medium: 1, low: 2 };
             if (strengthOrder[a.matchStrength] !== strengthOrder[b.matchStrength]) {
               return strengthOrder[a.matchStrength] - strengthOrder[b.matchStrength];
             }
+            
+            // Finally by quantity
             return b.availableQuantity - a.availableQuantity;
           })
           .slice(0, 5); // Top 5 items
 
         setItems(processedItems);
+
+        // Fire impression tracking event (fire-and-forget)
+        if (processedItems.length > 0) {
+          processedItems.forEach((item) => {
+            supabase.from('page_visits').insert({
+              visitor_id: userId,
+              session_id: `ai_inv_${Date.now()}`,
+              page_path: '/dashboard/ai-inventory-impression',
+              source: 'ai_inventory_discovery',
+              utm_content: item.productId,
+            }).then(() => {});
+          });
+        }
       } catch (err) {
         console.error('Failed to fetch AI inventory:', err);
         setItems([]);
@@ -143,7 +208,7 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
     };
 
     if (userId) {
-      fetchAIInventory();
+      fetchData();
     }
   }, [userId]);
 
@@ -152,7 +217,7 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
     setShowRFQModal(true);
   };
 
-  // Don't render if no items available
+  // Don't render if no verified items available
   if (!loading && items.length === 0) {
     return null;
   }
@@ -171,7 +236,6 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
         </CardHeader>
         <CardContent className="space-y-3">
           {loading ? (
-            // Loading skeleton
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-card rounded-lg border">
@@ -184,7 +248,6 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
               ))}
             </div>
           ) : (
-            // Inventory items list
             <div className="space-y-2">
               {items.map((item) => {
                 const matchConfig = getMatchStrengthConfig(item.matchStrength);
@@ -205,6 +268,16 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
                           <Shield className="h-3 w-3 mr-1" />
                           Verified
                         </Badge>
+                        {/* Fast Response badge for high demand items */}
+                        {item.matchStrength === 'high' && (
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs bg-primary/10 text-primary border-primary/30 shrink-0"
+                          >
+                            <Zap className="h-3 w-3 mr-1" />
+                            Fast Response
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground flex-wrap">
                         <span>{item.category}</span>

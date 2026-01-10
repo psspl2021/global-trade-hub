@@ -1674,6 +1674,7 @@ export type Database = {
           house_address: string | null
           id: string
           is_test_account: boolean
+          is_verified_supplier: boolean | null
           logistics_partner_type:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -1703,6 +1704,7 @@ export type Database = {
           house_address?: string | null
           id: string
           is_test_account?: boolean
+          is_verified_supplier?: boolean | null
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -1732,6 +1734,7 @@ export type Database = {
           house_address?: string | null
           id?: string
           is_test_account?: boolean
+          is_verified_supplier?: boolean | null
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
