@@ -40,6 +40,7 @@ import { SEMAnalyticsDashboard } from '@/components/admin/SEMAnalyticsDashboard'
 import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
 import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
+import { AdminControlTower } from '@/components/admin/AdminControlTower';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -88,6 +89,7 @@ const Dashboard = () => {
   const [showEmailTracking, setShowEmailTracking] = useState(false);
   const [showL1Analysis, setShowL1Analysis] = useState(false);
   const [showSupplierSelection, setShowSupplierSelection] = useState(false);
+  const [showControlTower, setShowControlTower] = useState(false);
   const [showPartnerDocVerification, setShowPartnerDocVerification] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
@@ -262,6 +264,7 @@ const Dashboard = () => {
               onOpenL1Analysis={() => setShowL1Analysis(true)}
               onOpenEmailTracking={() => setShowEmailTracking(true)}
               onOpenSupplierSelection={() => setShowSupplierSelection(true)}
+              onOpenControlTower={() => setShowControlTower(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -314,6 +317,19 @@ const Dashboard = () => {
             <SEMAnalyticsDashboard open={showSEMAnalytics} onOpenChange={setShowSEMAnalytics} />
             <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
             <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
+            {showControlTower && (
+              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">Admin Control Tower</h2>
+                      <Button variant="outline" onClick={() => setShowControlTower(false)}>Close</Button>
+                    </div>
+                    <AdminControlTower />
+                  </div>
+                </div>
+              </div>
+            )}
             {showEmailTracking && (
               <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
                 <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">

@@ -83,8 +83,22 @@ export type Database = {
             foreignKeyName: "bid_items_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
             referencedRelation: "bids"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
           },
           {
             foreignKeyName: "bid_items_requirement_item_id_fkey"
@@ -709,6 +723,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_inventory_performance"
+            referencedColumns: ["product_id"]
           },
         ]
       }
@@ -1490,8 +1511,22 @@ export type Database = {
             foreignKeyName: "price_confidence_scores_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "price_confidence_scores_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
             referencedRelation: "bids"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_confidence_scores_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
           },
           {
             foreignKeyName: "price_confidence_scores_requirement_id_fkey"
@@ -1558,6 +1593,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_inventory_performance"
+            referencedColumns: ["product_id"]
           },
         ]
       }
@@ -1846,8 +1888,22 @@ export type Database = {
             foreignKeyName: "referral_commissions_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: true
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "referral_commissions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: true
             referencedRelation: "bids"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_commissions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: true
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
           },
           {
             foreignKeyName: "referral_commissions_referral_id_fkey"
@@ -2093,6 +2149,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requirements_source_product_id_fkey"
+            columns: ["source_product_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_inventory_performance"
+            referencedColumns: ["product_id"]
           },
         ]
       }
@@ -2367,6 +2430,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stock_inventory_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "supplier_inventory_performance"
+            referencedColumns: ["product_id"]
+          },
         ]
       }
       stock_sync_logs: {
@@ -2451,6 +2521,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_updates_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_inventory_performance"
+            referencedColumns: ["product_id"]
           },
         ]
       }
@@ -2912,6 +2989,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "supplier_inventory_matches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_inventory_performance"
+            referencedColumns: ["product_id"]
+          },
         ]
       }
       supplier_inventory_signals: {
@@ -3231,8 +3315,22 @@ export type Database = {
             foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
             columns: ["selected_bid_id"]
             isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
+            columns: ["selected_bid_id"]
+            isOneToOne: false
             referencedRelation: "bids"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
+            columns: ["selected_bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
           },
         ]
       }
@@ -3326,8 +3424,22 @@ export type Database = {
             foreignKeyName: "transactions_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "transactions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
             referencedRelation: "bids"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
           },
         ]
       }
@@ -3528,6 +3640,96 @@ export type Database = {
       }
     }
     Views: {
+      admin_ai_inventory_suppliers: {
+        Row: {
+          ai_matched_products: number | null
+          city: string | null
+          match_rate_percent: number | null
+          products_uploaded: number | null
+          supplier_id: string | null
+          supplier_name: string | null
+          total_stock_units: number | null
+        }
+        Relationships: []
+      }
+      admin_daily_kpis: {
+        Row: {
+          ai_rfqs: number | null
+          bids_received: number | null
+          daily_margin: number | null
+          date: string | null
+          deals_closed: number | null
+          rfqs_created: number | null
+          unique_buyers: number | null
+          unique_suppliers: number | null
+        }
+        Relationships: []
+      }
+      admin_deal_analytics: {
+        Row: {
+          bid_created_at: string | null
+          bid_id: string | null
+          bid_status: Database["public"]["Enums"]["bid_status"] | null
+          deal_value: number | null
+          delivered_at: string | null
+          delivery_location: string | null
+          dispatched_qty: number | null
+          markup_percentage: number | null
+          platform_margin: number | null
+          product_category: string | null
+          quantity: number | null
+          requirement_id: string | null
+          requirement_title: string | null
+          rfq_source: string | null
+          supplier_id: string | null
+          supplier_name: string | null
+          supplier_net_price: number | null
+          trade_type: string | null
+          unit: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_overview_metrics: {
+        Row: {
+          active_buyers: number | null
+          active_rfqs: number | null
+          ai_inventory_requirements: number | null
+          deals_closed: number | null
+          deals_completed: number | null
+          manual_requirements: number | null
+          total_requirements: number | null
+        }
+        Relationships: []
+      }
+      admin_profit_summary: {
+        Row: {
+          avg_margin_per_deal: number | null
+          date: string | null
+          deals_closed: number | null
+          total_gmv: number | null
+          total_profit: number | null
+        }
+        Relationships: []
+      }
+      admin_revenue_by_trade_type: {
+        Row: {
+          avg_margin: number | null
+          avg_markup_percent: number | null
+          deals_count: number | null
+          total_gmv: number | null
+          total_margin: number | null
+          trade_type: string | null
+        }
+        Relationships: []
+      }
       buyer_inventory_discovery: {
         Row: {
           available_quantity: number | null
@@ -3546,7 +3748,53 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "supplier_inventory_matches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_inventory_performance"
+            referencedColumns: ["product_id"]
+          },
         ]
+      }
+      supplier_deal_closures: {
+        Row: {
+          bid_id: string | null
+          created_at: string | null
+          delivered_at: string | null
+          delivery_location: string | null
+          product_category: string | null
+          quantity_sold: number | null
+          requirement_id: string | null
+          requirement_title: string | null
+          status: Database["public"]["Enums"]["bid_status"] | null
+          supplier_id: string | null
+          supplier_receivable: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_inventory_performance: {
+        Row: {
+          ai_matches: number | null
+          category: string | null
+          current_stock: number | null
+          deals_closed: number | null
+          product_id: string | null
+          product_name: string | null
+          revenue_earned: number | null
+          supplier_id: string | null
+          unit: string | null
+          units_sold: number | null
+        }
+        Relationships: []
       }
       user_totp_status: {
         Row: {
@@ -3753,6 +4001,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
       log_email_sent: {
         Args: {
           p_brevo_message_id: string
