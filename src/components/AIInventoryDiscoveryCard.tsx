@@ -176,16 +176,20 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
 
         setItems(processedItems);
 
-        // Fire impression tracking event (fire-and-forget)
+        // Fire impression tracking with sessionStorage deduplication (spam guard)
         if (processedItems.length > 0) {
           processedItems.forEach((item) => {
-            supabase.from('page_visits').insert({
-              visitor_id: userId,
-              session_id: `ai_inv_${Date.now()}`,
-              page_path: '/dashboard/ai-inventory-impression',
-              source: 'ai_inventory_discovery',
-              utm_content: item.productId,
-            }).then(() => {});
+            const impressionKey = `ai_inv_seen_${item.productId}`;
+            if (!sessionStorage.getItem(impressionKey)) {
+              sessionStorage.setItem(impressionKey, '1');
+              supabase.from('page_visits').insert({
+                visitor_id: userId,
+                session_id: `ai_inv_${Date.now()}`,
+                page_path: '/dashboard/ai-inventory-impression',
+                source: 'ai_inventory_discovery',
+                utm_content: item.productId,
+              }).then(() => {});
+            }
           });
         }
       } catch (err) {
@@ -273,6 +277,11 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
                         <span className="text-primary font-medium">
                           {item.availableQuantity.toLocaleString()} {item.unit}
                         </span>
+                        {item.supplierCity && (
+                          <span className="text-xs">
+                            Ships from {item.supplierCity}
+                          </span>
+                        )}
                         <Badge variant="outline" className={`text-xs ${matchConfig.color}`}>
                           <MatchIcon className="h-3 w-3 mr-1" />
                           {matchConfig.label}
