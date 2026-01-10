@@ -6,12 +6,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Package, Save, Upload, FileSpreadsheet, AlertCircle, Download, Link2, Info, Plus, Check, X } from 'lucide-react';
+import { Loader2, Package, Save, Upload, FileSpreadsheet, AlertCircle, Download, Link2, Info, Plus, Check, X, Sparkles } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ApiIntegrationTab } from '@/components/stock/ApiIntegrationTab';
+import { SupplierInventorySaleAI } from '@/components/SupplierInventorySaleAI';
 import * as XLSX from 'xlsx';
 
 interface ProductWithStock {
@@ -435,8 +436,12 @@ Plastic Sheets,1000,pieces,Packaging`;
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
         ) : (
-          <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue="ai-demand" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="ai-demand">
+                <Sparkles className="h-4 w-4 mr-2" />
+                AI Demand
+              </TabsTrigger>
               <TabsTrigger value="upload">
                 <Upload className="h-4 w-4 mr-2" />
                 Import
@@ -454,6 +459,10 @@ Plastic Sheets,1000,pieces,Packaging`;
                 API
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="ai-demand" className="mt-4">
+              <SupplierInventorySaleAI userId={userId} userRole="supplier" />
+            </TabsContent>
 
             <TabsContent value="upload" className="space-y-4 mt-4">
               {step === 'upload' ? (
