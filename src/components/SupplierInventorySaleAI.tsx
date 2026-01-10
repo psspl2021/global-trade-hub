@@ -585,7 +585,7 @@ export const SupplierInventorySaleAI = ({
       <footer className="pt-4 border-t space-y-1">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <EyeOff className="h-3 w-3" />
-          <span>Buyer identity hidden until order confirmation</span>
+          <span>Buyer identity is always anonymous</span>
         </div>
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           <Shield className="h-3 w-3" />
