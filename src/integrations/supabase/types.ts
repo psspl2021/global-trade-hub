@@ -2822,6 +2822,7 @@ export type Database = {
       }
       supplier_inventory_matches: {
         Row: {
+          ai_version: string
           boost_expires_at: string | null
           created_at: string
           historical_acceptance: number
@@ -2832,10 +2833,13 @@ export type Database = {
           match_score: number
           matching_rfq_count: number
           product_id: string
+          recalculation_locked_until: string | null
+          supplier_city: string | null
           supplier_id: string
           updated_at: string
         }
         Insert: {
+          ai_version?: string
           boost_expires_at?: string | null
           created_at?: string
           historical_acceptance?: number
@@ -2846,10 +2850,13 @@ export type Database = {
           match_score?: number
           matching_rfq_count?: number
           product_id: string
+          recalculation_locked_until?: string | null
+          supplier_city?: string | null
           supplier_id: string
           updated_at?: string
         }
         Update: {
+          ai_version?: string
           boost_expires_at?: string | null
           created_at?: string
           historical_acceptance?: number
@@ -2860,6 +2867,8 @@ export type Database = {
           match_score?: number
           matching_rfq_count?: number
           product_id?: string
+          recalculation_locked_until?: string | null
+          supplier_city?: string | null
           supplier_id?: string
           updated_at?: string
         }
@@ -2867,7 +2876,7 @@ export type Database = {
           {
             foreignKeyName: "supplier_inventory_matches_product_id_fkey"
             columns: ["product_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -3487,6 +3496,26 @@ export type Database = {
       }
     }
     Views: {
+      buyer_inventory_discovery: {
+        Row: {
+          available_quantity: number | null
+          category: string | null
+          is_featured: boolean | null
+          match_strength: string | null
+          product_id: string | null
+          product_name: string | null
+          unit: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_inventory_matches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_totp_status: {
         Row: {
           backup_codes_remaining: number | null
