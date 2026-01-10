@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,10 +33,11 @@ interface PriceConfidenceData {
   price_behavior_note: string;
   logistics_note: string;
   mode: "bidding" | "auto_assign";
-  // Optional: market volatility indicator
   market_volatility?: boolean;
-  // Optional: logistics cost for disclosure logic
   logistics_cost?: number;
+  // SEO: Optional product/category info for structured data
+  productName?: string;
+  productCategory?: string;
 }
 
 interface PriceConfidenceMeterProps {
@@ -51,6 +52,13 @@ const CONFIDENCE_DESCRIPTIONS = {
   HIGH: "Strongly aligned with current market pricing",
   MEDIUM: "Fair price under current market conditions",
   LOW: "Market conditions are volatile for this item",
+};
+
+// SEO: Map confidence to rating value (1-5 scale for schema.org)
+const CONFIDENCE_TO_RATING = {
+  HIGH: 5,
+  MEDIUM: 3.5,
+  LOW: 2,
 };
 
 // Logistics disclosure messages per spec
@@ -69,6 +77,33 @@ const getCompetitionMessage = (mode: "bidding" | "auto_assign") => {
   return "Optimized using historical supplier performance";
 };
 
+// SEO: Generate structured data for price confidence
+const generateStructuredData = (data: PriceConfidenceData) => {
+  const ratingValue = CONFIDENCE_TO_RATING[data.confidence_label];
+  
+  return {
+    "@context": "https://schema.org",
+    "@type": "AggregateRating",
+    "itemReviewed": {
+      "@type": "Product",
+      "name": data.productName || "B2B Procurement Item",
+      "category": data.productCategory || "Industrial Supplies",
+      "brand": {
+        "@type": "Brand",
+        "name": "Procuresaathi Verified"
+      },
+      "description": `AI-verified pricing with ${data.confidence_label.toLowerCase()} confidence score of ${data.price_confidence_score}/100`
+    },
+    "ratingValue": ratingValue,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "name": "AI Price Confidence Score",
+    "description": CONFIDENCE_DESCRIPTIONS[data.confidence_label]
+  };
+};
+
 export const PriceConfidenceMeter = ({
   data,
   showDetails = true,
@@ -76,6 +111,32 @@ export const PriceConfidenceMeter = ({
   showVolatilityNotice = true,
 }: PriceConfidenceMeterProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  // SEO: Inject structured data on mount
+  useEffect(() => {
+    const structuredData = generateStructuredData(data);
+    const scriptId = 'price-confidence-structured-data';
+    
+    // Remove existing script if present
+    const existingScript = document.getElementById(scriptId);
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    // Inject new structured data
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+    
+    return () => {
+      const scriptToRemove = document.getElementById(scriptId);
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
+  }, [data]);
 
   const getConfidenceColor = (label: string) => {
     switch (label) {
@@ -99,11 +160,11 @@ export const PriceConfidenceMeter = ({
   const getConfidenceIcon = (label: string) => {
     switch (label) {
       case "HIGH":
-        return <TrendingUp className="h-4 w-4" />;
+        return <TrendingUp className="h-4 w-4" aria-hidden="true" />;
       case "MEDIUM":
-        return <Minus className="h-4 w-4" />;
+        return <Minus className="h-4 w-4" aria-hidden="true" />;
       case "LOW":
-        return <TrendingDown className="h-4 w-4" />;
+        return <TrendingDown className="h-4 w-4" aria-hidden="true" />;
       default:
         return null;
     }
@@ -126,19 +187,34 @@ export const PriceConfidenceMeter = ({
   const shouldShowVolatility = showVolatilityNotice && 
     (data.confidence_label === "LOW" || data.market_volatility);
 
+  // SEO: Accessibility label for screen readers
+  const ariaLabel = `AI Price Confidence: ${data.confidence_label} confidence with score ${data.price_confidence_score} out of 100. ${CONFIDENCE_DESCRIPTIONS[data.confidence_label]}`;
+
   if (compact) {
     return (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="inline-flex items-center gap-2">
+            <div 
+              className="inline-flex items-center gap-2"
+              role="meter"
+              aria-label={ariaLabel}
+              aria-valuenow={data.price_confidence_score}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              itemScope
+              itemType="https://schema.org/Rating"
+            >
+              <meta itemProp="worstRating" content="0" />
+              <meta itemProp="bestRating" content="100" />
+              <meta itemProp="ratingValue" content={String(data.price_confidence_score)} />
               <Badge
                 variant="outline"
                 className={`${getConfidenceColor(data.confidence_label)} cursor-help`}
               >
-                <span className="mr-1">{getConfidenceEmoji(data.confidence_label)}</span>
+                <span className="mr-1" aria-hidden="true">{getConfidenceEmoji(data.confidence_label)}</span>
                 {getConfidenceIcon(data.confidence_label)}
-                <span className="ml-1">{data.confidence_label} Confidence</span>
+                <span className="ml-1" itemProp="name">{data.confidence_label} Confidence</span>
               </Badge>
             </div>
           </TooltipTrigger>
@@ -156,18 +232,32 @@ export const PriceConfidenceMeter = ({
   }
 
   return (
-    <Card className="border-2">
+    <Card 
+      className="border-2"
+      role="region"
+      aria-label="AI Price Confidence Analysis"
+      itemScope
+      itemType="https://schema.org/AggregateRating"
+    >
+      {/* SEO: Hidden structured data for search engines */}
+      <meta itemProp="worstRating" content="0" />
+      <meta itemProp="bestRating" content="100" />
+      <meta itemProp="ratingValue" content={String(data.price_confidence_score)} />
+      <meta itemProp="ratingCount" content="1" />
+      
       <CardContent className="p-4">
         {/* Header with AI branding */}
-        <div className="flex items-center justify-between mb-3">
+        <header className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5" aria-hidden="true">
               <Sparkles className="h-4 w-4 text-primary" />
               <Shield className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <span className="font-semibold text-sm">AI Price Confidence Meter</span>
-              <p className="text-xs text-muted-foreground">
+              <h3 className="font-semibold text-sm" itemProp="name">
+                AI Price Confidence Meter
+              </h3>
+              <p className="text-xs text-muted-foreground" itemProp="description">
                 AI-verified price reliability based on real market conditions
               </p>
             </div>
@@ -175,8 +265,13 @@ export const PriceConfidenceMeter = ({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <Info className="h-4 w-4 text-muted-foreground" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  aria-label="Learn more about AI Price Confidence scoring"
+                >
+                  <Info className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs p-3" side="left">
@@ -196,12 +291,13 @@ export const PriceConfidenceMeter = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </div>
+        </header>
 
         {/* Confidence Badge and Description */}
-        <div className="mb-4">
+        <section className="mb-4" aria-labelledby="confidence-level-heading">
+          <h4 id="confidence-level-heading" className="sr-only">Confidence Level</h4>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">{getConfidenceEmoji(data.confidence_label)}</span>
+            <span className="text-lg" aria-hidden="true">{getConfidenceEmoji(data.confidence_label)}</span>
             <Badge
               variant="outline"
               className={`${getConfidenceColor(data.confidence_label)} text-sm`}
@@ -210,43 +306,57 @@ export const PriceConfidenceMeter = ({
               <span className="ml-1">{data.confidence_label} Confidence</span>
             </Badge>
           </div>
-          <p className="text-sm font-medium text-foreground">
+          <p className="text-sm font-medium text-foreground" itemProp="reviewBody">
             {CONFIDENCE_DESCRIPTIONS[data.confidence_label]}
           </p>
-        </div>
+        </section>
 
-        {/* Progress Bar */}
-        <div className="mb-4">
+        {/* Progress Bar with ARIA */}
+        <section className="mb-4" aria-labelledby="confidence-score-heading">
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-muted-foreground">Confidence Score</span>
-            <span className="font-bold">{data.price_confidence_score}/100</span>
+            <span id="confidence-score-heading" className="text-muted-foreground">Confidence Score</span>
+            <span className="font-bold" aria-live="polite">{data.price_confidence_score}/100</span>
           </div>
-          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+          <div 
+            className="relative h-2 bg-muted rounded-full overflow-hidden"
+            role="progressbar"
+            aria-valuenow={data.price_confidence_score}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Price confidence score: ${data.price_confidence_score} out of 100`}
+          >
             <div
               className={`absolute left-0 top-0 h-full ${getProgressColor(data.price_confidence_score)} transition-all duration-500`}
               style={{ width: `${data.price_confidence_score}%` }}
             />
           </div>
-        </div>
+        </section>
 
         {/* Competition Messaging */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+        <section className="flex items-center gap-2 text-sm text-muted-foreground mb-3" aria-label="Pricing mode information">
           <Badge variant="secondary" className="text-xs">
             {data.mode === "bidding" ? "Bidding Mode" : "Auto-Assign"}
           </Badge>
           <span>{getCompetitionMessage(data.mode)}</span>
-        </div>
+        </section>
 
         {/* Logistics Disclosure */}
-        <div className="flex items-start gap-2 text-sm text-muted-foreground mb-3 p-2 bg-muted/50 rounded-md">
-          <Truck className="h-4 w-4 mt-0.5 flex-shrink-0" />
+        <section 
+          className="flex items-start gap-2 text-sm text-muted-foreground mb-3 p-2 bg-muted/50 rounded-md"
+          aria-label="Logistics information"
+        >
+          <Truck className="h-4 w-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
           <span>{getLogisticsDisclosure(data.logistics_cost)}</span>
-        </div>
+        </section>
 
         {/* Market Volatility Notice */}
         {shouldShowVolatility && (
-          <div className="flex items-start gap-2 text-sm p-2 bg-amber-50 border border-amber-200 rounded-md mb-3">
-            <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+          <section 
+            className="flex items-start gap-2 text-sm p-2 bg-amber-50 border border-amber-200 rounded-md mb-3"
+            role="alert"
+            aria-label="Market volatility warning"
+          >
+            <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
             <div>
               <p className="font-medium text-amber-800">⚠️ Market Notice</p>
               <p className="text-xs text-amber-700">
@@ -254,26 +364,32 @@ export const PriceConfidenceMeter = ({
                 Procuresaathi ensures you receive the best available option at the time of order.
               </p>
             </div>
-          </div>
+          </section>
         )}
 
         {/* Expandable Details */}
         {showDetails && (
           <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" className="w-full justify-between text-xs">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-between text-xs"
+                aria-expanded={isDetailsOpen}
+                aria-controls="price-evaluation-details"
+              >
                 <span>View Details</span>
                 {isDetailsOpen ? (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
                 )}
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2">
-              <div className="space-y-2 text-xs text-muted-foreground border-t pt-3">
-                <p className="font-medium text-foreground">How this price was evaluated:</p>
-                <ul className="space-y-1 pl-2">
+            <CollapsibleContent id="price-evaluation-details" className="pt-2">
+              <article className="space-y-2 text-xs text-muted-foreground border-t pt-3">
+                <h5 className="font-medium text-foreground">How this price was evaluated:</h5>
+                <ul className="space-y-1 pl-2" role="list">
                   <li>• Compared against recent market prices</li>
                   <li>• Validated using supplier quotations (if available)</li>
                   <li>• Adjusted for demand–supply conditions</li>
@@ -282,22 +398,22 @@ export const PriceConfidenceMeter = ({
                 
                 {data.price_behavior_note && (
                   <div className="flex items-start gap-2 mt-2 pt-2 border-t">
-                    <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                    <Info className="h-3 w-3 mt-0.5 flex-shrink-0" aria-hidden="true" />
                     <span>{data.price_behavior_note}</span>
                   </div>
                 )}
-              </div>
+              </article>
             </CollapsibleContent>
           </Collapsible>
         )}
 
         {/* Footer Trust Line */}
-        <div className="mt-4 pt-3 border-t">
+        <footer className="mt-4 pt-3 border-t">
           <p className="text-xs text-muted-foreground/70 text-center">
             Supplier details remain confidential. Procuresaathi manages pricing, 
             supplier selection, and fulfillment to ensure fair and reliable procurement.
           </p>
-        </div>
+        </footer>
       </CardContent>
     </Card>
   );
