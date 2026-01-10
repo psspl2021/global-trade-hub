@@ -2820,6 +2820,59 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_inventory_matches: {
+        Row: {
+          boost_expires_at: string | null
+          created_at: string
+          historical_acceptance: number
+          id: string
+          is_boosted: boolean
+          last_calculated_at: string
+          location_proximity: number
+          match_score: number
+          matching_rfq_count: number
+          product_id: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          boost_expires_at?: string | null
+          created_at?: string
+          historical_acceptance?: number
+          id?: string
+          is_boosted?: boolean
+          last_calculated_at?: string
+          location_proximity?: number
+          match_score?: number
+          matching_rfq_count?: number
+          product_id: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          boost_expires_at?: string | null
+          created_at?: string
+          historical_acceptance?: number
+          id?: string
+          is_boosted?: boolean
+          last_calculated_at?: string
+          location_proximity?: number
+          match_score?: number
+          matching_rfq_count?: number
+          product_id?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_inventory_matches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_inventory_signals: {
         Row: {
           available_quantity: number | null

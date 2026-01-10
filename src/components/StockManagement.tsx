@@ -66,8 +66,14 @@ export const StockManagement = ({ open, onOpenChange, userId }: StockManagementP
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [defaultCategory, setDefaultCategory] = useState<string>('Industrial Supplies');
   const [step, setStep] = useState<'upload' | 'preview'>('upload');
+  const [activeTab, setActiveTab] = useState<string>('ai-demand');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Handler to switch to upload tab from AI component
+  const handleOpenStockUpload = () => {
+    setActiveTab('upload');
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -436,7 +442,7 @@ Plastic Sheets,1000,pieces,Packaging`;
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
         ) : (
-          <Tabs defaultValue="ai-demand" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="ai-demand">
                 <Sparkles className="h-4 w-4 mr-2" />
@@ -461,7 +467,11 @@ Plastic Sheets,1000,pieces,Packaging`;
             </TabsList>
 
             <TabsContent value="ai-demand" className="mt-4">
-              <SupplierInventorySaleAI userId={userId} userRole="supplier" />
+              <SupplierInventorySaleAI 
+                userId={userId} 
+                userRole="supplier" 
+                onOpenStockUpload={handleOpenStockUpload}
+              />
             </TabsContent>
 
             <TabsContent value="upload" className="space-y-4 mt-4">
