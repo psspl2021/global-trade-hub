@@ -167,7 +167,6 @@ export const SupplierInventorySaleAI = ({
   const [inventoryMatches, setInventoryMatches] = useState<InventoryMatch[]>([]);
   const [buyerVisibleStock, setBuyerVisibleStock] = useState<BuyerVisibleStock[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const [selectedItem, setSelectedItem] = useState<InventoryMatch | null>(null);
 
   // Fetch inventory matches for suppliers or verified stock for buyers
   useEffect(() => {
