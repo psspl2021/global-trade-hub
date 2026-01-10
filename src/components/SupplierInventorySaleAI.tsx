@@ -637,17 +637,24 @@ export const SupplierInventorySaleAI = ({
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : inventoryMatches.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center">
-            <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <p className="text-muted-foreground">No inventory matches found</p>
-            <p className="text-sm text-muted-foreground mt-1">Add products to your catalog to see AI recommendations</p>
-            {onOpenStockUpload && (
-              <Button onClick={onOpenStockUpload} variant="outline" className="mt-4 gap-2">
-                <Upload className="h-4 w-4" />
-                Upload Inventory
-              </Button>
-            )}
+        <Card className="bg-muted/20 border-dashed">
+          <CardContent className="py-8 text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+              <Activity className="h-6 w-6 text-green-600" />
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Inventory indexed successfully</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                AI is monitoring live buyer demand for matching opportunities.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                You'll see recommendations here when relevant buyer requirements appear.
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground pt-2 border-t border-dashed">
+              <Info className="h-3 w-3 inline mr-1" />
+              Tip: Accurate category and quantity improve match speed.
+            </p>
           </CardContent>
         </Card>
       ) : (
