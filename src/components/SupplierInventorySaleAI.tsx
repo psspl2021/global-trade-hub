@@ -583,13 +583,17 @@ export const SupplierInventorySaleAI = ({
       )}
 
       {/* Trust Footer */}
-      <footer className="pt-4 border-t">
+      <footer className="pt-4 border-t space-y-1">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <EyeOff className="h-3 w-3" />
+          <span>Buyer identity hidden until order confirmation</span>
+        </div>
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           <Shield className="h-3 w-3" />
-          Buyer details remain confidential. You retain final control on acceptance.
+          You retain final acceptance control on all matches.
         </p>
         <p className="text-[10px] text-muted-foreground mt-1">
-          supplier_inventory_ai_v1 • Stable • Supplier-neutral • Audit-ready
+          supplier_inventory_ai_v1 • Stable • Audit-ready
         </p>
       </footer>
     </article>
@@ -707,12 +711,15 @@ export const SupplierInventorySaleAI = ({
 
       {/* Trust Footer */}
       <footer className="pt-4 border-t space-y-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <EyeOff className="h-3 w-3" />
+          <span>Supplier identity revealed upon order confirmation</span>
+        </div>
         <p className="text-xs text-muted-foreground">
-          Inventory is sourced from verified suppliers.
-          Procuresaathi ensures fair pricing, confidentiality, and reliable fulfillment.
+          Inventory sourced from verified suppliers. Procuresaathi ensures fair pricing, confidentiality, and reliable fulfillment.
         </p>
         <p className="text-[10px] text-muted-foreground">
-          supplier_inventory_ai_v1 • Buyer-safe
+          supplier_inventory_ai_v1 • Buyer-safe • Audit-ready
         </p>
       </footer>
     </article>
