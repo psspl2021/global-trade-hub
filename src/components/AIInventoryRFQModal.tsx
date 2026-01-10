@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,8 @@ import {
   Minus,
   TrendingDown,
   Info,
-  Truck
+  Truck,
+  Clock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -69,17 +71,33 @@ const getMatchStrengthConfig = (strength: 'high' | 'medium' | 'low') => {
   return configs[strength];
 };
 
+// Calculate smart default quantity based on match strength
+const getDefaultQuantity = (availableQty: number, matchStrength: 'high' | 'medium' | 'low'): string => {
+  // For high demand items, suggest 70% to improve acceptance
+  // For others, suggest reasonable defaults
+  if (matchStrength === 'high') {
+    const suggested = Math.floor(availableQty * 0.7);
+    return Math.max(1, suggested).toString();
+  }
+  // Default to smaller amount to not scare buyers
+  if (availableQty >= 100) return '10';
+  if (availableQty >= 10) return Math.floor(availableQty * 0.5).toString();
+  return '1';
+};
+
 export function AIInventoryRFQModal({ 
   open, 
   onOpenChange, 
   stock,
   userId 
 }: AIInventoryRFQModalProps) {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [buyerCity, setBuyerCity] = useState('');
-  const [quantity, setQuantity] = useState(stock.availableQuantity.toString());
+  const [quantity, setQuantity] = useState(getDefaultQuantity(stock.availableQuantity, stock.matchStrength));
   const [deliveryTimeline, setDeliveryTimeline] = useState('7_days');
   const [notes, setNotes] = useState('');
+  const [hasPendingRFQ, setHasPendingRFQ] = useState(false);
   const { toast } = useToast();
 
   // Fetch buyer's city from profile
@@ -101,14 +119,43 @@ export function AIInventoryRFQModal({
     }
   }, [open, userId]);
 
-  // Reset form when modal opens
+  // Check for duplicate RFQs and reset form when modal opens
   useEffect(() => {
     if (open) {
-      setQuantity(Math.min(stock.availableQuantity, stock.availableQuantity).toString());
+      // Reset form with smart defaults
+      setQuantity(getDefaultQuantity(stock.availableQuantity, stock.matchStrength));
       setDeliveryTimeline('7_days');
       setNotes('');
+      setHasPendingRFQ(false);
+
+      // Check for existing open RFQ on same product (24h window)
+      const checkDuplicateRFQ = async () => {
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+        const { data } = await supabase
+          .from('requirements')
+          .select('id')
+          .eq('buyer_id', userId)
+          .eq('rfq_source' as any, 'ai_inventory')
+          .eq('source_product_id' as any, stock.id)
+          .eq('status', 'open')
+          .gte('created_at', twentyFourHoursAgo.toISOString())
+          .limit(1);
+
+        if (data && data.length > 0) {
+          setHasPendingRFQ(true);
+        }
+      };
+
+      checkDuplicateRFQ();
     }
-  }, [open, stock.availableQuantity]);
+  }, [open, stock.availableQuantity, stock.matchStrength, stock.id, userId]);
+
+  // Calculate max allowed quantity based on match strength
+  const maxAllowedQty = stock.matchStrength === 'high' 
+    ? Math.floor(stock.availableQuantity * 0.7) 
+    : stock.availableQuantity;
 
   const handleSubmit = async () => {
     const qty = parseFloat(quantity);
@@ -161,8 +208,10 @@ export function AIInventoryRFQModal({
         delivery_location: buyerCity,
         deadline: deadline.toISOString(),
         status: 'open' as const,
-        trade_type: 'domestic_india',
-        selection_mode: 'auto',
+        // Let backend determine trade_type based on locations
+        trade_type: null,
+        // Use bidding mode - let suppliers compete, AI selection happens after bids
+        selection_mode: 'bidding',
         rfq_source: 'ai_inventory',
         source_product_id: stock.id,
         source_metadata: {
@@ -171,6 +220,9 @@ export function AIInventoryRFQModal({
           match_strength: stock.matchStrength,
           available_quantity: stock.availableQuantity,
           requested_timeline: deliveryTimeline,
+          buyer_city: buyerCity,
+          ui_entry: 'browse_products',
+          inventory_visibility: 'verified',
         },
       };
 
@@ -186,6 +238,9 @@ export function AIInventoryRFQModal({
       });
 
       onOpenChange(false);
+      
+      // Redirect to My RFQs for conversion
+      navigate('/dashboard?tab=requirements');
     } catch (error: any) {
       console.error('RFQ creation error:', error);
       toast({
@@ -255,8 +310,9 @@ export function AIInventoryRFQModal({
                   max={stock.availableQuantity}
                   placeholder={`Max: ${stock.availableQuantity}`}
                 />
-                <p className="text-xs text-muted-foreground">
-                  {stock.unit}
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {stock.unit} • Stock availability may change based on demand
                 </p>
               </div>
 
@@ -297,6 +353,16 @@ export function AIInventoryRFQModal({
               />
             </div>
           </div>
+
+          {/* Duplicate RFQ Warning */}
+          {hasPendingRFQ && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <p className="text-sm text-yellow-800">
+                You already have an open quote request for this product from the last 24 hours.
+                Submitting another may result in duplicate quotes.
+              </p>
+            </div>
+          )}
 
           {/* Trust & Disclosure */}
           <div className="bg-muted/30 rounded-lg p-3 space-y-2">
