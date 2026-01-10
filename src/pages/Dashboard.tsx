@@ -59,6 +59,7 @@ import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 import { SupplierEmailQuotaCard } from '@/components/SupplierEmailQuotaCard';
 import { PremiumPackPurchase } from '@/components/PremiumPackPurchase';
 import { SubscriptionInvoices } from '@/components/SubscriptionInvoices';
+import { SupplierAIPerformanceCard } from '@/components/SupplierAIPerformanceCard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -827,6 +828,13 @@ const Dashboard = () => {
 
         {role === 'supplier' && (
           <>
+            {/* AI Inventory Performance Card */}
+            {user && (
+              <div className="mb-4">
+                <SupplierAIPerformanceCard userId={user.id} onOpenCatalog={() => setShowCatalog(true)} />
+              </div>
+            )}
+
             {/* Subscription Invoices */}
             <div className="mb-4">
               <SubscriptionInvoices />

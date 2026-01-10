@@ -26,7 +26,7 @@ import { Search, Package, Building2, Radio, Lock, Eye, EyeOff, Sparkles, Filter,
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { getCategoryByName, categoriesData } from '@/data/categories';
-import { SupplierInventorySaleAI } from '@/components/SupplierInventorySaleAI';
+import { AIVerifiedStockSection } from '@/components/AIVerifiedStockSection';
 
 interface Product {
   id: string;
@@ -507,18 +507,25 @@ const Browse = () => {
               </div>
             </div>
 
-            {/* AI Verified Stock for logged-in buyers - hidden from SSR/SEO */}
-            {isBuyer && user && typeof window !== 'undefined' && (
-              <div className="mb-10 p-4 rounded-xl border border-primary/20 bg-primary/5">
-                <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Available Now (AI Verified)
-                </h2>
-                <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
-                  These items are already available with verified suppliers and matched by AI 
-                  based on live inventory and buyer demand. Supplier identities remain anonymous.
-                </p>
-                <SupplierInventorySaleAI userId={user.id} userRole="buyer" />
+            {/* AI Verified Stock - Available Now Section */}
+            {typeof window !== 'undefined' && (
+              <div className="mb-10 p-4 sm:p-6 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-background">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      Available Now (AI Verified)
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+                      Products verified in stock with trusted suppliers. Supplier identities remain anonymous until order confirmation.
+                    </p>
+                  </div>
+                </div>
+                <AIVerifiedStockSection 
+                  userId={user?.id} 
+                  isLoggedIn={!!user}
+                  categoryFilter={categoryParam}
+                />
               </div>
             )}
 
