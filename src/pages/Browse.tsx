@@ -53,24 +53,36 @@ const Browse = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
 
-  // SEO
+  // SEO - Global Reach Optimized
   const pageTitle = subcategoryParam 
-    ? `${subcategoryParam} - ${categoryParam} | ProcureSaathi`
+    ? `${subcategoryParam} Suppliers & Manufacturers | Export from India - ProcureSaathi`
     : categoryParam 
-      ? `${categoryParam} Suppliers & Products | ProcureSaathi`
-      : 'Browse B2B Products & Suppliers | ProcureSaathi';
+      ? `${categoryParam} Wholesale Suppliers India | Global Export - ProcureSaathi`
+      : 'B2B Product Catalog | Verified Indian Suppliers for Global Buyers - ProcureSaathi';
   
   const canonicalUrl = subcategoryParam
-    ? `https://procuresaathi.com/browse?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(subcategoryParam)}`
+    ? `https://www.procuresaathi.com/browseproducts?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(subcategoryParam)}`
     : categoryParam
-      ? `https://procuresaathi.com/browse?category=${encodeURIComponent(categoryParam)}`
-      : 'https://procuresaathi.com/browse';
+      ? `https://www.procuresaathi.com/browseproducts?category=${encodeURIComponent(categoryParam)}`
+      : 'https://www.procuresaathi.com/browseproducts';
+
+  const seoDescription = subcategoryParam
+    ? `Source ${subcategoryParam} from verified Indian manufacturers. Export-ready products with competitive FOB pricing, quality certifications & worldwide shipping. Get quotes from 500+ suppliers.`
+    : categoryParam
+      ? `Find ${categoryParam} suppliers in India for global export. Verified manufacturers, competitive bulk pricing, ISO certified. Request quotes from multiple suppliers instantly.`
+      : 'Browse 10,000+ B2B products from verified Indian suppliers. Export-ready inventory in steel, chemicals, textiles, machinery & more. Connect with manufacturers for global trade.';
+
+  const seoKeywords = subcategoryParam
+    ? `${subcategoryParam} suppliers India, ${subcategoryParam} manufacturers, ${subcategoryParam} exporters, ${subcategoryParam} wholesale, buy ${subcategoryParam} bulk, ${categoryParam} India export`
+    : categoryParam
+      ? `${categoryParam} suppliers India, ${categoryParam} manufacturers, ${categoryParam} exporters, Indian ${categoryParam}, wholesale ${categoryParam}, ${categoryParam} bulk pricing, ${categoryParam} export`
+      : 'Indian suppliers, B2B marketplace India, wholesale products India, bulk buying, industrial suppliers India, export from India, Indian manufacturers, verified suppliers, global sourcing India';
 
   useSEO({
     title: pageTitle,
-    description: `Browse verified B2B suppliers and products${categoryParam ? ` in ${categoryParam}` : ''}. Find wholesale suppliers across India with competitive pricing and live stock availability.`,
+    description: seoDescription,
     canonical: canonicalUrl,
-    keywords: `B2B suppliers, ${categoryParam || 'wholesale products'}, bulk buying India, industrial suppliers, manufacturing`
+    keywords: seoKeywords
   });
 
   // Get category data for sidebar
@@ -190,8 +202,81 @@ const Browse = () => {
   const displayTitle = subcategoryParam || categoryParam || 'All Products';
   const mainCategories = categoriesData.slice(0, 15); // Show first 15 categories
 
+  // JSON-LD Structured Data for Global SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": displayTitle,
+    "description": seoDescription,
+    "url": canonicalUrl,
+    "numberOfItems": filteredProducts.length,
+    "itemListElement": filteredProducts.slice(0, 10).map((product, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Product",
+        "name": product.name,
+        "description": product.description || `${product.name} from verified Indian supplier`,
+        "category": product.category,
+        "offers": {
+          "@type": "Offer",
+          "availability": product.stock_quantity && product.stock_quantity > 0 
+            ? "https://schema.org/InStock" 
+            : "https://schema.org/OutOfStock",
+          "priceCurrency": "INR",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "priceCurrency": "INR",
+            "eligibleQuantity": {
+              "@type": "QuantitativeValue",
+              "value": product.moq || 1,
+              "unitText": product.stock_unit || "units"
+            }
+          },
+          "seller": {
+            "@type": "Organization",
+            "name": "Verified Indian Supplier via ProcureSaathi"
+          },
+          "shippingDetails": {
+            "@type": "OfferShippingDetails",
+            "shippingDestination": {
+              "@type": "DefinedRegion",
+              "addressCountry": ["IN", "US", "GB", "AE", "SG", "DE", "AU", "CA", "NL", "FR"]
+            }
+          }
+        }
+      }
+    }))
+  };
+
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "ProcureSaathi",
+    "url": "https://www.procuresaathi.com",
+    "logo": "https://www.procuresaathi.com/procuresaathi-logo.png",
+    "description": "India's leading B2B sourcing platform connecting global buyers with verified Indian suppliers",
+    "areaServed": {
+      "@type": "Place",
+      "name": "Worldwide"
+    },
+    "sameAs": [
+      "https://twitter.com/ProcureSaathi",
+      "https://www.linkedin.com/company/procuresaathi"
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* SEO JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
+      />
       {/* Header */}
       <header className="bg-card border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -222,13 +307,13 @@ const Browse = () => {
         <Breadcrumb className="mb-6">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink onClick={() => navigate('/')} className="cursor-pointer">
+              <BreadcrumbLink href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="cursor-pointer">
                 Home
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink onClick={() => navigate('/categories')} className="cursor-pointer">
+              <BreadcrumbLink href="/categories" onClick={(e) => { e.preventDefault(); navigate('/categories'); }} className="cursor-pointer">
                 Categories
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -238,7 +323,8 @@ const Browse = () => {
                 <BreadcrumbItem>
                   {subcategoryParam ? (
                     <BreadcrumbLink 
-                      onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}`)} 
+                      href={`/browseproducts?category=${encodeURIComponent(categoryParam)}`}
+                      onClick={(e) => { e.preventDefault(); navigate(`/browseproducts?category=${encodeURIComponent(categoryParam)}`); }}
                       className="cursor-pointer"
                     >
                       {categoryParam}
@@ -349,7 +435,7 @@ const Browse = () => {
                         variant={!subcategoryParam ? "secondary" : "ghost"}
                         size="sm"
                         className="w-full justify-start text-xs"
-                        onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}`)}
+                        onClick={() => navigate(`/browseproducts?category=${encodeURIComponent(categoryParam)}`)}
                       >
                         All in {categoryParam.split(' ')[0]}...
                       </Button>
@@ -359,7 +445,7 @@ const Browse = () => {
                           variant={subcategoryParam === sub ? "secondary" : "ghost"}
                           size="sm"
                           className="w-full justify-start text-xs"
-                          onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(sub)}`)}
+                          onClick={() => navigate(`/browseproducts?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(sub)}`)}
                         >
                           {sub}
                         </Button>
