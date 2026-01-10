@@ -65,7 +65,8 @@ const App = () => (
               <Route path="/categories" element={<Categories />} />
               <Route path="/category/:categorySlug" element={<CategoryLanding />} />
               <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryLanding />} />
-              <Route path="/browse" element={<Browse />} />
+              <Route path="/browseproducts" element={<Browse />} />
+              <Route path="/browse" element={<Navigate to="/browseproducts" replace />} />
               <Route path="/book-truck" element={<BookTruck />} />
               <Route path="/blogs" element={<Blogs />} />
               <Route path="/blogs/:slug" element={<BlogPost />} />
