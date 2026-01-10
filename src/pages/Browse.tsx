@@ -507,9 +507,17 @@ const Browse = () => {
               </div>
             </div>
 
-            {/* AI Verified Stock for logged-in buyers */}
-            {isBuyer && user && (
-              <div className="mb-8">
+            {/* AI Verified Stock for logged-in buyers - hidden from SSR/SEO */}
+            {isBuyer && user && typeof window !== 'undefined' && (
+              <div className="mb-10 p-4 rounded-xl border border-primary/20 bg-primary/5">
+                <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Available Now (AI Verified)
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
+                  These items are already available with verified suppliers and matched by AI 
+                  based on live inventory and buyer demand. Supplier identities remain anonymous.
+                </p>
                 <SupplierInventorySaleAI userId={user.id} userRole="buyer" />
               </div>
             )}
