@@ -34,9 +34,11 @@ import {
   Upload,
   Search,
   Rocket,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Send
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { AIInventoryRFQModal } from '@/components/AIInventoryRFQModal';
 
 // ============================================
 // TYPES & INTERFACES
@@ -201,6 +203,8 @@ export const SupplierInventorySaleAI = ({
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [boostingProduct, setBoostingProduct] = useState<string | null>(null);
+  const [rfqModalOpen, setRfqModalOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState<BuyerVisibleStock | null>(null);
   const { toast } = useToast();
 
   // Fetch inventory matches for suppliers or verified stock for buyers
@@ -504,6 +508,12 @@ export const SupplierInventorySaleAI = ({
       }
       return next;
     });
+  };
+
+  // Handle opening RFQ modal for a stock item
+  const handleRequestQuote = (stock: BuyerVisibleStock) => {
+    setSelectedStock(stock);
+    setRfqModalOpen(true);
   };
 
   // Filtered data for buyer view
@@ -1000,7 +1010,7 @@ export const SupplierInventorySaleAI = ({
                       <p className="text-sm text-muted-foreground mt-1" itemProp="category">
                         {stock.category}
                       </p>
-                      <div className="flex items-center gap-4 mt-2">
+                      <div className="flex items-center gap-2 flex-wrap mt-2">
                         <span className="text-sm font-medium">
                           {stock.availableQuantity} {stock.unit} available
                         </span>
@@ -1011,6 +1021,12 @@ export const SupplierInventorySaleAI = ({
                           <MatchIcon className="h-3 w-3 mr-1" />
                           {config.description}
                         </Badge>
+                        {stock.matchStrength === 'high' && (
+                          <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                            <Activity className="h-3 w-3 mr-1" />
+                            High demand in last 7 days
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     <div className="text-right">
@@ -1019,8 +1035,16 @@ export const SupplierInventorySaleAI = ({
                     </div>
                   </div>
 
-                  {/* Logistics Disclosure */}
-                  <div className="mt-3 pt-3 border-t">
+                  {/* Request Quote CTA & Logistics Disclosure */}
+                  <div className="mt-3 pt-3 border-t space-y-3">
+                    <Button 
+                      size="sm" 
+                      className="w-full gap-2"
+                      onClick={() => handleRequestQuote(stock)}
+                    >
+                      <Send className="h-4 w-4" />
+                      Request Quote
+                    </Button>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <Truck className="h-3 w-3" />
                       {stock.logisticsCost > 0 
@@ -1046,9 +1070,19 @@ export const SupplierInventorySaleAI = ({
           Inventory sourced from verified suppliers. Procuresaathi ensures fair pricing, confidentiality, and reliable fulfillment.
         </p>
         <p className="text-[10px] text-muted-foreground">
-          supplier_inventory_ai_sales_v1 • Buyer-safe • Audit-ready
+          ai_inventory_rfq_v1 • Buyer-safe • Audit-ready
         </p>
       </footer>
+
+      {/* AI Inventory RFQ Modal */}
+      {selectedStock && (
+        <AIInventoryRFQModal
+          open={rfqModalOpen}
+          onOpenChange={setRfqModalOpen}
+          stock={selectedStock}
+          userId={userId}
+        />
+      )}
     </article>
   );
 
