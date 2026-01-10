@@ -402,19 +402,31 @@ export function AIInventoryRFQModal({
             </div>
           )}
 
-          {/* Trust & Disclosure */}
-          <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Shield className="h-3 w-3" />
-              <span>Supplier identities remain anonymous until order confirmation</span>
+          {/* Trust & Disclosure - Enhanced */}
+          <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              Buyer Guarantees
+            </h4>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="text-green-500">✓</span>
+                <span>Price includes platform fee — no hidden commissions later</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="text-green-500">✓</span>
+                <span>Supplier identity revealed only after order confirmation</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Truck className="h-4 w-4" />
+                <span>Logistics charged separately based on delivery location</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Truck className="h-3 w-3" />
-              <span>Logistics charged separately. Platform service charges included where applicable.</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-primary font-medium">
-              <Clock className="h-3 w-3" />
-              <span>Expected supplier response: {responseETA[stock.matchStrength]}</span>
+            <div className="pt-2 border-t border-dashed">
+              <div className="flex items-center gap-2 text-sm text-primary font-medium">
+                <Clock className="h-4 w-4" />
+                <span>Expected supplier response: {responseETA[stock.matchStrength]}</span>
+              </div>
             </div>
           </div>
         </div>
