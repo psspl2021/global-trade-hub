@@ -80,9 +80,8 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
         const userCity = buyerProfile?.city || null;
         setBuyerCity(userCity);
 
-        // Fetch AI-matched inventory with supplier verification status
-        // Join: stock_inventory → products → profiles (for verification)
-        // Also join supplier_inventory_matches for relevance scores
+        // Fetch AI-matched inventory with verified supplier filter at DB level
+        // JOIN: stock_inventory → products → profiles (verified only)
         const { data, error } = await supabase
           .from('stock_inventory')
           .select(`
@@ -95,11 +94,17 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
               name,
               category,
               supplier_id,
-              is_active
+              is_active,
+              profiles!inner (
+                id,
+                city,
+                is_verified_supplier
+              )
             )
           `)
           .gt('quantity', 0)
           .eq('products.is_active', true)
+          .eq('products.profiles.is_verified_supplier', true)
           .limit(20);
 
         if (error) {
@@ -112,19 +117,6 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
           setItems([]);
           return;
         }
-
-        // Get supplier IDs to fetch verification status
-        const supplierIds = [...new Set(data.map((item: any) => item.products.supplier_id))];
-        
-        // Fetch supplier profiles with verification status
-        const { data: suppliersData } = await supabase
-          .from('profiles')
-          .select('id, city, is_verified_supplier')
-          .in('id', supplierIds);
-
-        const suppliersMap = new Map(
-          (suppliersData || []).map((s: any) => [s.id, s])
-        );
 
         // Fetch match scores for products
         const productIds = data.map((item: any) => item.product_id);
@@ -139,13 +131,12 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
           matchScoresMap.set(m.product_id, Math.max(existing, m.match_score || 0));
         });
 
-        // Process items - ONLY include verified suppliers
+        // Process items - verification already enforced at DB level
         const processedItems: DiscoveryItem[] = data
           .map((item: any) => {
             const product = item.products;
-            const supplier = suppliersMap.get(product.supplier_id);
-            const isVerified = supplier?.is_verified_supplier === true;
-            const supplierCity = supplier?.city || null;
+            const supplierProfile = product.profiles;
+            const supplierCity = supplierProfile?.city || null;
             
             // Get relevance score (not buyer-specific "match")
             const relevanceScore = matchScoresMap.get(item.product_id) || 0.5;
@@ -158,12 +149,10 @@ export function AIInventoryDiscoveryCard({ userId }: AIInventoryDiscoveryCardPro
               availableQuantity: item.quantity,
               unit: item.unit,
               matchStrength: determineMatchStrength(relevanceScore),
-              isVerified,
+              isVerified: true, // Guaranteed by DB filter: is_verified_supplier = true
               supplierCity,
             };
           })
-          // CRITICAL: Only show verified suppliers
-          .filter((item) => item.isVerified)
           // Sort by: 1) Same city as buyer, 2) Match strength, 3) Quantity
           .sort((a, b) => {
             // Location-aware sorting - same city first
