@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain, Gauge } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -46,6 +46,7 @@ interface AdminDashboardCardsProps {
   onOpenL1Analysis: () => void;
   onOpenEmailTracking: () => void;
   onOpenSupplierSelection: () => void;
+  onOpenControlTower: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -66,6 +67,7 @@ export function AdminDashboardCards({
   onOpenL1Analysis,
   onOpenEmailTracking,
   onOpenSupplierSelection,
+  onOpenControlTower,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -197,7 +199,25 @@ export function AdminDashboardCards({
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {/* Visitor Analytics Card - First Position */}
+      {/* Control Tower Card - First Position (Featured) */}
+      <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 md:col-span-2 lg:col-span-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Gauge className="h-5 w-5 text-primary" />
+            Control Tower
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Complete platform analytics, AI inventory tracking & financial metrics
+          </p>
+          <Button className="w-full" onClick={onOpenControlTower}>
+            <Gauge className="h-4 w-4 mr-2" />
+            Open Control Tower
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card className="border-indigo-500/20 bg-indigo-500/5 md:col-span-2 lg:col-span-1">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
