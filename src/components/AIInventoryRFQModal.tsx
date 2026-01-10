@@ -229,8 +229,8 @@ export function AIInventoryRFQModal({
         status: 'active' as const,
         // Let backend determine trade_type based on locations
         trade_type: null,
-        // Use bidding mode - let suppliers compete, AI selection happens after bids
-        selection_mode: 'bidding',
+        // Use auto mode - AI will select best supplier from matched inventory
+        selection_mode: 'auto',
         rfq_source: 'ai_inventory',
         source_product_id: stock.id,
         source_metadata: {
