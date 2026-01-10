@@ -98,6 +98,8 @@ export type Database = {
       bids: {
         Row: {
           bid_amount: number
+          buyer_logistics_price: number | null
+          buyer_material_price: number | null
           buyer_visible_price: number
           created_at: string
           delivered_at: string | null
@@ -110,11 +112,14 @@ export type Database = {
           logistics_notes: string | null
           markup_amount: number | null
           markup_percentage: number | null
+          platform_margin: number | null
           quality_status: string | null
           requirement_id: string
           service_fee: number
           status: Database["public"]["Enums"]["bid_status"]
           supplier_id: string
+          supplier_logistics_price: number | null
+          supplier_material_price: number | null
           supplier_net_price: number
           terms_and_conditions: string | null
           total_amount: number
@@ -123,6 +128,8 @@ export type Database = {
         }
         Insert: {
           bid_amount: number
+          buyer_logistics_price?: number | null
+          buyer_material_price?: number | null
           buyer_visible_price: number
           created_at?: string
           delivered_at?: string | null
@@ -135,11 +142,14 @@ export type Database = {
           logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
+          platform_margin?: number | null
           quality_status?: string | null
           requirement_id: string
           service_fee: number
           status?: Database["public"]["Enums"]["bid_status"]
           supplier_id: string
+          supplier_logistics_price?: number | null
+          supplier_material_price?: number | null
           supplier_net_price: number
           terms_and_conditions?: string | null
           total_amount: number
@@ -148,6 +158,8 @@ export type Database = {
         }
         Update: {
           bid_amount?: number
+          buyer_logistics_price?: number | null
+          buyer_material_price?: number | null
           buyer_visible_price?: number
           created_at?: string
           delivered_at?: string | null
@@ -160,11 +172,14 @@ export type Database = {
           logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
+          platform_margin?: number | null
           quality_status?: string | null
           requirement_id?: string
           service_fee?: number
           status?: Database["public"]["Enums"]["bid_status"]
           supplier_id?: string
+          supplier_logistics_price?: number | null
+          supplier_material_price?: number | null
           supplier_net_price?: number
           terms_and_conditions?: string | null
           total_amount?: number
@@ -3568,6 +3583,15 @@ export type Database = {
           p_supplier_id: string
         }
         Returns: boolean
+      }
+      apply_platform_margin: {
+        Args: { p_logistics: number; p_material: number; p_trade_type: string }
+        Returns: {
+          buyer_logistics: number
+          buyer_material: number
+          buyer_total: number
+          platform_profit: number
+        }[]
       }
       auto_assign_supplier: {
         Args: { p_requirement_id: string }
