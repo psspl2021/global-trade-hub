@@ -98,7 +98,15 @@ export function AIInventoryRFQModal({
   const [deliveryTimeline, setDeliveryTimeline] = useState('7_days');
   const [notes, setNotes] = useState('');
   const [hasPendingRFQ, setHasPendingRFQ] = useState(false);
+  const [forceSubmitDuplicate, setForceSubmitDuplicate] = useState(false);
   const { toast } = useToast();
+
+  // Expected response time based on match strength
+  const responseETA: Record<'high' | 'medium' | 'low', string> = {
+    high: 'Within 2–4 hours',
+    medium: 'Same day',
+    low: '1–2 business days',
+  };
 
   // Fetch buyer's city from profile
   useEffect(() => {
@@ -122,13 +130,13 @@ export function AIInventoryRFQModal({
   // Check for duplicate RFQs and reset form when modal opens
   useEffect(() => {
     if (open) {
-      // Reset form with smart defaults
       setQuantity(getDefaultQuantity(stock.availableQuantity, stock.matchStrength));
       setDeliveryTimeline('7_days');
       setNotes('');
       setHasPendingRFQ(false);
+      setForceSubmitDuplicate(false);
 
-      // Check for existing open RFQ on same product (24h window)
+      // Check for existing active RFQ on same product (24h window)
       const checkDuplicateRFQ = async () => {
         const twentyFourHoursAgo = new Date();
         twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
@@ -168,10 +176,11 @@ export function AIInventoryRFQModal({
       return;
     }
 
-    if (qty > stock.availableQuantity) {
+    // Enforce maxAllowedQty for high-demand items
+    if (qty > maxAllowedQty) {
       toast({
-        title: 'Quantity exceeds available stock',
-        description: `Maximum available: ${stock.availableQuantity} ${stock.unit}`,
+        title: 'Requested quantity too high',
+        description: `Recommended max: ${maxAllowedQty} ${stock.unit} for faster confirmation`,
         variant: 'destructive',
       });
       return;
@@ -180,7 +189,17 @@ export function AIInventoryRFQModal({
     if (!buyerCity.trim()) {
       toast({
         title: 'Delivery city required',
-        description: 'Please enter your delivery city',
+        description: 'Please update your city in profile settings',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Block duplicate submissions unless explicitly confirmed
+    if (hasPendingRFQ && !forceSubmitDuplicate) {
+      toast({
+        title: 'Duplicate request blocked',
+        description: 'Please confirm you want to submit another request for this product',
         variant: 'destructive',
       });
       return;
@@ -312,18 +331,29 @@ export function AIInventoryRFQModal({
                 />
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {stock.unit} • Stock availability may change based on demand
+                  {stock.unit} • Max recommended: {maxAllowedQty} {stock.unit}
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="city">Delivery City</Label>
-                <Input
-                  id="city"
-                  value={buyerCity}
-                  onChange={(e) => setBuyerCity(e.target.value)}
-                  placeholder="Enter city"
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="city"
+                    value={buyerCity}
+                    disabled
+                    className="bg-muted"
+                    placeholder="Set in profile"
+                  />
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="text-xs px-2"
+                    onClick={() => navigate('/dashboard?tab=profile')}
+                  >
+                    Change
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -354,13 +384,21 @@ export function AIInventoryRFQModal({
             </div>
           </div>
 
-          {/* Duplicate RFQ Warning */}
+          {/* Duplicate RFQ Warning with confirmation */}
           {hasPendingRFQ && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-2">
               <p className="text-sm text-yellow-800">
                 You already have an open quote request for this product from the last 24 hours.
-                Submitting another may result in duplicate quotes.
               </p>
+              <label className="flex items-center gap-2 text-sm text-yellow-800 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={forceSubmitDuplicate}
+                  onChange={(e) => setForceSubmitDuplicate(e.target.checked)}
+                  className="rounded border-yellow-400"
+                />
+                Submit anyway (may result in duplicate quotes)
+              </label>
             </div>
           )}
 
@@ -374,6 +412,10 @@ export function AIInventoryRFQModal({
               <Truck className="h-3 w-3" />
               <span>Logistics charged separately. Platform service charges included where applicable.</span>
             </div>
+            <div className="flex items-center gap-2 text-xs text-primary font-medium">
+              <Clock className="h-3 w-3" />
+              <span>Expected supplier response: {responseETA[stock.matchStrength]}</span>
+            </div>
           </div>
         </div>
 
@@ -381,7 +423,10 @@ export function AIInventoryRFQModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting || (hasPendingRFQ && !forceSubmitDuplicate)}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
