@@ -408,13 +408,15 @@ export const SupplierInventorySaleAI = ({
           .upsert({
             product_id: match.productId,
             supplier_id: supplierId,
-            match_score: match.matchScore,
+            match_score: Math.min(100, Math.max(0, match.matchScore)), // Clamp to 0-100
             matching_rfq_count: match.matchingRfqCount,
             location_proximity: match.demandSignals.locationProximity,
             historical_acceptance: match.demandSignals.historicalAcceptance,
+            supplier_city: match.supplierCity || null,
+            ai_version: 'inventory_match_v1',
             last_calculated_at: new Date().toISOString(),
           }, {
-            onConflict: 'product_id'
+            onConflict: 'supplier_id,product_id'
           });
 
         if (error) console.error('Error persisting match score:', error);
@@ -430,16 +432,15 @@ export const SupplierInventorySaleAI = ({
       const boostExpiresAt = new Date();
       boostExpiresAt.setHours(boostExpiresAt.getHours() + 72); // 72 hour boost
 
+      // Use UPDATE instead of UPSERT since suppliers can only update boost fields
       const { error } = await supabase
         .from('supplier_inventory_matches')
-        .upsert({
-          product_id: productId,
-          supplier_id: userId,
+        .update({
           is_boosted: true,
           boost_expires_at: boostExpiresAt.toISOString(),
-        }, {
-          onConflict: 'product_id'
-        });
+        })
+        .eq('product_id', productId)
+        .eq('supplier_id', userId);
 
       if (error) throw error;
 
@@ -464,73 +465,28 @@ export const SupplierInventorySaleAI = ({
   const fetchBuyerVisibleStock = async () => {
     setLoading(true);
     try {
-      // Fetch verified available stock for buyers with match data
-      const { data: stockData, error } = await supabase
-        .from('stock_inventory')
-        .select(`
-          id,
-          quantity,
-          unit,
-          product_id,
-          products (
-            id,
-            name,
-            category,
-            is_active,
-            supplier_id
-          )
-        `)
-        .gt('quantity', 0)
+      // Use buyer-safe view - no supplier identity, no internal metrics exposed
+      const { data: discoveryData, error } = await supabase
+        .from('buyer_inventory_discovery')
+        .select('*')
         .limit(100);
 
       if (error) throw error;
 
-      // Fetch boost status for all products
-      const productIds = (stockData || []).map(s => (s.products as any)?.id).filter(Boolean);
-      const { data: matchData } = await supabase
-        .from('supplier_inventory_matches')
-        .select('product_id, is_boosted, boost_expires_at, match_score')
-        .in('product_id', productIds);
-
-      const matchMap: Record<string, any> = {};
-      (matchData || []).forEach(m => {
-        matchMap[m.product_id] = m;
-      });
-
-      const visibleStock: BuyerVisibleStock[] = (stockData || [])
-        .filter(s => s.products && (s.products as any).is_active)
-        .map(stock => {
-          const product = stock.products as any;
-          const match = matchMap[product.id];
-          
-          // Determine match strength based on quantity and match score
-          let matchStrength: 'high' | 'medium' | 'low';
-          if (match?.match_score >= 70 || stock.quantity > 100) {
-            matchStrength = 'high';
-          } else if (match?.match_score >= 40 || stock.quantity > 50) {
-            matchStrength = 'medium';
-          } else {
-            matchStrength = 'low';
-          }
-
-          const isBoosted = match?.is_boosted && 
-            match?.boost_expires_at && 
-            new Date(match.boost_expires_at) > new Date();
-
-          return {
-            id: stock.id,
-            productName: product.name,
-            category: product.category,
-            availableQuantity: stock.quantity,
-            unit: stock.unit || 'units',
-            verifiedAvailable: true,
-            matchStrength,
-            logisticsCost: 0, // Logistics handled separately
-            materialPrice: 0, // Price on request
-            isBoosted,
-          };
-        })
-        // Sort: boosted first, then by match strength, then quantity
+      const visibleStock: BuyerVisibleStock[] = (discoveryData || [])
+        .map(item => ({
+          id: item.product_id,
+          productName: item.product_name,
+          category: item.category,
+          availableQuantity: item.available_quantity,
+          unit: item.unit || 'units',
+          verifiedAvailable: true,
+          matchStrength: item.match_strength as 'high' | 'medium' | 'low',
+          logisticsCost: 0, // Logistics handled separately
+          materialPrice: 0, // Price on request
+          isBoosted: item.is_featured,
+        }))
+        // Sort: featured first, then by match strength, then quantity
         .sort((a, b) => {
           if (a.isBoosted && !b.isBoosted) return -1;
           if (!a.isBoosted && b.isBoosted) return 1;
