@@ -218,7 +218,7 @@ export const SupplierCRM = ({ open, onOpenChange, userId }: SupplierCRMProps) =>
             </TabsContent>
 
             <TabsContent value="stock" className="mt-4">
-              <SupplierStockManagementWrapper onOpenCatalog={() => setCatalogOpen(true)} />
+              <SupplierStockManagementWrapper onOpenCatalog={() => setCatalogOpen(true)} userId={userId} />
             </TabsContent>
 
             <TabsContent value="customers" className="mt-4">

@@ -58,6 +58,7 @@ import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 import { SupplierEmailQuotaCard } from '@/components/SupplierEmailQuotaCard';
 import { PremiumPackPurchase } from '@/components/PremiumPackPurchase';
 import { SubscriptionInvoices } from '@/components/SubscriptionInvoices';
+import { SupplierInventorySaleAI } from '@/components/SupplierInventorySaleAI';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -429,6 +430,11 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* AI-Powered Stock Discovery for Buyers */}
+            {user && (
+              <SupplierInventorySaleAI userId={user.id} userRole="buyer" />
+            )}
 
             {/* Requirements List with Bid Details */}
             {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
