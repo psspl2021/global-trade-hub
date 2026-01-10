@@ -60,6 +60,9 @@ const Signup = () => {
   // Email notification consent
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
 
+  // Referrer selection mode: 'priyanka' | 'other' | ''
+  const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other' | ''>('');
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -611,8 +614,9 @@ const Signup = () => {
                   <div className="space-y-2">
                     <Label>Select Referrer *</Label>
                     <Select
-                      value={formData.referredByName === 'Priyanka' ? 'priyanka' : formData.referredByName ? 'other' : ''}
-                      onValueChange={(value) => {
+                      value={referrerSelection}
+                      onValueChange={(value: 'priyanka' | 'other') => {
+                        setReferrerSelection(value);
                         if (value === 'priyanka') {
                           setFormData({ ...formData, referredByName: 'Priyanka', referredByPhone: '+918368127357' });
                           setErrors({ ...errors, referredByName: undefined, referredByPhone: undefined });
@@ -635,12 +639,12 @@ const Signup = () => {
                         <SelectItem value="other" className="py-3">Other (Add manually)</SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors.referredByName && !formData.referredByName && formData.referredByName !== 'Priyanka' && (
-                      <p className="text-sm text-destructive">Please select who referred you</p>
+                    {errors.referredByName && referrerSelection === 'other' && !formData.referredByName && (
+                      <p className="text-sm text-destructive">Please enter referrer details</p>
                     )}
                   </div>
                   
-                  {formData.referredByName !== '' && formData.referredByName !== 'Priyanka' && (
+                  {referrerSelection === 'other' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="referredByName">Name *</Label>
