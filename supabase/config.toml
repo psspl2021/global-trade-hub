@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.supplier-selection]
 verify_jwt = true
+
+[functions.calculate-inventory-matches]
+verify_jwt = true
