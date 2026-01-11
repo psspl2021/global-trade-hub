@@ -305,14 +305,37 @@ serve(async (req) => {
             ? `${normalizedSubcategory} (under ${normalizedCategory})`
             : normalizedCategory;
 
-          const roleInstructions = normalizedRole === 'supplier' 
-            ? `Find MANUFACTURERS, MILLS, OEM SUPPLIERS, and PRODUCERS who SELL ${productDescription} in bulk.
-These should be companies that MANUFACTURE or PRODUCE the product, not traders or brokers.`
+          // ✅ EXPLICIT ROLE INSTRUCTIONS - Critical for supplier discovery quality
+          const roleInstructions = normalizedRole === 'supplier'
+            ? `
+You are discovering SUPPLIERS.
+
+ONLY return companies that:
+- MANUFACTURE, STOCK, or EXPORT this product: ${productDescription}
+- Have production capacity or inventory
+- Act as OEMs, stockists, mills, factories, or exporters
+
+DO NOT return end consumers.
+DO NOT return companies that only BUY this product.
+`
             : normalizedRole === 'hybrid'
-            ? `Find companies that BOTH BUY and SELL ${productDescription} in bulk.
-These could be manufacturers who also source raw materials, or large traders who act as both buyer and seller.`
-            : `Find BULK BUYERS and END-CONSUMERS of ${productDescription}.
-These should be companies that USE the product in their manufacturing/operations, not resellers.`;
+            ? `
+You are discovering HYBRID companies.
+
+ONLY return companies that BOTH BUY and SELL ${productDescription} in bulk.
+These could be manufacturers who also source raw materials, or large traders who act as both buyer and seller.
+`
+            : `
+You are discovering BUYERS.
+
+ONLY return companies that:
+- CONSUME this product in BULK: ${productDescription}
+- Use it in manufacturing, EPC, fabrication, or projects
+- Have recurring procurement demand
+
+DO NOT return traders unless they consume the product.
+DO NOT return suppliers, mills, or manufacturers who SELL this product.
+`;
 
           const buyerTypeFilter = normalizedBuyerTypes.length > 0
             ? `\n\nTarget buyer types: ${normalizedBuyerTypes.join(', ')}
