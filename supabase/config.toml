@@ -68,3 +68,9 @@ verify_jwt = true
 
 [functions.calculate-inventory-matches]
 verify_jwt = true
+
+[functions.ai-seo-cron]
+verify_jwt = false
+
+[functions.ai-sem-cron]
+verify_jwt = false
