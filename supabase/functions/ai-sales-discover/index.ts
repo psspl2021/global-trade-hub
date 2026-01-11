@@ -318,8 +318,15 @@ Rules:
           }
 
           const aiData = await aiResponse.json();
+          console.log('AI Response received');
+          
           const content = aiData.choices?.[0]?.message?.content;
-          if (!content) throw new Error('Empty AI response');
+          if (!content) {
+            console.error('Empty AI content:', JSON.stringify(aiData));
+            throw new Error('Empty AI response');
+          }
+
+          console.log('AI Content length:', content.length);
 
           // Extract JSON from response (handle markdown code blocks)
           let jsonContent = content;
@@ -328,8 +335,36 @@ Rules:
             jsonContent = jsonMatch[1].trim();
           }
 
-          const parsed = JSON.parse(jsonContent);
+          let parsed;
+          try {
+            parsed = JSON.parse(jsonContent);
+          } catch (parseErr) {
+            console.error('JSON parse error:', parseErr, 'Content:', jsonContent.substring(0, 500));
+            throw new Error('Failed to parse AI response as JSON');
+          }
+
           const leads = parsed.leads || [];
+          console.log('Leads parsed:', leads.length);
+
+          if (leads.length === 0) {
+            await supabase
+              .from('ai_sales_discovery_jobs')
+              .update({
+                status: 'completed',
+                leads_found: 0,
+                completed_at: new Date().toISOString()
+              })
+              .eq('id', job.id);
+
+            return new Response(
+              JSON.stringify({
+                leads_found: 0,
+                industries: targetIndustries,
+                message: 'No leads found by AI'
+              }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
 
           const leadsToInsert = leads.map((lead: any) => ({
             company_name: lead.company_name,
@@ -348,13 +383,45 @@ Rules:
             discovered_at: new Date().toISOString()
           }));
 
-          const { data: inserted } = await supabase
+          console.log('Inserting leads:', leadsToInsert.length);
+
+          // Use insert instead of upsert to avoid constraint issues with null emails
+          const { data: inserted, error: insertError } = await supabase
             .from('ai_sales_leads')
-            .upsert(leadsToInsert, {
-              onConflict: 'email,category',
-              ignoreDuplicates: true
-            })
+            .insert(leadsToInsert)
             .select();
+
+          if (insertError) {
+            console.error('Insert error:', insertError);
+            // Try inserting one by one to get as many as possible
+            let successCount = 0;
+            for (const lead of leadsToInsert) {
+              const { error: singleErr } = await supabase
+                .from('ai_sales_leads')
+                .insert(lead);
+              if (!singleErr) successCount++;
+            }
+            console.log('Fallback insert succeeded:', successCount);
+            
+            await supabase
+              .from('ai_sales_discovery_jobs')
+              .update({
+                status: 'completed',
+                leads_found: successCount,
+                completed_at: new Date().toISOString()
+              })
+              .eq('id', job.id);
+
+            return new Response(
+              JSON.stringify({
+                leads_found: successCount,
+                industries: targetIndustries
+              }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          console.log('Leads inserted successfully:', inserted?.length);
 
           await supabase
             .from('ai_sales_discovery_jobs')
