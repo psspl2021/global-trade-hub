@@ -8,13 +8,16 @@ const corsHeaders = {
 };
 
 // ✅ Generate deterministic fingerprint to prevent duplicates
+// Now includes subcategory + industry for precise deduplication
 async function generateFingerprint(lead: {
   company_name: string;
+  subcategory?: string;
+  industry_segment?: string;
   city?: string;
   country: string;
-  category: string;
 }): Promise<string> {
-  const raw = `${lead.company_name}|${lead.city || ''}|${lead.country}|${lead.category}`
+  // Fingerprint = company + subcategory + industry + city + country
+  const raw = `${lead.company_name}|${lead.subcategory || ''}|${lead.industry_segment || ''}|${lead.city || ''}|${lead.country}`
     .toLowerCase()
     .trim();
   const encoder = new TextEncoder();
@@ -108,7 +111,7 @@ serve(async (req) => {
       }
 
       case 'get_leads': {
-        const { category, country, status, industry, company_role, search, page = 1, limit = 50 } = params;
+        const { category, subcategory, country, status, industry, company_role, search, page = 1, limit = 50 } = params;
         let query = supabase
           .from('ai_sales_leads')
           .select('*', { count: 'exact' })
@@ -117,15 +120,16 @@ serve(async (req) => {
 
         // ✅ Normalize filters to lowercase for consistent matching
         if (category) query = query.eq('category', category.toLowerCase());
+        if (subcategory) query = query.eq('subcategory', subcategory.toLowerCase());
         if (country) query = query.eq('country', country.toLowerCase());
         if (status) query = query.eq('status', status);
         if (industry) query = query.eq('industry_segment', industry.toLowerCase());
         if (company_role) query = query.eq('company_role', company_role.toLowerCase());
         
-        // ✅ Backend search across multiple fields
+        // ✅ Backend search across multiple fields (now includes subcategory)
         if (search) {
           query = query.or(
-            `company_name.ilike.%${search}%,buyer_name.ilike.%${search}%,email.ilike.%${search}%,industry_segment.ilike.%${search}%`
+            `company_name.ilike.%${search}%,buyer_name.ilike.%${search}%,email.ilike.%${search}%,industry_segment.ilike.%${search}%,subcategory.ilike.%${search}%`
           );
         }
 
@@ -212,6 +216,7 @@ serve(async (req) => {
       case 'run_discovery': {
         const {
           category,
+          subcategory,
           country,
           buyer_type,
           company_role = 'buyer',
@@ -220,21 +225,33 @@ serve(async (req) => {
 
         // ✅ NORMALIZATION (CRITICAL)
         const normalizedCategory = String(category || '').toLowerCase();
+        const normalizedSubcategory = String(subcategory || '').toLowerCase();
         const normalizedCountry = String(country || '').toLowerCase();
         const normalizedRole = String(company_role || 'buyer').toLowerCase();
+        const normalizedBuyerTypes = Array.isArray(buyer_type) 
+          ? buyer_type.map((bt: string) => bt.toLowerCase())
+          : buyer_type ? [buyer_type.toLowerCase()] : ['manufacturer'];
 
         console.log('RUN DISCOVERY:', {
           category: normalizedCategory,
+          subcategory: normalizedSubcategory,
           country: normalizedCountry,
-          role: normalizedRole
+          role: normalizedRole,
+          buyer_types: normalizedBuyerTypes,
+          industries: industry_segments
         });
 
-        // ✅ Guard against empty category/country
+        // ✅ Guard against empty required fields
         if (!normalizedCategory || !normalizedCountry) {
           return new Response(
             JSON.stringify({ error: 'Category and country are required' }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
+        }
+
+        // ✅ Subcategory is now STRONGLY RECOMMENDED for precision
+        if (!normalizedSubcategory) {
+          console.warn('⚠️ No subcategory provided - discovery will be less precise');
         }
 
         // 1️⃣ Create discovery job
@@ -243,7 +260,7 @@ serve(async (req) => {
           .insert({
             category: normalizedCategory,
             country: normalizedCountry,
-            buyer_type,
+            buyer_type: normalizedBuyerTypes.join(','),
             status: 'running',
             started_at: new Date().toISOString(),
             created_by: user.id
@@ -273,29 +290,38 @@ serve(async (req) => {
         }
 
         try {
-          const defaultIndustries = [
-            'construction & infrastructure',
-            'fabrication & structural steel',
-            'machinery manufacturing',
-            'heavy engineering',
-            'automotive manufacturing',
-            'aerospace & defense'
-          ];
-
+          // ✅ Use provided industries or require subcategory-based industries
           const targetIndustries =
             Array.isArray(industry_segments) && industry_segments.length > 0
               ? industry_segments.map((i: string) => i.toLowerCase())
-              : defaultIndustries;
+              : [];
 
-          // 🧠 DYNAMIC PROMPT BASED ON COMPANY ROLE
+          if (targetIndustries.length === 0) {
+            console.warn('⚠️ No target industries provided - AI will choose based on subcategory');
+          }
+
+          // 🧠 DYNAMIC PROMPT BASED ON COMPANY ROLE + SUBCATEGORY
+          const productDescription = normalizedSubcategory 
+            ? `${normalizedSubcategory} (under ${normalizedCategory})`
+            : normalizedCategory;
+
           const roleInstructions = normalizedRole === 'supplier' 
-            ? `Find MANUFACTURERS, MILLS, OEM SUPPLIERS, and PRODUCERS who SELL ${normalizedCategory} in bulk.
+            ? `Find MANUFACTURERS, MILLS, OEM SUPPLIERS, and PRODUCERS who SELL ${productDescription} in bulk.
 These should be companies that MANUFACTURE or PRODUCE the product, not traders or brokers.`
             : normalizedRole === 'hybrid'
-            ? `Find companies that BOTH BUY and SELL ${normalizedCategory} in bulk.
+            ? `Find companies that BOTH BUY and SELL ${productDescription} in bulk.
 These could be manufacturers who also source raw materials, or large traders who act as both buyer and seller.`
-            : `Find BULK BUYERS and END-CONSUMERS of ${normalizedCategory}.
+            : `Find BULK BUYERS and END-CONSUMERS of ${productDescription}.
 These should be companies that USE the product in their manufacturing/operations, not resellers.`;
+
+          const buyerTypeFilter = normalizedBuyerTypes.length > 0
+            ? `\n\nTarget buyer types: ${normalizedBuyerTypes.join(', ')}
+EXCLUDE these types: ${normalizedBuyerTypes.includes('trader') ? '' : 'traders, '}stockists, brokers, agents`
+            : '';
+
+          const industryFilter = targetIndustries.length > 0
+            ? `\n\nTarget industries:\n${targetIndustries.map(i => `- ${i}`).join('\n')}`
+            : '';
 
           const prompt = `
 You are a B2B industrial ${normalizedRole === 'supplier' ? 'supplier' : 'demand'} discovery AI.
@@ -303,14 +329,14 @@ You are a B2B industrial ${normalizedRole === 'supplier' ? 'supplier' : 'demand'
 ONLY return REAL companies that match the criteria below.
 NO fake data, NO placeholder emails, NO generic company names.
 
-Product: ${normalizedCategory}
+Product Category: ${normalizedCategory}
+Product Subcategory: ${normalizedSubcategory || 'not specified'}
 Country: ${normalizedCountry}
 Company role: ${normalizedRole}
 
 ${roleInstructions}
-
-Target industries:
-${targetIndustries.map(i => `- ${i}`).join('\n')}
+${buyerTypeFilter}
+${industryFilter}
 
 Return JSON ONLY in this format:
 {
@@ -321,8 +347,8 @@ Return JSON ONLY in this format:
       "email": "actual@email.com (leave empty if unknown)",
       "phone": "+1234567890 (leave empty if unknown)",
       "city": "City Name",
-      "industry_segment": "one of the target industries",
-      "buyer_type": "manufacturer|importer|distributor|trader",
+      "industry_segment": "specific industry this company operates in",
+      "buyer_type": "manufacturer|importer|distributor|trader|epc|contractor",
       "confidence_score": 0.7,
       "company_role": "${normalizedRole}"
     }
@@ -330,11 +356,13 @@ Return JSON ONLY in this format:
 }
 
 Rules:
-- industry_segment MUST be lowercase and match one of the target industries
+- industry_segment MUST be lowercase and specific to what this company does
 - confidence_score between 0.65 and 0.95 based on how well the company matches
 - company_role MUST be "${normalizedRole}"
+- buyer_type MUST match one of: ${normalizedBuyerTypes.join(', ')}
 - ONLY include companies that are verifiable and real
 - Return 5-10 high-quality leads maximum
+- Focus on companies that specifically use/produce ${productDescription}
 `;
 
           const aiResponse = await fetch(
@@ -406,12 +434,15 @@ Rules:
           }
 
           // ✅ Generate fingerprints for each lead to prevent duplicates
+          // Now includes subcategory + industry for precise deduplication
           const leadsToInsert = await Promise.all(leads.map(async (lead: any) => {
+            const industrySegment = String(lead.industry_segment || '').toLowerCase();
             const leadData = {
               company_name: lead.company_name,
-              city: lead.city || null,
+              subcategory: normalizedSubcategory || undefined,
+              industry_segment: industrySegment || undefined,
+              city: lead.city || undefined,
               country: normalizedCountry,
-              category: normalizedCategory,
             };
             const fingerprint = await generateFingerprint(leadData);
             
@@ -423,14 +454,15 @@ Rules:
               city: lead.city || null,
               country: normalizedCountry,
               category: normalizedCategory,
-              industry_segment: String(lead.industry_segment || '').toLowerCase(),
-              buyer_type: lead.buyer_type || buyer_type,
+              subcategory: normalizedSubcategory || null, // ✅ NEW: Subcategory
+              industry_segment: industrySegment,
+              buyer_type: lead.buyer_type || normalizedBuyerTypes[0],
               company_role: lead.company_role || normalizedRole,
               confidence_score: lead.confidence_score || 0.7,
               status: 'new',
               lead_source: 'ai_discovery',
               discovered_at: new Date().toISOString(),
-              lead_fingerprint: fingerprint, // ✅ Unique fingerprint
+              lead_fingerprint: fingerprint, // ✅ Unique fingerprint (now subcategory-aware)
             };
           }));
 

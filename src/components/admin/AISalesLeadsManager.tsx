@@ -35,7 +35,13 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { categoriesData } from '@/data/categories';
-import { categoryIndustryMap, getAllIndustries, prettyIndustry } from '@/data/categoryIndustryMap';
+import { 
+  categorySubcategoryMap, 
+  getSubcategoriesForCategory, 
+  getIndustriesForSubcategory, 
+  getAllIndustriesForCategory,
+  prettyLabel 
+} from '@/data/categorySubcategoryMap';
 
 interface Lead {
   id: string;
@@ -46,6 +52,7 @@ interface Lead {
   country: string;
   city: string;
   category: string;
+  subcategory: string;  // ✅ NEW: Subcategory
   industry_segment: string;
   buyer_type: string;
   company_role: string;
@@ -62,6 +69,7 @@ export function AISalesLeadsManager() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [filters, setFilters] = useState({
     category: '',
+    subcategory: '',  // ✅ NEW: Subcategory filter
     country: '',
     status: '',
     company_role: '',
@@ -69,13 +77,20 @@ export function AISalesLeadsManager() {
     industry: '',
   });
 
-  // Get all category names for dropdown
-  const categoryOptions = categoriesData.map(cat => cat.name);
+  // Get all category names for dropdown (only those with subcategory mapping)
+  const categoryOptions = Object.keys(categorySubcategoryMap);
 
-  // Dynamic industry options based on selected category
-  const industryOptions = filters.category && categoryIndustryMap[filters.category.toLowerCase()]
-    ? categoryIndustryMap[filters.category.toLowerCase()]
-    : getAllIndustries();
+  // ✅ Dynamic subcategory options based on selected category
+  const subcategoryOptions = filters.category 
+    ? getSubcategoriesForCategory(filters.category) 
+    : [];
+
+  // ✅ Dynamic industry options based on selected subcategory (or category fallback)
+  const industryOptions = filters.subcategory && filters.category
+    ? getIndustriesForSubcategory(filters.category, filters.subcategory)
+    : filters.category 
+      ? getAllIndustriesForCategory(filters.category)
+      : [];
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newLead, setNewLead] = useState({
     company_name: '',
@@ -419,15 +434,21 @@ export function AISalesLeadsManager() {
             </div>
           </div>
 
-          {/* Category - All ProcureSaathi Categories */}
+          {/* Category */}
           <Select 
             value={filters.category} 
             onValueChange={(v) => {
               const cat = v === 'all' ? '' : v;
+              // Reset subcategory and industry when category changes
+              const firstSubcategory = cat ? getSubcategoriesForCategory(cat)[0] || '' : '';
+              const firstIndustry = cat && firstSubcategory 
+                ? getIndustriesForSubcategory(cat, firstSubcategory)[0] || '' 
+                : '';
               setFilters({
                 ...filters, 
                 category: cat, 
-                industry: cat ? (categoryIndustryMap[cat]?.[0] || '') : ''
+                subcategory: firstSubcategory,
+                industry: firstIndustry
               });
             }}
           >
@@ -437,32 +458,59 @@ export function AISalesLeadsManager() {
             <SelectContent className="max-h-[300px]">
               <SelectItem value="all">All Categories</SelectItem>
               {categoryOptions.map((cat) => (
-                <SelectItem key={cat} value={cat.toLowerCase()}>
-                  {cat}
+                <SelectItem key={cat} value={cat}>
+                  {prettyLabel(cat)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {/* Industry Segment */}
+          {/* ✅ NEW: Subcategory (dynamic based on category) */}
+          <Select 
+            value={filters.subcategory} 
+            onValueChange={(v) => {
+              const sub = v === 'all' ? '' : v;
+              // Reset industry when subcategory changes
+              const firstIndustry = filters.category && sub 
+                ? getIndustriesForSubcategory(filters.category, sub)[0] || '' 
+                : '';
+              setFilters({...filters, subcategory: sub, industry: firstIndustry});
+            }}
+            disabled={!filters.category}
+          >
+            <SelectTrigger className={!filters.category ? 'opacity-50' : ''}>
+              <SelectValue placeholder="Subcategory" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              <SelectItem value="all">All Subcategories</SelectItem>
+              {subcategoryOptions.map((sub) => (
+                <SelectItem key={sub} value={sub}>
+                  {prettyLabel(sub)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Industry Segment (dynamic based on subcategory) */}
           <div className="relative">
             <Select 
               value={filters.industry} 
               onValueChange={(v) => setFilters({...filters, industry: v === 'all' ? '' : v})}
+              disabled={!filters.category}
             >
-              <SelectTrigger>
+              <SelectTrigger className={!filters.category ? 'opacity-50' : ''}>
                 <SelectValue placeholder="Industry" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
                 <SelectItem value="all">All Industries</SelectItem>
                 {industryOptions.map((ind) => (
                   <SelectItem key={ind} value={ind}>
-                    {prettyIndustry(ind)}
+                    {prettyLabel(ind)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {filters.category && filters.industry === categoryIndustryMap[filters.category]?.[0] && (
+            {filters.subcategory && filters.industry && (
               <span className="absolute -top-2 right-2 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
                 ✨ Auto
               </span>
@@ -509,6 +557,7 @@ export function AISalesLeadsManager() {
             size="sm"
             onClick={() => setFilters({
               category: '',
+              subcategory: '',
               country: '',
               status: '',
               company_role: '',
@@ -617,13 +666,20 @@ export function AISalesLeadsManager() {
                       {lead.city && <div className="text-xs text-muted-foreground">{lead.city}</div>}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{lead.category}</Badge>
+                      <div>
+                        <Badge variant="outline">{prettyLabel(lead.category || '')}</Badge>
+                        {lead.subcategory && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {prettyLabel(lead.subcategory)}
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {lead.industry_segment ? (
                         <Badge variant="secondary">
                           <Factory className="w-3 h-3 mr-1" />
-                          {prettyIndustry(lead.industry_segment)}
+                          {prettyLabel(lead.industry_segment)}
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground">-</span>
@@ -738,9 +794,9 @@ export function AISalesLeadsManager() {
                 </div>
                 <div className="flex justify-between items-center pt-2">
                   <div className="text-xs text-muted-foreground">
-                    <span className="font-medium">Category:</span> {editLead.category} | 
+                    <span className="font-medium">Category:</span> {prettyLabel(editLead.category || '')} | 
                     <span className="font-medium ml-2">Country:</span> {editLead.country} |
-                    <span className="font-medium ml-2">Industry:</span> {prettyIndustry(editLead.industry_segment)}
+                    <span className="font-medium ml-2">Industry:</span> {prettyLabel(editLead.industry_segment || '')}
                   </div>
                   <Button onClick={handleEditLead} disabled={editLoading}>
                     {editLoading ? <RefreshCw className="w-4 h-4 mr-1 animate-spin" /> : null}
