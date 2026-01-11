@@ -61,6 +61,8 @@ import { PremiumPackPurchase } from '@/components/PremiumPackPurchase';
 import { SubscriptionInvoices } from '@/components/SubscriptionInvoices';
 import { SupplierAIPerformanceCard } from '@/components/SupplierAIPerformanceCard';
 import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard';
+import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
+import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -109,6 +111,8 @@ const Dashboard = () => {
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [profileComplete, setProfileComplete] = useState(false);
   const [aiGeneratedRFQ, setAIGeneratedRFQ] = useState<any>(null);
+  const [showPostRFQInventory, setShowPostRFQInventory] = useState(false);
+  const [lastRFQData, setLastRFQData] = useState<{ category: string; quantity: number; buyerCity: string | null } | null>(null);
   // SEO for dashboard
   useSEO({
     title: 'Dashboard | ProcureSaathi',
@@ -365,25 +369,16 @@ const Dashboard = () => {
               }}
             />
 
-            {/* AI-Verified Available Stock - Fast Revenue Flow */}
-            {user && <AIInventoryDiscoveryCard userId={user.id} />}
+            {/* Unified Discovery Hub: AI Inventory (LEFT) + Manual RFQ (RIGHT) */}
+            {user && (
+              <BuyerDiscoveryHub 
+                userId={user.id} 
+                onOpenManualRFQ={() => setShowRequirementForm(true)}
+              />
+            )}
 
             {/* Quick Actions Grid */}
             <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Manual RFQ</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Create a requirement manually with full control
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowRequirementForm(true)}>
-                    Create Manually
-                  </Button>
-                </CardContent>
-              </Card>
-
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -474,6 +469,14 @@ const Dashboard = () => {
                   open={showCustomerShipmentTracking}
                   onOpenChange={setShowCustomerShipmentTracking}
                   userId={user.id}
+                />
+                <PostRFQAIInventoryModal
+                  open={showPostRFQInventory}
+                  onOpenChange={setShowPostRFQInventory}
+                  userId={user.id}
+                  rfqCategory={lastRFQData?.category || ''}
+                  rfqQuantity={lastRFQData?.quantity || 0}
+                  buyerCity={lastRFQData?.buyerCity || null}
                 />
               </>
             )}
