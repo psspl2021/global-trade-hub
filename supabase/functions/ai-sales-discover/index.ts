@@ -1,0 +1,204 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify admin role
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid token' }), { 
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+
+    // Check admin role
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+
+    if (!roleData) {
+      return new Response(JSON.stringify({ error: 'Admin access required' }), { 
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+
+    const { action, ...params } = await req.json();
+
+    switch (action) {
+      case 'get_metrics': {
+        const { data: metrics } = await supabase
+          .from('ai_sales_leads')
+          .select('category, country, status, confidence_score, discovered_at');
+        
+        const { data: landingPages } = await supabase
+          .from('ai_sales_landing_pages')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        const { data: conversions } = await supabase
+          .from('ai_sales_conversions')
+          .select('*, ai_sales_leads(company_name, category, country)')
+          .order('converted_at', { ascending: false })
+          .limit(20);
+
+        // Aggregate metrics
+        const aggregated = {
+          total_leads: metrics?.length || 0,
+          new_leads: metrics?.filter(m => m.status === 'new').length || 0,
+          contacted: metrics?.filter(m => m.status === 'contacted').length || 0,
+          rfqs_created: metrics?.filter(m => m.status === 'rfq_created').length || 0,
+          deals_closed: metrics?.filter(m => m.status === 'closed').length || 0,
+          avg_confidence: metrics?.length 
+            ? (metrics.reduce((sum, m) => sum + (m.confidence_score || 0), 0) / metrics.length).toFixed(2) 
+            : 0,
+          by_category: groupBy(metrics || [], 'category'),
+          by_country: groupBy(metrics || [], 'country'),
+        };
+
+        return new Response(JSON.stringify({ 
+          metrics: aggregated, 
+          landingPages, 
+          conversions 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      case 'get_leads': {
+        const { category, country, status, page = 1, limit = 50 } = params;
+        let query = supabase
+          .from('ai_sales_leads')
+          .select('*', { count: 'exact' })
+          .order('discovered_at', { ascending: false })
+          .range((page - 1) * limit, page * limit - 1);
+
+        if (category) query = query.eq('category', category);
+        if (country) query = query.eq('country', country);
+        if (status) query = query.eq('status', status);
+
+        const { data, count } = await query;
+        return new Response(JSON.stringify({ leads: data, total: count }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      case 'create_lead': {
+        const { data, error } = await supabase
+          .from('ai_sales_leads')
+          .insert(params.lead)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return new Response(JSON.stringify({ lead: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      case 'update_lead': {
+        const { id, ...updates } = params;
+        const { data, error } = await supabase
+          .from('ai_sales_leads')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return new Response(JSON.stringify({ lead: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      case 'bulk_update_status': {
+        const { ids, status } = params;
+        const updates: Record<string, unknown> = { status };
+        if (status === 'contacted') {
+          updates.contacted_at = new Date().toISOString();
+        }
+
+        const { data, error } = await supabase
+          .from('ai_sales_leads')
+          .update(updates)
+          .in('id', ids)
+          .select();
+
+        if (error) throw error;
+        return new Response(JSON.stringify({ updated: data?.length || 0 }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      case 'convert_to_rfq': {
+        const { lead_id, rfq_id, conversion_type } = params;
+        
+        // Update lead status
+        await supabase
+          .from('ai_sales_leads')
+          .update({ status: 'rfq_created' })
+          .eq('id', lead_id);
+
+        // Create conversion record
+        const { data, error } = await supabase
+          .from('ai_sales_conversions')
+          .insert({
+            lead_id,
+            rfq_id,
+            conversion_type,
+            source_channel: 'admin'
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return new Response(JSON.stringify({ conversion: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      default:
+        return new Response(JSON.stringify({ error: 'Unknown action' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+    }
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('AI Sales Discover Error:', err);
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+});
+
+function groupBy<T>(arr: T[], key: keyof T): Record<string, number> {
+  return arr.reduce((acc, item) => {
+    const k = String(item[key] || 'Unknown');
+    acc[k] = (acc[k] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+}
