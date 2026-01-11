@@ -216,11 +216,16 @@ serve(async (req) => {
                 messages: [
                   {
                     role: 'system',
-                    content: `You are a B2B lead discovery AI. Generate realistic potential buyer leads for industrial materials. Return JSON array of 5 leads with: company_name, buyer_name, email (realistic format), phone (international format), city, buyer_type, confidence_score (0.6-0.95). Be specific to the region and industry.`
+                    content: `You are a B2B lead discovery AI. Generate realistic potential buyer/supplier leads for industrial materials. Return JSON array of 5 leads with: company_name, buyer_name, email (realistic format), phone (international format), city, buyer_type, confidence_score (0.6-0.95), company_role. Be specific to the region and industry.
+
+Also classify each company as:
+- buyer (primarily purchases materials)
+- supplier (primarily sells materials)  
+- hybrid (both buys and sells)`
                   },
                   {
                     role: 'user',
-                    content: `Find potential ${buyer_type || 'importer'} buyers for ${category} products in ${country}. Generate 5 high-quality B2B leads with realistic company details.`
+                    content: `Find potential ${buyer_type || 'importer'} companies for ${category} products in ${country}. Generate 5 high-quality B2B leads with realistic company details. Include a mix of buyers, suppliers, and hybrid companies.`
                   }
                 ],
                 tools: [{
@@ -242,9 +247,10 @@ serve(async (req) => {
                               phone: { type: 'string' },
                               city: { type: 'string' },
                               buyer_type: { type: 'string' },
-                              confidence_score: { type: 'number' }
+                              confidence_score: { type: 'number' },
+                              company_role: { type: 'string', enum: ['buyer', 'supplier', 'hybrid'] }
                             },
-                            required: ['company_name', 'buyer_name', 'confidence_score']
+                            required: ['company_name', 'buyer_name', 'confidence_score', 'company_role']
                           }
                         }
                       },
@@ -274,6 +280,7 @@ serve(async (req) => {
                   country: country,
                   category: category,
                   buyer_type: lead.buyer_type || buyer_type,
+                  company_role: lead.company_role || 'buyer',
                   confidence_score: lead.confidence_score || 0.7,
                   status: 'new',
                   lead_source: 'ai_discovery',
