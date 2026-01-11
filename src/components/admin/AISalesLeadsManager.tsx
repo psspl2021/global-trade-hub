@@ -30,10 +30,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Plus, Search, Mail, Phone, Building, 
-  Globe, Tag, RefreshCw, CheckCircle, XCircle 
+  Globe, Tag, RefreshCw, CheckCircle, XCircle, Factory
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { categoriesData } from '@/data/categories';
 
 interface Lead {
   id: string;
@@ -44,6 +45,7 @@ interface Lead {
   country: string;
   city: string;
   category: string;
+  industry_segment: string;
   buyer_type: string;
   company_role: string;
   lead_source: string;
@@ -63,7 +65,35 @@ export function AISalesLeadsManager() {
     status: '',
     company_role: '',
     search: '',
+    industry: '',
   });
+
+  // Get all category names for dropdown
+  const categoryOptions = categoriesData.map(cat => cat.name);
+
+  // Industry segments commonly used
+  const industryOptions = [
+    'construction & infrastructure',
+    'fabrication & structural steel',
+    'machinery manufacturing',
+    'heavy engineering',
+    'automotive manufacturing',
+    'aerospace & defense',
+    'oil & gas',
+    'power & energy',
+    'railways',
+    'shipbuilding',
+    'mining',
+    'pharmaceuticals',
+    'textiles',
+    'food processing',
+    'paper & pulp',
+    'water treatment',
+    'agriculture',
+    'cement',
+    'glass & ceramics',
+    'plastics & polymers',
+  ];
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newLead, setNewLead] = useState({
     company_name: '',
@@ -168,12 +198,18 @@ export function AISalesLeadsManager() {
     return <Badge className={colors[status] || 'bg-gray-100'}>{status}</Badge>;
   };
 
-  const filteredLeads = leads.filter(lead => 
-    !filters.search || 
-    lead.company_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-    lead.buyer_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-    lead.email?.toLowerCase().includes(filters.search.toLowerCase())
-  );
+  const filteredLeads = leads.filter(lead => {
+    const matchesSearch = !filters.search || 
+      lead.company_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      lead.buyer_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      lead.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      lead.industry_segment?.toLowerCase().includes(filters.search.toLowerCase());
+    
+    const matchesIndustry = !filters.industry || 
+      lead.industry_segment?.toLowerCase().includes(filters.industry.toLowerCase());
+    
+    return matchesSearch && matchesIndustry;
+  });
 
   return (
     <Card>
@@ -244,11 +280,21 @@ export function AISalesLeadsManager() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Category</Label>
-                      <Input 
-                        value={newLead.category}
-                        onChange={(e) => setNewLead({...newLead, category: e.target.value})}
-                        placeholder="e.g., Steel, Chemicals"
-                      />
+                      <Select 
+                        value={newLead.category} 
+                        onValueChange={(v) => setNewLead({...newLead, category: v})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[250px]">
+                          {categoryOptions.map((cat) => (
+                            <SelectItem key={cat} value={cat.toLowerCase()}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <Label>Buyer Type</Label>
@@ -288,8 +334,9 @@ export function AISalesLeadsManager() {
       </CardHeader>
       <CardContent>
         {/* Filters */}
-        <div className="flex gap-4 mb-4 flex-wrap">
-          <div className="flex-1 min-w-[200px]">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+          {/* Search */}
+          <div className="col-span-2 md:col-span-1">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input 
@@ -300,11 +347,49 @@ export function AISalesLeadsManager() {
               />
             </div>
           </div>
+
+          {/* Category - All ProcureSaathi Categories */}
+          <Select 
+            value={filters.category} 
+            onValueChange={(v) => setFilters({...filters, category: v === 'all' ? '' : v})}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              <SelectItem value="all">All Categories</SelectItem>
+              {categoryOptions.map((cat) => (
+                <SelectItem key={cat} value={cat.toLowerCase()}>
+                  {cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Industry Segment */}
+          <Select 
+            value={filters.industry} 
+            onValueChange={(v) => setFilters({...filters, industry: v === 'all' ? '' : v})}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Industry" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              <SelectItem value="all">All Industries</SelectItem>
+              {industryOptions.map((ind) => (
+                <SelectItem key={ind} value={ind}>
+                  <span className="capitalize">{ind}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Status */}
           <Select 
             value={filters.status} 
             onValueChange={(v) => setFilters({...filters, status: v === 'all' ? '' : v})}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -316,11 +401,13 @@ export function AISalesLeadsManager() {
               <SelectItem value="ignored">Ignored</SelectItem>
             </SelectContent>
           </Select>
+
+          {/* Role */}
           <Select 
             value={filters.company_role} 
             onValueChange={(v) => setFilters({...filters, company_role: v === 'all' ? '' : v})}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger>
               <SelectValue placeholder="Role" />
             </SelectTrigger>
             <SelectContent>
@@ -330,6 +417,23 @@ export function AISalesLeadsManager() {
               <SelectItem value="hybrid">Hybrid</SelectItem>
             </SelectContent>
           </Select>
+
+          {/* Clear Filters */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setFilters({
+              category: '',
+              country: '',
+              status: '',
+              company_role: '',
+              search: '',
+              industry: '',
+            })}
+            className="h-10"
+          >
+            Clear Filters
+          </Button>
         </div>
 
         {/* Bulk Actions */}
@@ -365,6 +469,7 @@ export function AISalesLeadsManager() {
                 <TableHead>Contact</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Industry</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Score</TableHead>
@@ -374,13 +479,13 @@ export function AISalesLeadsManager() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto" />
                   </TableCell>
                 </TableRow>
               ) : filteredLeads.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                     No leads found. Add leads manually or run AI discovery.
                   </TableCell>
                 </TableRow>
@@ -421,6 +526,12 @@ export function AISalesLeadsManager() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{lead.category}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm capitalize">
+                        <Factory className="w-3 h-3 text-muted-foreground" />
+                        {lead.industry_segment || '-'}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant={
