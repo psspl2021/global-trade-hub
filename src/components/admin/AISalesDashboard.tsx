@@ -271,7 +271,7 @@ export function AISalesDashboard() {
             ) : (
               <Brain className="w-4 h-4 mr-2" />
             )}
-            🧠 Discover Companies
+            Discover Companies
           </Button>
           
           <Button onClick={fetchMetrics} variant="outline" size="icon">
