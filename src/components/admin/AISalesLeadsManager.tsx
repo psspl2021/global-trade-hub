@@ -45,6 +45,7 @@ interface Lead {
   city: string;
   category: string;
   buyer_type: string;
+  company_role: string;
   lead_source: string;
   confidence_score: number;
   status: string;
@@ -60,6 +61,7 @@ export function AISalesLeadsManager() {
     category: '',
     country: '',
     status: '',
+    company_role: '',
     search: '',
   });
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -99,7 +101,7 @@ export function AISalesLeadsManager() {
 
   useEffect(() => {
     fetchLeads();
-  }, [filters.category, filters.country, filters.status]);
+  }, [filters.category, filters.country, filters.status, filters.company_role]);
 
   const handleAddLead = async () => {
     try {
@@ -314,6 +316,20 @@ export function AISalesLeadsManager() {
               <SelectItem value="ignored">Ignored</SelectItem>
             </SelectContent>
           </Select>
+          <Select 
+            value={filters.company_role} 
+            onValueChange={(v) => setFilters({...filters, company_role: v === 'all' ? '' : v})}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="buyer">Buyer</SelectItem>
+              <SelectItem value="supplier">Supplier</SelectItem>
+              <SelectItem value="hybrid">Hybrid</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Bulk Actions */}
@@ -349,6 +365,7 @@ export function AISalesLeadsManager() {
                 <TableHead>Contact</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Role</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Score</TableHead>
                 <TableHead>Status</TableHead>
@@ -357,13 +374,13 @@ export function AISalesLeadsManager() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto" />
                   </TableCell>
                 </TableRow>
               ) : filteredLeads.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                     No leads found. Add leads manually or run AI discovery.
                   </TableCell>
                 </TableRow>
@@ -404,6 +421,14 @@ export function AISalesLeadsManager() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{lead.category}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        lead.company_role === 'buyer' ? 'default' : 
+                        lead.company_role === 'supplier' ? 'secondary' : 'outline'
+                      } className="capitalize">
+                        {lead.company_role || 'buyer'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <span className="text-sm capitalize">{lead.buyer_type}</span>
