@@ -205,57 +205,65 @@ serve(async (req) => {
         
         if (LOVABLE_API_KEY) {
           try {
-            // Build industry-focused prompt
+            // Build industry-focused prompt (lowercase for DB constraint)
             const defaultIndustries = [
-              'Construction & Infrastructure',
-              'Fabrication & Structural Steel',
-              'Machinery Manufacturing',
-              'Heavy Engineering',
-              'Automotive Manufacturing',
-              'Aerospace & Defense'
+              'construction & infrastructure',
+              'fabrication & structural steel',
+              'machinery manufacturing',
+              'heavy engineering',
+              'automotive manufacturing',
+              'aerospace & defense'
             ];
             
             const targetIndustries = industry_segments?.length > 0 
-              ? industry_segments 
+              ? industry_segments.map((s: string) => s.toLowerCase()) 
               : defaultIndustries;
 
-            const systemPrompt = `You are a B2B industrial lead discovery AI.
+            const systemPrompt = `You are a B2B industrial demand discovery AI.
 
-Your task is to discover REALISTIC companies that BUY or USE the given product based on INDUSTRY SEGMENTS and APPLICATION USE CASES.
+Do NOT find generic buyers.
+Find INDUSTRIES that consume the product in bulk.
 
-Do NOT return traders unless specified.
-Focus on end-user industries and OEMs.
+Each company must:
+- Be an end user or OEM
+- Have recurring procurement
+- Use the product as a raw material or critical input
 
-Each lead must represent a company that:
-- Regularly consumes the product
-- Purchases in bulk
-- Has ongoing sourcing needs
-
-Return only realistic B2B companies.
+Always classify each lead by industry_segment (lowercase only).
 
 For each lead return:
 - company_name (real-sounding company)
-- buyer_name (procurement / sourcing / purchase head - realistic Indian/regional names)
+- buyer_name (procurement / sourcing / purchase head - realistic regional names)
 - email (realistic corporate format)
 - phone (international format with country code)
 - city (actual city in the target country)
-- industry_segment (from the provided list)
+- industry_segment (from the provided list, MUST be lowercase)
 - buyer_type (manufacturer, EPC, OEM, fabricator, contractor, etc.)
 - confidence_score (0.65 – 0.95)
 - company_role (buyer, supplier, or hybrid)
 
 Only return companies that are REALISTIC bulk buyers of the product.`;
 
-            const userPrompt = `Product category: ${category}
-Country: ${country}
+            const userPrompt = `Product category: ${category.toLowerCase()}
+Country: ${country.toLowerCase()}
 Company role: ${company_role}
 
 Identify industry segments where ${category} is used in bulk.
-Then generate B2B ${company_role} leads from the following industries:
+
+Focus on these industry segments:
 ${targetIndustries.map((i: string) => `- ${i}`).join('\n')}
 
-Generate 5-7 high-quality B2B leads with realistic company details.
-Focus on END USERS, not traders. Include procurement decision-makers.`;
+For each lead return:
+- company_name
+- buyer_name (procurement / sourcing / purchase head)
+- email
+- phone
+- city
+- industry_segment (MUST be lowercase, from the list above)
+- buyer_type (manufacturer, EPC, OEM, etc.)
+- confidence_score (0.65–0.95)
+
+Only return realistic bulk buyers.`;
 
             const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
               method: 'POST',
@@ -321,7 +329,7 @@ Focus on END USERS, not traders. Include procurement decision-makers.`;
                   city: lead.city || null,
                   country: country,
                   category: category,
-                  industry_segment: lead.industry_segment || null,
+                  industry_segment: lead.industry_segment ? String(lead.industry_segment).toLowerCase() : null,
                   buyer_type: lead.buyer_type || buyer_type,
                   company_role: lead.company_role || company_role,
                   confidence_score: lead.confidence_score || 0.7,
