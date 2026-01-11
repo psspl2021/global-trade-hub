@@ -64,11 +64,18 @@ interface AIGeneratedRFQ {
   payment_terms?: string;
 }
 
+interface RFQSuccessData {
+  category: string;
+  quantity: number;
+  deliveryLocation: string;
+  requirementId: string;
+}
+
 interface CreateRequirementFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId: string;
-  onSuccess?: () => void;
+  onSuccess?: (data: RFQSuccessData) => void;
   prefillData?: AIGeneratedRFQ | null;
   onClearPrefill?: () => void;
 }
@@ -268,7 +275,14 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
       reset();
       setItems([{ ...defaultItem }]);
       onOpenChange(false);
-      onSuccess?.();
+      
+      // Pass RFQ data to parent for AI inventory matching
+      onSuccess?.({
+        category: primaryCategory,
+        quantity: totalQuantity,
+        deliveryLocation: data.delivery_location,
+        requirementId: requirement.id,
+      });
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Error creating requirement:', error);
       toast.error(error.message || 'Failed to create requirement');

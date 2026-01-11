@@ -118,6 +118,32 @@ export async function trackDealClosure(data: DealClosureData): Promise<void> {
 }
 
 /**
+ * Track when buyer clicks "Get Quote" from AI inventory modal
+ * Event: ai_inventory_quote_requested
+ */
+export async function trackAIInventoryQuoteRequested(data: {
+  buyer_id: string;
+  product_id: string;
+  source: 'discovery_card' | 'post_rfq' | 'requirement_detail' | 'browse';
+  match_strength: 'high' | 'medium' | 'low';
+  city_match: boolean;
+}): Promise<void> {
+  try {
+    await supabase.from('page_visits').insert({
+      visitor_id: data.buyer_id,
+      session_id: getSessionKey('quote_req', data.product_id),
+      page_path: '/ai-inventory/quote-requested',
+      source: data.source,
+      utm_content: data.product_id,
+      utm_medium: data.match_strength,
+      utm_campaign: data.city_match ? 'same_city' : 'different_city',
+    });
+  } catch (error) {
+    console.error('Failed to track quote request:', error);
+  }
+}
+
+/**
  * Calculate AI vs Manual Usage Ratio for dashboard
  */
 export async function getAIVsManualRatio(userId?: string): Promise<{ aiCount: number; manualCount: number; ratio: number }> {
