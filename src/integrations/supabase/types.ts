@@ -382,6 +382,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_sem_settings: {
+        Row: {
+          category: string | null
+          company_role: string | null
+          country: string | null
+          created_at: string | null
+          enabled: boolean | null
+          frequency: string | null
+          id: string
+          last_run_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          company_role?: string | null
+          country?: string | null
+          created_at?: string | null
+          enabled?: boolean | null
+          frequency?: string | null
+          id?: string
+          last_run_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          company_role?: string | null
+          country?: string | null
+          created_at?: string | null
+          enabled?: boolean | null
+          frequency?: string | null
+          id?: string
+          last_run_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_seo_runs: {
         Row: {
           category: string | null
@@ -427,6 +463,42 @@ export type Database = {
           pages_generated?: number | null
           started_at?: string | null
           status?: string
+        }
+        Relationships: []
+      }
+      ai_seo_settings: {
+        Row: {
+          category: string | null
+          company_role: string | null
+          country: string | null
+          created_at: string | null
+          enabled: boolean | null
+          frequency: string | null
+          id: string
+          last_run_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          company_role?: string | null
+          country?: string | null
+          created_at?: string | null
+          enabled?: boolean | null
+          frequency?: string | null
+          id?: string
+          last_run_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          company_role?: string | null
+          country?: string | null
+          created_at?: string | null
+          enabled?: boolean | null
+          frequency?: string | null
+          id?: string
+          last_run_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
