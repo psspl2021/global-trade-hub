@@ -97,8 +97,9 @@ serve(async (req) => {
           .order('discovered_at', { ascending: false })
           .range((page - 1) * limit, page * limit - 1);
 
-        if (category) query = query.eq('category', category);
-        if (country) query = query.eq('country', country);
+        // ✅ Normalize filters to lowercase for consistent matching
+        if (category) query = query.eq('category', category.toLowerCase());
+        if (country) query = query.eq('country', country.toLowerCase());
         if (status) query = query.eq('status', status);
 
         const { data, count } = await query;
@@ -200,6 +201,14 @@ serve(async (req) => {
           country: normalizedCountry,
           role: normalizedRole
         });
+
+        // ✅ Guard against empty category/country
+        if (!normalizedCategory || !normalizedCountry) {
+          return new Response(
+            JSON.stringify({ error: 'Category and country are required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
         // 1️⃣ Create discovery job
         const { data: job, error: jobError } = await supabase
