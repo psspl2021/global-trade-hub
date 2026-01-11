@@ -171,38 +171,57 @@ export function AISalesDashboard() {
       value: metrics?.total_leads || 0,
       icon: Users,
       color: "text-blue-500",
+      filter: null, // No filter - show all
     },
     {
       title: "New Leads",
       value: metrics?.new_leads || 0,
       icon: Target,
       color: "text-green-500",
+      filter: "new",
     },
     {
       title: "Contacted",
       value: metrics?.contacted || 0,
       icon: Mail,
       color: "text-yellow-500",
+      filter: "contacted",
     },
     {
       title: "RFQs Created",
       value: metrics?.rfqs_created || 0,
       icon: FileText,
       color: "text-purple-500",
+      filter: "rfq_created",
     },
     {
       title: "Deals Closed",
       value: metrics?.deals_closed || 0,
       icon: TrendingUp,
       color: "text-emerald-500",
+      filter: "closed",
     },
     {
       title: "Avg Confidence",
       value: `${((metrics?.avg_confidence || 0) * 100).toFixed(0)}%`,
       icon: Globe,
       color: "text-orange-500",
+      filter: null, // Not a status filter
     },
   ];
+
+  // ✅ Handle KPI card click - navigate to leads tab with status filter
+  const handleKpiClick = (filter: string | null) => {
+    setActiveTab("leads");
+    // Store filter in session to pass to leads manager
+    if (filter) {
+      sessionStorage.setItem('ai_sales_status_filter', filter);
+    } else {
+      sessionStorage.removeItem('ai_sales_status_filter');
+    }
+    // Force re-render of leads tab
+    window.dispatchEvent(new CustomEvent('ai-sales-filter-change', { detail: { status: filter } }));
+  };
 
   const categories = ["steel", "chemicals", "polymers", "textiles", "food-additives", "pharmaceuticals"];
   const countries = ["india", "uae", "usa", "germany", "china", "brazil", "south-africa"];
@@ -282,10 +301,22 @@ export function AISalesDashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards - Now Clickable */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {kpiCards.map((kpi) => (
-          <Card key={kpi.title} className="p-4">
+          <Card 
+            key={kpi.title} 
+            className={`p-4 transition-all ${
+              kpi.filter !== null || kpi.title === "Total Leads" 
+                ? 'cursor-pointer hover:shadow-md hover:scale-[1.02] hover:border-primary/50' 
+                : ''
+            }`}
+            onClick={() => {
+              if (kpi.filter !== null || kpi.title === "Total Leads") {
+                handleKpiClick(kpi.filter);
+              }
+            }}
+          >
             <div className="flex items-center gap-3">
               <kpi.icon className={`w-8 h-8 ${kpi.color}`} />
               <div>

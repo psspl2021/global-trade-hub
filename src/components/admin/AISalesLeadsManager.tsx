@@ -30,7 +30,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Plus, Search, Mail, Phone, Building, 
-  Globe, Tag, RefreshCw, CheckCircle, XCircle, Factory
+  Globe, Tag, RefreshCw, CheckCircle, XCircle, Factory, Pencil
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -90,6 +90,32 @@ export function AISalesLeadsManager() {
     confidence_score: 0.7,
     notes: '',
   });
+
+  // ✅ Edit lead state
+  const [editLead, setEditLead] = useState<Lead | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+
+  // ✅ Listen for filter changes from dashboard KPI cards
+  useEffect(() => {
+    const handleFilterChange = (e: CustomEvent<{ status: string | null }>) => {
+      if (e.detail.status) {
+        setFilters(prev => ({ ...prev, status: e.detail.status || '' }));
+      }
+    };
+    
+    // Check sessionStorage for initial filter
+    const storedFilter = sessionStorage.getItem('ai_sales_status_filter');
+    if (storedFilter) {
+      setFilters(prev => ({ ...prev, status: storedFilter }));
+      sessionStorage.removeItem('ai_sales_status_filter');
+    }
+    
+    window.addEventListener('ai-sales-filter-change', handleFilterChange as EventListener);
+    return () => {
+      window.removeEventListener('ai-sales-filter-change', handleFilterChange as EventListener);
+    };
+  }, []);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -200,6 +226,46 @@ export function AISalesLeadsManager() {
       console.error('Failed to update leads:', error);
       toast.error('Failed to update leads');
     }
+  };
+
+  // ✅ Handle editing a lead
+  const handleEditLead = async () => {
+    if (!editLead) return;
+    
+    setEditLoading(true);
+    try {
+      const response = await supabase.functions.invoke('ai-sales-discover', {
+        body: { 
+          action: 'update_lead', 
+          id: editLead.id,
+          buyer_name: editLead.buyer_name,
+          email: editLead.email,
+          phone: editLead.phone,
+          city: editLead.city,
+          notes: editLead.notes,
+          status: editLead.status,
+        },
+      });
+
+      if (response.error) throw response.error;
+      toast.success('Lead updated successfully');
+      setShowEditDialog(false);
+      setEditLead(null);
+      fetchLeads();
+    } catch (error) {
+      console.error('Failed to update lead:', error);
+      toast.error('Failed to update lead');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // ✅ Open edit dialog when row is clicked
+  const handleRowClick = (lead: Lead, e: React.MouseEvent) => {
+    // Don't open edit if clicking on checkbox
+    if ((e.target as HTMLElement).closest('[role="checkbox"]')) return;
+    setEditLead(lead);
+    setShowEditDialog(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -510,7 +576,11 @@ export function AISalesLeadsManager() {
                 </TableRow>
               ) : (
                 filteredLeads.map((lead) => (
-                  <TableRow key={lead.id}>
+                  <TableRow 
+                    key={lead.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={(e) => handleRowClick(lead, e)}
+                  >
                     <TableCell>
                       <Checkbox 
                         checked={selectedLeads.includes(lead.id)}
@@ -524,12 +594,15 @@ export function AISalesLeadsManager() {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{lead.company_name}</div>
+                      <div className="font-medium flex items-center gap-1">
+                        {lead.company_name}
+                        <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100" />
+                      </div>
                       <div className="text-xs text-muted-foreground">{lead.buyer_name}</div>
                     </TableCell>
                     <TableCell>
                       <div className="text-sm flex items-center gap-1">
-                        <Mail className="w-3 h-3" /> {lead.email}
+                        <Mail className="w-3 h-3" /> {lead.email || '-'}
                       </div>
                       {lead.phone && (
                         <div className="text-xs text-muted-foreground flex items-center gap-1">
@@ -582,6 +655,102 @@ export function AISalesLeadsManager() {
             </TableBody>
           </Table>
         </div>
+
+        {/* ✅ Edit Lead Dialog */}
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Pencil className="w-4 h-4" />
+                Edit Lead: {editLead?.company_name}
+              </DialogTitle>
+            </DialogHeader>
+            {editLead && (
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Company Name</Label>
+                    <Input 
+                      value={editLead.company_name}
+                      disabled
+                      className="bg-muted"
+                    />
+                  </div>
+                  <div>
+                    <Label>Contact Person</Label>
+                    <Input 
+                      value={editLead.buyer_name || ''}
+                      onChange={(e) => setEditLead({...editLead, buyer_name: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Email</Label>
+                    <Input 
+                      type="email"
+                      value={editLead.email || ''}
+                      onChange={(e) => setEditLead({...editLead, email: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Phone</Label>
+                    <Input 
+                      value={editLead.phone || ''}
+                      onChange={(e) => setEditLead({...editLead, phone: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>City</Label>
+                    <Input 
+                      value={editLead.city || ''}
+                      onChange={(e) => setEditLead({...editLead, city: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Status</Label>
+                    <Select 
+                      value={editLead.status} 
+                      onValueChange={(v) => setEditLead({...editLead, status: v})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">New</SelectItem>
+                        <SelectItem value="contacted">Contacted</SelectItem>
+                        <SelectItem value="rfq_created">RFQ Created</SelectItem>
+                        <SelectItem value="closed">Closed</SelectItem>
+                        <SelectItem value="ignored">Ignored</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label>Notes</Label>
+                  <Textarea 
+                    value={editLead.notes || ''}
+                    onChange={(e) => setEditLead({...editLead, notes: e.target.value})}
+                    placeholder="Add notes about this lead..."
+                  />
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <div className="text-xs text-muted-foreground">
+                    <span className="font-medium">Category:</span> {editLead.category} | 
+                    <span className="font-medium ml-2">Country:</span> {editLead.country} |
+                    <span className="font-medium ml-2">Industry:</span> {prettyIndustry(editLead.industry_segment)}
+                  </div>
+                  <Button onClick={handleEditLead} disabled={editLoading}>
+                    {editLoading ? <RefreshCw className="w-4 h-4 mr-1 animate-spin" /> : null}
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
