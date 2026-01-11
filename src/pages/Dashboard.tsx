@@ -962,18 +962,6 @@ const Dashboard = () => {
 
               {/* Stacked small square cards */}
               <div className="flex flex-col gap-3">
-                <Card className="aspect-square flex flex-col justify-between border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
-                  <CardHeader className="pb-1 pt-3 px-3">
-                    <CardTitle className="text-sm text-amber-800 dark:text-amber-300">Add Products</CardTitle>
-                    <p className="text-xs text-amber-700 dark:text-amber-400">for higher visibility</p>
-                  </CardHeader>
-                  <CardContent className="px-3 pb-3">
-                    <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700" onClick={() => setShowCatalog(true)}>
-                      Add Now
-                    </Button>
-                  </CardContent>
-                </Card>
-
                 <Card className="aspect-square flex flex-col justify-between">
                   <CardHeader className="pb-1 pt-3 px-3">
                     <CardTitle className="text-sm flex items-center gap-1">
