@@ -46,6 +46,16 @@ interface SEOMetrics {
   conversions: number;
 }
 
+interface SEOSettings {
+  id: string;
+  enabled: boolean;
+  frequency: string | null;
+  last_run_at: string | null;
+  category: string | null;
+  country: string | null;
+  company_role: string | null;
+}
+
 export function AISEOEngine() {
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
@@ -56,6 +66,8 @@ export function AISEOEngine() {
   const [selectedRole, setSelectedRole] = useState("buyer");
   const [lastRun, setLastRun] = useState<SEORun | null>(null);
   const [recentRuns, setRecentRuns] = useState<SEORun[]>([]);
+  const [settingsId, setSettingsId] = useState<string | null>(null);
+  const [savingSettings, setSavingSettings] = useState(false);
   const [metrics, setMetrics] = useState<SEOMetrics>({
     totalKeywords: 0,
     totalPages: 0,
@@ -72,6 +84,57 @@ export function AISEOEngine() {
     { value: "supplier", label: "Supplier" },
     { value: "hybrid", label: "Hybrid" },
   ];
+
+  const fetchSettings = async () => {
+    const { data } = await supabase
+      .from("ai_seo_settings")
+      .select("*")
+      .limit(1)
+      .single();
+    
+    if (data) {
+      const settings = data as SEOSettings;
+      setSettingsId(settings.id);
+      setAutoRunEnabled(settings.enabled);
+      setAutoRunFrequency(settings.frequency || "daily");
+    }
+  };
+
+  const updateAutoRunSettings = async (enabled: boolean, frequency?: string) => {
+    if (!settingsId) return;
+    setSavingSettings(true);
+    
+    const updates: Record<string, unknown> = {
+      enabled,
+      updated_at: new Date().toISOString(),
+    };
+    
+    if (frequency) {
+      updates.frequency = frequency;
+    }
+
+    const { error } = await supabase
+      .from("ai_seo_settings")
+      .update(updates)
+      .eq("id", settingsId);
+
+    if (error) {
+      toast.error("Failed to save auto-run settings");
+    } else {
+      toast.success(enabled ? `Auto-run enabled (${frequency || autoRunFrequency})` : "Auto-run disabled");
+    }
+    setSavingSettings(false);
+  };
+
+  const handleAutoRunToggle = (enabled: boolean) => {
+    setAutoRunEnabled(enabled);
+    updateAutoRunSettings(enabled, autoRunFrequency);
+  };
+
+  const handleFrequencyChange = (frequency: string) => {
+    setAutoRunFrequency(frequency);
+    updateAutoRunSettings(autoRunEnabled, frequency);
+  };
 
   const fetchLastRun = async () => {
     const { data } = await supabase
@@ -175,6 +238,7 @@ export function AISEOEngine() {
   };
 
   useEffect(() => {
+    fetchSettings();
     fetchLastRun();
     fetchMetrics();
   }, []);
@@ -240,12 +304,13 @@ export function AISEOEngine() {
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-muted/50">
             <Switch
               checked={autoRunEnabled}
-              onCheckedChange={setAutoRunEnabled}
+              onCheckedChange={handleAutoRunToggle}
+              disabled={savingSettings}
               id="auto-seo"
             />
             <label htmlFor="auto-seo" className="text-sm font-medium">Auto-Run</label>
             {autoRunEnabled && (
-              <Select value={autoRunFrequency} onValueChange={setAutoRunFrequency}>
+              <Select value={autoRunFrequency} onValueChange={handleFrequencyChange}>
                 <SelectTrigger className="w-24 h-7">
                   <SelectValue />
                 </SelectTrigger>
@@ -255,6 +320,7 @@ export function AISEOEngine() {
                 </SelectContent>
               </Select>
             )}
+            {savingSettings && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
           </div>
         </div>
       </div>
