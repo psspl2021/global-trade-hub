@@ -35,7 +35,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { categoriesData } from '@/data/categories';
-import { categoryIndustryMap, getAllIndustries } from '@/data/categoryIndustryMap';
+import { categoryIndustryMap, getAllIndustries, prettyIndustry } from '@/data/categoryIndustryMap';
 
 interface Lead {
   id: string;
@@ -364,7 +364,7 @@ export function AISalesLeadsManager() {
               <SelectItem value="all">All Industries</SelectItem>
               {industryOptions.map((ind) => (
                 <SelectItem key={ind} value={ind}>
-                  <span className="capitalize">{ind}</span>
+                  {prettyIndustry(ind)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -515,9 +515,9 @@ export function AISalesLeadsManager() {
                     </TableCell>
                     <TableCell>
                       {lead.industry_segment ? (
-                        <Badge variant="secondary" className="capitalize">
+                        <Badge variant="secondary">
                           <Factory className="w-3 h-3 mr-1" />
-                          {lead.industry_segment}
+                          {prettyIndustry(lead.industry_segment)}
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground">-</span>
