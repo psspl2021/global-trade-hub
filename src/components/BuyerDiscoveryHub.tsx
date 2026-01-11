@@ -405,6 +405,11 @@ export function BuyerDiscoveryHub({ userId, onOpenManualRFQ }: BuyerDiscoveryHub
         </CardContent>
       </Card>
 
+      {/* Trust micro-copy */}
+      <p className="text-xs text-muted-foreground text-center mt-2">
+        ⚡ Buyers using AI inventory close deals 2× faster
+      </p>
+
       {/* RFQ Modal */}
       {selectedStock && (
         <AIInventoryRFQModal

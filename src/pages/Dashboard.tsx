@@ -1022,9 +1022,17 @@ const Dashboard = () => {
               if (!isOpen) setAIGeneratedRFQ(null);
             }}
             userId={user.id}
-            onSuccess={() => {
+            onSuccess={(rfqData) => {
               setRefreshKey(k => k + 1);
               setAIGeneratedRFQ(null);
+              
+              // Trigger AI Inventory modal after RFQ submission
+              setLastRFQData({
+                category: rfqData.category,
+                quantity: rfqData.quantity,
+                buyerCity: rfqData.deliveryLocation || null,
+              });
+              setShowPostRFQInventory(true);
             }}
             prefillData={aiGeneratedRFQ}
             onClearPrefill={() => setAIGeneratedRFQ(null)}
