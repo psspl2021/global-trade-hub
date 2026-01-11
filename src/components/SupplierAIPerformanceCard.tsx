@@ -96,7 +96,7 @@ export function SupplierAIPerformanceCard({ userId, onOpenCatalog }: SupplierAIP
       </CardHeader>
       <CardContent>
         <Button
-          variant={hasActivity ? "default" : "outline"}
+          variant="default"
           className="w-full"
           onClick={onOpenCatalog}
         >
