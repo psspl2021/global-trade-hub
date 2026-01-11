@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -102,6 +102,7 @@ export function AISalesLeadsManager() {
           industry: filters.industry?.toLowerCase() || '',
           status: filters.status || '',
           company_role: filters.company_role || '',
+          search: filters.search || '',
         },
       });
 
@@ -115,14 +116,32 @@ export function AISalesLeadsManager() {
     }
   };
 
+  // Debounce search to prevent too many API calls
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+
   useEffect(() => {
     fetchLeads();
-  }, [filters.category, filters.country, filters.status, filters.company_role, filters.industry]);
+  }, [filters.category, filters.country, filters.status, filters.company_role, filters.industry, debouncedSearch]);
 
   const handleAddLead = async () => {
     try {
+      // ✅ Normalize category/country to lowercase for DB consistency
+      const safeLead = {
+        ...newLead,
+        category: newLead.category.toLowerCase(),
+        country: newLead.country.toLowerCase(),
+        city: newLead.city.toLowerCase(),
+      };
+      
       const response = await supabase.functions.invoke('ai-sales-discover', {
-        body: { action: 'create_lead', lead: newLead },
+        body: { action: 'create_lead', lead: safeLead },
       });
 
       if (response.error) throw response.error;
@@ -184,18 +203,8 @@ export function AISalesLeadsManager() {
     return <Badge className={colors[status] || 'bg-gray-100'}>{status}</Badge>;
   };
 
-  const filteredLeads = leads.filter(lead => {
-    const matchesSearch = !filters.search || 
-      lead.company_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      lead.buyer_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      lead.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      lead.industry_segment?.toLowerCase().includes(filters.search.toLowerCase());
-    
-    const matchesIndustry = !filters.industry || 
-      lead.industry_segment?.toLowerCase().includes(filters.industry.toLowerCase());
-    
-    return matchesSearch && matchesIndustry;
-  });
+  // Since backend now handles all filtering, just use leads directly
+  const filteredLeads = leads;
 
   return (
     <Card>
