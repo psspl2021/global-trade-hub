@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Download, Printer, FileText, Mail, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { sanitizeExcelData } from '@/lib/excelSanitizer';
 import { generateDocumentPDF } from '@/lib/pdfGenerator';
 
 interface DocumentViewerProps {
@@ -185,7 +186,9 @@ export const DocumentViewer = ({
       'Total': Number(document.total_amount),
     } as any);
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    // Sanitize data to prevent Excel formula injection attacks
+    const sanitizedExportData = sanitizeExcelData(exportData);
+    const ws = XLSX.utils.json_to_sheet(sanitizedExportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Items');
 
@@ -201,7 +204,8 @@ export const DocumentViewer = ({
       { 'Field': 'Total', 'Value': Number(document.total_amount) },
       { 'Field': 'Status', 'Value': document.status },
     ];
-    const detailsWs = XLSX.utils.json_to_sheet(docDetails);
+    const sanitizedDocDetails = sanitizeExcelData(docDetails);
+    const detailsWs = XLSX.utils.json_to_sheet(sanitizedDocDetails);
     XLSX.utils.book_append_sheet(wb, detailsWs, 'Details');
 
     const filename = `${(document.invoice_number || document.po_number).replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;

@@ -9,6 +9,7 @@ import { Download, Users, FileText, Receipt, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
+import { sanitizeExcelData } from '@/lib/excelSanitizer';
 
 interface AdminDataExportProps {
   open: boolean;
@@ -21,7 +22,9 @@ export function AdminDataExport({ open, onOpenChange }: AdminDataExportProps) {
   const [dateTo, setDateTo] = useState('');
 
   const downloadAsExcel = (data: any[], filename: string) => {
-    const ws = XLSX.utils.json_to_sheet(data);
+    // Sanitize data to prevent Excel formula injection attacks
+    const sanitizedData = sanitizeExcelData(data);
+    const ws = XLSX.utils.json_to_sheet(sanitizedData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Data');
     XLSX.writeFile(wb, `${filename}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);

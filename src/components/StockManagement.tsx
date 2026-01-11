@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ApiIntegrationTab } from '@/components/stock/ApiIntegrationTab';
 import { SupplierInventorySaleAI } from '@/components/SupplierInventorySaleAI';
 import * as XLSX from 'xlsx';
+import { sanitizeExcelAOA, sanitizeImportedExcelData } from '@/lib/excelSanitizer';
 
 interface ProductWithStock {
   id: string;
@@ -395,7 +396,9 @@ Plastic Sheets,1000,pieces,Packaging`;
       ['Plastic Sheets', 1000, 'pieces', 'Packaging', 'Main Warehouse'],
     ];
     
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    // Sanitize data to prevent Excel formula injection attacks
+    const sanitizedWsData = sanitizeExcelAOA(wsData);
+    const ws = XLSX.utils.aoa_to_sheet(sanitizedWsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Stock Report');
     ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 20 }, { wch: 20 }];
@@ -419,7 +422,9 @@ Plastic Sheets,1000,pieces,Packaging`;
       ])
     ];
 
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    // Sanitize data to prevent Excel formula injection attacks
+    const sanitizedWsData = sanitizeExcelAOA(wsData);
+    const ws = XLSX.utils.aoa_to_sheet(sanitizedWsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Current Stock');
     ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 10 }, { wch: 20 }];

@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Loader2, Package, TrendingUp, TrendingDown, ArrowRightLeft, Download, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { sanitizeExcelData } from '@/lib/excelSanitizer';
 
 interface InventoryItem {
   id: string;
@@ -289,7 +290,9 @@ export const BuyerStockManagement = ({ userId }: BuyerStockManagementProps) => {
       'Last Restocked': item.last_restocked_at ? format(new Date(item.last_restocked_at), 'dd-MM-yyyy') : '',
     }));
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    // Sanitize data to prevent Excel formula injection attacks
+    const sanitizedData = sanitizeExcelData(exportData);
+    const ws = XLSX.utils.json_to_sheet(sanitizedData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
     XLSX.writeFile(wb, `inventory_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
