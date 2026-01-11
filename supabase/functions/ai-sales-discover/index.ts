@@ -182,7 +182,7 @@ serve(async (req) => {
       }
 
       case 'run_discovery': {
-        const { category, country, buyer_type } = params;
+        const { category, country, buyer_type, company_role = 'buyer', industry_segments } = params;
         
         // Create discovery job
         const { data: job, error: jobError } = await supabase
@@ -205,6 +205,58 @@ serve(async (req) => {
         
         if (LOVABLE_API_KEY) {
           try {
+            // Build industry-focused prompt
+            const defaultIndustries = [
+              'Construction & Infrastructure',
+              'Fabrication & Structural Steel',
+              'Machinery Manufacturing',
+              'Heavy Engineering',
+              'Automotive Manufacturing',
+              'Aerospace & Defense'
+            ];
+            
+            const targetIndustries = industry_segments?.length > 0 
+              ? industry_segments 
+              : defaultIndustries;
+
+            const systemPrompt = `You are a B2B industrial lead discovery AI.
+
+Your task is to discover REALISTIC companies that BUY or USE the given product based on INDUSTRY SEGMENTS and APPLICATION USE CASES.
+
+Do NOT return traders unless specified.
+Focus on end-user industries and OEMs.
+
+Each lead must represent a company that:
+- Regularly consumes the product
+- Purchases in bulk
+- Has ongoing sourcing needs
+
+Return only realistic B2B companies.
+
+For each lead return:
+- company_name (real-sounding company)
+- buyer_name (procurement / sourcing / purchase head - realistic Indian/regional names)
+- email (realistic corporate format)
+- phone (international format with country code)
+- city (actual city in the target country)
+- industry_segment (from the provided list)
+- buyer_type (manufacturer, EPC, OEM, fabricator, contractor, etc.)
+- confidence_score (0.65 – 0.95)
+- company_role (buyer, supplier, or hybrid)
+
+Only return companies that are REALISTIC bulk buyers of the product.`;
+
+            const userPrompt = `Product category: ${category}
+Country: ${country}
+Company role: ${company_role}
+
+Identify industry segments where ${category} is used in bulk.
+Then generate B2B ${company_role} leads from the following industries:
+${targetIndustries.map((i: string) => `- ${i}`).join('\n')}
+
+Generate 5-7 high-quality B2B leads with realistic company details.
+Focus on END USERS, not traders. Include procurement decision-makers.`;
+
             const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
               method: 'POST',
               headers: {
@@ -214,19 +266,8 @@ serve(async (req) => {
               body: JSON.stringify({
                 model: 'google/gemini-3-flash-preview',
                 messages: [
-                  {
-                    role: 'system',
-                    content: `You are a B2B lead discovery AI. Generate realistic potential buyer/supplier leads for industrial materials. Return JSON array of 5 leads with: company_name, buyer_name, email (realistic format), phone (international format), city, buyer_type, confidence_score (0.6-0.95), company_role. Be specific to the region and industry.
-
-Also classify each company as:
-- buyer (primarily purchases materials)
-- supplier (primarily sells materials)  
-- hybrid (both buys and sells)`
-                  },
-                  {
-                    role: 'user',
-                    content: `Find potential ${buyer_type || 'importer'} companies for ${category} products in ${country}. Generate 5 high-quality B2B leads with realistic company details. Include a mix of buyers, suppliers, and hybrid companies.`
-                  }
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: userPrompt }
                 ],
                 tools: [{
                   type: 'function',
@@ -246,11 +287,12 @@ Also classify each company as:
                               email: { type: 'string' },
                               phone: { type: 'string' },
                               city: { type: 'string' },
+                              industry_segment: { type: 'string' },
                               buyer_type: { type: 'string' },
                               confidence_score: { type: 'number' },
                               company_role: { type: 'string', enum: ['buyer', 'supplier', 'hybrid'] }
                             },
-                            required: ['company_name', 'buyer_name', 'confidence_score', 'company_role']
+                            required: ['company_name', 'buyer_name', 'industry_segment', 'confidence_score', 'company_role']
                           }
                         }
                       },
@@ -270,7 +312,7 @@ Also classify each company as:
                 const parsed = JSON.parse(toolCall.function.arguments);
                 const leads = parsed.leads || [];
                 
-                // Insert leads
+                // Insert leads with industry_segment
                 const leadsToInsert = leads.map((lead: Record<string, unknown>) => ({
                   company_name: lead.company_name,
                   buyer_name: lead.buyer_name,
@@ -279,8 +321,9 @@ Also classify each company as:
                   city: lead.city || null,
                   country: country,
                   category: category,
+                  industry_segment: lead.industry_segment || null,
                   buyer_type: lead.buyer_type || buyer_type,
-                  company_role: lead.company_role || 'buyer',
+                  company_role: lead.company_role || company_role,
                   confidence_score: lead.confidence_score || 0.7,
                   status: 'new',
                   lead_source: 'ai_discovery',
@@ -307,9 +350,23 @@ Also classify each company as:
 
                 return new Response(JSON.stringify({ 
                   job, 
-                  leads_found: insertedLeads?.length || 0 
+                  leads_found: insertedLeads?.length || 0,
+                  industries_searched: targetIndustries
                 }), {
                   headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                });
+              }
+            } else {
+              const errText = await aiResponse.text();
+              console.error('AI gateway error:', aiResponse.status, errText);
+              
+              if (aiResponse.status === 429) {
+                await supabase
+                  .from('ai_sales_discovery_jobs')
+                  .update({ status: 'failed', error_message: 'Rate limit exceeded', completed_at: new Date().toISOString() })
+                  .eq('id', job.id);
+                return new Response(JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }), {
+                  status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
                 });
               }
             }
