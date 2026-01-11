@@ -41,6 +41,7 @@ import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
 import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
 import { AdminControlTower } from '@/components/admin/AdminControlTower';
+import { AISalesDashboard } from '@/components/admin/AISalesDashboard';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -94,6 +95,7 @@ const Dashboard = () => {
   const [showL1Analysis, setShowL1Analysis] = useState(false);
   const [showSupplierSelection, setShowSupplierSelection] = useState(false);
   const [showControlTower, setShowControlTower] = useState(false);
+  const [showAISalesEngine, setShowAISalesEngine] = useState(false);
   const [showPartnerDocVerification, setShowPartnerDocVerification] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
@@ -271,6 +273,7 @@ const Dashboard = () => {
               onOpenEmailTracking={() => setShowEmailTracking(true)}
               onOpenSupplierSelection={() => setShowSupplierSelection(true)}
               onOpenControlTower={() => setShowControlTower(true)}
+              onOpenAISalesEngine={() => setShowAISalesEngine(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -332,6 +335,19 @@ const Dashboard = () => {
                       <Button variant="outline" onClick={() => setShowControlTower(false)}>Close</Button>
                     </div>
                     <AdminControlTower />
+                  </div>
+                </div>
+              </div>
+            )}
+            {showAISalesEngine && (
+              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">AI Sales Engine</h2>
+                      <Button variant="outline" onClick={() => setShowAISalesEngine(false)}>Close</Button>
+                    </div>
+                    <AISalesDashboard />
                   </div>
                 </div>
               </div>

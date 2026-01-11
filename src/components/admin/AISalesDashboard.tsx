@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Target, FileText, TrendingUp, Globe, RefreshCw, Mail, Brain, Loader2 } from "lucide-react";
+import { Users, Target, FileText, TrendingUp, Globe, RefreshCw, Mail, Brain, Loader2, Building } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -51,6 +51,7 @@ export function AISalesDashboard() {
   const [lastJob, setLastJob] = useState<DiscoveryJob | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("steel");
   const [selectedCountry, setSelectedCountry] = useState("india");
+  const [selectedCompanyRole, setSelectedCompanyRole] = useState("buyer");
 
   const fetchMetrics = async () => {
     setLoading(true);
@@ -102,6 +103,7 @@ export function AISalesDashboard() {
           category: selectedCategory,
           country: selectedCountry,
           buyer_type: "importer",
+          company_role: selectedCompanyRole,
         },
       });
 
@@ -202,6 +204,11 @@ export function AISalesDashboard() {
 
   const categories = ["steel", "chemicals", "polymers", "textiles", "food-additives", "pharmaceuticals"];
   const countries = ["india", "uae", "usa", "germany", "china", "brazil", "south-africa"];
+  const companyRoles = [
+    { value: "buyer", label: "Buyer" },
+    { value: "supplier", label: "Supplier" },
+    { value: "hybrid", label: "Hybrid (Both)" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -241,7 +248,20 @@ export function AISalesDashboard() {
             </SelectContent>
           </Select>
           
-          <Button 
+          <Select value={selectedCompanyRole} onValueChange={setSelectedCompanyRole}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent>
+              {companyRoles.map((role) => (
+                <SelectItem key={role.value} value={role.value}>
+                  {role.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Button
             onClick={runDiscovery} 
             disabled={discoveryRunning}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
@@ -249,9 +269,9 @@ export function AISalesDashboard() {
             {discoveryRunning ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
-              <Globe className="w-4 h-4 mr-2" />
+              <Brain className="w-4 h-4 mr-2" />
             )}
-            Discover Buyers
+            🧠 Discover Companies
           </Button>
           
           <Button onClick={fetchMetrics} variant="outline" size="icon">

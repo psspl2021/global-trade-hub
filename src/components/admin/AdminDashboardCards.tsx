@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain, Gauge } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain, Gauge, Rocket } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -47,6 +47,7 @@ interface AdminDashboardCardsProps {
   onOpenEmailTracking: () => void;
   onOpenSupplierSelection: () => void;
   onOpenControlTower: () => void;
+  onOpenAISalesEngine: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -68,6 +69,7 @@ export function AdminDashboardCards({
   onOpenEmailTracking,
   onOpenSupplierSelection,
   onOpenControlTower,
+  onOpenAISalesEngine,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -214,6 +216,28 @@ export function AdminDashboardCards({
           <Button className="w-full" onClick={onOpenControlTower}>
             <Gauge className="h-4 w-4 mr-2" />
             Open Control Tower
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* AI Sales Engine Card - Featured Position */}
+      <Card className="border-2 border-purple-500/40 bg-gradient-to-br from-purple-500/10 to-blue-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Rocket className="h-5 w-5 text-purple-600" />
+            AI Sales Engine
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            AI-powered global buyer & supplier discovery, outreach, and conversion
+          </p>
+          <Button 
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
+            onClick={onOpenAISalesEngine}
+          >
+            <Rocket className="h-4 w-4 mr-2" />
+            Open AI Sales
           </Button>
         </CardContent>
       </Card>
