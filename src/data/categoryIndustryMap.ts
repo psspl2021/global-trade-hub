@@ -1,106 +1,106 @@
 export const categoryIndustryMap: Record<string, string[]> = {
   steel: [
-    'construction & infrastructure',
-    'fabrication & structural steel',
-    'machinery manufacturing',
-    'automotive manufacturing',
-    'oil & gas / energy',
-    'aerospace & defense',
+    'construction_infrastructure',
+    'fabrication_structural_steel',
+    'machinery_manufacturing',
+    'automotive_manufacturing',
+    'oil_gas_energy',
+    'aerospace_defense',
     'shipbuilding'
   ],
 
   chemicals: [
-    'construction & infrastructure',
-    'paints & coatings',
-    'pharmaceutical manufacturing',
-    'fmcg & personal care',
-    'agrochemicals & fertilizers',
-    'textile processing & dyeing',
-    'water treatment & environmental',
-    'oil & gas',
-    'electronics manufacturing'
+    'construction_infrastructure',
+    'paints_coatings',
+    'pharmaceutical_manufacturing',
+    'fmcg_personal_care',
+    'agrochemicals_fertilizers',
+    'textile_processing_dyeing',
+    'water_treatment_environmental',
+    'oil_gas_energy',
+    'electronics_manufacturing'
   ],
 
   polymers: [
-    'packaging & film',
-    'automotive parts & interiors',
-    'medical devices & disposables',
-    'construction (pipes & fittings)',
-    'consumer durables'
+    'packaging_film',
+    'automotive_parts_interiors',
+    'medical_devices_disposables',
+    'construction_pipes_fittings',
+    'consumer_durables'
   ],
 
   textiles: [
-    'garment manufacturing',
-    'home textiles & furnishing',
-    'technical textiles',
-    'textile processing & dyeing'
+    'garment_manufacturing',
+    'home_textiles_furnishing',
+    'technical_textiles',
+    'textile_processing_dyeing'
   ],
 
   pharmaceuticals: [
-    'api & intermediates',
-    'formulation manufacturing',
+    'api_intermediates',
+    'formulation_manufacturing',
     'biopharma',
-    'contract manufacturing'
+    'contract_manufacturing'
   ],
 
   electronics: [
-    'semiconductor fabs',
-    'pcb & assembly',
-    'electronics contract manufacturing'
+    'semiconductor_fabs',
+    'pcb_assembly',
+    'electronics_contract_manufacturing'
   ],
 
   agriculture: [
-    'fertilizer blending & distribution',
-    'pesticide manufacturers',
-    'seed treatment'
+    'fertilizer_blending_distribution',
+    'pesticide_manufacturers',
+    'seed_treatment'
   ],
 
   food: [
-    'processed foods & snacks',
-    'dairy & beverages',
-    'bakery & confectionery',
-    'animal feed'
+    'processed_foods_snacks',
+    'dairy_beverages',
+    'bakery_confectionery',
+    'animal_feed'
   ],
 
   aluminium: [
-    'automotive manufacturing',
-    'construction & infrastructure',
-    'aerospace & defense',
-    'packaging & containers',
-    'electrical & electronics'
+    'automotive_manufacturing',
+    'construction_infrastructure',
+    'aerospace_defense',
+    'packaging_containers',
+    'electrical_electronics'
   ],
 
   copper: [
-    'electrical & electronics',
-    'construction & infrastructure',
-    'automotive manufacturing',
-    'industrial machinery'
+    'electrical_electronics',
+    'construction_infrastructure',
+    'automotive_manufacturing',
+    'industrial_machinery'
   ],
 
   bitumen: [
-    'road construction',
-    'roofing & waterproofing',
-    'industrial applications'
+    'road_construction',
+    'roofing_waterproofing',
+    'industrial_applications'
   ],
 
   'food additives': [
-    'processed foods & snacks',
-    'dairy & beverages',
-    'bakery & confectionery',
+    'processed_foods_snacks',
+    'dairy_beverages',
+    'bakery_confectionery',
     'nutraceuticals'
   ],
 
-  'cosmetics & personal care': [
-    'skincare & beauty',
+  'cosmetics_personal_care': [
+    'skincare_beauty',
     'haircare',
-    'oral care',
+    'oral_care',
     'fragrances'
   ],
 
-  'flavors & fragrances': [
-    'food & beverage',
-    'cosmetics & personal care',
-    'household products'
+  'flavors_fragrances': [
+    'food_beverage',
+    'cosmetics_personal_care',
+    'household_products'
   ]
 };
 
@@ -117,4 +117,24 @@ export const getAllIndustries = (): string[] => {
 export const getIndustriesForCategory = (category: string): string[] => {
   const normalizedCategory = category.toLowerCase();
   return categoryIndustryMap[normalizedCategory] || getAllIndustries();
+};
+
+// Convert slug to human-readable format for UI display
+export const prettyIndustry = (slug: string): string => {
+  return slug
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+};
+
+// Convert human-readable to slug format for DB storage
+export const slugifyIndustry = (industry: string): string => {
+  return industry
+    .toLowerCase()
+    .replace(/\s*&\s*/g, '_')
+    .replace(/\s*\/\s*/g, '_')
+    .replace(/\s*\(\s*/g, '_')
+    .replace(/\s*\)\s*/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
 };
