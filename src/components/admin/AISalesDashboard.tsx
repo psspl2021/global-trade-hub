@@ -52,6 +52,7 @@ export function AISalesDashboard() {
   const [discoveryRunning, setDiscoveryRunning] = useState(false);
   const [lastJob, setLastJob] = useState<DiscoveryJob | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("steel");
+  const [selectedSubcategory, setSelectedSubcategory] = useState(""); // ✅ NEW
   const [selectedCountry, setSelectedCountry] = useState("india");
   const [selectedCompanyRole, setSelectedCompanyRole] = useState("buyer");
 
@@ -99,18 +100,26 @@ export function AISalesDashboard() {
   const runDiscovery = async () => {
     setDiscoveryRunning(true);
     try {
+      // ✅ Import subcategory map dynamically for industries
+      const { getIndustriesForSubcategory } = await import('@/data/categorySubcategoryMap');
+      const industries = selectedSubcategory 
+        ? getIndustriesForSubcategory(selectedCategory, selectedSubcategory)
+        : [];
+
       const response = await supabase.functions.invoke("ai-sales-discover", {
         body: {
           action: "run_discovery",
           category: selectedCategory,
+          subcategory: selectedSubcategory, // ✅ NEW: Pass subcategory
           country: selectedCountry,
           buyer_type: "importer",
           company_role: selectedCompanyRole,
+          industry_segments: industries, // ✅ NEW: Pass industries based on subcategory
         },
       });
 
       if (response.error) throw response.error;
-      toast.success("AI discovery started - leads will appear shortly");
+      toast.success(`AI discovery started for ${selectedSubcategory || selectedCategory} - leads will appear shortly`);
       
       // Refresh job status after a delay
       setTimeout(() => {
@@ -223,7 +232,24 @@ export function AISalesDashboard() {
     window.dispatchEvent(new CustomEvent('ai-sales-filter-change', { detail: { status: filter } }));
   };
 
-  const categories = ["steel", "chemicals", "polymers", "textiles", "food-additives", "pharmaceuticals"];
+  // ✅ Import subcategory helpers
+  const [subcategoryOptions, setSubcategoryOptions] = useState<string[]>([]);
+  
+  // Update subcategories when category changes
+  useEffect(() => {
+    const loadSubcategories = async () => {
+      const { getSubcategoriesForCategory } = await import('@/data/categorySubcategoryMap');
+      const subs = getSubcategoriesForCategory(selectedCategory);
+      setSubcategoryOptions(subs);
+      // Auto-select first subcategory
+      if (subs.length > 0 && !selectedSubcategory) {
+        setSelectedSubcategory(subs[0]);
+      }
+    };
+    loadSubcategories();
+  }, [selectedCategory]);
+
+  const categories = ["steel", "chemicals", "polymers", "textiles", "food-additives", "pharmaceuticals", "aluminium", "copper", "bitumen"];
   const countries = ["india", "uae", "usa", "germany", "china", "brazil", "south-africa"];
   const companyRoles = [
     { value: "buyer", label: "Buyer" },
@@ -243,7 +269,10 @@ export function AISalesDashboard() {
         </div>
         
         <div className="flex items-center gap-2 flex-wrap">
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select value={selectedCategory} onValueChange={(v) => {
+            setSelectedCategory(v);
+            setSelectedSubcategory(""); // Reset subcategory when category changes
+          }}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
@@ -251,6 +280,24 @@ export function AISalesDashboard() {
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {/* ✅ NEW: Subcategory dropdown */}
+          <Select 
+            value={selectedSubcategory} 
+            onValueChange={setSelectedSubcategory}
+            disabled={subcategoryOptions.length === 0}
+          >
+            <SelectTrigger className={`w-36 ${!subcategoryOptions.length ? 'opacity-50' : ''}`}>
+              <SelectValue placeholder="Subcategory" />
+            </SelectTrigger>
+            <SelectContent>
+              {subcategoryOptions.map((sub) => (
+                <SelectItem key={sub} value={sub}>
+                  {sub.charAt(0).toUpperCase() + sub.slice(1)}
                 </SelectItem>
               ))}
             </SelectContent>

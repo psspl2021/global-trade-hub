@@ -139,6 +139,7 @@ export function AISalesLeadsManager() {
         body: { 
           action: 'get_leads',
           category: filters.category?.toLowerCase() || '',
+          subcategory: filters.subcategory?.toLowerCase() || '', // ✅ NEW: Pass subcategory
           country: filters.country?.toLowerCase() || '',
           industry: filters.industry?.toLowerCase() || '',
           status: filters.status || '',
@@ -169,7 +170,7 @@ export function AISalesLeadsManager() {
 
   useEffect(() => {
     fetchLeads();
-  }, [filters.category, filters.country, filters.status, filters.company_role, filters.industry, debouncedSearch]);
+  }, [filters.category, filters.subcategory, filters.country, filters.status, filters.company_role, filters.industry, debouncedSearch]); // ✅ Added subcategory dependency
 
   const handleAddLead = async () => {
     // ✅ Validate required fields
@@ -491,15 +492,15 @@ export function AISalesLeadsManager() {
             </SelectContent>
           </Select>
 
-          {/* Industry Segment (dynamic based on subcategory) */}
+          {/* Industry Segment (dynamic based on subcategory - disabled until subcategory selected) */}
           <div className="relative">
             <Select 
               value={filters.industry} 
               onValueChange={(v) => setFilters({...filters, industry: v === 'all' ? '' : v})}
-              disabled={!filters.category}
+              disabled={!filters.subcategory} // ✅ FIXED: Require subcategory before industry
             >
-              <SelectTrigger className={!filters.category ? 'opacity-50' : ''}>
-                <SelectValue placeholder="Industry" />
+              <SelectTrigger className={!filters.subcategory ? 'opacity-50' : ''}>
+                <SelectValue placeholder={filters.subcategory ? "Industry" : "Select subcategory first"} />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
                 <SelectItem value="all">All Industries</SelectItem>
