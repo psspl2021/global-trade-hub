@@ -40,9 +40,7 @@ interface AdminDashboardCardsProps {
   onOpenPremiumBidsManager: () => void;
   onOpenReferralStats: () => void;
   onOpenBlogManager: () => void;
-  onOpenSEOTools: () => void;
   onOpenPartnerDocumentVerification: () => void;
-  onOpenSEMAnalytics: () => void;
   onOpenL1Analysis: () => void;
   onOpenEmailTracking: () => void;
   onOpenSupplierSelection: () => void;
@@ -62,9 +60,7 @@ export function AdminDashboardCards({
   onOpenPremiumBidsManager,
   onOpenReferralStats,
   onOpenBlogManager,
-  onOpenSEOTools,
   onOpenPartnerDocumentVerification,
-  onOpenSEMAnalytics,
   onOpenL1Analysis,
   onOpenEmailTracking,
   onOpenSupplierSelection,
@@ -634,41 +630,7 @@ export function AdminDashboardCards({
         </CardContent>
       </Card>
 
-      <Card className="border-sky-500/20 bg-sky-500/5">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Search className="h-5 w-5 text-sky-600" />
-            SEO Tools
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Keyword tracking, page audits & content ideas
-          </p>
-          <Button className="w-full" variant="outline" onClick={onOpenSEOTools}>
-            <Search className="h-4 w-4 mr-2" />
-            Open SEO Tools
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card className="border-orange-500/20 bg-orange-500/5">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Target className="h-5 w-5 text-orange-600" />
-            SEM Analytics
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            UTM campaigns, traffic sources & conversion tracking
-          </p>
-          <Button className="w-full" variant="outline" onClick={onOpenSEMAnalytics}>
-            <Target className="h-4 w-4 mr-2" />
-            Open SEM Dashboard
-          </Button>
-        </CardContent>
-      </Card>
+      {/* SEO & SEM are now inside AI Sales Engine */}
 
       <Card className="border-teal-500/20 bg-teal-500/5">
         <CardHeader className="pb-2">

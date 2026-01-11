@@ -35,8 +35,6 @@ import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
 import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
 import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
 import AdminBlogManager from '@/components/admin/AdminBlogManager';
-import { SEOTools } from '@/components/admin/SEOTools';
-import { SEMAnalyticsDashboard } from '@/components/admin/SEMAnalyticsDashboard';
 import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
 import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
@@ -89,8 +87,6 @@ const Dashboard = () => {
   const [showPremiumBidsManager, setShowPremiumBidsManager] = useState(false);
   const [showReferralStats, setShowReferralStats] = useState(false);
   const [showBlogManager, setShowBlogManager] = useState(false);
-  const [showSEOTools, setShowSEOTools] = useState(false);
-  const [showSEMAnalytics, setShowSEMAnalytics] = useState(false);
   const [showEmailTracking, setShowEmailTracking] = useState(false);
   const [showL1Analysis, setShowL1Analysis] = useState(false);
   const [showSupplierSelection, setShowSupplierSelection] = useState(false);
@@ -266,9 +262,7 @@ const Dashboard = () => {
               onOpenPremiumBidsManager={() => setShowPremiumBidsManager(true)}
               onOpenReferralStats={() => setShowReferralStats(true)}
               onOpenBlogManager={() => setShowBlogManager(true)}
-              onOpenSEOTools={() => setShowSEOTools(true)}
               onOpenPartnerDocumentVerification={() => setShowPartnerDocVerification(true)}
-              onOpenSEMAnalytics={() => setShowSEMAnalytics(true)}
               onOpenL1Analysis={() => setShowL1Analysis(true)}
               onOpenEmailTracking={() => setShowEmailTracking(true)}
               onOpenSupplierSelection={() => setShowSupplierSelection(true)}
@@ -322,8 +316,6 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-            <SEOTools open={showSEOTools} onOpenChange={setShowSEOTools} />
-            <SEMAnalyticsDashboard open={showSEMAnalytics} onOpenChange={setShowSEMAnalytics} />
             <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
             <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
             {showControlTower && (

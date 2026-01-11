@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Target, FileText, TrendingUp, Globe, RefreshCw, Mail, Brain, Loader2, Building } from "lucide-react";
+import { Users, Target, FileText, TrendingUp, Globe, RefreshCw, Mail, Brain, Loader2, Building, Search, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 const AISalesLeadsManager = lazy(() => import("./AISalesLeadsManager").then(m => ({ default: m.AISalesLeadsManager })));
 const AISalesMessaging = lazy(() => import("./AISalesMessaging").then(m => ({ default: m.AISalesMessaging })));
 const AISalesLandingPages = lazy(() => import("./AISalesLandingPages").then(m => ({ default: m.AISalesLandingPages })));
+const AISEOEngine = lazy(() => import("./AISEOEngine").then(m => ({ default: m.AISEOEngine })));
+const AISEMEngine = lazy(() => import("./AISEMEngine").then(m => ({ default: m.AISEMEngine })));
 
 interface Metrics {
   total_leads: number;
@@ -216,7 +218,7 @@ export function AISalesDashboard() {
         <div className="flex items-center gap-3">
           <div>
             <h2 className="text-2xl font-bold">AI Sales Engine</h2>
-            <p className="text-muted-foreground">Discover global buyers, generate outreach, and convert leads to RFQs</p>
+            <p className="text-muted-foreground">Unified growth control: Discovery, Outreach, SEO, SEM & Conversions</p>
           </div>
           {getStatusBadge()}
         </div>
@@ -295,13 +297,21 @@ export function AISalesDashboard() {
         ))}
       </div>
 
-      {/* Main Tabs */}
+      {/* Main Tabs - Now includes AI SEO & AI SEM */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 w-full max-w-xl">
+        <TabsList className="grid grid-cols-6 w-full max-w-3xl">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="leads">Leads</TabsTrigger>
           <TabsTrigger value="messaging">Messaging</TabsTrigger>
           <TabsTrigger value="landing">Landing Pages</TabsTrigger>
+          <TabsTrigger value="ai-seo" className="flex items-center gap-1">
+            <Search className="w-3 h-3" />
+            AI SEO
+          </TabsTrigger>
+          <TabsTrigger value="ai-sem" className="flex items-center gap-1">
+            <Megaphone className="w-3 h-3" />
+            AI SEM
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -400,6 +410,18 @@ export function AISalesDashboard() {
         <TabsContent value="landing">
           <Suspense fallback={<TabFallback label="landing pages" />}>
             <AISalesLandingPages />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="ai-seo">
+          <Suspense fallback={<TabFallback label="AI SEO" />}>
+            <AISEOEngine />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="ai-sem">
+          <Suspense fallback={<TabFallback label="AI SEM" />}>
+            <AISEMEngine />
           </Suspense>
         </TabsContent>
       </Tabs>
