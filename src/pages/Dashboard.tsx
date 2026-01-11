@@ -849,17 +849,6 @@ const Dashboard = () => {
 
             {/* Compact Grid - All boxes in one view */}
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Manage Products</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Add or update catalog
-                  </p>
-                  <Button className="w-full" size="sm" onClick={() => setShowCatalog(true)}>Manage</Button>
-                </CardContent>
-              </Card>
 
               <Card>
                 <CardHeader className="pb-2">
