@@ -90,7 +90,7 @@ serve(async (req) => {
       }
 
       case 'get_leads': {
-        const { category, country, status, page = 1, limit = 50 } = params;
+        const { category, country, status, industry, company_role, page = 1, limit = 50 } = params;
         let query = supabase
           .from('ai_sales_leads')
           .select('*', { count: 'exact' })
@@ -101,6 +101,8 @@ serve(async (req) => {
         if (category) query = query.eq('category', category.toLowerCase());
         if (country) query = query.eq('country', country.toLowerCase());
         if (status) query = query.eq('status', status);
+        if (industry) query = query.ilike('industry_segment', `%${industry.toLowerCase()}%`);
+        if (company_role) query = query.eq('company_role', company_role.toLowerCase());
 
         const { data, count } = await query;
         return new Response(JSON.stringify({ leads: data, total: count }), {

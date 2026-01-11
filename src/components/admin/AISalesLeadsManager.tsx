@@ -35,6 +35,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { categoriesData } from '@/data/categories';
+import { categoryIndustryMap, getAllIndustries } from '@/data/categoryIndustryMap';
 
 interface Lead {
   id: string;
@@ -71,29 +72,10 @@ export function AISalesLeadsManager() {
   // Get all category names for dropdown
   const categoryOptions = categoriesData.map(cat => cat.name);
 
-  // Industry segments commonly used
-  const industryOptions = [
-    'construction & infrastructure',
-    'fabrication & structural steel',
-    'machinery manufacturing',
-    'heavy engineering',
-    'automotive manufacturing',
-    'aerospace & defense',
-    'oil & gas',
-    'power & energy',
-    'railways',
-    'shipbuilding',
-    'mining',
-    'pharmaceuticals',
-    'textiles',
-    'food processing',
-    'paper & pulp',
-    'water treatment',
-    'agriculture',
-    'cement',
-    'glass & ceramics',
-    'plastics & polymers',
-  ];
+  // Dynamic industry options based on selected category
+  const industryOptions = filters.category && categoryIndustryMap[filters.category.toLowerCase()]
+    ? categoryIndustryMap[filters.category.toLowerCase()]
+    : getAllIndustries();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newLead, setNewLead] = useState({
     company_name: '',
@@ -115,7 +97,11 @@ export function AISalesLeadsManager() {
       const response = await supabase.functions.invoke('ai-sales-discover', {
         body: { 
           action: 'get_leads',
-          ...filters,
+          category: filters.category?.toLowerCase() || '',
+          country: filters.country?.toLowerCase() || '',
+          industry: filters.industry?.toLowerCase() || '',
+          status: filters.status || '',
+          company_role: filters.company_role || '',
         },
       });
 
@@ -131,7 +117,7 @@ export function AISalesLeadsManager() {
 
   useEffect(() => {
     fetchLeads();
-  }, [filters.category, filters.country, filters.status, filters.company_role]);
+  }, [filters.category, filters.country, filters.status, filters.company_role, filters.industry]);
 
   const handleAddLead = async () => {
     try {
@@ -351,7 +337,7 @@ export function AISalesLeadsManager() {
           {/* Category - All ProcureSaathi Categories */}
           <Select 
             value={filters.category} 
-            onValueChange={(v) => setFilters({...filters, category: v === 'all' ? '' : v})}
+            onValueChange={(v) => setFilters({...filters, category: v === 'all' ? '' : v, industry: ''})}
           >
             <SelectTrigger>
               <SelectValue placeholder="Category" />
@@ -528,10 +514,14 @@ export function AISalesLeadsManager() {
                       <Badge variant="outline">{lead.category}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-sm capitalize">
-                        <Factory className="w-3 h-3 text-muted-foreground" />
-                        {lead.industry_segment || '-'}
-                      </div>
+                      {lead.industry_segment ? (
+                        <Badge variant="secondary" className="capitalize">
+                          <Factory className="w-3 h-3 mr-1" />
+                          {lead.industry_segment}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant={
