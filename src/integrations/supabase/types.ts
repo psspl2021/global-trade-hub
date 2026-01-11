@@ -61,6 +61,7 @@ export type Database = {
           lead_id: string | null
           rfq_id: string | null
           source_channel: string | null
+          source_type: string | null
         }
         Insert: {
           conversion_type: string
@@ -72,6 +73,7 @@ export type Database = {
           lead_id?: string | null
           rfq_id?: string | null
           source_channel?: string | null
+          source_type?: string | null
         }
         Update: {
           conversion_type?: string
@@ -83,6 +85,7 @@ export type Database = {
           lead_id?: string | null
           rfq_id?: string | null
           source_channel?: string | null
+          source_type?: string | null
         }
         Relationships: [
           {
@@ -213,6 +216,7 @@ export type Database = {
       }
       ai_sales_leads: {
         Row: {
+          acquisition_source: string | null
           buyer_name: string | null
           buyer_type: string | null
           category: string | null
@@ -234,6 +238,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          acquisition_source?: string | null
           buyer_name?: string | null
           buyer_type?: string | null
           category?: string | null
@@ -255,6 +260,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          acquisition_source?: string | null
           buyer_name?: string | null
           buyer_type?: string | null
           category?: string | null
@@ -316,6 +322,111 @@ export type Database = {
           tone?: string | null
           updated_at?: string | null
           usage_count?: number | null
+        }
+        Relationships: []
+      }
+      ai_sem_runs: {
+        Row: {
+          ads_generated: number | null
+          campaigns_created: number | null
+          category: string | null
+          company_role: string | null
+          completed_at: string | null
+          cost_per_rfq: number | null
+          country: string | null
+          created_at: string
+          created_by: string | null
+          error_message: string | null
+          id: string
+          started_at: string | null
+          status: string
+          total_clicks: number | null
+          total_conversions: number | null
+          total_impressions: number | null
+        }
+        Insert: {
+          ads_generated?: number | null
+          campaigns_created?: number | null
+          category?: string | null
+          company_role?: string | null
+          completed_at?: string | null
+          cost_per_rfq?: number | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_impressions?: number | null
+        }
+        Update: {
+          ads_generated?: number | null
+          campaigns_created?: number | null
+          category?: string | null
+          company_role?: string | null
+          completed_at?: string | null
+          cost_per_rfq?: number | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_impressions?: number | null
+        }
+        Relationships: []
+      }
+      ai_seo_runs: {
+        Row: {
+          category: string | null
+          company_role: string | null
+          completed_at: string | null
+          country: string | null
+          created_at: string
+          created_by: string | null
+          error_message: string | null
+          id: string
+          keywords_discovered: number | null
+          pages_audited: number | null
+          pages_generated: number | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          category?: string | null
+          company_role?: string | null
+          completed_at?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          keywords_discovered?: number | null
+          pages_audited?: number | null
+          pages_generated?: number | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          category?: string | null
+          company_role?: string | null
+          completed_at?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          keywords_discovered?: number | null
+          pages_audited?: number | null
+          pages_generated?: number | null
+          started_at?: string | null
+          status?: string
         }
         Relationships: []
       }
