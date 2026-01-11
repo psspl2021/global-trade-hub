@@ -8,6 +8,7 @@ import { Plus, FileText, ShoppingCart, Receipt, Loader2, Eye, Edit, Trash2, Down
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { sanitizeExcelData } from '@/lib/excelSanitizer';
 
 interface DocumentListProps {
   userId: string;
@@ -196,7 +197,9 @@ export const DocumentList = ({
       'Created At': format(new Date(doc.created_at), 'dd-MM-yyyy HH:mm'),
     }));
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    // Sanitize data to prevent Excel formula injection attacks
+    const sanitizedData = sanitizeExcelData(exportData);
+    const ws = XLSX.utils.json_to_sheet(sanitizedData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, type);
     XLSX.writeFile(wb, `${type.replace(' ', '_')}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
