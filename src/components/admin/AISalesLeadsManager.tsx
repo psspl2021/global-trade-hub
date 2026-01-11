@@ -346,7 +346,14 @@ export function AISalesLeadsManager() {
           {/* Category - All ProcureSaathi Categories */}
           <Select 
             value={filters.category} 
-            onValueChange={(v) => setFilters({...filters, category: v === 'all' ? '' : v, industry: ''})}
+            onValueChange={(v) => {
+              const cat = v === 'all' ? '' : v;
+              setFilters({
+                ...filters, 
+                category: cat, 
+                industry: cat ? (categoryIndustryMap[cat]?.[0] || '') : ''
+              });
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="Category" />
