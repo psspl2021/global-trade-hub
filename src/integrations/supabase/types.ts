@@ -50,6 +50,272 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_sales_conversions: {
+        Row: {
+          conversion_type: string
+          converted_at: string | null
+          deal_closed_at: string | null
+          deal_value: number | null
+          id: string
+          landing_page_id: string | null
+          lead_id: string | null
+          rfq_id: string | null
+          source_channel: string | null
+        }
+        Insert: {
+          conversion_type: string
+          converted_at?: string | null
+          deal_closed_at?: string | null
+          deal_value?: number | null
+          id?: string
+          landing_page_id?: string | null
+          lead_id?: string | null
+          rfq_id?: string | null
+          source_channel?: string | null
+        }
+        Update: {
+          conversion_type?: string
+          converted_at?: string | null
+          deal_closed_at?: string | null
+          deal_value?: number | null
+          id?: string
+          landing_page_id?: string | null
+          lead_id?: string | null
+          rfq_id?: string | null
+          source_channel?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_sales_conversions_landing_page_id_fkey"
+            columns: ["landing_page_id"]
+            isOneToOne: false
+            referencedRelation: "admin_landing_page_metrics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_sales_conversions_landing_page_id_fkey"
+            columns: ["landing_page_id"]
+            isOneToOne: false
+            referencedRelation: "ai_sales_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_sales_conversions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "ai_sales_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_sales_conversions_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_sales_discovery_jobs: {
+        Row: {
+          buyer_type: string | null
+          category: string
+          completed_at: string | null
+          country: string
+          created_at: string | null
+          created_by: string | null
+          error_message: string | null
+          id: string
+          leads_found: number | null
+          started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          buyer_type?: string | null
+          category: string
+          completed_at?: string | null
+          country: string
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          leads_found?: number | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          buyer_type?: string | null
+          category?: string
+          completed_at?: string | null
+          country?: string
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          leads_found?: number | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      ai_sales_landing_pages: {
+        Row: {
+          category: string
+          conversion_count: number | null
+          country: string
+          created_at: string | null
+          cta_text: string | null
+          headline: string
+          hero_image_url: string | null
+          id: string
+          is_active: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          slug: string
+          subheadline: string | null
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          category: string
+          conversion_count?: number | null
+          country: string
+          created_at?: string | null
+          cta_text?: string | null
+          headline: string
+          hero_image_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          slug: string
+          subheadline?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          category?: string
+          conversion_count?: number | null
+          country?: string
+          created_at?: string | null
+          cta_text?: string | null
+          headline?: string
+          hero_image_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          slug?: string
+          subheadline?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      ai_sales_leads: {
+        Row: {
+          buyer_name: string | null
+          buyer_type: string | null
+          category: string | null
+          city: string | null
+          company_name: string | null
+          confidence_score: number | null
+          contacted_at: string | null
+          country: string | null
+          created_at: string | null
+          discovered_at: string | null
+          email: string | null
+          enrichment_data: Json | null
+          id: string
+          lead_source: string | null
+          notes: string | null
+          phone: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_name?: string | null
+          buyer_type?: string | null
+          category?: string | null
+          city?: string | null
+          company_name?: string | null
+          confidence_score?: number | null
+          contacted_at?: string | null
+          country?: string | null
+          created_at?: string | null
+          discovered_at?: string | null
+          email?: string | null
+          enrichment_data?: Json | null
+          id?: string
+          lead_source?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_name?: string | null
+          buyer_type?: string | null
+          category?: string | null
+          city?: string | null
+          company_name?: string | null
+          confidence_score?: number | null
+          contacted_at?: string | null
+          country?: string | null
+          created_at?: string | null
+          discovered_at?: string | null
+          email?: string | null
+          enrichment_data?: Json | null
+          id?: string
+          lead_source?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_sales_messages: {
+        Row: {
+          category: string
+          channel: string
+          country: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          message_body: string
+          subject: string | null
+          tone: string | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          category: string
+          channel: string
+          country: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message_body: string
+          subject?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string
+          channel?: string
+          country?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message_body?: string
+          subject?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       bid_items: {
         Row: {
           bid_id: string
@@ -3655,6 +3921,20 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_ai_sales_metrics: {
+        Row: {
+          avg_confidence: number | null
+          category: string | null
+          country: string | null
+          deals_closed: number | null
+          leads_contacted: number | null
+          leads_ignored: number | null
+          leads_last_7_days: number | null
+          rfqs_created: number | null
+          total_leads: number | null
+        }
+        Relationships: []
+      }
       admin_daily_kpis: {
         Row: {
           ai_rfqs: number | null
@@ -3699,6 +3979,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      admin_landing_page_metrics: {
+        Row: {
+          category: string | null
+          conversion_count: number | null
+          conversion_rate: number | null
+          country: string | null
+          created_at: string | null
+          headline: string | null
+          id: string | null
+          is_active: boolean | null
+          slug: string | null
+          view_count: number | null
+        }
+        Insert: {
+          category?: string | null
+          conversion_count?: number | null
+          conversion_rate?: never
+          country?: string | null
+          created_at?: string | null
+          headline?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          slug?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          category?: string | null
+          conversion_count?: number | null
+          conversion_rate?: never
+          country?: string | null
+          created_at?: string | null
+          headline?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          slug?: string | null
+          view_count?: number | null
+        }
+        Relationships: []
       }
       admin_overview_metrics: {
         Row: {
