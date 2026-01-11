@@ -848,94 +848,60 @@ const Dashboard = () => {
             </div>
 
             {/* Compact Grid - All boxes in one view */}
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Stock Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Update inventory
-                  </p>
-                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowStock(true)}>Update</Button>
-                </CardContent>
+            <div className="grid gap-2 grid-cols-3 lg:grid-cols-3">
+              <Card className="p-3">
+                <p className="text-sm font-medium">Stock Management</p>
+                <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowStock(true)}>Update</Button>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Requirements</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Browse & submit bids
-                  </p>
-                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowRequirements(true)}>Browse</Button>
-                </CardContent>
+              <Card className="p-3">
+                <p className="text-sm font-medium">Requirements</p>
+                <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowRequirements(true)}>Browse</Button>
               </Card>
 
+              <Card className="p-3">
+                <p className="text-sm font-medium">Invoices & PO</p>
+                <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowCRM(true)}>CRM</Button>
+              </Card>
+            </div>
+
+            {/* Secondary grid for subscription and other cards */}
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Invoices & PO</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Create invoices & POs
-                  </p>
-                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowCRM(true)}>Open CRM</Button>
-                </CardContent>
-              </Card>
-
-              <Card className="col-span-2 sm:col-span-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-amber-500" />
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Star className="h-4 w-4 text-amber-500" />
                     Subscription
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Early Adopter Badge */}
+                <CardContent className="space-y-3">
                   {subscription?.is_early_adopter && subscription?.early_adopter_expires_at && (
-                    <div className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-950/50 dark:to-orange-950/50 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
-                          <Star className="h-3 w-3 mr-1 fill-white" />
-                          EARLY ADOPTER
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-amber-700 dark:text-amber-400">
-                        Free premium access until {new Date(subscription.early_adopter_expires_at).toLocaleDateString()}
+                    <div className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-950/50 dark:to-orange-950/50 rounded-lg p-2 border border-amber-200 dark:border-amber-800">
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
+                        <Star className="h-3 w-3 mr-1 fill-white" />
+                        EARLY ADOPTER
+                      </Badge>
+                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                        Free until {new Date(subscription.early_adopter_expires_at).toLocaleDateString()}
                       </p>
                     </div>
                   )}
-
-                  {/* Bid Usage Progress */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Monthly Bids Used</span>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Monthly Bids</span>
                       <span className="font-medium">{subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}</span>
                     </div>
                     <Progress 
                       value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                      className="h-2" 
+                      className="h-1.5" 
                     />
                   </div>
-
-                  {/* Premium Balance */}
                   {(subscription?.premium_bids_balance ?? 0) > 0 && (
-                    <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                        <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Premium Balance</span>
-                      </div>
-                      <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
-                        {subscription?.premium_bids_balance ?? 0} bids
-                      </div>
-                      <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Lifetime bids (never expires)</p>
+                    <div className="text-xs text-amber-600 dark:text-amber-400">
+                      <Star className="h-3 w-3 inline mr-1 fill-amber-500" />
+                      {subscription?.premium_bids_balance} premium bids
                     </div>
                   )}
-
-                  {/* Premium Pack Purchase */}
                   <PremiumPackPurchase
                     userId={user?.id || ''}
                     userEmail={user?.email || ''}
@@ -949,24 +915,20 @@ const Dashboard = () => {
 
               <SupplierEmailQuotaCard expanded />
 
-              {/* Stacked small square cards */}
-              <div className="flex flex-col gap-3">
-                <Card className="aspect-square flex flex-col justify-between">
-                  <CardHeader className="pb-1 pt-3 px-3">
-                    <CardTitle className="text-sm flex items-center gap-1">
-                      <Receipt className="h-4 w-4" />
-                      Platform Invoices
-                    </CardTitle>
-                    <p className="text-[10px] text-muted-foreground">WhatsApp: +91 8368127357</p>
-                    <p className="text-[10px] text-muted-foreground">sales@procuresaathi.com</p>
-                  </CardHeader>
-                  <CardContent className="px-3 pb-3">
-                    <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
-                      View
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-1">
+                    <Receipt className="h-4 w-4" />
+                    Platform Invoices
+                  </CardTitle>
+                  <p className="text-[10px] text-muted-foreground">WhatsApp: +91 8368127357</p>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
+                    View
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Referral Section for Suppliers */}
