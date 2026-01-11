@@ -231,6 +231,7 @@ export type Database = {
           email: string | null
           enrichment_data: Json | null
           id: string
+          industry_segment: string | null
           lead_source: string | null
           notes: string | null
           phone: string | null
@@ -253,6 +254,7 @@ export type Database = {
           email?: string | null
           enrichment_data?: Json | null
           id?: string
+          industry_segment?: string | null
           lead_source?: string | null
           notes?: string | null
           phone?: string | null
@@ -275,6 +277,7 @@ export type Database = {
           email?: string | null
           enrichment_data?: Json | null
           id?: string
+          industry_segment?: string | null
           lead_source?: string | null
           notes?: string | null
           phone?: string | null
