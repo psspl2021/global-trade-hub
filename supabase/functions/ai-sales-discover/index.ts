@@ -333,6 +333,123 @@ Also classify each company as:
         });
       }
 
+      case 'route_lead': {
+        const { lead_id } = params;
+        
+        // Fetch lead with company_role
+        const { data: lead, error: leadError } = await supabase
+          .from('ai_sales_leads')
+          .select('*')
+          .eq('id', lead_id)
+          .single();
+
+        if (leadError || !lead) {
+          return new Response(JSON.stringify({ error: 'Lead not found' }), {
+            status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        // Determine funnel based on company_role
+        let funnel: string;
+        let nextAction: string;
+        let updateStatus: string;
+
+        switch (lead.company_role) {
+          case 'supplier':
+            funnel = 'supplier_onboarding';
+            nextAction = 'invite_to_list_inventory';
+            updateStatus = 'contacted';
+            break;
+          case 'hybrid':
+            funnel = 'hybrid_flow';
+            nextAction = 'dual_onboarding';
+            updateStatus = 'contacted';
+            break;
+          case 'buyer':
+          default:
+            funnel = 'buyer_activation';
+            nextAction = 'route_to_ai_inventory';
+            updateStatus = 'contacted';
+            break;
+        }
+
+        // Update lead with funnel assignment
+        const { error: updateError } = await supabase
+          .from('ai_sales_leads')
+          .update({ 
+            status: updateStatus,
+            contacted_at: new Date().toISOString(),
+            enrichment_data: {
+              ...(lead.enrichment_data as Record<string, unknown> || {}),
+              assigned_funnel: funnel,
+              routed_at: new Date().toISOString()
+            }
+          })
+          .eq('id', lead_id);
+
+        if (updateError) throw updateError;
+
+        return new Response(JSON.stringify({ 
+          lead_id,
+          company_role: lead.company_role,
+          funnel,
+          next_action: nextAction,
+          message: `Lead routed to ${funnel} funnel`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      case 'bulk_route_leads': {
+        const { lead_ids } = params;
+        
+        // Fetch all leads
+        const { data: leads, error: leadsError } = await supabase
+          .from('ai_sales_leads')
+          .select('id, company_role, enrichment_data')
+          .in('id', lead_ids);
+
+        if (leadsError) throw leadsError;
+
+        const results = {
+          buyer: 0,
+          supplier: 0,
+          hybrid: 0
+        };
+
+        // Route each lead based on company_role
+        for (const lead of leads || []) {
+          const funnel = lead.company_role === 'supplier' 
+            ? 'supplier_onboarding' 
+            : lead.company_role === 'hybrid' 
+              ? 'hybrid_flow' 
+              : 'buyer_activation';
+
+          await supabase
+            .from('ai_sales_leads')
+            .update({
+              status: 'contacted',
+              contacted_at: new Date().toISOString(),
+              enrichment_data: {
+                ...(lead.enrichment_data as Record<string, unknown> || {}),
+                assigned_funnel: funnel,
+                routed_at: new Date().toISOString()
+              }
+            })
+            .eq('id', lead.id);
+
+          results[lead.company_role as keyof typeof results]++;
+        }
+
+        return new Response(JSON.stringify({ 
+          routed: leads?.length || 0,
+          by_role: results,
+          message: `Routed ${leads?.length || 0} leads to their funnels`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       default:
         return new Response(JSON.stringify({ error: 'Unknown action' }), {
           status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
