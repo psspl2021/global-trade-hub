@@ -1,14 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Target, FileText, TrendingUp, Globe, RefreshCw, Mail, MessageSquare, ExternalLink } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, Target, FileText, TrendingUp, Globe, RefreshCw, Mail, Brain, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { AISalesLeadsManager } from "./AISalesLeadsManager";
-import { AISalesMessaging } from "./AISalesMessaging";
-import { AISalesLandingPages } from "./AISalesLandingPages";
+
+// Lazy load heavy tab components
+const AISalesLeadsManager = lazy(() => import("./AISalesLeadsManager").then(m => ({ default: m.AISalesLeadsManager })));
+const AISalesMessaging = lazy(() => import("./AISalesMessaging").then(m => ({ default: m.AISalesMessaging })));
+const AISalesLandingPages = lazy(() => import("./AISalesLandingPages").then(m => ({ default: m.AISalesLandingPages })));
 
 interface Metrics {
   total_leads: number;
@@ -21,10 +24,33 @@ interface Metrics {
   by_country: Record<string, number>;
 }
 
+interface DiscoveryJob {
+  id: string;
+  status: string;
+  category: string;
+  country: string;
+  leads_found: number | null;
+  completed_at: string | null;
+  created_at: string;
+}
+
+const TabFallback = ({ label }: { label: string }) => (
+  <div className="p-6 flex items-center gap-2 text-sm text-muted-foreground">
+    <Loader2 className="w-4 h-4 animate-spin" />
+    Loading {label}…
+  </div>
+);
+
 export function AISalesDashboard() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // AI Discovery state
+  const [discoveryRunning, setDiscoveryRunning] = useState(false);
+  const [lastJob, setLastJob] = useState<DiscoveryJob | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState("steel");
+  const [selectedCountry, setSelectedCountry] = useState("india");
 
   const fetchMetrics = async () => {
     setLoading(true);
@@ -49,9 +75,91 @@ export function AISalesDashboard() {
     }
   };
 
+  const fetchLastJob = async () => {
+    try {
+      const { data } = await supabase
+        .from("ai_sales_discovery_jobs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (data) {
+        setLastJob(data as DiscoveryJob);
+        setDiscoveryRunning(data.status === "running" || data.status === "pending");
+      }
+    } catch {
+      // No jobs yet
+    }
+  };
+
+  const runDiscovery = async () => {
+    setDiscoveryRunning(true);
+    try {
+      const response = await supabase.functions.invoke("ai-sales-discover", {
+        body: {
+          action: "run_discovery",
+          category: selectedCategory,
+          country: selectedCountry,
+          buyer_type: "importer",
+        },
+      });
+
+      if (response.error) throw response.error;
+      toast.success("AI discovery started - leads will appear shortly");
+      
+      // Refresh job status after a delay
+      setTimeout(() => {
+        fetchLastJob();
+        fetchMetrics();
+      }, 3000);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Discovery failed:", err);
+      toast.error("Failed to start AI discovery");
+      setDiscoveryRunning(false);
+    }
+  };
+
   useEffect(() => {
     fetchMetrics();
+    fetchLastJob();
   }, []);
+
+  const getStatusBadge = () => {
+    if (discoveryRunning || lastJob?.status === "running") {
+      return (
+        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+          <Brain className="w-3 h-3 mr-1 animate-pulse" />
+          Discovering…
+        </Badge>
+      );
+    }
+    if (lastJob?.status === "completed") {
+      const completedAt = lastJob.completed_at ? new Date(lastJob.completed_at) : null;
+      const timeAgo = completedAt 
+        ? `${Math.round((Date.now() - completedAt.getTime()) / 60000)}m ago`
+        : "";
+      return (
+        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+          ✅ Last run: {timeAgo} ({lastJob.leads_found || 0} leads)
+        </Badge>
+      );
+    }
+    if (lastJob?.status === "failed") {
+      return (
+        <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
+          ⚠️ Last discovery failed
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="text-xs">
+        <Brain className="w-3 h-3 mr-1" />
+        AI Ready
+      </Badge>
+    );
+  };
 
   const kpiCards = [
     {
@@ -92,17 +200,64 @@ export function AISalesDashboard() {
     },
   ];
 
+  const categories = ["steel", "chemicals", "polymers", "textiles", "food-additives", "pharmaceuticals"];
+  const countries = ["india", "uae", "usa", "germany", "china", "brazil", "south-africa"];
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">AI Sales Engine</h2>
-          <p className="text-muted-foreground">Discover global buyers, generate outreach, and convert leads to RFQs</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-2xl font-bold">AI Sales Engine</h2>
+            <p className="text-muted-foreground">Discover global buyers, generate outreach, and convert leads to RFQs</p>
+          </div>
+          {getStatusBadge()}
         </div>
-        <Button onClick={fetchMetrics} variant="outline" size="sm">
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
+        
+        <div className="flex items-center gap-2 flex-wrap">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Country" />
+            </SelectTrigger>
+            <SelectContent>
+              {countries.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c.charAt(0).toUpperCase() + c.slice(1).replace("-", " ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Button 
+            onClick={runDiscovery} 
+            disabled={discoveryRunning}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            {discoveryRunning ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Globe className="w-4 h-4 mr-2" />
+            )}
+            Discover Buyers
+          </Button>
+          
+          <Button onClick={fetchMetrics} variant="outline" size="icon">
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -211,15 +366,21 @@ export function AISalesDashboard() {
         </TabsContent>
 
         <TabsContent value="leads">
-          <AISalesLeadsManager />
+          <Suspense fallback={<TabFallback label="leads" />}>
+            <AISalesLeadsManager />
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="messaging">
-          <AISalesMessaging />
+          <Suspense fallback={<TabFallback label="messages" />}>
+            <AISalesMessaging />
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="landing">
-          <AISalesLandingPages />
+          <Suspense fallback={<TabFallback label="landing pages" />}>
+            <AISalesLandingPages />
+          </Suspense>
         </TabsContent>
       </Tabs>
     </div>
