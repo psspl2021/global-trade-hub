@@ -182,188 +182,204 @@ serve(async (req) => {
       }
 
       case 'run_discovery': {
-  const {
-    category,
-    country,
-    buyer_type,
-    company_role = 'buyer',
-    industry_segments,
-  } = params;
+        const {
+          category,
+          country,
+          buyer_type,
+          company_role = 'buyer',
+          industry_segments
+        } = params;
 
-  // ✅ NORMALIZE INPUT (CRITICAL)
-  const normalizedCategory = String(category || '').toLowerCase().trim();
-  const normalizedCountry = String(country || '').toLowerCase().trim();
-  const normalizedRole = String(company_role || 'buyer').toLowerCase().trim();
+        // ✅ NORMALIZATION (CRITICAL)
+        const normalizedCategory = String(category || '').toLowerCase();
+        const normalizedCountry = String(country || '').toLowerCase();
+        const normalizedRole = String(company_role || 'buyer').toLowerCase();
 
-  console.log('AI DISCOVERY INPUT', {
-    normalizedCategory,
-    normalizedCountry,
-    normalizedRole,
-  });
+        console.log('RUN DISCOVERY:', {
+          category: normalizedCategory,
+          country: normalizedCountry,
+          role: normalizedRole
+        });
 
-  // 1️⃣ Create discovery job
-  const { data: job, error: jobError } = await supabase
-    .from('ai_sales_discovery_jobs')
-    .insert({
-      category: normalizedCategory,
-      country: normalizedCountry,
-      buyer_type,
-      status: 'running',
-      started_at: new Date().toISOString(),
-      created_by: user.id,
-    })
-    .select()
-    .single();
+        // 1️⃣ Create discovery job
+        const { data: job, error: jobError } = await supabase
+          .from('ai_sales_discovery_jobs')
+          .insert({
+            category: normalizedCategory,
+            country: normalizedCountry,
+            buyer_type,
+            status: 'running',
+            started_at: new Date().toISOString(),
+            created_by: user.id
+          })
+          .select()
+          .single();
 
-  if (jobError || !job) {
-    throw new Error('Failed to create discovery job');
-  }
+        if (jobError || !job) {
+          throw new Error('Failed to create discovery job');
+        }
 
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-  if (!LOVABLE_API_KEY) {
-    await supabase
-      .from('ai_sales_discovery_jobs')
-      .update({
-        status: 'failed',
-        error_message: 'LOVABLE_API_KEY missing',
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', job.id);
+        const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+        if (!LOVABLE_API_KEY) {
+          await supabase
+            .from('ai_sales_discovery_jobs')
+            .update({
+              status: 'failed',
+              error_message: 'LOVABLE_API_KEY missing',
+              completed_at: new Date().toISOString()
+            })
+            .eq('id', job.id);
 
-    return new Response(
-      JSON.stringify({ error: 'AI key not configured' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
+          return new Response(
+            JSON.stringify({ error: 'AI key not configured' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
-  try {
-    const defaultIndustries = [
-      'construction & infrastructure',
-      'fabrication & structural steel',
-      'machinery manufacturing',
-      'heavy engineering',
-      'automotive manufacturing',
-      'aerospace & defense',
-    ];
+        try {
+          const defaultIndustries = [
+            'construction & infrastructure',
+            'fabrication & structural steel',
+            'machinery manufacturing',
+            'heavy engineering',
+            'automotive manufacturing',
+            'aerospace & defense'
+          ];
 
-    const targetIndustries =
-      Array.isArray(industry_segments) && industry_segments.length > 0
-        ? industry_segments.map((i: string) => i.toLowerCase())
-        : defaultIndustries;
+          const targetIndustries =
+            Array.isArray(industry_segments) && industry_segments.length > 0
+              ? industry_segments.map((i: string) => i.toLowerCase())
+              : defaultIndustries;
 
-    const systemPrompt = `
+          // 🧠 PROMPT (NO FUNCTION CALLS – STABLE)
+          const prompt = `
 You are a B2B industrial demand discovery AI.
-ONLY return REAL bulk-consuming companies.
-Always return industry_segment in lowercase.
-`;
 
-    const userPrompt = `
+ONLY return REAL bulk-consuming companies.
+NO traders, brokers, or generic sellers.
+
 Product: ${normalizedCategory}
 Country: ${normalizedCountry}
-Role: ${normalizedRole}
+Company role focus: ${normalizedRole}
 
 Target industries:
 ${targetIndustries.map(i => `- ${i}`).join('\n')}
 
-Return 5 companies with:
-company_name
-buyer_name
-email
-phone
-city
-industry_segment (lowercase)
-buyer_type
-confidence_score (0.65–0.95)
-company_role (buyer | supplier | hybrid)
+Return JSON ONLY in this format:
+{
+  "leads": [
+    {
+      "company_name": "",
+      "buyer_name": "",
+      "email": "",
+      "phone": "",
+      "city": "",
+      "industry_segment": "",
+      "buyer_type": "",
+      "confidence_score": 0.7,
+      "company_role": "buyer"
+    }
+  ]
+}
+
+Rules:
+- industry_segment MUST be lowercase
+- confidence_score between 0.65 and 0.95
+- company_role = buyer | supplier | hybrid
+- Companies must consume product in BULK
 `;
 
-    const aiResponse = await fetch(
-      'https://ai.gateway.lovable.dev/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-3-flash-preview',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-        }),
-      }
-    );
+          const aiResponse = await fetch(
+            'https://ai.gateway.lovable.dev/v1/chat/completions',
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${LOVABLE_API_KEY}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                model: 'google/gemini-3-flash-preview',
+                messages: [{ role: 'user', content: prompt }]
+              })
+            }
+          );
 
-    if (!aiResponse.ok) {
-      throw new Error(await aiResponse.text());
-    }
+          if (!aiResponse.ok) {
+            throw new Error(await aiResponse.text());
+          }
 
-    const aiData = await aiResponse.json();
-    const content = aiData.choices?.[0]?.message?.content;
-    if (!content) throw new Error('Empty AI response');
+          const aiData = await aiResponse.json();
+          const content = aiData.choices?.[0]?.message?.content;
+          if (!content) throw new Error('Empty AI response');
 
-    const parsed = JSON.parse(content);
-    const leads = parsed.leads || [];
+          // Extract JSON from response (handle markdown code blocks)
+          let jsonContent = content;
+          const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+          if (jsonMatch) {
+            jsonContent = jsonMatch[1].trim();
+          }
 
-    const leadsToInsert = leads.map((lead: any) => ({
-      company_name: lead.company_name,
-      buyer_name: lead.buyer_name,
-      email: lead.email || null,
-      phone: lead.phone || null,
-      city: lead.city || null,
-      country: normalizedCountry,
-      category: normalizedCategory,
-      industry_segment: String(lead.industry_segment || '').toLowerCase(),
-      buyer_type: lead.buyer_type || buyer_type,
-      company_role: lead.company_role || normalizedRole,
-      confidence_score: lead.confidence_score || 0.7,
-      status: 'new',
-      lead_source: 'ai_discovery',
-      discovered_at: new Date().toISOString(),
-    }));
+          const parsed = JSON.parse(jsonContent);
+          const leads = parsed.leads || [];
 
-    const { data: inserted } = await supabase
-      .from('ai_sales_leads')
-      .upsert(leadsToInsert, {
-        onConflict: 'email,category',
-        ignoreDuplicates: true,
-      })
-      .select();
+          const leadsToInsert = leads.map((lead: any) => ({
+            company_name: lead.company_name,
+            buyer_name: lead.buyer_name,
+            email: lead.email || null,
+            phone: lead.phone || null,
+            city: lead.city || null,
+            country: normalizedCountry,
+            category: normalizedCategory,
+            industry_segment: String(lead.industry_segment || '').toLowerCase(),
+            buyer_type: lead.buyer_type || buyer_type,
+            company_role: lead.company_role || normalizedRole,
+            confidence_score: lead.confidence_score || 0.7,
+            status: 'new',
+            lead_source: 'ai_discovery',
+            discovered_at: new Date().toISOString()
+          }));
 
-    await supabase
-      .from('ai_sales_discovery_jobs')
-      .update({
-        status: 'completed',
-        leads_found: inserted?.length || 0,
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', job.id);
+          const { data: inserted } = await supabase
+            .from('ai_sales_leads')
+            .upsert(leadsToInsert, {
+              onConflict: 'email,category',
+              ignoreDuplicates: true
+            })
+            .select();
 
-    return new Response(
-      JSON.stringify({
-        leads_found: inserted?.length || 0,
-        industries: targetIndustries,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  } catch (err) {
-    console.error('AI DISCOVERY ERROR:', err);
+          await supabase
+            .from('ai_sales_discovery_jobs')
+            .update({
+              status: 'completed',
+              leads_found: inserted?.length || 0,
+              completed_at: new Date().toISOString()
+            })
+            .eq('id', job.id);
 
-    await supabase
-      .from('ai_sales_discovery_jobs')
-      .update({
-        status: 'failed',
-        error_message: String(err),
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', job.id);
+          return new Response(
+            JSON.stringify({
+              leads_found: inserted?.length || 0,
+              industries: targetIndustries
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (err) {
+          console.error('AI DISCOVERY ERROR:', err);
 
-    return new Response(
-      JSON.stringify({ error: 'AI discovery failed' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
+          await supabase
+            .from('ai_sales_discovery_jobs')
+            .update({
+              status: 'failed',
+              error_message: String(err),
+              completed_at: new Date().toISOString()
+            })
+            .eq('id', job.id);
+
+          return new Response(
+            JSON.stringify({ error: 'AI discovery failed' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
       }
 
       default:
