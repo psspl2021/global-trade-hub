@@ -218,6 +218,7 @@ export type Database = {
           category: string | null
           city: string | null
           company_name: string | null
+          company_role: string | null
           confidence_score: number | null
           contacted_at: string | null
           country: string | null
@@ -238,6 +239,7 @@ export type Database = {
           category?: string | null
           city?: string | null
           company_name?: string | null
+          company_role?: string | null
           confidence_score?: number | null
           contacted_at?: string | null
           country?: string | null
@@ -258,6 +260,7 @@ export type Database = {
           category?: string | null
           city?: string | null
           company_name?: string | null
+          company_role?: string | null
           confidence_score?: number | null
           contacted_at?: string | null
           country?: string | null
