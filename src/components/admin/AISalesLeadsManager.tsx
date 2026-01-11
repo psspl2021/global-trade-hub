@@ -131,6 +131,16 @@ export function AISalesLeadsManager() {
   }, [filters.category, filters.country, filters.status, filters.company_role, filters.industry, debouncedSearch]);
 
   const handleAddLead = async () => {
+    // ✅ Validate required fields
+    if (!newLead.category) {
+      toast.error('Please select a category');
+      return;
+    }
+    if (!newLead.company_name.trim()) {
+      toast.error('Please enter company name');
+      return;
+    }
+    
     try {
       // ✅ Normalize category/country to lowercase for DB consistency
       const safeLead = {
@@ -369,22 +379,29 @@ export function AISalesLeadsManager() {
           </Select>
 
           {/* Industry Segment */}
-          <Select 
-            value={filters.industry} 
-            onValueChange={(v) => setFilters({...filters, industry: v === 'all' ? '' : v})}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Industry" />
-            </SelectTrigger>
-            <SelectContent className="max-h-[300px]">
-              <SelectItem value="all">All Industries</SelectItem>
-              {industryOptions.map((ind) => (
-                <SelectItem key={ind} value={ind}>
-                  {prettyIndustry(ind)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <Select 
+              value={filters.industry} 
+              onValueChange={(v) => setFilters({...filters, industry: v === 'all' ? '' : v})}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Industry" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="all">All Industries</SelectItem>
+                {industryOptions.map((ind) => (
+                  <SelectItem key={ind} value={ind}>
+                    {prettyIndustry(ind)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {filters.category && filters.industry === categoryIndustryMap[filters.category]?.[0] && (
+              <span className="absolute -top-2 right-2 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                ✨ Auto
+              </span>
+            )}
+          </div>
 
           {/* Status */}
           <Select 
