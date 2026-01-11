@@ -182,357 +182,186 @@ serve(async (req) => {
       }
 
       case 'run_discovery': {
-        const { category, country, buyer_type, company_role = 'buyer', industry_segments } = params;
-        
-        // Create discovery job
-        const { data: job, error: jobError } = await supabase
-          .from('ai_sales_discovery_jobs')
-          .insert({
-            category,
-            country,
-            buyer_type,
-            status: 'running',
-            started_at: new Date().toISOString(),
-            created_by: user.id
-          })
-          .select()
-          .single();
+  const {
+    category,
+    country,
+    buyer_type,
+    company_role = 'buyer',
+    industry_segments,
+  } = params;
 
-        if (jobError) throw jobError;
+  // ✅ NORMALIZE INPUT (CRITICAL)
+  const normalizedCategory = String(category || '').toLowerCase().trim();
+  const normalizedCountry = String(country || '').toLowerCase().trim();
+  const normalizedRole = String(company_role || 'buyer').toLowerCase().trim();
 
-        // Use Lovable AI to discover buyers (async process simulation)
-        const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-        
-        if (LOVABLE_API_KEY) {
-          try {
-            // Build industry-focused prompt (lowercase for DB constraint)
-            const defaultIndustries = [
-              'construction & infrastructure',
-              'fabrication & structural steel',
-              'machinery manufacturing',
-              'heavy engineering',
-              'automotive manufacturing',
-              'aerospace & defense'
-            ];
-            
-            const targetIndustries = industry_segments?.length > 0 
-              ? industry_segments.map((s: string) => s.toLowerCase()) 
-              : defaultIndustries;
+  console.log('AI DISCOVERY INPUT', {
+    normalizedCategory,
+    normalizedCountry,
+    normalizedRole,
+  });
 
-            const systemPrompt = `You are a B2B industrial demand discovery AI.
+  // 1️⃣ Create discovery job
+  const { data: job, error: jobError } = await supabase
+    .from('ai_sales_discovery_jobs')
+    .insert({
+      category: normalizedCategory,
+      country: normalizedCountry,
+      buyer_type,
+      status: 'running',
+      started_at: new Date().toISOString(),
+      created_by: user.id,
+    })
+    .select()
+    .single();
 
-Do NOT find generic buyers.
-Find INDUSTRIES that consume the product in bulk.
-
-Each company must:
-- Be an end user or OEM
-- Have recurring procurement
-- Use the product as a raw material or critical input
-
-Always classify each lead by industry_segment (lowercase only).
-
-For each lead return:
-- company_name (real-sounding company)
-- buyer_name (procurement / sourcing / purchase head - realistic regional names)
-- email (realistic corporate format)
-- phone (international format with country code)
-- city (actual city in the target country)
-- industry_segment (from the provided list, MUST be lowercase)
-- buyer_type (manufacturer, EPC, OEM, fabricator, contractor, etc.)
-- confidence_score (0.65 – 0.95)
-- company_role (buyer, supplier, or hybrid)
-
-Only return companies that are REALISTIC bulk buyers of the product.`;
-
-            const userPrompt = `Product category: ${category.toLowerCase()}
-Country: ${country.toLowerCase()}
-Company role: ${company_role}
-
-Identify industry segments where ${category} is used in bulk.
-
-Focus on these industry segments:
-${targetIndustries.map((i: string) => `- ${i}`).join('\n')}
-
-For each lead return:
-- company_name
-- buyer_name (procurement / sourcing / purchase head)
-- email
-- phone
-- city
-- industry_segment (MUST be lowercase, from the list above)
-- buyer_type (manufacturer, EPC, OEM, etc.)
-- confidence_score (0.65–0.95)
-
-Only return realistic bulk buyers.`;
-
-            const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                model: 'google/gemini-3-flash-preview',
-                messages: [
-                  { role: 'system', content: systemPrompt },
-                  { role: 'user', content: userPrompt }
-                ],
-                tools: [{
-                  type: 'function',
-                  function: {
-                    name: 'submit_leads',
-                    description: 'Submit discovered B2B leads',
-                    parameters: {
-                      type: 'object',
-                      properties: {
-                        leads: {
-                          type: 'array',
-                          items: {
-                            type: 'object',
-                            properties: {
-                              company_name: { type: 'string' },
-                              buyer_name: { type: 'string' },
-                              email: { type: 'string' },
-                              phone: { type: 'string' },
-                              city: { type: 'string' },
-                              industry_segment: { type: 'string' },
-                              buyer_type: { type: 'string' },
-                              confidence_score: { type: 'number' },
-                              company_role: { type: 'string', enum: ['buyer', 'supplier', 'hybrid'] }
-                            },
-                            required: ['company_name', 'buyer_name', 'industry_segment', 'confidence_score', 'company_role']
-                          }
-                        }
-                      },
-                      required: ['leads']
-                    }
-                  }
-                }],
-                tool_choice: { type: 'function', function: { name: 'submit_leads' } }
-              })
-            });
-
-            if (aiResponse.ok) {
-              const aiData = await aiResponse.json();
-              const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-              
-              if (toolCall?.function?.arguments) {
-                const parsed = JSON.parse(toolCall.function.arguments);
-                const leads = parsed.leads || [];
-                
-                // Insert leads with industry_segment
-                const leadsToInsert = leads.map((lead: Record<string, unknown>) => ({
-                  company_name: lead.company_name,
-                  buyer_name: lead.buyer_name,
-                  email: lead.email || null,
-                  phone: lead.phone || null,
-                  city: lead.city || null,
-                  country: country,
-                  category: category,
-                  industry_segment: lead.industry_segment ? String(lead.industry_segment).toLowerCase() : null,
-                  buyer_type: lead.buyer_type || buyer_type,
-                  company_role: lead.company_role || company_role,
-                  confidence_score: lead.confidence_score || 0.7,
-                  status: 'new',
-                  lead_source: 'ai_discovery',
-                  discovered_at: new Date().toISOString()
-                }));
-
-                const { data: insertedLeads } = await supabase
-                  .from('ai_sales_leads')
-                  .upsert(leadsToInsert, { 
-                    onConflict: 'email,category',
-                    ignoreDuplicates: true 
-                  })
-                  .select();
-
-                // Update job as completed
-                await supabase
-                  .from('ai_sales_discovery_jobs')
-                  .update({
-                    status: 'completed',
-                    leads_found: insertedLeads?.length || 0,
-                    completed_at: new Date().toISOString()
-                  })
-                  .eq('id', job.id);
-
-                return new Response(JSON.stringify({ 
-                  job, 
-                  leads_found: insertedLeads?.length || 0,
-                  industries_searched: targetIndustries
-                }), {
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
-            } else {
-              const errText = await aiResponse.text();
-              console.error('AI gateway error:', aiResponse.status, errText);
-              
-              if (aiResponse.status === 429) {
-                await supabase
-                  .from('ai_sales_discovery_jobs')
-                  .update({ status: 'failed', error_message: 'Rate limit exceeded', completed_at: new Date().toISOString() })
-                  .eq('id', job.id);
-                return new Response(JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }), {
-                  status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
-            }
-          } catch (aiError) {
-            console.error('AI Discovery error:', aiError);
-          }
-        }
-
-        // Mark job as completed even if AI fails (for demo purposes)
-        await supabase
-          .from('ai_sales_discovery_jobs')
-          .update({
-            status: 'completed',
-            leads_found: 0,
-            completed_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
-
-        return new Response(JSON.stringify({ job, leads_found: 0 }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      case 'route_lead': {
-        const { lead_id } = params;
-        
-        // Fetch lead with company_role
-        const { data: lead, error: leadError } = await supabase
-          .from('ai_sales_leads')
-          .select('*')
-          .eq('id', lead_id)
-          .single();
-
-        if (leadError || !lead) {
-          return new Response(JSON.stringify({ error: 'Lead not found' }), {
-            status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
-        }
-
-        // Determine funnel based on company_role
-        let funnel: string;
-        let nextAction: string;
-        let updateStatus: string;
-
-        switch (lead.company_role) {
-          case 'supplier':
-            funnel = 'supplier_onboarding';
-            nextAction = 'invite_to_list_inventory';
-            updateStatus = 'contacted';
-            break;
-          case 'hybrid':
-            funnel = 'hybrid_flow';
-            nextAction = 'dual_onboarding';
-            updateStatus = 'contacted';
-            break;
-          case 'buyer':
-          default:
-            funnel = 'buyer_activation';
-            nextAction = 'route_to_ai_inventory';
-            updateStatus = 'contacted';
-            break;
-        }
-
-        // Update lead with funnel assignment
-        const { error: updateError } = await supabase
-          .from('ai_sales_leads')
-          .update({ 
-            status: updateStatus,
-            contacted_at: new Date().toISOString(),
-            enrichment_data: {
-              ...(lead.enrichment_data as Record<string, unknown> || {}),
-              assigned_funnel: funnel,
-              routed_at: new Date().toISOString()
-            }
-          })
-          .eq('id', lead_id);
-
-        if (updateError) throw updateError;
-
-        return new Response(JSON.stringify({ 
-          lead_id,
-          company_role: lead.company_role,
-          funnel,
-          next_action: nextAction,
-          message: `Lead routed to ${funnel} funnel`
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      case 'bulk_route_leads': {
-        const { lead_ids } = params;
-        
-        // Fetch all leads
-        const { data: leads, error: leadsError } = await supabase
-          .from('ai_sales_leads')
-          .select('id, company_role, enrichment_data')
-          .in('id', lead_ids);
-
-        if (leadsError) throw leadsError;
-
-        const results = {
-          buyer: 0,
-          supplier: 0,
-          hybrid: 0
-        };
-
-        // Route each lead based on company_role
-        for (const lead of leads || []) {
-          const funnel = lead.company_role === 'supplier' 
-            ? 'supplier_onboarding' 
-            : lead.company_role === 'hybrid' 
-              ? 'hybrid_flow' 
-              : 'buyer_activation';
-
-          await supabase
-            .from('ai_sales_leads')
-            .update({
-              status: 'contacted',
-              contacted_at: new Date().toISOString(),
-              enrichment_data: {
-                ...(lead.enrichment_data as Record<string, unknown> || {}),
-                assigned_funnel: funnel,
-                routed_at: new Date().toISOString()
-              }
-            })
-            .eq('id', lead.id);
-
-          results[lead.company_role as keyof typeof results]++;
-        }
-
-        return new Response(JSON.stringify({ 
-          routed: leads?.length || 0,
-          by_role: results,
-          message: `Routed ${leads?.length || 0} leads to their funnels`
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      default:
-        return new Response(JSON.stringify({ error: 'Unknown action' }), {
-          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-    }
-  } catch (error: unknown) {
-    const err = error as Error;
-    console.error('AI Sales Discover Error:', err);
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+  if (jobError || !job) {
+    throw new Error('Failed to create discovery job');
   }
-});
 
-function groupBy<T>(arr: T[], key: keyof T): Record<string, number> {
-  return arr.reduce((acc, item) => {
-    const k = String(item[key] || 'Unknown');
-    acc[k] = (acc[k] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) {
+    await supabase
+      .from('ai_sales_discovery_jobs')
+      .update({
+        status: 'failed',
+        error_message: 'LOVABLE_API_KEY missing',
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', job.id);
+
+    return new Response(
+      JSON.stringify({ error: 'AI key not configured' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  try {
+    const defaultIndustries = [
+      'construction & infrastructure',
+      'fabrication & structural steel',
+      'machinery manufacturing',
+      'heavy engineering',
+      'automotive manufacturing',
+      'aerospace & defense',
+    ];
+
+    const targetIndustries =
+      Array.isArray(industry_segments) && industry_segments.length > 0
+        ? industry_segments.map((i: string) => i.toLowerCase())
+        : defaultIndustries;
+
+    const systemPrompt = `
+You are a B2B industrial demand discovery AI.
+ONLY return REAL bulk-consuming companies.
+Always return industry_segment in lowercase.
+`;
+
+    const userPrompt = `
+Product: ${normalizedCategory}
+Country: ${normalizedCountry}
+Role: ${normalizedRole}
+
+Target industries:
+${targetIndustries.map(i => `- ${i}`).join('\n')}
+
+Return 5 companies with:
+company_name
+buyer_name
+email
+phone
+city
+industry_segment (lowercase)
+buyer_type
+confidence_score (0.65–0.95)
+company_role (buyer | supplier | hybrid)
+`;
+
+    const aiResponse = await fetch(
+      'https://ai.gateway.lovable.dev/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-3-flash-preview',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+        }),
+      }
+    );
+
+    if (!aiResponse.ok) {
+      throw new Error(await aiResponse.text());
+    }
+
+    const aiData = await aiResponse.json();
+    const content = aiData.choices?.[0]?.message?.content;
+    if (!content) throw new Error('Empty AI response');
+
+    const parsed = JSON.parse(content);
+    const leads = parsed.leads || [];
+
+    const leadsToInsert = leads.map((lead: any) => ({
+      company_name: lead.company_name,
+      buyer_name: lead.buyer_name,
+      email: lead.email || null,
+      phone: lead.phone || null,
+      city: lead.city || null,
+      country: normalizedCountry,
+      category: normalizedCategory,
+      industry_segment: String(lead.industry_segment || '').toLowerCase(),
+      buyer_type: lead.buyer_type || buyer_type,
+      company_role: lead.company_role || normalizedRole,
+      confidence_score: lead.confidence_score || 0.7,
+      status: 'new',
+      lead_source: 'ai_discovery',
+      discovered_at: new Date().toISOString(),
+    }));
+
+    const { data: inserted } = await supabase
+      .from('ai_sales_leads')
+      .upsert(leadsToInsert, {
+        onConflict: 'email,category',
+        ignoreDuplicates: true,
+      })
+      .select();
+
+    await supabase
+      .from('ai_sales_discovery_jobs')
+      .update({
+        status: 'completed',
+        leads_found: inserted?.length || 0,
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', job.id);
+
+    return new Response(
+      JSON.stringify({
+        leads_found: inserted?.length || 0,
+        industries: targetIndustries,
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (err) {
+    console.error('AI DISCOVERY ERROR:', err);
+
+    await supabase
+      .from('ai_sales_discovery_jobs')
+      .update({
+        status: 'failed',
+        error_message: String(err),
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', job.id);
+
+    return new Response(
+      JSON.stringify({ error: 'AI discovery failed' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
 }
