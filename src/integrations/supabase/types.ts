@@ -232,6 +232,7 @@ export type Database = {
           enrichment_data: Json | null
           id: string
           industry_segment: string | null
+          lead_fingerprint: string | null
           lead_source: string | null
           notes: string | null
           phone: string | null
@@ -255,6 +256,7 @@ export type Database = {
           enrichment_data?: Json | null
           id?: string
           industry_segment?: string | null
+          lead_fingerprint?: string | null
           lead_source?: string | null
           notes?: string | null
           phone?: string | null
@@ -278,6 +280,7 @@ export type Database = {
           enrichment_data?: Json | null
           id?: string
           industry_segment?: string | null
+          lead_fingerprint?: string | null
           lead_source?: string | null
           notes?: string | null
           phone?: string | null

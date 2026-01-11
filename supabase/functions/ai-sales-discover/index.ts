@@ -1,10 +1,28 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// ✅ Generate deterministic fingerprint to prevent duplicates
+async function generateFingerprint(lead: {
+  company_name: string;
+  city?: string;
+  country: string;
+  category: string;
+}): Promise<string> {
+  const raw = `${lead.company_name}|${lead.city || ''}|${lead.country}|${lead.category}`
+    .toLowerCase()
+    .trim();
+  const encoder = new TextEncoder();
+  const data = encoder.encode(raw);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -269,16 +287,27 @@ serve(async (req) => {
               ? industry_segments.map((i: string) => i.toLowerCase())
               : defaultIndustries;
 
-          // 🧠 PROMPT (NO FUNCTION CALLS – STABLE)
-          const prompt = `
-You are a B2B industrial demand discovery AI.
+          // 🧠 DYNAMIC PROMPT BASED ON COMPANY ROLE
+          const roleInstructions = normalizedRole === 'supplier' 
+            ? `Find MANUFACTURERS, MILLS, OEM SUPPLIERS, and PRODUCERS who SELL ${normalizedCategory} in bulk.
+These should be companies that MANUFACTURE or PRODUCE the product, not traders or brokers.`
+            : normalizedRole === 'hybrid'
+            ? `Find companies that BOTH BUY and SELL ${normalizedCategory} in bulk.
+These could be manufacturers who also source raw materials, or large traders who act as both buyer and seller.`
+            : `Find BULK BUYERS and END-CONSUMERS of ${normalizedCategory}.
+These should be companies that USE the product in their manufacturing/operations, not resellers.`;
 
-ONLY return REAL bulk-consuming companies.
-NO traders, brokers, or generic sellers.
+          const prompt = `
+You are a B2B industrial ${normalizedRole === 'supplier' ? 'supplier' : 'demand'} discovery AI.
+
+ONLY return REAL companies that match the criteria below.
+NO fake data, NO placeholder emails, NO generic company names.
 
 Product: ${normalizedCategory}
 Country: ${normalizedCountry}
-Company role focus: ${normalizedRole}
+Company role: ${normalizedRole}
+
+${roleInstructions}
 
 Target industries:
 ${targetIndustries.map(i => `- ${i}`).join('\n')}
@@ -287,24 +316,25 @@ Return JSON ONLY in this format:
 {
   "leads": [
     {
-      "company_name": "",
-      "buyer_name": "",
-      "email": "",
-      "phone": "",
-      "city": "",
-      "industry_segment": "",
-      "buyer_type": "",
+      "company_name": "Actual Company Name",
+      "buyer_name": "Contact Person Name (if known)",
+      "email": "actual@email.com (leave empty if unknown)",
+      "phone": "+1234567890 (leave empty if unknown)",
+      "city": "City Name",
+      "industry_segment": "one of the target industries",
+      "buyer_type": "manufacturer|importer|distributor|trader",
       "confidence_score": 0.7,
-      "company_role": "buyer"
+      "company_role": "${normalizedRole}"
     }
   ]
 }
 
 Rules:
-- industry_segment MUST be lowercase
-- confidence_score between 0.65 and 0.95
-- company_role = buyer | supplier | hybrid
-- Companies must consume product in BULK
+- industry_segment MUST be lowercase and match one of the target industries
+- confidence_score between 0.65 and 0.95 based on how well the company matches
+- company_role MUST be "${normalizedRole}"
+- ONLY include companies that are verifiable and real
+- Return 5-10 high-quality leads maximum
 `;
 
           const aiResponse = await fetch(
@@ -375,29 +405,44 @@ Rules:
             );
           }
 
-          const leadsToInsert = leads.map((lead: any) => ({
-            company_name: lead.company_name,
-            buyer_name: lead.buyer_name,
-            email: lead.email || null,
-            phone: lead.phone || null,
-            city: lead.city || null,
-            country: normalizedCountry,
-            category: normalizedCategory,
-            industry_segment: String(lead.industry_segment || '').toLowerCase(),
-            buyer_type: lead.buyer_type || buyer_type,
-            company_role: lead.company_role || normalizedRole,
-            confidence_score: lead.confidence_score || 0.7,
-            status: 'new',
-            lead_source: 'ai_discovery',
-            discovered_at: new Date().toISOString()
+          // ✅ Generate fingerprints for each lead to prevent duplicates
+          const leadsToInsert = await Promise.all(leads.map(async (lead: any) => {
+            const leadData = {
+              company_name: lead.company_name,
+              city: lead.city || null,
+              country: normalizedCountry,
+              category: normalizedCategory,
+            };
+            const fingerprint = await generateFingerprint(leadData);
+            
+            return {
+              company_name: lead.company_name,
+              buyer_name: lead.buyer_name,
+              email: lead.email || null,
+              phone: lead.phone || null,
+              city: lead.city || null,
+              country: normalizedCountry,
+              category: normalizedCategory,
+              industry_segment: String(lead.industry_segment || '').toLowerCase(),
+              buyer_type: lead.buyer_type || buyer_type,
+              company_role: lead.company_role || normalizedRole,
+              confidence_score: lead.confidence_score || 0.7,
+              status: 'new',
+              lead_source: 'ai_discovery',
+              discovered_at: new Date().toISOString(),
+              lead_fingerprint: fingerprint, // ✅ Unique fingerprint
+            };
           }));
 
-          console.log('Inserting leads:', leadsToInsert.length);
+          console.log('Inserting leads with fingerprints:', leadsToInsert.length);
 
-          // Use insert instead of upsert to avoid constraint issues with null emails
+          // ✅ Use upsert with fingerprint to prevent duplicates
           const { data: inserted, error: insertError } = await supabase
             .from('ai_sales_leads')
-            .insert(leadsToInsert)
+            .upsert(leadsToInsert, {
+              onConflict: 'lead_fingerprint',
+              ignoreDuplicates: true
+            })
             .select();
 
           if (insertError) {
