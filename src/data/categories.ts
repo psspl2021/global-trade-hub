@@ -1,9 +1,9 @@
 import { 
   Tractor, Car, Cpu, FlaskConical, Building, Shirt, Palette, 
-  Briefcase, Lightbulb, Cog, Stethoscope, Factory, Smartphone,
-  Baby, BookOpen, Package, FileText, Pill, Layers, Shield, 
-  GraduationCap, Radio, Scissors, Utensils,
-  Home, Heart, Leaf, Pickaxe, LucideIcon
+  Lightbulb, Cog, Stethoscope, Factory,
+  Package, FileText, Pill, Layers, Shield, 
+  Radio, Scissors, Utensils,
+  Home, Leaf, Pickaxe, LucideIcon
 } from 'lucide-react';
 
 export interface CategoryData {
@@ -327,16 +327,24 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
-    name: 'Health Care Products',
-    icon: Heart,
+    name: 'Medical & Healthcare',
+    icon: Stethoscope,
     subcategories: [
+      'Medical Equipment',
       'Medical Supplies',
+      'Surgical Instruments',
+      'Hospital Furniture',
+      'Lab Equipment',
+      'Diagnostic Equipment',
+      'Diagnostic Devices',
+      'Rehabilitation Equipment',
+      'Rehabilitation Aids',
+      'Dental Equipment',
+      'Veterinary Equipment',
       'Health Supplements',
       'First Aid',
       'Wellness Products',
       'Therapeutic Equipment',
-      'Diagnostic Devices',
-      'Rehabilitation Aids',
     ]
   },
   {
@@ -351,48 +359,6 @@ export const categoriesData: CategoryData[] = [
       'Industrial Hoses',
       'Cleaning Supplies',
       'Packaging Materials',
-    ]
-  },
-  {
-    name: 'Lights & Lighting',
-    icon: Lightbulb,
-    subcategories: [
-      'LED Lights',
-      'Decorative Lighting',
-      'Industrial Lighting',
-      'Street Lights',
-      'Ceiling Lights',
-      'Outdoor Lighting',
-      'Emergency Lighting',
-      'Smart Lighting',
-    ]
-  },
-  {
-    name: 'Machinery & Equipment',
-    icon: Cog,
-    subcategories: [
-      'CNC Machines',
-      'Pumps & Motors',
-      'Compressors',
-      'Packaging Machines',
-      'Printing Machines',
-      'Textile Machinery',
-      'Food Processing',
-      'Woodworking Machines',
-    ]
-  },
-  {
-    name: 'Medical & Healthcare',
-    icon: Stethoscope,
-    subcategories: [
-      'Medical Equipment',
-      'Surgical Instruments',
-      'Hospital Furniture',
-      'Lab Equipment',
-      'Diagnostic Equipment',
-      'Rehabilitation Equipment',
-      'Dental Equipment',
-      'Veterinary Equipment',
     ]
   },
   {
@@ -524,32 +490,6 @@ export const categoriesData: CategoryData[] = [
       'Precious Metals',
       'Industrial Minerals',
       'Mining Equipment',
-    ]
-  },
-  {
-    name: 'Mother, Kids & Toys',
-    icon: Baby,
-    subcategories: [
-      'Baby Products',
-      'Kids Clothing',
-      'Toys & Games',
-      'Educational Toys',
-      'Baby Furniture',
-      'Feeding Supplies',
-      'Maternity Products',
-      'Outdoor Play',
-    ]
-  },
-  {
-    name: 'Office & School Supplies',
-    icon: BookOpen,
-    subcategories: [
-      'Stationery',
-      'Office Equipment',
-      'Filing & Storage',
-      'Writing Instruments',
-      'Presentation Supplies',
-      'Educational Materials',
     ]
   },
   {
