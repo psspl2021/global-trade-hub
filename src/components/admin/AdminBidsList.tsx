@@ -842,55 +842,74 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Line Items ({bidItems.length} items)</Label>
                   <div className="border rounded-lg">
-                    <div className="max-h-[250px] overflow-y-auto">
+                    <div className="max-h-[300px] overflow-y-auto">
                       <table className="w-full text-sm">
                         <thead className="bg-muted/30 sticky top-0">
                           <tr>
-                            <th className="text-xs py-2 px-3 text-left font-medium">Item</th>
-                            <th className="text-xs py-2 px-3 text-right font-medium">Rate (₹)</th>
-                            <th className="text-xs py-2 px-3 text-right font-medium">Qty</th>
-                            <th className="text-xs py-2 px-3 text-right font-medium">Total (₹)</th>
+                            <th className="text-xs py-2 px-2 text-left font-medium">Item</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Rate (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Qty</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Bid Amt (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Svc Fee (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Total (₹)</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {bidItems.map((item, idx) => (
-                            <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
-                              <td className="text-xs py-2 px-3 max-w-[150px]">
-                                <span className="line-clamp-2" title={item.item_name}>
-                                  {item.item_name}
-                                </span>
-                              </td>
-                              <td className="text-xs py-2 px-3 text-right">
-                                <Input
-                                  type="number"
-                                  className="w-24 h-7 text-xs text-right ml-auto"
-                                  value={item.unit_price}
-                                  onChange={(e) => {
-                                    const newPrice = Number(e.target.value) || 0;
-                                    setBidItems(prev => prev.map(bi => 
-                                      bi.id === item.id 
-                                        ? { ...bi, unit_price: newPrice, total: newPrice * bi.quantity }
-                                        : bi
-                                    ));
-                                  }}
-                                />
-                              </td>
-                              <td className="text-xs py-2 px-3 text-right whitespace-nowrap">
-                                {item.quantity} {item.unit}
-                              </td>
-                              <td className="text-xs py-2 px-3 text-right font-medium whitespace-nowrap">
-                                ₹{item.total.toLocaleString()}
-                              </td>
-                            </tr>
-                          ))}
+                          {bidItems.map((item, idx) => {
+                            const serviceFee = Math.round(item.unit_price * 0.005); // 0.5% service fee per unit
+                            const bidAmountWithFee = Math.round(item.unit_price + serviceFee);
+                            const totalWithFee = Math.round(bidAmountWithFee * item.quantity);
+                            return (
+                              <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
+                                <td className="text-xs py-2 px-2 max-w-[120px]">
+                                  <span className="line-clamp-2" title={item.item_name}>
+                                    {item.item_name}
+                                  </span>
+                                </td>
+                                <td className="text-xs py-2 px-2 text-right">
+                                  <Input
+                                    type="number"
+                                    className="w-20 h-7 text-xs text-right ml-auto"
+                                    value={item.unit_price}
+                                    onChange={(e) => {
+                                      const newPrice = Number(e.target.value) || 0;
+                                      setBidItems(prev => prev.map(bi => 
+                                        bi.id === item.id 
+                                          ? { ...bi, unit_price: newPrice, total: newPrice * bi.quantity }
+                                          : bi
+                                      ));
+                                    }}
+                                  />
+                                </td>
+                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
+                                  {item.quantity}
+                                </td>
+                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
+                                  ₹{item.unit_price.toLocaleString()}
+                                </td>
+                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
+                                  ₹{serviceFee.toLocaleString()}
+                                </td>
+                                <td className="text-xs py-2 px-2 text-right font-medium whitespace-nowrap">
+                                  ₹{bidAmountWithFee.toLocaleString()}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                         <tfoot className="bg-muted/50 font-medium border-t">
                           <tr>
-                            <td colSpan={3} className="text-xs py-2 px-3 text-right">
-                              Items Subtotal:
+                            <td colSpan={3} className="text-xs py-2 px-2 text-right">
+                              Totals:
                             </td>
-                            <td className="text-xs py-2 px-3 text-right font-bold">
-                              ₹{bidItems.reduce((sum, item) => sum + item.total, 0).toLocaleString()}
+                            <td className="text-xs py-2 px-2 text-right">
+                              ₹{bidItems.reduce((sum, item) => sum + item.unit_price, 0).toLocaleString()}
+                            </td>
+                            <td className="text-xs py-2 px-2 text-right text-muted-foreground">
+                              ₹{bidItems.reduce((sum, item) => sum + Math.round(item.unit_price * 0.005), 0).toLocaleString()}
+                            </td>
+                            <td className="text-xs py-2 px-2 text-right font-bold">
+                              ₹{bidItems.reduce((sum, item) => sum + Math.round(item.unit_price + item.unit_price * 0.005), 0).toLocaleString()}
                             </td>
                           </tr>
                         </tfoot>
