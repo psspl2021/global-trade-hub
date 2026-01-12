@@ -98,6 +98,42 @@ const parseTaxableFromTerms = (terms: string | null): number => {
   return match ? parseFloat(match[1].replace(/,/g, '')) : 0;
 };
 
+// Helper to parse line items from terms_and_conditions
+interface ParsedItem {
+  item_name: string;
+  unit_price: number;
+  quantity: number;
+  unit: string;
+  total: number;
+}
+
+const parseItemsFromTerms = (terms: string | null): ParsedItem[] => {
+  if (!terms) return [];
+  
+  const items: ParsedItem[] = [];
+  // Pattern: --- Item N: ItemName ---\nRate: ₹XXXXX/Unit\nQuantity: XX Unit\n...Line Total: ₹XX,XXX
+  const itemPattern = /--- Item \d+: (.+?) ---[\s\S]*?Rate: ₹?([\d,]+(?:\.\d+)?)\/([\w]+)[\s\S]*?Quantity: ([\d,.]+)\s*(\w+)?[\s\S]*?Line Total: ₹?([\d,]+(?:\.\d+)?)/g;
+  
+  let match;
+  while ((match = itemPattern.exec(terms)) !== null) {
+    const name = match[1].trim();
+    const rate = parseFloat(match[2].replace(/,/g, ''));
+    const unit = match[3] || 'unit';
+    const qty = parseFloat(match[4].replace(/,/g, ''));
+    const lineTotal = parseFloat(match[6].replace(/,/g, ''));
+    
+    items.push({
+      item_name: name,
+      unit_price: rate,
+      quantity: qty,
+      unit: unit,
+      total: lineTotal,
+    });
+  }
+  
+  return items;
+};
+
 export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [bids, setBids] = useState<Bid[]>([]);
   const [logisticsBids, setLogisticsBids] = useState<LogisticsBid[]>([]);
@@ -885,152 +921,195 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                   <span className="ml-2 text-sm text-muted-foreground">Loading line items...</span>
                 </div>
-              ) : bidItems.length > 0 ? (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Line Items ({bidItems.length} items)</Label>
-                  <div className="border rounded-lg">
-                    <div className="max-h-[300px] overflow-y-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-muted/30 sticky top-0">
-                          <tr>
-                            <th className="text-xs py-2 px-2 text-left font-medium">Item</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Rate (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Qty</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Supplier Total (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Profit/Ton (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Bid Amt/Unit (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Profit Total (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Buyer Amt (₹)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {bidItems.map((item, idx) => {
-                            const profitPerUnit = Math.round(item.unit_price * 0.005); // 0.5% profit per unit
-                            const supplierTotal = item.unit_price * item.quantity; // Rate × Qty
-                            const profitTotal = profitPerUnit * item.quantity; // Profit × Qty
-                            const bidAmountPerUnit = item.unit_price + profitPerUnit; // Rate + Profit per unit
-                            const buyerTotal = bidAmountPerUnit * item.quantity; // Buyer visible total
-                            return (
-                              <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
-                                <td className="text-xs py-2 px-2 max-w-[120px]">
-                                  <span className="line-clamp-2" title={item.item_name}>
-                                    {item.item_name}
-                                  </span>
-                                </td>
-                                <td className="text-xs py-2 px-2 text-right">
-                                  <Input
-                                    type="number"
-                                    className="w-20 h-7 text-xs text-right ml-auto"
-                                    value={item.unit_price}
-                                    onChange={(e) => {
-                                      const newPrice = Number(e.target.value) || 0;
-                                      setBidItems(prev => prev.map(bi => 
-                                        bi.id === item.id 
-                                          ? { ...bi, unit_price: newPrice, total: newPrice * bi.quantity }
-                                          : bi
-                                      ));
-                                    }}
-                                  />
-                                </td>
-                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
-                                  {item.quantity}
-                                </td>
-                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
-                                  ₹{Math.round(supplierTotal).toLocaleString()}
-                                </td>
-                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
-                                  ₹{profitPerUnit.toLocaleString()}
-                                </td>
-                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap font-medium text-primary">
-                                  ₹{bidAmountPerUnit.toLocaleString()}
-                                </td>
-                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-success">
-                                  ₹{Math.round(profitTotal).toLocaleString()}
-                                </td>
-                                <td className="text-xs py-2 px-2 text-right font-medium whitespace-nowrap">
-                                  ₹{Math.round(buyerTotal).toLocaleString()}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                        <tfoot className="bg-muted/50 font-medium border-t">
-                          <tr>
-                            <td colSpan={3} className="text-xs py-2 px-2 text-right">
-                              Totals:
-                            </td>
-                            <td className="text-xs py-2 px-2 text-right">
-                              ₹{Math.round(bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)).toLocaleString()}
-                            </td>
-                            <td className="text-xs py-2 px-2 text-right text-muted-foreground">
-                              -
-                            </td>
-                            <td className="text-xs py-2 px-2 text-right text-muted-foreground">
-                              -
-                            </td>
-                            <td className="text-xs py-2 px-2 text-right text-success">
-                              ₹{Math.round(bidItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0)).toLocaleString()}
-                            </td>
-                            <td className="text-xs py-2 px-2 text-right font-bold">
-                              ₹{Math.round(bidItems.reduce((sum, item) => {
-                                const profitPerUnit = Math.round(item.unit_price * 0.005);
-                                const bidAmtPerUnit = item.unit_price + profitPerUnit;
-                                return sum + (bidAmtPerUnit * item.quantity);
-                              }, 0)).toLocaleString()}
-                            </td>
-                          </tr>
-                        </tfoot>
-                      </table>
+              ) : (() => {
+                // Try to use bid_items, fallback to parsing from terms_and_conditions
+                const displayItems = bidItems.length > 0 
+                  ? bidItems 
+                  : parseItemsFromTerms(editForm.terms_and_conditions).map((pi, idx) => ({
+                      id: `parsed-${idx}`,
+                      bid_id: editingBid.id,
+                      requirement_item_id: '',
+                      unit_price: pi.unit_price,
+                      quantity: pi.quantity,
+                      total: pi.total,
+                      item_name: pi.item_name,
+                      unit: pi.unit,
+                    }));
+                
+                const isParsed = bidItems.length === 0 && displayItems.length > 0;
+                
+                return displayItems.length > 0 ? (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      Line Items ({displayItems.length} items)
+                      {isParsed && (
+                        <span className="text-xs text-muted-foreground font-normal">(parsed from terms)</span>
+                      )}
+                    </Label>
+                    <div className="border rounded-lg">
+                      <div className="max-h-[300px] overflow-y-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-muted/30 sticky top-0">
+                            <tr>
+                              <th className="text-xs py-2 px-2 text-left font-medium">Item</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium">Rate (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium">Qty</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium">Supplier Total (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium">Profit/Ton (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium">Bid Amt/Unit (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium">Profit Total (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium">Buyer Amt (₹)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {displayItems.map((item, idx) => {
+                              const profitPerUnit = Math.round(item.unit_price * 0.005); // 0.5% profit per unit
+                              const supplierTotal = item.unit_price * item.quantity; // Rate × Qty
+                              const profitTotal = profitPerUnit * item.quantity; // Profit × Qty
+                              const bidAmountPerUnit = item.unit_price + profitPerUnit; // Rate + Profit per unit
+                              const buyerTotal = bidAmountPerUnit * item.quantity; // Buyer visible total
+                              return (
+                                <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
+                                  <td className="text-xs py-2 px-2 max-w-[120px]">
+                                    <span className="line-clamp-2" title={item.item_name}>
+                                      {item.item_name}
+                                    </span>
+                                  </td>
+                                  <td className="text-xs py-2 px-2 text-right">
+                                    {isParsed ? (
+                                      <span>₹{item.unit_price.toLocaleString()}</span>
+                                    ) : (
+                                      <Input
+                                        type="number"
+                                        className="w-20 h-7 text-xs text-right ml-auto"
+                                        value={item.unit_price}
+                                        onChange={(e) => {
+                                          const newPrice = Number(e.target.value) || 0;
+                                          setBidItems(prev => prev.map(bi => 
+                                            bi.id === item.id 
+                                              ? { ...bi, unit_price: newPrice, total: newPrice * bi.quantity }
+                                              : bi
+                                          ));
+                                        }}
+                                      />
+                                    )}
+                                  </td>
+                                  <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
+                                    {item.quantity}
+                                  </td>
+                                  <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
+                                    ₹{Math.round(supplierTotal).toLocaleString()}
+                                  </td>
+                                  <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
+                                    ₹{profitPerUnit.toLocaleString()}
+                                  </td>
+                                  <td className="text-xs py-2 px-2 text-right whitespace-nowrap font-medium text-primary">
+                                    ₹{bidAmountPerUnit.toLocaleString()}
+                                  </td>
+                                  <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-success">
+                                    ₹{Math.round(profitTotal).toLocaleString()}
+                                  </td>
+                                  <td className="text-xs py-2 px-2 text-right font-medium whitespace-nowrap">
+                                    ₹{Math.round(buyerTotal).toLocaleString()}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                          <tfoot className="bg-muted/50 font-medium border-t">
+                            <tr>
+                              <td colSpan={3} className="text-xs py-2 px-2 text-right">
+                                Totals:
+                              </td>
+                              <td className="text-xs py-2 px-2 text-right">
+                                ₹{Math.round(displayItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)).toLocaleString()}
+                              </td>
+                              <td className="text-xs py-2 px-2 text-right text-muted-foreground">
+                                -
+                              </td>
+                              <td className="text-xs py-2 px-2 text-right text-muted-foreground">
+                                -
+                              </td>
+                              <td className="text-xs py-2 px-2 text-right text-success">
+                                ₹{Math.round(displayItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0)).toLocaleString()}
+                              </td>
+                              <td className="text-xs py-2 px-2 text-right font-bold">
+                                ₹{Math.round(displayItems.reduce((sum, item) => {
+                                  const profitPerUnit = Math.round(item.unit_price * 0.005);
+                                  const bidAmtPerUnit = item.unit_price + profitPerUnit;
+                                  return sum + (bidAmtPerUnit * item.quantity);
+                                }, 0)).toLocaleString()}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="bg-muted/30 p-3 rounded-lg text-sm text-muted-foreground text-center">
-                  No line items found for this bid
-                </div>
-              )}
+                ) : (
+                  <div className="bg-muted/30 p-3 rounded-lg text-sm text-muted-foreground text-center">
+                    No line items found for this bid
+                  </div>
+                );
+              })()}
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Supplier Total (₹)</Label>
-                  <Input
-                    type="number"
-                    value={bidItems.length > 0 
-                      ? Math.round(bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0))
-                      : editForm.bid_amount}
-                    onChange={(e) => setEditForm(f => ({ ...f, bid_amount: Number(e.target.value) }))}
-                    readOnly={bidItems.length > 0}
-                    className={bidItems.length > 0 ? "bg-muted" : ""}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Bidded Amount (₹)</Label>
-                  <Input
-                    type="number"
-                    value={bidItems.length > 0 
-                      ? Math.round(bidItems.reduce((sum, item) => {
-                          const profitPerUnit = Math.round(item.unit_price * 0.005);
-                          const buyerAmtPerUnit = item.unit_price + profitPerUnit;
-                          return sum + (buyerAmtPerUnit * item.quantity);
-                        }, 0))
-                      : (editForm.bid_amount + editForm.service_fee)}
-                    readOnly
-                    className="bg-muted font-medium"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Profit (₹)</Label>
-                  <Input
-                    type="number"
-                    value={bidItems.length > 0 
-                      ? Math.round(bidItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0))
-                      : editForm.service_fee}
-                    onChange={(e) => setEditForm(f => ({ ...f, service_fee: Number(e.target.value) }))}
-                    readOnly={bidItems.length > 0}
-                    className={bidItems.length > 0 ? "bg-muted" : ""}
-                  />
-                </div>
-              </div>
+              {(() => {
+                // Get display items (bid_items or parsed from terms)
+                const displayItems = bidItems.length > 0 
+                  ? bidItems 
+                  : parseItemsFromTerms(editForm.terms_and_conditions);
+                const hasItems = displayItems.length > 0;
+                
+                const supplierTotalCalc = hasItems
+                  ? Math.round(displayItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0))
+                  : editForm.bid_amount;
+                
+                const profitCalc = hasItems
+                  ? Math.round(displayItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0))
+                  : editForm.service_fee;
+                
+                const buyerAmtCalc = hasItems
+                  ? Math.round(displayItems.reduce((sum, item) => {
+                      const profitPerUnit = Math.round(item.unit_price * 0.005);
+                      const buyerAmtPerUnit = item.unit_price + profitPerUnit;
+                      return sum + (buyerAmtPerUnit * item.quantity);
+                    }, 0))
+                  : (editForm.bid_amount + editForm.service_fee);
+                
+                return (
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Supplier Total (₹)</Label>
+                      <Input
+                        type="number"
+                        value={supplierTotalCalc}
+                        onChange={(e) => setEditForm(f => ({ ...f, bid_amount: Number(e.target.value) }))}
+                        readOnly={hasItems}
+                        className={hasItems ? "bg-muted" : ""}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Bidded Amount (₹)</Label>
+                      <Input
+                        type="number"
+                        value={buyerAmtCalc}
+                        readOnly
+                        className="bg-muted font-medium"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Profit (₹)</Label>
+                      <Input
+                        type="number"
+                        value={profitCalc}
+                        onChange={(e) => setEditForm(f => ({ ...f, service_fee: Number(e.target.value) }))}
+                        readOnly={hasItems}
+                        className={hasItems ? "bg-muted" : ""}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -1065,17 +1144,25 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                 />
               </div>
 
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <div className="flex justify-between text-sm">
-                  <span>Supplier Total:</span>
-                  <span className="font-bold">
-                    ₹{(bidItems.length > 0 
-                      ? Math.round(bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0))
-                      : editForm.bid_amount
-                    ).toLocaleString()}
-                  </span>
-                </div>
-              </div>
+              {(() => {
+                const displayItems = bidItems.length > 0 
+                  ? bidItems 
+                  : parseItemsFromTerms(editForm.terms_and_conditions);
+                const supplierTotalFinal = displayItems.length > 0
+                  ? Math.round(displayItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0))
+                  : editForm.bid_amount;
+                
+                return (
+                  <div className="bg-muted/50 p-3 rounded-lg">
+                    <div className="flex justify-between text-sm">
+                      <span>Supplier Total:</span>
+                      <span className="font-bold">
+                        ₹{supplierTotalFinal.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
