@@ -54,6 +54,7 @@ interface Bid {
   // Award workflow fields
   award_type?: string | null;
   award_justification?: string | null;
+  award_coverage_percentage?: number | null;
   approved_by?: string | null;
   approved_at?: string | null;
 }
@@ -121,7 +122,10 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
   // Award workflow state
   const [awarding, setAwarding] = useState(false);
   const [awardJustification, setAwardJustification] = useState('');
+  const [awardCoveragePercent, setAwardCoveragePercent] = useState<number>(100);
   const [showAwardConfirm, setShowAwardConfirm] = useState(false);
+  const [pendingAwardBidId, setPendingAwardBidId] = useState<string | null>(null);
+  const [pendingAwardType, setPendingAwardType] = useState<'FULL' | 'PARTIAL' | null>(null);
 
   useEffect(() => {
     fetchL1Data();
@@ -632,27 +636,41 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
   });
 
   /**
-   * AWARD WORKFLOW LOGIC:
-   * - Coverage = % of requirement items quoted by L1 supplier
+   * SPLIT AWARD MODEL:
+   * - Coverage = % of requirement being awarded to this supplier
    * - FULL L1 (100% coverage) → Auto-award allowed
-   * - PARTIAL L1 (<100% coverage) → Mandatory justification required
-   * - Award can ONLY be initiated from this Comparison tab (single source of truth)
+   * - PARTIAL L1 (<100% coverage) → Mandatory justification + coverage % required
+   * - Multiple PARTIAL awards allowed (L1 + L2 split)
+   * - Only ONE FULL award per requirement (enforced at DB level)
+   * - Total awarded coverage must not exceed 100% (enforced via trigger)
    */
   
-  // Calculate L1 supplier coverage
+  // Calculate L1 supplier quote coverage (how many items they quoted)
   const totalRequirementItems = l1Data.length;
   const l1QuotedItems = overallL1SupplierId 
     ? l1Data.filter(item => item.allBidItems.some(b => b.bid.supplier_id === overallL1SupplierId)).length 
     : 0;
-  const l1CoveragePercent = totalRequirementItems > 0 
+  const l1QuoteCoveragePercent = totalRequirementItems > 0 
     ? Math.round((l1QuotedItems / totalRequirementItems) * 100) 
     : 0;
-  const isFullL1 = l1CoveragePercent === 100;
-  const isPartialL1 = l1CoveragePercent > 0 && l1CoveragePercent < 100;
+  const isFullQuoteCoverage = l1QuoteCoveragePercent === 100;
+  const isPartialQuoteCoverage = l1QuoteCoveragePercent > 0 && l1QuoteCoveragePercent < 100;
+  
+  // Calculate already awarded coverage for this requirement
+  const awardedCoverage = suppliersArray.reduce((sum, [_, data]) => {
+    const bid = data.bid;
+    if (bid.award_type === 'FULL') return 100; // Full award = 100%
+    if (bid.award_type === 'PARTIAL' && bid.award_coverage_percentage) {
+      return sum + bid.award_coverage_percentage;
+    }
+    return sum;
+  }, 0);
+  const remainingCoverage = Math.max(0, 100 - awardedCoverage);
   
   // Check if L1 bid is already awarded
   const l1SupplierBid = overallL1SupplierId ? allSuppliers.get(overallL1SupplierId)?.bid : null;
-  const isAlreadyAwarded = l1SupplierBid?.status === 'accepted';
+  const isL1AlreadyAwarded = l1SupplierBid?.status === 'accepted';
+  const isAnyFullAward = awardedCoverage >= 100;
   
   // Award handler
   const handleAwardL1 = async (awardType: 'FULL' | 'PARTIAL') => {
@@ -679,9 +697,10 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           status: 'accepted',
           award_type: awardType,
           award_justification: awardType === 'PARTIAL' ? awardJustification : null,
+          award_coverage_percentage: awardType === 'FULL' ? 100 : awardCoveragePercent,
           approved_by: user.id,
           approved_at: new Date().toISOString(),
-        })
+        } as any) // Type assertion until types regenerate
         .eq('id', l1SupplierBid.id);
       
       if (bidError) throw bidError;
@@ -692,9 +711,9 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         .insert({
           bid_id: l1SupplierBid.id,
           requirement_id: requirementId,
-          action: 'L1_AWARDED',
+          action: awardType === 'FULL' ? 'FULL_L1_AWARDED' : 'PARTIAL_AWARD_GRANTED',
           award_type: awardType,
-          coverage_percentage: l1CoveragePercent,
+          coverage_percentage: awardType === 'FULL' ? 100 : awardCoveragePercent,
           metadata: {
             supplier_id: overallL1SupplierId,
             supplier_name: allSuppliers.get(overallL1SupplierId)?.supplier?.company_name,
@@ -711,9 +730,10 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         // Don't fail the award for audit log issues
       }
       
-      toast.success(`L1 Award successful (${awardType})`);
+      toast.success(`${awardType} Award successful (${awardType === 'FULL' ? '100%' : awardCoveragePercent + '%'} coverage)`);
       setShowAwardConfirm(false);
       setAwardJustification('');
+      setAwardCoveragePercent(100);
       fetchL1Data(); // Refresh data
     } catch (error: any) {
       console.error('Award error:', error);
@@ -877,10 +897,10 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
 
         {/* Overall L1 Supplier Summary with Award Actions */}
         {overallL1SupplierId && (
-          <div className={`border rounded-lg p-4 ${isAlreadyAwarded ? 'bg-green-100 border-green-300' : 'bg-green-50 border-green-200'}`}>
+          <div className={`border rounded-lg p-4 ${isL1AlreadyAwarded ? 'bg-green-100 border-green-300' : 'bg-green-50 border-green-200'}`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className={`p-2 rounded-full ${isAlreadyAwarded ? 'bg-green-200' : 'bg-green-100'}`}>
-                {isAlreadyAwarded ? (
+              <div className={`p-2 rounded-full ${isL1AlreadyAwarded ? 'bg-green-200' : 'bg-green-100'}`}>
+                {isL1AlreadyAwarded ? (
                   <CheckCircle className="h-5 w-5 text-green-700" />
                 ) : (
                   <Trophy className="h-5 w-5 text-green-700" />
@@ -888,7 +908,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-green-800">
-                  {isAlreadyAwarded ? 'Awarded L1 Supplier' : 'Overall L1 Supplier'}
+                  {isL1AlreadyAwarded ? 'Awarded L1 Supplier' : 'Overall L1 Supplier'}
                 </div>
                 <div className="text-lg font-bold text-green-900">
                   {allSuppliers.get(overallL1SupplierId)?.supplier?.company_name || 'Unknown'}
@@ -908,28 +928,38 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
             {/* Coverage & Award Status */}
             <div className="flex items-center gap-3 mb-4 p-3 bg-white/50 rounded-lg">
               <div className="flex-1">
-                <div className="text-sm font-medium text-green-800">Coverage</div>
+                <div className="text-sm font-medium text-green-800">Quote Coverage</div>
                 <div className="flex items-center gap-2">
-                  <span className={`text-lg font-bold ${isFullL1 ? 'text-green-700' : 'text-amber-600'}`}>
-                    {l1CoveragePercent}%
+                  <span className={`text-lg font-bold ${isFullQuoteCoverage ? 'text-green-700' : 'text-amber-600'}`}>
+                    {l1QuoteCoveragePercent}%
                   </span>
                   <span className="text-sm text-muted-foreground">
                     ({l1QuotedItems}/{totalRequirementItems} items)
                   </span>
-                  {isFullL1 && (
+                  {isFullQuoteCoverage && (
                     <Badge className="bg-green-600 text-white">FULL</Badge>
                   )}
-                  {isPartialL1 && (
+                  {isPartialQuoteCoverage && (
                     <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-50">
                       <AlertTriangle className="h-3 w-3 mr-1" />
                       PARTIAL
                     </Badge>
                   )}
                 </div>
+                {/* Show awarded coverage status */}
+                {awardedCoverage > 0 && (
+                  <div className="mt-2 text-sm">
+                    <span className="text-muted-foreground">Awarded: </span>
+                    <span className="font-medium text-green-700">{awardedCoverage}%</span>
+                    {remainingCoverage > 0 && (
+                      <span className="text-muted-foreground"> | Remaining: <span className="text-amber-600">{remainingCoverage}%</span></span>
+                    )}
+                  </div>
+                )}
               </div>
               
               {/* Award Status or Action */}
-              {isAlreadyAwarded ? (
+              {isL1AlreadyAwarded ? (
                 <div className="text-right">
                   <Badge className="bg-green-600 text-white text-sm px-3 py-1">
                     <CheckCircle className="h-4 w-4 mr-1" />
@@ -938,12 +968,13 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                   {l1SupplierBid?.award_type && (
                     <div className="text-xs text-green-700 mt-1">
                       Type: {l1SupplierBid.award_type}
+                      {l1SupplierBid?.award_coverage_percentage && ` (${l1SupplierBid.award_coverage_percentage}%)`}
                     </div>
                   )}
                 </div>
-              ) : showAllSuppliers && (
+              ) : showAllSuppliers && !isAnyFullAward && (
                 <div className="flex gap-2">
-                  {isFullL1 && (
+                  {isFullQuoteCoverage && remainingCoverage === 100 && (
                     <Button 
                       onClick={() => handleAwardL1('FULL')}
                       disabled={awarding}
@@ -954,9 +985,12 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                       Award L1 (Full)
                     </Button>
                   )}
-                  {isPartialL1 && (
+                  {(isPartialQuoteCoverage || remainingCoverage < 100) && remainingCoverage > 0 && (
                     <Button 
-                      onClick={() => setShowAwardConfirm(true)}
+                      onClick={() => {
+                        setAwardCoveragePercent(Math.min(remainingCoverage, l1QuoteCoveragePercent));
+                        setShowAwardConfirm(true);
+                      }}
                       disabled={awarding}
                       className="bg-amber-600 hover:bg-amber-700"
                     >
@@ -969,7 +1003,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
             </div>
             
             {/* Justification display for already awarded partial */}
-            {isAlreadyAwarded && l1SupplierBid?.award_type === 'PARTIAL' && l1SupplierBid?.award_justification && (
+            {isL1AlreadyAwarded && l1SupplierBid?.award_type === 'PARTIAL' && l1SupplierBid?.award_justification && (
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="text-sm font-medium text-amber-800 mb-1">Award Justification</div>
                 <div className="text-sm text-amber-700">{l1SupplierBid.award_justification}</div>
@@ -1083,24 +1117,46 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
         />
       )}
       
-      {/* Partial L1 Award Confirmation Dialog */}
+      {/* Partial Award Confirmation Dialog with Coverage % */}
       <Dialog open={showAwardConfirm} onOpenChange={setShowAwardConfirm}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-amber-700">
               <AlertTriangle className="h-5 w-5" />
-              Partial L1 Award - Justification Required
+              Partial Award - Justification & Coverage Required
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-amber-800 mb-2">Warning</div>
+              <div className="text-sm font-medium text-amber-800 mb-2">Split Award Information</div>
               <p className="text-sm text-amber-700">
-                This supplier has only quoted <strong>{l1CoveragePercent}%</strong> of the requirement 
-                ({l1QuotedItems} of {totalRequirementItems} items). 
-                A mandatory justification is required for partial L1 awards.
+                This supplier quoted <strong>{l1QuoteCoveragePercent}%</strong> of the requirement 
+                ({l1QuotedItems} of {totalRequirementItems} items).
               </p>
+              <p className="text-sm text-amber-700 mt-1">
+                Available coverage for this award: <strong>{remainingCoverage}%</strong>
+              </p>
+            </div>
+            
+            {/* Coverage Percentage Input */}
+            <div className="space-y-2">
+              <Label htmlFor="coverage" className="text-sm font-medium">
+                Award Coverage % <span className="text-destructive">*</span>
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="coverage"
+                  type="number"
+                  min={1}
+                  max={remainingCoverage}
+                  value={awardCoveragePercent}
+                  onChange={(e) => setAwardCoveragePercent(Math.min(remainingCoverage, Math.max(1, Number(e.target.value))))}
+                  className="w-24"
+                />
+                <span className="text-sm text-muted-foreground">%</span>
+                <span className="text-xs text-muted-foreground">(Max: {remainingCoverage}%)</span>
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -1109,7 +1165,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
               </Label>
               <Textarea
                 id="justification"
-                placeholder="e.g., Urgent delivery timeline, balance items to be procured separately..."
+                placeholder="e.g., Urgent delivery timeline, balance items to be procured separately, split between L1 and L2..."
                 value={awardJustification}
                 onChange={(e) => setAwardJustification(e.target.value)}
                 className="min-h-[100px]"
@@ -1125,6 +1181,9 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
               <div className="text-muted-foreground">
                 Value: ₹{lowestTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
               </div>
+              <div className="text-muted-foreground">
+                Awarding: {awardCoveragePercent}% of requirement
+              </div>
             </div>
           </div>
           
@@ -1134,12 +1193,12 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
             </Button>
             <Button 
               onClick={() => handleAwardL1('PARTIAL')}
-              disabled={awarding || !awardJustification.trim()}
+              disabled={awarding || !awardJustification.trim() || awardCoveragePercent <= 0 || awardCoveragePercent > remainingCoverage}
               className="bg-amber-600 hover:bg-amber-700"
             >
               {awarding && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Award className="h-4 w-4 mr-2" />
-              Confirm Partial Award
+              Confirm Partial Award ({awardCoveragePercent}%)
             </Button>
           </DialogFooter>
         </DialogContent>
