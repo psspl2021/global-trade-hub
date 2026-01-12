@@ -218,20 +218,20 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
       const markupRate = getMarkupRate(editingBid.requirement?.trade_type);
       const markupPercentage = markupRate * 100;
       
-      // supplier_net_price = per unit rate * quantity (supplier's total quote)
-      const supplierNetPrice = newPerUnitRate * quantity;
+      // supplier_net_price = per unit rate × quantity (supplier's total quote)
+      const supplierNetPrice = Math.round(newPerUnitRate * quantity);
       
-      // Calculate markup for buyer-visible price
-      const markupAmount = supplierNetPrice * markupRate;
+      // Calculate markup for buyer-visible price (0.5% or 2.5%)
+      const markupAmount = Math.round(supplierNetPrice * markupRate);
       const buyerVisiblePrice = supplierNetPrice + markupAmount;
       
-      // bid_amount = buyer-visible per-unit rate for L1 comparison
-      const bidAmountPerUnit = newPerUnitRate * (1 + markupRate);
+      // bid_amount = buyer visible total (for consistency)
+      const bidAmount = buyerVisiblePrice;
 
       const { error } = await supabase
         .from('bids')
         .update({
-          bid_amount: bidAmountPerUnit,
+          bid_amount: bidAmount,
           supplier_net_price: supplierNetPrice,
           buyer_visible_price: buyerVisiblePrice,
           markup_percentage: markupPercentage,

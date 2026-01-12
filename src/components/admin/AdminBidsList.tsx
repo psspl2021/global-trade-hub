@@ -350,7 +350,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
             .from('bid_items')
             .update({
               unit_price: item.unit_price,
-              total: item.total,
+              total: item.unit_price * item.quantity, // Recalculate total from unit_price × quantity
             })
             .eq('id', item.id);
           
@@ -358,17 +358,30 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
         }
       }
 
-      // Calculate bid_amount from line items if they exist
-      const calculatedBidAmount = bidItems.length > 0 
-        ? bidItems.reduce((sum, item) => sum + item.total, 0)
+      // Calculate supplier_net_price from line items (sum of unit_price × quantity)
+      // This is what the supplier quoted
+      const supplierNetPrice = bidItems.length > 0 
+        ? bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)
         : editForm.bid_amount;
 
-      const totalAmount = calculatedBidAmount + editForm.service_fee;
+      // Calculate profit (0.5% markup on supplier price)
+      const markupRate = 0.005; // 0.5% for domestic
+      const markupAmount = Math.round(supplierNetPrice * markupRate);
+      const buyerVisiblePrice = supplierNetPrice + markupAmount;
+      
+      // bid_amount = buyer visible total (includes markup)
+      const bidAmount = buyerVisiblePrice;
+      const totalAmount = buyerVisiblePrice;
+
       const { error } = await supabase
         .from('bids')
         .update({
-          bid_amount: calculatedBidAmount,
-          service_fee: editForm.service_fee,
+          bid_amount: bidAmount,
+          supplier_net_price: supplierNetPrice,
+          buyer_visible_price: buyerVisiblePrice,
+          markup_amount: markupAmount,
+          markup_percentage: markupRate * 100,
+          service_fee: 0, // No fee deducted from supplier
           total_amount: totalAmount,
           delivery_timeline_days: editForm.delivery_timeline_days,
           status: editForm.status as 'pending' | 'accepted' | 'rejected',
