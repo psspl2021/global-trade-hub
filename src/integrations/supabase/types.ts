@@ -1994,6 +1994,41 @@ export type Database = {
           },
         ]
       }
+      po_audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          metadata: Json | null
+          po_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metadata?: Json | null
+          po_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metadata?: Json | null
+          po_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "po_audit_logs_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       po_items: {
         Row: {
           created_at: string
@@ -2405,8 +2440,12 @@ export type Database = {
       }
       purchase_orders: {
         Row: {
+          contract_id: string | null
           created_at: string
+          created_by: string | null
+          currency: string | null
           delivery_address: string | null
+          delivery_due_date: string | null
           discount_amount: number
           discount_percent: number | null
           expected_delivery_date: string | null
@@ -2414,6 +2453,9 @@ export type Database = {
           notes: string | null
           order_date: string
           po_number: string
+          po_status: string | null
+          po_value: number | null
+          requirement_id: string | null
           status: Database["public"]["Enums"]["document_status"]
           subtotal: number
           supplier_id: string
@@ -2429,8 +2471,12 @@ export type Database = {
           vendor_phone: string | null
         }
         Insert: {
+          contract_id?: string | null
           created_at?: string
+          created_by?: string | null
+          currency?: string | null
           delivery_address?: string | null
+          delivery_due_date?: string | null
           discount_amount?: number
           discount_percent?: number | null
           expected_delivery_date?: string | null
@@ -2438,6 +2484,9 @@ export type Database = {
           notes?: string | null
           order_date?: string
           po_number: string
+          po_status?: string | null
+          po_value?: number | null
+          requirement_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id: string
@@ -2453,8 +2502,12 @@ export type Database = {
           vendor_phone?: string | null
         }
         Update: {
+          contract_id?: string | null
           created_at?: string
+          created_by?: string | null
+          currency?: string | null
           delivery_address?: string | null
+          delivery_due_date?: string | null
           discount_amount?: number
           discount_percent?: number | null
           expected_delivery_date?: string | null
@@ -2462,6 +2515,9 @@ export type Database = {
           notes?: string | null
           order_date?: string
           po_number?: string
+          po_status?: string | null
+          po_value?: number | null
+          requirement_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id?: string
@@ -2476,7 +2532,22 @@ export type Database = {
           vendor_name?: string
           vendor_phone?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referral_commissions: {
         Row: {
