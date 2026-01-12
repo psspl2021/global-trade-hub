@@ -946,19 +946,19 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                         <span className="text-xs text-muted-foreground font-normal">(parsed from terms)</span>
                       )}
                     </Label>
-                    <div className="border rounded-lg">
+                    <div className="border rounded-lg overflow-hidden">
                       <div className="max-h-[300px] overflow-y-auto">
                         <table className="w-full text-sm">
-                          <thead className="bg-muted/30 sticky top-0">
+                          <thead className="bg-muted sticky top-0 z-10">
                             <tr>
-                              <th className="text-xs py-2 px-2 text-left font-medium">Item</th>
-                              <th className="text-xs py-2 px-2 text-right font-medium">Rate (₹)</th>
-                              <th className="text-xs py-2 px-2 text-right font-medium">Qty</th>
-                              <th className="text-xs py-2 px-2 text-right font-medium">Supplier Total (₹)</th>
-                              <th className="text-xs py-2 px-2 text-right font-medium">Profit/Ton (₹)</th>
-                              <th className="text-xs py-2 px-2 text-right font-medium">Bid Amt/Unit (₹)</th>
-                              <th className="text-xs py-2 px-2 text-right font-medium">Profit Total (₹)</th>
-                              <th className="text-xs py-2 px-2 text-right font-medium">Buyer Amt (₹)</th>
+                              <th className="text-xs py-2 px-2 text-left font-medium bg-muted">Item</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium bg-muted">Rate (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium bg-muted">Qty</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium bg-muted">Supplier Total (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium bg-muted">Profit/Ton (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium bg-muted">Bid Amt/Unit (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium bg-muted">Profit Total (₹)</th>
+                              <th className="text-xs py-2 px-2 text-right font-medium bg-muted">Buyer Amt (₹)</th>
                             </tr>
                           </thead>
                           <tbody>
