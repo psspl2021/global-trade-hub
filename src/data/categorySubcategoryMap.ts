@@ -6,6 +6,7 @@
  * ✅ Deduplication & fingerprint friendly
  * ✅ Scalable (India + global)
  * ✅ IndiaMART / ProcureSaathi style
+ * ✅ 29 Categories with full subcategory coverage
  */
 
 export interface SubcategoryIndustryMap {
@@ -82,12 +83,18 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'cement concrete': [
         'real estate developers',
         'infrastructure projects',
-        'construction contractors'
+        'construction contractors',
+        'commercial construction'
       ],
       'roofing sheets': [
         'industrial sheds',
         'warehouses',
         'factory buildings'
+      ],
+      'roofing materials': [
+        'industrial sheds',
+        'warehouses',
+        'factories'
       ],
       'doors windows': [
         'real estate projects',
@@ -102,7 +109,13 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'plumbing supplies': [
         'real estate developers',
         'commercial complexes',
-        'infrastructure projects'
+        'infrastructure projects',
+        'residential construction'
+      ],
+      'electrical fittings': [
+        'builders',
+        'epc contractors',
+        'industrial construction'
       ]
     }
   },
@@ -141,18 +154,21 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'wires cables': [
         'infrastructure projects',
         'power utilities',
-        'industrial plants'
+        'industrial plants',
+        'power distribution'
       ],
       'transformers': [
         'power distribution',
         'renewable energy',
         'utility companies',
-        'industrial substations'
+        'industrial substations',
+        'power utilities'
       ],
       'control panels': [
         'industrial automation',
         'manufacturing plants',
-        'process industries'
+        'process industries',
+        'automation systems'
       ],
       'switchgear': [
         'industrial automation',
@@ -191,12 +207,15 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'generators': [
         'industrial backup power',
         'commercial buildings',
-        'data centers'
+        'data centers',
+        'construction sites',
+        'commercial facilities'
       ],
       'energy storage': [
         'renewable integration',
         'grid storage',
-        'industrial power backup'
+        'industrial power backup',
+        'power utilities'
       ]
     }
   },
@@ -262,6 +281,16 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
         'research labs',
         'diagnostic labs',
         'pharma r&d'
+      ],
+      'surgical instruments': [
+        'hospitals',
+        'medical distributors',
+        'surgical centers'
+      ],
+      'diagnostic devices': [
+        'labs',
+        'healthcare providers',
+        'diagnostic centers'
       ]
     }
   },
@@ -275,7 +304,14 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       ],
       'bearings seals': [
         'machinery manufacturing',
-        'industrial maintenance'
+        'industrial maintenance',
+        'automotive',
+        'heavy engineering'
+      ],
+      'industrial hoses': [
+        'chemical plants',
+        'refineries',
+        'manufacturing units'
       ]
     }
   },
@@ -359,7 +395,9 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'gi pipes': [
         'plumbing contractors',
         'building construction',
-        'infrastructure projects'
+        'infrastructure projects',
+        'plumbing',
+        'construction'
       ],
       'hdpe pipes': [
         'water supply',
@@ -369,7 +407,8 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'di pipes': [
         'municipal water supply',
         'smart city projects',
-        'infrastructure'
+        'infrastructure',
+        'municipal projects'
       ]
     }
   },
@@ -418,7 +457,8 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       ],
       'road marking materials': [
         'municipal corporations',
-        'road contractors'
+        'road contractors',
+        'epc contractors'
       ],
       'traffic signs': [
         'smart cities',
@@ -427,8 +467,6 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       ]
     }
   },
-
-  // ============= NEW CATEGORIES =============
 
   plastic_rubber: {
     subcategories: {
@@ -483,7 +521,8 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       ],
       'solar mounting structures': [
         'solar farms',
-        'industrial installations'
+        'industrial installations',
+        'epc contractors'
       ]
     }
   },
@@ -498,7 +537,8 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'grain silos': [
         'food storage',
         'agriculture supply chain',
-        'warehousing'
+        'warehousing',
+        'food corporations'
       ],
       'gfs tanks': [
         'municipal water',
@@ -517,7 +557,8 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       ],
       'flexible packaging': [
         'food packaging',
-        'pharmaceutical packaging'
+        'pharmaceutical packaging',
+        'pharma packaging'
       ],
       'labels tags': [
         'fmcg',
@@ -545,7 +586,8 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
     subcategories: {
       'fiber optics': [
         'telecom operators',
-        'internet service providers'
+        'internet service providers',
+        'isp companies'
       ],
       'telecom towers': [
         'network infrastructure',
@@ -570,6 +612,38 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
         'factories',
         'warehouses',
         'commercial complexes'
+      ],
+      'fire safety': [
+        'factories',
+        'warehouses',
+        'industrial plants'
+      ]
+    }
+  },
+
+  // ============= NEW CATEGORY =============
+
+  mining_minerals: {
+    subcategories: {
+      'coal coke': [
+        'power plants',
+        'steel plants',
+        'cement plants'
+      ],
+      'industrial minerals': [
+        'cement plants',
+        'manufacturing',
+        'construction materials'
+      ],
+      'iron ore': [
+        'steel plants',
+        'foundries',
+        'metal processing'
+      ],
+      'limestone': [
+        'cement plants',
+        'steel plants',
+        'chemical industry'
       ]
     }
   }
