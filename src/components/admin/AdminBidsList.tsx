@@ -573,16 +573,12 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                 <div className="text-sm space-y-0.5">
                                   <div className="font-medium">₹{supplierRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
                                   <div className="text-muted-foreground">₹{supplierTaxable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="text-blue-600">+GST: ₹{gstAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="font-medium">Total: ₹{bid.supplier_net_price.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm space-y-0.5">
                                   <div className="font-medium">₹{buyerRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
                                   <div className="text-muted-foreground">₹{buyerTaxable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="text-blue-600">+GST: ₹{buyerGstAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="font-medium">Total: ₹{bid.buyer_visible_price.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -680,21 +676,17 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="text-sm space-y-0.5">
-                                  <div className="text-muted-foreground">₹{bidExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="text-blue-600 text-xs">+GST: ₹{bidGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                <div className="text-sm">
                                   <div className="font-medium">₹{bid.bid_amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
-                                  <div className="text-success">₹{serviceFeeExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="text-success">₹{bid.service_fee.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="text-sm space-y-0.5">
-                                  <div className="text-muted-foreground">₹{totalExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="text-blue-600 text-xs">+GST: ₹{totalGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                <div className="text-sm">
                                   <div className="font-medium">₹{bid.total_amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                 </div>
                               </TableCell>
