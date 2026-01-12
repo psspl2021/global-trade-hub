@@ -640,7 +640,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                         <TableHead>Route</TableHead>
                         <TableHead>Transporter</TableHead>
                         <TableHead>Bid Amount</TableHead>
-                        <TableHead>Service Fee</TableHead>
+                        <TableHead>Profit</TableHead>
                         <TableHead>Total</TableHead>
                         <TableHead>Transit</TableHead>
                         <TableHead>Status</TableHead>
@@ -850,17 +850,17 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                             <th className="text-xs py-2 px-2 text-right font-medium">Rate (₹)</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Qty</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Supplier Total (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Svc Fee/Ton (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Svc Fee Total (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Profit/Ton (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Profit Total (₹)</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Buyer Amt (₹)</th>
                           </tr>
                         </thead>
                         <tbody>
                           {bidItems.map((item, idx) => {
-                            const serviceFeePerUnit = Math.round(item.unit_price * 0.005); // 0.5% service fee per unit
+                            const profitPerUnit = Math.round(item.unit_price * 0.005); // 0.5% profit per unit
                             const supplierTotal = item.unit_price * item.quantity; // Rate × Qty
-                            const serviceFeeTotal = serviceFeePerUnit * item.quantity; // Svc Fee × Qty
-                            const buyerAmountPerUnit = item.unit_price + serviceFeePerUnit; // Rate + Svc Fee per unit
+                            const profitTotal = profitPerUnit * item.quantity; // Profit × Qty
+                            const buyerAmountPerUnit = item.unit_price + profitPerUnit; // Rate + Profit per unit
                             const buyerTotal = buyerAmountPerUnit * item.quantity; // Buyer visible total
                             return (
                               <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
@@ -891,10 +891,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                   ₹{Math.round(supplierTotal).toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
-                                  ₹{serviceFeePerUnit.toLocaleString()}
+                                  ₹{profitPerUnit.toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
-                                  ₹{Math.round(serviceFeeTotal).toLocaleString()}
+                                  ₹{Math.round(profitTotal).toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right font-medium whitespace-nowrap">
                                   ₹{Math.round(buyerTotal).toLocaleString()}
@@ -1060,7 +1060,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Service Fee (₹)</Label>
+                  <Label>Profit (₹)</Label>
                   <Input
                     type="number"
                     value={editLogisticsForm.service_fee}

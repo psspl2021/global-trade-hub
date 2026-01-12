@@ -426,7 +426,7 @@ export function AdminDashboardCards({
             ₹{stats.totalCollected.toLocaleString()}
           </div>
           <p className="text-sm text-muted-foreground">
-            Platform service fees collected
+            Platform profit collected
           </p>
         </CardContent>
       </Card>
