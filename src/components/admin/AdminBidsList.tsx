@@ -840,6 +840,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                             <th className="text-xs py-2 px-2 text-right font-medium">Qty</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Supplier Total (₹)</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Profit/Ton (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Bid Amt/Unit (₹)</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Profit Total (₹)</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Buyer Amt (₹)</th>
                           </tr>
@@ -849,8 +850,8 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                             const profitPerUnit = Math.round(item.unit_price * 0.005); // 0.5% profit per unit
                             const supplierTotal = item.unit_price * item.quantity; // Rate × Qty
                             const profitTotal = profitPerUnit * item.quantity; // Profit × Qty
-                            const buyerAmountPerUnit = item.unit_price + profitPerUnit; // Rate + Profit per unit
-                            const buyerTotal = buyerAmountPerUnit * item.quantity; // Buyer visible total
+                            const bidAmountPerUnit = item.unit_price + profitPerUnit; // Rate + Profit per unit
+                            const buyerTotal = bidAmountPerUnit * item.quantity; // Buyer visible total
                             return (
                               <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
                                 <td className="text-xs py-2 px-2 max-w-[120px]">
@@ -882,7 +883,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                 <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
                                   ₹{profitPerUnit.toLocaleString()}
                                 </td>
-                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
+                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap font-medium text-primary">
+                                  ₹{bidAmountPerUnit.toLocaleString()}
+                                </td>
+                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-success">
                                   ₹{Math.round(profitTotal).toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right font-medium whitespace-nowrap">
@@ -904,13 +908,16 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               -
                             </td>
                             <td className="text-xs py-2 px-2 text-right text-muted-foreground">
+                              -
+                            </td>
+                            <td className="text-xs py-2 px-2 text-right text-success">
                               ₹{Math.round(bidItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0)).toLocaleString()}
                             </td>
                             <td className="text-xs py-2 px-2 text-right font-bold">
                               ₹{Math.round(bidItems.reduce((sum, item) => {
-                                const svcFeePerUnit = Math.round(item.unit_price * 0.005);
-                                const buyerAmtPerUnit = item.unit_price + svcFeePerUnit;
-                                return sum + (buyerAmtPerUnit * item.quantity);
+                                const profitPerUnit = Math.round(item.unit_price * 0.005);
+                                const bidAmtPerUnit = item.unit_price + profitPerUnit;
+                                return sum + (bidAmtPerUnit * item.quantity);
                               }, 0)).toLocaleString()}
                             </td>
                           </tr>
