@@ -1,9 +1,9 @@
 import { 
-  Tractor, Car, Cpu, FlaskConical, Building, Shirt, Palette, 
+  Tractor, Car, Cpu, FlaskConical, Building, 
   Lightbulb, Cog, Stethoscope, Factory,
   Package, FileText, Pill, Layers, Shield, 
   Radio, Scissors, Utensils,
-  Home, Leaf, Pickaxe, LucideIcon
+  Leaf, Pickaxe, LucideIcon
 } from 'lucide-react';
 
 export interface CategoryData {
@@ -42,33 +42,6 @@ export const categoriesData: CategoryData[] = [
       'Cane Knives',
       'Sugarcane Tools',
       'Plantation Tools',
-    ]
-  },
-  {
-    name: 'Apparel & Clothing',
-    icon: Shirt,
-    subcategories: [
-      'Men\'s Clothing',
-      'Women\'s Clothing',
-      'Children\'s Clothing',
-      'Sportswear',
-      'Work Uniforms',
-      'Traditional Wear',
-      'Winter Wear',
-      'Innerwear',
-    ]
-  },
-  {
-    name: 'Arts, Crafts & Gifts',
-    icon: Palette,
-    subcategories: [
-      'Handicrafts',
-      'Art Supplies',
-      'Gift Items',
-      'Home Decor Crafts',
-      'Festive Decorations',
-      'Souvenirs',
-      'Candles & Fragrances',
     ]
   },
   {
@@ -263,20 +236,6 @@ export const categoriesData: CategoryData[] = [
       'Musk Compounds',
       'Floral Notes',
       'Woody Notes',
-    ]
-  },
-  {
-    name: 'Furniture & Home Decor',
-    icon: Home,
-    subcategories: [
-      'Living Room Furniture',
-      'Bedroom Furniture',
-      'Office Furniture',
-      'Outdoor Furniture',
-      'Home Textiles',
-      'Decorative Items',
-      'Kitchenware',
-      'Storage Solutions',
     ]
   },
   {
