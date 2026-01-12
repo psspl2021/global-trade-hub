@@ -840,58 +840,62 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                 </div>
               ) : bidItems.length > 0 ? (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Line Items ({bidItems.length})</Label>
-                  <div className="border rounded-lg overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/30">
-                          <TableHead className="text-xs py-2">Item</TableHead>
-                          <TableHead className="text-xs py-2 text-right">Rate (₹)</TableHead>
-                          <TableHead className="text-xs py-2 text-right">Qty</TableHead>
-                          <TableHead className="text-xs py-2 text-right">Total (₹)</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {bidItems.map((item, idx) => (
-                          <TableRow key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
-                            <TableCell className="text-xs py-2 max-w-[180px]">
-                              <span className="line-clamp-2" title={item.item_name}>
-                                {item.item_name}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-xs py-2 text-right">
-                              <Input
-                                type="number"
-                                className="w-24 h-7 text-xs text-right ml-auto"
-                                value={item.unit_price}
-                                onChange={(e) => {
-                                  const newPrice = Number(e.target.value) || 0;
-                                  setBidItems(prev => prev.map(bi => 
-                                    bi.id === item.id 
-                                      ? { ...bi, unit_price: newPrice, total: newPrice * bi.quantity }
-                                      : bi
-                                  ));
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell className="text-xs py-2 text-right whitespace-nowrap">
-                              {item.quantity} {item.unit}
-                            </TableCell>
-                            <TableCell className="text-xs py-2 text-right font-medium whitespace-nowrap">
-                              ₹{item.total.toLocaleString()}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                        <TableRow className="bg-muted/50 font-medium">
-                          <TableCell colSpan={3} className="text-xs py-2 text-right">
-                            Items Subtotal:
-                          </TableCell>
-                          <TableCell className="text-xs py-2 text-right font-bold">
-                            ₹{bidItems.reduce((sum, item) => sum + item.total, 0).toLocaleString()}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
+                  <Label className="text-sm font-medium">Line Items ({bidItems.length} items)</Label>
+                  <div className="border rounded-lg">
+                    <div className="max-h-[250px] overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/30 sticky top-0">
+                          <tr>
+                            <th className="text-xs py-2 px-3 text-left font-medium">Item</th>
+                            <th className="text-xs py-2 px-3 text-right font-medium">Rate (₹)</th>
+                            <th className="text-xs py-2 px-3 text-right font-medium">Qty</th>
+                            <th className="text-xs py-2 px-3 text-right font-medium">Total (₹)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bidItems.map((item, idx) => (
+                            <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
+                              <td className="text-xs py-2 px-3 max-w-[150px]">
+                                <span className="line-clamp-2" title={item.item_name}>
+                                  {item.item_name}
+                                </span>
+                              </td>
+                              <td className="text-xs py-2 px-3 text-right">
+                                <Input
+                                  type="number"
+                                  className="w-24 h-7 text-xs text-right ml-auto"
+                                  value={item.unit_price}
+                                  onChange={(e) => {
+                                    const newPrice = Number(e.target.value) || 0;
+                                    setBidItems(prev => prev.map(bi => 
+                                      bi.id === item.id 
+                                        ? { ...bi, unit_price: newPrice, total: newPrice * bi.quantity }
+                                        : bi
+                                    ));
+                                  }}
+                                />
+                              </td>
+                              <td className="text-xs py-2 px-3 text-right whitespace-nowrap">
+                                {item.quantity} {item.unit}
+                              </td>
+                              <td className="text-xs py-2 px-3 text-right font-medium whitespace-nowrap">
+                                ₹{item.total.toLocaleString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-muted/50 font-medium border-t">
+                          <tr>
+                            <td colSpan={3} className="text-xs py-2 px-3 text-right">
+                              Items Subtotal:
+                            </td>
+                            <td className="text-xs py-2 px-3 text-right font-bold">
+                              ₹{bidItems.reduce((sum, item) => sum + item.total, 0).toLocaleString()}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
                   </div>
                 </div>
               ) : (
