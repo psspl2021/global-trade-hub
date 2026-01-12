@@ -849,17 +849,19 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                             <th className="text-xs py-2 px-2 text-left font-medium">Item</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Rate (₹)</th>
                             <th className="text-xs py-2 px-2 text-right font-medium">Qty</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Bid Amt (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Svc Fee (₹)</th>
-                            <th className="text-xs py-2 px-2 text-right font-medium">Total (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Supplier Total (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Svc Fee/Ton (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Svc Fee Total (₹)</th>
+                            <th className="text-xs py-2 px-2 text-right font-medium">Buyer Amt (₹)</th>
                           </tr>
                         </thead>
                         <tbody>
                           {bidItems.map((item, idx) => {
                             const serviceFeePerUnit = Math.round(item.unit_price * 0.005); // 0.5% service fee per unit
-                            const bidAmount = item.unit_price * item.quantity; // Rate × Qty
+                            const supplierTotal = item.unit_price * item.quantity; // Rate × Qty
                             const serviceFeeTotal = serviceFeePerUnit * item.quantity; // Svc Fee × Qty
-                            const lineTotal = bidAmount + serviceFeeTotal; // Bid Amt + Svc Fee
+                            const buyerAmountPerUnit = item.unit_price + serviceFeePerUnit; // Rate + Svc Fee per unit
+                            const buyerTotal = buyerAmountPerUnit * item.quantity; // Buyer visible total
                             return (
                               <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
                                 <td className="text-xs py-2 px-2 max-w-[120px]">
@@ -886,13 +888,16 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                   {item.quantity}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
-                                  ₹{Math.round(bidAmount).toLocaleString()}
+                                  ₹{Math.round(supplierTotal).toLocaleString()}
+                                </td>
+                                <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
+                                  ₹{serviceFeePerUnit.toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
                                   ₹{Math.round(serviceFeeTotal).toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right font-medium whitespace-nowrap">
-                                  ₹{Math.round(lineTotal).toLocaleString()}
+                                  ₹{Math.round(buyerTotal).toLocaleString()}
                                 </td>
                               </tr>
                             );
@@ -907,13 +912,16 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               ₹{Math.round(bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)).toLocaleString()}
                             </td>
                             <td className="text-xs py-2 px-2 text-right text-muted-foreground">
+                              -
+                            </td>
+                            <td className="text-xs py-2 px-2 text-right text-muted-foreground">
                               ₹{Math.round(bidItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0)).toLocaleString()}
                             </td>
                             <td className="text-xs py-2 px-2 text-right font-bold">
                               ₹{Math.round(bidItems.reduce((sum, item) => {
-                                const bidAmt = item.unit_price * item.quantity;
-                                const svcFee = Math.round(item.unit_price * 0.005) * item.quantity;
-                                return sum + bidAmt + svcFee;
+                                const svcFeePerUnit = Math.round(item.unit_price * 0.005);
+                                const buyerAmtPerUnit = item.unit_price + svcFeePerUnit;
+                                return sum + (buyerAmtPerUnit * item.quantity);
                               }, 0)).toLocaleString()}
                             </td>
                           </tr>
