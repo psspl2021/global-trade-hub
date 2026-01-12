@@ -534,8 +534,11 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           
                           // Use actual database values for totals
                           const supplierTotal = bid.supplier_net_price || 0;
-                          const buyerTotal = bid.buyer_visible_price || 0;
                           const profitTotal = bid.markup_amount || 0;
+                          // Calculate buyer total: use buyer_visible_price if available, else supplier + profit
+                          const buyerTotal = bid.buyer_visible_price && bid.buyer_visible_price > 0 
+                            ? bid.buyer_visible_price 
+                            : supplierTotal + profitTotal;
                           
                           // Calculate dispatched values proportionally
                           const dispatchRatio = dispatchedQty / qty;
