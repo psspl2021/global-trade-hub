@@ -558,7 +558,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                   {bid.requirement?.title || '-'}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  {qty} {unit} • {bid.requirement?.product_category}
+                                  {qty.toFixed(2)} {unit} • {bid.requirement?.product_category}
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -585,7 +585,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               <TableCell>
                                 {dispatchedQty > 0 ? (
                                   <div className="text-sm space-y-0.5">
-                                    <div className="font-medium">{dispatchedQty} {unit}</div>
+                                    <div className="font-medium">{dispatchedQty.toFixed(2)} {unit}</div>
                                     <div className="text-xs text-muted-foreground">
                                       Buyer: ₹{dispatchedBuyerValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                     </div>
