@@ -856,9 +856,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                         </thead>
                         <tbody>
                           {bidItems.map((item, idx) => {
-                            const serviceFee = Math.round(item.unit_price * 0.005); // 0.5% service fee per unit
-                            const bidAmountWithFee = Math.round(item.unit_price + serviceFee);
-                            const totalWithFee = Math.round(bidAmountWithFee * item.quantity);
+                            const serviceFeePerUnit = Math.round(item.unit_price * 0.005); // 0.5% service fee per unit
+                            const bidAmount = item.unit_price * item.quantity; // Rate × Qty
+                            const serviceFeeTotal = serviceFeePerUnit * item.quantity; // Svc Fee × Qty
+                            const lineTotal = bidAmount + serviceFeeTotal; // Bid Amt + Svc Fee
                             return (
                               <tr key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
                                 <td className="text-xs py-2 px-2 max-w-[120px]">
@@ -885,13 +886,13 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                   {item.quantity}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right whitespace-nowrap">
-                                  ₹{item.unit_price.toLocaleString()}
+                                  ₹{Math.round(bidAmount).toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right whitespace-nowrap text-muted-foreground">
-                                  ₹{serviceFee.toLocaleString()}
+                                  ₹{Math.round(serviceFeeTotal).toLocaleString()}
                                 </td>
                                 <td className="text-xs py-2 px-2 text-right font-medium whitespace-nowrap">
-                                  ₹{bidAmountWithFee.toLocaleString()}
+                                  ₹{Math.round(lineTotal).toLocaleString()}
                                 </td>
                               </tr>
                             );
@@ -903,13 +904,17 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               Totals:
                             </td>
                             <td className="text-xs py-2 px-2 text-right">
-                              ₹{bidItems.reduce((sum, item) => sum + item.unit_price, 0).toLocaleString()}
+                              ₹{Math.round(bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)).toLocaleString()}
                             </td>
                             <td className="text-xs py-2 px-2 text-right text-muted-foreground">
-                              ₹{bidItems.reduce((sum, item) => sum + Math.round(item.unit_price * 0.005), 0).toLocaleString()}
+                              ₹{Math.round(bidItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0)).toLocaleString()}
                             </td>
                             <td className="text-xs py-2 px-2 text-right font-bold">
-                              ₹{bidItems.reduce((sum, item) => sum + Math.round(item.unit_price + item.unit_price * 0.005), 0).toLocaleString()}
+                              ₹{Math.round(bidItems.reduce((sum, item) => {
+                                const bidAmt = item.unit_price * item.quantity;
+                                const svcFee = Math.round(item.unit_price * 0.005) * item.quantity;
+                                return sum + bidAmt + svcFee;
+                              }, 0)).toLocaleString()}
                             </td>
                           </tr>
                         </tfoot>
