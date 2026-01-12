@@ -88,44 +88,6 @@ export const categoriesData: CategoryData[] = [
     ]
   },
   {
-    name: 'Bags, Luggage & Cases',
-    icon: Briefcase,
-    subcategories: [
-      'Travel Bags',
-      'Backpacks',
-      'Handbags',
-      'Laptop Bags',
-      'Luggage Sets',
-      'Briefcases',
-      'Wallets & Purses',
-      'Promotional Bags',
-    ]
-  },
-  {
-    name: 'Beauty & Personal Care',
-    icon: Heart,
-    subcategories: [
-      'Skincare Products',
-      'Hair Care',
-      'Cosmetics',
-      'Fragrances',
-      'Men\'s Grooming',
-      'Organic Beauty',
-      'Salon Equipment',
-      'Personal Hygiene',
-      'Emollients & Moisturizers',
-      'Emulsifiers',
-      'Conditioning Agents',
-      'UV Filters & Sunscreens',
-      'Active Ingredients',
-      'Natural Extracts',
-      'Essential Oils',
-      'Preservatives for Cosmetics',
-      'Rheology Modifiers',
-      'Colorants & Pigments',
-    ]
-  },
-  {
     name: 'Building & Construction',
     icon: Building,
     subcategories: [
@@ -194,34 +156,6 @@ export const categoriesData: CategoryData[] = [
       'Anti-Foaming Agents',
       'Thickeners',
       'Wetting Agents',
-    ]
-  },
-  {
-    name: 'Computer Hardware & Software',
-    icon: Cpu,
-    subcategories: [
-      'Desktop Computers',
-      'Laptops',
-      'Computer Components',
-      'Printers & Scanners',
-      'Networking Equipment',
-      'Storage Devices',
-      'Software Solutions',
-      'Computer Peripherals',
-    ]
-  },
-  {
-    name: 'Consumer Electronics',
-    icon: Smartphone,
-    subcategories: [
-      'Mobile Phones',
-      'Tablets',
-      'Audio Equipment',
-      'Cameras',
-      'Home Appliances',
-      'Wearable Tech',
-      'Gaming Consoles',
-      'Smart Home Devices',
     ]
   },
   {
