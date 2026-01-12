@@ -933,16 +933,24 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   <Label>Bid Amount (₹)</Label>
                   <Input
                     type="number"
-                    value={editForm.bid_amount}
+                    value={bidItems.length > 0 
+                      ? Math.round(bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0))
+                      : editForm.bid_amount}
                     onChange={(e) => setEditForm(f => ({ ...f, bid_amount: Number(e.target.value) }))}
+                    readOnly={bidItems.length > 0}
+                    className={bidItems.length > 0 ? "bg-muted" : ""}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Service Fee (₹)</Label>
                   <Input
                     type="number"
-                    value={editForm.service_fee}
+                    value={bidItems.length > 0 
+                      ? Math.round(bidItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0))
+                      : editForm.service_fee}
                     onChange={(e) => setEditForm(f => ({ ...f, service_fee: Number(e.target.value) }))}
+                    readOnly={bidItems.length > 0}
+                    className={bidItems.length > 0 ? "bg-muted" : ""}
                   />
                 </div>
               </div>
