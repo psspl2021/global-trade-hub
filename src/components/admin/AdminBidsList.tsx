@@ -607,17 +607,27 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           let profitTotal: number;
                           
                           if (hasBidItems) {
-                            // Calculate from bid_items
-                            supplierTotal = bid.bid_items!.reduce((sum, item) => sum + (item.total || 0), 0);
-                            // Profit is 0.5% of each item's value (unit_price × 0.005 × quantity)
+                            // Calculate from bid_items - use unit_price × quantity (not item.total which may be stored incorrectly)
+                            supplierTotal = bid.bid_items!.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+                            // Profit is 0.5% of each item's rate (rounded per unit)
                             profitTotal = bid.bid_items!.reduce((sum, item) => {
                               const profitPerUnit = Math.round(item.unit_price * 0.005);
                               return sum + (profitPerUnit * item.quantity);
                             }, 0);
                           } else {
-                            // Fallback to database values
-                            supplierTotal = bid.supplier_net_price || bid.bid_amount || 0;
-                            profitTotal = bid.markup_amount || Math.round(supplierTotal * 0.005);
+                            // Fallback: try parsing from terms_and_conditions
+                            const parsedItems = parseItemsFromTerms(bid.terms_and_conditions);
+                            if (parsedItems.length > 0) {
+                              supplierTotal = parsedItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+                              profitTotal = parsedItems.reduce((sum, item) => {
+                                const profitPerUnit = Math.round(item.unit_price * 0.005);
+                                return sum + (profitPerUnit * item.quantity);
+                              }, 0);
+                            } else {
+                              // Final fallback to database values
+                              supplierTotal = bid.supplier_net_price || bid.bid_amount || 0;
+                              profitTotal = bid.markup_amount || Math.round(supplierTotal * 0.005);
+                            }
                           }
                           
                           const buyerTotal = supplierTotal + profitTotal;
@@ -633,9 +643,15 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const bidsForSameReq = filteredSupplierBids.filter(b => b.requirement_id === bid.requirement_id);
                           const isL1 = bidsForSameReq.length > 1 && bidsForSameReq.every(b => {
                             const bHasBidItems = b.bid_items && b.bid_items.length > 0;
-                            const bSupplierTotal = bHasBidItems 
-                              ? b.bid_items!.reduce((sum, item) => sum + (item.total || 0), 0)
-                              : b.supplier_net_price || b.bid_amount || 0;
+                            let bSupplierTotal: number;
+                            if (bHasBidItems) {
+                              bSupplierTotal = b.bid_items!.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+                            } else {
+                              const bParsed = parseItemsFromTerms(b.terms_and_conditions);
+                              bSupplierTotal = bParsed.length > 0
+                                ? bParsed.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)
+                                : b.supplier_net_price || b.bid_amount || 0;
+                            }
                             return supplierTotal <= bSupplierTotal;
                           });
 
