@@ -1036,6 +1036,121 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_audit_logs: {
+        Row: {
+          action: string
+          contract_id: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          contract_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          contract_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_audit_logs_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          bid_id: string
+          buyer_id: string
+          contract_pdf_url: string | null
+          contract_status: string
+          contract_type: string
+          contract_value: number
+          coverage_percentage: number | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          id: string
+          requirement_id: string
+          signed_at: string | null
+          supplier_id: string
+        }
+        Insert: {
+          bid_id: string
+          buyer_id: string
+          contract_pdf_url?: string | null
+          contract_status?: string
+          contract_type: string
+          contract_value: number
+          coverage_percentage?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          id?: string
+          requirement_id: string
+          signed_at?: string | null
+          supplier_id: string
+        }
+        Update: {
+          bid_id?: string
+          buyer_id?: string
+          contract_pdf_url?: string | null
+          contract_status?: string
+          contract_type?: string
+          contract_value?: number
+          coverage_percentage?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          id?: string
+          requirement_id?: string
+          signed_at?: string | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "contracts_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "contracts_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           company_name: string | null
