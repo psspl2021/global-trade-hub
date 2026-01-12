@@ -646,6 +646,70 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
         'chemical industry'
       ]
     }
+  },
+
+  // ============= NEW CATEGORY 30 =============
+
+  environment_recycling: {
+    subcategories: {
+      'waste management': [
+        'municipal corporations',
+        'industrial plants',
+        'smart cities'
+      ],
+      'recycling equipment': [
+        'plastic recycling units',
+        'metal recycling plants',
+        'waste processors'
+      ],
+      'water treatment': [
+        'water utilities',
+        'industrial effluent treatment',
+        'municipal water projects'
+      ],
+      'air pollution control': [
+        'thermal power plants',
+        'cement plants',
+        'industrial boilers'
+      ],
+      'eco friendly products': [
+        'green buildings',
+        'sustainable manufacturing',
+        'corporate procurement'
+      ]
+    }
+  },
+
+  // ============= NEW CATEGORY 31 =============
+
+  textiles_leather: {
+    subcategories: {
+      'fabrics': [
+        'garment manufacturing',
+        'home textiles',
+        'export houses'
+      ],
+      'yarns & threads': [
+        'spinning mills',
+        'weaving units',
+        'knitting factories'
+      ],
+      'technical textiles': [
+        'automotive interiors',
+        'medical textiles',
+        'geotextiles'
+      ],
+      'leather raw materials': [
+        'tanneries',
+        'footwear manufacturing',
+        'leather goods exporters'
+      ],
+      'leather products': [
+        'fashion brands',
+        'export houses',
+        'retail chains'
+      ]
+    }
   }
 };
 
