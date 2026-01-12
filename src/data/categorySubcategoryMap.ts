@@ -1,719 +1,798 @@
 /**
+ * ============================================================
+ * PROCURESAATHI TAXONOMY PHILOSOPHY (LOCKED – DO NOT VIOLATE)
+ * ============================================================
+ *
+ * ProcureSaathi ≠ IndiaMART dump
+ *
+ * Subcategories are added ONLY if:
+ *
+ * 1️⃣ Buyers actually search for it
+ * 2️⃣ Suppliers actually sell it
+ * 3️⃣ AI discovery quality improves because of it
+ *
+ * ❌ No generic dumping
+ * ❌ No SEO spam categories
+ * ❌ No supplier-only or buyer-only noise
+ *
+ * Quality > Quantity (Always)
+ *
+ * ============================================================
+ * 
  * MASTER DATA: Category → Subcategory → Industry Mapping
  * This is the single source of truth for lead discovery targeting
  * 
  * ✅ AI-discovery ready
  * ✅ Deduplication & fingerprint friendly
  * ✅ Scalable (India + global)
- * ✅ IndiaMART / ProcureSaathi style
- * ✅ 29 Categories with full subcategory coverage
+ * ✅ Role-aware visibility (Buyer / Supplier / AI)
+ * ✅ 31 Categories with full subcategory coverage
  */
 
-export interface SubcategoryIndustryMap {
-  subcategories: Record<string, string[]>;
+export interface SubcategoryRule {
+  industries: string[];        // demand-side intent
+  buyer_visible: boolean;      // buyers search intent
+  supplier_visible: boolean;   // suppliers sell capability
+  ai_discovery: boolean;       // used by AI engine or not
 }
+
+export interface SubcategoryIndustryMap {
+  subcategories: Record<string, SubcategoryRule>;
+}
+
+// Helper to create default rule (all visible)
+const rule = (industries: string[]): SubcategoryRule => ({
+  industries,
+  buyer_visible: true,
+  supplier_visible: true,
+  ai_discovery: true
+});
 
 export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
   agriculture_equipment_supplies: {
     subcategories: {
-      'agricultural machinery': [
+      'agricultural machinery': rule([
         'crop farming',
         'commercial agriculture',
         'plantations',
         'agro contractors'
-      ],
-      'irrigation equipment': [
+      ]),
+      'irrigation equipment': rule([
         'agriculture farms',
         'horticulture',
         'greenhouse farming'
-      ],
-      'seeds plants': [
+      ]),
+      'seeds plants': rule([
         'seed companies',
         'nurseries',
         'commercial farming'
-      ],
-      'fertilizers pesticides': [
+      ]),
+      'fertilizers pesticides': rule([
         'agrochemical companies',
         'crop protection',
         'organic farming'
-      ],
-      'farm tools equipment': [
+      ]),
+      'farm tools equipment': rule([
         'small farmers',
         'agro traders',
         'plantation estates'
-      ],
-      'animal feed': [
+      ]),
+      'animal feed': rule([
         'dairy farms',
         'poultry farms',
         'livestock farms'
-      ]
+      ])
     }
   },
 
   auto_vehicle_accessories: {
     subcategories: {
-      'car parts': [
+      'car parts': rule([
         'automobile workshops',
         'vehicle manufacturers',
         'aftermarket distributors'
-      ],
-      'truck parts': [
+      ]),
+      'truck parts': rule([
         'logistics fleets',
         'transport companies',
         'fleet operators'
-      ],
-      'motorcycle parts': [
+      ]),
+      'motorcycle parts': rule([
         'two wheeler manufacturers',
         'service centers'
-      ],
-      'auto batteries': [
+      ]),
+      'auto batteries': rule([
         'automotive service centers',
         'fleet operators',
         'battery distributors'
-      ],
-      'tires wheels': [
+      ]),
+      'tires wheels': rule([
         'transport companies',
         'vehicle dealerships'
-      ]
+      ])
     }
   },
 
   building_construction: {
     subcategories: {
-      'cement concrete': [
+      'cement concrete': rule([
         'real estate developers',
         'infrastructure projects',
         'construction contractors',
         'commercial construction'
-      ],
-      'roofing sheets': [
+      ]),
+      'roofing sheets': rule([
         'industrial sheds',
         'warehouses',
         'factory buildings'
-      ],
-      'roofing materials': [
+      ]),
+      'roofing materials': rule([
         'industrial sheds',
         'warehouses',
         'factories'
-      ],
-      'doors windows': [
+      ]),
+      'doors windows': rule([
         'real estate projects',
         'commercial buildings',
         'residential developers'
-      ],
-      'paints coatings': [
+      ]),
+      'paints coatings': rule([
         'construction projects',
         'industrial maintenance',
         'real estate finishing'
-      ],
-      'plumbing supplies': [
+      ]),
+      'plumbing supplies': rule([
         'real estate developers',
         'commercial complexes',
         'infrastructure projects',
         'residential construction'
-      ],
-      'electrical fittings': [
+      ]),
+      'electrical fittings': rule([
         'builders',
         'epc contractors',
         'industrial construction'
-      ]
+      ])
     }
   },
 
   chemicals_raw_materials: {
     subcategories: {
-      'industrial chemicals': [
+      'industrial chemicals': rule([
         'manufacturing plants',
         'process industries',
         'bulk chemical users'
-      ],
-      'specialty chemicals': [
+      ]),
+      'specialty chemicals': rule([
         'electronics manufacturing',
         'pharmaceutical formulation',
         'textile processing'
-      ],
-      'water treatment chemicals': [
+      ]),
+      'water treatment chemicals': rule([
         'water treatment plants',
         'municipal corporations',
         'industrial utilities'
-      ],
-      'surfactants': [
+      ]),
+      'surfactants': rule([
         'detergents',
         'personal care',
         'industrial cleaning'
-      ],
-      'paint coating chemicals': [
+      ]),
+      'paint coating chemicals': rule([
         'paint manufacturers',
         'coating industries'
-      ]
+      ])
     }
   },
 
   electrical_equipment_supplies: {
     subcategories: {
-      'wires cables': [
+      'wires cables': rule([
         'infrastructure projects',
         'power utilities',
         'industrial plants',
         'power distribution'
-      ],
-      'transformers': [
+      ]),
+      'transformers': rule([
         'power distribution',
         'renewable energy',
         'utility companies',
         'industrial substations',
         'power utilities'
-      ],
-      'control panels': [
+      ]),
+      'control panels': rule([
         'industrial automation',
         'manufacturing plants',
         'process industries',
         'automation systems'
-      ],
-      'switchgear': [
+      ]),
+      'switchgear': rule([
         'industrial automation',
         'commercial buildings',
         'power distribution'
-      ]
+      ])
     }
   },
 
   electronics_components: {
     subcategories: {
-      'semiconductors': [
+      'semiconductors': rule([
         'electronics manufacturing',
         'telecom equipment',
         'automotive electronics'
-      ],
-      'pcbs': [
+      ]),
+      'pcbs': rule([
         'consumer electronics',
         'industrial controls',
         'iot manufacturers'
-      ],
-      'connectors': [
+      ]),
+      'connectors': rule([
         'electronics assembly',
         'automotive wiring'
-      ]
+      ])
     }
   },
 
   energy_power: {
     subcategories: {
-      'solar equipment': [
+      'solar equipment': rule([
         'solar projects',
         'renewable energy developers',
         'epc contractors'
-      ],
-      'generators': [
+      ]),
+      'generators': rule([
         'industrial backup power',
         'commercial buildings',
         'data centers',
         'construction sites',
         'commercial facilities'
-      ],
-      'energy storage': [
+      ]),
+      'energy storage': rule([
         'renewable integration',
         'grid storage',
         'industrial power backup',
         'power utilities'
-      ]
+      ])
     }
   },
 
   food_beverages: {
     subcategories: {
-      'grains cereals': [
+      'grains cereals': rule([
         'food processing plants',
         'flour mills',
         'exporters'
-      ],
-      'dairy products': [
+      ]),
+      'dairy products': rule([
         'dairy processors',
         'food brands',
         'institutional buyers'
-      ],
-      'nutraceuticals': [
+      ]),
+      'nutraceuticals': rule([
         'health brands',
         'supplement manufacturers',
         'pharma nutrition'
-      ]
+      ])
     }
   },
 
   flavors_fragrances: {
     subcategories: {
-      'food flavors': [
+      'food flavors': rule([
         'food processing',
         'beverage manufacturing',
         'snack brands'
-      ],
-      'fine fragrances': [
+      ]),
+      'fine fragrances': rule([
         'cosmetics brands',
         'luxury perfumery',
         'personal care'
-      ]
+      ])
     }
   },
 
   hardware_tools: {
     subcategories: {
-      'hand tools': [
+      'hand tools': rule([
         'construction contractors',
         'industrial maintenance',
         'workshops'
-      ],
-      'fasteners': [
+      ]),
+      'fasteners': rule([
         'machinery manufacturing',
         'fabrication units',
         'automotive assembly'
-      ]
+      ])
     }
   },
 
   medical_healthcare: {
     subcategories: {
-      'medical equipment': [
+      'medical equipment': rule([
         'hospitals',
         'diagnostic centers',
         'healthcare chains'
-      ],
-      'lab equipment': [
+      ]),
+      'lab equipment': rule([
         'research labs',
         'diagnostic labs',
         'pharma r&d'
-      ],
-      'surgical instruments': [
+      ]),
+      'surgical instruments': rule([
         'hospitals',
         'medical distributors',
         'surgical centers'
-      ],
-      'diagnostic devices': [
+      ]),
+      'diagnostic devices': rule([
         'labs',
         'healthcare providers',
         'diagnostic centers'
-      ]
+      ])
     }
   },
 
   industrial_supplies: {
     subcategories: {
-      'pumps valves': [
+      'pumps valves': rule([
         'process industries',
         'oil gas',
         'water treatment'
-      ],
-      'bearings seals': [
+      ]),
+      'bearings seals': rule([
         'machinery manufacturing',
         'industrial maintenance',
         'automotive',
         'heavy engineering'
-      ],
-      'industrial hoses': [
+      ]),
+      'industrial hoses': rule([
         'chemical plants',
         'refineries',
         'manufacturing units'
-      ]
+      ])
     }
   },
 
   metals_ferrous: {
     subcategories: {
-      'tmt bars': [
+      'tmt bars': rule([
         'construction projects',
         'real estate developers',
         'infrastructure contractors'
-      ],
-      'hr cr coils': [
+      ]),
+      'hr cr coils': rule([
         'automotive manufacturing',
         'engineering industries',
         'pipe manufacturers'
-      ],
-      'steel pipes': [
+      ]),
+      'steel pipes': rule([
         'oil gas',
         'water pipelines',
         'industrial fabrication'
-      ]
+      ])
     }
   },
 
   metals_non_ferrous: {
     subcategories: {
-      'aluminium products': [
+      'aluminium products': rule([
         'automotive',
         'packaging',
         'construction'
-      ],
-      'copper products': [
+      ]),
+      'copper products': rule([
         'electrical cables',
         'hvac',
         'electronics'
-      ]
+      ])
     }
   },
 
   pharmaceuticals_drugs: {
     subcategories: {
-      'apis': [
+      'apis': rule([
         'formulation manufacturers',
         'contract manufacturing',
         'export pharma'
-      ],
-      'intermediates': [
+      ]),
+      'intermediates': rule([
         'api synthesis',
         'custom synthesis',
         'bulk drug manufacturers'
-      ],
-      'excipients': [
+      ]),
+      'excipients': rule([
         'tablet manufacturing',
         'capsule formulation'
-      ]
+      ])
     }
   },
 
   polymers_resins: {
     subcategories: {
-      'polyethylene': [
+      'polyethylene': rule([
         'packaging',
         'pipes fittings',
         'blow molding'
-      ],
-      'polypropylene': [
+      ]),
+      'polypropylene': rule([
         'automotive parts',
         'consumer goods'
-      ]
+      ])
     }
   },
 
   pipes_tubes: {
     subcategories: {
-      'ms pipes': [
+      'ms pipes': rule([
         'fabrication units',
         'structural projects',
         'industrial piping',
         'oil gas'
-      ],
-      'gi pipes': [
+      ]),
+      'gi pipes': rule([
         'plumbing contractors',
         'building construction',
         'infrastructure projects',
         'plumbing',
         'construction'
-      ],
-      'hdpe pipes': [
+      ]),
+      'hdpe pipes': rule([
         'water supply',
         'irrigation',
         'sewage projects'
-      ],
-      'di pipes': [
+      ]),
+      'di pipes': rule([
         'municipal water supply',
         'smart city projects',
         'infrastructure',
         'municipal projects'
-      ]
+      ])
     }
   },
 
   petroleum_bitumen: {
     subcategories: {
-      'bitumen': [
+      'bitumen': rule([
         'road construction',
         'highway projects',
         'infrastructure'
-      ],
-      'lubricants': [
+      ]),
+      'lubricants': rule([
         'industrial machinery',
         'automotive service',
         'fleet operators'
-      ]
+      ])
     }
   },
 
   steel_fabrication_structures: {
     subcategories: {
-      'ms structures': [
+      'ms structures': rule([
         'industrial sheds',
         'warehouses',
         'factory buildings'
-      ],
-      'cable trays': [
+      ]),
+      'cable trays': rule([
         'power plants',
         'industrial installations',
         'data centers'
-      ],
-      'steel gratings': [
+      ]),
+      'steel gratings': rule([
         'platforms',
         'industrial flooring',
         'infrastructure'
-      ]
+      ])
     }
   },
 
   road_safety_infrastructure: {
     subcategories: {
-      'crash barriers': [
+      'crash barriers': rule([
         'highway projects',
         'road authorities',
         'infrastructure epc'
-      ],
-      'road marking materials': [
+      ]),
+      'road marking materials': rule([
         'municipal corporations',
         'road contractors',
         'epc contractors'
-      ],
-      'traffic signs': [
+      ]),
+      'traffic signs': rule([
         'smart cities',
         'highway authorities',
         'urban infrastructure'
-      ]
+      ])
     }
   },
 
   plastic_rubber: {
     subcategories: {
-      'plastic raw materials': [
+      'plastic raw materials': rule([
         'injection molding',
         'extrusion units',
         'blow molding'
-      ],
-      'rubber products': [
+      ]),
+      'rubber products': rule([
         'automotive components',
         'industrial sealing',
         'tyre manufacturing'
-      ],
-      'recycled plastics': [
+      ]),
+      'recycled plastics': rule([
         'packaging',
         'construction products',
         'industrial reuse'
-      ]
+      ])
     }
   },
 
   gfrp_composites: {
     subcategories: {
-      'gfrp sheets': [
+      'gfrp sheets': rule([
         'industrial roofing',
         'chemical plants',
         'infrastructure'
-      ],
-      'gfrp tanks': [
+      ]),
+      'gfrp tanks': rule([
         'water treatment',
         'chemical storage',
         'effluent treatment'
-      ],
-      'frp gratings': [
+      ]),
+      'frp gratings': rule([
         'industrial flooring',
         'platforms',
         'walkways'
-      ]
+      ])
     }
   },
 
   solar_renewable_energy: {
     subcategories: {
-      'solar panels': [
+      'solar panels': rule([
         'solar power plants',
         'epc contractors',
         'commercial rooftops'
-      ],
-      'solar inverters': [
+      ]),
+      'solar inverters': rule([
         'renewable energy projects',
         'industrial rooftops'
-      ],
-      'solar mounting structures': [
+      ]),
+      'solar mounting structures': rule([
         'solar farms',
         'industrial installations',
         'epc contractors'
-      ]
+      ])
     }
   },
 
   industrial_storage_tanks: {
     subcategories: {
-      'storage tanks': [
+      'storage tanks': rule([
         'chemical plants',
         'water utilities',
         'industrial storage'
-      ],
-      'grain silos': [
+      ]),
+      'grain silos': rule([
         'food storage',
         'agriculture supply chain',
         'warehousing',
         'food corporations'
-      ],
-      'gfs tanks': [
+      ]),
+      'gfs tanks': rule([
         'municipal water',
         'fire water storage',
         'industrial utilities'
-      ]
+      ])
     }
   },
 
   packaging_printing: {
     subcategories: {
-      'corrugated boxes': [
+      'corrugated boxes': rule([
         'ecommerce',
         'logistics',
         'manufacturing'
-      ],
-      'flexible packaging': [
+      ]),
+      'flexible packaging': rule([
         'food packaging',
         'pharmaceutical packaging',
         'pharma packaging'
-      ],
-      'labels tags': [
+      ]),
+      'labels tags': rule([
         'fmcg',
         'retail',
         'pharma'
-      ]
+      ])
     }
   },
 
   paper_paper_products: {
     subcategories: {
-      'kraft paper': [
+      'kraft paper': rule([
         'packaging industry',
         'corrugated box plants'
-      ],
-      'tissue paper': [
+      ]),
+      'tissue paper': rule([
         'hospitality',
         'healthcare',
         'consumer goods'
-      ]
+      ])
     }
   },
 
   telecommunication: {
     subcategories: {
-      'fiber optics': [
+      'fiber optics': rule([
         'telecom operators',
         'internet service providers',
         'isp companies'
-      ],
-      'telecom towers': [
+      ]),
+      'telecom towers': rule([
         'network infrastructure',
         '5g deployment'
-      ]
+      ])
     }
   },
 
   safety_security: {
     subcategories: {
-      'ppe': [
+      'ppe': rule([
         'manufacturing plants',
         'construction sites',
         'industrial safety'
-      ],
-      'cctv systems': [
+      ]),
+      'cctv systems': rule([
         'commercial buildings',
         'industrial security',
         'infrastructure'
-      ],
-      'fire safety equipment': [
+      ]),
+      'fire safety equipment': rule([
         'factories',
         'warehouses',
         'commercial complexes'
-      ],
-      'fire safety': [
+      ]),
+      'fire safety': rule([
         'factories',
         'warehouses',
         'industrial plants'
-      ]
+      ])
     }
   },
-
-  // ============= NEW CATEGORY =============
 
   mining_minerals: {
     subcategories: {
-      'coal coke': [
+      'coal coke': rule([
         'power plants',
         'steel plants',
         'cement plants'
-      ],
-      'industrial minerals': [
+      ]),
+      'industrial minerals': rule([
         'cement plants',
         'manufacturing',
         'construction materials'
-      ],
-      'iron ore': [
+      ]),
+      'iron ore': rule([
         'steel plants',
         'foundries',
         'metal processing'
-      ],
-      'limestone': [
+      ]),
+      'limestone': rule([
         'cement plants',
         'steel plants',
         'chemical industry'
-      ]
+      ])
     }
   },
-
-  // ============= NEW CATEGORY 30 =============
 
   environment_recycling: {
     subcategories: {
-      'waste management': [
+      'waste management': rule([
         'municipal corporations',
         'industrial plants',
         'smart cities'
-      ],
-      'recycling equipment': [
+      ]),
+      'recycling equipment': rule([
         'plastic recycling units',
         'metal recycling plants',
         'waste processors'
-      ],
-      'water treatment': [
+      ]),
+      'water treatment': rule([
         'water utilities',
         'industrial effluent treatment',
         'municipal water projects'
-      ],
-      'air pollution control': [
+      ]),
+      'air pollution control': rule([
         'thermal power plants',
         'cement plants',
         'industrial boilers'
-      ],
-      'eco friendly products': [
+      ]),
+      'eco friendly products': rule([
         'green buildings',
         'sustainable manufacturing',
         'corporate procurement'
-      ]
+      ])
     }
   },
 
-  // ============= NEW CATEGORY 31 =============
-
   textiles_leather: {
     subcategories: {
-      'fabrics': [
+      'fabrics': rule([
         'garment manufacturing',
         'home textiles',
         'export houses'
-      ],
-      'yarns & threads': [
+      ]),
+      'yarns & threads': rule([
         'spinning mills',
         'weaving units',
         'knitting factories'
-      ],
-      'technical textiles': [
+      ]),
+      'technical textiles': rule([
         'automotive interiors',
         'medical textiles',
         'geotextiles'
-      ],
-      'leather raw materials': [
+      ]),
+      'leather raw materials': rule([
         'tanneries',
         'footwear manufacturing',
         'leather goods exporters'
-      ],
-      'leather products': [
+      ]),
+      'leather products': rule([
         'fashion brands',
         'export houses',
         'retail chains'
-      ]
+      ])
     }
   }
 };
 
-// Get all subcategories for a category
+// ============================================================
+// ROLE-AWARE VISIBILITY FUNCTIONS
+// ============================================================
+
+/**
+ * Get subcategories visible to BUYERS
+ * Buyer ko sirf wahi dikhe jo wo search karta hai
+ */
+export const getBuyerSubcategories = (category: string): string[] => {
+  const normalizedCategory = category.toLowerCase().replace(/[\s&]+/g, '_');
+  const cat = categorySubcategoryMap[normalizedCategory];
+  if (!cat) return [];
+
+  return Object.entries(cat.subcategories)
+    .filter(([_, cfg]) => cfg.buyer_visible)
+    .map(([sub]) => sub);
+};
+
+/**
+ * Get subcategories visible to SUPPLIERS
+ * Supplier ko sirf wahi dikhe jo wo realistically sell karta hai
+ */
+export const getSupplierSubcategories = (category: string): string[] => {
+  const normalizedCategory = category.toLowerCase().replace(/[\s&]+/g, '_');
+  const cat = categorySubcategoryMap[normalizedCategory];
+  if (!cat) return [];
+
+  return Object.entries(cat.subcategories)
+    .filter(([_, cfg]) => cfg.supplier_visible)
+    .map(([sub]) => sub);
+};
+
+/**
+ * Get subcategories for AI DISCOVERY
+ * AI sirf high-signal categories pe kaam kare
+ */
+export const getAIDiscoverySubcategories = (category: string): string[] => {
+  const normalizedCategory = category.toLowerCase().replace(/[\s&]+/g, '_');
+  const cat = categorySubcategoryMap[normalizedCategory];
+  if (!cat) return [];
+
+  return Object.entries(cat.subcategories)
+    .filter(([_, cfg]) => cfg.ai_discovery)
+    .map(([sub]) => sub);
+};
+
+// ============================================================
+// LEGACY COMPATIBILITY FUNCTIONS
+// ============================================================
+
+// Get all subcategories for a category (legacy - returns all)
 export const getSubcategoriesForCategory = (category: string): string[] => {
   const normalizedCategory = category.toLowerCase().replace(/[\s&]+/g, '_');
   const categoryData = categorySubcategoryMap[normalizedCategory];
@@ -727,7 +806,7 @@ export const getIndustriesForSubcategory = (category: string, subcategory: strin
   const normalizedSubcategory = subcategory.toLowerCase();
   const categoryData = categorySubcategoryMap[normalizedCategory];
   if (!categoryData) return [];
-  return categoryData.subcategories[normalizedSubcategory] || [];
+  return categoryData.subcategories[normalizedSubcategory]?.industries || [];
 };
 
 // Get all industries for a category (across all subcategories)
@@ -737,8 +816,8 @@ export const getAllIndustriesForCategory = (category: string): string[] => {
   if (!categoryData) return [];
   
   const allIndustries = new Set<string>();
-  Object.values(categoryData.subcategories).forEach(industries => {
-    industries.forEach(ind => allIndustries.add(ind));
+  Object.values(categoryData.subcategories).forEach(rule => {
+    rule.industries.forEach(ind => allIndustries.add(ind));
   });
   return Array.from(allIndustries).sort();
 };
@@ -747,8 +826,8 @@ export const getAllIndustriesForCategory = (category: string): string[] => {
 export const getAllIndustries = (): string[] => {
   const allIndustries = new Set<string>();
   Object.values(categorySubcategoryMap).forEach(categoryData => {
-    Object.values(categoryData.subcategories).forEach(industries => {
-      industries.forEach(ind => allIndustries.add(ind));
+    Object.values(categoryData.subcategories).forEach(rule => {
+      rule.industries.forEach(ind => allIndustries.add(ind));
     });
   });
   return Array.from(allIndustries).sort();
