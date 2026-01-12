@@ -532,17 +532,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const unit = bid.requirement?.unit || 'unit';
                           const dispatchedQty = bid.dispatched_qty || 0;
                           
-                          // bid_amount is the supplier's TOTAL amount (not per-unit)
-                          const supplierTotal = bid.bid_amount || 0;
-                          const supplierRatePerUnit = supplierTotal / qty;
-                          
-                          // Calculate 0.5% profit on supplier total
-                          const profitTotal = Math.round(supplierTotal * 0.005);
-                          const profitPerUnit = Math.round(profitTotal / qty);
-                          
-                          // Buyer amount = supplier total + profit
-                          const buyerTotal = supplierTotal + profitTotal;
-                          const buyerAmountPerUnit = Math.round(buyerTotal / qty);
+                          // Use actual database values for totals
+                          const supplierTotal = bid.supplier_net_price || 0;
+                          const buyerTotal = bid.buyer_visible_price || 0;
+                          const profitTotal = bid.markup_amount || 0;
                           
                           // Calculate dispatched values proportionally
                           const dispatchRatio = dispatchedQty / qty;
