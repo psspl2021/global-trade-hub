@@ -950,7 +950,22 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Service Fee (₹)</Label>
+                  <Label>Bidded Amount (₹)</Label>
+                  <Input
+                    type="number"
+                    value={bidItems.length > 0 
+                      ? Math.round(bidItems.reduce((sum, item) => {
+                          const profitPerUnit = Math.round(item.unit_price * 0.005);
+                          const buyerAmtPerUnit = item.unit_price + profitPerUnit;
+                          return sum + (buyerAmtPerUnit * item.quantity);
+                        }, 0))
+                      : (editForm.bid_amount + editForm.service_fee)}
+                    readOnly
+                    className="bg-muted font-medium"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Profit (₹)</Label>
                   <Input
                     type="number"
                     value={bidItems.length > 0 
@@ -959,21 +974,6 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                     onChange={(e) => setEditForm(f => ({ ...f, service_fee: Number(e.target.value) }))}
                     readOnly={bidItems.length > 0}
                     className={bidItems.length > 0 ? "bg-muted" : ""}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Buyer Amount (₹)</Label>
-                  <Input
-                    type="number"
-                    value={bidItems.length > 0 
-                      ? Math.round(bidItems.reduce((sum, item) => {
-                          const svcFeePerUnit = Math.round(item.unit_price * 0.005);
-                          const buyerAmtPerUnit = item.unit_price + svcFeePerUnit;
-                          return sum + (buyerAmtPerUnit * item.quantity);
-                        }, 0))
-                      : (editForm.bid_amount + editForm.service_fee)}
-                    readOnly
-                    className="bg-muted font-medium"
                   />
                 </div>
               </div>
