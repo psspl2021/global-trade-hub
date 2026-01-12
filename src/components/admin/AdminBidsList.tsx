@@ -391,6 +391,18 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
     if (!editingBid) return;
     setSaving(true);
     try {
+      /**
+       * IMPORTANT L1 SAFETY NOTE:
+       * supplier_net_price stored here is NOT used for L1 comparison.
+       * L1 is ALWAYS calculated dynamically from bid_items using LineItemL1View
+       * with comparable-scope logic (only common line items are compared).
+       * 
+       * This stored value is for:
+       * - Display purposes in admin tables
+       * - Fallback when bid_items don't exist
+       * - Historical audit reference
+       */
+
       // Get the current bid items with recalculated totals
       const updatedBidItems = bidItems.map(item => ({
         ...item,
@@ -418,8 +430,8 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
         ? updatedBidItems.reduce((sum, item) => sum + item.total, 0)
         : editForm.bid_amount;
 
-      // Calculate profit (0.5% markup on supplier price)
-      const markupRate = 0.005; // 0.5% for domestic
+      // Calculate profit based on trade type: 0.5% domestic, 2% export/import
+      const markupRate = getProfitPercentage(editingBid.requirement?.trade_type);
       const markupAmount = Math.round(supplierNetPrice * markupRate);
       const buyerVisiblePrice = supplierNetPrice + markupAmount;
       
@@ -430,6 +442,8 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
       console.log('Saving bid with values:', {
         bidItems: updatedBidItems.map(i => ({ id: i.id, unit_price: i.unit_price, total: i.total })),
         supplierNetPrice,
+        markupRate: `${markupRate * 100}%`,
+        tradeType: editingBid.requirement?.trade_type || 'domestic',
         markupAmount,
         buyerVisiblePrice,
       });
@@ -652,21 +666,13 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const dispatchedBuyerValue = buyerTotal * dispatchRatio;
                           const referrerAmount = dispatchedProfit * 0.2; // 20% referrer share
 
-                          // Check if this bid is L1 (lowest supplier total for this requirement)
-                          const bidsForSameReq = filteredSupplierBids.filter(b => b.requirement_id === bid.requirement_id);
-                          const isL1 = bidsForSameReq.length > 1 && bidsForSameReq.every(b => {
-                            const bHasBidItems = b.bid_items && b.bid_items.length > 0;
-                            let bSupplierTotal: number;
-                            if (bHasBidItems) {
-                              bSupplierTotal = b.bid_items!.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
-                            } else {
-                              const bParsed = parseItemsFromTerms(b.terms_and_conditions);
-                              bSupplierTotal = bParsed.length > 0
-                                ? bParsed.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)
-                                : b.supplier_net_price || b.bid_amount || 0;
-                            }
-                            return supplierTotal <= bSupplierTotal;
-                          });
+                          /**
+                           * L1 RULE:
+                           * - L1 is calculated ONLY on common line items (comparable scope)
+                           * - Supplier totals are NOT used for L1 determination
+                           * - Supplier tab NEVER decides L1 - it's for visibility/editing/dispatch only
+                           * - Comparison tab (LineItemL1View) is the SINGLE SOURCE OF TRUTH for L1
+                           */
 
                           return (
                             <TableRow key={bid.id}>
@@ -680,14 +686,11 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
-                                  <div className="font-medium truncate max-w-[120px] flex items-center gap-1">
+                                  <div className="font-medium truncate max-w-[120px]">
                                     {bid.supplier?.company_name || '-'}
-                                    {isL1 && (
-                                      <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] px-1 py-0 h-4">
-                                        <Trophy className="h-2.5 w-2.5 mr-0.5" />
-                                        L1
-                                      </Badge>
-                                    )}
+                                    {/* L1 badge intentionally removed.
+                                        L1 is calculated only in Comparison tab
+                                        using line-item comparable logic (LineItemL1View) */}
                                   </div>
                                   <div className="text-muted-foreground text-xs truncate">{bid.supplier?.email}</div>
                                 </div>
@@ -979,9 +982,17 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                     <Label className="text-sm font-medium flex items-center gap-2">
                       Line Items ({displayItems.length} items)
                       {isParsed && (
-                        <span className="text-xs text-muted-foreground font-normal">(parsed from terms)</span>
+                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-5">
+                          ⚠️ Parsed view only – create bid items to edit
+                        </Badge>
                       )}
                     </Label>
+                    {isParsed && (
+                      <p className="text-xs text-destructive">
+                        These items are parsed from Terms & Conditions. Editing is disabled. 
+                        To enable editing, the supplier must submit via the bid form to create proper bid_items.
+                      </p>
+                    )}
                     <div className="border rounded-lg overflow-hidden">
                       <div className="max-h-[300px] overflow-y-auto">
                         <table className="w-full text-sm">
