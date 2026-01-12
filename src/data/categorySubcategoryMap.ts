@@ -146,11 +146,18 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'transformers': [
         'power distribution',
         'renewable energy',
-        'utility companies'
+        'utility companies',
+        'industrial substations'
       ],
       'control panels': [
         'industrial automation',
-        'manufacturing plants'
+        'manufacturing plants',
+        'process industries'
+      ],
+      'switchgear': [
+        'industrial automation',
+        'commercial buildings',
+        'power distribution'
       ]
     }
   },
@@ -346,12 +353,23 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'ms pipes': [
         'fabrication units',
         'structural projects',
-        'industrial piping'
+        'industrial piping',
+        'oil gas'
+      ],
+      'gi pipes': [
+        'plumbing contractors',
+        'building construction',
+        'infrastructure projects'
       ],
       'hdpe pipes': [
         'water supply',
         'irrigation',
         'sewage projects'
+      ],
+      'di pipes': [
+        'municipal water supply',
+        'smart city projects',
+        'infrastructure'
       ]
     }
   },
@@ -380,7 +398,13 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       ],
       'cable trays': [
         'power plants',
-        'industrial installations'
+        'industrial installations',
+        'data centers'
+      ],
+      'steel gratings': [
+        'platforms',
+        'industrial flooring',
+        'infrastructure'
       ]
     }
   },
@@ -395,6 +419,157 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
       'road marking materials': [
         'municipal corporations',
         'road contractors'
+      ],
+      'traffic signs': [
+        'smart cities',
+        'highway authorities',
+        'urban infrastructure'
+      ]
+    }
+  },
+
+  // ============= NEW CATEGORIES =============
+
+  plastic_rubber: {
+    subcategories: {
+      'plastic raw materials': [
+        'injection molding',
+        'extrusion units',
+        'blow molding'
+      ],
+      'rubber products': [
+        'automotive components',
+        'industrial sealing',
+        'tyre manufacturing'
+      ],
+      'recycled plastics': [
+        'packaging',
+        'construction products',
+        'industrial reuse'
+      ]
+    }
+  },
+
+  gfrp_composites: {
+    subcategories: {
+      'gfrp sheets': [
+        'industrial roofing',
+        'chemical plants',
+        'infrastructure'
+      ],
+      'gfrp tanks': [
+        'water treatment',
+        'chemical storage',
+        'effluent treatment'
+      ],
+      'frp gratings': [
+        'industrial flooring',
+        'platforms',
+        'walkways'
+      ]
+    }
+  },
+
+  solar_renewable_energy: {
+    subcategories: {
+      'solar panels': [
+        'solar power plants',
+        'epc contractors',
+        'commercial rooftops'
+      ],
+      'solar inverters': [
+        'renewable energy projects',
+        'industrial rooftops'
+      ],
+      'solar mounting structures': [
+        'solar farms',
+        'industrial installations'
+      ]
+    }
+  },
+
+  industrial_storage_tanks: {
+    subcategories: {
+      'storage tanks': [
+        'chemical plants',
+        'water utilities',
+        'industrial storage'
+      ],
+      'grain silos': [
+        'food storage',
+        'agriculture supply chain',
+        'warehousing'
+      ],
+      'gfs tanks': [
+        'municipal water',
+        'fire water storage',
+        'industrial utilities'
+      ]
+    }
+  },
+
+  packaging_printing: {
+    subcategories: {
+      'corrugated boxes': [
+        'ecommerce',
+        'logistics',
+        'manufacturing'
+      ],
+      'flexible packaging': [
+        'food packaging',
+        'pharmaceutical packaging'
+      ],
+      'labels tags': [
+        'fmcg',
+        'retail',
+        'pharma'
+      ]
+    }
+  },
+
+  paper_paper_products: {
+    subcategories: {
+      'kraft paper': [
+        'packaging industry',
+        'corrugated box plants'
+      ],
+      'tissue paper': [
+        'hospitality',
+        'healthcare',
+        'consumer goods'
+      ]
+    }
+  },
+
+  telecommunication: {
+    subcategories: {
+      'fiber optics': [
+        'telecom operators',
+        'internet service providers'
+      ],
+      'telecom towers': [
+        'network infrastructure',
+        '5g deployment'
+      ]
+    }
+  },
+
+  safety_security: {
+    subcategories: {
+      'ppe': [
+        'manufacturing plants',
+        'construction sites',
+        'industrial safety'
+      ],
+      'cctv systems': [
+        'commercial buildings',
+        'industrial security',
+        'infrastructure'
+      ],
+      'fire safety equipment': [
+        'factories',
+        'warehouses',
+        'commercial complexes'
       ]
     }
   }
