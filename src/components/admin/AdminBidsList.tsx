@@ -343,14 +343,20 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
     if (!editingBid) return;
     setSaving(true);
     try {
+      // Get the current bid items with recalculated totals
+      const updatedBidItems = bidItems.map(item => ({
+        ...item,
+        total: item.unit_price * item.quantity, // Ensure total is recalculated
+      }));
+
       // Update bid items first
-      if (bidItems.length > 0) {
-        for (const item of bidItems) {
+      if (updatedBidItems.length > 0) {
+        for (const item of updatedBidItems) {
           const { error: itemError } = await supabase
             .from('bid_items')
             .update({
               unit_price: item.unit_price,
-              total: item.unit_price * item.quantity, // Recalculate total from unit_price × quantity
+              total: item.total,
             })
             .eq('id', item.id);
           
@@ -358,10 +364,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
         }
       }
 
-      // Calculate supplier_net_price from line items (sum of unit_price × quantity)
-      // This is what the supplier quoted
-      const supplierNetPrice = bidItems.length > 0 
-        ? bidItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)
+      // Calculate supplier_net_price from the SAME updated items
+      // This is what the supplier quoted (sum of unit_price × quantity)
+      const supplierNetPrice = updatedBidItems.length > 0 
+        ? updatedBidItems.reduce((sum, item) => sum + item.total, 0)
         : editForm.bid_amount;
 
       // Calculate profit (0.5% markup on supplier price)
@@ -372,6 +378,13 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
       // bid_amount = buyer visible total (includes markup)
       const bidAmount = buyerVisiblePrice;
       const totalAmount = buyerVisiblePrice;
+
+      console.log('Saving bid with values:', {
+        bidItems: updatedBidItems.map(i => ({ id: i.id, unit_price: i.unit_price, total: i.total })),
+        supplierNetPrice,
+        markupAmount,
+        buyerVisiblePrice,
+      });
 
       const { error } = await supabase
         .from('bids')
