@@ -249,8 +249,18 @@ export function AISalesDashboard() {
     loadSubcategories();
   }, [selectedCategory]);
 
-  const categories = ["steel", "chemicals", "polymers", "textiles", "food-additives", "pharmaceuticals", "aluminium", "copper", "bitumen"];
-  const countries = ["india", "uae", "usa", "germany", "china", "brazil", "south-africa"];
+  // ✅ Categories loaded dynamically from master map (all 29+ categories)
+  const [categories, setCategories] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const loadCategories = async () => {
+      const { getMappedCategories } = await import('@/data/categorySubcategoryMap');
+      setCategories(getMappedCategories());
+    };
+    loadCategories();
+  }, []);
+  
+  const countries = ["india", "uae", "usa", "germany", "china", "brazil", "south-africa", "singapore", "uk", "australia", "japan", "saudi-arabia"];
   const companyRoles = [
     { value: "buyer", label: "Buyer" },
     { value: "supplier", label: "Supplier" },
@@ -276,10 +286,10 @@ export function AISalesDashboard() {
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-80">
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+                  {cat.split(/[_\-&\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                 </SelectItem>
               ))}
             </SelectContent>
