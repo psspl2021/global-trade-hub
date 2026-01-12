@@ -53,6 +53,7 @@ interface Bid {
     product_category: string;
     quantity: number;
     unit: string;
+    trade_type?: string;
   } | null;
   supplier: {
     company_name: string;
@@ -132,6 +133,17 @@ const parseItemsFromTerms = (terms: string | null): ParsedItem[] => {
   }
   
   return items;
+};
+
+// Helper to get profit percentage based on trade type
+// Domestic (India) = 0.5%, Export/Import = 2%
+const getProfitPercentage = (tradeType?: string | null): number => {
+  if (!tradeType) return 0.005; // Default to domestic
+  const type = tradeType.toLowerCase();
+  if (type === 'export' || type === 'import') {
+    return 0.02; // 2% for export/import
+  }
+  return 0.005; // 0.5% for domestic
 };
 
 export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
@@ -313,7 +325,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
       const supplierIds = [...new Set(supplierBids.map(b => b.supplier_id))];
 
       const [reqRes, profRes, bidItemsRes] = await Promise.all([
-        supabase.from('requirements').select('id, title, product_category, quantity, unit').in('id', reqIds),
+        supabase.from('requirements').select('id, title, product_category, quantity, unit, trade_type').in('id', reqIds),
         supabase.from('profiles').select('id, company_name, email').in('id', supplierIds),
         supabase.from('bid_items').select('id, bid_id, requirement_item_id, unit_price, quantity, total').in('bid_id', bidIds),
       ]);
@@ -600,8 +612,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           
                           // Calculate from bid_items if available (correct calculation)
                           // Supplier Total = sum of (unit_price × quantity) for all line items
-                          // Profit = 0.5% of each line item's total (unit_price × 0.005 × quantity)
+                          // Profit = based on trade type: 0.5% domestic, 2% export/import
                           const hasBidItems = bid.bid_items && bid.bid_items.length > 0;
+                          const profitPct = getProfitPercentage(bid.requirement?.trade_type);
                           
                           let supplierTotal: number;
                           let profitTotal: number;
@@ -609,9 +622,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           if (hasBidItems) {
                             // Calculate from bid_items - use unit_price × quantity (not item.total which may be stored incorrectly)
                             supplierTotal = bid.bid_items!.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
-                            // Profit is 0.5% of each item's rate (rounded per unit)
+                            // Profit based on trade type
                             profitTotal = bid.bid_items!.reduce((sum, item) => {
-                              const profitPerUnit = Math.round(item.unit_price * 0.005);
+                              const profitPerUnit = Math.round(item.unit_price * profitPct);
                               return sum + (profitPerUnit * item.quantity);
                             }, 0);
                           } else {
@@ -620,13 +633,13 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                             if (parsedItems.length > 0) {
                               supplierTotal = parsedItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
                               profitTotal = parsedItems.reduce((sum, item) => {
-                                const profitPerUnit = Math.round(item.unit_price * 0.005);
+                                const profitPerUnit = Math.round(item.unit_price * profitPct);
                                 return sum + (profitPerUnit * item.quantity);
                               }, 0);
                             } else {
                               // Final fallback to database values
                               supplierTotal = bid.supplier_net_price || bid.bid_amount || 0;
-                              profitTotal = bid.markup_amount || Math.round(supplierTotal * 0.005);
+                              profitTotal = bid.markup_amount || Math.round(supplierTotal * profitPct);
                             }
                           }
                           
@@ -929,6 +942,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
               <div className="bg-muted/50 p-3 rounded-lg text-sm">
                 <p className="font-medium">{editingBid.requirement?.title}</p>
                 <p className="text-muted-foreground">{editingBid.supplier?.company_name}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Trade Type: <span className="font-medium">{editingBid.requirement?.trade_type || 'Domestic'}</span>
+                  {' • '}Profit: <span className="font-medium text-success">{editingBid.requirement?.trade_type?.toLowerCase() === 'export' || editingBid.requirement?.trade_type?.toLowerCase() === 'import' ? '2%' : '0.5%'}</span>
+                </p>
               </div>
 
               {/* Line Items Section */}
@@ -938,6 +955,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   <span className="ml-2 text-sm text-muted-foreground">Loading line items...</span>
                 </div>
               ) : (() => {
+                // Get profit percentage based on trade type
+                const profitPct = getProfitPercentage(editingBid.requirement?.trade_type);
+                
                 // Try to use bid_items, fallback to parsing from terms_and_conditions
                 const displayItems = bidItems.length > 0 
                   ? bidItems 
@@ -979,7 +999,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           </thead>
                           <tbody>
                             {displayItems.map((item, idx) => {
-                              const profitPerUnit = Math.round(item.unit_price * 0.005); // 0.5% profit per unit
+                              const profitPerUnit = Math.round(item.unit_price * profitPct); // profit per unit based on trade type
                               const supplierTotal = item.unit_price * item.quantity; // Rate × Qty
                               const profitTotal = profitPerUnit * item.quantity; // Profit × Qty
                               const bidAmountPerUnit = item.unit_price + profitPerUnit; // Rate + Profit per unit
@@ -1047,11 +1067,11 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                 -
                               </td>
                               <td className="text-xs py-2 px-2 text-right text-success">
-                                ₹{Math.round(displayItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0)).toLocaleString()}
+                                ₹{Math.round(displayItems.reduce((sum, item) => sum + (Math.round(item.unit_price * profitPct) * item.quantity), 0)).toLocaleString()}
                               </td>
                               <td className="text-xs py-2 px-2 text-right font-bold">
                                 ₹{Math.round(displayItems.reduce((sum, item) => {
-                                  const profitPerUnit = Math.round(item.unit_price * 0.005);
+                                  const profitPerUnit = Math.round(item.unit_price * profitPct);
                                   const bidAmtPerUnit = item.unit_price + profitPerUnit;
                                   return sum + (bidAmtPerUnit * item.quantity);
                                 }, 0)).toLocaleString()}
@@ -1070,6 +1090,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
               })()}
 
               {(() => {
+                // Get profit percentage based on trade type
+                const profitPct = getProfitPercentage(editingBid.requirement?.trade_type);
+                
                 // Get display items (bid_items or parsed from terms)
                 const displayItems = bidItems.length > 0 
                   ? bidItems 
@@ -1081,12 +1104,12 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                   : editForm.bid_amount;
                 
                 const profitCalc = hasItems
-                  ? Math.round(displayItems.reduce((sum, item) => sum + (Math.round(item.unit_price * 0.005) * item.quantity), 0))
+                  ? Math.round(displayItems.reduce((sum, item) => sum + (Math.round(item.unit_price * profitPct) * item.quantity), 0))
                   : editForm.service_fee;
                 
                 const buyerAmtCalc = hasItems
                   ? Math.round(displayItems.reduce((sum, item) => {
-                      const profitPerUnit = Math.round(item.unit_price * 0.005);
+                      const profitPerUnit = Math.round(item.unit_price * profitPct);
                       const buyerAmtPerUnit = item.unit_price + profitPerUnit;
                       return sum + (buyerAmtPerUnit * item.quantity);
                     }, 0))
