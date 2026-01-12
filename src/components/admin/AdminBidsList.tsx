@@ -532,11 +532,15 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const unit = bid.requirement?.unit || 'unit';
                           const dispatchedQty = bid.dispatched_qty || 0;
                           
-                          // Simple calculation: Supplier net price is base, profit is 0.5%
-                          const supplierTotal = bid.supplier_net_price || bid.bid_amount || 0;
-                          const supplierRatePerUnit = supplierTotal / qty;
-                          const profitPerUnit = Math.round(supplierRatePerUnit * 0.005); // 0.5% profit
+                          // bid_amount is the supplier's per-unit rate
+                          const supplierRatePerUnit = bid.bid_amount || 0;
+                          const supplierTotal = supplierRatePerUnit * qty;
+                          
+                          // Calculate 0.5% profit on supplier rate
+                          const profitPerUnit = Math.round(supplierRatePerUnit * 0.005);
                           const profitTotal = profitPerUnit * qty;
+                          
+                          // Buyer amount = supplier rate + profit
                           const buyerAmountPerUnit = supplierRatePerUnit + profitPerUnit;
                           const buyerTotal = buyerAmountPerUnit * qty;
                           
