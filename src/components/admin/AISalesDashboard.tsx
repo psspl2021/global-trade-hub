@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users, Target, FileText, TrendingUp, Globe, RefreshCw, Mail, Brain, Loader2, Building, Search, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getMappedCategories, prettyLabel } from '@/data/categorySubcategoryMap';
 
 // Lazy load heavy tab components
 const AISalesLeadsManager = lazy(() => import("./AISalesLeadsManager").then(m => ({ default: m.AISalesLeadsManager })));
@@ -249,16 +250,8 @@ export function AISalesDashboard() {
     loadSubcategories();
   }, [selectedCategory]);
 
-  // ✅ Categories loaded dynamically from master map (all 29+ categories)
-  const [categories, setCategories] = useState<string[]>([]);
-  
-  useEffect(() => {
-    const loadCategories = async () => {
-      const { getMappedCategories } = await import('@/data/categorySubcategoryMap');
-      setCategories(getMappedCategories());
-    };
-    loadCategories();
-  }, []);
+  // ✅ Categories from master map (single source of truth)
+  const categories = getMappedCategories();
   
   const countries = ["india", "uae", "usa", "germany", "china", "brazil", "south-africa", "singapore", "uk", "australia", "japan", "saudi-arabia"];
   const companyRoles = [
@@ -289,7 +282,7 @@ export function AISalesDashboard() {
             <SelectContent className="max-h-80">
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
-                  {cat.split(/[_\-&\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                  {prettyLabel(cat)}
                 </SelectItem>
               ))}
             </SelectContent>
