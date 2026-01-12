@@ -532,22 +532,23 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const unit = bid.requirement?.unit || 'unit';
                           const dispatchedQty = bid.dispatched_qty || 0;
                           
-                          // bid_amount is the supplier's per-unit rate
-                          const supplierRatePerUnit = bid.bid_amount || 0;
-                          const supplierTotal = supplierRatePerUnit * qty;
+                          // bid_amount is the supplier's TOTAL amount (not per-unit)
+                          const supplierTotal = bid.bid_amount || 0;
+                          const supplierRatePerUnit = supplierTotal / qty;
                           
-                          // Calculate 0.5% profit on supplier rate
-                          const profitPerUnit = Math.round(supplierRatePerUnit * 0.005);
-                          const profitTotal = profitPerUnit * qty;
+                          // Calculate 0.5% profit on supplier total
+                          const profitTotal = Math.round(supplierTotal * 0.005);
+                          const profitPerUnit = Math.round(profitTotal / qty);
                           
-                          // Buyer amount = supplier rate + profit
-                          const buyerAmountPerUnit = supplierRatePerUnit + profitPerUnit;
-                          const buyerTotal = buyerAmountPerUnit * qty;
+                          // Buyer amount = supplier total + profit
+                          const buyerTotal = supplierTotal + profitTotal;
+                          const buyerAmountPerUnit = Math.round(buyerTotal / qty);
                           
-                          // Calculate dispatched values
-                          const dispatchedSupplierValue = supplierRatePerUnit * dispatchedQty;
-                          const dispatchedProfit = profitPerUnit * dispatchedQty;
-                          const dispatchedBuyerValue = buyerAmountPerUnit * dispatchedQty;
+                          // Calculate dispatched values proportionally
+                          const dispatchRatio = dispatchedQty / qty;
+                          const dispatchedSupplierValue = supplierTotal * dispatchRatio;
+                          const dispatchedProfit = profitTotal * dispatchRatio;
+                          const dispatchedBuyerValue = buyerTotal * dispatchRatio;
                           const referrerAmount = dispatchedProfit * 0.2; // 20% referrer share
 
                           return (
@@ -574,13 +575,13 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm space-y-0.5">
-                                  <div className="font-medium">₹{Math.round(buyerAmountPerUnit).toLocaleString()}/{unit}</div>
+                                  <div className="font-medium">₹{buyerAmountPerUnit.toLocaleString()}/{unit}</div>
                                   <div className="text-muted-foreground">₹{Math.round(buyerTotal).toLocaleString()}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
-                                  <div className="text-success font-medium">₹{Math.round(profitTotal).toLocaleString()}</div>
+                                  <div className="text-success font-medium">₹{profitTotal.toLocaleString()}</div>
                                   <div className="text-xs text-muted-foreground">₹{profitPerUnit.toLocaleString()}/{unit}</div>
                                 </div>
                               </TableCell>
