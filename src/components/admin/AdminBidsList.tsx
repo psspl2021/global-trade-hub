@@ -900,7 +900,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
 
       {/* Edit Supplier Bid Dialog */}
       <Dialog open={!!editingBid} onOpenChange={(open) => !open && setEditingBid(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-4xl w-[90vw] max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pencil className="h-5 w-5" />
@@ -909,7 +909,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
           </DialogHeader>
 
           {editingBid && (
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
               <div className="bg-muted/50 p-3 rounded-lg text-sm">
                 <p className="font-medium">{editingBid.requirement?.title}</p>
                 <p className="text-muted-foreground">{editingBid.supplier?.company_name}</p>
