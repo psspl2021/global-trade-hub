@@ -1,6 +1,11 @@
 /**
  * MASTER DATA: Category → Subcategory → Industry Mapping
  * This is the single source of truth for lead discovery targeting
+ * 
+ * ✅ AI-discovery ready
+ * ✅ Deduplication & fingerprint friendly
+ * ✅ Scalable (India + global)
+ * ✅ IndiaMART / ProcureSaathi style
  */
 
 export interface SubcategoryIndustryMap {
@@ -8,432 +13,388 @@ export interface SubcategoryIndustryMap {
 }
 
 export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
-  steel: {
+  agriculture_equipment_supplies: {
     subcategories: {
-      'tmt bars': [
-        'construction & infrastructure',
-        'real estate developers',
-        'road & bridge projects'
+      'agricultural machinery': [
+        'crop farming',
+        'commercial agriculture',
+        'plantations',
+        'agro contractors'
       ],
-      'ms pipes': [
-        'oil & gas',
-        'water pipelines',
-        'industrial fabrication'
+      'irrigation equipment': [
+        'agriculture farms',
+        'horticulture',
+        'greenhouse farming'
       ],
-      'hr coil': [
-        'automotive manufacturing',
-        'heavy engineering',
-        'shipbuilding'
+      'seeds plants': [
+        'seed companies',
+        'nurseries',
+        'commercial farming'
       ],
-      'cr coil': [
-        'appliances',
-        'precision engineering',
-        'electronics enclosures'
+      'fertilizers pesticides': [
+        'agrochemical companies',
+        'crop protection',
+        'organic farming'
       ],
-      'structural steel': [
-        'steel fabrication & structures',
-        'warehouses',
-        'industrial sheds'
+      'farm tools equipment': [
+        'small farmers',
+        'agro traders',
+        'plantation estates'
       ],
-      'stainless steel': [
-        'food processing equipment',
-        'pharmaceutical equipment',
-        'kitchen & hospitality'
-      ],
-      'galvanized steel': [
-        'roofing & cladding',
-        'automotive parts',
-        'electrical enclosures'
-      ],
-      'wire rods': [
-        'fasteners manufacturing',
-        'wire mesh production',
-        'fencing'
+      'animal feed': [
+        'dairy farms',
+        'poultry farms',
+        'livestock farms'
       ]
     }
   },
 
-  chemicals: {
+  auto_vehicle_accessories: {
     subcategories: {
-      'solvents': [
-        'pharmaceutical manufacturing',
-        'paints & coatings',
-        'adhesives'
+      'car parts': [
+        'automobile workshops',
+        'vehicle manufacturers',
+        'aftermarket distributors'
       ],
-      'resins': [
-        'plastics & polymers',
-        'laminates',
-        'automotive parts'
+      'truck parts': [
+        'logistics fleets',
+        'transport companies',
+        'fleet operators'
       ],
-      'acids': [
-        'metal processing',
-        'battery manufacturing',
-        'fertilizers'
+      'motorcycle parts': [
+        'two wheeler manufacturers',
+        'service centers'
       ],
-      'pigments': [
-        'paints & coatings',
-        'textiles',
-        'printing inks'
+      'auto batteries': [
+        'automotive service centers',
+        'fleet operators',
+        'battery distributors'
       ],
-      'surfactants': [
-        'detergents & soaps',
-        'personal care',
-        'industrial cleaning'
+      'tires wheels': [
+        'transport companies',
+        'vehicle dealerships'
+      ]
+    }
+  },
+
+  building_construction: {
+    subcategories: {
+      'cement concrete': [
+        'real estate developers',
+        'infrastructure projects',
+        'construction contractors'
       ],
-      'catalysts': [
-        'petrochemicals',
-        'refining',
-        'specialty chemicals'
+      'roofing sheets': [
+        'industrial sheds',
+        'warehouses',
+        'factory buildings'
+      ],
+      'doors windows': [
+        'real estate projects',
+        'commercial buildings',
+        'residential developers'
+      ],
+      'paints coatings': [
+        'construction projects',
+        'industrial maintenance',
+        'real estate finishing'
+      ],
+      'plumbing supplies': [
+        'real estate developers',
+        'commercial complexes',
+        'infrastructure projects'
+      ]
+    }
+  },
+
+  chemicals_raw_materials: {
+    subcategories: {
+      'industrial chemicals': [
+        'manufacturing plants',
+        'process industries',
+        'bulk chemical users'
       ],
       'specialty chemicals': [
         'electronics manufacturing',
         'pharmaceutical formulation',
+        'textile processing'
+      ],
+      'water treatment chemicals': [
+        'water treatment plants',
+        'municipal corporations',
+        'industrial utilities'
+      ],
+      'surfactants': [
+        'detergents',
+        'personal care',
+        'industrial cleaning'
+      ],
+      'paint coating chemicals': [
+        'paint manufacturers',
+        'coating industries'
+      ]
+    }
+  },
+
+  electrical_equipment_supplies: {
+    subcategories: {
+      'wires cables': [
+        'infrastructure projects',
+        'power utilities',
+        'industrial plants'
+      ],
+      'transformers': [
+        'power distribution',
+        'renewable energy',
+        'utility companies'
+      ],
+      'control panels': [
+        'industrial automation',
+        'manufacturing plants'
+      ]
+    }
+  },
+
+  electronics_components: {
+    subcategories: {
+      'semiconductors': [
+        'electronics manufacturing',
+        'telecom equipment',
+        'automotive electronics'
+      ],
+      'pcbs': [
+        'consumer electronics',
+        'industrial controls',
+        'iot manufacturers'
+      ],
+      'connectors': [
+        'electronics assembly',
+        'automotive wiring'
+      ]
+    }
+  },
+
+  energy_power: {
+    subcategories: {
+      'solar equipment': [
+        'solar projects',
+        'renewable energy developers',
+        'epc contractors'
+      ],
+      'generators': [
+        'industrial backup power',
+        'commercial buildings',
+        'data centers'
+      ],
+      'energy storage': [
+        'renewable integration',
+        'grid storage',
+        'industrial power backup'
+      ]
+    }
+  },
+
+  food_beverages: {
+    subcategories: {
+      'grains cereals': [
+        'food processing plants',
+        'flour mills',
+        'exporters'
+      ],
+      'dairy products': [
+        'dairy processors',
+        'food brands',
+        'institutional buyers'
+      ],
+      'nutraceuticals': [
+        'health brands',
+        'supplement manufacturers',
+        'pharma nutrition'
+      ]
+    }
+  },
+
+  flavors_fragrances: {
+    subcategories: {
+      'food flavors': [
+        'food processing',
+        'beverage manufacturing',
+        'snack brands'
+      ],
+      'fine fragrances': [
+        'cosmetics brands',
+        'luxury perfumery',
+        'personal care'
+      ]
+    }
+  },
+
+  hardware_tools: {
+    subcategories: {
+      'hand tools': [
+        'construction contractors',
+        'industrial maintenance',
+        'workshops'
+      ],
+      'fasteners': [
+        'machinery manufacturing',
+        'fabrication units',
+        'automotive assembly'
+      ]
+    }
+  },
+
+  medical_healthcare: {
+    subcategories: {
+      'medical equipment': [
+        'hospitals',
+        'diagnostic centers',
+        'healthcare chains'
+      ],
+      'lab equipment': [
+        'research labs',
+        'diagnostic labs',
+        'pharma r&d'
+      ]
+    }
+  },
+
+  industrial_supplies: {
+    subcategories: {
+      'pumps valves': [
+        'process industries',
+        'oil gas',
         'water treatment'
+      ],
+      'bearings seals': [
+        'machinery manufacturing',
+        'industrial maintenance'
       ]
     }
   },
 
-  polymers: {
+  metals_ferrous: {
     subcategories: {
-      'hdpe': [
-        'packaging & film',
-        'pipes & fittings',
-        'blow molding'
+      'tmt bars': [
+        'construction projects',
+        'real estate developers',
+        'infrastructure contractors'
       ],
-      'ldpe': [
-        'flexible packaging',
-        'agriculture films',
-        'cable insulation'
+      'hr cr coils': [
+        'automotive manufacturing',
+        'engineering industries',
+        'pipe manufacturers'
       ],
-      'pp': [
-        'automotive components',
-        'consumer goods',
-        'textile fibers'
-      ],
-      'pvc': [
-        'construction pipes',
-        'electrical conduits',
-        'profiles & windows'
-      ],
-      'pet': [
-        'beverage bottles',
-        'food packaging',
-        'textile fibers'
-      ],
-      'abs': [
-        'electronics housings',
-        'automotive interiors',
-        'appliances'
-      ],
-      'engineering plastics': [
-        'precision parts',
-        'medical devices',
-        'aerospace components'
+      'steel pipes': [
+        'oil gas',
+        'water pipelines',
+        'industrial fabrication'
       ]
     }
   },
 
-  textiles: {
+  metals_non_ferrous: {
     subcategories: {
-      'cotton fabric': [
-        'garment manufacturing',
-        'home textiles',
-        'industrial textiles'
-      ],
-      'synthetic fabric': [
-        'sportswear',
-        'technical textiles',
-        'automotive upholstery'
-      ],
-      'yarn': [
-        'weaving mills',
-        'knitting units',
-        'embroidery'
-      ],
-      'dyes & chemicals': [
-        'textile processing',
-        'dyeing units',
-        'printing mills'
-      ],
-      'technical textiles': [
+      'aluminium products': [
         'automotive',
-        'medical textiles',
-        'geotextiles'
+        'packaging',
+        'construction'
+      ],
+      'copper products': [
+        'electrical cables',
+        'hvac',
+        'electronics'
       ]
     }
   },
 
-  pharmaceuticals: {
+  pharmaceuticals_drugs: {
     subcategories: {
       'apis': [
-        'formulation manufacturing',
+        'formulation manufacturers',
         'contract manufacturing',
-        'generic drugs'
+        'export pharma'
       ],
       'intermediates': [
         'api synthesis',
         'custom synthesis',
-        'specialty intermediates'
+        'bulk drug manufacturers'
       ],
       'excipients': [
         'tablet manufacturing',
-        'capsule formulation',
-        'injectable formulation'
-      ],
-      'formulation': [
-        'branded pharma',
-        'generic pharma',
-        'nutraceuticals'
+        'capsule formulation'
       ]
     }
   },
 
-  aluminium: {
+  polymers_resins: {
     subcategories: {
-      'ingots': [
-        'die casting',
-        'foundry',
-        'extrusion'
-      ],
-      'sheets': [
-        'automotive body panels',
+      'polyethylene': [
         'packaging',
-        'construction cladding'
+        'pipes fittings',
+        'blow molding'
       ],
-      'extrusions': [
-        'windows & doors',
-        'structural framing',
-        'heat sinks'
-      ],
-      'foil': [
-        'flexible packaging',
-        'pharmaceutical blister',
-        'cable wrap'
-      ],
-      'wire rods': [
-        'electrical cables',
-        'conductors',
-        'transmission lines'
+      'polypropylene': [
+        'automotive parts',
+        'consumer goods'
       ]
     }
   },
 
-  copper: {
+  pipes_tubes: {
     subcategories: {
-      'cathodes': [
-        'wire drawing',
-        'rod manufacturing',
-        'brass making'
+      'ms pipes': [
+        'fabrication units',
+        'structural projects',
+        'industrial piping'
       ],
-      'wire rods': [
-        'cable manufacturing',
-        'winding wires',
-        'electrical conductors'
-      ],
-      'strips': [
-        'connectors',
-        'heat exchangers',
-        'busbars'
-      ],
-      'tubes': [
-        'hvac systems',
-        'plumbing',
-        'heat exchangers'
+      'hdpe pipes': [
+        'water supply',
+        'irrigation',
+        'sewage projects'
       ]
     }
   },
 
-  bitumen: {
+  petroleum_bitumen: {
     subcategories: {
-      'vg grades': [
+      'bitumen': [
         'road construction',
         'highway projects',
-        'airport runways'
+        'infrastructure'
       ],
-      'modified bitumen': [
-        'high traffic roads',
-        'bridge decks',
-        'industrial flooring'
-      ],
-      'emulsion': [
-        'surface dressing',
-        'tack coat',
-        'cold mix'
-      ],
-      'cutback': [
-        'prime coat',
-        'maintenance works',
-        'rural roads'
-      ]
-    }
-  },
-
-  'food additives': {
-    subcategories: {
-      'preservatives': [
-        'processed foods',
-        'beverages',
-        'dairy products'
-      ],
-      'emulsifiers': [
-        'bakery',
-        'confectionery',
-        'ice cream'
-      ],
-      'flavors': [
-        'beverages',
-        'snacks',
-        'dairy'
-      ],
-      'colors': [
-        'confectionery',
-        'beverages',
-        'processed foods'
-      ],
-      'sweeteners': [
-        'beverages',
-        'confectionery',
-        'health foods'
-      ],
-      'stabilizers': [
-        'dairy',
-        'sauces',
-        'frozen foods'
-      ]
-    }
-  },
-
-  'cosmetics & personal care': {
-    subcategories: {
-      'surfactants': [
-        'shampoos',
-        'body wash',
-        'face cleansers'
-      ],
-      'emollients': [
-        'creams & lotions',
-        'lip care',
-        'hair care'
-      ],
-      'active ingredients': [
-        'anti-aging',
-        'sunscreens',
-        'acne treatment'
-      ],
-      'fragrances': [
-        'perfumes',
-        'body care',
-        'hair care'
-      ],
-      'pigments': [
-        'makeup',
-        'nail polish',
-        'hair color'
-      ]
-    }
-  },
-
-  'flavors & fragrances': {
-    subcategories: {
-      'food flavors': [
-        'beverages',
-        'dairy',
-        'bakery'
-      ],
-      'fine fragrances': [
-        'perfumery',
-        'luxury cosmetics',
-        'premium personal care'
-      ],
-      'functional fragrances': [
-        'household products',
-        'detergents',
-        'air fresheners'
-      ],
-      'essential oils': [
-        'aromatherapy',
-        'natural cosmetics',
-        'food & beverage'
-      ]
-    }
-  },
-
-  electronics: {
-    subcategories: {
-      'pcb': [
-        'consumer electronics',
-        'automotive electronics',
-        'industrial controls'
-      ],
-      'semiconductors': [
-        'computing devices',
-        'telecom equipment',
-        'automotive'
-      ],
-      'passive components': [
-        'pcb assembly',
-        'power electronics',
-        'lighting'
-      ],
-      'connectors': [
-        'automotive',
+      'lubricants': [
         'industrial machinery',
-        'consumer electronics'
+        'automotive service',
+        'fleet operators'
       ]
     }
   },
 
-  agriculture: {
+  steel_fabrication_structures: {
     subcategories: {
-      'fertilizers': [
-        'crop farming',
-        'horticulture',
-        'plantations'
+      'ms structures': [
+        'industrial sheds',
+        'warehouses',
+        'factory buildings'
       ],
-      'pesticides': [
-        'crop protection',
-        'seed treatment',
-        'post-harvest'
-      ],
-      'seeds': [
-        'agriculture farms',
-        'nurseries',
-        'research institutions'
-      ],
-      'bio inputs': [
-        'organic farming',
-        'sustainable agriculture',
-        'soil health'
+      'cable trays': [
+        'power plants',
+        'industrial installations'
       ]
     }
   },
 
-  food: {
+  road_safety_infrastructure: {
     subcategories: {
-      'grains & cereals': [
-        'flour mills',
-        'breakfast cereals',
-        'bakery'
+      'crash barriers': [
+        'highway projects',
+        'road authorities',
+        'infrastructure epc'
       ],
-      'oils & fats': [
-        'food processing',
-        'bakery',
-        'snacks'
-      ],
-      'dairy ingredients': [
-        'dairy processing',
-        'bakery',
-        'confectionery'
-      ],
-      'meat & poultry': [
-        'restaurants',
-        'food service',
-        'processing plants'
-      ],
-      'spices & seasonings': [
-        'food processing',
-        'restaurants',
-        'retail'
+      'road marking materials': [
+        'municipal corporations',
+        'road contractors'
       ]
     }
   }
@@ -441,7 +402,7 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
 
 // Get all subcategories for a category
 export const getSubcategoriesForCategory = (category: string): string[] => {
-  const normalizedCategory = category.toLowerCase();
+  const normalizedCategory = category.toLowerCase().replace(/[\s&]+/g, '_');
   const categoryData = categorySubcategoryMap[normalizedCategory];
   if (!categoryData) return [];
   return Object.keys(categoryData.subcategories);
@@ -449,7 +410,7 @@ export const getSubcategoriesForCategory = (category: string): string[] => {
 
 // Get industries for a specific subcategory
 export const getIndustriesForSubcategory = (category: string, subcategory: string): string[] => {
-  const normalizedCategory = category.toLowerCase();
+  const normalizedCategory = category.toLowerCase().replace(/[\s&]+/g, '_');
   const normalizedSubcategory = subcategory.toLowerCase();
   const categoryData = categorySubcategoryMap[normalizedCategory];
   if (!categoryData) return [];
@@ -458,7 +419,7 @@ export const getIndustriesForSubcategory = (category: string, subcategory: strin
 
 // Get all industries for a category (across all subcategories)
 export const getAllIndustriesForCategory = (category: string): string[] => {
-  const normalizedCategory = category.toLowerCase();
+  const normalizedCategory = category.toLowerCase().replace(/[\s&]+/g, '_');
   const categoryData = categorySubcategoryMap[normalizedCategory];
   if (!categoryData) return [];
   
@@ -492,6 +453,7 @@ export const getAllSubcategories = (): string[] => {
 // Convert slug to human-readable format
 export const prettyLabel = (slug: string): string => {
   return slug
+    .replace(/_/g, ' ')
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
@@ -500,4 +462,14 @@ export const prettyLabel = (slug: string): string => {
 // Get category options that have subcategory mapping
 export const getMappedCategories = (): string[] => {
   return Object.keys(categorySubcategoryMap);
+};
+
+// Get category key from display name
+export const getCategoryKey = (displayName: string): string => {
+  return displayName.toLowerCase().replace(/[\s&]+/g, '_');
+};
+
+// Get display name from category key
+export const getCategoryDisplayName = (key: string): string => {
+  return prettyLabel(key);
 };
