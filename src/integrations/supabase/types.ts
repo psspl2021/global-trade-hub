@@ -511,6 +511,71 @@ export type Database = {
         }
         Relationships: []
       }
+      award_audit_logs: {
+        Row: {
+          action: string
+          award_type: string | null
+          bid_id: string | null
+          coverage_percentage: number | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          metadata: Json | null
+          requirement_id: string | null
+        }
+        Insert: {
+          action: string
+          award_type?: string | null
+          bid_id?: string | null
+          coverage_percentage?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metadata?: Json | null
+          requirement_id?: string | null
+        }
+        Update: {
+          action?: string
+          award_type?: string | null
+          bid_id?: string | null
+          coverage_percentage?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metadata?: Json | null
+          requirement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "award_audit_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "award_audit_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "award_audit_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "award_audit_logs_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bid_items: {
         Row: {
           bid_id: string
@@ -572,6 +637,10 @@ export type Database = {
       }
       bids: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
+          award_justification: string | null
+          award_type: string | null
           bid_amount: number
           buyer_logistics_price: number | null
           buyer_material_price: number | null
@@ -602,6 +671,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          award_justification?: string | null
+          award_type?: string | null
           bid_amount: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
@@ -632,6 +705,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          award_justification?: string | null
+          award_type?: string | null
           bid_amount?: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
