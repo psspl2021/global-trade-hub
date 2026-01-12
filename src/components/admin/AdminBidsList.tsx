@@ -339,11 +339,31 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
     if (!editingBid) return;
     setSaving(true);
     try {
-      const totalAmount = editForm.bid_amount + editForm.service_fee;
+      // Update bid items first
+      if (bidItems.length > 0) {
+        for (const item of bidItems) {
+          const { error: itemError } = await supabase
+            .from('bid_items')
+            .update({
+              unit_price: item.unit_price,
+              total: item.total,
+            })
+            .eq('id', item.id);
+          
+          if (itemError) throw itemError;
+        }
+      }
+
+      // Calculate bid_amount from line items if they exist
+      const calculatedBidAmount = bidItems.length > 0 
+        ? bidItems.reduce((sum, item) => sum + item.total, 0)
+        : editForm.bid_amount;
+
+      const totalAmount = calculatedBidAmount + editForm.service_fee;
       const { error } = await supabase
         .from('bids')
         .update({
-          bid_amount: editForm.bid_amount,
+          bid_amount: calculatedBidAmount,
           service_fee: editForm.service_fee,
           total_amount: totalAmount,
           delivery_timeline_days: editForm.delivery_timeline_days,
@@ -826,21 +846,33 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                       <TableHeader>
                         <TableRow className="bg-muted/30">
                           <TableHead className="text-xs py-2">Item</TableHead>
-                          <TableHead className="text-xs py-2 text-right">Rate</TableHead>
+                          <TableHead className="text-xs py-2 text-right">Rate (₹)</TableHead>
                           <TableHead className="text-xs py-2 text-right">Qty</TableHead>
-                          <TableHead className="text-xs py-2 text-right">Total</TableHead>
+                          <TableHead className="text-xs py-2 text-right">Total (₹)</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {bidItems.map((item, idx) => (
                           <TableRow key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
-                            <TableCell className="text-xs py-2 max-w-[200px]">
+                            <TableCell className="text-xs py-2 max-w-[180px]">
                               <span className="line-clamp-2" title={item.item_name}>
                                 {item.item_name}
                               </span>
                             </TableCell>
-                            <TableCell className="text-xs py-2 text-right whitespace-nowrap">
-                              ₹{item.unit_price.toLocaleString()}/{item.unit}
+                            <TableCell className="text-xs py-2 text-right">
+                              <Input
+                                type="number"
+                                className="w-24 h-7 text-xs text-right ml-auto"
+                                value={item.unit_price}
+                                onChange={(e) => {
+                                  const newPrice = Number(e.target.value) || 0;
+                                  setBidItems(prev => prev.map(bi => 
+                                    bi.id === item.id 
+                                      ? { ...bi, unit_price: newPrice, total: newPrice * bi.quantity }
+                                      : bi
+                                  ));
+                                }}
+                              />
                             </TableCell>
                             <TableCell className="text-xs py-2 text-right whitespace-nowrap">
                               {item.quantity} {item.unit}
