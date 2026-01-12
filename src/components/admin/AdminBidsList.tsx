@@ -23,6 +23,17 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination';
 
+interface BidItem {
+  id: string;
+  bid_id: string;
+  requirement_item_id: string;
+  unit_price: number;
+  quantity: number;
+  total: number;
+  item_name?: string;
+  unit?: string;
+}
+
 interface Bid {
   id: string;
   bid_amount: number;
@@ -108,6 +119,8 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [editingBid, setEditingBid] = useState<Bid | null>(null);
   const [editingLogisticsBid, setEditingLogisticsBid] = useState<LogisticsBid | null>(null);
   const [saving, setSaving] = useState(false);
+  const [bidItems, setBidItems] = useState<BidItem[]>([]);
+  const [loadingBidItems, setLoadingBidItems] = useState(false);
 
   // Edit form state for supplier bids
   const [editForm, setEditForm] = useState({
@@ -159,6 +172,10 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
         status: editingBid.status,
         terms_and_conditions: editingBid.terms_and_conditions || '',
       });
+      // Fetch bid items when editing a bid
+      fetchBidItems(editingBid.id);
+    } else {
+      setBidItems([]);
     }
   }, [editingBid]);
 
@@ -174,6 +191,46 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
       });
     }
   }, [editingLogisticsBid]);
+
+  const fetchBidItems = async (bidId: string) => {
+    setLoadingBidItems(true);
+    try {
+      // Get bid items with their requirement item details
+      const { data: items, error } = await supabase
+        .from('bid_items')
+        .select('id, bid_id, requirement_item_id, unit_price, quantity, total')
+        .eq('bid_id', bidId);
+
+      if (error) throw error;
+
+      if (items && items.length > 0) {
+        // Fetch requirement items for names
+        const reqItemIds = items.map(i => i.requirement_item_id);
+        const { data: reqItems } = await supabase
+          .from('requirement_items')
+          .select('id, item_name, unit')
+          .in('id', reqItemIds);
+
+        const itemsWithNames: BidItem[] = items.map(item => {
+          const reqItem = reqItems?.find(ri => ri.id === item.requirement_item_id);
+          return {
+            ...item,
+            item_name: reqItem?.item_name || 'Unknown Item',
+            unit: reqItem?.unit || 'unit',
+          };
+        });
+
+        setBidItems(itemsWithNames);
+      } else {
+        setBidItems([]);
+      }
+    } catch (error) {
+      console.error('Error fetching bid items:', error);
+      setBidItems([]);
+    } finally {
+      setLoadingBidItems(false);
+    }
+  };
 
   const fetchTabCounts = async () => {
     try {
@@ -749,11 +806,67 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
           </DialogHeader>
 
           {editingBid && (
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
               <div className="bg-muted/50 p-3 rounded-lg text-sm">
                 <p className="font-medium">{editingBid.requirement?.title}</p>
                 <p className="text-muted-foreground">{editingBid.supplier?.company_name}</p>
               </div>
+
+              {/* Line Items Section */}
+              {loadingBidItems ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-sm text-muted-foreground">Loading line items...</span>
+                </div>
+              ) : bidItems.length > 0 ? (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Line Items ({bidItems.length})</Label>
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/30">
+                          <TableHead className="text-xs py-2">Item</TableHead>
+                          <TableHead className="text-xs py-2 text-right">Rate</TableHead>
+                          <TableHead className="text-xs py-2 text-right">Qty</TableHead>
+                          <TableHead className="text-xs py-2 text-right">Total</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {bidItems.map((item, idx) => (
+                          <TableRow key={item.id} className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
+                            <TableCell className="text-xs py-2 max-w-[200px]">
+                              <span className="line-clamp-2" title={item.item_name}>
+                                {item.item_name}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-xs py-2 text-right whitespace-nowrap">
+                              ₹{item.unit_price.toLocaleString()}/{item.unit}
+                            </TableCell>
+                            <TableCell className="text-xs py-2 text-right whitespace-nowrap">
+                              {item.quantity} {item.unit}
+                            </TableCell>
+                            <TableCell className="text-xs py-2 text-right font-medium whitespace-nowrap">
+                              ₹{item.total.toLocaleString()}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow className="bg-muted/50 font-medium">
+                          <TableCell colSpan={3} className="text-xs py-2 text-right">
+                            Items Subtotal:
+                          </TableCell>
+                          <TableCell className="text-xs py-2 text-right font-bold">
+                            ₹{bidItems.reduce((sum, item) => sum + item.total, 0).toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-muted/30 p-3 rounded-lg text-sm text-muted-foreground text-center">
+                  No line items found for this bid
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
