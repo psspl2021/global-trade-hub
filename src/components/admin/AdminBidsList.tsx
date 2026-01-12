@@ -510,9 +510,9 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                       <TableRow>
                         <TableHead>Requirement</TableHead>
                         <TableHead>Supplier</TableHead>
-                        <TableHead>Supplier Amount</TableHead>
-                        <TableHead>Buyer Amount</TableHead>
-                        <TableHead>Platform Fee</TableHead>
+                        <TableHead>Supplier Total</TableHead>
+                        <TableHead>Bidded Amount</TableHead>
+                        <TableHead>Profit</TableHead>
                         <TableHead>Dispatched</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Date</TableHead>
@@ -532,26 +532,19 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const unit = bid.requirement?.unit || 'unit';
                           const dispatchedQty = bid.dispatched_qty || 0;
                           
-                          // Calculate per-unit rate based on taxable value (excluding GST)
-                          const taxableValue = parseTaxableFromTerms(bid.terms_and_conditions);
-                          const supplierTaxable = taxableValue > 0 ? taxableValue : (bid.supplier_net_price / 1.18);
-                          const gstAmount = bid.supplier_net_price - supplierTaxable;
-                          const supplierRatePerUnit = supplierTaxable / qty;
+                          // Simple calculation: Supplier net price is base, profit is 0.5%
+                          const supplierTotal = bid.supplier_net_price || bid.bid_amount || 0;
+                          const supplierRatePerUnit = supplierTotal / qty;
+                          const profitPerUnit = Math.round(supplierRatePerUnit * 0.005); // 0.5% profit
+                          const profitTotal = profitPerUnit * qty;
+                          const buyerAmountPerUnit = supplierRatePerUnit + profitPerUnit;
+                          const buyerTotal = buyerAmountPerUnit * qty;
                           
-                          // Buyer taxable and rate
-                          const buyerTaxable = bid.buyer_visible_price / 1.18;
-                          const buyerGstAmount = bid.buyer_visible_price - buyerTaxable;
-                          const buyerRatePerUnit = buyerTaxable / qty;
-                          
-                          // Platform fee (excl. GST) = difference between buyer taxable and supplier taxable
-                          const platformFeeExclGst = buyerTaxable - supplierTaxable;
-                          const platformFeePerUnit = platformFeeExclGst / qty;
-                          
-                          // Calculate dispatched values (excl. GST for clarity)
-                          const dispatchedBuyerValue = buyerRatePerUnit * dispatchedQty;
+                          // Calculate dispatched values
                           const dispatchedSupplierValue = supplierRatePerUnit * dispatchedQty;
-                          const dispatchedPlatformFee = platformFeePerUnit * dispatchedQty;
-                          const referrerAmount = dispatchedPlatformFee * 0.2; // 20% referrer share
+                          const dispatchedProfit = profitPerUnit * dispatchedQty;
+                          const dispatchedBuyerValue = buyerAmountPerUnit * dispatchedQty;
+                          const referrerAmount = dispatchedProfit * 0.2; // 20% referrer share
 
                           return (
                             <TableRow key={bid.id}>
@@ -571,20 +564,20 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm space-y-0.5">
-                                  <div className="font-medium">₹{supplierRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
-                                  <div className="text-muted-foreground">₹{supplierTaxable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="font-medium">₹{Math.round(supplierRatePerUnit).toLocaleString()}/{unit}</div>
+                                  <div className="text-muted-foreground">₹{Math.round(supplierTotal).toLocaleString()}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm space-y-0.5">
-                                  <div className="font-medium">₹{buyerRatePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
-                                  <div className="text-muted-foreground">₹{buyerTaxable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                  <div className="font-medium">₹{Math.round(buyerAmountPerUnit).toLocaleString()}/{unit}</div>
+                                  <div className="text-muted-foreground">₹{Math.round(buyerTotal).toLocaleString()}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
-                                  <div className="text-success font-medium">₹{platformFeeExclGst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                  <div className="text-xs text-muted-foreground">₹{platformFeePerUnit.toLocaleString(undefined, { maximumFractionDigits: 0 })}/{unit}</div>
+                                  <div className="text-success font-medium">₹{Math.round(profitTotal).toLocaleString()}</div>
+                                  <div className="text-xs text-muted-foreground">₹{profitPerUnit.toLocaleString()}/{unit}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -598,7 +591,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                       Supplier: ₹{dispatchedSupplierValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                     </div>
                                     <div className="text-xs text-success">
-                                      Fee: ₹{dispatchedPlatformFee.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                      Profit: ₹{dispatchedProfit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                     </div>
                                     <div className="text-xs text-orange-500">
                                       Referrer (20%): ₹{referrerAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
