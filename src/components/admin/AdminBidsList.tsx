@@ -593,6 +593,16 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const dispatchedBuyerValue = buyerTotal * dispatchRatio;
                           const referrerAmount = dispatchedProfit * 0.2; // 20% referrer share
 
+                          // Check if this bid is L1 (lowest supplier total for this requirement)
+                          const bidsForSameReq = filteredSupplierBids.filter(b => b.requirement_id === bid.requirement_id);
+                          const isL1 = bidsForSameReq.length > 1 && bidsForSameReq.every(b => {
+                            const bHasBidItems = b.bid_items && b.bid_items.length > 0;
+                            const bSupplierTotal = bHasBidItems 
+                              ? b.bid_items!.reduce((sum, item) => sum + (item.total || 0), 0)
+                              : b.supplier_net_price || b.bid_amount || 0;
+                            return supplierTotal <= bSupplierTotal;
+                          });
+
                           return (
                             <TableRow key={bid.id}>
                               <TableCell className="font-medium max-w-[160px]">
@@ -605,7 +615,15 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
-                                  <div className="font-medium truncate max-w-[120px]">{bid.supplier?.company_name || '-'}</div>
+                                  <div className="font-medium truncate max-w-[120px] flex items-center gap-1">
+                                    {bid.supplier?.company_name || '-'}
+                                    {isL1 && (
+                                      <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] px-1 py-0 h-4">
+                                        <Trophy className="h-2.5 w-2.5 mr-0.5" />
+                                        L1
+                                      </Badge>
+                                    )}
+                                  </div>
                                   <div className="text-muted-foreground text-xs truncate">{bid.supplier?.email}</div>
                                 </div>
                               </TableCell>
