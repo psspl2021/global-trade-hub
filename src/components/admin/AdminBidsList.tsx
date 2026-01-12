@@ -58,6 +58,7 @@ interface Bid {
     company_name: string;
     email: string;
   } | null;
+  bid_items?: BidItem[];
 }
 
 interface LogisticsBid {
@@ -271,18 +272,21 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
 
       setSupplierTotal(count || 0);
 
+      const bidIds = supplierBids.map(b => b.id);
       const reqIds = [...new Set(supplierBids.map(b => b.requirement_id))];
       const supplierIds = [...new Set(supplierBids.map(b => b.supplier_id))];
 
-      const [reqRes, profRes] = await Promise.all([
+      const [reqRes, profRes, bidItemsRes] = await Promise.all([
         supabase.from('requirements').select('id, title, product_category, quantity, unit').in('id', reqIds),
         supabase.from('profiles').select('id, company_name, email').in('id', supplierIds),
+        supabase.from('bid_items').select('id, bid_id, requirement_item_id, unit_price, quantity, total').in('bid_id', bidIds),
       ]);
 
       const bidsWithDetails: Bid[] = supplierBids.map(bid => ({
         ...bid,
         requirement: reqRes.data?.find(r => r.id === bid.requirement_id) || null,
         supplier: profRes.data?.find(p => p.id === bid.supplier_id) || null,
+        bid_items: bidItemsRes.data?.filter(item => item.bid_id === bid.id) || [],
       }));
 
       setBids(bidsWithDetails);
@@ -532,13 +536,29 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                           const unit = bid.requirement?.unit || 'unit';
                           const dispatchedQty = bid.dispatched_qty || 0;
                           
-                          // Use actual database values for totals
-                          const supplierTotal = bid.supplier_net_price || 0;
-                          const profitTotal = bid.markup_amount || 0;
-                          // Calculate buyer total: use buyer_visible_price if available, else supplier + profit
-                          const buyerTotal = bid.buyer_visible_price && bid.buyer_visible_price > 0 
-                            ? bid.buyer_visible_price 
-                            : supplierTotal + profitTotal;
+                          // Calculate from bid_items if available (correct calculation)
+                          // Supplier Total = sum of (unit_price × quantity) for all line items
+                          // Profit = 0.5% of each line item's total (unit_price × 0.005 × quantity)
+                          const hasBidItems = bid.bid_items && bid.bid_items.length > 0;
+                          
+                          let supplierTotal: number;
+                          let profitTotal: number;
+                          
+                          if (hasBidItems) {
+                            // Calculate from bid_items
+                            supplierTotal = bid.bid_items!.reduce((sum, item) => sum + (item.total || 0), 0);
+                            // Profit is 0.5% of each item's value (unit_price × 0.005 × quantity)
+                            profitTotal = bid.bid_items!.reduce((sum, item) => {
+                              const profitPerUnit = Math.round(item.unit_price * 0.005);
+                              return sum + (profitPerUnit * item.quantity);
+                            }, 0);
+                          } else {
+                            // Fallback to database values
+                            supplierTotal = bid.supplier_net_price || bid.bid_amount || 0;
+                            profitTotal = bid.markup_amount || Math.round(supplierTotal * 0.005);
+                          }
+                          
+                          const buyerTotal = supplierTotal + profitTotal;
                           
                           // Calculate dispatched values proportionally
                           const dispatchRatio = dispatchedQty / qty;
