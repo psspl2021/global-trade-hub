@@ -92,7 +92,7 @@ export const PlatformInvoices = ({ open, onOpenChange, userId }: PlatformInvoice
   const getInvoiceTypeLabel = (type: string) => {
     switch (type) {
       case 'service_fee':
-        return 'Service Fee';
+        return 'Profit';
       case 'subscription':
         return 'Subscription';
       case 'extra_bid':
