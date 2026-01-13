@@ -54,6 +54,7 @@ interface Requirement {
   status: 'active' | 'closed' | 'awarded' | 'expired';
   created_at: string;
   customer_name?: string | null;
+  has_accepted_bid?: boolean;
 }
 
 interface RequirementItem {
@@ -134,14 +135,38 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
   const fetchRequirements = async () => {
     try {
+      // Fetch requirements with accepted bids info
       const { data, error } = await supabase
+        .from('requirements')
+        .select(`
+          *,
+          bids!inner(id, status)
+        `)
+        .eq('buyer_id', userId)
+        .order('created_at', { ascending: false });
+
+      // Also fetch requirements without bids
+      const { data: allReqs, error: allError } = await supabase
         .from('requirements')
         .select('*')
         .eq('buyer_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setRequirements((data || []) as Requirement[]);
+      if (allError) throw allError;
+
+      // Mark requirements that have accepted bids
+      const reqsWithAcceptedBids = new Set(
+        (data || [])
+          .filter((r: any) => r.bids?.some((b: any) => b.status === 'accepted'))
+          .map((r: any) => r.id)
+      );
+
+      const enrichedReqs = (allReqs || []).map(req => ({
+        ...req,
+        has_accepted_bid: reqsWithAcceptedBids.has(req.id)
+      }));
+
+      setRequirements(enrichedReqs as Requirement[]);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Error fetching requirements:', error);
       toast.error('Failed to load requirements');
@@ -283,12 +308,14 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, hasAcceptedBid?: boolean) => {
+    // If requirement has an accepted bid, show as "Awarded" regardless of status
+    if (hasAcceptedBid || status === 'awarded') {
+      return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
+    }
     switch (status) {
       case 'active':
         return <Badge className="bg-success/20 text-success border-success/30">Active</Badge>;
-      case 'awarded':
-        return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
       case 'expired':
         return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Expired</Badge>;
       case 'closed':
@@ -301,6 +328,14 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   // Filter requirements based on status
   const filteredRequirements = requirements.filter(req => {
     if (statusFilter === 'all') return true;
+    // "Awarded" filter includes both 'awarded' status AND 'closed' with accepted bid
+    if (statusFilter === 'awarded') {
+      return req.status === 'awarded' || req.has_accepted_bid;
+    }
+    // "Closed" filter shows closed requirements WITHOUT accepted bid
+    if (statusFilter === 'closed') {
+      return req.status === 'closed' && !req.has_accepted_bid;
+    }
     return req.status === statusFilter;
   });
 
@@ -347,10 +382,10 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
               </SelectTrigger>
               <SelectContent className="bg-background border shadow-lg z-50">
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="awarded">Awarded</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
+                <SelectItem value="active">Active ({requirements.filter(r => r.status === 'active').length})</SelectItem>
+                <SelectItem value="awarded">Awarded ({requirements.filter(r => r.status === 'awarded' || r.has_accepted_bid).length})</SelectItem>
+                <SelectItem value="closed">Closed ({requirements.filter(r => r.status === 'closed' && !r.has_accepted_bid).length})</SelectItem>
+                <SelectItem value="expired">Expired ({requirements.filter(r => r.status === 'expired').length})</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -374,7 +409,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h4 className="font-medium truncate">{req.title}</h4>
-                        {getStatusBadge(req.status)}
+                        {getStatusBadge(req.status, req.has_accepted_bid)}
                         {req.trade_type && (
                           <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>
                         )}
