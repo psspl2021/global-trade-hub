@@ -459,6 +459,17 @@ const Signup = () => {
                 </div>
               )}
 
+              {/* Supplier Category Selection - Moved to prominent position */}
+              {formData.role === 'supplier' && (
+                <SupplierCategorySelector
+                  selectedCategories={selectedCategories}
+                  selectedSubcategories={selectedSubcategories}
+                  onCategoriesChange={setSelectedCategories}
+                  onSubcategoriesChange={setSelectedSubcategories}
+                  error={errors.categories}
+                />
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="company">Company Name *</Label>
                 <Input
@@ -586,16 +597,7 @@ const Signup = () => {
                 )}
               </div>
 
-              {/* Supplier Category Selection */}
-              {formData.role === 'supplier' && (
-                <SupplierCategorySelector
-                  selectedCategories={selectedCategories}
-                  selectedSubcategories={selectedSubcategories}
-                  onCategoriesChange={setSelectedCategories}
-                  onSubcategoriesChange={setSelectedSubcategories}
-                  error={errors.categories}
-                />
-              )}
+              {/* Supplier Category Selection - Removed from here, moved above */}
 
               {/* Email Notification Consent for Suppliers and Logistics Partners */}
               {(formData.role === 'supplier' || formData.role === 'logistics_partner') && (
