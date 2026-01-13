@@ -162,8 +162,8 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       if (itemsError) throw itemsError;
       setRequirementItems((itemsData || []) as RequirementItem[]);
 
-      // Fetch the lowest bid with bid_items - use buyer_visible_price for ordering
-      const { data: bidsData, error: bidsError } = await supabase
+      // Fetch all bids with bid_items to find the one with lowest TOTAL value (not just lowest per-unit rate)
+      const { data: allBidsData, error: bidsError } = await supabase
         .from('bids')
         .select(`
           id,
@@ -185,12 +185,37 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
             total
           )
         `)
-        .eq('requirement_id', requirementId)
-        .order('buyer_visible_price', { ascending: true })
-        .limit(1);
+        .eq('requirement_id', requirementId);
 
       if (bidsError) throw bidsError;
-      setBids((bidsData || []) as Bid[]);
+      
+      // Calculate buyer total for each bid and find the one with lowest total value
+      const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
+      const bidsWithTotals = (allBidsData || []).map(bid => {
+        const terms = bid.terms_and_conditions || '';
+        const transportMatch = terms.match(/Transport:\s*₹?(\d+(?:,\d+)*(?:\.\d+)?)/i);
+        const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
+        
+        let totalBuyerValue = 0;
+        if (bid.bid_items && bid.bid_items.length > 0) {
+          totalBuyerValue = bid.bid_items.reduce((sum, item) => {
+            const itemBaseRate = item.unit_price;
+            const totalSupplierRate = itemBaseRate + transportPerUnit;
+            const buyerRate = totalSupplierRate * (1 + feeRate);
+            return sum + (buyerRate * item.quantity);
+          }, 0);
+        } else if (bid.buyer_visible_price) {
+          totalBuyerValue = bid.buyer_visible_price;
+        }
+        
+        return { ...bid, calculatedBuyerTotal: totalBuyerValue };
+      });
+      
+      // Sort by calculated total buyer value (ascending) and take the lowest
+      bidsWithTotals.sort((a, b) => a.calculatedBuyerTotal - b.calculatedBuyerTotal);
+      const lowestOverallBid = bidsWithTotals.length > 0 ? [bidsWithTotals[0]] : [];
+      
+      setBids(lowestOverallBid as Bid[]);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Error fetching bids:', error);
       toast.error('Failed to load bids');
