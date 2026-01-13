@@ -463,27 +463,13 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : (
-            <Tabs defaultValue="l1-view" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="l1-view" className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4" />
-                  L1 Per Item
-                </TabsTrigger>
+            <Tabs defaultValue="lowest-bid" className="w-full">
+              <TabsList className="grid w-full grid-cols-1">
                 <TabsTrigger value="lowest-bid" className="flex items-center gap-2">
                   <ListOrdered className="h-4 w-4" />
-                  Lowest Overall Bid
+                  Best Quote
                 </TabsTrigger>
               </TabsList>
-
-              <TabsContent value="l1-view" className="mt-4">
-                {selectedRequirement && (
-                  <LineItemL1View 
-                    requirementId={selectedRequirement.id} 
-                    tradeType={selectedRequirement.trade_type}
-                    showAllSuppliers={false}
-                  />
-                )}
-              </TabsContent>
 
               <TabsContent value="lowest-bid" className="mt-4">
                 {bids.length === 0 ? (
