@@ -260,7 +260,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     const { data: reqData, error: reqError } = await supabase
       .from('requirements')
       .select('*')
-      .in('status', ['active', 'expired', 'awarded', 'closed'])
+      .in('status', ['active', 'expired', 'awarded'])
       .order('created_at', { ascending: false });
 
     if (reqError) {
@@ -700,7 +700,6 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 <SelectItem value="active">Active ({requirements.filter(r => r.status === 'active').length})</SelectItem>
                 <SelectItem value="expired">Expired ({requirements.filter(r => r.status === 'expired').length})</SelectItem>
                 <SelectItem value="awarded">Awarded ({requirements.filter(r => r.status === 'awarded').length})</SelectItem>
-                <SelectItem value="closed">Closed ({requirements.filter(r => r.status === 'closed').length})</SelectItem>
               </SelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
