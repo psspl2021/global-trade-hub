@@ -2450,8 +2450,11 @@ export type Database = {
           discount_percent: number | null
           expected_delivery_date: string | null
           id: string
+          immutable_hash: string | null
+          legal_hold: boolean | null
           notes: string | null
           order_date: string
+          original_po_value: number | null
           po_number: string
           po_status: string | null
           po_value: number | null
@@ -2464,6 +2467,7 @@ export type Database = {
           terms_and_conditions: string | null
           total_amount: number
           updated_at: string
+          value_locked_at: string | null
           vendor_address: string | null
           vendor_email: string | null
           vendor_gstin: string | null
@@ -2481,8 +2485,11 @@ export type Database = {
           discount_percent?: number | null
           expected_delivery_date?: string | null
           id?: string
+          immutable_hash?: string | null
+          legal_hold?: boolean | null
           notes?: string | null
           order_date?: string
+          original_po_value?: number | null
           po_number: string
           po_status?: string | null
           po_value?: number | null
@@ -2495,6 +2502,7 @@ export type Database = {
           terms_and_conditions?: string | null
           total_amount?: number
           updated_at?: string
+          value_locked_at?: string | null
           vendor_address?: string | null
           vendor_email?: string | null
           vendor_gstin?: string | null
@@ -2512,8 +2520,11 @@ export type Database = {
           discount_percent?: number | null
           expected_delivery_date?: string | null
           id?: string
+          immutable_hash?: string | null
+          legal_hold?: boolean | null
           notes?: string | null
           order_date?: string
+          original_po_value?: number | null
           po_number?: string
           po_status?: string | null
           po_value?: number | null
@@ -2526,6 +2537,7 @@ export type Database = {
           terms_and_conditions?: string | null
           total_amount?: number
           updated_at?: string
+          value_locked_at?: string | null
           vendor_address?: string | null
           vendor_email?: string | null
           vendor_gstin?: string | null
