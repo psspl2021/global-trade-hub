@@ -247,6 +247,23 @@ const Signup = () => {
       return;
     }
 
+    // ============================================
+    // SELF-REFERRAL PREVENTION (UI-Level Check)
+    // ============================================
+    // Check if the referrer phone matches user's phone (normalized comparison)
+    if (formData.referredByPhone && formData.phone) {
+      const normalizedUserPhone = formData.phone.replace(/[\s+\-]/g, '');
+      const normalizedReferrerPhone = formData.referredByPhone.replace(/[\s+\-]/g, '');
+      
+      if (normalizedUserPhone === normalizedReferrerPhone) {
+        setErrors({ 
+          referredByPhone: 'You cannot select yourself or a related account as a referrer. Self-referrals are not allowed.' 
+        });
+        toast.error('Self-referral detected: Your phone number matches the referrer\'s phone number.');
+        return;
+      }
+    }
+
     const result = signupSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: FormErrors = {};
