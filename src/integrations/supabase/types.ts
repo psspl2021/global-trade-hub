@@ -4768,6 +4768,10 @@ export type Database = {
           lowest_bid_amount: number
         }[]
       }
+      get_po_amount: {
+        Args: { po: Database["public"]["Tables"]["purchase_orders"]["Row"] }
+        Returns: number
+      }
       get_supplier_email_stats: {
         Args: { p_supplier_id?: string }
         Returns: {
