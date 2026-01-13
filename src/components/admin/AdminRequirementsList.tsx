@@ -184,6 +184,7 @@ export function AdminRequirementsList({ open, onOpenChange }: AdminRequirementsL
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="awarded">Awarded</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
               <SelectItem value="cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
