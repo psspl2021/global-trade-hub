@@ -873,69 +873,46 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Secondary grid for subscription and other cards */}
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Star className="h-4 w-4 text-amber-500" />
-                    Subscription
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {subscription?.is_early_adopter && subscription?.early_adopter_expires_at && (
-                    <div className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-950/50 dark:to-orange-950/50 rounded-lg p-2 border border-amber-200 dark:border-amber-800">
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
-                        <Star className="h-3 w-3 mr-1 fill-white" />
-                        EARLY ADOPTER
-                      </Badge>
-                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-                        Free until {new Date(subscription.early_adopter_expires_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Monthly Bids</span>
-                      <span className="font-medium">{subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5}</span>
-                    </div>
-                    <Progress 
-                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                      className="h-1.5" 
-                    />
-                  </div>
-                  {(subscription?.premium_bids_balance ?? 0) > 0 && (
-                    <div className="text-xs text-amber-600 dark:text-amber-400">
-                      <Star className="h-3 w-3 inline mr-1 fill-amber-500" />
-                      {subscription?.premium_bids_balance} premium bids
-                    </div>
-                  )}
-                  <PremiumPackPurchase
-                    userId={user?.id || ''}
-                    userEmail={user?.email || ''}
-                    userPhone={user?.user_metadata?.phone || ''}
-                    userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
-                    userType="supplier"
-                    hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
-                  />
-                </CardContent>
+            {/* Compact cards grid for Subscription, Email, Platform Invoices */}
+            <div className="grid gap-2 grid-cols-3 mt-4">
+              <Card className="p-3">
+                <div className="flex items-center gap-1 mb-1">
+                  <Star className="h-3 w-3 text-amber-500" />
+                  <p className="text-xs font-medium">Subscription</p>
+                </div>
+                {subscription?.is_early_adopter && (
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-1 py-0 mb-1">
+                    EARLY ADOPTER
+                  </Badge>
+                )}
+                <p className="text-[10px] text-muted-foreground mb-1">
+                  {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
+                </p>
+                <Progress 
+                  value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                  className="h-1 mb-2" 
+                />
+                <PremiumPackPurchase
+                  userId={user?.id || ''}
+                  userEmail={user?.email || ''}
+                  userPhone={user?.user_metadata?.phone || ''}
+                  userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                  userType="supplier"
+                  hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
+                />
               </Card>
 
-              <SupplierEmailQuotaCard expanded />
+              <SupplierEmailQuotaCard />
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-1">
-                    <Receipt className="h-4 w-4" />
-                    Platform Invoices
-                  </CardTitle>
-                  <p className="text-[10px] text-muted-foreground">WhatsApp: +91 8368127357</p>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
-                    View
-                  </Button>
-                </CardContent>
+              <Card className="p-3">
+                <div className="flex items-center gap-1 mb-1">
+                  <Receipt className="h-3 w-3" />
+                  <p className="text-xs font-medium">Platform Invoices</p>
+                </div>
+                <p className="text-[10px] text-muted-foreground mb-2">WhatsApp: +91 8368127357</p>
+                <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
+                  View
+                </Button>
               </Card>
             </div>
 
