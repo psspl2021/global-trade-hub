@@ -101,6 +101,48 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliates: {
+        Row: {
+          activated_at: string | null
+          created_at: string | null
+          deactivated_at: string | null
+          deactivation_reason: string | null
+          id: string
+          joined_at: string | null
+          queue_position: number | null
+          referral_code: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string | null
+          deactivated_at?: string | null
+          deactivation_reason?: string | null
+          id?: string
+          joined_at?: string | null
+          queue_position?: number | null
+          referral_code?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string | null
+          deactivated_at?: string | null
+          deactivation_reason?: string | null
+          id?: string
+          joined_at?: string | null
+          queue_position?: number | null
+          referral_code?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_sales_conversions: {
         Row: {
           conversion_type: string
@@ -4863,6 +4905,15 @@ export type Database = {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: Json
       }
+      check_self_referral_v2: {
+        Args: {
+          p_referrer_id: string
+          p_user_email?: string
+          p_user_id: string
+          p_user_phone?: string
+        }
+        Returns: Json
+      }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_bids_for_buyer: {
@@ -4988,6 +5039,8 @@ export type Database = {
         }
         Returns: string
       }
+      promote_next_affiliate: { Args: never; Returns: undefined }
+      register_affiliate: { Args: { p_user_id: string }; Returns: Json }
       reset_all_supplier_daily_loads: { Args: never; Returns: number }
       select_supplier_with_bidding: {
         Args: { p_requirement_id: string }
