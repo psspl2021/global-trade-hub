@@ -122,14 +122,14 @@ Return JSON with:
 
 Focus on: verified suppliers, competitive pricing, quality assurance, quick quotes.`;
 
-        const aiResponse = await fetch('https://api.lovable.dev/v1/chat/completions', {
+        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${lovableApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'google/gemini-3-flash-preview',
             messages: [
               { role: 'system', content: 'You are an SEO expert for B2B marketplaces. Return only valid JSON.' },
               { role: 'user', content: prompt }
