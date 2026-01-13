@@ -639,6 +639,7 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          award_coverage_percentage: number | null
           award_justification: string | null
           award_type: string | null
           bid_amount: number
@@ -673,6 +674,7 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          award_coverage_percentage?: number | null
           award_justification?: string | null
           award_type?: string | null
           bid_amount: number
@@ -707,6 +709,7 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          award_coverage_percentage?: number | null
           award_justification?: string | null
           award_type?: string | null
           bid_amount?: number
