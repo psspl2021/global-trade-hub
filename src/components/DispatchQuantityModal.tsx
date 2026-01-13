@@ -205,14 +205,15 @@ export function DispatchQuantityModal({
     }
   };
 
-  const updateReferralCommission = async (totalQty: number) => {
-    // Get bid with requirement to determine trade_type
+  const updateReferralCommission = async (dispatchedQty: number) => {
+    // Get bid with requirement to determine trade_type and total ordered quantity
     const { data: bidData } = await supabase
       .from('bids')
       .select(`
         buyer_visible_price,
         requirements (
-          trade_type
+          trade_type,
+          quantity
         )
       `)
       .eq('id', bidId)
@@ -227,10 +228,17 @@ export function DispatchQuantityModal({
     if (commissionData && bidData) {
       const tradeType = (bidData.requirements as any)?.trade_type || 'domestic';
       const buyerVisiblePrice = bidData.buyer_visible_price || 0;
+      const totalOrderedQty = (bidData.requirements as any)?.quantity || totalQuantity || 1;
+      
+      // Calculate per-unit price from total buyer visible price
+      const pricePerUnit = buyerVisiblePrice / totalOrderedQty;
+      
+      // Calculate dispatched value
+      const dispatchedValue = pricePerUnit * dispatchedQty;
       
       // Calculate profit based on trade type: 0.5% for domestic, 2% for export/import
       const profitPercentage = (tradeType === 'export' || tradeType === 'import') ? 2 : 0.5;
-      const totalProfit = (buyerVisiblePrice * totalQty) * (profitPercentage / 100);
+      const totalProfit = dispatchedValue * (profitPercentage / 100);
       
       // Referrer gets 20% of profit
       const referrerCommission = totalProfit * 0.20;
@@ -240,8 +248,9 @@ export function DispatchQuantityModal({
         .from('referral_commissions')
         .update({
           commission_amount: referrerCommission,
+          platform_fee_amount: totalProfit,
           platform_net_revenue: platformNetRevenue,
-          dispatched_qty: totalQty,
+          dispatched_qty: dispatchedQty,
           updated_at: new Date().toISOString(),
         })
         .eq('id', commissionData.id);
