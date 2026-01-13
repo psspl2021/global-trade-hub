@@ -6,9 +6,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet } from 'lucide-react';
+import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet, Shield, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { AffiliateAntiFraudDashboard } from './AffiliateAntiFraudDashboard';
 
 interface ReferralStats {
   totalReferrals: number;
@@ -289,6 +290,12 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
       case 'paid':
         return <Badge className="bg-green-500 hover:bg-green-600"><CheckCircle2 className="h-3 w-3 mr-1" />Paid</Badge>;
+      case 'on_hold':
+        return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300"><AlertTriangle className="h-3 w-3 mr-1" />On Hold</Badge>;
+      case 'cancelled':
+        return <Badge variant="destructive">Cancelled</Badge>;
+      case 'processing':
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800">Processing</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -310,7 +317,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           </div>
         ) : (
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
               <TabsTrigger value="payouts" className="relative">
@@ -320,6 +327,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                     {payoutStats.count}
                   </span>
                 )}
+              </TabsTrigger>
+              <TabsTrigger value="antifraud" className="gap-1">
+                <Shield className="h-4 w-4" />
+                Anti-Fraud
               </TabsTrigger>
             </TabsList>
 
@@ -613,6 +624,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="antifraud">
+              <AffiliateAntiFraudDashboard />
             </TabsContent>
           </Tabs>
         )}

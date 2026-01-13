@@ -50,6 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_eligibility: {
+        Row: {
+          commission_tier: string | null
+          created_at: string
+          disqualification_reason: string | null
+          eligibility_type: string
+          id: string
+          is_eligible: boolean | null
+          kyc_verified: boolean | null
+          kyc_verified_at: string | null
+          kyc_verified_by: string | null
+          max_commission_per_order: number | null
+          monthly_payout_cap: number | null
+          total_gmv_referred: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          commission_tier?: string | null
+          created_at?: string
+          disqualification_reason?: string | null
+          eligibility_type: string
+          id?: string
+          is_eligible?: boolean | null
+          kyc_verified?: boolean | null
+          kyc_verified_at?: string | null
+          kyc_verified_by?: string | null
+          max_commission_per_order?: number | null
+          monthly_payout_cap?: number | null
+          total_gmv_referred?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          commission_tier?: string | null
+          created_at?: string
+          disqualification_reason?: string | null
+          eligibility_type?: string
+          id?: string
+          is_eligible?: boolean | null
+          kyc_verified?: boolean | null
+          kyc_verified_at?: string | null
+          kyc_verified_by?: string | null
+          max_commission_per_order?: number | null
+          monthly_payout_cap?: number | null
+          total_gmv_referred?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_sales_conversions: {
         Row: {
           conversion_type: string
@@ -2587,6 +2638,11 @@ export type Database = {
           commission_percentage: number
           created_at: string
           dispatched_qty: number | null
+          fraud_flags: Json | null
+          fraud_review_status: string | null
+          fraud_reviewed_at: string | null
+          fraud_reviewed_by: string | null
+          fraud_score: number | null
           id: string
           notes: string | null
           paid_at: string | null
@@ -2597,6 +2653,8 @@ export type Database = {
           referral_share_percentage: number | null
           referred_id: string
           referrer_id: string
+          release_eligible_at: string | null
+          release_hold_reason: string | null
           status: string
           updated_at: string
         }
@@ -2607,6 +2665,11 @@ export type Database = {
           commission_percentage?: number
           created_at?: string
           dispatched_qty?: number | null
+          fraud_flags?: Json | null
+          fraud_review_status?: string | null
+          fraud_reviewed_at?: string | null
+          fraud_reviewed_by?: string | null
+          fraud_score?: number | null
           id?: string
           notes?: string | null
           paid_at?: string | null
@@ -2617,6 +2680,8 @@ export type Database = {
           referral_share_percentage?: number | null
           referred_id: string
           referrer_id: string
+          release_eligible_at?: string | null
+          release_hold_reason?: string | null
           status?: string
           updated_at?: string
         }
@@ -2627,6 +2692,11 @@ export type Database = {
           commission_percentage?: number
           created_at?: string
           dispatched_qty?: number | null
+          fraud_flags?: Json | null
+          fraud_review_status?: string | null
+          fraud_reviewed_at?: string | null
+          fraud_reviewed_by?: string | null
+          fraud_score?: number | null
           id?: string
           notes?: string | null
           paid_at?: string | null
@@ -2637,6 +2707,8 @@ export type Database = {
           referral_share_percentage?: number | null
           referred_id?: string
           referrer_id?: string
+          release_eligible_at?: string | null
+          release_hold_reason?: string | null
           status?: string
           updated_at?: string
         }
@@ -2674,38 +2746,80 @@ export type Database = {
       referrals: {
         Row: {
           created_at: string | null
+          device_fingerprint: string | null
+          fraud_detected: boolean | null
+          fraud_reason: string | null
           id: string
+          is_self_referral: boolean | null
           referral_code: string
+          referred_bank_account: string | null
           referred_email: string | null
+          referred_gstin: string | null
           referred_id: string | null
+          referred_phone: string | null
+          referrer_bank_account: string | null
+          referrer_device_fingerprint: string | null
+          referrer_email: string | null
+          referrer_gstin: string | null
           referrer_id: string
+          referrer_phone: string | null
+          referrer_signup_ip: string | null
           reward_credited: boolean | null
           rewarded_at: string | null
           signed_up_at: string | null
+          signup_ip_address: string | null
           status: string
         }
         Insert: {
           created_at?: string | null
+          device_fingerprint?: string | null
+          fraud_detected?: boolean | null
+          fraud_reason?: string | null
           id?: string
+          is_self_referral?: boolean | null
           referral_code: string
+          referred_bank_account?: string | null
           referred_email?: string | null
+          referred_gstin?: string | null
           referred_id?: string | null
+          referred_phone?: string | null
+          referrer_bank_account?: string | null
+          referrer_device_fingerprint?: string | null
+          referrer_email?: string | null
+          referrer_gstin?: string | null
           referrer_id: string
+          referrer_phone?: string | null
+          referrer_signup_ip?: string | null
           reward_credited?: boolean | null
           rewarded_at?: string | null
           signed_up_at?: string | null
+          signup_ip_address?: string | null
           status?: string
         }
         Update: {
           created_at?: string | null
+          device_fingerprint?: string | null
+          fraud_detected?: boolean | null
+          fraud_reason?: string | null
           id?: string
+          is_self_referral?: boolean | null
           referral_code?: string
+          referred_bank_account?: string | null
           referred_email?: string | null
+          referred_gstin?: string | null
           referred_id?: string | null
+          referred_phone?: string | null
+          referrer_bank_account?: string | null
+          referrer_device_fingerprint?: string | null
+          referrer_email?: string | null
+          referrer_gstin?: string | null
           referrer_id?: string
+          referrer_phone?: string | null
+          referrer_signup_ip?: string | null
           reward_credited?: boolean | null
           rewarded_at?: string | null
           signed_up_at?: string | null
+          signup_ip_address?: string | null
           status?: string
         }
         Relationships: [
@@ -2762,6 +2876,45 @@ export type Database = {
           rejection_reason?: string | null
           updated_at?: string
           verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
+      related_party_registry: {
+        Row: {
+          confidence_score: number | null
+          detected_at: string
+          id: string
+          is_confirmed: boolean | null
+          notes: string | null
+          relationship_type: string
+          user_id_1: string
+          user_id_2: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          detected_at?: string
+          id?: string
+          is_confirmed?: boolean | null
+          notes?: string | null
+          relationship_type: string
+          user_id_1: string
+          user_id_2: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          detected_at?: string
+          id?: string
+          is_confirmed?: boolean | null
+          notes?: string | null
+          relationship_type?: string
+          user_id_1?: string
+          user_id_2?: string
           verified_at?: string | null
           verified_by?: string | null
         }
@@ -4692,6 +4845,10 @@ export type Database = {
             }
             Returns: Json
           }
+      calculate_tiered_commission: {
+        Args: { p_base_commission: number; p_gmv: number; p_user_id: string }
+        Returns: number
+      }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       check_and_increment_email_quota: {
         Args: { p_supplier_id: string }
@@ -4701,6 +4858,10 @@ export type Database = {
           remaining_daily: number
           remaining_monthly: number
         }[]
+      }
+      check_self_referral: {
+        Args: { p_referred_id: string; p_referrer_id: string }
+        Returns: Json
       }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
@@ -4842,6 +5003,10 @@ export type Database = {
           p_type: string
         }
         Returns: undefined
+      }
+      validate_referral_eligibility: {
+        Args: { p_referred_id: string; p_referrer_id: string }
+        Returns: boolean
       }
       verify_totp_securely: { Args: { p_code: string }; Returns: boolean }
     }

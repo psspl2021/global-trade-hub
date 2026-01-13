@@ -607,9 +607,15 @@ const Signup = () => {
 
               <div className="border-t pt-4 mt-4">
                 <p className="text-sm font-medium text-muted-foreground mb-1">Referred By *</p>
-                <p className="text-xs text-muted-foreground mb-3">
+                <p className="text-xs text-muted-foreground mb-2">
                   Referrers earn 20% of our platform fee (0.1% of order value) on your successful orders
                 </p>
+                <div className="p-2 rounded bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 mb-3">
+                  <p className="text-xs text-amber-700 dark:text-amber-300">
+                    ⚠️ <strong>Important:</strong> Self-referrals (using your own name/family/related business) are strictly prohibited 
+                    and will result in commission forfeiture.
+                  </p>
+                </div>
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label>Select Referrer *</Label>
