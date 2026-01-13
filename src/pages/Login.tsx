@@ -14,9 +14,12 @@ import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import authBg from '@/assets/auth-bg.jpg';
 import { useSEO } from '@/hooks/useSEO';
 
+import { useToast } from '@/hooks/use-toast';
+
 const Login = () => {
   const navigate = useNavigate();
-  const { user, signIn, resetPassword, loading: authLoading } = useAuth();
+  const { user, signIn, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -109,11 +112,32 @@ const Login = () => {
     }
 
     setResetLoading(true);
-    const { error } = await resetPassword(result.data.email);
-    setResetLoading(false);
-    if (!error) {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-password-reset-brevo', {
+        body: { 
+          email: result.data.email,
+          redirectUrl: `${window.location.origin}/reset-password`
+        }
+      });
+
+      if (error || data?.error) {
+        throw new Error(data?.error || error?.message || 'Failed to send reset email');
+      }
+
+      toast({
+        title: "Reset Link Sent",
+        description: "Check your email for the password reset link.",
+      });
       setShowForgotPassword(false);
       setResetEmail('');
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to send reset email. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setResetLoading(false);
     }
   };
 
