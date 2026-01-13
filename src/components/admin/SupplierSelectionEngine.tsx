@@ -52,8 +52,9 @@ interface SupplierPerformance {
   avg_delivery_days: number | null;
   last_order_date: string | null;
   profiles?: {
-    company_name: string;
-  };
+    company_name: string | null;
+    contact_person: string | null;
+  } | null;
 }
 
 interface Requirement {
@@ -108,7 +109,23 @@ export function SupplierSelectionEngine({ open, onOpenChange }: SupplierSelectio
         .order("total_orders", { ascending: false })
         .limit(50);
 
-      setSupplierPerformance((performance as SupplierPerformance[]) || []);
+      // Fetch profiles for supplier names
+      if (performance && performance.length > 0) {
+        const supplierIds = performance.map(p => p.supplier_id);
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, company_name, contact_person")
+          .in("id", supplierIds);
+        
+        const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+        const performanceWithProfiles = performance.map(p => ({
+          ...p,
+          profiles: profileMap.get(p.supplier_id) || null
+        }));
+        setSupplierPerformance(performanceWithProfiles as SupplierPerformance[]);
+      } else {
+        setSupplierPerformance([]);
+      }
 
       // Fetch pending requirements for manual selection
       const { data: requirements } = await supabase
@@ -427,24 +444,31 @@ export function SupplierSelectionEngine({ open, onOpenChange }: SupplierSelectio
               </div>
             ) : (
               <div className="grid gap-3">
-                {filteredPerformance.map(perf => (
+                {filteredPerformance.map(perf => {
+                  const supplierName = perf.profiles?.company_name || perf.profiles?.contact_person || `Supplier ${perf.supplier_id.slice(0, 8)}`;
+                  const deliveryRate = perf.total_orders > 0 
+                    ? ((perf.successful_deliveries / perf.total_orders) * 100).toFixed(0) 
+                    : 'N/A';
+                  const qualityScore = ((1 - (perf.quality_risk_score || 0)) * 100).toFixed(0);
+                  
+                  return (
                   <Card key={perf.id}>
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="font-medium font-mono text-sm">
-                            {perf.supplier_id.slice(0, 8)}...
+                          <p className="font-medium text-base">
+                            {supplierName}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {perf.total_orders} total orders
+                            {perf.total_orders} total order{perf.total_orders !== 1 ? 's' : ''} • ID: {perf.supplier_id.slice(0, 8)}
                           </p>
                         </div>
                         <div className="flex gap-2">
-                          <Badge variant="outline" className="text-green-600 border-green-600">
-                            {perf.total_orders > 0 ? ((perf.successful_deliveries / perf.total_orders) * 100).toFixed(0) : 85}% Delivery
+                          <Badge variant="outline" className={deliveryRate === 'N/A' ? 'text-muted-foreground' : 'text-green-600 border-green-600'}>
+                            {deliveryRate === 'N/A' ? 'No deliveries yet' : `${deliveryRate}% Delivery`}
                           </Badge>
                           <Badge variant="outline" className={`${(perf.quality_risk_score || 0) > 0.3 ? 'text-amber-600 border-amber-600' : 'text-blue-600 border-blue-600'}`}>
-                            {((1 - (perf.quality_risk_score || 0)) * 100).toFixed(0)}% Quality
+                            {qualityScore}% Quality
                           </Badge>
                         </div>
                       </div>
@@ -479,7 +503,8 @@ export function SupplierSelectionEngine({ open, onOpenChange }: SupplierSelectio
                       )}
                     </CardContent>
                   </Card>
-                ))}
+                  );
+                })}
 
                 {filteredPerformance.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
