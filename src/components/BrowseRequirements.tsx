@@ -759,7 +759,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
                 {lowestRates[selectedRequirement.id] && (() => {
                   const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-                  const lowestPerUnit = lowestRates[selectedRequirement.id] / (1 + feeRate);
+                  const lowestPerUnit = (lowestRates[selectedRequirement.id] / (1 + feeRate)) / Number(selectedRequirement.quantity);
                   return (
                     <div className="p-3 bg-muted rounded-lg">
                       <p className="text-sm font-medium">
@@ -804,7 +804,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                     const grandTotal = parsedTerms.grandTotal || (taxableValue + gstAmount);
                     
                     const lowestL1Rate = lowestRates[selectedRequirement.id];
-                    const lowestPerUnit = lowestL1Rate ? lowestL1Rate / (1 + feeRate) : 0;
+                    const lowestPerUnit = lowestL1Rate ? (lowestL1Rate / (1 + feeRate)) / Number(selectedRequirement.quantity) : 0;
                     const storedBidAmount = myBid?.bid_amount || 0;
                     const isL1 = lowestL1Rate && storedBidAmount <= lowestL1Rate;
                     
@@ -957,7 +957,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                     <div className="text-right flex flex-col items-end gap-2">
                       {lowestRates[req.id] && (() => {
                         const feeRate = getServiceFeeRate(req.trade_type);
-                        const lowestPerUnit = lowestRates[req.id] / (1 + feeRate);
+                        const lowestPerUnit = (lowestRates[req.id] / (1 + feeRate)) / Number(req.quantity);
                         return (
                           <p className="text-sm">
                             <span className="text-muted-foreground">L1 Rate: </span>
