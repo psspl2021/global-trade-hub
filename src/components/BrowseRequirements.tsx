@@ -184,9 +184,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const filteredRequirements = useMemo(() => {
     return requirements.filter(r => {
       const matchesCategory = categoryFilter === 'all' || r.product_category === categoryFilter;
-      // For 'awarded' filter, include both 'awarded' and 'closed' statuses
-      const matchesStatus = statusFilter === 'all' || 
-        (statusFilter === 'awarded' ? (r.status === 'awarded' || r.status === 'closed') : r.status === statusFilter);
+      const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
       return matchesCategory && matchesStatus;
     });
   }, [requirements, categoryFilter, statusFilter]);
@@ -701,7 +699,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active ({requirements.filter(r => r.status === 'active').length})</SelectItem>
                 <SelectItem value="expired">Expired ({requirements.filter(r => r.status === 'expired').length})</SelectItem>
-                <SelectItem value="awarded">Awarded ({requirements.filter(r => r.status === 'awarded' || r.status === 'closed').length})</SelectItem>
+                <SelectItem value="awarded">Awarded ({requirements.filter(r => r.status === 'awarded').length})</SelectItem>
+                <SelectItem value="closed">Closed ({requirements.filter(r => r.status === 'closed').length})</SelectItem>
               </SelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
