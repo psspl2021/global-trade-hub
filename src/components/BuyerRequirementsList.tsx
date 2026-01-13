@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter, ChevronLeft, ChevronRight, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
@@ -266,6 +266,23 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
     }
   };
 
+  const handleCloseRequirement = async (requirementId: string) => {
+    try {
+      const { error } = await supabase
+        .from('requirements')
+        .update({ status: 'closed' })
+        .eq('id', requirementId);
+
+      if (error) throw error;
+      
+      toast.success('Requirement closed successfully');
+      fetchRequirements();
+    } catch (error: any) {
+      if (import.meta.env.DEV) console.error('Error closing requirement:', error);
+      toast.error('Failed to close requirement');
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -275,7 +292,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       case 'expired':
         return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Expired</Badge>;
       case 'closed':
-        return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
+        return <Badge className="bg-muted text-muted-foreground border-muted-foreground/30">Closed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -284,7 +301,6 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   // Filter requirements based on status
   const filteredRequirements = requirements.filter(req => {
     if (statusFilter === 'all') return true;
-    if (statusFilter === 'awarded') return req.status === 'awarded' || req.status === 'closed';
     return req.status === statusFilter;
   });
 
@@ -333,6 +349,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="awarded">Awarded</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
                 <SelectItem value="expired">Expired</SelectItem>
               </SelectContent>
             </Select>
@@ -410,6 +427,15 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
+                          {(req.status === 'active' || req.status === 'expired') && (
+                            <DropdownMenuItem 
+                              onClick={() => handleCloseRequirement(req.id)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <XCircle className="h-4 w-4 mr-2" />
+                              Close Requirement
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
