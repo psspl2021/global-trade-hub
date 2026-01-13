@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.ai-sem-cron]
 verify_jwt = false
+
+[functions.purchase-orders]
+verify_jwt = false
