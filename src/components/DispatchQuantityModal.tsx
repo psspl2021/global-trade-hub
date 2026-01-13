@@ -206,23 +206,40 @@ export function DispatchQuantityModal({
   };
 
   const updateReferralCommission = async (totalQty: number) => {
+    // Get bid with requirement to determine trade_type
+    const { data: bidData } = await supabase
+      .from('bids')
+      .select(`
+        buyer_visible_price,
+        requirements (
+          trade_type
+        )
+      `)
+      .eq('id', bidId)
+      .maybeSingle();
+
     const { data: commissionData } = await supabase
       .from('referral_commissions')
-      .select('id, platform_fee_amount, referral_share_percentage')
+      .select('id')
       .eq('bid_id', bidId)
       .maybeSingle();
 
-    if (commissionData) {
-      const platformFeePerTon = commissionData.platform_fee_amount || 220;
-      const referralSharePercentage = commissionData.referral_share_percentage || 20;
-      const totalPlatformFee = platformFeePerTon * totalQty;
-      const calculatedCommission = totalPlatformFee * (referralSharePercentage / 100);
-      const platformNetRevenue = totalPlatformFee - calculatedCommission;
+    if (commissionData && bidData) {
+      const tradeType = (bidData.requirements as any)?.trade_type || 'domestic';
+      const buyerVisiblePrice = bidData.buyer_visible_price || 0;
+      
+      // Calculate profit based on trade type: 0.5% for domestic, 2% for export/import
+      const profitPercentage = (tradeType === 'export' || tradeType === 'import') ? 2 : 0.5;
+      const totalProfit = (buyerVisiblePrice * totalQty) * (profitPercentage / 100);
+      
+      // Referrer gets 20% of profit
+      const referrerCommission = totalProfit * 0.20;
+      const platformNetRevenue = totalProfit - referrerCommission;
 
       const { error: commissionError } = await supabase
         .from('referral_commissions')
         .update({
-          commission_amount: calculatedCommission,
+          commission_amount: referrerCommission,
           platform_net_revenue: platformNetRevenue,
           dispatched_qty: totalQty,
           updated_at: new Date().toISOString(),
