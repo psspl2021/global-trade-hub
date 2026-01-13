@@ -53,7 +53,6 @@ const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
   { value: 'expired', label: 'Expired' },
   { value: 'awarded', label: 'Awarded' },
-  { value: 'closed', label: 'Closed' },
 ];
 
 const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -61,7 +60,6 @@ const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destr
     case 'active': return 'default';
     case 'expired': return 'destructive';
     case 'awarded': return 'secondary';
-    case 'closed': return 'outline';
     default: return 'outline';
   }
 };
@@ -71,7 +69,6 @@ const getStatusLabel = (status: string) => {
     case 'active': return 'Active';
     case 'expired': return 'Expired';
     case 'awarded': return 'Awarded';
-    case 'closed': return 'Closed';
     default: return status;
   }
 };
@@ -189,10 +186,11 @@ const Requirements = () => {
     // First, trigger auto-expire for any stale active requirements
     await supabase.rpc('auto_expire_requirements');
     
-    // Fetch all requirements (not just active)
+    // Fetch all requirements excluding 'closed' (internal buyer-only status)
     const { data: reqData, error: reqError } = await supabase
       .from('requirements')
       .select('*')
+      .in('status', ['active', 'expired', 'awarded'])
       .order('created_at', { ascending: false });
 
     if (reqError) {
@@ -243,7 +241,6 @@ const Requirements = () => {
     active: requirements.filter(r => r.status === 'active').length,
     expired: requirements.filter(r => r.status === 'expired').length,
     awarded: requirements.filter(r => r.status === 'awarded').length,
-    closed: requirements.filter(r => r.status === 'closed').length,
   };
 
   return (
@@ -428,7 +425,6 @@ interface RequirementCardProps {
 const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: RequirementCardProps) => {
   const isAwarded = requirement.status === 'awarded';
   const isExpired = !isAwarded && (requirement.status === 'expired' || new Date(requirement.deadline) < new Date());
-  const isClosed = requirement.status === 'closed';
   const canBid = requirement.status === 'active' && !isExpired;
 
   return (
@@ -531,9 +527,7 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: Require
               )
             ) : (
               <div className="text-center text-xs text-muted-foreground py-2">
-                {isAwarded ? 'This requirement has been awarded' : 
-                 isClosed ? 'This requirement is closed' :
-                 'Bidding period has ended'}
+                {isAwarded ? 'This requirement has been awarded' : 'Bidding period has ended'}
               </div>
             )}
           </footer>
