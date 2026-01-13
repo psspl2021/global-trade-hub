@@ -92,14 +92,14 @@ Focus on:
 
 Return JSON with: ${channel === 'email' ? '{ subject, message_body }' : channel === 'landing' ? '{ headline, subheadline, cta_text }' : '{ message_body }'}`;
 
-        const aiResponse = await fetch('https://api.lovable.dev/v1/chat/completions', {
+        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${lovableApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'google/gemini-3-flash-preview',
             messages: [
               { role: 'system', content: 'You are a B2B marketing expert. Return only valid JSON.' },
               { role: 'user', content: prompt }
