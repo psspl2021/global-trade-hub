@@ -184,7 +184,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const filteredRequirements = useMemo(() => {
     return requirements.filter(r => {
       const matchesCategory = categoryFilter === 'all' || r.product_category === categoryFilter;
-      const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
+      // For 'awarded' filter, include both 'awarded' and 'closed' statuses
+      const matchesStatus = statusFilter === 'all' || 
+        (statusFilter === 'awarded' ? (r.status === 'awarded' || r.status === 'closed') : r.status === statusFilter);
       return matchesCategory && matchesStatus;
     });
   }, [requirements, categoryFilter, statusFilter]);
@@ -260,7 +262,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     const { data: reqData, error: reqError } = await supabase
       .from('requirements')
       .select('*')
-      .in('status', ['active', 'expired', 'awarded'])
+      .in('status', ['active', 'expired', 'awarded', 'closed'])
       .order('created_at', { ascending: false });
 
     if (reqError) {
@@ -699,7 +701,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active ({requirements.filter(r => r.status === 'active').length})</SelectItem>
                 <SelectItem value="expired">Expired ({requirements.filter(r => r.status === 'expired').length})</SelectItem>
-                <SelectItem value="awarded">Awarded ({requirements.filter(r => r.status === 'awarded').length})</SelectItem>
+                <SelectItem value="awarded">Awarded ({requirements.filter(r => r.status === 'awarded' || r.status === 'closed').length})</SelectItem>
               </SelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -759,7 +761,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
                 {lowestRates[selectedRequirement.id] && (() => {
                   const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-                  const lowestPerUnit = (lowestRates[selectedRequirement.id] / (1 + feeRate)) / Number(selectedRequirement.quantity);
+                  // bid_amount already stores per-unit rate with markup, just remove the markup to show supplier rate
+                  const lowestPerUnit = lowestRates[selectedRequirement.id] / (1 + feeRate);
                   return (
                     <div className="p-3 bg-muted rounded-lg">
                       <p className="text-sm font-medium">
@@ -804,7 +807,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                     const grandTotal = parsedTerms.grandTotal || (taxableValue + gstAmount);
                     
                     const lowestL1Rate = lowestRates[selectedRequirement.id];
-                    const lowestPerUnit = lowestL1Rate ? (lowestL1Rate / (1 + feeRate)) / Number(selectedRequirement.quantity) : 0;
+                    // bid_amount already stores per-unit rate with markup
+                    const lowestPerUnit = lowestL1Rate ? lowestL1Rate / (1 + feeRate) : 0;
                     const storedBidAmount = myBid?.bid_amount || 0;
                     const isL1 = lowestL1Rate && storedBidAmount <= lowestL1Rate;
                     
@@ -957,7 +961,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                     <div className="text-right flex flex-col items-end gap-2">
                       {lowestRates[req.id] && (() => {
                         const feeRate = getServiceFeeRate(req.trade_type);
-                        const lowestPerUnit = (lowestRates[req.id] / (1 + feeRate)) / Number(req.quantity);
+                        // bid_amount already stores per-unit rate with markup, just remove the markup
+                        const lowestPerUnit = lowestRates[req.id] / (1 + feeRate);
                         return (
                           <p className="text-sm">
                             <span className="text-muted-foreground">L1 Rate: </span>
