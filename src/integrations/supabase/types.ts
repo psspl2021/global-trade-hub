@@ -4827,6 +4827,10 @@ export type Database = {
       }
     }
     Functions: {
+      activate_affiliate_fifo: {
+        Args: { p_affiliate_id: string }
+        Returns: string
+      }
       admin_adjust_supplier_quota: {
         Args: {
           p_daily_adjustment?: number
@@ -5040,7 +5044,7 @@ export type Database = {
         Returns: string
       }
       promote_next_affiliate: { Args: never; Returns: undefined }
-      register_affiliate: { Args: { p_user_id: string }; Returns: Json }
+      register_affiliate: { Args: { p_user_id: string }; Returns: string }
       reset_all_supplier_daily_loads: { Args: never; Returns: number }
       select_supplier_with_bidding: {
         Args: { p_requirement_id: string }
