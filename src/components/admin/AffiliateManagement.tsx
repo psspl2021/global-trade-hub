@@ -93,10 +93,12 @@ export function AffiliateManagement() {
   };
 
   // Regular status update for non-ACTIVE statuses (suspend, reject)
+  // ACTIVE must ONLY come from activateAffiliate() via RPC - never direct update
   const updateStatus = async (affiliateId: string, newStatus: string) => {
-    // For ACTIVE status, use FIFO-enforced function
+    // HARD GUARD: Block direct ACTIVE status update - FIFO only
     if (newStatus === 'ACTIVE') {
-      return activateAffiliate(affiliateId);
+      toast.error('Use FIFO activation only - direct ACTIVE not allowed');
+      return;
     }
 
     setProcessing(affiliateId);
@@ -251,7 +253,7 @@ export function AffiliateManagement() {
                 {affiliates.map((affiliate, index) => (
                   <TableRow key={affiliate.id}>
                     <TableCell className="font-medium">
-                      {affiliate.queue_position || index + 1}
+                      {affiliate.status === 'ACTIVE' ? affiliate.queue_position : '-'}
                     </TableCell>
                     <TableCell>
                       <div>
@@ -267,14 +269,14 @@ export function AffiliateManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        {affiliate.status !== 'ACTIVE' && (
+                        {affiliate.status !== 'ACTIVE' && affiliate.status !== 'REJECTED' && (
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateStatus(affiliate.id, 'ACTIVE')}
+                            onClick={() => activateAffiliate(affiliate.id)}
                             disabled={processing === affiliate.id || stats.active >= 50}
                             className="text-green-600"
-                            title={stats.active >= 50 ? 'Max 50 active affiliates' : 'Activate'}
+                            title={stats.active >= 50 ? 'Max 50 active affiliates (FIFO)' : 'Activate via FIFO'}
                           >
                             {processing === affiliate.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
