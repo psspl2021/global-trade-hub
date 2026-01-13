@@ -330,7 +330,7 @@ const Index = () => {
                 onClick={() => navigate('/post-rfq')}
               >
                 <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
-                Start Sourcing Free
+                AI Start Sourcing Free
               </Button>
               <Button 
                 size="lg" 
