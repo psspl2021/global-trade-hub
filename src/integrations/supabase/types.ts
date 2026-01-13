@@ -5044,6 +5044,7 @@ export type Database = {
         Returns: string
       }
       promote_next_affiliate: { Args: never; Returns: undefined }
+      promote_next_waitlisted_affiliate: { Args: never; Returns: undefined }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
       reset_all_supplier_daily_loads: { Args: never; Returns: number }
       select_supplier_with_bidding: {
