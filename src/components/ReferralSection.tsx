@@ -161,6 +161,12 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
         return <Badge className="bg-green-500 hover:bg-green-600">Rewarded</Badge>;
       case 'paid':
         return <Badge className="bg-green-500 hover:bg-green-600">Paid</Badge>;
+      case 'on_hold':
+        return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">On Hold</Badge>;
+      case 'cancelled':
+        return <Badge variant="destructive">Cancelled</Badge>;
+      case 'processing':
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Processing</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -203,6 +209,21 @@ export const ReferralSection = ({ userId, role }: ReferralSectionProps) => {
                 {role !== 'buyer' && <li>3. When their first bid gets accepted, you earn <strong className="text-primary">1 free bid!</strong></li>}
                 <li>{role === 'buyer' ? '3' : '4'}. Earn <strong className="text-primary">20% of platform fees</strong> on every order they {role === 'buyer' ? 'place' : 'win'}!</li>
               </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Anti-Fraud Warning */}
+        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+          <div className="flex items-start gap-2">
+            <span className="text-amber-600 text-lg">⚠️</span>
+            <div className="text-sm">
+              <p className="font-medium text-amber-800 dark:text-amber-200">Important</p>
+              <p className="text-amber-700 dark:text-amber-300">
+                Affiliate commission is <strong>not applicable</strong> on your own orders, family members' orders, 
+                or orders from related businesses. Self-referrals will result in commission forfeiture. 
+                All commissions have a 30-day cooling period before payout.
+              </p>
             </div>
           </div>
         </div>

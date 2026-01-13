@@ -59,7 +59,7 @@ export const ReferralPromoSection = () => {
           </div>
 
           {/* How it Works */}
-          <div className="bg-card/50 border border-border rounded-2xl p-6 sm:p-8 mb-8">
+          <div className="bg-card/50 border border-border rounded-2xl p-6 sm:p-8 mb-6">
             <h3 className="text-lg font-semibold mb-4 text-center">How It Works</h3>
             <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
               <div className="text-center">
@@ -79,6 +79,22 @@ export const ReferralPromoSection = () => {
                   <span className="text-primary font-bold">3</span>
                 </div>
                 <p className="text-sm text-muted-foreground">Earn income + free bids when they transact</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Anti-Fraud Disclaimer */}
+          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-8">
+            <div className="flex items-start gap-3">
+              <span className="text-amber-600 text-xl">⚠️</span>
+              <div className="text-sm">
+                <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">Important Terms</p>
+                <p className="text-amber-700 dark:text-amber-300">
+                  Affiliate commission is <strong>not applicable</strong> on your own orders, family members' orders, 
+                  or orders from related businesses (same GSTIN, phone, bank account). Self-referrals will result in 
+                  permanent forfeiture of all commissions and possible account termination. All commissions have a 
+                  30-day cooling period before payout eligibility.
+                </p>
               </div>
             </div>
           </div>
