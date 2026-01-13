@@ -6,14 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Users, IndianRupee, TrendingUp, ArrowLeft } from 'lucide-react';
+import { Loader2, Users, IndianRupee, TrendingUp, ArrowLeft, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 
 const AffiliateSignup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [checkingSlots, setCheckingSlots] = useState(true);
+  const [slotsInfo, setSlotsInfo] = useState({ activeCount: 0, available: 50, waitlistCount: 0 });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,6 +30,28 @@ const AffiliateSignup = () => {
     title: 'Become an Affiliate Partner | Earn 20% Commission | ProcureSaathi',
     description: 'Join ProcureSaathi affiliate program. Earn 20% commission on platform fees from every referral order. Lifetime earnings, easy tracking, instant payouts. Start earning passive income today!',
   });
+
+  // Check available affiliate slots
+  useEffect(() => {
+    const checkSlots = async () => {
+      setCheckingSlots(true);
+      const { data, error } = await supabase
+        .from('affiliates')
+        .select('status');
+
+      if (!error && data) {
+        const activeCount = data.filter(a => a.status === 'ACTIVE').length;
+        const waitlistCount = data.filter(a => a.status === 'WAITLISTED').length;
+        setSlotsInfo({
+          activeCount,
+          available: Math.max(0, 50 - activeCount),
+          waitlistCount
+        });
+      }
+      setCheckingSlots(false);
+    };
+    checkSlots();
+  }, []);
 
   // Add structured data for affiliate program
   useEffect(() => {
@@ -126,6 +152,7 @@ const AffiliateSignup = () => {
     setLoading(true);
 
     try {
+      // Step 1: Create user account
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -142,10 +169,22 @@ const AffiliateSignup = () => {
       if (error) throw error;
 
       if (data.user) {
+        // Step 2: Register as affiliate using FIFO system
+        const { data: affiliateResult, error: affiliateError } = await supabase
+          .rpc('register_affiliate', { p_user_id: data.user.id });
+
+        if (affiliateError) {
+          console.error('Affiliate registration error:', affiliateError);
+        }
+
+        const status = (affiliateResult as any)?.status || 'ACTIVE';
+        const message = (affiliateResult as any)?.message || 'Account created successfully!';
+
         toast({
-          title: 'Account created!',
-          description: 'Redirecting to your affiliate portal...',
+          title: status === 'ACTIVE' ? '🎉 Congratulations!' : 'Account Created',
+          description: message,
         });
+
         navigate('/affiliate');
       }
     } catch (error: any) {
@@ -236,12 +275,47 @@ const AffiliateSignup = () => {
             {/* Signup Form */}
             <Card>
               <CardHeader>
-                <CardTitle>Create Your Affiliate Account</CardTitle>
+                <div className="flex items-center justify-between mb-2">
+                  <CardTitle>Create Your Affiliate Account</CardTitle>
+                  {checkingSlots ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : slotsInfo.available > 0 ? (
+                    <Badge className="bg-green-500">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      {slotsInfo.available} slots left
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Waitlist only
+                    </Badge>
+                  )}
+                </div>
                 <CardDescription>
-                  Fill in your details to start earning
+                  {slotsInfo.available > 0 
+                    ? 'Fill in your details to start earning'
+                    : 'All 50 affiliate slots are filled. Apply to join the waiting list.'
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* FIFO Notice */}
+                <Alert className="mb-4 border-primary/30 bg-primary/5">
+                  <AlertDescription className="text-sm">
+                    <strong>Limited to 50 partners:</strong> Affiliate slots are approved on First-Come, First-Served basis. 
+                    {slotsInfo.waitlistCount > 0 && ` Currently ${slotsInfo.waitlistCount} on waitlist.`}
+                  </AlertDescription>
+                </Alert>
+
+                {/* Self-Referral Warning */}
+                <Alert className="mb-4 border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-sm text-amber-700 dark:text-amber-300">
+                    <strong>Important:</strong> Self-referrals are strictly prohibited. You cannot earn commission on 
+                    your own orders or orders from accounts with the same phone/email. Violations result in permanent 
+                    commission forfeiture.
+                  </AlertDescription>
+                </Alert>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
