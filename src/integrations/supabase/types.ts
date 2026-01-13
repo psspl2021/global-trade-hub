@@ -580,6 +580,7 @@ export type Database = {
         Row: {
           bid_id: string
           created_at: string | null
+          dispatched_qty: number | null
           id: string
           quantity: number
           requirement_item_id: string
@@ -589,6 +590,7 @@ export type Database = {
         Insert: {
           bid_id: string
           created_at?: string | null
+          dispatched_qty?: number | null
           id?: string
           quantity: number
           requirement_item_id: string
@@ -598,6 +600,7 @@ export type Database = {
         Update: {
           bid_id?: string
           created_at?: string | null
+          dispatched_qty?: number | null
           id?: string
           quantity?: number
           requirement_item_id?: string
