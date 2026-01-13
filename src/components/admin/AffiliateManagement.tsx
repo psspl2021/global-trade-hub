@@ -72,7 +72,33 @@ export function AffiliateManagement() {
     fetchAffiliates();
   }, []);
 
+  // FIFO-enforced activation via RPC (bulletproof)
+  const activateAffiliate = async (affiliateId: string) => {
+    setProcessing(affiliateId);
+
+    const { data, error } = await supabase.rpc('activate_affiliate_fifo', { 
+      p_affiliate_id: affiliateId 
+    });
+
+    if (error) {
+      toast.error('Failed to activate affiliate');
+    } else if (data === 'LIMIT_REACHED') {
+      toast.warning('Only 50 affiliates can be active (FIFO enforced)');
+    } else {
+      toast.success('Affiliate activated successfully');
+      fetchAffiliates();
+    }
+
+    setProcessing(null);
+  };
+
+  // Regular status update for non-ACTIVE statuses (suspend, reject)
   const updateStatus = async (affiliateId: string, newStatus: string) => {
+    // For ACTIVE status, use FIFO-enforced function
+    if (newStatus === 'ACTIVE') {
+      return activateAffiliate(affiliateId);
+    }
+
     setProcessing(affiliateId);
     
     const updates: any = { 
@@ -80,9 +106,7 @@ export function AffiliateManagement() {
       updated_at: new Date().toISOString()
     };
     
-    if (newStatus === 'ACTIVE') {
-      updates.activated_at = new Date().toISOString();
-    } else if (newStatus === 'SUSPENDED' || newStatus === 'REJECTED') {
+    if (newStatus === 'SUSPENDED' || newStatus === 'REJECTED') {
       updates.deactivated_at = new Date().toISOString();
     }
 
