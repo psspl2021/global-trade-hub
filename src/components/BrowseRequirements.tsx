@@ -766,12 +766,12 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <>
                     <SelectItem value="preferred">
                       <span className="flex items-center gap-2">
-                        ✓ My Categories ({requirements.filter(r => supplierCategories.includes(r.product_category)).length})
+                        ✓ My Categories ({supplierCategories.length}) - {requirements.filter(r => supplierCategories.includes(r.product_category)).length} RFQs
                       </span>
                     </SelectItem>
-                    <SelectItem value="all">All Categories ({requirements.length})</SelectItem>
+                    <SelectItem value="all">All Categories ({availableCategories.length}) - {requirements.length} RFQs</SelectItem>
                     {preferredAvailableCategories.length > 0 && (
-                      <div className="px-2 py-1 text-xs text-muted-foreground font-medium border-t mt-1 pt-1">Your Categories</div>
+                      <div className="px-2 py-1 text-xs text-muted-foreground font-medium border-t mt-1 pt-1">Your Categories ({preferredAvailableCategories.length})</div>
                     )}
                     {preferredAvailableCategories.map(cat => (
                       <SelectItem key={cat} value={cat}>
@@ -780,7 +780,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                     ))}
                     {otherAvailableCategories.length > 0 && (
                       <div className="px-2 py-1 text-xs text-muted-foreground font-medium border-t mt-1 pt-1 flex items-center gap-1">
-                        <Lock className="h-3 w-3" /> Other Categories (View Only)
+                        <Lock className="h-3 w-3" /> Other Categories ({otherAvailableCategories.length}) - View Only
                       </div>
                     )}
                     {otherAvailableCategories.map(cat => (
