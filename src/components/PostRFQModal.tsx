@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap } from 'lucide-react';
+import { Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap, Lock, Eye, EyeOff } from 'lucide-react';
 
 interface RFQItem {
   item_name: string;
@@ -34,9 +34,18 @@ interface GeneratedRFQ {
 interface PostRFQModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  signalPageId?: string;
+  signalPageCategory?: string;
+  signalPageCountry?: string;
 }
 
-export function PostRFQModal({ open, onOpenChange }: PostRFQModalProps) {
+export function PostRFQModal({ 
+  open, 
+  onOpenChange, 
+  signalPageId,
+  signalPageCategory,
+  signalPageCountry 
+}: PostRFQModalProps) {
   const navigate = useNavigate();
   const [description, setDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -82,7 +91,14 @@ export function PostRFQModal({ open, onOpenChange }: PostRFQModalProps) {
   const handleProceed = () => {
     // Store generated RFQ in session storage for use after signup
     if (generatedRFQ) {
-      sessionStorage.setItem('pendingRFQ', JSON.stringify(generatedRFQ));
+      const rfqWithAttribution = {
+        ...generatedRFQ,
+        signalPageId,
+        signalPageCategory,
+        signalPageCountry,
+        source: signalPageId ? 'signal_page' : 'direct'
+      };
+      sessionStorage.setItem('pendingRFQ', JSON.stringify(rfqWithAttribution));
     }
     onOpenChange(false);
     navigate('/signup?role=buyer');
@@ -100,17 +116,34 @@ export function PostRFQModal({ open, onOpenChange }: PostRFQModalProps) {
     onOpenChange(false);
   };
 
+  // Determine if this is from a signal page (anonymized flow)
+  const isSignalPageFlow = Boolean(signalPageId);
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
-            Post Your RFQ. Get Multiple Quotes.
+            {isSignalPageFlow 
+              ? `Get Quotes from Verified ${signalPageCategory || ''} Suppliers`
+              : 'Post Your RFQ. Get Multiple Quotes.'}
           </DialogTitle>
           <p className="text-center text-muted-foreground">
-            Connect with verified Indian suppliers in minutes. Free, fast, and secure.
+            {isSignalPageFlow 
+              ? 'Your details stay private until you choose to connect.'
+              : 'Connect with verified Indian suppliers in minutes. Free, fast, and secure.'}
           </p>
         </DialogHeader>
+
+        {/* Signal Page Privacy Badge */}
+        {isSignalPageFlow && (
+          <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+            <Lock className="h-4 w-4 text-green-600" />
+            <span className="text-sm font-medium text-green-700 dark:text-green-400">
+              Your identity is protected • Suppliers see only your requirement
+            </span>
+          </div>
+        )}
 
         <div className="space-y-6 mt-4">
           {/* AI Generator Section */}
@@ -237,20 +270,39 @@ Example: I need 5000 kg of food-grade stainless steel containers for a dairy pla
             </div>
           )}
 
-          {/* Trust Badges */}
+          {/* Trust Badges - Different for Signal Page */}
           <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground py-4 border-t">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary" />
-              <span>20,000+ Verified SMEs</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <span>Trusted by Procurement Teams</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              <span>AI-Assisted Sourcing</span>
-            </div>
+            {isSignalPageFlow ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <EyeOff className="h-4 w-4 text-green-600" />
+                  <span>Anonymous Until You Connect</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-green-600" />
+                  <span>Verified Suppliers Only</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-green-600" />
+                  <span>You Control Contact Reveal</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span>20,000+ Verified SMEs</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <span>Trusted by Procurement Teams</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-primary" />
+                  <span>AI-Assisted Sourcing</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </DialogContent>
