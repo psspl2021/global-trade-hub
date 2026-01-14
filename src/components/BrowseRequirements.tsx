@@ -6,12 +6,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Calendar, MapPin, Building2, Star, Share2, Copy, Check, Filter, Edit2 } from 'lucide-react';
+import { Loader2, FileText, Calendar, MapPin, Building2, Star, Share2, Copy, Check, Filter, Edit2, Lock, AlertCircle } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { maskCompanyName } from '@/lib/utils';
 import { BidFormInvoice, BidFormInvoiceData } from '@/components/BidFormInvoice';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 
 interface Requirement {
   id: string;
@@ -164,8 +165,9 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const [itemBids, setItemBids] = useState<Record<string, ItemBid>>({});
   const [submitting, setSubmitting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('preferred');
   const [statusFilter, setStatusFilter] = useState<string>('active');
+  const [supplierCategories, setSupplierCategories] = useState<string[]>([]);
   const [subscription, setSubscription] = useState<{ 
     bids_used_this_month: number; 
     bids_limit: number; 
@@ -174,20 +176,55 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   } | null>(null);
   const { toast } = useToast();
 
+  // Check if a requirement category is in supplier's preferred categories
+  const isPreferredCategory = (category: string) => {
+    if (!userId || supplierCategories.length === 0) return true; // Guest or no categories = show all
+    return supplierCategories.includes(category);
+  };
+
+  // Check if supplier can bid on this requirement
+  const canBidOnRequirement = (requirement: Requirement) => {
+    if (isGuest) return false;
+    return isPreferredCategory(requirement.product_category);
+  };
+
+  // Check if L1 price should be shown
+  const canViewL1Price = (requirement: Requirement) => {
+    if (isGuest) return true; // Guests can see L1 to encourage signup
+    return isPreferredCategory(requirement.product_category);
+  };
+
   // Get unique categories from requirements for the filter
   const availableCategories = useMemo(() => {
     const categories = [...new Set(requirements.map(r => r.product_category))];
     return categories.sort();
   }, [requirements]);
 
+  // Categories that are in supplier's preferences
+  const preferredAvailableCategories = useMemo(() => {
+    return availableCategories.filter(cat => supplierCategories.includes(cat));
+  }, [availableCategories, supplierCategories]);
+
+  // Categories that are NOT in supplier's preferences
+  const otherAvailableCategories = useMemo(() => {
+    return availableCategories.filter(cat => !supplierCategories.includes(cat));
+  }, [availableCategories, supplierCategories]);
+
   // Filter requirements based on selected category and status
   const filteredRequirements = useMemo(() => {
     return requirements.filter(r => {
-      const matchesCategory = categoryFilter === 'all' || r.product_category === categoryFilter;
+      let matchesCategory = false;
+      if (categoryFilter === 'all') {
+        matchesCategory = true;
+      } else if (categoryFilter === 'preferred') {
+        matchesCategory = supplierCategories.length === 0 || supplierCategories.includes(r.product_category);
+      } else {
+        matchesCategory = r.product_category === categoryFilter;
+      }
       const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
       return matchesCategory && matchesStatus;
     });
-  }, [requirements, categoryFilter, statusFilter]);
+  }, [requirements, categoryFilter, statusFilter, supplierCategories]);
 
   const handleShare = (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => {
     e.stopPropagation();
@@ -343,6 +380,21 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     setSubscription(data);
   };
 
+  const fetchSupplierCategories = async () => {
+    if (!userId) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('supplier_categories')
+      .eq('id', userId)
+      .maybeSingle();
+    
+    if (data?.supplier_categories) {
+      setSupplierCategories(data.supplier_categories);
+    } else {
+      setSupplierCategories([]);
+    }
+  };
+
   const fetchLineItems = async (requirementId: string) => {
     const { data, error } = await supabase
       .from('requirement_items')
@@ -364,7 +416,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   useEffect(() => {
     if (open) {
       fetchRequirements();
-      if (userId) fetchSubscription();
+      if (userId) {
+        fetchSubscription();
+        fetchSupplierCategories();
+      }
     }
   }, [open, userId]);
 
@@ -703,20 +758,55 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
               </SelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[240px]">
+              <SelectTrigger className="w-[280px]">
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories ({requirements.length})</SelectItem>
-                {availableCategories.map(cat => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat} ({requirements.filter(r => r.product_category === cat).length})
-                  </SelectItem>
-                ))}
+                {userId && supplierCategories.length > 0 && (
+                  <>
+                    <SelectItem value="preferred">
+                      <span className="flex items-center gap-2">
+                        ✓ My Categories ({requirements.filter(r => supplierCategories.includes(r.product_category)).length})
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="all">All Categories ({requirements.length})</SelectItem>
+                    {preferredAvailableCategories.length > 0 && (
+                      <div className="px-2 py-1 text-xs text-muted-foreground font-medium border-t mt-1 pt-1">Your Categories</div>
+                    )}
+                    {preferredAvailableCategories.map(cat => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat} ({requirements.filter(r => r.product_category === cat).length})
+                      </SelectItem>
+                    ))}
+                    {otherAvailableCategories.length > 0 && (
+                      <div className="px-2 py-1 text-xs text-muted-foreground font-medium border-t mt-1 pt-1 flex items-center gap-1">
+                        <Lock className="h-3 w-3" /> Other Categories (View Only)
+                      </div>
+                    )}
+                    {otherAvailableCategories.map(cat => (
+                      <SelectItem key={cat} value={cat}>
+                        <span className="flex items-center gap-1 text-muted-foreground">
+                          <Lock className="h-3 w-3" /> {cat} ({requirements.filter(r => r.product_category === cat).length})
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+                {(!userId || supplierCategories.length === 0) && (
+                  <>
+                    <SelectItem value="preferred">All Categories ({requirements.length})</SelectItem>
+                    <SelectItem value="all">All Categories ({requirements.length})</SelectItem>
+                    {availableCategories.map(cat => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat} ({requirements.filter(r => r.product_category === cat).length})
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
               </SelectContent>
             </Select>
-            {(categoryFilter !== 'all' || statusFilter !== 'active') && (
-              <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter('all'); setStatusFilter('active'); }}>
+            {(categoryFilter !== 'preferred' || statusFilter !== 'active') && (
+              <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter('preferred'); setStatusFilter('active'); }}>
                 Clear
               </Button>
             )}
@@ -757,18 +847,37 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
                 </div>
 
-                {lowestRates[selectedRequirement.id] && (() => {
-                  const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
-                  // bid_amount already stores per-unit rate with markup, just remove the markup to show supplier rate
-                  const lowestPerUnit = lowestRates[selectedRequirement.id] / (1 + feeRate);
-                  return (
-                    <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium">
-                        Current L1 Rate: ₹{Math.round(lowestPerUnit).toLocaleString('en-IN')} per {selectedRequirement.unit}
-                      </p>
-                    </div>
-                  );
-                })()}
+                {/* L1 Price - Only visible for preferred categories */}
+                {lowestRates[selectedRequirement.id] && canViewL1Price(selectedRequirement) ? (
+                  (() => {
+                    const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
+                    // bid_amount already stores per-unit rate with markup, just remove the markup to show supplier rate
+                    const lowestPerUnit = lowestRates[selectedRequirement.id] / (1 + feeRate);
+                    return (
+                      <div className="p-3 bg-muted rounded-lg">
+                        <p className="text-sm font-medium">
+                          Current L1 Rate: ₹{Math.round(lowestPerUnit).toLocaleString('en-IN')} per {selectedRequirement.unit}
+                        </p>
+                      </div>
+                    );
+                  })()
+                ) : lowestRates[selectedRequirement.id] && !canViewL1Price(selectedRequirement) ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="p-3 bg-muted/50 rounded-lg border border-dashed flex items-center gap-2">
+                          <Lock className="h-4 w-4 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">
+                            L1 Price hidden - Enable this category to view pricing
+                          </p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Add "{selectedRequirement.product_category}" to your categories in Settings to view L1 prices and bid</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : null}
 
                 {isGuest ? (
                   <div className="p-4 bg-primary/10 rounded-lg text-center space-y-3 border-t pt-4">
@@ -877,6 +986,33 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                       </div>
                     );
                   })()
+                ) : !canBidOnRequirement(selectedRequirement) ? (
+                  <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800 space-y-3 border-t pt-4">
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-5 w-5 text-amber-600" />
+                      <p className="font-medium text-amber-800 dark:text-amber-400">Bidding Restricted</p>
+                    </div>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      This category is not in your selected supply categories. To bid on "{selectedRequirement.product_category}" requirements:
+                    </p>
+                    <ol className="text-sm text-amber-700 dark:text-amber-300 list-decimal list-inside space-y-1">
+                      <li>Go to your Dashboard</li>
+                      <li>Open Profile Settings</li>
+                      <li>Add this category to your supply list</li>
+                    </ol>
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      className="w-full border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/30"
+                      onClick={() => { 
+                        onOpenChange(false);
+                        // Navigate to dashboard settings
+                        window.location.href = '/dashboard?tab=settings'; 
+                      }}
+                    >
+                      Go to Settings
+                    </Button>
+                  </div>
                 ) : (
                   <div className="space-y-4 border-t pt-4">
                     <div className="flex items-center justify-between">
@@ -932,79 +1068,123 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredRequirements.map(req => (
-              <Card key={req.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handleSelectRequirement(req)}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <h4 className="font-medium">{req.title}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary">{req.product_category}</Badge>
-                        {req.trade_type && <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>}
-                        {myBids.has(req.id) && <Badge variant="outline">Bid Submitted</Badge>}
-                        {req.buyer_profile && (
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Building2 className="h-3 w-3" />
-                            {maskCompanyName(req.buyer_profile.company_name)}
-                          </span>
-                        )}
+            {filteredRequirements.map(req => {
+              const isPreferred = isPreferredCategory(req.product_category);
+              const showL1 = canViewL1Price(req);
+              
+              return (
+                <Card 
+                  key={req.id} 
+                  className={`cursor-pointer hover:border-primary transition-colors ${!isPreferred && userId ? 'opacity-80 border-dashed' : ''}`} 
+                  onClick={() => handleSelectRequirement(req)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <h4 className="font-medium flex items-center gap-2">
+                          {req.title}
+                          {!isPreferred && userId && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Lock className="h-3 w-3 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>View only - Enable this category to bid</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant={isPreferred || !userId ? "secondary" : "outline"} className={!isPreferred && userId ? "border-dashed" : ""}>
+                            {!isPreferred && userId && <Lock className="h-3 w-3 mr-1" />}
+                            {req.product_category}
+                          </Badge>
+                          {req.trade_type && <Badge variant="outline">{getTradeTypeLabel(req.trade_type)}</Badge>}
+                          {myBids.has(req.id) && <Badge variant="outline">Bid Submitted</Badge>}
+                          {req.buyer_profile && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {maskCompanyName(req.buyer_profile.company_name)}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{req.description}</p>
+                        <div className="flex gap-4 text-sm text-muted-foreground">
+                          <span>{Number(req.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {req.unit}</span>
+                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{req.delivery_location}</span>
+                          <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{format(new Date(req.deadline), 'PP')}</span>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{req.description}</p>
-                      <div className="flex gap-4 text-sm text-muted-foreground">
-                        <span>{Number(req.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {req.unit}</span>
-                        <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{req.delivery_location}</span>
-                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{format(new Date(req.deadline), 'PP')}</span>
+                      <div className="text-right flex flex-col items-end gap-2">
+                        {lowestRates[req.id] && showL1 ? (
+                          (() => {
+                            const feeRate = getServiceFeeRate(req.trade_type);
+                            // bid_amount already stores per-unit rate with markup, just remove the markup
+                            const lowestPerUnit = lowestRates[req.id] / (1 + feeRate);
+                            return (
+                              <p className="text-sm">
+                                <span className="text-muted-foreground">L1 Rate: </span>
+                                <span className="font-medium">₹{Math.round(lowestPerUnit).toLocaleString('en-IN')}/{req.unit}</span>
+                              </p>
+                            );
+                          })()
+                        ) : lowestRates[req.id] && !showL1 ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <p className="text-sm flex items-center gap-1">
+                                  <Lock className="h-3 w-3 text-muted-foreground" />
+                                  <span className="text-muted-foreground">L1 Hidden</span>
+                                </p>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Enable this category to view L1 price</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : null}
+                        <div className="flex items-center gap-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                                <Share2 className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenuItem onClick={(e) => handleShare(e, req, 'whatsapp')}>
+                                <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                </svg>
+                                WhatsApp
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => handleShare(e, req, 'linkedin')}>
+                                <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                </svg>
+                                LinkedIn
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => handleShare(e, req, 'copy')}>
+                                {copiedId === req.id ? (
+                                  <Check className="h-4 w-4 mr-2 text-green-600" />
+                                ) : (
+                                  <Copy className="h-4 w-4 mr-2" />
+                                )}
+                                {copiedId === req.id ? 'Copied!' : 'Copy Link'}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <Button size="sm" variant={isPreferred || !userId ? "default" : "outline"}>
+                            {isPreferred || !userId ? "View & Bid" : "View Only"}
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right flex flex-col items-end gap-2">
-                      {lowestRates[req.id] && (() => {
-                        const feeRate = getServiceFeeRate(req.trade_type);
-                        // bid_amount already stores per-unit rate with markup, just remove the markup
-                        const lowestPerUnit = lowestRates[req.id] / (1 + feeRate);
-                        return (
-                          <p className="text-sm">
-                            <span className="text-muted-foreground">L1 Rate: </span>
-                            <span className="font-medium">₹{Math.round(lowestPerUnit).toLocaleString('en-IN')}/{req.unit}</span>
-                          </p>
-                        );
-                      })()}
-                      <div className="flex items-center gap-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                              <Share2 className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                            <DropdownMenuItem onClick={(e) => handleShare(e, req, 'whatsapp')}>
-                              <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                              </svg>
-                              WhatsApp
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => handleShare(e, req, 'linkedin')}>
-                              <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                              </svg>
-                              LinkedIn
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => handleShare(e, req, 'copy')}>
-                              {copiedId === req.id ? (
-                                <Check className="h-4 w-4 mr-2 text-green-600" />
-                              ) : (
-                                <Copy className="h-4 w-4 mr-2" />
-                              )}
-                              {copiedId === req.id ? 'Copied!' : 'Copy Link'}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <Button size="sm">View & Bid</Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </DialogContent>
