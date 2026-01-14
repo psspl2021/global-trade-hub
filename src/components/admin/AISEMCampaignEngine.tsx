@@ -1,15 +1,14 @@
 /**
  * ============================================================
- * AI SEM CAMPAIGN ENGINE
+ * TARGETED BUYER ACQUISITION ENGINE
  * ============================================================
  * 
- * Replaces generic AISEMEngine with targeted buyer acquisition
+ * CRITICAL CHANGES FROM PREVIOUS VERSION:
  * 
- * What changed:
- * - Only runs for specific buyer types (EPC, Exporter, etc.)
- * - Requires subcategory + industry selection
- * - Metrics = RFQs, not impressions
- * - Min deal size filter
+ * 1. NO FAKE RFQs - All counts from real database
+ * 2. Intent Score = CALCULATED based on buyer type + deal size
+ * 3. Renamed to "Targeted Buyer Acquisition" for clarity
+ * 4. Campaign success = Signal page visits → RFQ submissions
  * 
  * ============================================================
  */
@@ -38,7 +37,9 @@ import {
   Factory,
   IndianRupee,
   Users,
-  Briefcase
+  Briefcase,
+  Crosshair,
+  Lightbulb
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -48,7 +49,7 @@ import {
   getAllIndustriesForCategory,
   prettyLabel 
 } from "@/data/categorySubcategoryMap";
-import { generateSEMCampaigns } from "@/lib/demandDiscovery";
+import { generateSEMCampaigns, calculateIntentScore } from "@/lib/demandDiscovery";
 
 interface CampaignRun {
   id: string;
@@ -61,12 +62,10 @@ interface CampaignRun {
   target_industries: string[];
   campaigns_created: number;
   ads_generated: number;
-  // Demand metrics (not vanity)
   rfqs_submitted: number;
   qualified_leads: number;
   industry_match_rate: number;
   avg_deal_size: number;
-  // Legacy (kept for compatibility)
   total_clicks: number;
   total_conversions: number;
   cost_per_rfq: number | null;
@@ -76,22 +75,21 @@ interface CampaignRun {
   created_at: string;
 }
 
-interface CampaignMetrics {
-  activeCampaigns: number;
-  rfqsGenerated: number;
-  qualifiedLeads: number;
+interface RealCampaignMetrics {
+  campaignsConfigured: number;
+  signalPagesActive: number;
+  realRfqsFromCampaigns: number;
+  avgIntentScore: number;
   avgDealSize: number;
-  industryMatchRate: number;
-  costPerRfq: number;
-  totalSpend: number;
+  industriesTargeted: number;
 }
 
 const buyerTypes = [
-  { value: "epc_contractor", label: "EPC Contractor", minDeal: 5000000, icon: Building2 },
-  { value: "exporter", label: "Exporter", minDeal: 2500000, icon: Target },
-  { value: "industrial", label: "Industrial Buyer", minDeal: 1000000, icon: Factory },
-  { value: "municipal", label: "Municipal/Govt", minDeal: 2500000, icon: Briefcase },
-  { value: "distributor", label: "Distributor", minDeal: 500000, icon: Users },
+  { value: "epc_contractor", label: "EPC Contractor", minDeal: 5000000, icon: Building2, intentMultiplier: 1.0 },
+  { value: "exporter", label: "Exporter", minDeal: 2500000, icon: Target, intentMultiplier: 0.9 },
+  { value: "industrial", label: "Industrial Buyer", minDeal: 1000000, icon: Factory, intentMultiplier: 0.7 },
+  { value: "municipal", label: "Municipal/Govt", minDeal: 2500000, icon: Briefcase, intentMultiplier: 0.85 },
+  { value: "distributor", label: "Distributor", minDeal: 500000, icon: Users, intentMultiplier: 0.5 },
 ];
 
 export function AISEMCampaignEngine() {
@@ -114,14 +112,14 @@ export function AISEMCampaignEngine() {
   const [settingsId, setSettingsId] = useState<string | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
   
-  const [metrics, setMetrics] = useState<CampaignMetrics>({
-    activeCampaigns: 0,
-    rfqsGenerated: 0,
-    qualifiedLeads: 0,
+  // REAL metrics from database
+  const [metrics, setMetrics] = useState<RealCampaignMetrics>({
+    campaignsConfigured: 0,
+    signalPagesActive: 0,
+    realRfqsFromCampaigns: 0,
+    avgIntentScore: 0,
     avgDealSize: 0,
-    industryMatchRate: 0,
-    costPerRfq: 0,
-    totalSpend: 0,
+    industriesTargeted: 0,
   });
 
   const categories = getMappedCategories();
@@ -187,7 +185,7 @@ export function AISEMCampaignEngine() {
     if (error) {
       toast.error("Failed to save settings");
     } else {
-      toast.success(enabled ? `Auto-run enabled` : "Auto-run disabled");
+      toast.success(enabled ? `Auto-acquisition enabled` : "Auto-acquisition disabled");
     }
     setSavingSettings(false);
   };
@@ -206,10 +204,13 @@ export function AISEMCampaignEngine() {
     }
   };
 
-  const fetchMetrics = async () => {
+  /**
+   * Fetch REAL metrics from database
+   */
+  const fetchRealMetrics = async () => {
     setLoading(true);
     try {
-      // Fetch recent runs
+      // Get runs
       const { data: runs } = await supabase
         .from("ai_sem_runs")
         .select("*")
@@ -217,24 +218,67 @@ export function AISEMCampaignEngine() {
         .order("created_at", { ascending: false })
         .limit(30);
       
-      if (runs && runs.length > 0) {
-        const totalRfqs = runs.reduce((sum, r) => sum + (r.rfqs_submitted || 0), 0);
-        const totalQualified = runs.reduce((sum, r) => sum + (r.qualified_leads || 0), 0);
-        const avgDeal = runs.reduce((sum, r) => sum + (Number(r.avg_deal_size) || 0), 0) / runs.length;
-        const avgMatch = runs.reduce((sum, r) => sum + (Number(r.industry_match_rate) || 0), 0) / runs.length;
-        const totalCampaigns = runs.reduce((sum, r) => sum + (r.campaigns_created || 0), 0);
-        const avgCostPerRfq = runs.reduce((sum, r) => sum + (Number(r.cost_per_rfq) || 0), 0) / runs.length;
+      // Get REAL RFQ count (last 30 days)
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { count: realRfqCount } = await supabase
+        .from("requirements")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", thirtyDaysAgo);
+      
+      // Get signal pages count
+      const { count: signalPagesCount } = await supabase
+        .from("admin_signal_pages")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true);
+      
+      // Get average deal size from actual bids
+      const { data: bidData } = await supabase
+        .from("bids")
+        .select("total_amount")
+        .gte("created_at", thirtyDaysAgo)
+        .eq("status", "accepted");
+      
+      const avgDealSize = bidData && bidData.length > 0
+        ? bidData.reduce((sum, r) => sum + (Number(r.total_amount) || 0), 0) / bidData.length
+        : 0;
 
-        setMetrics({
-          activeCampaigns: totalCampaigns,
-          rfqsGenerated: totalRfqs,
-          qualifiedLeads: totalQualified,
-          avgDealSize: avgDeal,
-          industryMatchRate: avgMatch,
-          costPerRfq: avgCostPerRfq,
-          totalSpend: runs.length * (avgCostPerRfq * totalRfqs / runs.length),
-        });
-      }
+      // Count unique industries from runs
+      const industries = new Set<string>();
+      runs?.forEach(r => {
+        if (r.target_industries) {
+          r.target_industries.forEach((i: string) => industries.add(i));
+        }
+      });
+
+      // Calculate average intent score from runs
+      let totalIntentScore = 0;
+      let runsWithIntent = 0;
+      runs?.forEach(r => {
+        // Recalculate intent score based on targeting
+        if (r.min_deal_size && r.buyer_type) {
+          const score = calculateIntentScore({
+            dealSize: r.min_deal_size,
+            industry: r.target_industries?.[0] || null,
+            subcategory: r.subcategory,
+            country: r.country,
+            hasTimeline: true,
+            hasQuantity: true,
+            hasDeliveryLocation: true,
+            buyerType: r.buyer_type,
+          });
+          totalIntentScore += score;
+          runsWithIntent++;
+        }
+      });
+
+      setMetrics({
+        campaignsConfigured: runs?.length || 0,
+        signalPagesActive: signalPagesCount || 0,
+        realRfqsFromCampaigns: realRfqCount || 0,
+        avgIntentScore: runsWithIntent > 0 ? totalIntentScore / runsWithIntent : 0,
+        avgDealSize,
+        industriesTargeted: industries.size,
+      });
     } catch (error) {
       console.error("Failed to fetch metrics:", error);
     } finally {
@@ -242,7 +286,11 @@ export function AISEMCampaignEngine() {
     }
   };
 
-  const runCampaignEngine = async () => {
+  /**
+   * Configure Targeted Campaign
+   * Creates targeting config, does NOT fake RFQs
+   */
+  const configureTargetedCampaign = async () => {
     if (!selectedCategory || !selectedSubcategory || !selectedBuyerType) {
       toast.error("Select all targeting parameters first");
       return;
@@ -256,7 +304,19 @@ export function AISEMCampaignEngine() {
       const campaigns = generateSEMCampaigns(selectedCategory, selectedCountry);
       const targetIndustries = availableIndustries.slice(0, 3);
       
-      // Create run record
+      // Calculate REAL intent score based on targeting
+      const intentScore = calculateIntentScore({
+        dealSize: minDealSize,
+        industry: targetIndustries[0] || null,
+        subcategory: selectedSubcategory,
+        country: selectedCountry,
+        hasTimeline: true,
+        hasQuantity: true,
+        hasDeliveryLocation: true,
+        buyerType: selectedBuyerType,
+      });
+      
+      // Create run record - NO FAKE METRICS
       const { data: run, error } = await supabase
         .from("ai_sem_runs")
         .insert({
@@ -270,15 +330,20 @@ export function AISEMCampaignEngine() {
           target_industries: targetIndustries,
           started_at: new Date().toISOString(),
           created_by: user?.id,
+          // Initialize with 0 - NO FAKE RFQs
+          rfqs_submitted: 0,
+          qualified_leads: 0,
+          campaigns_created: 0,
+          ads_generated: 0,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success(`Campaign generation started for ${prettyLabel(selectedBuyerType)} buyers`);
+      toast.success(`Configuring ${prettyLabel(selectedBuyerType)} buyer targeting`);
 
-      // Simulate campaign creation
+      // Simulate campaign configuration
       setTimeout(async () => {
         await supabase
           .from("ai_sem_runs")
@@ -289,43 +354,42 @@ export function AISEMCampaignEngine() {
 
         setTimeout(async () => {
           const campaignsCreated = campaigns.length;
-          const adsGenerated = campaignsCreated * 3;
           
-          // Demand-focused results
-          const rfqsSubmitted = Math.floor(Math.random() * 5) + 1;
-          const qualifiedLeads = Math.floor(rfqsSubmitted * 0.5);
-          const avgDealSize = minDealSize + Math.floor(Math.random() * minDealSize * 0.5);
-          const industryMatchRate = 70 + Math.random() * 25;
-          const costPerRfq = 500 + Math.random() * 1000;
+          // Calculate industry match rate based on targeting
+          const industryMatchRate = targetIndustries.length > 0 
+            ? Math.min(100, (targetIndustries.length / 5) * 100)
+            : 0;
 
           await supabase
             .from("ai_sem_runs")
             .update({
               status: "completed",
               campaigns_created: campaignsCreated,
-              ads_generated: adsGenerated,
-              rfqs_submitted: rfqsSubmitted,
-              qualified_leads: qualifiedLeads,
+              ads_generated: campaignsCreated * 3,
+              // RFQs stay at 0 - they come from REAL submissions only
+              rfqs_submitted: 0,
+              qualified_leads: 0,
               industry_match_rate: industryMatchRate,
-              avg_deal_size: avgDealSize,
-              cost_per_rfq: costPerRfq,
-              total_impressions: Math.floor(Math.random() * 5000) + 1000,
-              total_clicks: Math.floor(Math.random() * 200) + 50,
-              total_conversions: rfqsSubmitted,
+              avg_deal_size: 0, // Will be set from real RFQs
+              // NO fake impressions/clicks
+              total_impressions: 0,
+              total_clicks: 0,
+              total_conversions: 0,
+              cost_per_rfq: null,
               completed_at: new Date().toISOString(),
             })
             .eq("id", run.id);
 
-          toast.success(`Campaigns ready: ${campaignsCreated} campaigns, ${rfqsSubmitted} RFQs expected`);
+          toast.success(`Targeting configured: ${campaignsCreated} campaign templates ready`);
           setRunning(false);
           fetchLastRun();
-          fetchMetrics();
-        }, 3000);
-      }, 3000);
+          fetchRealMetrics();
+        }, 2000);
+      }, 2000);
 
     } catch (error) {
-      console.error("Campaign generation failed:", error);
-      toast.error("Failed to generate campaigns");
+      console.error("Campaign configuration failed:", error);
+      toast.error("Failed to configure campaign");
       setRunning(false);
     }
   };
@@ -333,7 +397,7 @@ export function AISEMCampaignEngine() {
   useEffect(() => {
     fetchSettings();
     fetchLastRun();
-    fetchMetrics();
+    fetchRealMetrics();
     if (categories.length > 0 && !selectedCategory) {
       setSelectedCategory(categories[0]);
     }
@@ -342,11 +406,11 @@ export function AISEMCampaignEngine() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "running":
-        return <Badge className="bg-blue-100 text-blue-700"><Brain className="w-3 h-3 mr-1 animate-pulse" />Generating</Badge>;
+        return <Badge className="bg-blue-100 text-blue-700"><Brain className="w-3 h-3 mr-1 animate-pulse" />Configuring</Badge>;
       case "optimizing":
         return <Badge className="bg-amber-100 text-amber-700"><Zap className="w-3 h-3 mr-1 animate-pulse" />Optimizing</Badge>;
       case "completed":
-        return <Badge className="bg-green-100 text-green-700"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
+        return <Badge className="bg-green-100 text-green-700"><CheckCircle className="w-3 h-3 mr-1" />Ready</Badge>;
       case "failed":
         return <Badge className="bg-red-100 text-red-700"><AlertTriangle className="w-3 h-3 mr-1" />Failed</Badge>;
       default:
@@ -372,16 +436,16 @@ export function AISEMCampaignEngine() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header - Renamed */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20">
-            <Target className="w-6 h-6 text-amber-600" />
+            <Crosshair className="w-6 h-6 text-amber-600" />
           </div>
           <div>
-            <h3 className="text-xl font-bold">AI SEM Campaigns</h3>
+            <h3 className="text-xl font-bold">Targeted Buyer Acquisition</h3>
             <p className="text-sm text-muted-foreground">
-              Target specific buyer types • Industry-focused • RFQ conversion
+              Configure buyer targeting • Signal page funnels • Real RFQ tracking
             </p>
           </div>
           {lastRun && getStatusBadge(lastRun.status)}
@@ -395,19 +459,29 @@ export function AISEMCampaignEngine() {
               disabled={savingSettings}
               id="auto-sem"
             />
-            <label htmlFor="auto-sem" className="text-sm font-medium">Auto-Run</label>
+            <label htmlFor="auto-sem" className="text-sm font-medium">Auto-Acquire</label>
           </div>
         </div>
       </div>
 
-      {/* DEMAND METRICS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      {/* REAL METRICS - From actual database */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card className="p-4 border-amber-200 bg-amber-50/50">
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-amber-600" />
             <div>
-              <p className="text-2xl font-bold text-amber-700">{metrics.activeCampaigns}</p>
+              <p className="text-2xl font-bold text-amber-700">{metrics.campaignsConfigured}</p>
               <p className="text-xs text-muted-foreground">Campaigns</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4 border-purple-200 bg-purple-50/50">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-purple-600" />
+            <div>
+              <p className="text-2xl font-bold text-purple-700">{metrics.signalPagesActive}</p>
+              <p className="text-xs text-muted-foreground">Signal Pages</p>
             </div>
           </div>
         </Card>
@@ -416,18 +490,28 @@ export function AISEMCampaignEngine() {
           <div className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-emerald-600" />
             <div>
-              <p className="text-2xl font-bold text-emerald-700">{metrics.rfqsGenerated}</p>
-              <p className="text-xs text-muted-foreground">RFQs</p>
+              <p className="text-2xl font-bold text-emerald-700">{metrics.realRfqsFromCampaigns}</p>
+              <p className="text-xs text-muted-foreground">Real RFQs</p>
             </div>
           </div>
         </Card>
         
-        <Card className="p-4 border-blue-200 bg-blue-50/50">
+        <Card className="p-4">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
+            <Lightbulb className="w-5 h-5 text-gray-600" />
             <div>
-              <p className="text-2xl font-bold text-blue-700">{metrics.qualifiedLeads}</p>
-              <p className="text-xs text-muted-foreground">Qualified</p>
+              <p className="text-2xl font-bold">{metrics.avgIntentScore.toFixed(1)}</p>
+              <p className="text-xs text-muted-foreground">Avg Intent</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4">
+          <div className="flex items-center gap-2">
+            <Factory className="w-5 h-5 text-gray-600" />
+            <div>
+              <p className="text-2xl font-bold">{metrics.industriesTargeted}</p>
+              <p className="text-xs text-muted-foreground">Industries</p>
             </div>
           </div>
         </Card>
@@ -441,34 +525,32 @@ export function AISEMCampaignEngine() {
             </div>
           </div>
         </Card>
-        
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold">{metrics.industryMatchRate.toFixed(0)}%</p>
-            <p className="text-xs text-muted-foreground">Match Rate</p>
-          </div>
-        </Card>
-        
-        <Card className="p-4 border-purple-200 bg-purple-50/50">
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-purple-600" />
-            <div>
-              <p className="text-2xl font-bold text-purple-700">{formatCurrency(metrics.costPerRfq)}</p>
-              <p className="text-xs text-muted-foreground">Cost/RFQ</p>
-            </div>
-          </div>
-        </Card>
       </div>
+
+      {/* Info Banner */}
+      <Card className="p-4 border-amber-200 bg-amber-50/30">
+        <div className="flex items-start gap-3">
+          <Crosshair className="w-5 h-5 text-amber-600 mt-0.5" />
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-amber-900">How Targeted Acquisition Works</p>
+            <p className="text-xs text-amber-700">
+              This engine configures buyer targeting based on type (EPC, Exporter, etc.) and deal size.
+              RFQ numbers shown are <strong>real submissions</strong> from the requirements table.
+              Campaigns generate signal page funnels — actual RFQs depend on buyer conversions.
+            </p>
+          </div>
+        </div>
+      </Card>
 
       {/* TARGETED CONTROLS */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Briefcase className="w-5 h-5" />
-            Generate Targeted Campaigns
+            Configure Buyer Targeting
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Select buyer type, category, and minimum deal size • No generic campaigns
+            Select buyer type, category, and minimum deal size • Creates signal page funnels
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -486,74 +568,61 @@ export function AISEMCampaignEngine() {
                   <Icon className="w-5 h-5 mb-1" />
                   <span className="text-xs">{type.label}</span>
                   <span className="text-[10px] text-muted-foreground">
-                    Min: {formatCurrency(type.minDeal)}
+                    Min {formatCurrency(type.minDeal)}
                   </span>
                 </Button>
               );
             })}
           </div>
 
+          {/* Category + Subcategory + Country */}
           <div className="flex flex-wrap items-end gap-3">
-            {/* Category */}
             <div className="space-y-1">
               <Label className="text-xs">Category</Label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-44">
+                <SelectTrigger className="w-48">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {prettyLabel(cat)}
-                    </SelectItem>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{prettyLabel(cat)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Subcategory */}
             <div className="space-y-1">
               <Label className="text-xs">Subcategory</Label>
-              <Select 
-                value={selectedSubcategory} 
-                onValueChange={setSelectedSubcategory}
-                disabled={availableSubcategories.length === 0}
-              >
-                <SelectTrigger className="w-44">
+              <Select value={selectedSubcategory} onValueChange={setSelectedSubcategory}>
+                <SelectTrigger className="w-48">
                   <SelectValue placeholder="Subcategory" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableSubcategories.map((sub) => (
-                    <SelectItem key={sub} value={sub}>
-                      {prettyLabel(sub)}
-                    </SelectItem>
+                  {availableSubcategories.map(sub => (
+                    <SelectItem key={sub} value={sub}>{prettyLabel(sub)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Country */}
             <div className="space-y-1">
-              <Label className="text-xs">Target Market</Label>
+              <Label className="text-xs">Market</Label>
               <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Country" />
                 </SelectTrigger>
                 <SelectContent>
-                  {countries.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      {c.label}
-                    </SelectItem>
+                  {countries.map(c => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Min Deal Size */}
             <div className="space-y-1">
               <Label className="text-xs">Min Deal Size</Label>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">₹</span>
+                <IndianRupee className="w-4 h-4 text-muted-foreground" />
                 <Input 
                   type="number" 
                   value={minDealSize} 
@@ -563,93 +632,91 @@ export function AISEMCampaignEngine() {
               </div>
             </div>
 
-            <Button
-              onClick={runCampaignEngine}
+            <Button 
+              onClick={configureTargetedCampaign}
               disabled={running || !selectedCategory || !selectedSubcategory}
               className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
             >
               {running ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Configuring...
+                </>
               ) : (
-                <Target className="w-4 h-4 mr-2" />
+                <>
+                  <Crosshair className="w-4 h-4 mr-2" />
+                  Configure Targeting
+                </>
               )}
-              Generate Campaigns
             </Button>
 
-            <Button onClick={() => { fetchLastRun(); fetchMetrics(); }} variant="outline" size="icon">
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            <Button variant="outline" onClick={fetchRealMetrics} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
           </div>
 
-          {/* Target industries display */}
+          {/* Show target industries */}
           {availableIndustries.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              <span className="text-sm text-muted-foreground">Target:</span>
-              {availableIndustries.slice(0, 4).map((ind) => (
-                <Badge key={ind} variant="outline" className="text-xs bg-amber-50">
+              <span className="text-xs text-muted-foreground">Target industries:</span>
+              {availableIndustries.slice(0, 3).map(ind => (
+                <Badge key={ind} variant="secondary" className="text-xs">
                   {prettyLabel(ind)}
                 </Badge>
               ))}
-            </div>
-          )}
-
-          {lastRun && (
-            <div className="p-3 rounded-lg bg-muted/50 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="w-4 h-4" />
-                Last run: {getTimeAgo(lastRun.completed_at || lastRun.started_at)}
-                {lastRun.status === "completed" && (
-                  <span className="ml-2">
-                    • {lastRun.campaigns_created} campaigns • {lastRun.rfqs_submitted || 0} RFQs • {formatCurrency(Number(lastRun.avg_deal_size) || 0)} avg deal
-                  </span>
-                )}
-              </div>
+              {availableIndustries.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{availableIndustries.length - 3} more
+                </Badge>
+              )}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Recent Runs */}
+      {/* Recent Campaigns */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Recent Campaigns</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            Recent Targeting Configurations
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {recentRuns.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No campaigns yet.</p>
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No campaigns configured yet.
+            </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Time</TableHead>
                   <TableHead>Buyer Type</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Market</TableHead>
-                  <TableHead>RFQs</TableHead>
-                  <TableHead>Avg Deal</TableHead>
-                  <TableHead>Cost/RFQ</TableHead>
-                  <TableHead>Time</TableHead>
+                  <TableHead>Min Deal</TableHead>
+                  <TableHead>Industries</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentRuns.map((run) => (
+                {recentRuns.map(run => (
                   <TableRow key={run.id}>
-                    <TableCell>{getStatusBadge(run.status)}</TableCell>
-                    <TableCell className="capitalize">
-                      {prettyLabel(run.buyer_type?.replace(/_/g, ' ') || "-")}
-                    </TableCell>
-                    <TableCell className="capitalize">{prettyLabel(run.category || "-")}</TableCell>
-                    <TableCell className="capitalize">{run.country || "-"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-emerald-50">
-                        {run.rfqs_submitted || 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatCurrency(Number(run.avg_deal_size) || 0)}</TableCell>
-                    <TableCell>{formatCurrency(Number(run.cost_per_rfq) || 0)}</TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-sm text-muted-foreground">
                       {getTimeAgo(run.completed_at || run.started_at)}
                     </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{prettyLabel(run.buyer_type || 'industrial')}</Badge>
+                    </TableCell>
+                    <TableCell>{prettyLabel(run.category || '')}</TableCell>
+                    <TableCell>{formatCurrency(run.min_deal_size || 0)}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {run.target_industries?.length || 0} industries
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(run.status)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -660,3 +727,6 @@ export function AISEMCampaignEngine() {
     </div>
   );
 }
+
+// Missing import
+import { FileText } from "lucide-react";

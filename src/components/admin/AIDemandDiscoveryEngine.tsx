@@ -1,14 +1,15 @@
 /**
  * ============================================================
- * AI DEMAND DISCOVERY ENGINE
+ * BUYER INTELLIGENCE ENGINE
  * ============================================================
  * 
- * Replaces AISEOEngine with buyer-focused demand discovery
+ * CRITICAL CHANGES FROM PREVIOUS VERSION:
  * 
- * What changed:
- * - Keywords come from taxonomy (not random marketing terms)
- * - Metrics = RFQs, not impressions/clicks
- * - Goal = Find high-intent buyers, not traffic
+ * 1. NO FAKE RFQs - RFQ counts come ONLY from real requirements table
+ * 2. Intent Score = CALCULATED based on deal size, industry, geography
+ * 3. "Opportunities Discovered" ≠ "RFQs Generated"
+ * 4. Renamed from "AI Demand Discovery" → "Buyer Intelligence Engine"
+ * 5. All metrics grounded in real database queries
  * 
  * ============================================================
  */
@@ -35,7 +36,9 @@ import {
   Factory,
   Building2,
   IndianRupee,
-  Users
+  Users,
+  Lightbulb,
+  Eye
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -47,8 +50,9 @@ import {
 } from "@/data/categorySubcategoryMap";
 import {
   generateBuyerIntentKeywords,
-  type DemandDiscoveryMetrics,
-  calculateDiscoveryMetrics
+  calculateIntentScore,
+  calculateRealMetrics,
+  type BuyerIntelligenceMetrics
 } from "@/lib/demandDiscovery";
 
 interface DiscoveryRun {
@@ -58,10 +62,9 @@ interface DiscoveryRun {
   subcategory: string | null;
   country: string | null;
   company_role: string | null;
-  // Legacy metrics (kept for compatibility)
   keywords_discovered: number;
   pages_generated: number;
-  // New demand metrics
+  // Real metrics tracked (not simulated)
   rfqs_submitted: number;
   buyer_inquiries: number;
   qualified_leads: number;
@@ -74,18 +77,6 @@ interface DiscoveryRun {
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
-}
-
-interface DiscoverySettings {
-  id: string;
-  enabled: boolean;
-  frequency: string | null;
-  last_run_at: string | null;
-  category: string | null;
-  subcategory: string | null;
-  country: string | null;
-  target_industries: string[];
-  min_deal_size: number;
 }
 
 export function AIDemandDiscoveryEngine() {
@@ -106,18 +97,21 @@ export function AIDemandDiscoveryEngine() {
   const [settingsId, setSettingsId] = useState<string | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
   
-  // Demand-focused metrics (not vanity metrics)
-  const [metrics, setMetrics] = useState<DemandDiscoveryMetrics>({
-    rfqsSubmitted: 0,
-    buyerInquiries: 0,
+  // REAL metrics from database (not simulated!)
+  const [metrics, setMetrics] = useState<BuyerIntelligenceMetrics>({
+    totalOpportunitiesDiscovered: 0,
+    signalPagesActive: 0,
+    realRfqsSubmitted: 0,
+    rfqsFromDiscovery: 0,
+    avgIntentScore: 0,
     industryMatchRate: 0,
     avgDealSize: 0,
-    qualifiedLeads: 0,
-    intentScore: 0,
-    categoryDepth: 0,
-    industryReach: 0,
-    discoveryToRfq: 0,
+    discoveryToSignalPage: 0,
+    signalPageToRfq: 0,
     rfqToQualified: 0,
+    categoriesCovered: 0,
+    subcategoriesCovered: 0,
+    industriesReached: 0,
   });
 
   const categories = getMappedCategories();
@@ -179,7 +173,7 @@ export function AIDemandDiscoveryEngine() {
     if (error) {
       toast.error("Failed to save settings");
     } else {
-      toast.success(enabled ? `Auto-run enabled (${frequency || autoRunFrequency})` : "Auto-run disabled");
+      toast.success(enabled ? `Auto-scan enabled (${frequency || autoRunFrequency})` : "Auto-scan disabled");
     }
     setSavingSettings(false);
   };
@@ -198,45 +192,81 @@ export function AIDemandDiscoveryEngine() {
     }
   };
 
-  const fetchMetrics = async () => {
+  /**
+   * CRITICAL: Fetch REAL metrics from database
+   * No Math.random() - only actual counts
+   */
+  const fetchRealMetrics = async () => {
     setLoading(true);
     try {
-      // Fetch recent runs for metrics calculation
+      // Get recent runs
       const { data: runs } = await supabase
         .from("ai_seo_runs")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(30);
       
-      if (runs) {
-        const calculated = calculateDiscoveryMetrics(runs);
-        
-        // Get actual RFQ count from requirements
-        const { count: rfqCount } = await supabase
-          .from("requirements")
-          .select("*", { count: "exact", head: true })
-          .gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-        
-        // Get signal pages count
-        const { count: pagesCount } = await supabase
-          .from("admin_signal_pages")
-          .select("*", { count: "exact", head: true })
-          .eq("is_active", true);
+      // Get REAL RFQ count from requirements table (last 30 days)
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { count: realRfqCount } = await supabase
+        .from("requirements")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", thirtyDaysAgo);
+      
+      // Get RFQs specifically from discovery (if source tracking exists)
+      // For now, we track via signal pages
+      const { count: discoveryRfqCount } = await supabase
+        .from("requirements")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", thirtyDaysAgo);
+      // In future: .eq("source", "demand_discovery")
+      
+      // Get active signal pages count
+      const { count: signalPagesCount } = await supabase
+        .from("admin_signal_pages")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true);
+      
+      // Get keywords count
+      const { count: keywordsCount } = await supabase
+        .from("demand_discovery_keywords")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true);
+      
+      // Get average deal size from actual bids (since requirements may not have value)
+      const { data: bidData } = await supabase
+        .from("bids")
+        .select("total_amount")
+        .gte("created_at", thirtyDaysAgo)
+        .eq("status", "accepted");
+      
+      const avgDealSize = bidData && bidData.length > 0
+        ? bidData.reduce((sum, r) => sum + (Number(r.total_amount) || 0), 0) / bidData.length
+        : 0;
 
-        setMetrics({
-          ...calculated,
-          rfqsSubmitted: rfqCount || calculated.rfqsSubmitted,
-          categoryDepth: pagesCount || 0,
-        });
-      }
+      // Calculate metrics from REAL data
+      const calculated = calculateRealMetrics({
+        runs: runs || [],
+        realRfqCount: realRfqCount || 0,
+        discoveryRfqCount: discoveryRfqCount || 0,
+        signalPagesCount: signalPagesCount || 0,
+        keywordsCount: keywordsCount || 0,
+        avgDealSize,
+      });
+
+      setMetrics(calculated);
     } catch (error) {
-      console.error("Failed to fetch metrics:", error);
+      console.error("Failed to fetch real metrics:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const runDemandDiscovery = async () => {
+  /**
+   * Run Buyer Intelligence Scan
+   * Creates opportunities, does NOT fake RFQs
+   */
+  const runBuyerIntelligenceScan = async () => {
     if (!selectedCategory || !selectedSubcategory) {
       toast.error("Select category and subcategory first");
       return;
@@ -250,7 +280,19 @@ export function AIDemandDiscoveryEngine() {
       const keywords = generateBuyerIntentKeywords(selectedCategory, selectedCountry, 50);
       const industries = availableIndustries.slice(0, 5);
       
-      // Create run record
+      // Calculate REAL intent score based on targeting
+      const intentScore = calculateIntentScore({
+        dealSize: 2500000, // Default for discovery
+        industry: industries[0] || null,
+        subcategory: selectedSubcategory,
+        country: selectedCountry,
+        hasTimeline: false,
+        hasQuantity: false,
+        hasDeliveryLocation: false,
+        buyerType: 'industrial',
+      });
+      
+      // Create run record - NO FAKE RFQs
       const { data: run, error } = await supabase
         .from("ai_seo_runs")
         .insert({
@@ -258,18 +300,23 @@ export function AIDemandDiscoveryEngine() {
           category: selectedCategory,
           subcategory: selectedSubcategory,
           country: selectedCountry,
-          company_role: "buyer", // Always buyer-focused
+          company_role: "buyer",
           started_at: new Date().toISOString(),
           created_by: user?.id,
           industries_reached: industries,
           subcategories_covered: [selectedSubcategory],
+          // IMPORTANT: Initialize with 0, NOT random numbers
+          rfqs_submitted: 0,
+          buyer_inquiries: 0,
+          qualified_leads: 0,
+          intent_score: intentScore,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success("Demand Discovery started - finding high-intent buyers");
+      toast.success("Scanning market demand - finding buyer opportunities");
 
       // Save keywords to demand_discovery_keywords table
       const keywordInserts = keywords.slice(0, 20).map(k => ({
@@ -285,42 +332,41 @@ export function AIDemandDiscoveryEngine() {
         .from("demand_discovery_keywords")
         .upsert(keywordInserts, { onConflict: 'category,subcategory,keyword' });
 
-      // Simulate discovery work (in production: real AI processing)
+      // Complete the scan
       setTimeout(async () => {
         const keywordsDiscovered = keywords.length;
-        const pagesGenerated = 1; // Signal pages, not spam pages
         
-        // Demand-focused metrics (not random)
-        const buyerInquiries = Math.floor(Math.random() * 5) + 1;
-        const rfqsSubmitted = Math.floor(buyerInquiries * 0.6);
-        const qualifiedLeads = Math.floor(rfqsSubmitted * 0.4);
-        const avgDealSize = Math.floor(Math.random() * 2000000) + 500000;
-        
+        // Calculate industry match rate based on targeting
+        const industryMatchRate = industries.length > 0 
+          ? Math.min(100, (industries.length / 5) * 100)
+          : 0;
+
         await supabase
           .from("ai_seo_runs")
           .update({
             status: "completed",
             keywords_discovered: keywordsDiscovered,
-            pages_generated: pagesGenerated,
-            rfqs_submitted: rfqsSubmitted,
-            buyer_inquiries: buyerInquiries,
-            qualified_leads: qualifiedLeads,
-            industry_match_rate: 75 + Math.random() * 20,
-            avg_deal_size: avgDealSize,
-            intent_score: 7 + Math.random() * 2,
+            pages_generated: 0, // Signal pages created separately
+            // RFQs stay at 0 - they come from REAL submissions only
+            rfqs_submitted: 0,
+            buyer_inquiries: 0,
+            qualified_leads: 0,
+            industry_match_rate: industryMatchRate,
+            avg_deal_size: 0, // Will be set from real RFQs
+            intent_score: intentScore,
             completed_at: new Date().toISOString(),
           })
           .eq("id", run.id);
 
-        toast.success(`Discovery complete: ${keywordsDiscovered} buyer-intent keywords, ${rfqsSubmitted} potential RFQs`);
+        toast.success(`Scan complete: ${keywordsDiscovered} buyer opportunities discovered`);
         setRunning(false);
         fetchLastRun();
-        fetchMetrics();
-      }, 5000);
+        fetchRealMetrics();
+      }, 3000);
 
     } catch (error) {
-      console.error("Demand discovery failed:", error);
-      toast.error("Failed to run demand discovery");
+      console.error("Buyer intelligence scan failed:", error);
+      toast.error("Failed to run scan");
       setRunning(false);
     }
   };
@@ -328,7 +374,7 @@ export function AIDemandDiscoveryEngine() {
   useEffect(() => {
     fetchSettings();
     fetchLastRun();
-    fetchMetrics();
+    fetchRealMetrics();
     if (categories.length > 0 && !selectedCategory) {
       setSelectedCategory(categories[0]);
     }
@@ -340,7 +386,7 @@ export function AIDemandDiscoveryEngine() {
         return (
           <Badge className="bg-blue-100 text-blue-700 border-blue-200">
             <Brain className="w-3 h-3 mr-1 animate-pulse" />
-            Discovering
+            Scanning
           </Badge>
         );
       case "completed":
@@ -379,16 +425,16 @@ export function AIDemandDiscoveryEngine() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header - Renamed to Buyer Intelligence Engine */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
-            <Target className="w-6 h-6 text-emerald-600" />
+            <Lightbulb className="w-6 h-6 text-emerald-600" />
           </div>
           <div>
-            <h3 className="text-xl font-bold">AI Demand Discovery</h3>
+            <h3 className="text-xl font-bold">Buyer Intelligence Engine</h3>
             <p className="text-sm text-muted-foreground">
-              Find high-intent buyers • Taxonomy-driven keywords • RFQ-focused
+              Scan market demand • Discover buyer opportunities • Track real RFQs
             </p>
           </div>
           {lastRun && getStatusBadge(lastRun.status)}
@@ -402,7 +448,7 @@ export function AIDemandDiscoveryEngine() {
               disabled={savingSettings}
               id="auto-discovery"
             />
-            <label htmlFor="auto-discovery" className="text-sm font-medium">Auto-Run</label>
+            <label htmlFor="auto-discovery" className="text-sm font-medium">Auto-Scan</label>
             {autoRunEnabled && (
               <Select value={autoRunFrequency} onValueChange={(v) => { setAutoRunFrequency(v); updateAutoRunSettings(autoRunEnabled, v); }}>
                 <SelectTrigger className="w-24 h-7">
@@ -418,78 +464,99 @@ export function AIDemandDiscoveryEngine() {
         </div>
       </div>
 
-      {/* DEMAND METRICS (Not vanity metrics!) */}
+      {/* REAL METRICS - From actual database, not simulated */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <Card className="p-4 border-emerald-200 bg-emerald-50/50">
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-emerald-600" />
-            <div>
-              <p className="text-2xl font-bold text-emerald-700">{metrics.rfqsSubmitted}</p>
-              <p className="text-xs text-muted-foreground">RFQs (30d)</p>
-            </div>
-          </div>
-        </Card>
-        
+        {/* Opportunities Discovered (Keywords) */}
         <Card className="p-4 border-blue-200 bg-blue-50/50">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
+            <Eye className="w-5 h-5 text-blue-600" />
             <div>
-              <p className="text-2xl font-bold text-blue-700">{metrics.qualifiedLeads}</p>
-              <p className="text-xs text-muted-foreground">Qualified</p>
+              <p className="text-2xl font-bold text-blue-700">{metrics.totalOpportunitiesDiscovered}</p>
+              <p className="text-xs text-muted-foreground">Opportunities</p>
             </div>
           </div>
         </Card>
         
+        {/* Signal Pages Active */}
         <Card className="p-4 border-purple-200 bg-purple-50/50">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-purple-600" />
+            <FileText className="w-5 h-5 text-purple-600" />
             <div>
-              <p className="text-2xl font-bold text-purple-700">{metrics.industryMatchRate.toFixed(0)}%</p>
-              <p className="text-xs text-muted-foreground">Industry Match</p>
+              <p className="text-2xl font-bold text-purple-700">{metrics.signalPagesActive}</p>
+              <p className="text-xs text-muted-foreground">Signal Pages</p>
             </div>
           </div>
         </Card>
         
+        {/* REAL RFQs (from requirements table) */}
+        <Card className="p-4 border-emerald-200 bg-emerald-50/50">
+          <div className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-emerald-600" />
+            <div>
+              <p className="text-2xl font-bold text-emerald-700">{metrics.realRfqsSubmitted}</p>
+              <p className="text-xs text-muted-foreground">Real RFQs (30d)</p>
+            </div>
+          </div>
+        </Card>
+        
+        {/* Intent Score (Calculated) */}
         <Card className="p-4 border-amber-200 bg-amber-50/50">
           <div className="flex items-center gap-2">
-            <IndianRupee className="w-5 h-5 text-amber-600" />
+            <Zap className="w-5 h-5 text-amber-600" />
             <div>
-              <p className="text-2xl font-bold text-amber-700">{formatCurrency(metrics.avgDealSize)}</p>
-              <p className="text-xs text-muted-foreground">Avg Deal</p>
+              <p className="text-2xl font-bold text-amber-700">{metrics.avgIntentScore.toFixed(1)}</p>
+              <p className="text-xs text-muted-foreground">Avg Intent</p>
             </div>
           </div>
         </Card>
         
+        {/* Industries Reached */}
         <Card className="p-4">
           <div className="flex items-center gap-2">
             <Factory className="w-5 h-5 text-gray-600" />
             <div>
-              <p className="text-2xl font-bold">{metrics.industryReach}</p>
+              <p className="text-2xl font-bold">{metrics.industriesReached}</p>
               <p className="text-xs text-muted-foreground">Industries</p>
             </div>
           </div>
         </Card>
         
-        <Card className="p-4 border-teal-200 bg-teal-50/50">
+        {/* Avg Deal Size (from real RFQs) */}
+        <Card className="p-4">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-teal-600" />
+            <IndianRupee className="w-5 h-5 text-gray-600" />
             <div>
-              <p className="text-2xl font-bold text-teal-700">{metrics.intentScore.toFixed(1)}</p>
-              <p className="text-xs text-muted-foreground">Intent Score</p>
+              <p className="text-2xl font-bold">{formatCurrency(metrics.avgDealSize)}</p>
+              <p className="text-xs text-muted-foreground">Avg Deal</p>
             </div>
           </div>
         </Card>
       </div>
+
+      {/* Info Banner - Explain what this does */}
+      <Card className="p-4 border-blue-200 bg-blue-50/30">
+        <div className="flex items-start gap-3">
+          <Lightbulb className="w-5 h-5 text-blue-600 mt-0.5" />
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-blue-900">How Buyer Intelligence Works</p>
+            <p className="text-xs text-blue-700">
+              This engine discovers buyer opportunities by analyzing taxonomy-driven keywords. 
+              RFQ numbers shown are <strong>real submissions</strong> from the requirements table — not simulated.
+              "Opportunities" = keywords that could attract buyers. Actual RFQs depend on signal page conversions.
+            </p>
+          </div>
+        </div>
+      </Card>
 
       {/* TAXONOMY-DRIVEN CONTROLS */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Building2 className="w-5 h-5" />
-            Run Buyer Discovery
+            Scan Market Demand
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Keywords generated from taxonomy • Only buyer-intent phrases
+            Keywords from taxonomy • Buyer-intent only • Creates opportunities, not fake RFQs
           </p>
         </CardHeader>
         <CardContent>
@@ -500,70 +567,66 @@ export function AIDemandDiscoveryEngine() {
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {prettyLabel(cat)}
-                  </SelectItem>
+                {categories.map(cat => (
+                  <SelectItem key={cat} value={cat}>{prettyLabel(cat)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             {/* Subcategory from taxonomy */}
-            <Select 
-              value={selectedSubcategory} 
-              onValueChange={setSelectedSubcategory}
-              disabled={availableSubcategories.length === 0}
-            >
+            <Select value={selectedSubcategory} onValueChange={setSelectedSubcategory}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Subcategory" />
               </SelectTrigger>
               <SelectContent>
-                {availableSubcategories.map((sub) => (
-                  <SelectItem key={sub} value={sub}>
-                    {prettyLabel(sub)}
-                  </SelectItem>
+                {availableSubcategories.map(sub => (
+                  <SelectItem key={sub} value={sub}>{prettyLabel(sub)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            {/* Target country */}
+            {/* Country */}
             <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-              <SelectTrigger className="w-36">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Country" />
               </SelectTrigger>
               <SelectContent>
-                {countries.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
-                    {c.label}
-                  </SelectItem>
+                {countries.map(c => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Button
-              onClick={runDemandDiscovery}
+            <Button 
+              onClick={runBuyerIntelligenceScan}
               disabled={running || !selectedCategory || !selectedSubcategory}
               className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
             >
               {running ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Scanning...
+                </>
               ) : (
-                <Target className="w-4 h-4 mr-2" />
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Scan Market Demand
+                </>
               )}
-              Discover Buyers
             </Button>
 
-            <Button onClick={() => { fetchLastRun(); fetchMetrics(); }} variant="outline" size="icon">
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            <Button variant="outline" onClick={fetchRealMetrics} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
           </div>
 
-          {/* Target industries display */}
+          {/* Show industries that will be targeted */}
           {availableIndustries.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="text-sm text-muted-foreground">Target Industries:</span>
-              {availableIndustries.slice(0, 5).map((ind) => (
-                <Badge key={ind} variant="outline" className="text-xs">
+              <span className="text-xs text-muted-foreground">Target industries:</span>
+              {availableIndustries.slice(0, 5).map(ind => (
+                <Badge key={ind} variant="secondary" className="text-xs">
                   {prettyLabel(ind)}
                 </Badge>
               ))}
@@ -574,68 +637,53 @@ export function AIDemandDiscoveryEngine() {
               )}
             </div>
           )}
-
-          {lastRun && (
-            <div className="mt-4 p-3 rounded-lg bg-muted/50 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="w-4 h-4" />
-                Last run: {getTimeAgo(lastRun.completed_at || lastRun.started_at)}
-                {lastRun.status === "completed" && (
-                  <span className="ml-2">
-                    • {lastRun.rfqs_submitted || 0} RFQs • {lastRun.qualified_leads || 0} qualified
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
-      {/* Recent Runs */}
+      {/* Recent Scans */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Recent Discovery Runs</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            Recent Scans
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {recentRuns.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No runs yet. Click "Discover Buyers" to start.</p>
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No scans yet. Run your first scan above.
+            </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Time</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Subcategory</TableHead>
                   <TableHead>Country</TableHead>
-                  <TableHead>RFQs</TableHead>
-                  <TableHead>Qualified</TableHead>
-                  <TableHead>Intent</TableHead>
-                  <TableHead>Time</TableHead>
+                  <TableHead>Opportunities</TableHead>
+                  <TableHead>Intent Score</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentRuns.map((run) => (
+                {recentRuns.map(run => (
                   <TableRow key={run.id}>
-                    <TableCell>{getStatusBadge(run.status)}</TableCell>
-                    <TableCell className="capitalize">{prettyLabel(run.category || "-")}</TableCell>
-                    <TableCell className="capitalize">{prettyLabel(run.subcategory || "-")}</TableCell>
-                    <TableCell className="capitalize">{run.country || "-"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-emerald-50">
-                        {run.rfqs_submitted || 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{run.qualified_leads || 0}</TableCell>
-                    <TableCell>
-                      {run.intent_score ? (
-                        <span className={run.intent_score >= 7 ? "text-green-600 font-medium" : ""}>
-                          {run.intent_score.toFixed(1)}
-                        </span>
-                      ) : "-"}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-sm text-muted-foreground">
                       {getTimeAgo(run.completed_at || run.started_at)}
                     </TableCell>
+                    <TableCell>{prettyLabel(run.category || '')}</TableCell>
+                    <TableCell>{prettyLabel(run.subcategory || '')}</TableCell>
+                    <TableCell>{prettyLabel(run.country || '')}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{run.keywords_discovered || 0}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-amber-100 text-amber-700">
+                        {(run.intent_score || 0).toFixed(1)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(run.status)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
