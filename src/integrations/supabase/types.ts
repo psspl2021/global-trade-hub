@@ -50,6 +50,69 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_signal_pages: {
+        Row: {
+          category: string
+          conversion_rate: number | null
+          created_at: string | null
+          headline: string
+          id: string
+          is_active: boolean | null
+          primary_cta: string | null
+          rfqs_submitted: number | null
+          secondary_cta: string | null
+          slug: string
+          subcategory: string
+          subheadline: string | null
+          successful_deals_count: number | null
+          target_country: string
+          target_industries: string[] | null
+          updated_at: string | null
+          verified_suppliers_count: number | null
+          views: number | null
+        }
+        Insert: {
+          category: string
+          conversion_rate?: number | null
+          created_at?: string | null
+          headline: string
+          id?: string
+          is_active?: boolean | null
+          primary_cta?: string | null
+          rfqs_submitted?: number | null
+          secondary_cta?: string | null
+          slug: string
+          subcategory: string
+          subheadline?: string | null
+          successful_deals_count?: number | null
+          target_country?: string
+          target_industries?: string[] | null
+          updated_at?: string | null
+          verified_suppliers_count?: number | null
+          views?: number | null
+        }
+        Update: {
+          category?: string
+          conversion_rate?: number | null
+          created_at?: string | null
+          headline?: string
+          id?: string
+          is_active?: boolean | null
+          primary_cta?: string | null
+          rfqs_submitted?: number | null
+          secondary_cta?: string | null
+          slug?: string
+          subcategory?: string
+          subheadline?: string | null
+          successful_deals_count?: number | null
+          target_country?: string
+          target_industries?: string[] | null
+          updated_at?: string | null
+          verified_suppliers_count?: number | null
+          views?: number | null
+        }
+        Relationships: []
+      }
       affiliate_eligibility: {
         Row: {
           commission_tier: string | null
@@ -430,6 +493,8 @@ export type Database = {
       ai_sem_runs: {
         Row: {
           ads_generated: number | null
+          avg_deal_size: number | null
+          buyer_type: string | null
           campaigns_created: number | null
           category: string | null
           company_role: string | null
@@ -440,14 +505,22 @@ export type Database = {
           created_by: string | null
           error_message: string | null
           id: string
+          industry_match_rate: number | null
+          min_deal_size: number | null
+          qualified_leads: number | null
+          rfqs_submitted: number | null
           started_at: string | null
           status: string
+          subcategory: string | null
+          target_industries: string[] | null
           total_clicks: number | null
           total_conversions: number | null
           total_impressions: number | null
         }
         Insert: {
           ads_generated?: number | null
+          avg_deal_size?: number | null
+          buyer_type?: string | null
           campaigns_created?: number | null
           category?: string | null
           company_role?: string | null
@@ -458,14 +531,22 @@ export type Database = {
           created_by?: string | null
           error_message?: string | null
           id?: string
+          industry_match_rate?: number | null
+          min_deal_size?: number | null
+          qualified_leads?: number | null
+          rfqs_submitted?: number | null
           started_at?: string | null
           status?: string
+          subcategory?: string | null
+          target_industries?: string[] | null
           total_clicks?: number | null
           total_conversions?: number | null
           total_impressions?: number | null
         }
         Update: {
           ads_generated?: number | null
+          avg_deal_size?: number | null
+          buyer_type?: string | null
           campaigns_created?: number | null
           category?: string | null
           company_role?: string | null
@@ -476,8 +557,14 @@ export type Database = {
           created_by?: string | null
           error_message?: string | null
           id?: string
+          industry_match_rate?: number | null
+          min_deal_size?: number | null
+          qualified_leads?: number | null
+          rfqs_submitted?: number | null
           started_at?: string | null
           status?: string
+          subcategory?: string | null
+          target_industries?: string[] | null
           total_clicks?: number | null
           total_conversions?: number | null
           total_impressions?: number | null
@@ -486,6 +573,7 @@ export type Database = {
       }
       ai_sem_settings: {
         Row: {
+          buyer_type: string | null
           category: string | null
           company_role: string | null
           country: string | null
@@ -494,9 +582,13 @@ export type Database = {
           frequency: string | null
           id: string
           last_run_at: string | null
+          min_deal_size: number | null
+          subcategory: string | null
+          target_industries: string[] | null
           updated_at: string | null
         }
         Insert: {
+          buyer_type?: string | null
           category?: string | null
           company_role?: string | null
           country?: string | null
@@ -505,9 +597,13 @@ export type Database = {
           frequency?: string | null
           id?: string
           last_run_at?: string | null
+          min_deal_size?: number | null
+          subcategory?: string | null
+          target_industries?: string[] | null
           updated_at?: string | null
         }
         Update: {
+          buyer_type?: string | null
           category?: string | null
           company_role?: string | null
           country?: string | null
@@ -516,12 +612,17 @@ export type Database = {
           frequency?: string | null
           id?: string
           last_run_at?: string | null
+          min_deal_size?: number | null
+          subcategory?: string | null
+          target_industries?: string[] | null
           updated_at?: string | null
         }
         Relationships: []
       }
       ai_seo_runs: {
         Row: {
+          avg_deal_size: number | null
+          buyer_inquiries: number | null
           category: string | null
           company_role: string | null
           completed_at: string | null
@@ -530,13 +631,22 @@ export type Database = {
           created_by: string | null
           error_message: string | null
           id: string
+          industries_reached: string[] | null
+          industry_match_rate: number | null
+          intent_score: number | null
           keywords_discovered: number | null
           pages_audited: number | null
           pages_generated: number | null
+          qualified_leads: number | null
+          rfqs_submitted: number | null
           started_at: string | null
           status: string
+          subcategories_covered: string[] | null
+          subcategory: string | null
         }
         Insert: {
+          avg_deal_size?: number | null
+          buyer_inquiries?: number | null
           category?: string | null
           company_role?: string | null
           completed_at?: string | null
@@ -545,13 +655,22 @@ export type Database = {
           created_by?: string | null
           error_message?: string | null
           id?: string
+          industries_reached?: string[] | null
+          industry_match_rate?: number | null
+          intent_score?: number | null
           keywords_discovered?: number | null
           pages_audited?: number | null
           pages_generated?: number | null
+          qualified_leads?: number | null
+          rfqs_submitted?: number | null
           started_at?: string | null
           status?: string
+          subcategories_covered?: string[] | null
+          subcategory?: string | null
         }
         Update: {
+          avg_deal_size?: number | null
+          buyer_inquiries?: number | null
           category?: string | null
           company_role?: string | null
           completed_at?: string | null
@@ -560,11 +679,18 @@ export type Database = {
           created_by?: string | null
           error_message?: string | null
           id?: string
+          industries_reached?: string[] | null
+          industry_match_rate?: number | null
+          intent_score?: number | null
           keywords_discovered?: number | null
           pages_audited?: number | null
           pages_generated?: number | null
+          qualified_leads?: number | null
+          rfqs_submitted?: number | null
           started_at?: string | null
           status?: string
+          subcategories_covered?: string[] | null
+          subcategory?: string | null
         }
         Relationships: []
       }
@@ -578,6 +704,9 @@ export type Database = {
           frequency: string | null
           id: string
           last_run_at: string | null
+          min_deal_size: number | null
+          subcategory: string | null
+          target_industries: string[] | null
           updated_at: string | null
         }
         Insert: {
@@ -589,6 +718,9 @@ export type Database = {
           frequency?: string | null
           id?: string
           last_run_at?: string | null
+          min_deal_size?: number | null
+          subcategory?: string | null
+          target_industries?: string[] | null
           updated_at?: string | null
         }
         Update: {
@@ -600,6 +732,9 @@ export type Database = {
           frequency?: string | null
           id?: string
           last_run_at?: string | null
+          min_deal_size?: number | null
+          subcategory?: string | null
+          target_industries?: string[] | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1249,6 +1384,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      demand_discovery_keywords: {
+        Row: {
+          category: string
+          clicks: number | null
+          created_at: string | null
+          id: string
+          impressions: number | null
+          industry: string
+          intent_score: number | null
+          intent_type: string
+          is_active: boolean | null
+          keyword: string
+          rfqs_generated: number | null
+          subcategory: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          clicks?: number | null
+          created_at?: string | null
+          id?: string
+          impressions?: number | null
+          industry: string
+          intent_score?: number | null
+          intent_type: string
+          is_active?: boolean | null
+          keyword: string
+          rfqs_generated?: number | null
+          subcategory: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          clicks?: number | null
+          created_at?: string | null
+          id?: string
+          impressions?: number | null
+          industry?: string
+          intent_score?: number | null
+          intent_type?: string
+          is_active?: boolean | null
+          keyword?: string
+          rfqs_generated?: number | null
+          subcategory?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       demo_requests: {
         Row: {
