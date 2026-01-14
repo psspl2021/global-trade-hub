@@ -5025,6 +5025,13 @@ export type Database = {
           lowest_bid_amount: number
         }[]
       }
+      get_lowest_bid_secure: {
+        Args: { req_id: string }
+        Returns: {
+          can_view: boolean
+          lowest_bid_amount: number
+        }[]
+      }
       get_lowest_logistics_bid: {
         Args: { req_id: string }
         Returns: {
