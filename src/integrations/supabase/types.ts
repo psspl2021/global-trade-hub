@@ -5112,7 +5112,7 @@ export type Database = {
         | "admin"
         | "logistics_partner"
         | "affiliate"
-      bid_status: "pending" | "accepted" | "rejected"
+      bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
       document_status:
         | "draft"
         | "sent"
@@ -5292,7 +5292,7 @@ export const Constants = {
         "logistics_partner",
         "affiliate",
       ],
-      bid_status: ["pending", "accepted", "rejected"],
+      bid_status: ["pending", "accepted", "rejected", "withdrawn"],
       document_status: [
         "draft",
         "sent",
