@@ -195,6 +195,7 @@ export function AIDemandDiscoveryEngine() {
   /**
    * CRITICAL: Fetch REAL metrics from database
    * No Math.random() - only actual counts
+   * NOW WITH ATTRIBUTION: Uses source, source_run_id, signal_page_id columns
    */
   const fetchRealMetrics = async () => {
     setLoading(true);
@@ -213,13 +214,19 @@ export function AIDemandDiscoveryEngine() {
         .select("*", { count: "exact", head: true })
         .gte("created_at", thirtyDaysAgo);
       
-      // Get RFQs specifically from discovery (if source tracking exists)
-      // For now, we track via signal pages
-      const { count: discoveryRfqCount } = await supabase
-        .from("requirements")
+      // Get RFQs from Buyer Intelligence (source = 'buyer_intelligence')
+      const { count: discoveryRfqCount } = await (supabase
+        .from("requirements") as any)
         .select("*", { count: "exact", head: true })
-        .gte("created_at", thirtyDaysAgo);
-      // In future: .eq("source", "demand_discovery")
+        .gte("created_at", thirtyDaysAgo)
+        .eq("source", "buyer_intelligence");
+      
+      // Get RFQs from Signal Pages (source = 'signal_page')
+      const { count: signalPageRfqCount } = await (supabase
+        .from("requirements") as any)
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", thirtyDaysAgo)
+        .eq("source", "signal_page");
       
       // Get active signal pages count
       const { count: signalPagesCount } = await supabase
@@ -244,11 +251,12 @@ export function AIDemandDiscoveryEngine() {
         ? bidData.reduce((sum, r) => sum + (Number(r.total_amount) || 0), 0) / bidData.length
         : 0;
 
-      // Calculate metrics from REAL data
+      // Calculate metrics from REAL data with full attribution
       const calculated = calculateRealMetrics({
         runs: runs || [],
         realRfqCount: realRfqCount || 0,
-        discoveryRfqCount: discoveryRfqCount || 0,
+        // Combine discovery + signal page RFQs for attribution
+        discoveryRfqCount: (discoveryRfqCount || 0) + (signalPageRfqCount || 0),
         signalPagesCount: signalPagesCount || 0,
         keywordsCount: keywordsCount || 0,
         avgDealSize,
@@ -464,8 +472,8 @@ export function AIDemandDiscoveryEngine() {
         </div>
       </div>
 
-      {/* REAL METRICS - From actual database, not simulated */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      {/* REAL METRICS - From actual database with attribution tracking */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {/* Opportunities Discovered (Keywords) */}
         <Card className="p-4 border-blue-200 bg-blue-50/50">
           <div className="flex items-center gap-2">
@@ -495,6 +503,17 @@ export function AIDemandDiscoveryEngine() {
             <div>
               <p className="text-2xl font-bold text-emerald-700">{metrics.realRfqsSubmitted}</p>
               <p className="text-xs text-muted-foreground">Real RFQs (30d)</p>
+            </div>
+          </div>
+        </Card>
+        
+        {/* ATTRIBUTED RFQs - NEW: From Buyer Intelligence sources */}
+        <Card className="p-4 border-teal-200 bg-teal-50/50">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-teal-600" />
+            <div>
+              <p className="text-2xl font-bold text-teal-700">{metrics.rfqsFromDiscovery}</p>
+              <p className="text-xs text-muted-foreground">Attributed RFQs</p>
             </div>
           </div>
         </Card>
@@ -533,16 +552,48 @@ export function AIDemandDiscoveryEngine() {
         </Card>
       </div>
 
-      {/* Info Banner - Explain what this does */}
+      {/* Attribution Funnel Visualization */}
+      <Card className="p-4 border-green-200 bg-green-50/30">
+        <div className="flex items-start gap-3">
+          <TrendingUp className="w-5 h-5 text-green-600 mt-0.5" />
+          <div className="space-y-2 flex-1">
+            <p className="text-sm font-medium text-green-900">RFQ Attribution Funnel</p>
+            <div className="grid grid-cols-4 gap-4 text-center">
+              <div>
+                <p className="text-lg font-bold text-blue-600">{metrics.totalOpportunitiesDiscovered}</p>
+                <p className="text-xs text-muted-foreground">Keywords</p>
+              </div>
+              <div>
+                <p className="text-lg font-bold text-purple-600">{metrics.signalPagesActive}</p>
+                <p className="text-xs text-muted-foreground">→ Signal Pages</p>
+              </div>
+              <div>
+                <p className="text-lg font-bold text-teal-600">{metrics.rfqsFromDiscovery}</p>
+                <p className="text-xs text-muted-foreground">→ Attributed RFQs</p>
+              </div>
+              <div>
+                <p className="text-lg font-bold text-emerald-600">
+                  {metrics.rfqsFromDiscovery > 0 
+                    ? ((metrics.rfqsFromDiscovery / Math.max(1, metrics.realRfqsSubmitted)) * 100).toFixed(0)
+                    : 0}%
+                </p>
+                <p className="text-xs text-muted-foreground">of Total RFQs</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Info Banner - Explain attribution */}
       <Card className="p-4 border-blue-200 bg-blue-50/30">
         <div className="flex items-start gap-3">
           <Lightbulb className="w-5 h-5 text-blue-600 mt-0.5" />
           <div className="space-y-1">
-            <p className="text-sm font-medium text-blue-900">How Buyer Intelligence Works</p>
+            <p className="text-sm font-medium text-blue-900">RFQ Attribution Now Active ✓</p>
             <p className="text-xs text-blue-700">
-              This engine discovers buyer opportunities by analyzing taxonomy-driven keywords. 
-              RFQ numbers shown are <strong>real submissions</strong> from the requirements table — not simulated.
-              "Opportunities" = keywords that could attract buyers. Actual RFQs depend on signal page conversions.
+              All RFQs are tracked with source attribution: <strong>direct</strong>, <strong>buyer_intelligence</strong>, <strong>signal_page</strong>, or <strong>admin_created</strong>.
+              "Attributed RFQs" shows RFQs that came from Buyer Intelligence scans or Signal Pages.
+              This enables conversion funnel measurement and revenue attribution.
             </p>
           </div>
         </div>

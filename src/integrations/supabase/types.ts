@@ -3244,8 +3244,11 @@ export type Database = {
           quantity: number
           rfq_source: string | null
           selection_mode: string | null
+          signal_page_id: string | null
+          source: string | null
           source_metadata: Json | null
           source_product_id: string | null
+          source_run_id: string | null
           specifications: Json | null
           status: Database["public"]["Enums"]["requirement_status"]
           title: string
@@ -3271,8 +3274,11 @@ export type Database = {
           quantity: number
           rfq_source?: string | null
           selection_mode?: string | null
+          signal_page_id?: string | null
+          source?: string | null
           source_metadata?: Json | null
           source_product_id?: string | null
+          source_run_id?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title: string
@@ -3298,8 +3304,11 @@ export type Database = {
           quantity?: number
           rfq_source?: string | null
           selection_mode?: string | null
+          signal_page_id?: string | null
+          source?: string | null
           source_metadata?: Json | null
           source_product_id?: string | null
+          source_run_id?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
           title?: string
@@ -3308,6 +3317,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "requirements_signal_page_id_fkey"
+            columns: ["signal_page_id"]
+            isOneToOne: false
+            referencedRelation: "admin_signal_pages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "requirements_source_product_id_fkey"
             columns: ["source_product_id"]
@@ -3321,6 +3337,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "supplier_inventory_performance"
             referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "requirements_source_run_id_fkey"
+            columns: ["source_run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_seo_runs"
+            referencedColumns: ["id"]
           },
         ]
       }

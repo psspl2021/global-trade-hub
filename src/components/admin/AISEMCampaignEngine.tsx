@@ -205,7 +205,7 @@ export function AISEMCampaignEngine() {
   };
 
   /**
-   * Fetch REAL metrics from database
+   * Fetch REAL metrics from database with attribution
    */
   const fetchRealMetrics = async () => {
     setLoading(true);
@@ -224,6 +224,13 @@ export function AISEMCampaignEngine() {
         .from("requirements")
         .select("*", { count: "exact", head: true })
         .gte("created_at", thirtyDaysAgo);
+      
+      // Get RFQs attributed to buyer intelligence sources
+      const { count: attributedRfqCount } = await (supabase
+        .from("requirements") as any)
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", thirtyDaysAgo)
+        .in("source", ["buyer_intelligence", "signal_page"]);
       
       // Get signal pages count
       const { count: signalPagesCount } = await supabase
@@ -274,7 +281,7 @@ export function AISEMCampaignEngine() {
       setMetrics({
         campaignsConfigured: runs?.length || 0,
         signalPagesActive: signalPagesCount || 0,
-        realRfqsFromCampaigns: realRfqCount || 0,
+        realRfqsFromCampaigns: attributedRfqCount || 0, // Now using attributed RFQs
         avgIntentScore: runsWithIntent > 0 ? totalIntentScore / runsWithIntent : 0,
         avgDealSize,
         industriesTargeted: industries.size,
