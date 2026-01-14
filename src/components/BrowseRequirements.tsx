@@ -351,16 +351,19 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     }
 
     // Fetch lowest bids for each requirement using secure RPC function
+    // Fetch lowest bids using SECURE RPC that validates category access at DB level
     if (reqData && reqData.length > 0) {
       const lowestByReq: Record<string, number> = {};
       const lowestRateByReq: Record<string, number> = {};
       
       for (const req of reqData) {
-        const { data } = await supabase.rpc('get_lowest_bid_for_requirement', { req_id: req.id });
-        if (data && data[0]?.lowest_bid_amount) {
+        // Use secure RPC that enforces category-based access at database level
+        const { data } = await supabase.rpc('get_lowest_bid_secure', { req_id: req.id });
+        if (data && data[0]?.lowest_bid_amount && data[0]?.can_view) {
           lowestByReq[req.id] = data[0].lowest_bid_amount;
           lowestRateByReq[req.id] = data[0].lowest_bid_amount;
         }
+        // If can_view is false, the price is not added to the maps (stays hidden)
       }
       
       setLowestBids(lowestByReq);
@@ -766,10 +769,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <>
                     <SelectItem value="preferred">
                       <span className="flex items-center gap-2">
-                        ✓ My Categories ({supplierCategories.length}) - {requirements.filter(r => supplierCategories.includes(r.product_category)).length} RFQs
+                        ✓ My Categories ({supplierCategories.length} Categories) · {requirements.filter(r => supplierCategories.includes(r.product_category)).length} RFQs
                       </span>
                     </SelectItem>
-                    <SelectItem value="all">All Categories ({availableCategories.length}) - {requirements.length} RFQs</SelectItem>
+                    <SelectItem value="all">All Categories ({availableCategories.length} Categories) · {requirements.length} RFQs</SelectItem>
                     {preferredAvailableCategories.length > 0 && (
                       <div className="px-2 py-1 text-xs text-muted-foreground font-medium border-t mt-1 pt-1">Your Categories ({preferredAvailableCategories.length})</div>
                     )}
