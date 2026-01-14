@@ -1,14 +1,12 @@
 /**
  * ============================================================
- * AI DEMAND DISCOVERY CRON
+ * BUYER INTELLIGENCE CRON
  * ============================================================
  * 
- * Replaces ai-seo-cron with buyer-focused demand discovery
- * 
- * What changed:
- * - Keywords from taxonomy, not random
- * - Metrics = RFQs, not impressions
- * - Creates signal pages, not spam pages
+ * CRITICAL CHANGES:
+ * 1. NO FAKE RFQs - rfqs_submitted always starts at 0
+ * 2. Intent Score = CALCULATED, not random
+ * 3. Discovers "opportunities" - actual RFQs come from signal pages
  * 
  * ============================================================
  */
@@ -89,6 +87,51 @@ function generateBuyerIntentKeywords(
   return keywords;
 }
 
+/**
+ * Calculate REAL intent score based on targeting
+ * NOT Math.random()
+ */
+function calculateIntentScore(
+  dealSize: number,
+  industry: string | null,
+  country: string
+): number {
+  let score = 0;
+  
+  // Deal size weight (0-3 points)
+  if (dealSize >= 10000000) score += 3;
+  else if (dealSize >= 5000000) score += 2.5;
+  else if (dealSize >= 2500000) score += 2;
+  else if (dealSize >= 1000000) score += 1.5;
+  else if (dealSize >= 500000) score += 1;
+  else score += 0.5;
+  
+  // Industry specificity (0-2 points)
+  const highValueIndustries = [
+    'construction', 'infrastructure', 'oil_gas', 'power', 
+    'water_treatment', 'railways', 'metro', 'highways'
+  ];
+  if (industry && highValueIndustries.some(i => industry.includes(i))) {
+    score += 2;
+  } else if (industry) {
+    score += 1;
+  }
+  
+  // Geography (0-1 point)
+  const highValueCountries = ['uae', 'usa', 'germany', 'saudi-arabia', 'qatar'];
+  if (highValueCountries.includes(country.toLowerCase())) {
+    score += 1;
+  } else {
+    score += 0.5;
+  }
+  
+  // Base score for having any targeting
+  score += 2;
+  
+  // Normalize to 1-10 scale
+  return Math.min(10, Math.max(1, score));
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -99,7 +142,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log("AI Demand Discovery: Checking settings...");
+    console.log("Buyer Intelligence: Checking settings...");
 
     // Fetch settings
     const { data: settings, error: settingsError } = await supabase
@@ -109,7 +152,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (settingsError || !settings) {
-      console.log("AI Demand Discovery: No settings found");
+      console.log("Buyer Intelligence: No settings found");
       return new Response(
         JSON.stringify({ status: "skipped", reason: "no_settings" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -120,7 +163,7 @@ Deno.serve(async (req) => {
 
     // Check if enabled
     if (!discoverySettings.enabled) {
-      console.log("AI Demand Discovery: Disabled");
+      console.log("Buyer Intelligence: Disabled");
       return new Response(
         JSON.stringify({ status: "skipped", reason: "disabled" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -135,7 +178,7 @@ Deno.serve(async (req) => {
 
     if (lastRun && (now.getTime() - lastRun.getTime()) < frequencyMs) {
       const nextRunIn = Math.round((frequencyMs - (now.getTime() - lastRun.getTime())) / 60000);
-      console.log(`AI Demand Discovery: Too soon. Next run in ${nextRunIn} minutes`);
+      console.log(`Buyer Intelligence: Too soon. Next run in ${nextRunIn} minutes`);
       return new Response(
         JSON.stringify({ 
           status: "skipped", 
@@ -146,14 +189,18 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("AI Demand Discovery: Starting execution...");
+    console.log("Buyer Intelligence: Starting market scan...");
 
     const category = discoverySettings.category?.toLowerCase() || "steel";
     const subcategory = discoverySettings.subcategory?.toLowerCase() || "ms pipes";
     const country = discoverySettings.country?.toLowerCase() || "india";
     const targetIndustries = discoverySettings.target_industries || ["construction", "infrastructure", "manufacturing"];
+    const minDealSize = discoverySettings.min_deal_size || 500000;
 
-    // Create run record with new demand-focused fields
+    // Calculate REAL intent score
+    const intentScore = calculateIntentScore(minDealSize, targetIndustries[0], country);
+
+    // Create run record with ZERO fake RFQs
     const { data: run, error: runError } = await supabase
       .from("ai_seo_runs")
       .insert({
@@ -161,16 +208,21 @@ Deno.serve(async (req) => {
         category,
         subcategory,
         country,
-        company_role: "buyer", // Always buyer-focused
+        company_role: "buyer",
         started_at: now.toISOString(),
         industries_reached: targetIndustries,
         subcategories_covered: [subcategory],
+        // CRITICAL: No fake RFQs
+        rfqs_submitted: 0,
+        buyer_inquiries: 0,
+        qualified_leads: 0,
+        intent_score: intentScore,
       })
       .select()
       .single();
 
     if (runError) {
-      console.error("AI Demand Discovery: Failed to create run", runError);
+      console.error("Buyer Intelligence: Failed to create run", runError);
       throw runError;
     }
 
@@ -191,29 +243,27 @@ Deno.serve(async (req) => {
       .from("demand_discovery_keywords")
       .upsert(keywordInserts, { onConflict: "category,subcategory,keyword" });
 
-    // Simulate demand discovery results (realistic, not inflated)
     const keywordsDiscovered = keywords.length;
-    const pagesGenerated = 1; // Signal pages, not spam
-    const buyerInquiries = Math.floor(Math.random() * 5) + 1;
-    const rfqsSubmitted = Math.floor(buyerInquiries * 0.6);
-    const qualifiedLeads = Math.floor(rfqsSubmitted * 0.4);
-    const industryMatchRate = 75 + Math.random() * 20;
-    const avgDealSize = (discoverySettings.min_deal_size || 500000) + Math.floor(Math.random() * 1000000);
-    const intentScore = 7 + Math.random() * 2;
+    
+    // Calculate industry match rate based on targeting
+    const industryMatchRate = targetIndustries.length > 0 
+      ? Math.min(100, (targetIndustries.length / 5) * 100)
+      : 0;
 
-    // Update run as completed with demand metrics
+    // Update run as completed - NO FAKE METRICS
     await supabase
       .from("ai_seo_runs")
       .update({
         status: "completed",
         keywords_discovered: keywordsDiscovered,
         pages_audited: 0,
-        pages_generated: pagesGenerated,
-        rfqs_submitted: rfqsSubmitted,
-        buyer_inquiries: buyerInquiries,
-        qualified_leads: qualifiedLeads,
+        pages_generated: 0, // Signal pages created separately
+        // RFQs stay at 0 - they come from REAL submissions only
+        rfqs_submitted: 0,
+        buyer_inquiries: 0,
+        qualified_leads: 0,
         industry_match_rate: industryMatchRate,
-        avg_deal_size: avgDealSize,
+        avg_deal_size: 0, // Will be set from real RFQs
         intent_score: intentScore,
         completed_at: new Date().toISOString(),
       })
@@ -228,25 +278,24 @@ Deno.serve(async (req) => {
       })
       .eq("id", discoverySettings.id);
 
-    console.log(`AI Demand Discovery: Completed - ${keywordsDiscovered} buyer-intent keywords, ${rfqsSubmitted} potential RFQs`);
+    console.log(`Buyer Intelligence: Completed - ${keywordsDiscovered} opportunities discovered, intent score ${intentScore.toFixed(1)}`);
 
     return new Response(
       JSON.stringify({
         status: "completed",
         run_id: run.id,
-        keywords_discovered: keywordsDiscovered,
-        rfqs_submitted: rfqsSubmitted,
-        qualified_leads: qualifiedLeads,
-        industry_match_rate: industryMatchRate,
-        avg_deal_size: avgDealSize,
+        opportunities_discovered: keywordsDiscovered,
         intent_score: intentScore,
+        industry_match_rate: industryMatchRate,
+        // Note: RFQs will come from real signal page conversions
+        rfqs_from_this_run: 0,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("AI Demand Discovery Error:", error);
+    console.error("Buyer Intelligence Error:", error);
     return new Response(
       JSON.stringify({ status: "error", message: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

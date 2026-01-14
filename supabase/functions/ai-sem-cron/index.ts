@@ -1,15 +1,12 @@
 /**
  * ============================================================
- * AI SEM CAMPAIGN CRON
+ * TARGETED BUYER ACQUISITION CRON
  * ============================================================
  * 
- * Replaces ai-sem-cron with targeted buyer acquisition
- * 
- * What changed:
- * - Only targets specific buyer types (EPC, Exporter, etc.)
- * - Requires subcategory + industry
- * - Metrics = RFQs, not impressions
- * - Min deal size filter
+ * CRITICAL CHANGES:
+ * 1. NO FAKE RFQs - All counts initialized to 0
+ * 2. Intent Score = CALCULATED based on buyer type + deal size
+ * 3. Configures targeting - actual RFQs come from signal pages
  * 
  * ============================================================
  */
@@ -35,9 +32,10 @@ interface CampaignSettings {
 }
 
 // Buyer type configurations
-const buyerTypeConfig: Record<string, { minDeal: number; keywords: string[] }> = {
+const buyerTypeConfig: Record<string, { minDeal: number; intentMultiplier: number; keywords: string[] }> = {
   epc_contractor: {
     minDeal: 5000000,
+    intentMultiplier: 1.0,
     keywords: [
       "{subcategory} for construction project",
       "bulk {subcategory} epc",
@@ -46,6 +44,7 @@ const buyerTypeConfig: Record<string, { minDeal: number; keywords: string[] }> =
   },
   exporter: {
     minDeal: 2500000,
+    intentMultiplier: 0.9,
     keywords: [
       "{subcategory} import from india",
       "indian {subcategory} supplier {country}",
@@ -54,6 +53,7 @@ const buyerTypeConfig: Record<string, { minDeal: number; keywords: string[] }> =
   },
   industrial: {
     minDeal: 1000000,
+    intentMultiplier: 0.7,
     keywords: [
       "{subcategory} for {industry}",
       "bulk {subcategory} {industry}",
@@ -62,6 +62,7 @@ const buyerTypeConfig: Record<string, { minDeal: number; keywords: string[] }> =
   },
   municipal: {
     minDeal: 2500000,
+    intentMultiplier: 0.85,
     keywords: [
       "{subcategory} for government project",
       "{subcategory} tender supplier",
@@ -70,6 +71,7 @@ const buyerTypeConfig: Record<string, { minDeal: number; keywords: string[] }> =
   },
   distributor: {
     minDeal: 500000,
+    intentMultiplier: 0.5,
     keywords: [
       "{subcategory} wholesale {country}",
       "bulk {subcategory} distributor",
@@ -77,6 +79,65 @@ const buyerTypeConfig: Record<string, { minDeal: number; keywords: string[] }> =
     ],
   },
 };
+
+/**
+ * Calculate REAL intent score based on buyer targeting
+ * NOT Math.random()
+ */
+function calculateIntentScore(
+  dealSize: number,
+  industry: string | null,
+  country: string,
+  buyerType: string
+): number {
+  let score = 0;
+  
+  // Deal size weight (0-3 points)
+  if (dealSize >= 10000000) score += 3;
+  else if (dealSize >= 5000000) score += 2.5;
+  else if (dealSize >= 2500000) score += 2;
+  else if (dealSize >= 1000000) score += 1.5;
+  else if (dealSize >= 500000) score += 1;
+  else score += 0.5;
+  
+  // Industry specificity (0-2 points)
+  const highValueIndustries = [
+    'construction', 'infrastructure', 'oil_gas', 'power', 
+    'water_treatment', 'railways', 'metro', 'highways'
+  ];
+  if (industry && highValueIndustries.some(i => industry.includes(i))) {
+    score += 2;
+  } else if (industry) {
+    score += 1;
+  }
+  
+  // Geography (0-1 point)
+  const highValueCountries = ['uae', 'usa', 'germany', 'saudi-arabia', 'qatar'];
+  if (highValueCountries.includes(country.toLowerCase())) {
+    score += 1;
+  } else {
+    score += 0.5;
+  }
+  
+  // Buyer type bonus (0-2 points)
+  const highValueBuyerTypes = ['epc_contractor', 'exporter', 'municipal'];
+  if (highValueBuyerTypes.includes(buyerType)) {
+    score += 2;
+  } else if (buyerType === 'industrial') {
+    score += 1;
+  } else {
+    score += 0.5;
+  }
+  
+  // Apply buyer type multiplier
+  const config = buyerTypeConfig[buyerType];
+  if (config) {
+    score *= config.intentMultiplier;
+  }
+  
+  // Normalize to 1-10 scale
+  return Math.min(10, Math.max(1, score));
+}
 
 function generateCampaignKeywords(
   subcategory: string,
@@ -104,7 +165,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log("AI SEM Campaign: Checking settings...");
+    console.log("Targeted Acquisition: Checking settings...");
 
     // Fetch settings
     const { data: settings, error: settingsError } = await supabase
@@ -114,7 +175,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (settingsError || !settings) {
-      console.log("AI SEM Campaign: No settings found");
+      console.log("Targeted Acquisition: No settings found");
       return new Response(
         JSON.stringify({ status: "skipped", reason: "no_settings" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -125,7 +186,7 @@ Deno.serve(async (req) => {
 
     // Check if enabled
     if (!campaignSettings.enabled) {
-      console.log("AI SEM Campaign: Disabled");
+      console.log("Targeted Acquisition: Disabled");
       return new Response(
         JSON.stringify({ status: "skipped", reason: "disabled" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -140,7 +201,7 @@ Deno.serve(async (req) => {
 
     if (lastRun && (now.getTime() - lastRun.getTime()) < frequencyMs) {
       const nextRunIn = Math.round((frequencyMs - (now.getTime() - lastRun.getTime())) / 60000);
-      console.log(`AI SEM Campaign: Too soon. Next run in ${nextRunIn} minutes`);
+      console.log(`Targeted Acquisition: Too soon. Next run in ${nextRunIn} minutes`);
       return new Response(
         JSON.stringify({ 
           status: "skipped", 
@@ -151,7 +212,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("AI SEM Campaign: Starting execution...");
+    console.log("Targeted Acquisition: Configuring campaign...");
 
     const category = campaignSettings.category?.toLowerCase() || "steel";
     const subcategory = campaignSettings.subcategory?.toLowerCase() || "ms pipes";
@@ -160,7 +221,10 @@ Deno.serve(async (req) => {
     const targetIndustries = campaignSettings.target_industries || ["construction", "infrastructure"];
     const minDealSize = campaignSettings.min_deal_size || buyerTypeConfig[buyerType]?.minDeal || 1000000;
 
-    // Create run record with targeted fields
+    // Calculate REAL intent score
+    const intentScore = calculateIntentScore(minDealSize, targetIndustries[0], country, buyerType);
+
+    // Create run record with ZERO fake metrics
     const { data: run, error: runError } = await supabase
       .from("ai_sem_runs")
       .insert({
@@ -173,20 +237,22 @@ Deno.serve(async (req) => {
         min_deal_size: minDealSize,
         target_industries: targetIndustries,
         started_at: now.toISOString(),
+        // CRITICAL: No fake RFQs or impressions
+        rfqs_submitted: 0,
+        qualified_leads: 0,
+        campaigns_created: 0,
+        ads_generated: 0,
+        total_impressions: 0,
+        total_clicks: 0,
+        total_conversions: 0,
       })
       .select()
       .single();
 
     if (runError) {
-      console.error("AI SEM Campaign: Failed to create run", runError);
+      console.error("Targeted Acquisition: Failed to create run", runError);
       throw runError;
     }
-
-    // Update to optimizing status
-    await supabase
-      .from("ai_sem_runs")
-      .update({ status: "optimizing" })
-      .eq("id", run.id);
 
     // Generate targeted campaign keywords
     const keywords = generateCampaignKeywords(
@@ -196,37 +262,28 @@ Deno.serve(async (req) => {
       buyerType
     );
 
-    // Simulate campaign results (demand-focused, not vanity metrics)
-    const campaignsCreated = 1; // One focused campaign per run
-    const adsGenerated = keywords.length;
-    
-    // Realistic demand metrics
-    const rfqsSubmitted = Math.floor(Math.random() * 5) + 1;
-    const qualifiedLeads = Math.floor(rfqsSubmitted * 0.5);
-    const industryMatchRate = 70 + Math.random() * 25;
-    const avgDealSize = minDealSize + Math.floor(Math.random() * minDealSize * 0.5);
-    const costPerRfq = 500 + Math.random() * 1000;
-    
-    // Legacy metrics (kept for compatibility)
-    const impressions = Math.floor(Math.random() * 5000) + 1000;
-    const clicks = Math.floor(impressions * (Math.random() * 0.03 + 0.01));
-    const conversions = rfqsSubmitted;
+    // Calculate industry match rate
+    const industryMatchRate = targetIndustries.length > 0 
+      ? Math.min(100, (targetIndustries.length / 5) * 100)
+      : 0;
 
-    // Update run as completed
+    // Update run as completed - NO FAKE METRICS
     await supabase
       .from("ai_sem_runs")
       .update({
         status: "completed",
-        campaigns_created: campaignsCreated,
-        ads_generated: adsGenerated,
-        rfqs_submitted: rfqsSubmitted,
-        qualified_leads: qualifiedLeads,
+        campaigns_created: 1, // One focused campaign per run
+        ads_generated: keywords.length,
+        // RFQs stay at 0 - they come from REAL submissions only
+        rfqs_submitted: 0,
+        qualified_leads: 0,
         industry_match_rate: industryMatchRate,
-        avg_deal_size: avgDealSize,
-        total_impressions: impressions,
-        total_clicks: clicks,
-        total_conversions: conversions,
-        cost_per_rfq: costPerRfq,
+        avg_deal_size: 0, // Will be set from real RFQs
+        // NO fake impressions/clicks
+        total_impressions: 0,
+        total_clicks: 0,
+        total_conversions: 0,
+        cost_per_rfq: null,
         completed_at: new Date().toISOString(),
       })
       .eq("id", run.id);
@@ -240,27 +297,26 @@ Deno.serve(async (req) => {
       })
       .eq("id", campaignSettings.id);
 
-    console.log(`AI SEM Campaign: Completed - ${campaignsCreated} campaign, ${rfqsSubmitted} RFQs, ${buyerType} targeting`);
+    console.log(`Targeted Acquisition: Completed - ${buyerType} targeting, intent score ${intentScore.toFixed(1)}`);
 
     return new Response(
       JSON.stringify({
         status: "completed",
         run_id: run.id,
         buyer_type: buyerType,
-        campaigns_created: campaignsCreated,
-        ads_generated: adsGenerated,
-        rfqs_submitted: rfqsSubmitted,
-        qualified_leads: qualifiedLeads,
+        campaigns_created: 1,
+        ads_generated: keywords.length,
+        intent_score: intentScore,
         industry_match_rate: industryMatchRate,
-        avg_deal_size: avgDealSize,
-        cost_per_rfq: costPerRfq,
+        // Note: RFQs will come from real signal page conversions
+        rfqs_from_this_run: 0,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("AI SEM Campaign Error:", error);
+    console.error("Targeted Acquisition Error:", error);
     return new Response(
       JSON.stringify({ status: "error", message: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
