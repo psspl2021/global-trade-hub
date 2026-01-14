@@ -71,6 +71,9 @@ interface RFQSuccessData {
   requirementId: string;
 }
 
+// RFQ Source types for attribution tracking
+export type RFQSource = 'direct' | 'buyer_intelligence' | 'signal_page' | 'admin_created';
+
 interface CreateRequirementFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -78,6 +81,10 @@ interface CreateRequirementFormProps {
   onSuccess?: (data: RFQSuccessData) => void;
   prefillData?: AIGeneratedRFQ | null;
   onClearPrefill?: () => void;
+  // Attribution props for tracking RFQ source
+  source?: RFQSource;
+  sourceRunId?: string; // ai_seo_runs.id when from Buyer Intelligence
+  signalPageId?: string; // admin_signal_pages.id when from Signal Page
 }
 
 const categories = [
@@ -122,7 +129,17 @@ const defaultItem: RequirementItem = {
   unit: 'Pieces',
 };
 
-export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, prefillData, onClearPrefill }: CreateRequirementFormProps) {
+export function CreateRequirementForm({ 
+  open, 
+  onOpenChange, 
+  userId, 
+  onSuccess, 
+  prefillData, 
+  onClearPrefill,
+  source = 'direct',
+  sourceRunId,
+  signalPageId
+}: CreateRequirementFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
   const [customerName, setCustomerName] = useState('');
@@ -229,25 +246,33 @@ export function CreateRequirementForm({ open, onOpenChange, userId, onSuccess, p
       const primaryCategory = items[0].category;
 
       // Insert main requirement
-      const { data: requirement, error: reqError } = await supabase
-        .from('requirements')
-        .insert({
-          buyer_id: userId,
-          title: data.title,
-          description: data.description,
-          product_category: primaryCategory,
-          trade_type: data.trade_type,
-          quantity: totalQuantity,
-          unit: items[0].unit,
-          budget_min: null,
-          budget_max: null,
-          deadline: data.deadline,
-          delivery_location: data.delivery_location,
-          quality_standards: data.quality_standards || null,
-          certifications_required: data.certifications_required || null,
-          payment_terms: data.payment_terms || null,
-          customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
-        })
+      // Build insert payload with attribution tracking
+      const insertPayload: Record<string, unknown> = {
+        buyer_id: userId,
+        title: data.title,
+        description: data.description,
+        product_category: primaryCategory,
+        trade_type: data.trade_type,
+        quantity: totalQuantity,
+        unit: items[0].unit,
+        budget_min: null,
+        budget_max: null,
+        deadline: data.deadline,
+        delivery_location: data.delivery_location,
+        quality_standards: data.quality_standards || null,
+        certifications_required: data.certifications_required || null,
+        payment_terms: data.payment_terms || null,
+        customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
+        // Attribution tracking - links RFQ to source
+        source: source || 'direct',
+        source_run_id: sourceRunId || null,
+        signal_page_id: signalPageId || null,
+      };
+
+      // Type cast needed as the DB types haven't regenerated yet with new columns
+      const { data: requirement, error: reqError } = await (supabase
+        .from('requirements') as any)
+        .insert(insertPayload)
         .select('id')
         .single();
 
