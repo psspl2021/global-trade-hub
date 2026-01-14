@@ -3225,6 +3225,53 @@ export type Database = {
           },
         ]
       }
+      requirement_supplier_reveals: {
+        Row: {
+          created_at: string | null
+          id: string
+          paid_at: string | null
+          payment_id: string | null
+          requested_at: string | null
+          requirement_id: string
+          reveal_fee: number | null
+          reveal_status: string
+          revealed_at: string | null
+          supplier_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_id?: string | null
+          requested_at?: string | null
+          requirement_id: string
+          reveal_fee?: number | null
+          reveal_status?: string
+          revealed_at?: string | null
+          supplier_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_id?: string | null
+          requested_at?: string | null
+          requirement_id?: string
+          reveal_fee?: number | null
+          reveal_status?: string
+          revealed_at?: string | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_supplier_reveals_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requirements: {
         Row: {
           budget_max: number | null
@@ -3242,6 +3289,9 @@ export type Database = {
           product_category: string
           quality_standards: string | null
           quantity: number
+          reveal_fee: number | null
+          reveal_status: string | null
+          reveal_unlocked_at: string | null
           rfq_source: string | null
           selection_mode: string | null
           signal_page_id: string | null
@@ -3272,6 +3322,9 @@ export type Database = {
           product_category: string
           quality_standards?: string | null
           quantity: number
+          reveal_fee?: number | null
+          reveal_status?: string | null
+          reveal_unlocked_at?: string | null
           rfq_source?: string | null
           selection_mode?: string | null
           signal_page_id?: string | null
@@ -3302,6 +3355,9 @@ export type Database = {
           product_category?: string
           quality_standards?: string | null
           quantity?: number
+          reveal_fee?: number | null
+          reveal_status?: string | null
+          reveal_unlocked_at?: string | null
           rfq_source?: string | null
           selection_mode?: string | null
           signal_page_id?: string | null

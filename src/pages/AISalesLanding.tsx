@@ -81,11 +81,13 @@ export default function AISalesLanding() {
   }
 
   const features = [
-    { icon: Shield, label: 'Verified Suppliers', description: 'All suppliers are quality-checked' },
+    { icon: Shield, label: 'Verified Suppliers', description: 'All suppliers are quality-checked & verified' },
     { icon: Clock, label: 'Fast Response', description: 'Get quotes within 24 hours' },
     { icon: Star, label: 'Competitive Pricing', description: 'Best rates from top suppliers' },
     { icon: Globe, label: 'Pan-India Network', description: 'Suppliers across all regions' },
   ];
+
+  // Note: Suppliers see only the project details, not buyer info
 
   return (
     <div className="min-h-screen bg-background">
@@ -223,6 +225,9 @@ export default function AISalesLanding() {
       <PostRFQModal 
         open={showRFQModal} 
         onOpenChange={setShowRFQModal}
+        signalPageId={page.id}
+        signalPageCategory={page.category}
+        signalPageCountry={page.country}
       />
     </div>
   );

@@ -960,6 +960,9 @@ const Dashboard = () => {
             }}
             prefillData={aiGeneratedRFQ}
             onClearPrefill={() => setAIGeneratedRFQ(null)}
+            // Pass signal page attribution from stored RFQ
+            source={(aiGeneratedRFQ as any)?.source || 'direct'}
+            signalPageId={(aiGeneratedRFQ as any)?.signalPageId}
           />
         )}
         
