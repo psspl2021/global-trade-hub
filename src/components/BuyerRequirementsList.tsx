@@ -628,17 +628,17 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                       const transportPerUnit = transportMatch ? parseFloat(transportMatch[1].replace(/,/g, '')) : 0;
                                       const feeRate = selectedRequirement?.trade_type === 'domestic_india' ? 0.005 : 0.01;
                                       
-                                      // Use buyer_visible_price if available, otherwise calculate from bid_amount
-                                      // buyer_visible_price already includes transport + markup
+                                      // buyer_visible_price is the per-unit rate (already includes transport + markup)
+                                      // bid_amount is also per-unit rate from supplier
                                       const quantity = selectedRequirement?.quantity || 0;
                                       let buyerRate: number;
                                       
-                                      if (bid.buyer_visible_price && quantity > 0) {
-                                        // buyer_visible_price is the total, so divide by quantity for rate
-                                        buyerRate = bid.buyer_visible_price / quantity;
+                                      if (bid.buyer_visible_price) {
+                                        // buyer_visible_price is already the per-unit rate
+                                        buyerRate = bid.buyer_visible_price;
                                       } else {
-                                        // Fallback: bid_amount is rate per unit from supplier
-                                        const supplierBaseRate = bid.bid_amount / quantity; // bid_amount might be total
+                                        // Fallback: bid_amount is per-unit rate from supplier
+                                        const supplierBaseRate = bid.bid_amount;
                                         const totalSupplierRate = supplierBaseRate + transportPerUnit;
                                         buyerRate = totalSupplierRate * (1 + feeRate);
                                       }
@@ -686,12 +686,14 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                                     return sum + (buyerRate * item.quantity);
                                   }, 0);
                                 } else {
-                                  // Fallback calculation - use buyer_visible_price if available
+                                  // Fallback calculation - buyer_visible_price and bid_amount are per-unit rates
                                   const quantity = selectedRequirement?.quantity || 0;
-                                  if (bid.buyer_visible_price) {
-                                    totalBuyerAmount = bid.buyer_visible_price;
+                                  if (bid.buyer_visible_price && quantity > 0) {
+                                    // buyer_visible_price is per-unit rate, multiply by quantity for total
+                                    totalBuyerAmount = bid.buyer_visible_price * quantity;
                                   } else if (quantity > 0) {
-                                    const supplierBaseRate = bid.bid_amount / quantity;
+                                    // bid_amount is per-unit rate from supplier
+                                    const supplierBaseRate = bid.bid_amount;
                                     const totalSupplierRate = supplierBaseRate + transportPerUnit;
                                     const buyerRate = totalSupplierRate * (1 + feeRate);
                                     totalBuyerAmount = buyerRate * quantity;
