@@ -37,9 +37,18 @@ export interface CalculatedBid {
   gstAmount: number;
   grandTotal: number;
   platformFeeRate: number;
+  platformFeeAmount: number; // Total platform fee collected
 }
 
 export class PricingCalculator {
+  /**
+   * FLOAT-SAFE ROUNDING — Prevents 1272.6299999998 bugs
+   * All money calculations MUST use this method
+   */
+  private static round(amount: number): number {
+    return Math.round(amount * 100) / 100;
+  }
+
   /**
    * Get platform fee rate based on trade type
    * Domestic India: 0.5%
@@ -61,6 +70,7 @@ export class PricingCalculator {
    * - subTotal = sum of all buyerLineTotals
    * - gstAmount = subTotal × gstRate
    * - grandTotal = subTotal + gstAmount
+   * - platformFeeAmount = total platform fees collected
    */
   static calculateBid(
     items: BidItemInput[],
@@ -75,6 +85,7 @@ export class PricingCalculator {
     const feeRate = this.getPlatformFee(options.tradeType);
 
     let subTotal = 0;
+    let platformFeeAmount = 0;
 
     const calculatedItems: CalculatedItem[] = items.map(item => {
       if (item.quantity <= 0) {
@@ -85,10 +96,14 @@ export class PricingCalculator {
       }
 
       const supplierRate = item.supplierUnitPrice + transport;
-      const buyerUnitPrice = supplierRate * (1 + feeRate);
-      const buyerLineTotal = buyerUnitPrice * item.quantity;
+      const buyerUnitPrice = this.round(supplierRate * (1 + feeRate));
+      const buyerLineTotal = this.round(buyerUnitPrice * item.quantity);
+      
+      // Calculate platform fee for this item
+      const supplierLineTotal = this.round((item.supplierUnitPrice + transport) * item.quantity);
+      platformFeeAmount += this.round(buyerLineTotal - supplierLineTotal);
 
-      subTotal += buyerLineTotal;
+      subTotal = this.round(subTotal + buyerLineTotal);
 
       return {
         supplierUnitPrice: item.supplierUnitPrice,
@@ -98,14 +113,16 @@ export class PricingCalculator {
       };
     });
 
-    const gstAmount = subTotal * gstRate;
+    const gstAmount = this.round(subTotal * gstRate);
+    const grandTotal = this.round(subTotal + gstAmount);
 
     return {
       items: calculatedItems,
       subTotal,
       gstAmount,
-      grandTotal: subTotal + gstAmount,
-      platformFeeRate: feeRate
+      grandTotal,
+      platformFeeRate: feeRate,
+      platformFeeAmount: this.round(platformFeeAmount)
     };
   }
 
@@ -122,8 +139,8 @@ export class PricingCalculator {
     const feeRate = this.getPlatformFee(options.tradeType);
 
     const supplierRate = supplierUnitPrice + transport;
-    const buyerUnitPrice = supplierRate * (1 + feeRate);
-    const buyerLineTotal = buyerUnitPrice * quantity;
+    const buyerUnitPrice = this.round(supplierRate * (1 + feeRate));
+    const buyerLineTotal = this.round(buyerUnitPrice * quantity);
 
     return { buyerUnitPrice, buyerLineTotal };
   }
