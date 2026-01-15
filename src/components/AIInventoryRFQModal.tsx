@@ -1,3 +1,112 @@
+/**
+ * PROCURESAATHI MANAGED FULFILMENT CORE LAW (HARD LOCK · IMMUTABLE)
+ *
+ * This component operates strictly under ProcureSaathi's
+ * MANAGED FULFILMENT MODEL.
+ *
+ * It is NOT a supplier marketplace.
+ * It must NEVER behave like one.
+ *
+ * ======================================================
+ * CORE LAW (NON-NEGOTIABLE)
+ * ======================================================
+ * 1. Buyer is ALWAYS interacting with ProcureSaathi.
+ * 2. Buyer NEVER sees, selects, or contacts suppliers.
+ * 3. Supplier identity (name, phone, email, GST, address, location)
+ *    MUST NEVER be exposed in UI, API, logs, or responses.
+ * 4. All inventory and quotes are presented as:
+ *    "ProcureSaathi Verified Fulfilment Pool".
+ * 5. RFQs created here are INTERNAL demand instructions
+ *    for ProcureSaathi — not supplier enquiries.
+ *
+ * ======================================================
+ * MENTAL MODEL (LOCKED)
+ * ======================================================
+ * Buyer action        → "Request quote from ProcureSaathi"
+ * ProcureSaathi role  → Commercial counterparty & fulfiller
+ * Supplier role       → Execution partner assigned internally
+ *
+ * Buyer → ProcureSaathi → Supplier
+ *
+ * NOT:
+ * Buyer → Supplier → Platform
+ *
+ * ======================================================
+ * SUPPLIER DEFINITION
+ * ======================================================
+ * Suppliers are:
+ * • Hidden
+ * • Swappable
+ * • Replaceable
+ * • Performance-scored internally
+ *
+ * Suppliers NEVER:
+ * • Own buyer relationships
+ * • Negotiate directly with buyers
+ * • Receive buyer contact details
+ *
+ * ======================================================
+ * UI & COPY ENFORCEMENT
+ * ======================================================
+ * ALLOWED language ONLY:
+ * ✓ "Verified available stock"
+ * ✓ "ProcureSaathi verified partners"
+ * ✓ "Fulfilment handled by ProcureSaathi"
+ * ✓ "Expected response time"
+ * ✓ "Price includes platform handling"
+ *
+ * FORBIDDEN language (ALWAYS):
+ * ✗ Supplier name / contact / GST / address
+ * ✗ "Seller"
+ * ✗ "Multiple suppliers quoting"
+ * ✗ "Direct negotiation"
+ * ✗ "Connect with supplier"
+ *
+ * ======================================================
+ * RFQ CREATION RULES (MANDATORY)
+ * ======================================================
+ * On submit:
+ * • source = 'ai_inventory'
+ * • selection_mode MUST be 'auto'
+ * • visibility MUST be 'anonymous'
+ * • Buyer contract = ProcureSaathi
+ * • Supplier allocation = internal (AI + admin controlled)
+ *
+ * ======================================================
+ * PRICING & REVENUE OWNERSHIP
+ * ======================================================
+ * • Buyer price already includes ProcureSaathi margin
+ * • Suppliers NEVER see buyer price
+ * • Buyers NEVER see supplier price
+ * • Margin, risk premium, logistics & service fee
+ *   are owned and controlled by ProcureSaathi
+ *
+ * ======================================================
+ * TRUST, LIABILITY & GUARANTEES
+ * ======================================================
+ * • Buyer payment, trust, disputes, delivery SLAs,
+ *   and guarantees are the responsibility of ProcureSaathi
+ * • NOT individual suppliers
+ *
+ * ======================================================
+ * FINAL ENFORCEMENT CHECK
+ * ======================================================
+ * If ANY future change:
+ * → exposes supplier identity
+ * → enables buyer–supplier contact
+ * → weakens ProcureSaathi as counterparty
+ *
+ * IT MUST BE REJECTED.
+ *
+ * ======================================================
+ * IDENTITY
+ * ======================================================
+ * This is a MANAGED B2B PROCUREMENT ENGINE.
+ * Not a marketplace.
+ * Not negotiable.
+ * This is the moat.
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
