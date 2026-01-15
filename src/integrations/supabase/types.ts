@@ -5123,6 +5123,78 @@ export type Database = {
           },
         ]
       }
+      buyer_bid_items_view: {
+        Row: {
+          bid_id: string | null
+          created_at: string | null
+          dispatched_qty: number | null
+          id: string | null
+          quantity: number | null
+          requirement_item_id: string | null
+          supplier_unit_price: number | null
+          total: number | null
+          unit_price: number | null
+        }
+        Insert: {
+          bid_id?: string | null
+          created_at?: string | null
+          dispatched_qty?: number | null
+          id?: string | null
+          quantity?: number | null
+          requirement_item_id?: string | null
+          supplier_unit_price?: never
+          total?: number | null
+          unit_price?: number | null
+        }
+        Update: {
+          bid_id?: string | null
+          created_at?: string | null
+          dispatched_qty?: number | null
+          id?: string | null
+          quantity?: number | null
+          requirement_item_id?: string | null
+          supplier_unit_price?: never
+          total?: number | null
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "bid_items_requirement_item_id_fkey"
+            columns: ["requirement_item_id"]
+            isOneToOne: false
+            referencedRelation: "requirement_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buyer_inventory_discovery: {
         Row: {
           available_quantity: number | null
