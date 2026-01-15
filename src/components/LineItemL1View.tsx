@@ -340,11 +340,12 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
     try {
       const newTotal = editForm.unit_price * editForm.quantity;
       
-      // Update bid_item
+      // Update bid_item - supplier_unit_price is the source of truth
       const { error: bidItemError } = await supabase
         .from('bid_items')
         .update({
           unit_price: editForm.unit_price,
+          supplier_unit_price: editForm.unit_price, // Per-unit rate (source of truth)
           quantity: editForm.quantity,
           total: newTotal,
         })
