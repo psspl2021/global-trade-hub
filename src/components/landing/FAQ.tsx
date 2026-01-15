@@ -13,32 +13,32 @@ const faqData = [
     questions: [
       {
         question: "How do I post a sourcing requirement on ProcureSaathi?",
-        answer: "Simply sign up as a buyer, navigate to your dashboard, and click 'Post Requirement'. Fill in product details, quantity, budget range, and delivery requirements. Verified suppliers will then bid competitively on your requirement."
+        answer: "Simply sign up, navigate to your dashboard, and click 'Post Requirement'. Fill in product details, quantity, budget range, and delivery requirements. ProcureSaathi's verified fulfillment network will provide competitive offers."
       },
       {
-        question: "Is my requirement visible to all suppliers?",
-        answer: "Yes, your requirements are visible to all verified suppliers on the platform. However, your company details remain confidential until you accept a bid."
+        question: "Who fulfills my orders?",
+        answer: "All orders are fulfilled by ProcureSaathi's verified partner network. You deal exclusively with ProcureSaathi as your commercial counterparty — enjoying full protection, quality assurance, and transparent pricing."
       },
       {
-        question: "How does the competitive bidding system work?",
-        answer: "Suppliers submit sealed bids on your requirements. They can only see the current lowest bid amount, not competitor details. This ensures fair, competitive pricing for buyers."
+        question: "How does ProcureSaathi ensure competitive pricing?",
+        answer: "ProcureSaathi's internal scoring system ranks fulfillment partners based on price, delivery reliability, quality, and capacity. You always receive the best-value offer without needing to negotiate directly."
       },
     ]
   },
   {
-    category: "For Suppliers",
+    category: "For Fulfillment Partners",
     questions: [
       {
-        question: "What is the service fee for suppliers?",
-        answer: "ProcureSaathi charges a 1% service fee on successful transactions. This fee is automatically calculated and added to your bid amount when presented to buyers."
+        question: "How does ProcureSaathi select fulfillment partners?",
+        answer: "Partners are ranked using an internal scoring system combining price competitiveness, delivery reliability, quality track record, and capacity. Top-ranked partners are assigned orders by ProcureSaathi."
       },
       {
-        question: "How many bids can I place per month?",
-        answer: "Free tier suppliers can place up to 5 bids per month. Premium subscribers enjoy unlimited bids, priority listing, and a featured badge on their profile."
+        question: "How many offers can I submit per month?",
+        answer: "Free tier partners can submit up to 5 offers per month. Premium partners enjoy unlimited submissions, priority ranking, and enhanced visibility in ProcureSaathi's network."
       },
       {
         question: "Can I upload my product catalog?",
-        answer: "Yes! Suppliers can maintain detailed product catalogs with images, specifications, pricing ranges, MOQ, and certifications. Your catalog helps buyers discover your offerings."
+        answer: "Yes! Partners can maintain detailed product catalogs with images, specifications, pricing ranges, MOQ, and certifications. This helps ProcureSaathi match you with suitable requirements."
       },
     ]
   },

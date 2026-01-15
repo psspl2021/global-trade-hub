@@ -415,7 +415,7 @@ export function AIInventoryRFQModal({
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="text-green-500">✓</span>
-                <span>Supplier identity revealed only after order confirmation</span>
+                <span>Order fulfilled by ProcureSaathi verified partners</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Truck className="h-4 w-4" />

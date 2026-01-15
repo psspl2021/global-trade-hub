@@ -430,7 +430,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Manage inventory, invoices, PO & supplier contacts
+                    Manage inventory, invoices & purchase orders
                   </p>
                   <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
                 </CardContent>

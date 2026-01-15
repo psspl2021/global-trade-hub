@@ -120,14 +120,14 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
     case "bid_accepted":
       return `
         <div style="${baseStyles}">
-          <h1 style="color: #16a34a;">Congratulations! Your Bid Was Accepted! 🎊</h1>
-          <p>Your bid has been accepted by the buyer.</p>
+          <h1 style="color: #16a34a;">Congratulations! You've Been Assigned! 🎊</h1>
+          <p>ProcureSaathi has selected you as the fulfillment partner for this requirement.</p>
           <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #86efac;">
             <p><strong>Requirement:</strong> ${data.requirement_title}</p>
-            <p><strong>Your Bid:</strong> ₹${data.bid_amount?.toLocaleString('en-IN')}</p>
-            <p><strong>Buyer:</strong> ${data.buyer_name}</p>
+            <p><strong>Your Offer:</strong> ₹${data.bid_amount?.toLocaleString('en-IN')}</p>
+            <p><strong>Order Managed By:</strong> ProcureSaathi</p>
           </div>
-          <p>Please proceed with the order fulfillment as per the agreed terms.</p>
+          <p>Please proceed with order fulfillment as per the agreed terms. ProcureSaathi will coordinate delivery.</p>
           <a href="https://procuresaathi.lovable.app/dashboard" style="${buttonStyle}">View Details</a>
           <p style="margin-top: 30px; color: #666; font-size: 12px;">
             This email was sent by ProcureSaathi. If you have any questions, please contact our support team.

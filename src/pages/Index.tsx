@@ -86,8 +86,8 @@ const Index = () => {
         {
           "@type": "HowToStep",
           "position": 3,
-          "name": "Accept Best Bid",
-          "text": "Review and accept the lowest bid from qualified suppliers"
+          "name": "Accept Best Offer",
+          "text": "Review and accept the top-ranked offer from ProcureSaathi's verified network"
         },
         {
           "@type": "HowToStep",
@@ -154,15 +154,15 @@ const Index = () => {
 
   const buyerSteps = [
     { icon: FileText, title: 'Post Requirement', description: 'Submit your sourcing needs with detailed specifications' },
-    { icon: Mail, title: 'Receive Sealed Bids', description: 'Get competitive bids from verified suppliers' },
-    { icon: CheckCircle, title: 'Accept Best Bid', description: 'Review and accept the lowest bid' },
-    { icon: Users, title: 'Complete Transaction', description: 'Finalize with ProcureSaathi support' },
+    { icon: Mail, title: 'Receive Offers', description: 'Get competitive offers from ProcureSaathi\'s verified network' },
+    { icon: CheckCircle, title: 'Accept Best Offer', description: 'Review and accept the top-ranked offer' },
+    { icon: Users, title: 'Complete Transaction', description: 'Finalize with ProcureSaathi managing end-to-end' },
   ];
 
   const supplierSteps = [
-    { icon: Search, title: 'Browse Requirements', description: 'View active buyer requirements in your category' },
-    { icon: Send, title: 'Submit Sealed Bid', description: 'Place your competitive bid (hidden from others)' },
-    { icon: Trophy, title: 'Win Contract', description: 'Get notified when your bid is accepted' },
+    { icon: Search, title: 'Browse Opportunities', description: 'View active requirements in your category' },
+    { icon: Send, title: 'Submit Offer', description: 'Place your competitive offer to ProcureSaathi' },
+    { icon: Trophy, title: 'Get Assigned', description: 'Get notified when you\'re selected as fulfillment partner' },
     { icon: Package, title: 'Fulfill Order', description: 'Deliver and complete the transaction' },
   ];
 
