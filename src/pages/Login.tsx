@@ -169,101 +169,132 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative">
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${authBg})` }} />
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
-      <div className="w-full max-w-md relative z-10">
-        <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
-          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 sm:h-32 w-auto object-contain" />
-        </Link>
+    <div className="min-h-screen flex relative">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary via-primary/90 to-primary/80">
+        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: `url(${authBg})` }} />
+        <div className="relative z-10 flex flex-col justify-center items-center p-12 text-primary-foreground">
+          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-24 w-auto object-contain mb-8 brightness-0 invert" />
+          <h2 className="text-3xl font-display font-bold text-center mb-4">Welcome Back to ProcureSaathi</h2>
+          <p className="text-center text-primary-foreground/80 max-w-md text-lg">
+            India's trusted B2B procurement platform. Access verified suppliers, manage RFQs, and grow your business.
+          </p>
+          <div className="mt-12 grid grid-cols-2 gap-6 text-center">
+            <div className="bg-white/10 rounded-2xl p-5 backdrop-blur-sm">
+              <div className="text-3xl font-bold mb-1">1000+</div>
+              <div className="text-sm text-primary-foreground/80">Verified Suppliers</div>
+            </div>
+            <div className="bg-white/10 rounded-2xl p-5 backdrop-blur-sm">
+              <div className="text-3xl font-bold mb-1">23+</div>
+              <div className="text-sm text-primary-foreground/80">Categories</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <Card className="shadow-xl">
-          <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>
-              Sign in to your ProcureSaathi account
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={errors.email ? 'border-destructive' : ''}
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
-                )}
-              </div>
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 bg-background">
+        <div className="w-full max-w-md">
+          <Link to="/" className="flex items-center justify-center mb-8 lg:hidden hover:opacity-80 transition-opacity">
+            <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-16 w-auto object-contain" />
+          </Link>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
-                    <DialogTrigger asChild>
-                      <Button variant="link" className="px-0 h-auto text-sm text-muted-foreground">
-                        Forgot password?
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Reset Password</DialogTitle>
-                        <DialogDescription>
-                          Enter your email address and we'll send you a link to reset your password.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={handleResetPassword} className="space-y-4 mt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="reset-email">Email</Label>
-                          <Input
-                            id="reset-email"
-                            type="email"
-                            placeholder="you@company.com"
-                            value={resetEmail}
-                            onChange={(e) => setResetEmail(e.target.value)}
-                            className={resetErrors.email ? 'border-destructive' : ''}
-                          />
-                          {resetErrors.email && (
-                            <p className="text-sm text-destructive">{resetErrors.email}</p>
-                          )}
-                        </div>
-                        <Button type="submit" className="w-full" disabled={resetLoading}>
-                          {resetLoading ? 'Sending...' : 'Send Reset Link'}
-                        </Button>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+          <Card className="shadow-xl border-border/50">
+            <CardHeader className="space-y-1 pb-4">
+              <CardTitle className="text-2xl font-display">Sign In</CardTitle>
+              <CardDescription className="text-base">
+                Enter your credentials to access your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`h-11 ${errors.email ? 'border-destructive' : ''}`}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={errors.password ? 'border-destructive' : ''}
-                />
-                {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
-                )}
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+                      <DialogTrigger asChild>
+                        <Button variant="link" className="px-0 h-auto text-sm text-primary">
+                          Forgot password?
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Reset Password</DialogTitle>
+                          <DialogDescription>
+                            Enter your email address and we'll send you a link to reset your password.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleResetPassword} className="space-y-4 mt-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="reset-email">Email</Label>
+                            <Input
+                              id="reset-email"
+                              type="email"
+                              placeholder="you@company.com"
+                              value={resetEmail}
+                              onChange={(e) => setResetEmail(e.target.value)}
+                              className={resetErrors.email ? 'border-destructive' : ''}
+                            />
+                            {resetErrors.email && (
+                              <p className="text-sm text-destructive">{resetErrors.email}</p>
+                            )}
+                          </div>
+                          <Button type="submit" className="w-full h-11" disabled={resetLoading}>
+                            {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                          </Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`h-11 ${errors.password ? 'border-destructive' : ''}`}
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-destructive">{errors.password}</p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full h-12 font-semibold text-base" disabled={loading}>
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </Button>
+              </form>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">New to ProcureSaathi?</span>
+                </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </form>
-
-            <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-primary hover:underline font-medium">
-                Sign Up
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
+              <div className="text-center">
+                <Link to="/signup" className="text-primary hover:underline font-medium">
+                  Create an account
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

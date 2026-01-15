@@ -33,6 +33,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const InvoiceGenerator = lazy(() => import("./pages/InvoiceGenerator"));
 const AffiliatePortal = lazy(() => import("./pages/AffiliatePortal"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -62,6 +64,8 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/category/:categorySlug" element={<CategoryLanding />} />
               <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryLanding />} />

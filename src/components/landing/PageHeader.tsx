@@ -1,12 +1,31 @@
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import procureSaathiLogo from "@/assets/procuresaathi-logo.png";
+import { Menu, X } from "lucide-react";
+
+const navLinks = [
+  { label: "About Us", path: "/about" },
+  { label: "Buyer", path: "/buyer" },
+  { label: "Seller", path: "/seller" },
+  { label: "Private Label", path: "/private-label" },
+  { label: "Categories", path: "/categories" },
+  { label: "Blogs", path: "/blogs" },
+  { label: "Contact", path: "/contact" },
+];
 
 export const PageHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const isActive = (path: string) => location.pathname === path;
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="bg-card/95 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-soft">
@@ -26,64 +45,98 @@ export const PageHeader = () => {
         </div>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`font-medium transition-colors ${isActive('/') ? 'text-primary bg-primary/5' : 'hover:text-primary hover:bg-primary/5'}`}
-            onClick={() => navigate('/')}
-          >
-            Home
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`font-medium transition-colors ${isActive('/buyer') ? 'text-primary bg-primary/5' : 'hover:text-primary hover:bg-primary/5'}`}
-            onClick={() => navigate('/buyer')}
-          >
-            Buyer
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`font-medium transition-colors ${isActive('/seller') ? 'text-primary bg-primary/5' : 'hover:text-primary hover:bg-primary/5'}`}
-            onClick={() => navigate('/seller')}
-          >
-            Seller
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`font-medium transition-colors ${isActive('/private-label') ? 'text-primary bg-primary/5' : 'hover:text-primary hover:bg-primary/5'}`}
-            onClick={() => navigate('/private-label')}
-          >
-            Private Label
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`font-medium transition-colors ${isActive('/categories') ? 'text-primary bg-primary/5' : 'hover:text-primary hover:bg-primary/5'}`}
-            onClick={() => navigate('/categories')}
-          >
-            Categories
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`font-medium transition-colors ${isActive('/blogs') ? 'text-primary bg-primary/5' : 'hover:text-primary hover:bg-primary/5'}`}
-            onClick={() => navigate('/blogs')}
-          >
-            Blogs
-          </Button>
+        <nav className="hidden lg:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <Button 
+              key={link.path}
+              variant="ghost" 
+              size="sm" 
+              className={`font-medium transition-colors ${
+                isActive(link.path) 
+                  ? 'text-primary bg-primary/5' 
+                  : 'hover:text-primary hover:bg-primary/5'
+              }`}
+              onClick={() => navigate(link.path)}
+            >
+              {link.label}
+            </Button>
+          ))}
         </nav>
         
         <div className="flex items-center gap-2 sm:gap-3">
-          <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/login')}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="font-medium hidden sm:inline-flex" 
+            onClick={() => navigate('/login')}
+          >
             Login
           </Button>
-          <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" onClick={() => navigate('/signup')}>
+          <Button 
+            size="sm" 
+            className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" 
+            onClick={() => navigate('/signup')}
+          >
             Join Now
           </Button>
+
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="lg:hidden">
+              <Button variant="ghost" size="icon" className="hover:bg-primary/5">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[380px] bg-card/95 backdrop-blur-lg">
+              <nav className="flex flex-col gap-2 mt-8">
+                <Button 
+                  variant="ghost" 
+                  className="justify-start text-base font-medium" 
+                  onClick={() => handleNavigation('/login')}
+                >
+                  Login
+                </Button>
+                
+                <div className="border-t border-border/50 my-3" />
+                
+                {navLinks.map((link) => (
+                  <Button 
+                    key={link.path}
+                    variant="ghost" 
+                    className={`justify-start text-base ${
+                      isActive(link.path) ? 'text-primary bg-primary/5' : ''
+                    }`}
+                    onClick={() => handleNavigation(link.path)}
+                  >
+                    {link.label}
+                  </Button>
+                ))}
+
+                <div className="border-t border-border/50 pt-5 mt-4 space-y-3">
+                  <Button 
+                    className="w-full font-semibold" 
+                    onClick={() => handleNavigation('/signup?role=buyer')}
+                  >
+                    Join as Buyer
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => handleNavigation('/signup?role=supplier')}
+                  >
+                    Join as Supplier
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => handleNavigation('/signup?role=logistics_partner')}
+                  >
+                    Join as Logistics Partner
+                  </Button>
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
