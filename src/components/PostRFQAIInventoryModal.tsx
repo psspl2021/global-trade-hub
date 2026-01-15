@@ -206,10 +206,10 @@ export function PostRFQAIInventoryModal({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Matching Verified Suppliers
+              ProcureSaathi Verified Stock Available
             </DialogTitle>
             <DialogDescription>
-              AI-matched inventory based on your {rfqCategory} requirement
+              Matching verified inventory from our fulfilment pool for {rfqCategory}
             </DialogDescription>
           </DialogHeader>
 
@@ -218,8 +218,8 @@ export function PostRFQAIInventoryModal({
             <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
               <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
               <div>
-                <p className="font-medium text-green-700 dark:text-green-400 text-sm">RFQ Submitted Successfully!</p>
-                <p className="text-xs text-green-600 dark:text-green-500">Suppliers will be notified and will submit quotes.</p>
+                <p className="font-medium text-green-700 dark:text-green-400 text-sm">Request Submitted Successfully!</p>
+                <p className="text-xs text-green-600 dark:text-green-500">ProcureSaathi will source quotes from our fulfilment network.</p>
               </div>
             </div>
 
@@ -228,8 +228,8 @@ export function PostRFQAIInventoryModal({
               <div className="text-center py-8 space-y-4">
                 <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
                 <div>
-                  <p className="font-medium">Matching verified suppliers with live stock…</p>
-                  <p className="text-sm text-muted-foreground mt-1">Finding the best deals for you</p>
+                  <p className="font-medium">Checking ProcureSaathi verified fulfilment pool…</p>
+                  <p className="text-sm text-muted-foreground mt-1">Finding the best options for you</p>
                 </div>
               </div>
             )}
@@ -307,7 +307,7 @@ export function PostRFQAIInventoryModal({
                 </div>
 
                 <p className="text-xs text-muted-foreground text-center">
-                  Get instant quotes while waiting for bids on your main RFQ
+                  Request pricing from ProcureSaathi's verified stock while your main request is processed
                 </p>
               </>
             )}
@@ -316,8 +316,8 @@ export function PostRFQAIInventoryModal({
             {!loading && items.length === 0 && (
               <div className="text-center py-6 text-muted-foreground">
                 <Package className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No matching verified stock available right now</p>
-                <p className="text-xs mt-1">You'll receive bids from suppliers soon</p>
+                <p className="text-sm">No matching stock in our fulfilment pool right now</p>
+                <p className="text-xs mt-1">ProcureSaathi will source quotes and respond shortly</p>
               </div>
             )}
 
