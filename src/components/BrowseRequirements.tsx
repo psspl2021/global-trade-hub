@@ -854,7 +854,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
                 </div>
 
-                {/* L1 Price - Only visible for preferred categories */}
+                {/* Benchmark Rate - Only visible for preferred categories */}
                 {lowestRates[selectedRequirement.id] && canViewL1Price(selectedRequirement) ? (
                   (() => {
                     const feeRate = getServiceFeeRate(selectedRequirement.trade_type);
@@ -863,7 +863,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                     return (
                       <div className="p-3 bg-muted rounded-lg">
                         <p className="text-sm font-medium">
-                          Current L1 Rate: ₹{Math.round(lowestPerUnit).toLocaleString('en-IN')} per {selectedRequirement.unit}
+                          Current Top Rate: ₹{Math.round(lowestPerUnit).toLocaleString('en-IN')} per {selectedRequirement.unit}
                         </p>
                       </div>
                     );
@@ -875,12 +875,12 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                         <div className="p-3 bg-muted/50 rounded-lg border border-dashed flex items-center gap-2">
                           <Lock className="h-4 w-4 text-muted-foreground" />
                           <p className="text-sm text-muted-foreground">
-                            L1 Price hidden - Enable this category to view pricing
+                            Benchmark hidden - Enable this category to view pricing
                           </p>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Add "{selectedRequirement.product_category}" to your categories in Settings to view L1 prices and bid</p>
+                        <p>Add "{selectedRequirement.product_category}" to your categories in Settings to view benchmark rates and submit offers</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -1143,11 +1143,11 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                               <TooltipTrigger>
                                 <p className="text-sm flex items-center gap-1">
                                   <Lock className="h-3 w-3 text-muted-foreground" />
-                                  <span className="text-muted-foreground">L1 Hidden</span>
+                                  <span className="text-muted-foreground">Benchmark Hidden</span>
                                 </p>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Enable this category to view L1 price</p>
+                                <p>Enable this category to view benchmark rate</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

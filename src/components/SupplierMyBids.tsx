@@ -436,28 +436,28 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                   </div>
                 </div>
 
-                {/* Lowest Bid Comparison - Only for pending bids */}
+                {/* Competitive Ranking - Only for pending offers */}
                 {bid.status === 'pending' && lowestSupplierRate && (
                   <div className={`rounded-lg p-4 ${isLowest ? 'bg-green-500/10 border border-green-500/30' : 'bg-orange-500/10 border border-orange-500/30'}`}>
                     <div className="flex items-center gap-2 mb-2">
                       {isLowest ? (
                         <>
                           <TrendingDown className="h-4 w-4 text-green-600" />
-                          <span className="font-semibold text-green-600">You have the lowest bid!</span>
+                          <span className="font-semibold text-green-600">You're top-ranked for assignment!</span>
                         </>
                       ) : (
                         <>
                           <TrendingUp className="h-4 w-4 text-orange-600" />
-                          <span className="font-semibold text-orange-600">Lower bid exists</span>
+                          <span className="font-semibold text-orange-600">More competitive offers exist</span>
                         </>
                       )}
                     </div>
                     <div className="text-sm">
-                      <span className="text-muted-foreground">Current Lowest Bid:</span>
+                      <span className="text-muted-foreground">Current Top Offer:</span>
                       <span className="ml-2 font-bold">₹{lowestSupplierRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {bid.requirement?.unit}</span>
                       {!isLowest && (
                         <p className="text-orange-600 mt-1">
-                          Your bid is ₹{difference.toLocaleString(undefined, { maximumFractionDigits: 2 })} higher
+                          Your offer is ₹{difference.toLocaleString(undefined, { maximumFractionDigits: 2 })} higher
                         </p>
                       )}
                     </div>
@@ -476,12 +476,12 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                   </Button>
                 )}
 
-                {/* Awarded to Other message */}
+                {/* Assigned to Other Partner message */}
                 {bid.status === 'pending' && (bid.requirement?.status === 'closed' || bid.requirement?.status === 'awarded') && (
                   <div className="bg-muted rounded-lg p-4 border">
                     <div className="flex items-center gap-2">
                       <X className="h-5 w-5 text-muted-foreground" />
-                      <span className="font-semibold text-muted-foreground">This requirement was awarded to another supplier.</span>
+                      <span className="font-semibold text-muted-foreground">ProcureSaathi assigned this requirement to another partner.</span>
                     </div>
                   </div>
                 )}
@@ -492,7 +492,7 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
                     <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
                       <div className="flex items-center gap-2">
                         <Check className="h-5 w-5 text-green-600" />
-                        <span className="font-semibold text-green-600">Congratulations! Your bid was accepted.</span>
+                        <span className="font-semibold text-green-600">Congratulations! You've been assigned as fulfillment partner.</span>
                       </div>
                     </div>
                     

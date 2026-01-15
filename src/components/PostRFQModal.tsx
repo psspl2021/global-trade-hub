@@ -276,15 +276,15 @@ Example: I need 5000 kg of food-grade stainless steel containers for a dairy pla
               <>
                 <div className="flex items-center gap-2">
                   <EyeOff className="h-4 w-4 text-green-600" />
-                  <span>Anonymous Until You Connect</span>
+                  <span>Fully Managed by ProcureSaathi</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-green-600" />
-                  <span>Verified Suppliers Only</span>
+                  <span>Verified Fulfillment Partners</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Lock className="h-4 w-4 text-green-600" />
-                  <span>You Control Contact Reveal</span>
+                  <span>End-to-End Commercial Protection</span>
                 </div>
               </>
             ) : (
