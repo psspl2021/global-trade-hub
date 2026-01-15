@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Lock, Eye, Star, CheckCircle, Clock, 
   Building, MapPin, IndianRupee, Shield,
-  ArrowRight, Unlock
+  ArrowRight, Unlock, Loader2
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useSupplierReveal } from '@/hooks/useSupplierReveal';
 import { toast } from 'sonner';
 
 interface AnonymizedSupplierQuoteProps {
@@ -25,16 +25,15 @@ interface AnonymizedSupplierQuoteProps {
   // Reveal status
   revealStatus: 'locked' | 'requested' | 'paid' | 'revealed';
   revealFee?: number;
-  // Revealed data - only visible if revealed
-  supplierName?: string;
-  supplierPhone?: string;
-  supplierEmail?: string;
-  supplierCompany?: string;
   // Callbacks
   onRequestReveal?: (bidId: string, supplierId: string) => void;
   onRevealComplete?: () => void;
 }
 
+/**
+ * SECURITY: This component NEVER receives contact data as props
+ * Contact data is fetched ONLY after reveal is confirmed via secure DB function
+ */
 export function AnonymizedSupplierQuoteCard({
   bidId,
   requirementId,
@@ -46,26 +45,45 @@ export function AnonymizedSupplierQuoteCard({
   supplierCity,
   isVerified = true,
   createdAt,
-  revealStatus,
+  revealStatus: initialRevealStatus,
   revealFee = 499,
-  supplierName,
-  supplierPhone,
-  supplierEmail,
-  supplierCompany,
   onRequestReveal,
   onRevealComplete
 }: AnonymizedSupplierQuoteProps) {
-  const [isRequesting, setIsRequesting] = useState(false);
+  const [revealStatus, setRevealStatus] = useState(initialRevealStatus);
+  const [revealedContact, setRevealedContact] = useState<{
+    supplier_name: string | null;
+    supplier_company: string | null;
+    supplier_phone: string | null;
+    supplier_email: string | null;
+  } | null>(null);
+  
+  const { requestReveal, getRevealedContact, isRequesting, isFetching } = useSupplierReveal();
+  
   const isRevealed = revealStatus === 'revealed';
   const isPending = revealStatus === 'requested' || revealStatus === 'paid';
 
+  // Fetch revealed contact if status is 'revealed'
+  useEffect(() => {
+    if (isRevealed && !revealedContact) {
+      getRevealedContact(requirementId, supplierId).then(contact => {
+        if (contact) {
+          setRevealedContact(contact);
+        }
+      });
+    }
+  }, [isRevealed, requirementId, supplierId, getRevealedContact, revealedContact]);
+
   const handleRequestReveal = async () => {
-    if (onRequestReveal) {
-      setIsRequesting(true);
-      try {
-        await onRequestReveal(bidId, supplierId);
-      } finally {
-        setIsRequesting(false);
+    // Use secure RPC function
+    const result = await requestReveal(requirementId, supplierId, bidId);
+    
+    if (result.success) {
+      setRevealStatus(result.status as any || 'requested');
+      
+      // Call parent callback if provided
+      if (onRequestReveal) {
+        onRequestReveal(bidId, supplierId);
       }
     }
   };
@@ -96,9 +114,9 @@ export function AnonymizedSupplierQuoteCard({
         <div className="flex items-start gap-3">
           {/* Supplier Avatar */}
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-            {isRevealed ? (
+            {isRevealed && revealedContact ? (
               <span className="text-lg font-bold text-primary">
-                {(supplierName || supplierCompany || 'S').charAt(0)}
+                {(revealedContact.supplier_name || revealedContact.supplier_company || 'S').charAt(0)}
               </span>
             ) : (
               <Lock className="h-5 w-5 text-muted-foreground" />
@@ -107,9 +125,9 @@ export function AnonymizedSupplierQuoteCard({
 
           <div className="flex-1 min-w-0">
             <CardTitle className="text-base flex items-center gap-2">
-              {isRevealed ? (
+              {isRevealed && revealedContact ? (
                 <>
-                  {supplierCompany || supplierName}
+                  {revealedContact.supplier_company || revealedContact.supplier_name}
                   {isVerified && (
                     <CheckCircle className="h-4 w-4 text-green-600" />
                   )}
@@ -162,33 +180,43 @@ export function AnonymizedSupplierQuoteCard({
         </div>
 
         {/* Contact Section */}
-        {isRevealed ? (
-          // Revealed Contact Info
+        {isRevealed && revealedContact ? (
+          // Revealed Contact Info - fetched securely from DB function
           <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
             <p className="text-xs text-green-700 dark:text-green-400 font-medium mb-2">
               Supplier Contact Details
             </p>
-            <div className="space-y-1.5 text-sm">
-              {supplierName && (
-                <p><span className="text-muted-foreground">Name:</span> {supplierName}</p>
-              )}
-              {supplierPhone && (
-                <p>
-                  <span className="text-muted-foreground">Phone:</span>{' '}
-                  <a href={`tel:${supplierPhone}`} className="text-primary hover:underline">
-                    {supplierPhone}
-                  </a>
-                </p>
-              )}
-              {supplierEmail && (
-                <p>
-                  <span className="text-muted-foreground">Email:</span>{' '}
-                  <a href={`mailto:${supplierEmail}`} className="text-primary hover:underline">
-                    {supplierEmail}
-                  </a>
-                </p>
-              )}
-            </div>
+            {isFetching ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading contact details...
+              </div>
+            ) : (
+              <div className="space-y-1.5 text-sm">
+                {revealedContact.supplier_name && (
+                  <p><span className="text-muted-foreground">Name:</span> {revealedContact.supplier_name}</p>
+                )}
+                {revealedContact.supplier_company && (
+                  <p><span className="text-muted-foreground">Company:</span> {revealedContact.supplier_company}</p>
+                )}
+                {revealedContact.supplier_phone && (
+                  <p>
+                    <span className="text-muted-foreground">Phone:</span>{' '}
+                    <a href={`tel:${revealedContact.supplier_phone}`} className="text-primary hover:underline">
+                      {revealedContact.supplier_phone}
+                    </a>
+                  </p>
+                )}
+                {revealedContact.supplier_email && (
+                  <p>
+                    <span className="text-muted-foreground">Email:</span>{' '}
+                    <a href={`mailto:${revealedContact.supplier_email}`} className="text-primary hover:underline">
+                      {revealedContact.supplier_email}
+                    </a>
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           // Locked Contact - Request Reveal
