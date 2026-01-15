@@ -819,6 +819,7 @@ export type Database = {
           id: string
           quantity: number
           requirement_item_id: string
+          supplier_unit_price: number
           total: number
           unit_price: number
         }
@@ -829,6 +830,7 @@ export type Database = {
           id?: string
           quantity: number
           requirement_item_id: string
+          supplier_unit_price: number
           total: number
           unit_price: number
         }
@@ -839,6 +841,7 @@ export type Database = {
           id?: string
           quantity?: number
           requirement_item_id?: string
+          supplier_unit_price?: number
           total?: number
           unit_price?: number
         }

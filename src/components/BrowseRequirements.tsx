@@ -559,6 +559,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           bid_id: bidData.id,
           requirement_item_id: item.itemId,
           unit_price: item.rate,
+          supplier_unit_price: item.rate, // Per-unit rate from supplier
           quantity: item.quantity,
           total: item.lineTotal,
         }));
