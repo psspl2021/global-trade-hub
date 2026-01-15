@@ -785,6 +785,13 @@ export type Database = {
             foreignKeyName: "award_audit_logs_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "award_audit_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
             referencedRelation: "bids"
             referencedColumns: ["id"]
           },
@@ -841,6 +848,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
             referencedColumns: ["bid_id"]
           },
           {
@@ -1360,6 +1374,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "contracts_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
             referencedColumns: ["bid_id"]
           },
           {
@@ -2518,6 +2539,13 @@ export type Database = {
             foreignKeyName: "price_confidence_scores_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "price_confidence_scores_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
             referencedRelation: "bids"
             referencedColumns: ["id"]
           },
@@ -2979,6 +3007,13 @@ export type Database = {
             foreignKeyName: "referral_commissions_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: true
+            referencedRelation: "anonymized_supplier_quotes"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "referral_commissions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: true
             referencedRelation: "bids"
             referencedColumns: ["id"]
           },
@@ -3086,10 +3121,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "safe_supplier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "referrals_referrer_id_fkey"
             columns: ["referrer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "safe_supplier_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3231,6 +3280,7 @@ export type Database = {
           id: string
           paid_at: string | null
           payment_id: string | null
+          payment_reference: string | null
           requested_at: string | null
           requirement_id: string
           reveal_fee: number | null
@@ -3243,6 +3293,7 @@ export type Database = {
           id?: string
           paid_at?: string | null
           payment_id?: string | null
+          payment_reference?: string | null
           requested_at?: string | null
           requirement_id: string
           reveal_fee?: number | null
@@ -3255,6 +3306,7 @@ export type Database = {
           id?: string
           paid_at?: string | null
           payment_id?: string | null
+          payment_reference?: string | null
           requested_at?: string | null
           requirement_id?: string
           reveal_fee?: number | null
@@ -4566,6 +4618,13 @@ export type Database = {
             foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
             columns: ["selected_bid_id"]
             isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
+            columns: ["selected_bid_id"]
+            isOneToOne: false
             referencedRelation: "bids"
             referencedColumns: ["id"]
           },
@@ -4669,6 +4728,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "transactions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
             referencedColumns: ["bid_id"]
           },
           {
@@ -5027,6 +5093,33 @@ export type Database = {
         }
         Relationships: []
       }
+      anonymized_supplier_quotes: {
+        Row: {
+          bid_amount: number | null
+          bid_id: string | null
+          bid_status: Database["public"]["Enums"]["bid_status"] | null
+          buyer_visible_price: number | null
+          created_at: string | null
+          delivery_timeline_days: number | null
+          is_paid_bid: boolean | null
+          is_verified_supplier: boolean | null
+          requirement_id: string | null
+          supplier_categories: string[] | null
+          supplier_city: string | null
+          supplier_code: string | null
+          supplier_id: string | null
+          terms_and_conditions: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buyer_inventory_discovery: {
         Row: {
           available_quantity: number | null
@@ -5053,6 +5146,36 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
         ]
+      }
+      safe_supplier_profiles: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string | null
+          id: string | null
+          is_verified_supplier: boolean | null
+          state: string | null
+          supplier_categories: string[] | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_verified_supplier?: boolean | null
+          state?: string | null
+          supplier_categories?: string[] | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_verified_supplier?: boolean | null
+          state?: string | null
+          supplier_categories?: string[] | null
+        }
+        Relationships: []
       }
       supplier_deal_closures: {
         Row: {
@@ -5210,6 +5333,14 @@ export type Database = {
         }
         Returns: Json
       }
+      complete_supplier_reveal: {
+        Args: {
+          p_payment_reference?: string
+          p_requirement_id: string
+          p_supplier_id: string
+        }
+        Returns: boolean
+      }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_bids_for_buyer: {
@@ -5305,6 +5436,18 @@ export type Database = {
         Args: { po: Database["public"]["Tables"]["purchase_orders"]["Row"] }
         Returns: number
       }
+      get_revealed_supplier_contact: {
+        Args: { p_requirement_id: string; p_supplier_id: string }
+        Returns: {
+          revealed_at: string
+          supplier_address: string
+          supplier_company: string
+          supplier_email: string
+          supplier_gstin: string
+          supplier_name: string
+          supplier_phone: string
+        }[]
+      }
       get_supplier_email_stats: {
         Args: { p_supplier_id?: string }
         Returns: {
@@ -5345,6 +5488,14 @@ export type Database = {
       promote_next_affiliate: { Args: never; Returns: undefined }
       promote_next_waitlisted_affiliate: { Args: never; Returns: undefined }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
+      request_supplier_reveal: {
+        Args: {
+          p_bid_id: string
+          p_requirement_id: string
+          p_supplier_id: string
+        }
+        Returns: Json
+      }
       reset_all_supplier_daily_loads: { Args: never; Returns: number }
       select_supplier_with_bidding: {
         Args: { p_requirement_id: string }
