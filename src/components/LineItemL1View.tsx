@@ -61,8 +61,9 @@ interface Bid {
 
 interface SupplierProfile {
   id: string;
-  company_name: string;
-  email: string;
+  company_name: string | null; // Only available in admin mode
+  email: string | null; // Only available in admin mode
+  city?: string | null; // Available in safe mode
 }
 
 interface L1ItemData {
@@ -210,14 +211,33 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
 
       const bids = (bidsData || []) as Bid[];
 
-      // Get all supplier IDs and fetch profiles
+      // SECURITY: Only fetch sensitive data (company_name, email) in admin mode
+      // For buyer mode, use safe_supplier_profiles view that excludes contact info
       const supplierIds = [...new Set(bids.map(b => b.supplier_id))];
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, company_name, email')
-        .in('id', supplierIds.length > 0 ? supplierIds : ['no-match']);
-
-      const profiles = (profilesData || []) as SupplierProfile[];
+      
+      let profiles: SupplierProfile[] = [];
+      
+      if (showAllSuppliers) {
+        // Admin mode: fetch full profile data
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, company_name, email')
+          .in('id', supplierIds.length > 0 ? supplierIds : ['no-match']);
+        profiles = (profilesData || []) as SupplierProfile[];
+      } else {
+        // Buyer mode: use safe view - NO contact data exposed
+        const { data: safeProfilesData } = await supabase
+          .from('safe_supplier_profiles')
+          .select('id, city')
+          .in('id', supplierIds.length > 0 ? supplierIds : ['no-match']);
+        // Map to SupplierProfile with nulls for sensitive fields
+        profiles = (safeProfilesData || []).map(p => ({
+          id: p.id,
+          company_name: null,
+          email: null,
+          city: p.city
+        }));
+      }
 
       // Calculate L1 for each requirement item
       const l1Results: L1ItemData[] = requirementItems.map(reqItem => {

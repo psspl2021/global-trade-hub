@@ -306,19 +306,23 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       return;
     }
 
-    // Fetch buyer profiles for the requirements
+    // SECURITY: Only fetch safe profile data (city) for buyer info
+    // Buyer identity is always masked for suppliers viewing requirements
     if (reqData && reqData.length > 0) {
       const buyerIds = [...new Set(reqData.map(r => r.buyer_id))];
       const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, company_name')
+        .from('safe_supplier_profiles')
+        .select('id, city')
         .in('id', buyerIds);
 
-      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+      const profilesMap = new Map(profilesData?.map(p => [p.id, { 
+        id: p.id, 
+        company_name: `Buyer (${p.city || 'India'})` // Masked name with city only
+      }]) || []);
       
       const reqsWithProfiles = reqData.map(req => ({
         ...req,
-        buyer_profile: profilesMap.get(req.buyer_id) || undefined
+        buyer_profile: profilesMap.get(req.buyer_id) || { id: req.buyer_id, company_name: 'Verified Buyer' }
       }));
       
       setRequirements(reqsWithProfiles as Requirement[]);

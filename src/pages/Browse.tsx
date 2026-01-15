@@ -125,14 +125,15 @@ const Browse = () => {
           return;
         }
 
-        // Get supplier profiles
+        // SECURITY: Only fetch safe profile data (city) - NO contact info exposed
+        // Supplier identity is always masked for marketplace visitors
         const supplierIds = [...new Set(productsData.map(p => p.supplier_id))];
         const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('id, company_name')
+          .from('safe_supplier_profiles')
+          .select('id, city')
           .in('id', supplierIds);
 
-        const profilesMap = new Map(profilesData?.map(p => [p.id, p.company_name]) || []);
+        const profilesMap = new Map(profilesData?.map(p => [p.id, p.city || 'India']) || []);
 
         // Get stock inventory
         const productIds = productsData.map(p => p.id);
@@ -143,10 +144,10 @@ const Browse = () => {
 
         const stockMap = new Map(stockData?.map(s => [s.product_id, s]) || []);
 
-        // Combine data
+        // Combine data - supplier name is ALWAYS masked (platform identity)
         const combinedProducts: Product[] = productsData.map(product => {
           const stock = stockMap.get(product.id);
-          const fullName = profilesMap.get(product.supplier_id) || 'Unknown';
+          const city = profilesMap.get(product.supplier_id) || 'India';
           return {
             id: product.id,
             name: product.name,
@@ -154,8 +155,8 @@ const Browse = () => {
             description: product.description,
             price_range_min: product.price_range_min,
             price_range_max: product.price_range_max,
-            supplier_name: maskCompanyName(fullName),
-            full_supplier_name: fullName,
+            supplier_name: `ProcureSaathi Verified (${city})`,
+            full_supplier_name: 'ProcureSaathi Verified Supplier', // NEVER expose real name
             stock_quantity: stock?.quantity ?? null,
             stock_unit: stock?.unit ?? null,
             moq: product.moq,
