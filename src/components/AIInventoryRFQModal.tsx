@@ -253,7 +253,7 @@ export function AIInventoryRFQModal({
 
       toast({
         title: 'Quote request submitted!',
-        description: 'Verified suppliers will be notified. You\'ll receive quotes shortly.',
+        description: 'ProcureSaathi will source from our verified fulfilment pool and respond shortly.',
       });
 
       onOpenChange(false);
@@ -281,11 +281,11 @@ export function AIInventoryRFQModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
-            Request Quote
+            Request Quote from ProcureSaathi
           </DialogTitle>
           <DialogDescription>
-            Request pricing from verified suppliers with available stock.
-            Supplier identities remain confidential.
+            Request pricing for verified available stock from our fulfilment pool.
+            ProcureSaathi handles sourcing, pricing, and delivery.
           </DialogDescription>
         </DialogHeader>
 
@@ -402,30 +402,34 @@ export function AIInventoryRFQModal({
             </div>
           )}
 
-          {/* Trust & Disclosure - Enhanced */}
+          {/* Trust & Disclosure - Managed Fulfilment Model */}
           <div className="bg-muted/30 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" />
-              Buyer Guarantees
+              ProcureSaathi Guarantee
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="text-green-500">✓</span>
-                <span>Price includes platform fee — no hidden commissions later</span>
+                <span>All-inclusive pricing — no hidden charges</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="text-green-500">✓</span>
-                <span>Order fulfilled by ProcureSaathi verified partners</span>
+                <span>Fulfilment by ProcureSaathi verified partners</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="text-green-500">✓</span>
+                <span>ProcureSaathi handles disputes, delivery & quality</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Truck className="h-4 w-4" />
-                <span>Logistics charged separately based on delivery location</span>
+                <span>Logistics quoted separately based on location</span>
               </div>
             </div>
             <div className="pt-2 border-t border-dashed">
               <div className="flex items-center gap-2 text-sm text-primary font-medium">
                 <Clock className="h-4 w-4" />
-                <span>Expected supplier response: {responseETA[stock.matchStrength]}</span>
+                <span>Expected response: {responseETA[stock.matchStrength]}</span>
               </div>
             </div>
           </div>
