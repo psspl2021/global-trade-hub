@@ -136,10 +136,13 @@ const Seller = () => {
       
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${heroBgSeller})` }}
+        {/* Background Image with eager loading */}
+        <img 
+          src={heroBgSeller}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background/95" />
         <div className="container mx-auto px-4 relative z-10">
