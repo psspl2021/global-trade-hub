@@ -74,7 +74,6 @@ const Categories = () => {
             />
           </div>
           <nav className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" className="font-medium hover:text-primary hover:bg-primary/5 transition-colors" onClick={() => navigate('/about')}>About Us</Button>
             <Button variant="ghost" className="text-primary font-semibold bg-primary/5">Categories</Button>
             <Button variant="ghost" className="font-medium hover:text-primary hover:bg-primary/5 transition-colors" onClick={() => navigate('/contact')}>Contact</Button>
           </nav>

@@ -6,7 +6,6 @@ import procureSaathiLogo from "@/assets/procuresaathi-logo.png";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
-  { label: "About Us", path: "/about" },
   { label: "Buyer", path: "/buyer" },
   { label: "Seller", path: "/seller" },
   { label: "Private Label", path: "/private-label" },
