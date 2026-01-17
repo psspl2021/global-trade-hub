@@ -14,6 +14,7 @@ import { categoriesData, searchCategories } from '@/data/categories';
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getCategorySchema } from '@/hooks/useSEO';
 import { nameToSlug } from './CategoryLanding';
 import { CategoryShowcase } from '@/components/landing/CategoryShowcase';
+import { PageHeader } from '@/components/landing/PageHeader';
 
 const Categories = () => {
   const navigate = useNavigate();
@@ -58,33 +59,7 @@ const Categories = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card/95 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-soft">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div 
-            className="flex items-center gap-2 cursor-pointer group"
-            onClick={() => navigate('/')}
-          >
-            <img 
-              src={procureSaathiLogo} 
-              alt="ProcureSaathi Logo" 
-              className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105"
-              width={80}
-              height={80}
-              loading="eager"
-            />
-          </div>
-          <nav className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" className="text-primary font-semibold bg-primary/5">Categories</Button>
-            <Button variant="ghost" className="font-medium hover:text-primary hover:bg-primary/5 transition-colors" onClick={() => navigate('/contact')}>Contact</Button>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" className="font-medium" onClick={() => navigate('/login')}>
-              Login
-            </Button>
-            <Button className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" onClick={() => navigate('/signup')}>Join Now</Button>
-          </div>
-        </div>
-      </header>
+      <PageHeader />
 
       {/* Hero Banner */}
       <section className="relative py-16 md:py-20 overflow-hidden">
