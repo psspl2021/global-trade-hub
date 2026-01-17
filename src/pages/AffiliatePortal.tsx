@@ -19,6 +19,7 @@ const AffiliatePortal = () => {
   useSEO({
     title: 'Affiliate Dashboard | Track Referral Earnings | ProcureSaathi',
     description: 'Track your referral earnings, 0.1% commissions, and payouts on ProcureSaathi affiliate portal.',
+    canonical: 'https://procuresaathi.com/affiliate'
   });
 
   useEffect(() => {
