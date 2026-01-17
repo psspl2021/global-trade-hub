@@ -83,22 +83,6 @@ export const ReferralPromoSection = () => {
             </div>
           </div>
 
-          {/* Anti-Fraud Disclaimer */}
-          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-8">
-            <div className="flex items-start gap-3">
-              <span className="text-amber-600 text-xl">⚠️</span>
-              <div className="text-sm">
-                <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">Important Terms</p>
-                <p className="text-amber-700 dark:text-amber-300">
-                  Affiliate commission is <strong>not applicable</strong> on your own orders, family members' orders, 
-                  or orders from related businesses (same GSTIN, phone, bank account). Self-referrals will result in 
-                  permanent forfeiture of all commissions and possible account termination. All commissions have a 
-                  30-day cooling period before payout eligibility.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* CTA */}
           <div className="text-center">
             <Button 
