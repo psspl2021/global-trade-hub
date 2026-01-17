@@ -557,9 +557,9 @@ const Index = () => {
       <section id="about" className="py-12 sm:py-16 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-display font-bold mb-2">About ProcureSaathi</h2>
-              <p className="text-muted-foreground">Your Trusted B2B Procurement Partner Since 2021</p>
+            <div className="text-center mb-10">
+              <h2 className="text-3xl sm:text-4xl font-display font-bold mb-3">About ProcureSaathi</h2>
+              <p className="text-lg text-muted-foreground">Your Trusted B2B Procurement Partner Since 2021</p>
             </div>
             
             {/* Mission & Vision */}
@@ -572,7 +572,7 @@ const Index = () => {
                     </div>
                     <h3 className="text-lg font-display font-semibold">Our Mission</h3>
                   </div>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-base leading-relaxed">
                     To revolutionize B2B procurement by creating a transparent, efficient platform connecting verified buyers and suppliers globally.
                   </p>
                 </CardContent>
@@ -585,7 +585,7 @@ const Index = () => {
                     </div>
                     <h3 className="text-lg font-display font-semibold">Our Vision</h3>
                   </div>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-base leading-relaxed">
                     To become India's most trusted B2B sourcing platform, enabling businesses to source remotely with confidence.
                   </p>
                 </CardContent>
@@ -603,7 +603,7 @@ const Index = () => {
             </div>
 
             {/* Core Values */}
-            <h3 className="text-xl font-display font-semibold text-center mb-4">Our Core Values</h3>
+            <h3 className="text-2xl font-display font-semibold text-center mb-6">Our Core Values</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
               {coreValues.map((value, index) => (
                 <Card key={value.title} className="text-center border-border/50">
@@ -611,8 +611,8 @@ const Index = () => {
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-2">
                       <value.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <h4 className="font-display font-semibold text-sm mb-1">{value.title}</h4>
-                    <p className="text-xs text-muted-foreground">{value.description}</p>
+                    <h4 className="font-display font-semibold text-base mb-1">{value.title}</h4>
+                    <p className="text-sm text-muted-foreground">{value.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -621,23 +621,23 @@ const Index = () => {
             {/* Buyer & Supplier Cards */}
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               <div className="bg-card p-5 rounded-xl border border-border/50">
-                <h4 className="font-display font-semibold text-foreground mb-2">For Buyers & Procurement Teams</h4>
-                <p className="text-muted-foreground text-sm">
+                <h4 className="font-display font-semibold text-lg text-foreground mb-2">For Buyers & Procurement Teams</h4>
+                <p className="text-muted-foreground text-base leading-relaxed">
                   Post requirements once, receive competitive sealed bids from verified suppliers. Save 15-30% with AI-powered matching.
                 </p>
               </div>
               <div className="bg-card p-5 rounded-xl border border-border/50">
-                <h4 className="font-display font-semibold text-foreground mb-2">For Suppliers & Manufacturers</h4>
-                <p className="text-muted-foreground text-sm">
+                <h4 className="font-display font-semibold text-lg text-foreground mb-2">For Suppliers & Manufacturers</h4>
+                <p className="text-muted-foreground text-base leading-relaxed">
                   Access genuine buyer requirements, submit competitive bids, and win contracts. Join 1000+ verified suppliers.
                 </p>
               </div>
             </div>
 
             {/* Ecosystem */}
-            <div className="bg-gradient-to-br from-muted/50 to-muted/30 p-5 rounded-xl border border-border/30 text-center">
-              <h4 className="font-display font-semibold text-foreground mb-2">Complete B2B Procurement Ecosystem</h4>
-              <p className="text-muted-foreground text-sm max-w-3xl mx-auto">
+            <div className="bg-gradient-to-br from-muted/50 to-muted/30 p-6 rounded-xl border border-border/30 text-center">
+              <h4 className="font-display font-semibold text-lg text-foreground mb-3">Complete B2B Procurement Ecosystem</h4>
+              <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mx-auto">
                 End-to-end solution covering sourcing, bidding, supplier verification, logistics booking, and payment tracking with real-time shipment tracking, automated invoicing, and GST compliance tools.
               </p>
             </div>
