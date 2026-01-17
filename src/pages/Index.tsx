@@ -267,13 +267,13 @@ const Index = () => {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => scrollToSection('about')}>About Us</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/about')}>About Us</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/buyer')}>Buyer</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/seller')}>Seller</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/private-label')}>Private Label</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/categories')}>Categories</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/blogs')}>Blogs</Button>
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => scrollToSection('contact')}>Contact</Button>
+            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/contact')}>Contact</Button>
           </nav>
           
           <div className="flex items-center gap-2 sm:gap-3">
@@ -296,7 +296,7 @@ const Index = () => {
                   <Button variant="ghost" className="justify-start text-base font-medium" onClick={() => handleMobileNavigation('/login')}>
                     Login
                   </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => scrollToSection('about')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/about')}>
                     About Us
                   </Button>
                   <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/buyer')}>
@@ -314,7 +314,7 @@ const Index = () => {
                   <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/blogs')}>
                     Blogs
                   </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => scrollToSection('contact')}>
+                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/contact')}>
                     Contact
                   </Button>
                   <div className="border-t border-border/50 pt-5 mt-4 space-y-3">
@@ -833,7 +833,7 @@ const Index = () => {
             <div>
               <h4 className="font-display font-semibold text-sm mb-4">Quick Links</h4>
               <div className="flex flex-col gap-2.5">
-                <button onClick={() => scrollToSection('about')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
+                <button onClick={() => navigate('/about')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   About Us
                 </button>
                 <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
@@ -845,7 +845,7 @@ const Index = () => {
                 <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   FAQ
                 </button>
-                <button onClick={() => scrollToSection('contact')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
+                <button onClick={() => navigate('/contact')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
                   Contact Us
                 </button>
               </div>
