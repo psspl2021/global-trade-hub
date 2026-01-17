@@ -562,107 +562,92 @@ const Index = () => {
       </section>
 
       {/* About Section */}
-      <section id="about" className="section-padding bg-muted/20">
+      <section id="about" className="py-12 sm:py-16 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="section-title font-display">About ProcureSaathi</h2>
-              <p className="section-subtitle">Your Trusted B2B Procurement Partner Since 2021</p>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl font-display font-bold mb-2">About ProcureSaathi</h2>
+              <p className="text-muted-foreground">Your Trusted B2B Procurement Partner Since 2021</p>
             </div>
             
             {/* Mission & Vision */}
-            <div className="grid md:grid-cols-2 gap-6 mb-14">
-              <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
-                <CardContent className="p-7">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Target className="h-6 w-6 text-primary" />
+            <div className="grid md:grid-cols-2 gap-4 mb-8">
+              <Card className="border-border/50">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Target className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-xl font-display font-semibold">Our Mission</h3>
+                    <h3 className="text-lg font-display font-semibold">Our Mission</h3>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    To revolutionize B2B procurement by creating a transparent, efficient, and secure platform 
-                    that connects verified buyers and suppliers across India and globally.
+                  <p className="text-muted-foreground text-sm">
+                    To revolutionize B2B procurement by creating a transparent, efficient platform connecting verified buyers and suppliers globally.
                   </p>
                 </CardContent>
               </Card>
-              <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
-                <CardContent className="p-7">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Eye className="h-6 w-6 text-primary" />
+              <Card className="border-border/50">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Eye className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-xl font-display font-semibold">Our Vision</h3>
+                    <h3 className="text-lg font-display font-semibold">Our Vision</h3>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    To become India's most trusted B2B sourcing platform, enabling businesses to source 
-                    remotely with confidence and complete transparency.
+                  <p className="text-muted-foreground text-sm">
+                    To become India's most trusted B2B sourcing platform, enabling businesses to source remotely with confidence.
                   </p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-14">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
               {stats.map((stat, index) => (
-                <div key={stat.label} className="stat-card group hover:shadow-large transition-all duration-300 hover:-translate-y-1" style={{ animationDelay: `${index * 100}ms` }}>
-                  <p className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-primary mb-1">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
+                <div key={stat.label} className="stat-card p-4" style={{ animationDelay: `${index * 100}ms` }}>
+                  <p className="text-2xl sm:text-3xl font-display font-bold text-primary mb-1">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Core Values */}
-            <h3 className="text-2xl font-display font-semibold text-center mb-8">Our Core Values</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-14">
+            <h3 className="text-xl font-display font-semibold text-center mb-4">Our Core Values</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
               {coreValues.map((value, index) => (
-                <Card key={value.title} className="group text-center hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
-                  <CardContent className="p-5">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                      <value.icon className="h-6 w-6 text-primary" />
+                <Card key={value.title} className="text-center border-border/50">
+                  <CardContent className="p-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                      <value.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <h4 className="font-display font-semibold text-sm mb-1.5">{value.title}</h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{value.description}</p>
+                    <h4 className="font-display font-semibold text-sm mb-1">{value.title}</h4>
+                    <p className="text-xs text-muted-foreground">{value.description}</p>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            {/* Company Description */}
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-                <span className="text-primary text-sm font-semibold">#SourceRemotely - The New Reality</span>
-              </div>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-3xl mx-auto">
-                Since 2021, ProcureSaathi has revolutionized the B2B sourcing sector as India's first-ever 
-                Reverse Marketplace Platform offering direct procurement services to businesses worldwide. 
-                Our innovative sealed bidding system ensures fair competition while maintaining complete transparency.
-              </p>
-              <div className="grid md:grid-cols-2 gap-6 text-left mt-10">
-                <div className="bg-card p-7 rounded-2xl border border-border/50 hover:shadow-large transition-all duration-300">
-                  <h4 className="font-display font-semibold text-foreground mb-4 text-lg">For Buyers & Procurement Teams</h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Post your requirements once and receive competitive sealed bids from verified Indian suppliers. Save 15-30% on procurement costs with AI-powered matching.
-                  </p>
-                </div>
-                <div className="bg-card p-7 rounded-2xl border border-border/50 hover:shadow-large transition-all duration-300">
-                  <h4 className="font-display font-semibold text-foreground mb-4 text-lg">For Suppliers & Manufacturers</h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Access genuine buyer requirements, submit competitive bids, and win new contracts. Join 1000+ verified suppliers growing on our platform.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-8 bg-gradient-to-br from-muted/50 to-muted/30 p-7 rounded-2xl border border-border/30">
-                <h4 className="font-display font-semibold text-foreground mb-4 text-lg">Complete B2B Procurement Ecosystem</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl mx-auto">
-                  ProcureSaathi offers a complete end-to-end B2B procurement solution covering sourcing, bidding, 
-                  supplier verification, logistics booking, and payment tracking. Our integrated logistics network 
-                  connects you with verified truck operators and warehouse partners across India, ensuring seamless 
-                  delivery of your orders. With features like real-time shipment tracking, automated invoicing, 
-                  GST compliance tools, and dedicated support, we're building India's most trusted B2B sourcing 
-                  platform for the modern digital economy.
+            {/* Buyer & Supplier Cards */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-card p-5 rounded-xl border border-border/50">
+                <h4 className="font-display font-semibold text-foreground mb-2">For Buyers & Procurement Teams</h4>
+                <p className="text-muted-foreground text-sm">
+                  Post requirements once, receive competitive sealed bids from verified suppliers. Save 15-30% with AI-powered matching.
                 </p>
               </div>
+              <div className="bg-card p-5 rounded-xl border border-border/50">
+                <h4 className="font-display font-semibold text-foreground mb-2">For Suppliers & Manufacturers</h4>
+                <p className="text-muted-foreground text-sm">
+                  Access genuine buyer requirements, submit competitive bids, and win contracts. Join 1000+ verified suppliers.
+                </p>
+              </div>
+            </div>
+
+            {/* Ecosystem */}
+            <div className="bg-gradient-to-br from-muted/50 to-muted/30 p-5 rounded-xl border border-border/30 text-center">
+              <h4 className="font-display font-semibold text-foreground mb-2">Complete B2B Procurement Ecosystem</h4>
+              <p className="text-muted-foreground text-sm max-w-3xl mx-auto">
+                End-to-end solution covering sourcing, bidding, supplier verification, logistics booking, and payment tracking with real-time shipment tracking, automated invoicing, and GST compliance tools.
+              </p>
             </div>
 
           </div>
