@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/landing/PageHeader";
 import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import { Footer } from "@/components/landing/Footer";
+import heroBgAbout from "@/assets/hero-bg-procurement.jpg";
 import { 
   Building2, 
   Target, 
@@ -104,7 +105,16 @@ const About = () => {
       <PageHeader />
 
       {/* Hero Section */}
-      <section className="relative py-20 md:py-28 lg:py-32 overflow-hidden gradient-mesh">
+      <section className="relative py-20 md:py-28 lg:py-32 overflow-hidden">
+        {/* Background Image with eager loading */}
+        <img 
+          src={heroBgAbout}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          fetchPriority="high"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background/95" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-6 animate-fade-in">
