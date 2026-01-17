@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { loginSchema, resetEmailSchema } from '@/lib/validations';
 import { TOTPVerification } from '@/components/auth/TOTPVerification';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import authBg from '@/assets/auth-bg.jpg';
 import { useSEO } from '@/hooks/useSEO';
@@ -193,7 +194,12 @@ const Login = () => {
       </div>
 
       {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 bg-background">
+      <div className="w-full lg:w-1/2 flex flex-col p-6 sm:p-8 bg-background">
+        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 self-start">
+          <ArrowLeft className="h-4 w-4" />
+          <span className="text-sm font-medium">Back to Home</span>
+        </Link>
+        <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-md">
           <Link to="/" className="flex items-center justify-center mb-8 lg:hidden hover:opacity-80 transition-opacity">
             <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-16 w-auto object-contain" />
@@ -294,6 +300,7 @@ const Login = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>
