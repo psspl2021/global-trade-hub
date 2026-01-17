@@ -37,8 +37,55 @@ const TrustBadges = lazy(() => import('@/components/landing/TrustBadges').then(m
 const ReferralPromoSection = lazy(() => import('@/components/landing/ReferralPromoSection').then(m => ({ default: m.ReferralPromoSection })));
 const ExportCertifications = lazy(() => import('@/components/landing/ExportCertifications').then(m => ({ default: m.ExportCertifications })));
 
-// Minimal loading fallback
-const SectionFallback = () => <div className="py-16 bg-background" />;
+// Skeleton loading fallbacks with proper height to prevent layout shift
+const SectionFallback = ({ minHeight = "400px" }: { minHeight?: string }) => (
+  <div className="py-16 bg-background animate-pulse" style={{ minHeight }}>
+    <div className="container mx-auto px-4">
+      <div className="h-8 w-64 bg-muted rounded mx-auto mb-4" />
+      <div className="h-4 w-96 bg-muted/60 rounded mx-auto mb-8 max-w-full" />
+      <div className="grid md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-48 bg-muted/40 rounded-lg" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const StatsSkeleton = () => (
+  <div className="py-12 bg-muted/30 animate-pulse">
+    <div className="container mx-auto px-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="text-center">
+            <div className="h-10 w-20 bg-muted rounded mx-auto mb-2" />
+            <div className="h-4 w-24 bg-muted/60 rounded mx-auto" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const TestimonialsSkeleton = () => (
+  <div className="py-16 bg-background animate-pulse" style={{ minHeight: "350px" }}>
+    <div className="container mx-auto px-4">
+      <div className="h-8 w-48 bg-muted rounded mx-auto mb-8" />
+      <div className="grid md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-muted/30 rounded-lg p-6">
+            <div className="h-4 w-full bg-muted/50 rounded mb-3" />
+            <div className="h-4 w-3/4 bg-muted/50 rounded mb-6" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted" />
+              <div className="h-4 w-24 bg-muted/60 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const Index = () => {
   const navigate = useNavigate();
@@ -634,23 +681,22 @@ const Index = () => {
 
 
       {/* Why Choose Us Section */}
-      <Suspense fallback={<SectionFallback />}>
+      <Suspense fallback={<SectionFallback minHeight="500px" />}>
         <WhyChooseUs />
       </Suspense>
 
       {/* Stats Section */}
-      <Suspense fallback={<SectionFallback />}>
+      <Suspense fallback={<StatsSkeleton />}>
         <StatsSection />
       </Suspense>
 
-
       {/* Export Certifications Section */}
-      <Suspense fallback={<SectionFallback />}>
+      <Suspense fallback={<SectionFallback minHeight="300px" />}>
         <ExportCertifications />
       </Suspense>
 
       {/* Testimonials Section */}
-      <Suspense fallback={<SectionFallback />}>
+      <Suspense fallback={<TestimonialsSkeleton />}>
         <Testimonials />
       </Suspense>
 
