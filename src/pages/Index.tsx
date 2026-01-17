@@ -5,10 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
   ShoppingBag, MessageSquare, MapPin, Mail, 
-  Clock, FileText, CheckCircle, Send, Building2,
+  Clock, FileText, CheckCircle, CheckCircle2, Send, Building2,
   Package, Trophy, Users, Shield, Target, Eye, Search,
   Truck, Route, ClipboardCheck, Receipt, BadgeCheck,
-  Menu, X, Sparkles
+  Menu, X, Sparkles, TrendingUp
 } from 'lucide-react';
 const BrowseLogisticsPublic = lazy(() => import('@/components/logistics/BrowseLogisticsPublic'));
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
@@ -675,6 +675,106 @@ const Index = () => {
         </div>
       </section>
 
+      {/* AI-Powered Features Section */}
+      <section className="section-padding bg-gradient-to-b from-muted/30 to-background overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-6">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-semibold text-primary">AI-POWERED PLATFORM</span>
+            </div>
+            <h2 className="section-title font-display">
+              Intelligent Procurement with <span className="text-primary">AI Technology</span>
+            </h2>
+            <p className="section-subtitle max-w-3xl mx-auto">
+              Our AI engine analyzes your requirements, matches you with the right suppliers, and helps you make data-driven decisions for better sourcing outcomes.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {/* AI Supplier Matching */}
+            <Card className="group bg-card border-border/50 hover:border-primary/30 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-8">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                  <Target className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="text-xl font-display font-bold mb-3">Smart Supplier Matching</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  AI analyzes your product specifications, quality requirements, and budget to find the most suitable verified suppliers from our network.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    1000+ verified suppliers analyzed
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Real-time capability matching
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* AI RFQ Generation */}
+            <Card className="group bg-card border-border/50 hover:border-primary/30 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-8">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                  <FileText className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="text-xl font-display font-bold mb-3">AI RFQ Generation</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Simply describe what you need in natural language. Our AI creates detailed, professional RFQs that attract quality bids.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Auto-fills specifications
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Industry-standard templates
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* AI Price Intelligence */}
+            <Card className="group bg-card border-border/50 hover:border-primary/30 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-8">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="text-xl font-display font-bold mb-3">Price Intelligence</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Get AI-powered price confidence scores and market insights to ensure you're getting competitive rates for your procurement.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Market rate benchmarking
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Price trend analysis
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-12">
+            <Button 
+              size="lg" 
+              className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
+              onClick={() => navigate('/post-rfq')}
+            >
+              <Sparkles className="h-5 w-5 mr-2" />
+              Try AI Sourcing Free
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Why Choose Us Section */}
       <Suspense fallback={<SectionFallback minHeight="500px" />}>
