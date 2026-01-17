@@ -621,6 +621,8 @@ export type Database = {
       }
       ai_seo_runs: {
         Row: {
+          auto_rfq_id: string | null
+          available_suppliers_count: number | null
           avg_deal_size: number | null
           buyer_inquiries: number | null
           category: string | null
@@ -629,7 +631,10 @@ export type Database = {
           country: string | null
           created_at: string
           created_by: string | null
+          decision_action: string | null
           error_message: string | null
+          estimated_order_value: number | null
+          fulfilment_confidence: number | null
           id: string
           industries_reached: string[] | null
           industry_match_rate: number | null
@@ -639,12 +644,16 @@ export type Database = {
           pages_generated: number | null
           qualified_leads: number | null
           rfqs_submitted: number | null
+          signal_classification: string | null
           started_at: string | null
           status: string
           subcategories_covered: string[] | null
           subcategory: string | null
+          urgency_score: number | null
         }
         Insert: {
+          auto_rfq_id?: string | null
+          available_suppliers_count?: number | null
           avg_deal_size?: number | null
           buyer_inquiries?: number | null
           category?: string | null
@@ -653,7 +662,10 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          decision_action?: string | null
           error_message?: string | null
+          estimated_order_value?: number | null
+          fulfilment_confidence?: number | null
           id?: string
           industries_reached?: string[] | null
           industry_match_rate?: number | null
@@ -663,12 +675,16 @@ export type Database = {
           pages_generated?: number | null
           qualified_leads?: number | null
           rfqs_submitted?: number | null
+          signal_classification?: string | null
           started_at?: string | null
           status?: string
           subcategories_covered?: string[] | null
           subcategory?: string | null
+          urgency_score?: number | null
         }
         Update: {
+          auto_rfq_id?: string | null
+          available_suppliers_count?: number | null
           avg_deal_size?: number | null
           buyer_inquiries?: number | null
           category?: string | null
@@ -677,7 +693,10 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          decision_action?: string | null
           error_message?: string | null
+          estimated_order_value?: number | null
+          fulfilment_confidence?: number | null
           id?: string
           industries_reached?: string[] | null
           industry_match_rate?: number | null
@@ -687,12 +706,22 @@ export type Database = {
           pages_generated?: number | null
           qualified_leads?: number | null
           rfqs_submitted?: number | null
+          signal_classification?: string | null
           started_at?: string | null
           status?: string
           subcategories_covered?: string[] | null
           subcategory?: string | null
+          urgency_score?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ai_seo_runs_auto_rfq_id_fkey"
+            columns: ["auto_rfq_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_seo_settings: {
         Row: {
@@ -1412,8 +1441,10 @@ export type Database = {
       demand_discovery_keywords: {
         Row: {
           category: string
+          classification: string | null
           clicks: number | null
           created_at: string | null
+          feasibility_score: number | null
           id: string
           impressions: number | null
           industry: string
@@ -1421,14 +1452,19 @@ export type Database = {
           intent_type: string
           is_active: boolean | null
           keyword: string
+          last_scored_at: string | null
           rfqs_generated: number | null
           subcategory: string
           updated_at: string | null
+          urgency_score: number | null
+          value_score: number | null
         }
         Insert: {
           category: string
+          classification?: string | null
           clicks?: number | null
           created_at?: string | null
+          feasibility_score?: number | null
           id?: string
           impressions?: number | null
           industry: string
@@ -1436,14 +1472,19 @@ export type Database = {
           intent_type: string
           is_active?: boolean | null
           keyword: string
+          last_scored_at?: string | null
           rfqs_generated?: number | null
           subcategory: string
           updated_at?: string | null
+          urgency_score?: number | null
+          value_score?: number | null
         }
         Update: {
           category?: string
+          classification?: string | null
           clicks?: number | null
           created_at?: string | null
+          feasibility_score?: number | null
           id?: string
           impressions?: number | null
           industry?: string
@@ -1451,11 +1492,191 @@ export type Database = {
           intent_type?: string
           is_active?: boolean | null
           keyword?: string
+          last_scored_at?: string | null
           rfqs_generated?: number | null
           subcategory?: string
           updated_at?: string | null
+          urgency_score?: number | null
+          value_score?: number | null
         }
         Relationships: []
+      }
+      demand_intelligence_settings: {
+        Row: {
+          admin_review_min_score: number | null
+          auto_rfq_min_score: number | null
+          buy_classification_min_score: number | null
+          created_at: string | null
+          enabled: boolean | null
+          enabled_categories: string[] | null
+          enabled_countries: string[] | null
+          frequency: string | null
+          id: string
+          last_run_at: string | null
+          min_matching_suppliers: number | null
+          min_supplier_match_score: number | null
+          require_supplier_availability: boolean | null
+          research_classification_max_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_review_min_score?: number | null
+          auto_rfq_min_score?: number | null
+          buy_classification_min_score?: number | null
+          created_at?: string | null
+          enabled?: boolean | null
+          enabled_categories?: string[] | null
+          enabled_countries?: string[] | null
+          frequency?: string | null
+          id?: string
+          last_run_at?: string | null
+          min_matching_suppliers?: number | null
+          min_supplier_match_score?: number | null
+          require_supplier_availability?: boolean | null
+          research_classification_max_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_review_min_score?: number | null
+          auto_rfq_min_score?: number | null
+          buy_classification_min_score?: number | null
+          created_at?: string | null
+          enabled?: boolean | null
+          enabled_categories?: string[] | null
+          enabled_countries?: string[] | null
+          frequency?: string | null
+          id?: string
+          last_run_at?: string | null
+          min_matching_suppliers?: number | null
+          min_supplier_match_score?: number | null
+          require_supplier_availability?: boolean | null
+          research_classification_max_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      demand_intelligence_signals: {
+        Row: {
+          best_supplier_match_score: number | null
+          buyer_type: string | null
+          category: string | null
+          classification: string
+          confidence_score: number
+          converted_at: string | null
+          converted_to_rfq_id: string | null
+          created_at: string | null
+          decision_action: string | null
+          decision_made_at: string | null
+          decision_made_by: string | null
+          decision_notes: string | null
+          delivery_location: string | null
+          delivery_timeline_days: number | null
+          discovered_at: string | null
+          estimated_quantity: number | null
+          estimated_unit: string | null
+          estimated_value: number | null
+          external_source_url: string | null
+          feasibility_score: number | null
+          fulfilment_feasible: boolean | null
+          id: string
+          industry: string | null
+          intent_score: number | null
+          matching_suppliers_count: number | null
+          overall_score: number | null
+          product_description: string | null
+          run_id: string | null
+          signal_source: string
+          subcategory: string | null
+          updated_at: string | null
+          urgency_score: number | null
+          value_score: number | null
+        }
+        Insert: {
+          best_supplier_match_score?: number | null
+          buyer_type?: string | null
+          category?: string | null
+          classification?: string
+          confidence_score?: number
+          converted_at?: string | null
+          converted_to_rfq_id?: string | null
+          created_at?: string | null
+          decision_action?: string | null
+          decision_made_at?: string | null
+          decision_made_by?: string | null
+          decision_notes?: string | null
+          delivery_location?: string | null
+          delivery_timeline_days?: number | null
+          discovered_at?: string | null
+          estimated_quantity?: number | null
+          estimated_unit?: string | null
+          estimated_value?: number | null
+          external_source_url?: string | null
+          feasibility_score?: number | null
+          fulfilment_feasible?: boolean | null
+          id?: string
+          industry?: string | null
+          intent_score?: number | null
+          matching_suppliers_count?: number | null
+          overall_score?: number | null
+          product_description?: string | null
+          run_id?: string | null
+          signal_source: string
+          subcategory?: string | null
+          updated_at?: string | null
+          urgency_score?: number | null
+          value_score?: number | null
+        }
+        Update: {
+          best_supplier_match_score?: number | null
+          buyer_type?: string | null
+          category?: string | null
+          classification?: string
+          confidence_score?: number
+          converted_at?: string | null
+          converted_to_rfq_id?: string | null
+          created_at?: string | null
+          decision_action?: string | null
+          decision_made_at?: string | null
+          decision_made_by?: string | null
+          decision_notes?: string | null
+          delivery_location?: string | null
+          delivery_timeline_days?: number | null
+          discovered_at?: string | null
+          estimated_quantity?: number | null
+          estimated_unit?: string | null
+          estimated_value?: number | null
+          external_source_url?: string | null
+          feasibility_score?: number | null
+          fulfilment_feasible?: boolean | null
+          id?: string
+          industry?: string | null
+          intent_score?: number | null
+          matching_suppliers_count?: number | null
+          overall_score?: number | null
+          product_description?: string | null
+          run_id?: string | null
+          signal_source?: string
+          subcategory?: string | null
+          updated_at?: string | null
+          urgency_score?: number | null
+          value_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demand_intelligence_signals_converted_to_rfq_id_fkey"
+            columns: ["converted_to_rfq_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demand_intelligence_signals_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_seo_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       demo_requests: {
         Row: {
@@ -5219,6 +5440,89 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "supplier_inventory_performance"
             referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      demand_intelligence_dashboard: {
+        Row: {
+          category: string | null
+          classification: string | null
+          converted_to_rfq_id: string | null
+          decision_action: string | null
+          delivery_location: string | null
+          delivery_timeline_days: number | null
+          discovered_at: string | null
+          estimated_value: number | null
+          feasibility_score: number | null
+          fulfilment_feasible: boolean | null
+          id: string | null
+          industry: string | null
+          intent_score: number | null
+          matching_suppliers_count: number | null
+          overall_score: number | null
+          priority_level: string | null
+          product_description: string | null
+          signal_source: string | null
+          status: string | null
+          subcategory: string | null
+          urgency_score: number | null
+          value_score: number | null
+        }
+        Insert: {
+          category?: string | null
+          classification?: string | null
+          converted_to_rfq_id?: string | null
+          decision_action?: string | null
+          delivery_location?: string | null
+          delivery_timeline_days?: number | null
+          discovered_at?: string | null
+          estimated_value?: number | null
+          feasibility_score?: number | null
+          fulfilment_feasible?: boolean | null
+          id?: string | null
+          industry?: string | null
+          intent_score?: number | null
+          matching_suppliers_count?: number | null
+          overall_score?: number | null
+          priority_level?: never
+          product_description?: string | null
+          signal_source?: string | null
+          status?: never
+          subcategory?: string | null
+          urgency_score?: number | null
+          value_score?: number | null
+        }
+        Update: {
+          category?: string | null
+          classification?: string | null
+          converted_to_rfq_id?: string | null
+          decision_action?: string | null
+          delivery_location?: string | null
+          delivery_timeline_days?: number | null
+          discovered_at?: string | null
+          estimated_value?: number | null
+          feasibility_score?: number | null
+          fulfilment_feasible?: boolean | null
+          id?: string | null
+          industry?: string | null
+          intent_score?: number | null
+          matching_suppliers_count?: number | null
+          overall_score?: number | null
+          priority_level?: never
+          product_description?: string | null
+          signal_source?: string | null
+          status?: never
+          subcategory?: string | null
+          urgency_score?: number | null
+          value_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demand_intelligence_signals_converted_to_rfq_id_fkey"
+            columns: ["converted_to_rfq_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
           },
         ]
       }
