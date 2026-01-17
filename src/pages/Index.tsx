@@ -267,6 +267,7 @@ const Index = () => {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+            <Button variant="ghost" size="sm" className="font-medium text-primary bg-primary/5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>About Us</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/buyer')}>Buyer</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/seller')}>Seller</Button>
             <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/private-label')}>Private Label</Button>
@@ -294,6 +295,9 @@ const Index = () => {
                 <nav className="flex flex-col gap-3 mt-8">
                   <Button variant="ghost" className="justify-start text-base font-medium" onClick={() => handleMobileNavigation('/login')}>
                     Login
+                  </Button>
+                  <Button variant="ghost" className="justify-start text-base text-primary bg-primary/5" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }}>
+                    About Us
                   </Button>
                   <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/buyer')}>
                     Buyer
