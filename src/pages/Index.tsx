@@ -642,23 +642,13 @@ const Index = () => {
                 <div className="bg-card p-7 rounded-2xl border border-border/50 hover:shadow-large transition-all duration-300">
                   <h4 className="font-display font-semibold text-foreground mb-4 text-lg">For Buyers & Procurement Teams</h4>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Whether you're sourcing raw materials, industrial equipment, chemicals, textiles, or electronics, 
-                    ProcureSaathi connects you with verified Indian manufacturers and suppliers. Post your requirements 
-                    once and receive competitive sealed bids from multiple suppliers. Our AI-powered matching ensures 
-                    you find the right supplier for your specific needs, whether it's private label manufacturing, 
-                    custom OEM production, or bulk wholesale purchasing. Save 15-30% on procurement costs through 
-                    transparent bidding while reducing sourcing time from weeks to hours.
+                    Post your requirements once and receive competitive sealed bids from verified Indian suppliers. Save 15-30% on procurement costs with AI-powered matching.
                   </p>
                 </div>
                 <div className="bg-card p-7 rounded-2xl border border-border/50 hover:shadow-large transition-all duration-300">
                   <h4 className="font-display font-semibold text-foreground mb-4 text-lg">For Suppliers & Manufacturers</h4>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Expand your business reach across India and globally with ProcureSaathi's B2B marketplace. 
-                    Access genuine buyer requirements in your product category, submit competitive bids, and win 
-                    new contracts. Our free CRM and GST invoice generator tools help you manage leads, track orders, 
-                    and streamline operations. Join 1000+ verified suppliers already growing their business on our 
-                    platform. From steel and chemicals to textiles and electronics, suppliers across all 23+ categories 
-                    are finding success through our transparent procurement ecosystem.
+                    Access genuine buyer requirements, submit competitive bids, and win new contracts. Join 1000+ verified suppliers growing on our platform.
                   </p>
                 </div>
               </div>
