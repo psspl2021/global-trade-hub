@@ -429,7 +429,10 @@ interface RequirementCardProps {
 
 const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: RequirementCardProps) => {
   const isAwarded = requirement.status === 'awarded';
-  const isExpired = !isAwarded && (requirement.status === 'expired' || new Date(requirement.deadline) < new Date());
+  // Check expiry at end of day (11:59:59 PM) instead of midnight
+  const deadlineEndOfDay = new Date(requirement.deadline);
+  deadlineEndOfDay.setHours(23, 59, 59, 999);
+  const isExpired = !isAwarded && (requirement.status === 'expired' || deadlineEndOfDay < new Date());
   const canBid = requirement.status === 'active' && !isExpired;
 
   return (
