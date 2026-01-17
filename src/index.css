@@ -389,11 +389,11 @@
 
   /* Section styling */
   .section-padding {
-    @apply py-16 sm:py-20 lg:py-28;
+    @apply py-10 sm:py-12 lg:py-16;
   }
 
   .section-padding-sm {
-    @apply py-10 sm:py-14 lg:py-18;
+    @apply py-8 sm:py-10 lg:py-12;
   }
 
   .section-title {

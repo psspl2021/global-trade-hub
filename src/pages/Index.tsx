@@ -456,54 +456,50 @@ const Index = () => {
       <EarlyAdopterBanner />
 
       {/* CTA Section */}
-      <section className="section-padding bg-gradient-to-b from-background to-muted/30">
+      <section className="py-10 sm:py-12 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="section-title font-display">Get Started Today</h2>
-            <p className="section-subtitle">Choose your path to growth</p>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold mb-2">Get Started Today</h2>
+            <p className="text-muted-foreground">Choose your path to growth</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto">
             {/* AI RFQ CTA */}
-            <Card className="group bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-primary/20 hover:border-primary/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-              <CardContent className="p-6 text-center relative">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Sparkles className="h-7 w-7 text-primary" />
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="h-5 w-5 text-primary" />
                 </div>
-                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
+                <h2 className="font-display font-bold mb-2 text-sm">
                   Post AI-Powered RFQ
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
+                <p className="text-muted-foreground mb-4 text-xs">
                   Let AI help you create detailed requirements and find the best suppliers instantly.
                 </p>
                 <Button 
-                  size="lg" 
-                  className="w-full font-semibold shadow-md hover:shadow-lg transition-all"
+                  className="w-full text-sm h-9"
                   onClick={() => navigate('/post-rfq')}
                 >
-                  <Sparkles className="h-4 w-4 mr-2" />
+                  <Sparkles className="h-4 w-4 mr-1" />
                   Post AI RFQ
                 </Button>
               </CardContent>
             </Card>
 
             {/* Buyer CTA */}
-            <Card className="group bg-gradient-to-br from-success/5 via-success/10 to-success/5 border-success/20 hover:border-success/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-              <CardContent className="p-6 text-center relative">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-success/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                <div className="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <ShoppingBag className="h-7 w-7 text-success" />
+            <Card className="bg-gradient-to-br from-success/5 to-success/10 border-success/20">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center mx-auto mb-3">
+                  <ShoppingBag className="h-5 w-5 text-success" />
                 </div>
-                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
+                <h2 className="font-display font-bold mb-2 text-sm">
                   Sourcing Products?
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
+                <p className="text-muted-foreground mb-4 text-xs">
                   Post requirements and get competitive bids from verified suppliers. <span className="font-semibold text-success">It's FREE!</span>
                 </p>
                 <Button 
-                  size="lg" 
-                  className="w-full bg-success text-success-foreground hover:bg-success/90 font-semibold shadow-md hover:shadow-lg transition-all"
+                  className="w-full bg-success text-success-foreground hover:bg-success/90 text-sm h-9"
                   onClick={() => navigate('/signup?role=buyer')}
                 >
                   Join as Buyer
@@ -512,21 +508,19 @@ const Index = () => {
             </Card>
 
             {/* Supplier CTA */}
-            <Card className="group bg-gradient-to-br from-warning/5 via-warning/10 to-warning/5 border-warning/20 hover:border-warning/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-              <CardContent className="p-6 text-center relative">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-warning/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                <div className="w-14 h-14 rounded-2xl bg-warning/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <MessageSquare className="h-7 w-7 text-warning" />
+            <Card className="bg-gradient-to-br from-warning/5 to-warning/10 border-warning/20">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center mx-auto mb-3">
+                  <MessageSquare className="h-5 w-5 text-warning" />
                 </div>
-                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
+                <h2 className="font-display font-bold mb-2 text-sm">
                   Manufacturer?
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
+                <p className="text-muted-foreground mb-4 text-xs">
                   List your company and start connecting with buyers across India and globally.
                 </p>
                 <Button 
-                  size="lg"
-                  className="w-full bg-warning text-warning-foreground hover:bg-warning/90 font-semibold shadow-md hover:shadow-lg transition-all"
+                  className="w-full bg-warning text-warning-foreground hover:bg-warning/90 text-sm h-9"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
                   Join as Supplier
@@ -535,22 +529,20 @@ const Index = () => {
             </Card>
 
             {/* Logistics CTA */}
-            <Card className="group bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-primary/20 hover:border-primary/40 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-              <CardContent className="p-6 text-center relative">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Truck className="h-7 w-7 text-primary" />
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Truck className="h-5 w-5 text-primary" />
                 </div>
-                <h2 className="text-xl font-display font-bold mb-3 text-foreground">
+                <h2 className="font-display font-bold mb-2 text-sm">
                   Need Transport?
                 </h2>
-                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
+                <p className="text-muted-foreground mb-4 text-xs">
                   Find verified trucks, trailers & warehousing services across India.
                 </p>
                 <Button 
-                  size="lg"
                   variant="outline"
-                  className="w-full font-semibold border-primary/30 hover:bg-primary/5 hover:border-primary transition-all"
+                  className="w-full border-primary/30 hover:bg-primary/5 text-sm h-9"
                   onClick={() => navigate('/book-truck')}
                 >
                   Book a Truck
@@ -655,85 +647,85 @@ const Index = () => {
       </section>
 
       {/* AI-Powered Features Section */}
-      <section className="section-padding bg-gradient-to-b from-muted/30 to-background overflow-hidden">
+      <section className="py-10 sm:py-12 bg-gradient-to-b from-muted/30 to-background overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-6">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-4">
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold text-primary">AI-POWERED PLATFORM</span>
             </div>
-            <h2 className="section-title font-display">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold mb-2">
               Intelligent Procurement with <span className="text-primary">AI Technology</span>
             </h2>
-            <p className="section-subtitle max-w-3xl mx-auto">
-              Our AI engine analyzes your requirements, matches you with the right suppliers, and helps you make data-driven decisions for better sourcing outcomes.
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Our AI engine analyzes your requirements, matches you with the right suppliers, and helps you make data-driven decisions.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {/* AI Supplier Matching */}
-            <Card className="group bg-card border-border/50 hover:border-primary/30 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-8">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                  <Target className="h-7 w-7 text-primary" />
+            <Card className="bg-card border-border/50 hover:border-primary/30 transition-all">
+              <CardContent className="p-5">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <Target className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-xl font-display font-bold mb-3">Smart Supplier Matching</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  AI analyzes your product specifications, quality requirements, and budget to find the most suitable verified suppliers from our network.
+                <h3 className="font-display font-bold mb-2">Smart Supplier Matching</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  AI analyzes your specifications to find the most suitable verified suppliers.
                 </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    1000+ verified suppliers analyzed
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                    1000+ verified suppliers
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    Real-time capability matching
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                    Real-time matching
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
             {/* AI RFQ Generation */}
-            <Card className="group bg-card border-border/50 hover:border-primary/30 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-8">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                  <FileText className="h-7 w-7 text-primary" />
+            <Card className="bg-card border-border/50 hover:border-primary/30 transition-all">
+              <CardContent className="p-5">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <FileText className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-xl font-display font-bold mb-3">AI RFQ Generation</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Simply describe what you need in natural language. Our AI creates detailed, professional RFQs that attract quality bids.
+                <h3 className="font-display font-bold mb-2">AI RFQ Generation</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Describe your needs naturally. AI creates professional RFQs that attract quality bids.
                 </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                     Auto-fills specifications
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    Industry-standard templates
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                    Industry templates
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
             {/* AI Price Intelligence */}
-            <Card className="group bg-card border-border/50 hover:border-primary/30 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-8">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                  <TrendingUp className="h-7 w-7 text-primary" />
+            <Card className="bg-card border-border/50 hover:border-primary/30 transition-all">
+              <CardContent className="p-5">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <TrendingUp className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-xl font-display font-bold mb-3">Price Intelligence</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Get AI-powered price confidence scores and market insights to ensure you're getting competitive rates for your procurement.
+                <h3 className="font-display font-bold mb-2">Price Intelligence</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Get AI-powered price confidence scores and market insights for competitive rates.
                 </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    Market rate benchmarking
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                    Market benchmarking
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                     Price trend analysis
                   </li>
                 </ul>
@@ -742,10 +734,10 @@ const Index = () => {
           </div>
 
           {/* CTA */}
-          <div className="text-center mt-12">
+          <div className="text-center mt-8">
             <Button 
               size="lg" 
-              className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
+              className="h-12 px-8 font-semibold shadow-md gradient-primary"
               onClick={() => navigate('/post-rfq')}
             >
               <Sparkles className="h-5 w-5 mr-2" />
@@ -779,73 +771,72 @@ const Index = () => {
       <LazyFAQ />
 
       {/* Contact Section */}
-      <section id="contact" className="section-padding">
+      <section id="contact" className="py-10 sm:py-12">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="section-title font-display">Contact Us</h2>
-            <p className="section-subtitle">Get in touch with our team</p>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold mb-2">Contact Us</h2>
+            <p className="text-muted-foreground">Get in touch with our team</p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {/* Address */}
-            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <MapPin className="h-7 w-7 text-primary" />
+            <Card className="border-border/50">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <MapPin className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="font-display font-semibold mb-2">Address</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  PROCURESAATHI SOLUTIONS PRIVATE LIMITED<br />
-                  Metro Pillar Number 564, 14/3 Mathura Road, Sector-31, Haryana - 121003
+                <h4 className="font-display font-semibold text-sm mb-1">Address</h4>
+                <p className="text-xs text-muted-foreground">
+                  PROCURESAATHI SOLUTIONS PVT LTD<br />
+                  Sector-31, Haryana - 121003
                 </p>
               </CardContent>
             </Card>
             
             {/* Email */}
-            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <Mail className="h-7 w-7 text-primary" />
+            <Card className="border-border/50">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Mail className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="font-display font-semibold mb-2">Email</h4>
-                <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline font-medium">
+                <h4 className="font-display font-semibold text-sm mb-1">Email</h4>
+                <a href="mailto:sales@procuresaathi.com" className="text-xs text-primary hover:underline font-medium">
                   sales@procuresaathi.com
                 </a>
               </CardContent>
             </Card>
             
             {/* GSTIN */}
-            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <Building2 className="h-7 w-7 text-primary" />
+            <Card className="border-border/50">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Building2 className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="font-display font-semibold mb-2">GSTIN</h4>
-                <p className="text-sm text-muted-foreground font-mono">06AAMCP4662L1ZW</p>
+                <h4 className="font-display font-semibold text-sm mb-1">GSTIN</h4>
+                <p className="text-xs text-muted-foreground font-mono">06AAMCP4662L1ZW</p>
               </CardContent>
             </Card>
             
             {/* Business Hours */}
-            <Card className="group hover:shadow-large transition-all duration-300 hover:-translate-y-1 border-border/50">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <Clock className="h-7 w-7 text-primary" />
+            <Card className="border-border/50">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Clock className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="font-display font-semibold mb-2">Business Hours</h4>
-                <p className="text-sm text-muted-foreground">
-                  Monday - Saturday<br />
-                  9:00 AM - 6:00 PM IST
+                <h4 className="font-display font-semibold text-sm mb-1">Business Hours</h4>
+                <p className="text-xs text-muted-foreground">
+                  Mon - Sat, 9AM - 6PM IST
                 </p>
               </CardContent>
             </Card>
           </div>
           
           {/* CTA */}
-          <div className="text-center mt-14">
-            <p className="text-muted-foreground mb-5">Have questions? We'd love to hear from you!</p>
+          <div className="text-center mt-8">
+            <p className="text-sm text-muted-foreground mb-3">Have questions? We'd love to hear from you!</p>
             <a 
               href="mailto:sales@procuresaathi.com"
-              className="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6"
             >
               <Mail className="h-4 w-4" />
               Send us an Email
@@ -860,17 +851,17 @@ const Index = () => {
       </Suspense>
 
       {/* Final CTA Section */}
-      <section className="section-padding bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5">
+      <section className="py-12 sm:py-16 bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="section-title font-display mb-4">
+          <h2 className="text-2xl sm:text-3xl font-display font-bold mb-3">
             Ready to Transform Your Business?
           </h2>
-          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
+          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
             Join ProcureSaathi today and experience the future of B2B procurement
           </p>
           <Button 
             size="lg" 
-            className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
+            className="h-12 px-8 font-semibold shadow-md gradient-primary"
             onClick={() => navigate('/signup')}
           >
             Start Free Trial
@@ -892,9 +883,9 @@ const Index = () => {
 
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-card py-12 sm:py-16">
+      <footer className="border-t border-border/50 bg-card py-8 sm:py-10">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 sm:gap-10 mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 mb-8">
             {/* Company Info */}
             <div className="col-span-2 md:col-span-1">
               <h4 className="font-display font-bold text-sm mb-4 text-foreground">PROCURESAATHI</h4>

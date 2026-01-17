@@ -86,30 +86,30 @@ export const FAQ = () => {
   }, []);
 
   return (
-    <section className="py-16 bg-background" id="faq">
+    <section className="py-10 sm:py-12 bg-background" id="faq">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Frequently Asked Questions
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to know about sourcing, supplying, and logistics on ProcureSaathi.
+          <p className="text-muted-foreground max-w-xl mx-auto text-sm">
+            Everything you need to know about ProcureSaathi.
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="max-w-2xl mx-auto space-y-6">
           {faqData.map((category, categoryIndex) => (
             <div key={categoryIndex}>
-              <h3 className="text-xl font-semibold text-primary mb-4">
+              <h3 className="text-lg font-semibold text-primary mb-3">
                 {category.category}
               </h3>
               <Accordion type="single" collapsible className="w-full">
                 {category.questions.map((faq, faqIndex) => (
                   <AccordionItem key={faqIndex} value={`${categoryIndex}-${faqIndex}`}>
-                    <AccordionTrigger className="text-left text-foreground hover:text-primary">
+                    <AccordionTrigger className="text-left text-foreground hover:text-primary text-sm py-3">
                       {faq.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
+                    <AccordionContent className="text-muted-foreground text-sm">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
