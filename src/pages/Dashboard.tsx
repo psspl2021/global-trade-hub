@@ -188,7 +188,11 @@ const Dashboard = () => {
     if (!authLoading && !user) {
       navigate('/login');
     }
-  }, [user, authLoading, navigate]);
+    // Redirect affiliates to their dedicated portal
+    if (!authLoading && !roleLoading && role === 'affiliate') {
+      navigate('/affiliate');
+    }
+  }, [user, authLoading, roleLoading, role, navigate]);
 
   if (authLoading || roleLoading) {
     return (
