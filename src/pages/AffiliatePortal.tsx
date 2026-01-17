@@ -4,7 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
-import { Loader2, LogOut, Settings } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2, LogOut, Settings, AlertTriangle } from 'lucide-react';
 import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
 import { ReferrerKYCUpload } from '@/components/affiliate/ReferrerKYCUpload';
@@ -93,6 +94,15 @@ const AffiliatePortal = () => {
             {user?.user_metadata?.company_name || user?.user_metadata?.contact_person || 'Welcome'} • Track your referral earnings
           </p>
         </div>
+
+        {/* Important Terms Alert */}
+        <Alert className="mb-6 border-warning/50 bg-warning/10">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <AlertTitle className="text-warning font-semibold">Important Terms</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
+            Affiliate commission is <span className="font-semibold text-foreground">not applicable</span> on your own orders, family members' orders, or orders from related businesses (same GSTIN, phone, bank account). Self-referrals will result in permanent forfeiture of all commissions and possible account termination. All commissions have a 30-day cooling period before payout eligibility.
+          </AlertDescription>
+        </Alert>
 
         {/* KYC Documents Section */}
         {user && <ReferrerKYCUpload userId={user.id} />}
