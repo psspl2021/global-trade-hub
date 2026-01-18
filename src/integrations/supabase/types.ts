@@ -2228,6 +2228,33 @@ export type Database = {
           },
         ]
       }
+      margin_settings: {
+        Row: {
+          base_margin_percent: number
+          id: string
+          logistics_markup_percent: number
+          risk_premium_percent: number
+          service_fee_percent: number
+          updated_at: string | null
+        }
+        Insert: {
+          base_margin_percent?: number
+          id?: string
+          logistics_markup_percent?: number
+          risk_premium_percent?: number
+          service_fee_percent?: number
+          updated_at?: string | null
+        }
+        Update: {
+          base_margin_percent?: number
+          id?: string
+          logistics_markup_percent?: number
+          risk_premium_percent?: number
+          service_fee_percent?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       market_price_indices: {
         Row: {
           average_market_price: number
