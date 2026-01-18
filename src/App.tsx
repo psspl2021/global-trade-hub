@@ -34,6 +34,7 @@ const InvoiceGenerator = lazy(() => import("./pages/InvoiceGenerator"));
 const AffiliatePortal = lazy(() => import("./pages/AffiliatePortal"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Contact = lazy(() => import("./pages/Contact"));
+const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -81,6 +82,7 @@ const App = () => (
               <Route path="/invoice-generator" element={<InvoiceGenerator />} />
               <Route path="/affiliate" element={<AffiliatePortal />} />
               <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+              <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
