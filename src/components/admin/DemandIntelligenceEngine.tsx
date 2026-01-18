@@ -98,6 +98,7 @@ import {
   createDemandSignal,
   calculateDIMetrics,
   convertSignalToInternalRFQ,
+  executeAutoRFQIfQualified,
   type DemandSignal,
   type DISettings,
   type DIMetrics,
@@ -329,6 +330,12 @@ export function DemandIntelligenceEngine() {
    * Revenue pipeline starts here
    */
   const executeSignal = async (signal: Signal) => {
+    // ✅ FIX #2B: Lock execution if feasibility < threshold
+    if (!signal.fulfilment_feasible) {
+      toast.error("Cannot execute: No suppliers available for fulfilment");
+      return;
+    }
+    
     try {
       const demandSignal: DemandSignal = {
         id: signal.id,
@@ -349,6 +356,7 @@ export function DemandIntelligenceEngine() {
         deliveryLocation: signal.delivery_location || 'India',
         deliveryTimelineDays: signal.delivery_timeline_days || 30,
         matchingSuppliersCount: signal.matching_suppliers_count || 0,
+        // ✅ FIX #3: Pass through real supplier match score
         bestSupplierMatchScore: signal.best_supplier_match_score || 0,
         fulfilmentFeasible: signal.fulfilment_feasible || false,
         decisionAction: 'auto_rfq',
@@ -366,8 +374,8 @@ export function DemandIntelligenceEngine() {
         toast.error(`Failed: ${result.error}`);
       }
       
-      fetchSignals();
-      fetchMetrics();
+      // ✅ FIX #4: Consistent refetch after mutation
+      await Promise.all([fetchSignals(), fetchMetrics()]);
     } catch (error) {
       console.error('Error executing signal:', error);
       toast.error('Failed to execute signal');
@@ -398,7 +406,8 @@ export function DemandIntelligenceEngine() {
       setHoldNotes("");
       setSignalToHold(null);
       setShowSignalDetail(false);
-      fetchSignals();
+      // ✅ FIX #4: Consistent refetch after mutation
+      await Promise.all([fetchSignals(), fetchMetrics()]);
     } catch (error) {
       console.error('Error holding signal:', error);
       toast.error('Failed to hold signal');
@@ -425,7 +434,8 @@ export function DemandIntelligenceEngine() {
       toast.success('Signal ignored');
       setShowSignalDetail(false);
       setSelectedSignal(null);
-      fetchSignals();
+      // ✅ FIX #4: Consistent refetch after mutation
+      await Promise.all([fetchSignals(), fetchMetrics()]);
     } catch (error) {
       console.error('Error ignoring signal:', error);
       toast.error('Failed to ignore signal');
@@ -455,6 +465,9 @@ export function DemandIntelligenceEngine() {
       const industries = getAllIndustriesForCategory(selectedCategory);
       const sampleIndustry = industries[0] || 'general';
       
+      // ✅ FIX #5: Simulation flag for demo data
+      const isSimulation = true; // TODO: Set false for production with real signal ingestion
+      
       const scoreFactors: ScoreFactors = {
         estimatedValue: 2500000,
         category: selectedCategory,
@@ -470,7 +483,8 @@ export function DemandIntelligenceEngine() {
       const scores = calculateAllScores(scoreFactors);
       
       const signal = await createDemandSignal({
-        signalSource: 'keyword_scan',
+        // ✅ FIX #5: Tag as simulation or real signal
+        signalSource: isSimulation ? 'simulation' as any : 'keyword_scan',
         confidenceScore: scores.overallScore,
         intentScore: scores.intentScore,
         urgencyScore: scores.urgencyScore,
@@ -479,7 +493,7 @@ export function DemandIntelligenceEngine() {
         category: selectedCategory,
         subcategory: selectedSubcategory,
         industry: sampleIndustry,
-        productDescription: `${selectedSubcategory} for ${sampleIndustry} project in ${selectedCountry}`,
+        productDescription: `${isSimulation ? '[SIM] ' : ''}${selectedSubcategory} for ${sampleIndustry} project in ${selectedCountry}`,
         estimatedValue: 2500000,
         deliveryLocation: selectedCountry === 'india' ? 'Mumbai, Maharashtra' : selectedCountry,
         deliveryTimelineDays: 30,
@@ -491,10 +505,18 @@ export function DemandIntelligenceEngine() {
       
       if (signal) {
         toast.success(`Signal: ${signal.classification.toUpperCase()} (Score: ${signal.overallScore?.toFixed(1)})`);
+        
+        // ✅ FIX #1: Auto-execute if qualified (TRUE AUTOMATION)
+        if (settings?.enabled) {
+          const autoResult = await executeAutoRFQIfQualified(signal, settings);
+          if (autoResult.executed) {
+            toast.success(`🚀 Auto-RFQ created! Pipeline active.`);
+          }
+        }
       }
       
-      await fetchSignals();
-      await fetchMetrics();
+      // ✅ FIX #4: Consistent refetch after mutation
+      await Promise.all([fetchSignals(), fetchMetrics()]);
       
     } catch (error) {
       console.error('Demand scan failed:', error);
@@ -579,10 +601,37 @@ export function DemandIntelligenceEngine() {
     return `${Math.round(hours / 24)}d ago`;
   };
 
-  const getClassificationBadge = (classification: string) => {
+  // ✅ FIX #2: Check if signal qualifies for BUY based on admin threshold
+  const isBuyQualified = (signal: Signal): boolean => {
+    const overallScore = getOverallScore(signal);
+    return overallScore >= (settings?.buyClassificationMinScore ?? 7);
+  };
+
+  // Calculate margin confidence (Strategic Improvement C)
+  const getMarginConfidence = (signal: Signal): { level: 'high' | 'medium' | 'low'; score: number } => {
+    const feasibility = signal.feasibility_score || 0;
+    const value = signal.value_score || 0;
+    const confidence = (feasibility + value) / 2;
+    return {
+      score: confidence,
+      level: confidence >= 7 ? 'high' : confidence >= 4 ? 'medium' : 'low'
+    };
+  };
+
+  const getClassificationBadge = (classification: string, signal?: Signal) => {
+    // Strategic Improvement A: Auto-Execute badge
+    const isAutoQualified = signal && signal.decision_action === 'auto_rfq';
+    
     switch (classification) {
       case 'buy':
-        return <Badge className="bg-green-600 text-white">BUY</Badge>;
+        return (
+          <div className="flex items-center gap-1" title={isAutoQualified ? "AI Approved" : undefined}>
+            <Badge className="bg-green-600 text-white">BUY</Badge>
+            {isAutoQualified && (
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            )}
+          </div>
+        );
       case 'research':
         return <Badge className="bg-blue-500 text-white">RESEARCH</Badge>;
       case 'noise':
@@ -875,6 +924,9 @@ export function DemandIntelligenceEngine() {
                         const isHighPriority = overallScore >= 7.0 && signal.fulfilment_feasible;
                         const margin = calculateMargin(signal);
                         const isConverted = signal.converted_to_rfq_id != null;
+                        const marginConfidence = getMarginConfidence(signal);
+                        const canExecute = isBuyQualified(signal) && signal.fulfilment_feasible;
+                        const isSimulation = signal.signal_source === 'simulation';
                         
                         return (
                           <TableRow 
@@ -882,7 +934,14 @@ export function DemandIntelligenceEngine() {
                             className={`cursor-pointer hover:bg-muted/50 ${isHighPriority ? 'bg-green-50/50' : isConverted ? 'bg-blue-50/30' : ''}`}
                             onClick={() => openSignalDetail(signal)}
                           >
-                            <TableCell>{getClassificationBadge(signal.classification)}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                {getClassificationBadge(signal.classification, signal)}
+                                {isSimulation && (
+                                  <Badge variant="outline" className="text-[9px] px-1 py-0 text-purple-500 border-purple-300">SIM</Badge>
+                                )}
+                              </div>
+                            </TableCell>
                             <TableCell>
                               <div className="max-w-[180px]">
                                 <p className="font-medium capitalize truncate">{signal.subcategory || signal.category}</p>
@@ -942,9 +1001,22 @@ export function DemandIntelligenceEngine() {
                                 <p className="font-semibold text-green-600">
                                   {formatCurrency(margin.amount)}
                                 </p>
-                                <p className="text-[10px] text-muted-foreground">
-                                  ~{margin.percent.toFixed(1)}%
-                                </p>
+                                <div className="flex items-center justify-end gap-1">
+                                  <p className="text-[10px] text-muted-foreground">
+                                    ~{margin.percent.toFixed(1)}%
+                                  </p>
+                                  {/* Strategic Improvement C: Margin Confidence */}
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-[8px] px-1 py-0 ${
+                                      marginConfidence.level === 'high' ? 'border-green-400 text-green-600' :
+                                      marginConfidence.level === 'medium' ? 'border-amber-400 text-amber-600' :
+                                      'border-red-400 text-red-600'
+                                    }`}
+                                  >
+                                    {marginConfidence.level.toUpperCase()}
+                                  </Badge>
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell>{getDecisionBadge(signal.decision_action)}</TableCell>
@@ -956,10 +1028,17 @@ export function DemandIntelligenceEngine() {
                                 </div>
                               ) : signal.decision_action === 'pending' || signal.decision_action === 'admin_review' ? (
                                 <div className="flex items-center gap-1">
+                                  {/* ✅ FIX #2B: Lock execution if feasibility < threshold */}
                                   <Button 
                                     size="sm" 
-                                    className="h-7 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
+                                    className={`h-7 px-2 text-white text-xs ${
+                                      canExecute 
+                                        ? 'bg-green-600 hover:bg-green-700' 
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                    }`}
                                     onClick={() => executeSignal(signal)}
+                                    disabled={!canExecute}
+                                    title={!canExecute ? 'Score or suppliers insufficient' : 'Execute signal'}
                                   >
                                     <Zap className="w-3 h-3 mr-1" />
                                     Execute
