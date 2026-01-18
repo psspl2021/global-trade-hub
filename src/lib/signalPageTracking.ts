@@ -70,6 +70,7 @@ interface DemandSignalData {
   productDescription?: string;
   estimatedQuantity?: number;
   estimatedUnit?: string;
+  country: string; // CRITICAL: Geo-specific demand intelligence
 }
 
 /**
@@ -91,6 +92,7 @@ export async function createDemandSignal(data: DemandSignalData): Promise<string
         product_description: data.productDescription,
         estimated_quantity: data.estimatedQuantity,
         estimated_unit: data.estimatedUnit,
+        country: data.country, // Geo-specific demand tracking
         buyer_type: 'unknown_external',
         classification: 'buy',
         decision_action: 'pending',

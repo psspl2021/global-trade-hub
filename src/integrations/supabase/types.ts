@@ -1567,6 +1567,7 @@ export type Database = {
           confidence_score: number
           converted_at: string | null
           converted_to_rfq_id: string | null
+          country: string | null
           created_at: string | null
           decision_action: string | null
           decision_made_at: string | null
@@ -1603,6 +1604,7 @@ export type Database = {
           confidence_score?: number
           converted_at?: string | null
           converted_to_rfq_id?: string | null
+          country?: string | null
           created_at?: string | null
           decision_action?: string | null
           decision_made_at?: string | null
@@ -1639,6 +1641,7 @@ export type Database = {
           confidence_score?: number
           converted_at?: string | null
           converted_to_rfq_id?: string | null
+          country?: string | null
           created_at?: string | null
           decision_action?: string | null
           decision_made_at?: string | null

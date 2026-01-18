@@ -115,7 +115,7 @@ export function PostRFQModal({
         // Increment RFQ count on signal page
         await incrementRFQCount(signalPageId);
 
-        // Create demand intelligence signal
+        // Create demand intelligence signal with country
         await createDemandSignal({
           signalPageId,
           signalPageCategory,
@@ -123,6 +123,7 @@ export function PostRFQModal({
           industry: signalPageIndustry,
           productDescription: generatedRFQ.title,
           deliveryLocation: signalPageCountry || 'India',
+          country: signalPageCountry || 'India', // Geo-specific demand tracking
         });
       }
     }
