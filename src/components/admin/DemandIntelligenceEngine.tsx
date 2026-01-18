@@ -181,6 +181,12 @@ export function DemandIntelligenceEngine() {
   const [marginDirty, setMarginDirty] = useState(false);
   const [savingMargins, setSavingMargins] = useState(false);
   
+  // Revenue at Risk - margin exposure on unsafe demand
+  const [revenueAtRisk, setRevenueAtRisk] = useState<{ amount: number; signalCount: number }>({
+    amount: 0,
+    signalCount: 0
+  });
+  
   // Hold dialog
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [holdNotes, setHoldNotes] = useState("");
@@ -337,6 +343,59 @@ export function DemandIntelligenceEngine() {
     setMarginSettings(prev => ({ ...prev, [key]: value }));
     setMarginDirty(true);
   };
+
+  // ============================================================
+  // REVENUE AT RISK CALCULATION
+  // ============================================================
+  
+  /**
+   * Revenue at Risk = Margin exposure on demand that looks profitable 
+   * but is operationally unsafe.
+   * 
+   * A signal is AT RISK if:
+   * - fulfilment_feasible = false
+   * - OR matching_suppliers_count < minMatchingSuppliers
+   * - OR feasibility_score < threshold (5)
+   * - AND it's still pending/admin_review (not resolved)
+   */
+  const calculateRevenueAtRisk = useCallback(() => {
+    const totalMarginPercent = 
+      marginSettings.baseMarginPercent + 
+      marginSettings.riskPremiumPercent + 
+      marginSettings.logisticsMarkupPercent + 
+      marginSettings.serviceFeePercent;
+    
+    const riskySignals = signals.filter(signal => {
+      // Only count pending or on-hold signals (unresolved)
+      const isUnresolved = signal.decision_action === 'pending' || signal.decision_action === 'admin_review';
+      if (!isUnresolved) return false;
+      
+      // Check risk conditions
+      const lowFeasibility = (signal.feasibility_score || 0) < 5;
+      const noSuppliers = !signal.fulfilment_feasible;
+      const fewSuppliers = (signal.matching_suppliers_count || 0) < (settings?.minMatchingSuppliers || 1);
+      
+      // Signal is at risk if ANY unsafe condition is true
+      return lowFeasibility || noSuppliers || fewSuppliers;
+    });
+    
+    // Calculate margin exposure
+    const totalAtRisk = riskySignals.reduce((sum, signal) => {
+      const dealValue = signal.estimated_value || 0;
+      const marginExposure = dealValue * (totalMarginPercent / 100);
+      return sum + marginExposure;
+    }, 0);
+    
+    setRevenueAtRisk({
+      amount: Math.round(totalAtRisk),
+      signalCount: riskySignals.length
+    });
+  }, [signals, marginSettings, settings]);
+  
+  // Recalculate whenever signals or margins change
+  useEffect(() => {
+    calculateRevenueAtRisk();
+  }, [calculateRevenueAtRisk]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -776,88 +835,141 @@ export function DemandIntelligenceEngine() {
 
       {/* CEO/INVESTOR METRICS DASHBOARD */}
       {metrics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-          <Card className="p-3 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
-            <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-blue-600" />
-              <div>
-                <p className="text-xl font-bold text-blue-700">{metrics.totalSignalsToday}</p>
-                <p className="text-[10px] text-blue-600/70 uppercase tracking-wide">Signals Today</p>
+        <div className="space-y-3">
+          {/* REVENUE AT RISK - Prominent investor-grade metric */}
+          {revenueAtRisk.amount > 0 && (
+            <Card className="p-4 bg-gradient-to-r from-red-50 via-orange-50 to-amber-50 border-2 border-red-300 shadow-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 shadow-lg">
+                    <AlertTriangle className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-red-800 uppercase tracking-wide">
+                      Revenue at Risk
+                    </p>
+                    <p className="text-3xl font-bold text-red-700">
+                      {formatCurrency(revenueAtRisk.amount)}
+                    </p>
+                    <p className="text-xs text-red-600/70">
+                      Margin exposure locked in {revenueAtRisk.signalCount} unsafe demand signal{revenueAtRisk.signalCount !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground mb-1">Risk Factors:</p>
+                  <div className="flex flex-wrap gap-1 justify-end">
+                    <Badge variant="outline" className="text-[10px] border-red-300 text-red-600">
+                      Low Feasibility
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">
+                      No Suppliers
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] border-orange-300 text-orange-600">
+                      Pending Review
+                    </Badge>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2 border-red-300 text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      setDecisionFilter('pending');
+                      setClassificationFilter('all');
+                      setActiveTab('inbox');
+                    }}
+                  >
+                    Review Risky Signals
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          )}
           
-          <Card className="p-3 bg-gradient-to-br from-green-50 to-green-100/50 border-green-200">
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-green-600" />
-              <div>
-                <p className="text-xl font-bold text-green-700">{metrics.buySignalsToday}</p>
-                <p className="text-[10px] text-green-600/70 uppercase tracking-wide">BUY Signals</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+            <Card className="p-3 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4 text-blue-600" />
+                <div>
+                  <p className="text-xl font-bold text-blue-700">{metrics.totalSignalsToday}</p>
+                  <p className="text-[10px] text-blue-600/70 uppercase tracking-wide">Signals Today</p>
+                </div>
               </div>
-            </div>
-          </Card>
-          
-          <Card className="p-3 bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-emerald-200">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-emerald-600" />
-              <div>
-                <p className="text-xl font-bold text-emerald-700">{metrics.autoRfqsCreated}</p>
-                <p className="text-[10px] text-emerald-600/70 uppercase tracking-wide">RFQs Created</p>
+            </Card>
+            
+            <Card className="p-3 bg-gradient-to-br from-green-50 to-green-100/50 border-green-200">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-green-600" />
+                <div>
+                  <p className="text-xl font-bold text-green-700">{metrics.buySignalsToday}</p>
+                  <p className="text-[10px] text-green-600/70 uppercase tracking-wide">BUY Signals</p>
+                </div>
               </div>
-            </div>
-          </Card>
-          
-          <Card className="p-3 bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-600" />
-              <div>
-                <p className="text-xl font-bold text-amber-700">{metrics.pendingReview}</p>
-                <p className="text-[10px] text-amber-600/70 uppercase tracking-wide">Pending</p>
+            </Card>
+            
+            <Card className="p-3 bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-emerald-200">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-emerald-600" />
+                <div>
+                  <p className="text-xl font-bold text-emerald-700">{metrics.autoRfqsCreated}</p>
+                  <p className="text-[10px] text-emerald-600/70 uppercase tracking-wide">RFQs Created</p>
+                </div>
               </div>
-            </div>
-          </Card>
-          
-          <Card className="p-3">
-            <div className="flex items-center gap-2">
-              <Gauge className="w-4 h-4 text-gray-500" />
-              <div>
-                <p className="text-xl font-bold">{metrics.avgOverallScore.toFixed(1)}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Avg Score</p>
+            </Card>
+            
+            <Card className="p-3 bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <div>
+                  <p className="text-xl font-bold text-amber-700">{metrics.pendingReview}</p>
+                  <p className="text-[10px] text-amber-600/70 uppercase tracking-wide">Pending</p>
+                </div>
               </div>
-            </div>
-          </Card>
-          
-          <Card className="p-3">
-            <div className="flex items-center gap-2">
-              <Factory className="w-4 h-4 text-gray-500" />
-              <div>
-                <p className="text-xl font-bold">{metrics.avgFeasibilityScore.toFixed(1)}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Feasibility</p>
+            </Card>
+            
+            <Card className="p-3">
+              <div className="flex items-center gap-2">
+                <Gauge className="w-4 h-4 text-gray-500" />
+                <div>
+                  <p className="text-xl font-bold">{metrics.avgOverallScore.toFixed(1)}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Avg Score</p>
+                </div>
               </div>
-            </div>
-          </Card>
-          
-          <Card className="p-3 bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-purple-600" />
-              <div>
-                <p className="text-xl font-bold text-purple-700">{metrics.conversionRate}%</p>
-                <p className="text-[10px] text-purple-600/70 uppercase tracking-wide">Conversion</p>
+            </Card>
+            
+            <Card className="p-3">
+              <div className="flex items-center gap-2">
+                <Factory className="w-4 h-4 text-gray-500" />
+                <div>
+                  <p className="text-xl font-bold">{metrics.avgFeasibilityScore.toFixed(1)}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Feasibility</p>
+                </div>
               </div>
-            </div>
-          </Card>
-          
-          <Card className="p-3 bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-200">
-            <div className="flex items-center gap-2">
-              <CircleDollarSign className="w-4 h-4 text-rose-600" />
-              <div>
-                <p className="text-xl font-bold text-rose-700">
-                  {marginSettings.baseMarginPercent + marginSettings.riskPremiumPercent + marginSettings.logisticsMarkupPercent}%
-                </p>
-                <p className="text-[10px] text-rose-600/70 uppercase tracking-wide">Avg Margin</p>
+            </Card>
+            
+            <Card className="p-3 bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-purple-600" />
+                <div>
+                  <p className="text-xl font-bold text-purple-700">{metrics.conversionRate}%</p>
+                  <p className="text-[10px] text-purple-600/70 uppercase tracking-wide">Conversion</p>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+            
+            <Card className="p-3 bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-200">
+              <div className="flex items-center gap-2">
+                <CircleDollarSign className="w-4 h-4 text-rose-600" />
+                <div>
+                  <p className="text-xl font-bold text-rose-700">
+                    {marginSettings.baseMarginPercent + marginSettings.riskPremiumPercent + marginSettings.logisticsMarkupPercent}%
+                  </p>
+                  <p className="text-[10px] text-rose-600/70 uppercase tracking-wide">Avg Margin</p>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
       )}
 
