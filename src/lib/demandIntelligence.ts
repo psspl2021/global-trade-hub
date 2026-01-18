@@ -36,7 +36,7 @@ import {
 
 export type SignalClassification = 'buy' | 'research' | 'noise';
 export type DecisionAction = 'auto_rfq' | 'admin_review' | 'ignore' | 'pending';
-export type SignalSource = 'keyword_scan' | 'signal_page' | 'external_api' | 'manual';
+export type SignalSource = 'keyword_scan' | 'signal_page' | 'external_api' | 'manual' | 'simulation';
 
 export interface DemandSignal {
   id?: string;
