@@ -390,17 +390,18 @@ export async function checkSupplierAvailability(
   deliveryLocation?: string
 ): Promise<{ count: number; bestMatchScore: number; feasible: boolean }> {
   try {
-    // Count suppliers in the system
-    const { count, error } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
+    // Count suppliers using type assertion to avoid TS2589
+    // The profiles table has deeply nested types that cause infinite instantiation
+    const response = await (supabase.from('profiles') as any)
+      .select('id')
       .eq('role', 'supplier');
     
-    if (error) {
+    if (response.error) {
+      console.error('Error checking supplier availability:', response.error);
       return { count: 0, bestMatchScore: 0, feasible: false };
     }
     
-    const supplierCount = count || 0;
+    const supplierCount = (response.data as any[])?.length ?? 0;
     
     // Calculate best match score based on supplier count
     const bestMatchScore = supplierCount > 0 
