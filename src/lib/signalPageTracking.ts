@@ -1,17 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Intent scoring values for page-level tracking
- * Stored in admin_signal_pages.intent_score
- */
-const INTENT_SCORES = {
-  PAGE_VIEW: 1,
-  RFQ_MODAL_OPENED: 2,
-  RFQ_SUBMITTED: 5,
-};
-
-/**
- * Track page-level intent score increment
+ * Track page-level intent score increment using atomic RPC
  * NO UI CHANGE - background tracking only
  */
 export async function trackIntentScore(
@@ -21,31 +11,19 @@ export async function trackIntentScore(
   if (!signalPageId) return;
 
   const scoreMap = {
-    page_view: INTENT_SCORES.PAGE_VIEW,
-    rfq_modal_opened: INTENT_SCORES.RFQ_MODAL_OPENED,
-    rfq_submitted: INTENT_SCORES.RFQ_SUBMITTED,
+    page_view: 1,
+    rfq_modal_opened: 2,
+    rfq_submitted: 5,
   };
 
-  const scoreIncrement = scoreMap[event];
+  const delta = scoreMap[event];
 
   try {
-    // Get current score
-    const { data: page } = await supabase
-      .from('admin_signal_pages')
-      .select('intent_score')
-      .eq('id', signalPageId)
-      .single();
-
-    if (page) {
-      const currentScore = page.intent_score || 0;
-      await supabase
-        .from('admin_signal_pages')
-        .update({ 
-          intent_score: currentScore + scoreIncrement,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', signalPageId);
-    }
+    // Use atomic RPC function - lock-safe at scale
+    await supabase.rpc('increment_intent_score', {
+      page_id: signalPageId,
+      delta
+    });
   } catch (error) {
     // Silent fail - don't interrupt user flow
     console.error('[signalPageTracking] Intent score update failed:', error);
@@ -53,27 +31,30 @@ export async function trackIntentScore(
 }
 
 /**
- * Increment RFQ submitted count on signal page
+ * Increment page views using atomic RPC (also adds +1 intent score)
+ */
+export async function incrementPageViews(signalPageId: string): Promise<void> {
+  if (!signalPageId) return;
+
+  try {
+    await supabase.rpc('increment_page_views', {
+      page_id: signalPageId
+    });
+  } catch (error) {
+    console.error('[signalPageTracking] Page views increment failed:', error);
+  }
+}
+
+/**
+ * Increment RFQ submitted count using atomic RPC
  */
 export async function incrementRFQCount(signalPageId: string): Promise<void> {
   if (!signalPageId) return;
 
   try {
-    const { data: page } = await supabase
-      .from('admin_signal_pages')
-      .select('rfqs_submitted')
-      .eq('id', signalPageId)
-      .single();
-
-    if (page) {
-      await supabase
-        .from('admin_signal_pages')
-        .update({ 
-          rfqs_submitted: (page.rfqs_submitted || 0) + 1,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', signalPageId);
-    }
+    await supabase.rpc('increment_rfq_count', {
+      page_id: signalPageId
+    });
   } catch (error) {
     console.error('[signalPageTracking] RFQ count increment failed:', error);
   }

@@ -5892,6 +5892,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_intent_score: {
+        Args: { delta: number; page_id: string }
+        Returns: undefined
+      }
+      increment_page_views: { Args: { page_id: string }; Returns: undefined }
+      increment_rfq_count: { Args: { page_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
       log_email_sent: {
         Args: {
