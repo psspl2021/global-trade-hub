@@ -62,6 +62,8 @@ import {
   checkSupplierAvailability,
   createDemandSignal,
   calculateDIMetrics,
+  convertSignalToInternalRFQ,
+  executeAutoRFQIfQualified,
   type DemandSignal,
   type DISettings,
   type DIMetrics,
@@ -279,24 +281,54 @@ export function DemandIntelligenceEngine() {
 
   const approveSignal = async (signalId: string) => {
     try {
-      // Create internal RFQ from signal
-      // For now, just mark as approved
-      const { error } = await supabase
-        .from('demand_intelligence_signals')
-        .update({
-          decision_action: 'auto_rfq',
-          decision_made_at: new Date().toISOString(),
-        })
-        .eq('id', signalId);
+      // Find the signal data
+      const signal = signals.find(s => s.id === signalId);
+      if (!signal) {
+        toast.error('Signal not found');
+        return;
+      }
       
-      if (error) throw error;
+      // Convert signal to DemandSignal format for RFQ creation
+      const demandSignal: DemandSignal = {
+        id: signal.id,
+        signalSource: signal.signal_source as any,
+        classification: signal.classification as any,
+        confidenceScore: getOverallScore(signal),
+        intentScore: signal.intent_score || 0,
+        urgencyScore: signal.urgency_score || 0,
+        valueScore: signal.value_score || 0,
+        feasibilityScore: signal.feasibility_score || 0,
+        category: signal.category || '',
+        subcategory: signal.subcategory || '',
+        industry: signal.industry || '',
+        productDescription: signal.product_description || '',
+        estimatedQuantity: 1,
+        estimatedUnit: 'MT',
+        estimatedValue: signal.estimated_value || 0,
+        deliveryLocation: signal.delivery_location || 'India',
+        deliveryTimelineDays: signal.delivery_timeline_days || 30,
+        matchingSuppliersCount: signal.matching_suppliers_count || 0,
+        bestSupplierMatchScore: 0,
+        fulfilmentFeasible: signal.fulfilment_feasible || false,
+        decisionAction: 'auto_rfq',
+      };
       
-      toast.success('Signal approved for RFQ conversion');
+      toast.info('Creating internal RFQ...');
+      
+      // Actually create the RFQ!
+      const result = await convertSignalToInternalRFQ(demandSignal);
+      
+      if (result.success) {
+        toast.success(`✅ RFQ created successfully! ID: ${result.rfqId?.substring(0, 8)}...`);
+      } else {
+        toast.error(`Failed: ${result.error}`);
+      }
+      
       fetchSignals();
       fetchMetrics();
     } catch (error) {
       console.error('Error approving signal:', error);
-      toast.error('Failed to approve signal');
+      toast.error('Failed to convert signal to RFQ');
     }
   };
 
@@ -392,6 +424,37 @@ export function DemandIntelligenceEngine() {
     const hours = Math.round(mins / 60);
     if (hours < 24) return `${hours}h ago`;
     return `${Math.round(hours / 24)}d ago`;
+  };
+
+  /**
+   * Calculate expected margin based on deal value and scores
+   * Higher feasibility + value score = higher margin potential
+   */
+  const calculateExpectedMargin = (signal: Signal): { percent: number; amount: number } => {
+    const value = signal.estimated_value || 0;
+    const feasibility = signal.feasibility_score || 0;
+    const valueScore = signal.value_score || 0;
+    
+    // Base margin 3-8% depending on scores
+    let marginPercent = 3; // Base 3%
+    
+    // Feasibility bonus (good suppliers = better negotiation)
+    if (feasibility >= 8) marginPercent += 2;
+    else if (feasibility >= 6) marginPercent += 1.5;
+    else if (feasibility >= 4) marginPercent += 1;
+    
+    // Value bonus (larger deals = more margin opportunity)
+    if (valueScore >= 8) marginPercent += 2;
+    else if (valueScore >= 6) marginPercent += 1.5;
+    else if (valueScore >= 4) marginPercent += 1;
+    
+    // Cap at 8%
+    marginPercent = Math.min(8, marginPercent);
+    
+    return {
+      percent: marginPercent,
+      amount: Math.round(value * marginPercent / 100),
+    };
   };
 
   return (
@@ -563,11 +626,8 @@ export function DemandIntelligenceEngine() {
                         <TableHead>Classification</TableHead>
                         <TableHead>Category / Product</TableHead>
                         <TableHead>Value</TableHead>
-                        <TableHead className="text-center">Intent</TableHead>
-                        <TableHead className="text-center">Urgency</TableHead>
-                        <TableHead className="text-center">Value</TableHead>
-                        <TableHead className="text-center">Feasibility</TableHead>
-                        <TableHead className="text-center">Overall</TableHead>
+                        <TableHead>Est. Margin</TableHead>
+                        <TableHead className="text-center">Score</TableHead>
                         <TableHead>Suppliers</TableHead>
                         <TableHead>Decision</TableHead>
                         <TableHead>Actions</TableHead>
@@ -577,11 +637,13 @@ export function DemandIntelligenceEngine() {
                       {signals.map((signal) => {
                         const overallScore = getOverallScore(signal);
                         const isHighPriority = overallScore >= 8.0 && signal.fulfilment_feasible;
+                        const margin = calculateExpectedMargin(signal);
+                        const isConverted = signal.converted_to_rfq_id != null;
                         
                         return (
                           <TableRow 
                             key={signal.id}
-                            className={isHighPriority ? 'bg-green-50/50' : ''}
+                            className={isHighPriority ? 'bg-green-50/50' : isConverted ? 'bg-blue-50/30' : ''}
                           >
                             <TableCell>{getClassificationBadge(signal.classification)}</TableCell>
                             <TableCell>
@@ -590,60 +652,68 @@ export function DemandIntelligenceEngine() {
                                 <p className="text-xs text-muted-foreground truncate max-w-48">
                                   {signal.product_description}
                                 </p>
+                                {signal.delivery_location && (
+                                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <Truck className="w-3 h-3" /> {signal.delivery_location}
+                                  </p>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell className="font-medium">
                               {formatCurrency(signal.estimated_value)}
                             </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="outline" className="text-xs">
-                                {(signal.intent_score || 0).toFixed(1)}
-                              </Badge>
+                            <TableCell>
+                              <div className="text-right">
+                                <p className="font-semibold text-green-600">
+                                  {formatCurrency(margin.amount)}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  ~{margin.percent}%
+                                </p>
+                              </div>
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge variant="outline" className="text-xs">
-                                {(signal.urgency_score || 0).toFixed(1)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="outline" className="text-xs">
-                                {(signal.value_score || 0).toFixed(1)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge 
-                                variant="outline" 
-                                className={`text-xs ${(signal.feasibility_score || 0) >= 6 ? 'border-green-500 text-green-600' : ''}`}
-                              >
-                                {(signal.feasibility_score || 0).toFixed(1)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge 
-                                className={`${overallScore >= 8 ? 'bg-green-600' : overallScore >= 6 ? 'bg-amber-500' : 'bg-gray-400'}`}
-                              >
-                                {overallScore.toFixed(1)}
-                              </Badge>
+                              <div className="flex flex-col items-center gap-1">
+                                <Badge 
+                                  className={`${overallScore >= 8 ? 'bg-green-600' : overallScore >= 6 ? 'bg-amber-500' : 'bg-gray-400'}`}
+                                >
+                                  {overallScore.toFixed(1)}
+                                </Badge>
+                                <div className="flex gap-0.5 text-[10px]">
+                                  <span title="Intent">I:{(signal.intent_score || 0).toFixed(0)}</span>
+                                  <span title="Urgency">U:{(signal.urgency_score || 0).toFixed(0)}</span>
+                                  <span title="Value">V:{(signal.value_score || 0).toFixed(0)}</span>
+                                  <span title="Feasibility">F:{(signal.feasibility_score || 0).toFixed(0)}</span>
+                                </div>
+                              </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-1">
                                 <Factory className="w-3 h-3 text-muted-foreground" />
-                                <span className={signal.fulfilment_feasible ? 'text-green-600' : 'text-red-500'}>
+                                <span className={signal.fulfilment_feasible ? 'text-green-600 font-medium' : 'text-red-500'}>
                                   {signal.matching_suppliers_count || 0}
                                 </span>
+                                {signal.fulfilment_feasible && (
+                                  <CheckCircle className="w-3 h-3 text-green-500" />
+                                )}
                               </div>
                             </TableCell>
                             <TableCell>{getDecisionBadge(signal.decision_action)}</TableCell>
                             <TableCell>
-                              {signal.decision_action === 'pending' || signal.decision_action === 'admin_review' ? (
+                              {isConverted ? (
+                                <div className="flex items-center gap-1 text-blue-600">
+                                  <CheckCircle className="w-4 h-4" />
+                                  <span className="text-xs font-medium">RFQ Created</span>
+                                </div>
+                              ) : signal.decision_action === 'pending' || signal.decision_action === 'admin_review' ? (
                                 <div className="flex items-center gap-1">
                                   <Button 
                                     size="sm" 
-                                    variant="ghost"
-                                    className="h-7 w-7 p-0 text-green-600 hover:bg-green-50"
+                                    className="h-7 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
                                     onClick={() => approveSignal(signal.id)}
                                   >
-                                    <Check className="w-4 h-4" />
+                                    <Zap className="w-3 h-3 mr-1" />
+                                    Execute
                                   </Button>
                                   <Button 
                                     size="sm" 
@@ -654,6 +724,8 @@ export function DemandIntelligenceEngine() {
                                     <X className="w-4 h-4" />
                                   </Button>
                                 </div>
+                              ) : signal.decision_action === 'ignore' ? (
+                                <span className="text-xs text-muted-foreground">Ignored</span>
                               ) : (
                                 <span className="text-xs text-muted-foreground">
                                   {getTimeAgo(signal.created_at)}

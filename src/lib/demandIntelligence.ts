@@ -380,42 +380,124 @@ export function determineDecisionAction(
 // SUPPLIER AVAILABILITY CHECK
 // ============================================================
 
+interface SupplierMatch {
+  supplierId: string;
+  matchScore: number;
+  categoryMatch: boolean;
+  locationMatch: boolean;
+}
+
 /**
  * Check supplier availability for a demand signal
- * Returns count and best match score
+ * NOW: Category-aware, location-aware, capability-checked
+ * Returns count, best match score, and feasibility
  */
 export async function checkSupplierAvailability(
   category: string,
   subcategory: string,
   deliveryLocation?: string
-): Promise<{ count: number; bestMatchScore: number; feasible: boolean }> {
+): Promise<{ count: number; bestMatchScore: number; feasible: boolean; matches: SupplierMatch[] }> {
   try {
-    // Count suppliers using type assertion to avoid TS2589
-    // The profiles table has deeply nested types that cause infinite instantiation
+    // Fetch suppliers with their categories and location
+    // Using type assertion to avoid TS2589 deep instantiation error
     const response = await (supabase.from('profiles') as any)
-      .select('id')
+      .select('id, supplier_categories, city, state, country')
       .eq('role', 'supplier');
     
     if (response.error) {
       console.error('Error checking supplier availability:', response.error);
-      return { count: 0, bestMatchScore: 0, feasible: false };
+      return { count: 0, bestMatchScore: 0, feasible: false, matches: [] };
     }
     
-    const supplierCount = (response.data as any[])?.length ?? 0;
+    const suppliers = response.data as any[] || [];
+    const normalizedCategory = category.toLowerCase().trim();
+    const normalizedSubcategory = subcategory.toLowerCase().trim();
+    const normalizedLocation = deliveryLocation?.toLowerCase().trim() || '';
     
-    // Calculate best match score based on supplier count
-    const bestMatchScore = supplierCount > 0 
-      ? Math.min(10, 5 + (supplierCount / 10))
-      : 0;
+    const matches: SupplierMatch[] = [];
+    
+    for (const supplier of suppliers) {
+      let matchScore = 0;
+      let categoryMatch = false;
+      let locationMatch = false;
+      
+      // Category matching (0-5 points)
+      const supplierCategories = (supplier.supplier_categories || []) as string[];
+      for (const cat of supplierCategories) {
+        const normalizedCat = cat.toLowerCase().trim();
+        if (normalizedCat === normalizedCategory) {
+          matchScore += 5;
+          categoryMatch = true;
+          break;
+        } else if (normalizedCat === normalizedSubcategory) {
+          matchScore += 4;
+          categoryMatch = true;
+          break;
+        } else if (normalizedCat.includes(normalizedCategory) || normalizedCategory.includes(normalizedCat)) {
+          matchScore += 3;
+          categoryMatch = true;
+          break;
+        }
+      }
+      
+      // Location matching (0-3 points)
+      const supplierCity = (supplier.city || '').toLowerCase();
+      const supplierState = (supplier.state || '').toLowerCase();
+      const supplierCountry = (supplier.country || 'india').toLowerCase();
+      
+      if (normalizedLocation) {
+        if (normalizedLocation.includes(supplierCity) || supplierCity.includes(normalizedLocation)) {
+          matchScore += 3;
+          locationMatch = true;
+        } else if (normalizedLocation.includes(supplierState) || supplierState.includes(normalizedLocation)) {
+          matchScore += 2;
+          locationMatch = true;
+        } else if (normalizedLocation.includes(supplierCountry) || supplierCountry.includes(normalizedLocation)) {
+          matchScore += 1;
+          locationMatch = true;
+        }
+      } else {
+        // No location specified = partial match
+        matchScore += 1;
+        locationMatch = true;
+      }
+      
+      // Active supplier bonus (0-2 points) - assume active if in DB
+      matchScore += 2;
+      
+      // Normalize to 0-10 scale
+      const normalizedScore = Math.min(10, matchScore);
+      
+      // Only include if has category match OR decent score
+      if (categoryMatch || normalizedScore >= 3) {
+        matches.push({
+          supplierId: supplier.id,
+          matchScore: normalizedScore,
+          categoryMatch,
+          locationMatch,
+        });
+      }
+    }
+    
+    // Sort by match score descending
+    matches.sort((a, b) => b.matchScore - a.matchScore);
+    
+    // Get category-matched suppliers
+    const categoryMatchedCount = matches.filter(m => m.categoryMatch).length;
+    const bestMatchScore = matches.length > 0 ? matches[0].matchScore : 0;
+    
+    // Feasibility: At least 1 category-matched supplier, or 3+ general matches
+    const feasible = categoryMatchedCount >= 1 || matches.length >= 3;
     
     return {
-      count: supplierCount,
+      count: categoryMatchedCount > 0 ? categoryMatchedCount : matches.length,
       bestMatchScore: Math.round(bestMatchScore * 10) / 10,
-      feasible: supplierCount >= 1
+      feasible,
+      matches: matches.slice(0, 10), // Top 10 matches
     };
   } catch (error) {
     console.error('Error checking supplier availability:', error);
-    return { count: 0, bestMatchScore: 0, feasible: false };
+    return { count: 0, bestMatchScore: 0, feasible: false, matches: [] };
   }
 }
 
@@ -613,6 +695,162 @@ export async function calculateDIMetrics(): Promise<DIMetrics> {
       topCategories: [],
     };
   }
+}
+
+// ============================================================
+// AUTO-RFQ CREATION (CRITICAL GAP FIX)
+// ============================================================
+
+interface InternalRFQPayload {
+  signalId: string;
+  category: string;
+  subcategory: string;
+  productDescription: string;
+  estimatedQuantity?: number;
+  estimatedUnit?: string;
+  estimatedValue: number;
+  deliveryLocation: string;
+  deliveryTimelineDays?: number;
+  industry?: string;
+}
+
+/**
+ * Convert a demand signal into an internal RFQ
+ * This is where REVENUE starts - signal → executable opportunity
+ * 
+ * Key properties:
+ * - source = 'demand_intelligence'
+ * - selection_mode = 'auto' (platform executes)
+ * - visibility = 'anonymous' (buyer abstracted)
+ */
+export async function convertSignalToInternalRFQ(
+  signal: DemandSignal | InternalRFQPayload
+): Promise<{ success: boolean; rfqId?: string; error?: string }> {
+  try {
+    // Get system admin user for buyer_id (platform as counterparty)
+    // We use a special system user for demand-generated RFQs
+    const { data: systemUser } = await (supabase.from('profiles') as any)
+      .select('id')
+      .eq('role', 'admin')
+      .limit(1)
+      .single();
+    
+    if (!systemUser?.id) {
+      console.error('No system admin found for internal RFQ');
+      return { success: false, error: 'No system admin found' };
+    }
+    
+    // Extract properties - both types share the same property names
+    const signalId = 'signalId' in signal ? signal.signalId : (signal as DemandSignal).id;
+    const category = signal.category;
+    const subcategory = signal.subcategory;
+    const productDescription = signal.productDescription;
+    const quantity = signal.estimatedQuantity || 1;
+    const unit = signal.estimatedUnit || 'MT';
+    const deliveryLocation = signal.deliveryLocation || 'India';
+    const deliveryDays = signal.deliveryTimelineDays || 30;
+    
+    // Create deadline from delivery days
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + (deliveryDays || 30));
+    
+    // Create the RFQ
+    const insertPayload = {
+      buyer_id: systemUser.id,
+      title: `[DI] ${productDescription?.substring(0, 100) || `${subcategory} Requirement`}`,
+      description: `Auto-generated from Demand Intelligence signal. ${productDescription || ''}\n\nCategory: ${category}\nSubcategory: ${subcategory}\nDelivery: ${deliveryLocation}`,
+      product_category: category,
+      trade_type: deliveryLocation.toLowerCase().includes('india') ? 'domestic_india' : 'export',
+      quantity: quantity,
+      unit: unit,
+      deadline: deadline.toISOString(),
+      delivery_location: deliveryLocation,
+      source: 'demand_intelligence',
+      selection_mode: 'auto', // Platform executes
+      rfq_source: 'ai_generated',
+      reveal_status: 'locked', // Buyer stays anonymous
+    };
+    
+    const { data: rfq, error: rfqError } = await (supabase
+      .from('requirements') as any)
+      .insert(insertPayload)
+      .select('id')
+      .single();
+    
+    if (rfqError) {
+      console.error('Error creating internal RFQ:', rfqError);
+      return { success: false, error: rfqError.message };
+    }
+    
+    // Create requirement item
+    const { error: itemError } = await supabase
+      .from('requirement_items')
+      .insert({
+        requirement_id: rfq.id,
+        item_name: subcategory,
+        description: productDescription?.substring(0, 500) || `${subcategory} as per specification`,
+        category: category,
+        quantity: quantity,
+        unit: unit,
+      });
+    
+    if (itemError) {
+      console.error('Error creating requirement item:', itemError);
+      // Continue anyway - RFQ was created
+    }
+    
+    // Update the signal with RFQ reference
+    if (signalId) {
+      await supabase
+        .from('demand_intelligence_signals')
+        .update({
+          converted_to_rfq_id: rfq.id,
+          converted_at: new Date().toISOString(),
+          decision_action: 'auto_rfq',
+          decision_made_at: new Date().toISOString(),
+        })
+        .eq('id', signalId);
+    }
+    
+    console.log(`✅ Internal RFQ created: ${rfq.id} from signal: ${signalId}`);
+    return { success: true, rfqId: rfq.id };
+    
+  } catch (error) {
+    console.error('Error converting signal to RFQ:', error);
+    return { success: false, error: String(error) };
+  }
+}
+
+/**
+ * Execute auto-RFQ for a signal if it qualifies
+ * Called by the decision engine when score >= autoRfqMinScore
+ */
+export async function executeAutoRFQIfQualified(
+  signal: DemandSignal,
+  settings: DISettings
+): Promise<{ executed: boolean; rfqId?: string }> {
+  // Validate qualification
+  const overallScore = signal.overallScore ?? 
+    (signal.intentScore + signal.urgencyScore + signal.valueScore + signal.feasibilityScore) / 4;
+  
+  // Must meet score threshold
+  if (overallScore < settings.autoRfqMinScore) {
+    return { executed: false };
+  }
+  
+  // Must have feasible fulfilment
+  if (settings.requireSupplierAvailability && !signal.fulfilmentFeasible) {
+    return { executed: false };
+  }
+  
+  // Must have minimum suppliers
+  if (signal.matchingSuppliersCount < settings.minMatchingSuppliers) {
+    return { executed: false };
+  }
+  
+  // Execute!
+  const result = await convertSignalToInternalRFQ(signal);
+  return { executed: result.success, rfqId: result.rfqId };
 }
 
 // ============================================================
