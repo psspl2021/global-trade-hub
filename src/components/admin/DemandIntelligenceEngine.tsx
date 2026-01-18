@@ -171,13 +171,15 @@ export function DemandIntelligenceEngine() {
   const [supplierMatches, setSupplierMatches] = useState<SupplierMatch[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
   
-  // Margin control
+  // Margin control - persisted to database
   const [marginSettings, setMarginSettings] = useState<MarginSettings>({
     baseMarginPercent: 3,
     riskPremiumPercent: 1,
     logisticsMarkupPercent: 2,
     serviceFeePercent: 0.5
   });
+  const [marginDirty, setMarginDirty] = useState(false);
+  const [savingMargins, setSavingMargins] = useState(false);
   
   // Hold dialog
   const [showHoldDialog, setShowHoldDialog] = useState(false);
@@ -272,6 +274,70 @@ export function DemandIntelligenceEngine() {
     }
   };
 
+  // ✅ FIX #2: Fetch persisted margin settings from database
+  const fetchMarginSettings = async () => {
+    try {
+      const { data, error } = await (supabase
+        .from('margin_settings') as any)
+        .select('*')
+        .limit(1)
+        .single();
+      
+      if (data && !error) {
+        setMarginSettings({
+          baseMarginPercent: Number(data.base_margin_percent) || 3,
+          riskPremiumPercent: Number(data.risk_premium_percent) || 1,
+          logisticsMarkupPercent: Number(data.logistics_markup_percent) || 2,
+          serviceFeePercent: Number(data.service_fee_percent) || 0.5,
+        });
+        setMarginDirty(false);
+      }
+    } catch (error) {
+      console.error('Error fetching margin settings:', error);
+    }
+  };
+
+  // ✅ FIX #2: Save margin settings to database
+  const saveMarginSettings = async () => {
+    setSavingMargins(true);
+    try {
+      // Get the first (and only) row, then update it
+      const { data: existing } = await (supabase
+        .from('margin_settings') as any)
+        .select('id')
+        .limit(1)
+        .single();
+      
+      if (existing) {
+        const { error } = await (supabase
+          .from('margin_settings') as any)
+          .update({
+            base_margin_percent: marginSettings.baseMarginPercent,
+            risk_premium_percent: marginSettings.riskPremiumPercent,
+            logistics_markup_percent: marginSettings.logisticsMarkupPercent,
+            service_fee_percent: marginSettings.serviceFeePercent,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existing.id);
+        
+        if (error) throw error;
+        toast.success('✅ Margin settings saved');
+        setMarginDirty(false);
+      }
+    } catch (error) {
+      console.error('Error saving margin settings:', error);
+      toast.error('Failed to save margin settings');
+    } finally {
+      setSavingMargins(false);
+    }
+  };
+
+  // Handle margin changes (mark as dirty)
+  const updateMargin = (key: keyof MarginSettings, value: number) => {
+    setMarginSettings(prev => ({ ...prev, [key]: value }));
+    setMarginDirty(true);
+  };
+
   useEffect(() => {
     if (selectedCategory) {
       const subs = getAIDiscoverySubcategories(selectedCategory);
@@ -286,6 +352,7 @@ export function DemandIntelligenceEngine() {
   useEffect(() => {
     fetchSettings();
     fetchMetrics();
+    fetchMarginSettings(); // ✅ Load persisted margins on boot
     if (categories.length > 0 && !selectedCategory) {
       setSelectedCategory(categories[0]);
     }
@@ -1090,15 +1157,43 @@ export function DemandIntelligenceEngine() {
         <TabsContent value="margin" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CircleDollarSign className="w-5 h-5 text-green-600" />
-                Margin Control Panel
-              </CardTitle>
-              <CardDescription>
-                Control pricing spread. Buyer sees ONE PRICE. Supplier sees ANOTHER. ProcureSaathi owns the spread.
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <CircleDollarSign className="w-5 h-5 text-green-600" />
+                    Margin Control Panel
+                  </CardTitle>
+                  <CardDescription>
+                    Control pricing spread. Buyer sees ONE PRICE. Supplier sees ANOTHER. ProcureSaathi owns the spread.
+                  </CardDescription>
+                </div>
+                {/* ✅ FIX #2: Save button for margin persistence */}
+                <Button
+                  onClick={saveMarginSettings}
+                  disabled={!marginDirty || savingMargins}
+                  className={marginDirty 
+                    ? "bg-green-600 hover:bg-green-700" 
+                    : "bg-gray-400"
+                  }
+                >
+                  {savingMargins ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4 mr-2" />
+                  )}
+                  {marginDirty ? 'Save Changes' : 'Saved'}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Unsaved changes warning */}
+              {marginDirty && (
+                <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  <p className="text-sm text-amber-700">You have unsaved changes. Click Save to persist.</p>
+                </div>
+              )}
+
               {/* Base Margin */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -1110,7 +1205,7 @@ export function DemandIntelligenceEngine() {
                 </div>
                 <Slider
                   value={[marginSettings.baseMarginPercent]}
-                  onValueChange={([v]) => setMarginSettings({ ...marginSettings, baseMarginPercent: v })}
+                  onValueChange={([v]) => updateMargin('baseMarginPercent', v)}
                   min={1}
                   max={10}
                   step={0.5}
@@ -1132,7 +1227,7 @@ export function DemandIntelligenceEngine() {
                 </div>
                 <Slider
                   value={[marginSettings.riskPremiumPercent]}
-                  onValueChange={([v]) => setMarginSettings({ ...marginSettings, riskPremiumPercent: v })}
+                  onValueChange={([v]) => updateMargin('riskPremiumPercent', v)}
                   min={0}
                   max={5}
                   step={0.5}
@@ -1154,7 +1249,7 @@ export function DemandIntelligenceEngine() {
                 </div>
                 <Slider
                   value={[marginSettings.logisticsMarkupPercent]}
-                  onValueChange={([v]) => setMarginSettings({ ...marginSettings, logisticsMarkupPercent: v })}
+                  onValueChange={([v]) => updateMargin('logisticsMarkupPercent', v)}
                   min={0}
                   max={8}
                   step={0.5}
@@ -1176,7 +1271,7 @@ export function DemandIntelligenceEngine() {
                 </div>
                 <Slider
                   value={[marginSettings.serviceFeePercent]}
-                  onValueChange={([v]) => setMarginSettings({ ...marginSettings, serviceFeePercent: v })}
+                  onValueChange={([v]) => updateMargin('serviceFeePercent', v)}
                   min={0}
                   max={3}
                   step={0.25}
