@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import { PostRFQModal } from '@/components/PostRFQModal';
 import { SignalPageConfig } from '@/data/signalPages';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
+import { trackIntentScore } from '@/lib/signalPageTracking';
 
 interface SignalPageLayoutProps {
   config: SignalPageConfig;
@@ -28,15 +29,20 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
       try {
         const { data: existingPage } = await supabase
           .from('admin_signal_pages')
-          .select('id, views')
+          .select('id, views, intent_score')
           .eq('slug', config.slug)
           .single();
 
         if (existingPage) {
           setSignalPageId(existingPage.id);
+          // Update views count
           await supabase
             .from('admin_signal_pages')
-            .update({ views: (existingPage.views || 0) + 1 })
+            .update({ 
+              views: (existingPage.views || 0) + 1,
+              // Page view intent score: +1
+              intent_score: (existingPage.intent_score || 0) + 1
+            })
             .eq('id', existingPage.id);
         } else {
           const { data: newPage } = await supabase
@@ -52,6 +58,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
               primary_cta: 'Request Managed Procurement Quote',
               secondary_cta: 'Talk to Expert',
               views: 1,
+              intent_score: 1, // Initial page view score
               is_active: true
             })
             .select('id')
@@ -68,6 +75,14 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
 
     trackAndGetSignalPage();
   }, [config.slug, config.signalMapping, config.h1, config.subheading]);
+
+  // Track RFQ modal opened intent (+2)
+  const handleOpenRFQModal = useCallback(() => {
+    setShowRFQModal(true);
+    if (signalPageId) {
+      trackIntentScore(signalPageId, 'rfq_modal_opened');
+    }
+  }, [signalPageId]);
 
   // SEO
   useEffect(() => {
@@ -122,7 +137,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
             className="h-10 cursor-pointer" 
             onClick={() => navigate('/')}
           />
-          <Button onClick={() => setShowRFQModal(true)} className="gap-2">
+          <Button onClick={handleOpenRFQModal} className="gap-2">
             {CTA_TEXT}
             <ArrowRight className="h-4 w-4" />
           </Button>
@@ -167,7 +182,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
             {/* Primary CTA */}
             <Button 
               size="lg" 
-              onClick={() => setShowRFQModal(true)}
+              onClick={handleOpenRFQModal}
               className="gap-2 text-lg px-10 py-6"
             >
               {CTA_TEXT}
@@ -308,7 +323,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
           <Button 
             size="lg" 
             variant="secondary"
-            onClick={() => setShowRFQModal(true)}
+            onClick={handleOpenRFQModal}
             className="gap-2 text-lg px-10 py-6"
           >
             {CTA_TEXT}
@@ -334,6 +349,8 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
         onOpenChange={setShowRFQModal}
         signalPageId={signalPageId}
         signalPageCategory={config.signalMapping.category}
+        signalPageSubcategory={config.signalMapping.subcategory}
+        signalPageIndustry={config.signalMapping.industry}
         signalPageCountry="India"
       />
     </div>

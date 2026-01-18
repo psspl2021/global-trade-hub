@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap, Lock, Eye, EyeOff } from 'lucide-react';
+import { trackIntentScore, incrementRFQCount, createDemandSignal } from '@/lib/signalPageTracking';
 
 interface RFQItem {
   item_name: string;
@@ -36,6 +37,8 @@ interface PostRFQModalProps {
   onOpenChange: (open: boolean) => void;
   signalPageId?: string;
   signalPageCategory?: string;
+  signalPageSubcategory?: string;
+  signalPageIndustry?: string;
   signalPageCountry?: string;
 }
 
@@ -44,6 +47,8 @@ export function PostRFQModal({
   onOpenChange, 
   signalPageId,
   signalPageCategory,
+  signalPageSubcategory,
+  signalPageIndustry,
   signalPageCountry 
 }: PostRFQModalProps) {
   const navigate = useNavigate();
@@ -88,17 +93,38 @@ export function PostRFQModal({
     }
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     // Store generated RFQ in session storage for use after signup
     if (generatedRFQ) {
       const rfqWithAttribution = {
         ...generatedRFQ,
         signalPageId,
         signalPageCategory,
+        signalPageSubcategory,
+        signalPageIndustry,
         signalPageCountry,
         source: signalPageId ? 'signal_page' : 'direct'
       };
       sessionStorage.setItem('pendingRFQ', JSON.stringify(rfqWithAttribution));
+
+      // CRITICAL: Auto-create demand signal on RFQ submit
+      if (signalPageId && signalPageCategory) {
+        // Track RFQ submitted intent (+5)
+        await trackIntentScore(signalPageId, 'rfq_submitted');
+        
+        // Increment RFQ count on signal page
+        await incrementRFQCount(signalPageId);
+
+        // Create demand intelligence signal
+        await createDemandSignal({
+          signalPageId,
+          signalPageCategory,
+          subcategory: signalPageSubcategory || generatedRFQ.category,
+          industry: signalPageIndustry,
+          productDescription: generatedRFQ.title,
+          deliveryLocation: signalPageCountry || 'India',
+        });
+      }
     }
     onOpenChange(false);
     navigate('/signup?role=buyer');
