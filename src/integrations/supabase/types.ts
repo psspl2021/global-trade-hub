@@ -57,6 +57,7 @@ export type Database = {
           created_at: string | null
           headline: string
           id: string
+          intent_score: number | null
           is_active: boolean | null
           primary_cta: string | null
           rfqs_submitted: number | null
@@ -77,6 +78,7 @@ export type Database = {
           created_at?: string | null
           headline: string
           id?: string
+          intent_score?: number | null
           is_active?: boolean | null
           primary_cta?: string | null
           rfqs_submitted?: number | null
@@ -97,6 +99,7 @@ export type Database = {
           created_at?: string | null
           headline?: string
           id?: string
+          intent_score?: number | null
           is_active?: boolean | null
           primary_cta?: string | null
           rfqs_submitted?: number | null
@@ -1585,6 +1588,7 @@ export type Database = {
           overall_score: number | null
           product_description: string | null
           run_id: string | null
+          signal_page_id: string | null
           signal_source: string
           subcategory: string | null
           updated_at: string | null
@@ -1620,6 +1624,7 @@ export type Database = {
           overall_score?: number | null
           product_description?: string | null
           run_id?: string | null
+          signal_page_id?: string | null
           signal_source: string
           subcategory?: string | null
           updated_at?: string | null
@@ -1655,6 +1660,7 @@ export type Database = {
           overall_score?: number | null
           product_description?: string | null
           run_id?: string | null
+          signal_page_id?: string | null
           signal_source?: string
           subcategory?: string | null
           updated_at?: string | null
@@ -1674,6 +1680,13 @@ export type Database = {
             columns: ["run_id"]
             isOneToOne: false
             referencedRelation: "ai_seo_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demand_intelligence_signals_signal_page_id_fkey"
+            columns: ["signal_page_id"]
+            isOneToOne: false
+            referencedRelation: "admin_signal_pages"
             referencedColumns: ["id"]
           },
         ]
