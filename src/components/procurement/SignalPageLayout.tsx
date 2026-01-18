@@ -16,9 +16,10 @@ import { trackIntentScore, incrementPageViews } from '@/lib/signalPageTracking';
 
 interface SignalPageLayoutProps {
   config: SignalPageConfig;
+  country?: string; // Geo-specific demand intelligence
 }
 
-export function SignalPageLayout({ config }: SignalPageLayoutProps) {
+export function SignalPageLayout({ config, country = 'India' }: SignalPageLayoutProps) {
   const navigate = useNavigate();
   const [showRFQModal, setShowRFQModal] = useState(false);
   const [signalPageId, setSignalPageId] = useState<string | undefined>();
@@ -46,7 +47,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
               subcategory: config.signalMapping.subcategory,
               headline: config.h1,
               subheadline: config.subheading,
-              target_country: 'India',
+              target_country: country, // Use route-based country
               target_industries: [config.signalMapping.industry],
               primary_cta: 'Request Managed Procurement Quote',
               secondary_cta: 'Talk to Expert',
@@ -67,7 +68,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
     };
 
     trackAndGetSignalPage();
-  }, [config.slug, config.signalMapping, config.h1, config.subheading]);
+  }, [config.slug, config.signalMapping, config.h1, config.subheading, country]);
 
   // Track RFQ modal opened intent (+2) using atomic RPC
   const handleOpenRFQModal = useCallback(() => {
@@ -102,7 +103,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
         "name": "ProcureSaathi",
         "url": "https://procuresaathi.lovable.app"
       },
-      "areaServed": "India",
+      "areaServed": country,
       "serviceType": "B2B Managed Procurement",
       "offers": {
         "@type": "Offer",
@@ -344,7 +345,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
         signalPageCategory={config.signalMapping.category}
         signalPageSubcategory={config.signalMapping.subcategory}
         signalPageIndustry={config.signalMapping.industry}
-        signalPageCountry="India"
+        signalPageCountry={country}
       />
     </div>
   );

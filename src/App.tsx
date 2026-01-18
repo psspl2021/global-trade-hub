@@ -83,6 +83,8 @@ const App = () => (
               <Route path="/affiliate" element={<AffiliatePortal />} />
               <Route path="/affiliate-signup" element={<AffiliateSignup />} />
               <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
+              {/* Country-specific signal pages for geo-intelligence */}
+              <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
