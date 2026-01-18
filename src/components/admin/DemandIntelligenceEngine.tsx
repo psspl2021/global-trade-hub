@@ -282,15 +282,17 @@ export function DemandIntelligenceEngine() {
     }
   }, [selectedCategory]);
 
+  // ✅ FIX #3: Remove duplicate useEffect - keep only one initial fetch
   useEffect(() => {
-    fetchSignals();
     fetchSettings();
     fetchMetrics();
     if (categories.length > 0 && !selectedCategory) {
       setSelectedCategory(categories[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Fetch signals when filters change (includes initial mount via fetchSignals dependency)
   useEffect(() => {
     fetchSignals();
   }, [fetchSignals]);
