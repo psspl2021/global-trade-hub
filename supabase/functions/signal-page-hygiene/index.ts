@@ -18,13 +18,20 @@ serve(async (req) => {
 
     console.log("[signal-page-hygiene] Starting cleanup job...");
 
+    // Calculate 7 days ago for minimum age check
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoISO = sevenDaysAgo.toISOString();
+
     // Auto-Disable Low-Quality Pages Rule:
-    // IF views > 300 AND rfqs = 0 → is_active = false
+    // IF views > 300 AND rfqs = 0 AND created_at < 7 days ago → is_active = false
+    // The 7-day guard gives new pages time to rank before being disabled
     const { data: lowQualityPages, error: fetchError } = await supabase
       .from("admin_signal_pages")
-      .select("id, slug, views, rfqs_submitted")
+      .select("id, slug, views, rfqs_submitted, created_at")
       .eq("is_active", true)
       .gt("views", 300)
+      .lt("created_at", sevenDaysAgoISO)
       .or("rfqs_submitted.is.null,rfqs_submitted.eq.0");
 
     if (fetchError) {
@@ -58,7 +65,12 @@ serve(async (req) => {
     }
 
     console.log(`[signal-page-hygiene] Disabled ${lowQualityPages.length} low-quality pages:`, 
-      lowQualityPages.map(p => ({ slug: p.slug, views: p.views, rfqs: p.rfqs_submitted }))
+      lowQualityPages.map(p => ({ 
+        slug: p.slug, 
+        views: p.views, 
+        rfqs: p.rfqs_submitted,
+        age_days: Math.floor((Date.now() - new Date(p.created_at).getTime()) / (1000 * 60 * 60 * 24))
+      }))
     );
 
     return new Response(
@@ -69,7 +81,8 @@ serve(async (req) => {
         disabled_pages: lowQualityPages.map(p => ({
           slug: p.slug,
           views: p.views,
-          rfqs_submitted: p.rfqs_submitted || 0
+          rfqs_submitted: p.rfqs_submitted || 0,
+          age_days: Math.floor((Date.now() - new Date(p.created_at).getTime()) / (1000 * 60 * 60 * 24))
         }))
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

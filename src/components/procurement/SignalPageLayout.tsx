@@ -12,7 +12,7 @@ import { PostRFQModal } from '@/components/PostRFQModal';
 import { SignalPageConfig } from '@/data/signalPages';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
-import { trackIntentScore } from '@/lib/signalPageTracking';
+import { trackIntentScore, incrementPageViews } from '@/lib/signalPageTracking';
 
 interface SignalPageLayoutProps {
   config: SignalPageConfig;
@@ -29,21 +29,14 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
       try {
         const { data: existingPage } = await supabase
           .from('admin_signal_pages')
-          .select('id, views, intent_score')
+          .select('id')
           .eq('slug', config.slug)
           .single();
 
         if (existingPage) {
           setSignalPageId(existingPage.id);
-          // Update views count
-          await supabase
-            .from('admin_signal_pages')
-            .update({ 
-              views: (existingPage.views || 0) + 1,
-              // Page view intent score: +1
-              intent_score: (existingPage.intent_score || 0) + 1
-            })
-            .eq('id', existingPage.id);
+          // Use atomic RPC for page view + intent score increment
+          await incrementPageViews(existingPage.id);
         } else {
           const { data: newPage } = await supabase
             .from('admin_signal_pages')
@@ -76,7 +69,7 @@ export function SignalPageLayout({ config }: SignalPageLayoutProps) {
     trackAndGetSignalPage();
   }, [config.slug, config.signalMapping, config.h1, config.subheading]);
 
-  // Track RFQ modal opened intent (+2)
+  // Track RFQ modal opened intent (+2) using atomic RPC
   const handleOpenRFQModal = useCallback(() => {
     setShowRFQModal(true);
     if (signalPageId) {
