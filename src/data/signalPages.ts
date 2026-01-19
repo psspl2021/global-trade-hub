@@ -479,7 +479,28 @@ Suppliers operate as verified fulfilment partners.`,
 ];
 
 export function getSignalPageBySlug(slug: string): SignalPageConfig | undefined {
-  return signalPagesConfig.find(page => page.slug === slug);
+  const page = signalPagesConfig.find(p => p.slug === slug);
+  if (!page) return undefined;
+
+  // Handle canonical redirects with loop protection
+  if (page.canonicalSlug) {
+    const canonical = signalPagesConfig.find(p => p.slug === page.canonicalSlug);
+
+    if (!canonical) {
+      console.warn(`[SignalPages] Canonical slug not found: ${page.canonicalSlug}`);
+      return page; // fail open, not closed
+    }
+
+    // Prevent nested canonical chains (alias → alias → alias)
+    if (canonical.canonicalSlug) {
+      console.error(`[SignalPages] Nested canonical not allowed: ${slug} → ${page.canonicalSlug}`);
+      return canonical; // resolve to first canonical, don't chain
+    }
+
+    return canonical;
+  }
+
+  return page;
 }
 
 export function getAllSignalPageSlugs(): string[] {
