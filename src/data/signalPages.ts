@@ -2,6 +2,8 @@
 // Each page = Demand Capture → AI Structuring → Managed Fulfilment
 // NOT a marketplace. NOT a lead form.
 
+import { getCountryByCode, DEFAULT_COUNTRY, type SupportedCountry } from './supportedCountries';
+
 export interface SignalPageConfig {
   slug: string;
   // Canonical redirect - if set, this slug is an alias that redirects to the canonical
@@ -36,6 +38,14 @@ export interface SignalPageConfig {
   successfulDealsCount: number;
   typicalDealRange: { min: number; max: number };
   deliveryTimeline: string;
+}
+
+// Country-enriched config for geo-specific pages
+export interface CountryEnrichedSignalPageConfig extends SignalPageConfig {
+  countryInfo: SupportedCountry;
+  countryMetaTitle: string;
+  countryMetaDescription: string;
+  logisticsLine: string;
 }
 
 export const signalPagesConfig: SignalPageConfig[] = [
@@ -1127,6 +1137,58 @@ export function getSignalPageBySlug(slug: string): SignalPageConfig | undefined 
   return page;
 }
 
+// =======================================================
+// COUNTRY-AWARE SIGNAL PAGE RESOLVER (GEO REPLICATION)
+// =======================================================
+
+/**
+ * Get a signal page config enriched with country-specific metadata.
+ * Used for geo-replicated demand intelligence (e.g., /uae/procurement/tmt-bars-epc-projects)
+ */
+export function getSignalPageBySlugWithCountry(
+  slug: string,
+  countryCode?: string
+): CountryEnrichedSignalPageConfig | undefined {
+  const basePage = getSignalPageBySlug(slug);
+  if (!basePage) return undefined;
+
+  // Resolve country info
+  const countryInfo = countryCode 
+    ? getCountryByCode(countryCode) || DEFAULT_COUNTRY
+    : DEFAULT_COUNTRY;
+
+  const isIndia = countryInfo.code === 'india';
+
+  // Generate country-specific SEO metadata
+  const countryMetaTitle = isIndia
+    ? basePage.metaTitle
+    : `${basePage.metaTitle} | ${countryInfo.seoLabel}`;
+
+  const countryMetaDescription = isIndia
+    ? basePage.metaDescription
+    : `${basePage.metaDescription} Now delivering to ${countryInfo.seoLabel}.`;
+
+  // Generate logistics line
+  const logisticsLine = isIndia
+    ? countryInfo.logisticsHint
+    : `Delivery supported across ${countryInfo.seoLabel} via ProcureSaathi's managed export desk.`;
+
+  return {
+    ...basePage,
+    countryInfo,
+    countryMetaTitle,
+    countryMetaDescription,
+    logisticsLine
+  };
+}
+
 export function getAllSignalPageSlugs(): string[] {
   return signalPagesConfig.map(page => page.slug);
+}
+
+// Get all canonical (non-alias) slugs
+export function getCanonicalSignalPageSlugs(): string[] {
+  return signalPagesConfig
+    .filter(page => !page.canonicalSlug)
+    .map(page => page.slug);
 }
