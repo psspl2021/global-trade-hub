@@ -6,23 +6,33 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, CheckCircle2, Users, ArrowRight, 
   Lock, Building2, Clock, FileCheck,
-  TrendingUp, EyeOff
+  TrendingUp, EyeOff, Globe
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
-import { SignalPageConfig } from '@/data/signalPages';
+import { CountryEnrichedSignalPageConfig, getCanonicalSignalPageSlugs } from '@/data/signalPages';
+import { supportedCountries } from '@/data/supportedCountries';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { trackIntentScore, incrementPageViews } from '@/lib/signalPageTracking';
 
 interface SignalPageLayoutProps {
-  config: SignalPageConfig;
-  country?: string; // Geo-specific demand intelligence
+  config: CountryEnrichedSignalPageConfig;
+  countryCode: string; // Geo-specific demand intelligence
 }
 
-export function SignalPageLayout({ config, country = 'India' }: SignalPageLayoutProps) {
+export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps) {
   const navigate = useNavigate();
   const [showRFQModal, setShowRFQModal] = useState(false);
   const [signalPageId, setSignalPageId] = useState<string | undefined>();
+
+  // Use country info from enriched config
+  const { countryInfo, logisticsLine, countryMetaTitle, countryMetaDescription } = config;
+  const isIndia = countryInfo.code === 'india';
+
+  // Generate country-aware slug for DB tracking
+  const dbSlug = isIndia 
+    ? config.slug 
+    : `${countryCode}/${config.slug}`;
 
   // Track page view and get/create signal page record
   useEffect(() => {
@@ -31,7 +41,7 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
         const { data: existingPage } = await supabase
           .from('admin_signal_pages')
           .select('id')
-          .eq('slug', config.slug)
+          .eq('slug', dbSlug)
           .single();
 
         if (existingPage) {
@@ -42,12 +52,12 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
           const { data: newPage } = await supabase
             .from('admin_signal_pages')
             .insert({
-              slug: config.slug,
+              slug: dbSlug,
               category: config.signalMapping.category,
               subcategory: config.signalMapping.subcategory,
               headline: config.h1,
               subheadline: config.subheading,
-              target_country: country, // Use route-based country
+              target_country: countryInfo.name, // Full country name for DB
               target_industries: [config.signalMapping.industry],
               primary_cta: 'Request Managed Procurement Quote',
               secondary_cta: 'Talk to Expert',
@@ -68,7 +78,7 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
     };
 
     trackAndGetSignalPage();
-  }, [config.slug, config.signalMapping, config.h1, config.subheading, country]);
+  }, [dbSlug, config.signalMapping, config.h1, config.subheading, countryInfo.name]);
 
   // Track RFQ modal opened intent (+2) using atomic RPC
   const handleOpenRFQModal = useCallback(() => {
@@ -78,13 +88,48 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
     }
   }, [signalPageId]);
 
-  // SEO
+  // SEO - Country-aware meta tags and structured data
   useEffect(() => {
-    document.title = config.metaTitle;
+    document.title = countryMetaTitle;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', config.metaDescription);
+      metaDesc.setAttribute('content', countryMetaDescription);
     }
+
+    // Add canonical link (always points to base India URL)
+    let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = `https://www.procuresaathi.com/procurement/${config.slug}`;
+
+    // Add hreflang links for all supported countries
+    const existingHreflangs = document.querySelectorAll('link[data-signal-hreflang]');
+    existingHreflangs.forEach(el => el.remove());
+
+    supportedCountries.forEach(country => {
+      const hreflangLink = document.createElement('link');
+      hreflangLink.rel = 'alternate';
+      hreflangLink.setAttribute('hreflang', country.hreflangCode);
+      hreflangLink.setAttribute('data-signal-hreflang', 'true');
+      
+      if (country.code === 'india') {
+        hreflangLink.href = `https://www.procuresaathi.com/procurement/${config.slug}`;
+      } else {
+        hreflangLink.href = `https://www.procuresaathi.com/${country.code}/procurement/${config.slug}`;
+      }
+      document.head.appendChild(hreflangLink);
+    });
+
+    // Add x-default hreflang
+    const xDefaultLink = document.createElement('link');
+    xDefaultLink.rel = 'alternate';
+    xDefaultLink.setAttribute('hreflang', 'x-default');
+    xDefaultLink.setAttribute('data-signal-hreflang', 'true');
+    xDefaultLink.href = `https://www.procuresaathi.com/procurement/${config.slug}`;
+    document.head.appendChild(xDefaultLink);
 
     // Add structured data (Service + Organization, NOT Product/Seller)
     const existingScript = document.querySelector('script[data-signal-page]');
@@ -97,17 +142,18 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
       "@context": "https://schema.org",
       "@type": "Service",
       "name": config.h1,
-      "description": config.metaDescription,
+      "description": countryMetaDescription,
       "provider": {
         "@type": "Organization",
         "name": "ProcureSaathi",
         "url": "https://procuresaathi.lovable.app"
       },
-      "areaServed": country,
+      "areaServed": countryInfo.name,
       "serviceType": "B2B Managed Procurement",
       "offers": {
         "@type": "Offer",
-        "description": "Managed procurement with single contract fulfilment"
+        "description": "Managed procurement with single contract fulfilment",
+        "priceCurrency": countryInfo.currency
       }
     });
     document.head.appendChild(script);
@@ -115,8 +161,10 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
     return () => {
       const scriptToRemove = document.querySelector('script[data-signal-page]');
       if (scriptToRemove) scriptToRemove.remove();
+      const hreflangsToRemove = document.querySelectorAll('link[data-signal-hreflang]');
+      hreflangsToRemove.forEach(el => el.remove());
     };
-  }, [config.metaTitle, config.metaDescription, config.h1]);
+  }, [countryMetaTitle, countryMetaDescription, config.h1, config.slug, countryInfo]);
 
   const CTA_TEXT = 'Request Managed Procurement Quote';
 
@@ -153,9 +201,15 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
               {config.h1}
             </h1>
 
-            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground mb-4 max-w-3xl mx-auto">
               {config.subheading}
             </p>
+
+            {/* Country-specific logistics line */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 text-sm font-medium mb-8">
+              <Globe className="h-4 w-4" />
+              {logisticsLine}
+            </div>
 
             {/* Key Stats */}
             <div className="flex flex-wrap justify-center gap-6 mb-10">
@@ -345,7 +399,7 @@ export function SignalPageLayout({ config, country = 'India' }: SignalPageLayout
         signalPageCategory={config.signalMapping.category}
         signalPageSubcategory={config.signalMapping.subcategory}
         signalPageIndustry={config.signalMapping.industry}
-        signalPageCountry={country}
+        signalPageCountry={countryInfo.name}
       />
     </div>
   );
