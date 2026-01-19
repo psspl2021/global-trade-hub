@@ -1109,16 +1109,152 @@ Suppliers operate as verified fulfilment partners.`,
     successfulDealsCount: 56,
     typicalDealRange: { min: 2000000, max: 200000000 },
     deliveryTimeline: '30–60 days'
+  },
+
+  // ============================
+  // ALIAS FIXES FOR 11–15 SLUGS
+  // ============================
+
+  {
+    slug: 'cold-rolled-coil',
+    canonicalSlug: 'cold-rolled-coil-manufacturing',
+    h1: 'Cold Rolled Coil Procurement for Manufacturing Units',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Cold Rolled Coil Procurement India',
+    metaDescription: 'CRC bulk procurement for OEMs and manufacturers.',
+    intentKeywords: ['cold rolled coil', 'crc procurement'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'cold_rolled_coil',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 45,
+    successfulDealsCount: 134,
+    typicalDealRange: { min: 3000000, max: 120000000 },
+    deliveryTimeline: '10–30 days'
+  },
+
+  {
+    slug: 'galvanized-coils',
+    canonicalSlug: 'galvanized-steel-coils',
+    h1: 'Galvanized Steel Coil Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Galvanized Coil Procurement India',
+    metaDescription: 'GI coil bulk procurement.',
+    intentKeywords: ['galvanized coil', 'gi coil procurement'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'galvanized_coils',
+      industry: 'construction',
+      buyer_type: 'fabricator',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 60,
+    successfulDealsCount: 178,
+    typicalDealRange: { min: 2000000, max: 150000000 },
+    deliveryTimeline: '10–25 days'
+  },
+
+  {
+    slug: 'steel-plates',
+    canonicalSlug: 'steel-plates-heavy',
+    h1: 'Steel Plate Procurement for Heavy Engineering',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Steel Plate Procurement India',
+    metaDescription: 'Heavy steel plate bulk procurement.',
+    intentKeywords: ['steel plates', 'heavy plates'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'plates',
+      industry: 'heavy_engineering',
+      buyer_type: 'fabricator',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 96,
+    typicalDealRange: { min: 5000000, max: 250000000 },
+    deliveryTimeline: '15–45 days'
+  },
+
+  {
+    slug: 'wire-rods',
+    canonicalSlug: 'steel-wire-rods',
+    h1: 'Steel Wire Rod Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Steel Wire Rod Procurement India',
+    metaDescription: 'Wire rod bulk procurement.',
+    intentKeywords: ['wire rods', 'steel wire rods'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'wire_rods',
+      industry: 'manufacturing',
+      buyer_type: 'manufacturer',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 112,
+    typicalDealRange: { min: 1500000, max: 80000000 },
+    deliveryTimeline: '7–21 days'
+  },
+
+  {
+    slug: 'chequered-plate',
+    canonicalSlug: 'chequered-plates',
+    h1: 'Chequered Plate Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Chequered Plate Procurement India',
+    metaDescription: 'Anti-slip steel plates bulk supply.',
+    intentKeywords: ['chequered plate', 'anti slip steel plate'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'chequered_plates',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 88,
+    typicalDealRange: { min: 1000000, max: 40000000 },
+    deliveryTimeline: '7–20 days'
   }
 ];
 
 export function getSignalPageBySlug(slug: string): SignalPageConfig | undefined {
-  const page = signalPagesConfig.find(p => p.slug === slug);
+  const normalized = slug.toLowerCase().trim();
+
+  const page = signalPagesConfig.find(
+    p => p.slug.toLowerCase() === normalized
+  );
+
   if (!page) return undefined;
 
   // Handle canonical redirects with loop protection
   if (page.canonicalSlug) {
-    const canonical = signalPagesConfig.find(p => p.slug === page.canonicalSlug);
+    const canonical = signalPagesConfig.find(
+      p => p.slug === page.canonicalSlug
+    );
 
     if (!canonical) {
       console.warn(`[SignalPages] Canonical slug not found: ${page.canonicalSlug}`);
