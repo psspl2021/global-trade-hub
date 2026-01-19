@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain, Gauge, Rocket } from 'lucide-react';
+import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain, Gauge, Rocket, Flame } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
 
 interface AdminStats {
@@ -46,6 +46,7 @@ interface AdminDashboardCardsProps {
   onOpenSupplierSelection: () => void;
   onOpenControlTower: () => void;
   onOpenAISalesEngine: () => void;
+  onOpenDemandHeatmap: () => void;
 }
 
 export function AdminDashboardCards({ 
@@ -66,6 +67,7 @@ export function AdminDashboardCards({
   onOpenSupplierSelection,
   onOpenControlTower,
   onOpenAISalesEngine,
+  onOpenDemandHeatmap,
 }: AdminDashboardCardsProps) {
   const [stats, setStats] = useState<AdminStats>({
     pendingInvoices: 0,
@@ -234,6 +236,28 @@ export function AdminDashboardCards({
           >
             <Rocket className="h-4 w-4 mr-2" />
             Open AI Sales
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Demand Heatmap Card - Featured Position */}
+      <Card className="border-2 border-red-500/40 bg-gradient-to-br from-red-500/10 to-orange-500/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Flame className="h-5 w-5 text-red-600" />
+            Demand Heatmap
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Global demand intelligence across 6 countries × 30 categories
+          </p>
+          <Button 
+            className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700" 
+            onClick={onOpenDemandHeatmap}
+          >
+            <Flame className="h-4 w-4 mr-2" />
+            Open Demand Heatmap
           </Button>
         </CardContent>
       </Card>
