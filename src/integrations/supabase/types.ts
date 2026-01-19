@@ -1560,10 +1560,12 @@ export type Database = {
       }
       demand_intelligence_signals: {
         Row: {
+          activated_at: string | null
           best_supplier_match_score: number | null
           buyer_type: string | null
           category: string | null
           classification: string
+          closed_at: string | null
           confidence_score: number
           converted_at: string | null
           converted_to_rfq_id: string | null
@@ -1581,10 +1583,14 @@ export type Database = {
           estimated_value: number | null
           external_source_url: string | null
           feasibility_score: number | null
+          first_signal_at: string | null
+          fulfilling_at: string | null
           fulfilment_feasible: boolean | null
           id: string
           industry: string | null
           intent_score: number | null
+          lane_state: string | null
+          lost_at: string | null
           matching_suppliers_count: number | null
           overall_score: number | null
           product_description: string | null
@@ -1597,10 +1603,12 @@ export type Database = {
           value_score: number | null
         }
         Insert: {
+          activated_at?: string | null
           best_supplier_match_score?: number | null
           buyer_type?: string | null
           category?: string | null
           classification?: string
+          closed_at?: string | null
           confidence_score?: number
           converted_at?: string | null
           converted_to_rfq_id?: string | null
@@ -1618,10 +1626,14 @@ export type Database = {
           estimated_value?: number | null
           external_source_url?: string | null
           feasibility_score?: number | null
+          first_signal_at?: string | null
+          fulfilling_at?: string | null
           fulfilment_feasible?: boolean | null
           id?: string
           industry?: string | null
           intent_score?: number | null
+          lane_state?: string | null
+          lost_at?: string | null
           matching_suppliers_count?: number | null
           overall_score?: number | null
           product_description?: string | null
@@ -1634,10 +1646,12 @@ export type Database = {
           value_score?: number | null
         }
         Update: {
+          activated_at?: string | null
           best_supplier_match_score?: number | null
           buyer_type?: string | null
           category?: string | null
           classification?: string
+          closed_at?: string | null
           confidence_score?: number
           converted_at?: string | null
           converted_to_rfq_id?: string | null
@@ -1655,10 +1669,14 @@ export type Database = {
           estimated_value?: number | null
           external_source_url?: string | null
           feasibility_score?: number | null
+          first_signal_at?: string | null
+          fulfilling_at?: string | null
           fulfilment_feasible?: boolean | null
           id?: string
           industry?: string | null
           intent_score?: number | null
+          lane_state?: string | null
+          lost_at?: string | null
           matching_suppliers_count?: number | null
           overall_score?: number | null
           product_description?: string | null
@@ -4280,6 +4298,39 @@ export type Database = {
           supplier_id?: string
           webhook_events?: string[] | null
           webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      supplier_capacity_lanes: {
+        Row: {
+          active: boolean | null
+          allocated_capacity_value: number | null
+          category: string
+          country: string
+          created_at: string | null
+          id: string
+          monthly_capacity_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          allocated_capacity_value?: number | null
+          category: string
+          country: string
+          created_at?: string | null
+          id?: string
+          monthly_capacity_value?: number
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          allocated_capacity_value?: number | null
+          category?: string
+          country?: string
+          created_at?: string | null
+          id?: string
+          monthly_capacity_value?: number
+          updated_at?: string | null
         }
         Relationships: []
       }
