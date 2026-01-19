@@ -7,6 +7,19 @@
 
 export type LaneState = 'detected' | 'pending' | 'activated' | 'fulfilling' | 'closed' | 'lost';
 
+export type LaneActor = 'system' | 'admin' | 'supplier';
+
+export interface LaneTransitionEvent {
+  event_type: 'LANE_STATE_CHANGED';
+  country: string;
+  category: string;
+  from_state: LaneState;
+  to_state: LaneState;
+  actor: LaneActor;
+  occurred_at: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface LaneCapacityStatus {
   country: string;
   category: string;
@@ -37,9 +50,32 @@ const LANE_TRANSITIONS: Record<string, Record<string, LaneState>> = {
 };
 
 /**
+ * Terminal states that cannot transition further
+ */
+const TERMINAL_STATES: LaneState[] = ['closed', 'lost'];
+
+/**
+ * Check if a lane state is terminal (no further transitions allowed)
+ */
+export function isTerminalState(state: LaneState): boolean {
+  return TERMINAL_STATES.includes(state);
+}
+
+/**
+ * Check if transitions are allowed from a given state
+ */
+export function canTransitionFrom(state: LaneState): boolean {
+  return !isTerminalState(state);
+}
+
+/**
  * Get the next valid lane state based on current state and action
+ * @throws Error if current state is terminal
  */
 export function getNextLaneState(current: string, action: string): LaneState | null {
+  if (isTerminalState(current as LaneState)) {
+    throw new Error(`Lane is terminal (${current}). No further transitions allowed.`);
+  }
   return LANE_TRANSITIONS[current]?.[action] || null;
 }
 
@@ -47,9 +83,34 @@ export function getNextLaneState(current: string, action: string): LaneState | n
  * Check if a state transition is valid
  */
 export function isValidTransition(current: string, next: string): boolean {
+  if (isTerminalState(current as LaneState)) return false;
   const transitions = LANE_TRANSITIONS[current];
   if (!transitions) return false;
   return Object.values(transitions).includes(next as LaneState);
+}
+
+/**
+ * Build a lane transition audit event
+ * Use for revenue audit trail, ops intelligence, and compliance
+ */
+export function buildLaneTransitionEvent(
+  country: string,
+  category: string,
+  from: LaneState,
+  to: LaneState,
+  actor: LaneActor,
+  metadata?: Record<string, unknown>
+): LaneTransitionEvent {
+  return {
+    event_type: 'LANE_STATE_CHANGED',
+    country,
+    category,
+    from_state: from,
+    to_state: to,
+    actor,
+    occurred_at: new Date().toISOString(),
+    metadata,
+  };
 }
 
 /**
