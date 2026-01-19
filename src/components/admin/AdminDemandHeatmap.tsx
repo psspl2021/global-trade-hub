@@ -42,7 +42,9 @@ interface HeatmapCell {
   category: string;
   intent_score: number;
   rfqs_submitted: number;
+  rfqs_pending: number;
   estimated_value: number;
+  priority_score: number;
 }
 
 interface TopMetric {
@@ -116,6 +118,13 @@ export function AdminDemandHeatmap() {
 
       if (rfqError) throw rfqError;
 
+      // UPGRADE 1: Build pending RFQs map from demand signals (backlog, not form submits)
+      const pendingByCell = new Map<string, number>();
+      demandSignals?.forEach((signal: any) => {
+        const key = `${signal.country?.toUpperCase() || 'INDIA'}-${signal.category}`;
+        pendingByCell.set(key, (pendingByCell.get(key) || 0) + 1);
+      });
+
       // Build heatmap data
       const heatmapMap = new Map<string, HeatmapCell>();
       
@@ -132,7 +141,9 @@ export function AdminDemandHeatmap() {
             category: page.category,
             intent_score: page.intent_score || 0,
             rfqs_submitted: page.rfqs_submitted || 0,
+            rfqs_pending: pendingByCell.get(key) || 0,
             estimated_value: 0,
+            priority_score: 0,
           });
         }
       });
@@ -144,19 +155,29 @@ export function AdminDemandHeatmap() {
         
         if (existing) {
           existing.estimated_value += signal.estimated_value || 0;
+          existing.rfqs_pending = pendingByCell.get(key) || 0;
         } else {
           heatmapMap.set(key, {
             country: signal.country?.toUpperCase() || 'INDIA',
             category: signal.category || 'Unknown',
             intent_score: 0,
             rfqs_submitted: 0,
+            rfqs_pending: pendingByCell.get(key) || 0,
             estimated_value: signal.estimated_value || 0,
+            priority_score: 0,
           });
         }
       });
 
+      // UPGRADE 2: Calculate priority score and sort by it (action-ordered, not just visual)
       const heatmapData = Array.from(heatmapMap.values())
-        .sort((a, b) => b.intent_score - a.intent_score);
+        .map(cell => ({
+          ...cell,
+          priority_score: (cell.intent_score * 0.4) 
+            + (cell.rfqs_submitted * 0.3) 
+            + ((cell.estimated_value || 0) / 1_000_000 * 0.3),
+        }))
+        .sort((a, b) => b.priority_score - a.priority_score);
 
       setHeatmap(heatmapData);
 
@@ -200,7 +221,7 @@ export function AdminDemandHeatmap() {
         rfqsLast7Days: recentRFQs?.length || 0,
       });
 
-      // Generate urgent actions
+      // Generate urgent actions using pending RFQs (backlog) not form submits
       const urgentList: UrgentAction[] = heatmapData
         .filter(cell => cell.intent_score > 30 || cell.estimated_value > 5000000)
         .slice(0, 10)
@@ -208,14 +229,14 @@ export function AdminDemandHeatmap() {
           let reason = '';
           if (cell.intent_score > 50) reason = 'High intent detected';
           else if (cell.estimated_value > 10000000) reason = 'Large deal opportunity';
-          else if (cell.rfqs_submitted === 0) reason = 'Intent but no RFQs';
+          else if (cell.rfqs_pending === 0) reason = 'Intent but no pending RFQs';
           else reason = 'Active demand';
 
           return {
             category: cell.category,
             country: cell.country,
             intent_score: cell.intent_score,
-            rfqs_pending: cell.rfqs_submitted,
+            rfqs_pending: cell.rfqs_pending,
             estimated_value: cell.estimated_value,
             reason,
           };
@@ -447,13 +468,14 @@ export function AdminDemandHeatmap() {
                     <th className="text-left p-3 font-medium">Country</th>
                     <th className="text-right p-3 font-medium">Intent</th>
                     <th className="text-right p-3 font-medium">RFQs</th>
+                    <th className="text-right p-3 font-medium">Pending</th>
                     <th className="text-right p-3 font-medium">Value</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredHeatmap.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
                         No demand data available for selected filters
                       </td>
                     </tr>
@@ -479,6 +501,11 @@ export function AdminDemandHeatmap() {
                         </td>
                         <td className="p-3 text-right font-mono">
                           {cell.rfqs_submitted}
+                        </td>
+                        <td className="p-3 text-right">
+                          <Badge variant={cell.rfqs_pending > 0 ? 'secondary' : 'outline'} className="font-mono">
+                            {cell.rfqs_pending}
+                          </Badge>
                         </td>
                         <td className="p-3 text-right font-semibold">
                           {formatCurrency(cell.estimated_value)}
@@ -537,9 +564,32 @@ export function AdminDemandHeatmap() {
                         <span className="text-xs text-orange-600">
                           🚨 {action.reason}
                         </span>
-                        <Button variant="ghost" size="sm" className="h-7 text-xs">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 text-xs"
+                          onClick={async () => {
+                            // UPGRADE 3: Wire action button to activate lane
+                            await supabase
+                              .from('demand_intelligence_signals')
+                              .update({ decision_action: 'activated' })
+                              .eq('country', action.country.toLowerCase())
+                              .eq('category', action.category)
+                              .eq('decision_action', 'pending');
+                            
+                            // Also try uppercase country match
+                            await supabase
+                              .from('demand_intelligence_signals')
+                              .update({ decision_action: 'activated' })
+                              .eq('country', action.country)
+                              .eq('category', action.category)
+                              .eq('decision_action', 'pending');
+                            
+                            fetchDashboard(); // Refresh after activation
+                          }}
+                        >
                           <ArrowUpRight className="h-3 w-3 mr-1" />
-                          Action
+                          Activate Lane
                         </Button>
                       </div>
                     </div>
