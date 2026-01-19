@@ -1238,6 +1238,808 @@ Suppliers operate as verified fulfilment partners.`,
     successfulDealsCount: 88,
     typicalDealRange: { min: 1000000, max: 40000000 },
     deliveryTimeline: '7–20 days'
+  },
+
+  // ============================
+  // ALIAS FIXES FOR 16–30 SLUGS
+  // ============================
+
+  // 16) RMC Aliases
+  {
+    slug: 'rmc-concrete',
+    canonicalSlug: 'ready-mix-concrete-rmc',
+    h1: 'Ready Mix Concrete Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'RMC Concrete Procurement India',
+    metaDescription: 'Ready mix concrete bulk procurement.',
+    intentKeywords: ['rmc concrete', 'ready mix concrete'],
+    signalMapping: {
+      category: 'concrete',
+      subcategory: 'rmc',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 70,
+    successfulDealsCount: 210,
+    typicalDealRange: { min: 800000, max: 80000000 },
+    deliveryTimeline: '2–10 days'
+  },
+  {
+    slug: 'ready-mix-concrete',
+    canonicalSlug: 'ready-mix-concrete-rmc',
+    h1: 'Ready Mix Concrete Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Ready Mix Concrete Supply India',
+    metaDescription: 'RMC bulk supply for infrastructure.',
+    intentKeywords: ['ready mix concrete supply', 'concrete bulk'],
+    signalMapping: {
+      category: 'concrete',
+      subcategory: 'rmc',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 70,
+    successfulDealsCount: 210,
+    typicalDealRange: { min: 800000, max: 80000000 },
+    deliveryTimeline: '2–10 days'
+  },
+  {
+    slug: 'rmc-supply-india',
+    canonicalSlug: 'ready-mix-concrete-rmc',
+    h1: 'RMC Supply India',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'RMC Supply India | Bulk Concrete',
+    metaDescription: 'RMC procurement for construction projects.',
+    intentKeywords: ['rmc supply india', 'bulk rmc'],
+    signalMapping: {
+      category: 'concrete',
+      subcategory: 'rmc',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 70,
+    successfulDealsCount: 210,
+    typicalDealRange: { min: 800000, max: 80000000 },
+    deliveryTimeline: '2–10 days'
+  },
+
+  // 17) Fly Ash Aliases
+  {
+    slug: 'fly-ash',
+    canonicalSlug: 'fly-ash-procurement',
+    h1: 'Fly Ash Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Fly Ash Procurement India',
+    metaDescription: 'Bulk fly ash supply.',
+    intentKeywords: ['fly ash', 'fly ash bulk'],
+    signalMapping: {
+      category: 'cement',
+      subcategory: 'fly_ash',
+      industry: 'cement_rmc',
+      buyer_type: 'plant_operator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 88,
+    typicalDealRange: { min: 500000, max: 30000000 },
+    deliveryTimeline: '3–12 days'
+  },
+  {
+    slug: 'fly-ash-cement',
+    canonicalSlug: 'fly-ash-procurement',
+    h1: 'Fly Ash for Cement Plants',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Fly Ash Cement Industry India',
+    metaDescription: 'Fly ash procurement for cement manufacturing.',
+    intentKeywords: ['fly ash cement', 'fly ash grinding unit'],
+    signalMapping: {
+      category: 'cement',
+      subcategory: 'fly_ash',
+      industry: 'cement_rmc',
+      buyer_type: 'plant_operator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 88,
+    typicalDealRange: { min: 500000, max: 30000000 },
+    deliveryTimeline: '3–12 days'
+  },
+
+  // 18) Aggregates Aliases
+  {
+    slug: 'crushed-stone-aggregates',
+    canonicalSlug: 'construction-aggregates',
+    h1: 'Crushed Stone Aggregate Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Crushed Stone Aggregate India',
+    metaDescription: 'Crushed stone bulk supply.',
+    intentKeywords: ['crushed stone', 'aggregate bulk'],
+    signalMapping: {
+      category: 'construction',
+      subcategory: 'aggregates',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 120,
+    typicalDealRange: { min: 300000, max: 25000000 },
+    deliveryTimeline: '2–7 days'
+  },
+  {
+    slug: 'aggregates-bulk',
+    canonicalSlug: 'construction-aggregates',
+    h1: 'Bulk Aggregate Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Bulk Aggregates Supply India',
+    metaDescription: 'Construction aggregates bulk procurement.',
+    intentKeywords: ['aggregates bulk', 'construction aggregates'],
+    signalMapping: {
+      category: 'construction',
+      subcategory: 'aggregates',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 120,
+    typicalDealRange: { min: 300000, max: 25000000 },
+    deliveryTimeline: '2–7 days'
+  },
+
+  // 19) Aluminium Extrusions Aliases
+  {
+    slug: 'aluminium-extrusions-industrial',
+    canonicalSlug: 'aluminium-extrusions',
+    h1: 'Industrial Aluminium Extrusions',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Industrial Aluminium Extrusions India',
+    metaDescription: 'Aluminium extrusion procurement for OEMs.',
+    intentKeywords: ['industrial aluminium extrusions', 'aluminium profiles'],
+    signalMapping: {
+      category: 'non_ferrous',
+      subcategory: 'extrusions',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 76,
+    typicalDealRange: { min: 2000000, max: 120000000 },
+    deliveryTimeline: '15–40 days'
+  },
+  {
+    slug: 'aluminium-profiles',
+    canonicalSlug: 'aluminium-extrusions',
+    h1: 'Aluminium Profile Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Aluminium Profiles Supply India',
+    metaDescription: 'Custom aluminium profile procurement.',
+    intentKeywords: ['aluminium profiles', 'aluminium sections'],
+    signalMapping: {
+      category: 'non_ferrous',
+      subcategory: 'extrusions',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 76,
+    typicalDealRange: { min: 2000000, max: 120000000 },
+    deliveryTimeline: '15–40 days'
+  },
+
+  // 20) Fasteners Aliases
+  {
+    slug: 'bulk-fasteners',
+    canonicalSlug: 'industrial-fasteners',
+    h1: 'Bulk Fastener Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Bulk Fasteners India',
+    metaDescription: 'Industrial fasteners bulk supply.',
+    intentKeywords: ['bulk fasteners', 'fasteners procurement'],
+    signalMapping: {
+      category: 'hardware',
+      subcategory: 'fasteners',
+      industry: 'infrastructure',
+      buyer_type: 'epc',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 50,
+    successfulDealsCount: 165,
+    typicalDealRange: { min: 500000, max: 40000000 },
+    deliveryTimeline: '7–20 days'
+  },
+  {
+    slug: 'high-tensile-fasteners',
+    canonicalSlug: 'industrial-fasteners',
+    h1: 'High Tensile Fastener Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'High Tensile Fasteners India',
+    metaDescription: 'Grade 8.8/10.9/12.9 fasteners bulk.',
+    intentKeywords: ['high tensile fasteners', 'grade 10.9 bolts'],
+    signalMapping: {
+      category: 'hardware',
+      subcategory: 'fasteners',
+      industry: 'infrastructure',
+      buyer_type: 'epc',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 50,
+    successfulDealsCount: 165,
+    typicalDealRange: { min: 500000, max: 40000000 },
+    deliveryTimeline: '7–20 days'
+  },
+
+  // 21) Bearings Aliases
+  {
+    slug: 'industrial-bearings',
+    canonicalSlug: 'bearings-industrial',
+    h1: 'Industrial Bearing Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Industrial Bearings India',
+    metaDescription: 'OEM bearings bulk procurement.',
+    intentKeywords: ['industrial bearings', 'bearings bulk'],
+    signalMapping: {
+      category: 'hardware',
+      subcategory: 'bearings',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 98,
+    typicalDealRange: { min: 500000, max: 50000000 },
+    deliveryTimeline: '5–15 days'
+  },
+  {
+    slug: 'skf-fag-bearings',
+    canonicalSlug: 'bearings-industrial',
+    h1: 'SKF FAG Bearing Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'SKF FAG Bearings India',
+    metaDescription: 'Authentic OEM bearings supply.',
+    intentKeywords: ['skf bearings bulk', 'fag bearings india'],
+    signalMapping: {
+      category: 'hardware',
+      subcategory: 'bearings',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 98,
+    typicalDealRange: { min: 500000, max: 50000000 },
+    deliveryTimeline: '5–15 days'
+  },
+
+  // 22) Welding Consumables Aliases
+  {
+    slug: 'welding-electrodes',
+    canonicalSlug: 'welding-consumables',
+    h1: 'Welding Electrode Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Welding Electrodes India',
+    metaDescription: 'E6013/E7018 electrodes bulk.',
+    intentKeywords: ['welding electrodes', 'E7018 bulk'],
+    signalMapping: {
+      category: 'consumables',
+      subcategory: 'welding',
+      industry: 'fabrication',
+      buyer_type: 'fabricator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 145,
+    typicalDealRange: { min: 200000, max: 20000000 },
+    deliveryTimeline: '3–10 days'
+  },
+  {
+    slug: 'welding-wires',
+    canonicalSlug: 'welding-consumables',
+    h1: 'Welding Wire Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Welding Wires India',
+    metaDescription: 'MIG/TIG welding wires bulk.',
+    intentKeywords: ['welding wires', 'ER70S-6 bulk'],
+    signalMapping: {
+      category: 'consumables',
+      subcategory: 'welding',
+      industry: 'fabrication',
+      buyer_type: 'fabricator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 145,
+    typicalDealRange: { min: 200000, max: 20000000 },
+    deliveryTimeline: '3–10 days'
+  },
+
+  // 23) Gaskets Aliases
+  {
+    slug: 'industrial-gaskets',
+    canonicalSlug: 'gaskets-seals',
+    h1: 'Industrial Gasket Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Industrial Gaskets India',
+    metaDescription: 'API/ASME gaskets bulk.',
+    intentKeywords: ['industrial gaskets', 'spiral wound gaskets'],
+    signalMapping: {
+      category: 'consumables',
+      subcategory: 'gaskets',
+      industry: 'process_industry',
+      buyer_type: 'plant_operator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 78,
+    typicalDealRange: { min: 300000, max: 25000000 },
+    deliveryTimeline: '7–21 days'
+  },
+  {
+    slug: 'seals-gaskets',
+    canonicalSlug: 'gaskets-seals',
+    h1: 'Seals & Gaskets Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Seals Gaskets India',
+    metaDescription: 'Industrial seals and gaskets.',
+    intentKeywords: ['seals gaskets', 'mechanical seals bulk'],
+    signalMapping: {
+      category: 'consumables',
+      subcategory: 'gaskets',
+      industry: 'process_industry',
+      buyer_type: 'plant_operator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 78,
+    typicalDealRange: { min: 300000, max: 25000000 },
+    deliveryTimeline: '7–21 days'
+  },
+
+  // 24) Power Cables Aliases
+  {
+    slug: 'lt-ht-cables',
+    canonicalSlug: 'power-cables',
+    h1: 'LT HT Cable Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'LT HT Cables India',
+    metaDescription: 'Power cables for infrastructure.',
+    intentKeywords: ['lt ht cables', 'power cables bulk'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'power_cables',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 45,
+    successfulDealsCount: 134,
+    typicalDealRange: { min: 1000000, max: 100000000 },
+    deliveryTimeline: '10–30 days'
+  },
+  {
+    slug: 'power-cables-infrastructure',
+    canonicalSlug: 'power-cables',
+    h1: 'Infrastructure Power Cable Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Infrastructure Power Cables India',
+    metaDescription: 'Power cable procurement for projects.',
+    intentKeywords: ['infrastructure power cables', 'xlpe cables bulk'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'power_cables',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 45,
+    successfulDealsCount: 134,
+    typicalDealRange: { min: 1000000, max: 100000000 },
+    deliveryTimeline: '10–30 days'
+  },
+
+  // 25) Control Cables Aliases
+  {
+    slug: 'instrumentation-cables',
+    canonicalSlug: 'control-cables',
+    h1: 'Instrumentation Cable Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Instrumentation Cables India',
+    metaDescription: 'Control and instrumentation cables.',
+    intentKeywords: ['instrumentation cables', 'control cables bulk'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'control_cables',
+      industry: 'automation',
+      buyer_type: 'system_integrator',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 89,
+    typicalDealRange: { min: 500000, max: 50000000 },
+    deliveryTimeline: '7–25 days'
+  },
+  {
+    slug: 'control-cables-industrial',
+    canonicalSlug: 'control-cables',
+    h1: 'Industrial Control Cable Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Industrial Control Cables India',
+    metaDescription: 'Control cables for automation.',
+    intentKeywords: ['industrial control cables', 'multi-core cables'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'control_cables',
+      industry: 'automation',
+      buyer_type: 'system_integrator',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 89,
+    typicalDealRange: { min: 500000, max: 50000000 },
+    deliveryTimeline: '7–25 days'
+  },
+
+  // 26) Transformers Aliases
+  {
+    slug: 'distribution-transformers',
+    canonicalSlug: 'transformers-power',
+    h1: 'Distribution Transformer Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Distribution Transformers India',
+    metaDescription: 'Distribution transformers up to 2.5MVA.',
+    intentKeywords: ['distribution transformers', 'transformer bulk'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'transformers',
+      industry: 'power',
+      buyer_type: 'utility',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 45,
+    typicalDealRange: { min: 5000000, max: 500000000 },
+    deliveryTimeline: '30–90 days'
+  },
+  {
+    slug: 'power-transformers',
+    canonicalSlug: 'transformers-power',
+    h1: 'Power Transformer Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Power Transformers India',
+    metaDescription: 'Power transformers 5MVA and above.',
+    intentKeywords: ['power transformers', 'transformer procurement'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'transformers',
+      industry: 'power',
+      buyer_type: 'utility',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 45,
+    typicalDealRange: { min: 5000000, max: 500000000 },
+    deliveryTimeline: '30–90 days'
+  },
+
+  // 27) Valves Aliases
+  {
+    slug: 'api-valves',
+    canonicalSlug: 'industrial-valves',
+    h1: 'API Valve Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'API Valves India',
+    metaDescription: 'API certified valves for oil gas.',
+    intentKeywords: ['api valves', 'gate valves bulk'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'valves',
+      industry: 'oil_gas_water',
+      buyer_type: 'epc',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 112,
+    typicalDealRange: { min: 1000000, max: 80000000 },
+    deliveryTimeline: '15–45 days'
+  },
+  {
+    slug: 'valves-bulk',
+    canonicalSlug: 'industrial-valves',
+    h1: 'Bulk Valve Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Bulk Valves India',
+    metaDescription: 'Industrial valves bulk procurement.',
+    intentKeywords: ['valves bulk', 'ball valves procurement'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'valves',
+      industry: 'oil_gas_water',
+      buyer_type: 'epc',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 112,
+    typicalDealRange: { min: 1000000, max: 80000000 },
+    deliveryTimeline: '15–45 days'
+  },
+
+  // 28) Pumps Aliases
+  {
+    slug: 'industrial-pumps',
+    canonicalSlug: 'centrifugal-pumps',
+    h1: 'Industrial Pump Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Industrial Pumps India',
+    metaDescription: 'Industrial pumps bulk procurement.',
+    intentKeywords: ['industrial pumps', 'pumps bulk'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'pumps',
+      industry: 'water_process',
+      buyer_type: 'contractor',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 98,
+    typicalDealRange: { min: 500000, max: 60000000 },
+    deliveryTimeline: '15–40 days'
+  },
+  {
+    slug: 'water-pumps-industrial',
+    canonicalSlug: 'centrifugal-pumps',
+    h1: 'Water Pump Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Water Pumps Industrial India',
+    metaDescription: 'Water and process pumps bulk.',
+    intentKeywords: ['water pumps industrial', 'centrifugal pumps bulk'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'pumps',
+      industry: 'water_process',
+      buyer_type: 'contractor',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 98,
+    typicalDealRange: { min: 500000, max: 60000000 },
+    deliveryTimeline: '15–40 days'
+  },
+
+  // 29) DG Sets Aliases
+  {
+    slug: 'dg-sets',
+    canonicalSlug: 'diesel-generators',
+    h1: 'DG Set Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'DG Sets India',
+    metaDescription: 'Diesel generator sets bulk.',
+    intentKeywords: ['dg sets', 'diesel genset bulk'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'generators',
+      industry: 'infrastructure',
+      buyer_type: 'developer',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 67,
+    typicalDealRange: { min: 1000000, max: 100000000 },
+    deliveryTimeline: '15–45 days'
+  },
+  {
+    slug: 'dg-sets-industrial',
+    canonicalSlug: 'diesel-generators',
+    h1: 'Industrial DG Set Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Industrial DG Sets India',
+    metaDescription: 'Industrial diesel generators.',
+    intentKeywords: ['dg sets industrial', 'generator procurement'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'generators',
+      industry: 'infrastructure',
+      buyer_type: 'developer',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 67,
+    typicalDealRange: { min: 1000000, max: 100000000 },
+    deliveryTimeline: '15–45 days'
+  },
+
+  // 30) HVAC Aliases
+  {
+    slug: 'hvac-systems',
+    canonicalSlug: 'hvac-equipment',
+    h1: 'HVAC System Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'HVAC Systems India',
+    metaDescription: 'HVAC systems for commercial projects.',
+    intentKeywords: ['hvac systems', 'hvac procurement'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'hvac',
+      industry: 'commercial_real_estate',
+      buyer_type: 'developer',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 56,
+    typicalDealRange: { min: 2000000, max: 200000000 },
+    deliveryTimeline: '30–60 days'
+  },
+  {
+    slug: 'hvac-systems-commercial',
+    canonicalSlug: 'hvac-equipment',
+    h1: 'Commercial HVAC Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Commercial HVAC India',
+    metaDescription: 'HVAC equipment for commercial buildings.',
+    intentKeywords: ['commercial hvac', 'chillers bulk'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'hvac',
+      industry: 'commercial_real_estate',
+      buyer_type: 'developer',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 56,
+    typicalDealRange: { min: 2000000, max: 200000000 },
+    deliveryTimeline: '30–60 days'
+  },
+  {
+    slug: 'chillers-ahu',
+    canonicalSlug: 'hvac-equipment',
+    h1: 'Chiller & AHU Procurement',
+    subheading: '',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Chillers AHU India',
+    metaDescription: 'Chillers and AHUs for projects.',
+    intentKeywords: ['chillers ahu', 'vrf systems bulk'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'hvac',
+      industry: 'commercial_real_estate',
+      buyer_type: 'developer',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 56,
+    typicalDealRange: { min: 2000000, max: 200000000 },
+    deliveryTimeline: '30–60 days'
   }
 ];
 
