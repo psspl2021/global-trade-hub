@@ -4,6 +4,9 @@
 
 export interface SignalPageConfig {
   slug: string;
+  // Canonical redirect - if set, this slug is an alias that redirects to the canonical
+  canonicalSlug?: string;
+  
   // Page Copy
   h1: string;
   subheading: string;
@@ -443,6 +446,35 @@ Suppliers operate as verified fulfilment partners.`,
     successfulDealsCount: 89,
     typicalDealRange: { min: 10000000, max: 500000000 },
     deliveryTimeline: '30-60 days'
+  },
+
+  // ALIAS PAGES - SEO keyword capture with canonical redirects
+  // These redirect to canonical pages but capture high-volume search terms
+  
+  // Alias: steel-tmt-bar → tmt-bars-epc-projects
+  {
+    slug: 'steel-tmt-bar',
+    canonicalSlug: 'tmt-bars-epc-projects',
+    h1: 'TMT Bars Procurement for EPC & Government Projects',
+    subheading: 'Bulk TMT bar procurement with assured quality and project-wise allocation.',
+    bodyText: '',
+    useCases: [],
+    whatBuyerGets: [],
+    metaTitle: 'Steel TMT Bar Procurement India',
+    metaDescription: 'Managed steel TMT bar procurement. Bulk orders. EPC projects.',
+    intentKeywords: ['steel tmt bar', 'tmt bar procurement', 'steel tmt bar bulk'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'tmt_bars',
+      industry: 'government_infra',
+      buyer_type: 'government_epc',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 120,
+    successfulDealsCount: 312,
+    typicalDealRange: { min: 2000000, max: 200000000 },
+    deliveryTimeline: '7-21 days'
   }
 ];
 

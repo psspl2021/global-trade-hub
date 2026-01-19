@@ -29,6 +29,12 @@ export default function ProcurementSignalPage() {
     return <Navigate to="/categories" replace />;
   }
 
+  // Handle canonical redirects - if this is an alias slug, redirect to canonical
+  if (config.canonicalSlug && config.canonicalSlug !== slug) {
+    const countryPrefix = country ? `/${country}` : '';
+    return <Navigate to={`${countryPrefix}/procurement/${config.canonicalSlug}`} replace />;
+  }
+
   // Resolve country - default to India if not specified or unsupported
   const countryKey = country?.toLowerCase();
   const resolvedCountry = countryKey && SUPPORTED_COUNTRIES[countryKey] 
