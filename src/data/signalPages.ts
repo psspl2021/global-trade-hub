@@ -475,6 +475,165 @@ Suppliers operate as verified fulfilment partners.`,
     successfulDealsCount: 312,
     typicalDealRange: { min: 2000000, max: 200000000 },
     deliveryTimeline: '7-21 days'
+  },
+
+  // ============================
+  // NEW CANONICAL PAGES (11-15)
+  // ============================
+
+  // 11) Cold Rolled Coil — Manufacturing
+  {
+    slug: 'cold-rolled-coil-manufacturing',
+    h1: 'Cold Rolled Coil Procurement for Manufacturing Units',
+    subheading: 'Precision-grade CRC sourcing with managed pricing and assured delivery.',
+    bodyText: `ProcureSaathi manages cold rolled coil procurement for OEMs, appliance manufacturers, and precision fabricators.
+
+We aggregate CRC supply, manage mill allocations, and ensure thickness and surface finish compliance.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Appliance manufacturing', 'Auto components', 'Precision fabrication'],
+    whatBuyerGets: ['Single consolidated price', 'Guaranteed thickness tolerance', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['IS 513', 'EN 10130', '0.4mm–3mm thickness'],
+    metaTitle: 'Cold Rolled Coil Procurement India | CRC Bulk Supply',
+    metaDescription: 'Managed CRC procurement for OEMs & manufacturers. IS 513 / EN grades. Single contract fulfilment.',
+    intentKeywords: ['cold rolled coil procurement', 'CRC bulk supply', 'IS 513 CRC India'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'cold_rolled_coil',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 45,
+    successfulDealsCount: 134,
+    typicalDealRange: { min: 3000000, max: 120000000 },
+    deliveryTimeline: '10–30 days'
+  },
+
+  // 12) Galvanized Steel Coils
+  {
+    slug: 'galvanized-steel-coils',
+    h1: 'Galvanized Steel Coil Procurement for Construction & Industry',
+    subheading: 'GI coils with coating compliance and project-wise delivery.',
+    bodyText: `ProcureSaathi manages galvanized steel coil procurement for construction, fabrication, and industrial buyers.
+
+We handle coating specifications, mill sourcing, and delivery scheduling.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Roofing sheets', 'Fabrication units', 'Infrastructure projects'],
+    whatBuyerGets: ['Single consolidated price', 'Coating compliance', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['IS 277', 'ASTM A653', 'Z120–Z275 coating'],
+    metaTitle: 'Galvanized Steel Coil Procurement India | GI Coil Supply',
+    metaDescription: 'Managed GI coil procurement. IS 277 / ASTM grades. Roofing & fabrication supply.',
+    intentKeywords: ['galvanized steel coil procurement', 'GI coil bulk', 'roofing steel coils'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'galvanized_coils',
+      industry: 'construction',
+      buyer_type: 'fabricator',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 60,
+    successfulDealsCount: 178,
+    typicalDealRange: { min: 2000000, max: 150000000 },
+    deliveryTimeline: '10–25 days'
+  },
+
+  // 13) Steel Plates — Heavy Engineering
+  {
+    slug: 'steel-plates-heavy',
+    h1: 'Steel Plate Procurement for Heavy Engineering Projects',
+    subheading: 'Thick plates with controlled chemistry and inspection support.',
+    bodyText: `ProcureSaathi manages heavy steel plate procurement for pressure vessels, bridges, and heavy fabrication.
+
+We handle grade matching, UT inspection, and logistics.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Pressure vessels', 'Bridges', 'Heavy structures'],
+    whatBuyerGets: ['Single consolidated price', 'UT inspection support', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['IS 2062', 'ASTM A516', 'EN 10025'],
+    metaTitle: 'Steel Plate Procurement India | Heavy Engineering',
+    metaDescription: 'Managed steel plate procurement for heavy engineering. UT inspected plates.',
+    intentKeywords: ['steel plate procurement', 'heavy plate supply', 'pressure vessel steel'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'plates',
+      industry: 'heavy_engineering',
+      buyer_type: 'fabricator',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 96,
+    typicalDealRange: { min: 5000000, max: 250000000 },
+    deliveryTimeline: '15–45 days'
+  },
+
+  // 14) Steel Wire Rods
+  {
+    slug: 'steel-wire-rods',
+    h1: 'Steel Wire Rod Procurement for Manufacturing',
+    subheading: 'Consistent chemistry wire rods for fasteners and wires.',
+    bodyText: `ProcureSaathi manages steel wire rod procurement for fastener manufacturers and wire drawing units.
+
+We ensure chemistry control and mill compliance.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Fasteners', 'Wire drawing', 'Spring manufacturing'],
+    whatBuyerGets: ['Single consolidated price', 'Chemistry compliance', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['SAE 1006–1080', 'IS 7887'],
+    metaTitle: 'Steel Wire Rod Procurement India | Fastener Industry',
+    metaDescription: 'Managed wire rod procurement. SAE grades. Fastener manufacturing supply.',
+    intentKeywords: ['wire rod procurement', 'steel wire rod bulk', 'fastener steel rods'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'wire_rods',
+      industry: 'manufacturing',
+      buyer_type: 'manufacturer',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 112,
+    typicalDealRange: { min: 1500000, max: 80000000 },
+    deliveryTimeline: '7–21 days'
+  },
+
+  // 15) Chequered Plates
+  {
+    slug: 'chequered-plates',
+    h1: 'Chequered Plate Procurement for Industrial Flooring',
+    subheading: 'Anti-slip plates for platforms and walkways.',
+    bodyText: `ProcureSaathi manages chequered plate procurement for industrial and infrastructure projects.
+
+We handle plate sizing, thickness compliance, and logistics.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Industrial platforms', 'Staircases', 'Walkways'],
+    whatBuyerGets: ['Single consolidated price', 'Thickness compliance', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['IS 3502', 'ASTM A36'],
+    metaTitle: 'Chequered Plate Procurement India',
+    metaDescription: 'Managed chequered plate procurement for industrial flooring.',
+    intentKeywords: ['chequered plate procurement', 'anti slip steel plates'],
+    signalMapping: {
+      category: 'steel',
+      subcategory: 'chequered_plates',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 88,
+    typicalDealRange: { min: 1000000, max: 40000000 },
+    deliveryTimeline: '7–20 days'
   }
 ];
 
