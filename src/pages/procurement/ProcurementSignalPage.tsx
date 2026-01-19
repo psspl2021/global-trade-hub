@@ -14,7 +14,8 @@ export default function ProcurementSignalPage() {
   const baseConfig = getSignalPageBySlug(slug);
 
   if (!baseConfig) {
-    return <Navigate to="/categories" replace />;
+    console.warn(`[SignalPage] Unknown slug: ${slug}`);
+    return <Navigate to="/404" replace />;
   }
 
   // Handle canonical redirects - if this is an alias slug, redirect to canonical
@@ -34,7 +35,8 @@ export default function ProcurementSignalPage() {
   const enrichedConfig = getSignalPageBySlugWithCountry(slug, countryCode);
 
   if (!enrichedConfig) {
-    return <Navigate to="/categories" replace />;
+    console.warn(`[SignalPage] Failed to enrich config for slug: ${slug}`);
+    return <Navigate to="/404" replace />;
   }
 
   return (
