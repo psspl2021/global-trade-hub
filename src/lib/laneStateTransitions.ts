@@ -1,9 +1,15 @@
 /**
- * Lane State Machine
+ * Lane State Machine for Demand Intelligence Signals
  * 
- * Canonical states for demand lane lifecycle:
- * detected → pending → activated → fulfilling → closed → lost
+ * Manages the lifecycle of demand signals through 6 distinct stages
+ * with strict transition rules and terminal state enforcement.
+ * 
+ * Single entry point: commitLaneTransition() for atomic, audited state changes.
+ * 
+ * Canonical states: detected → pending → activated → fulfilling → closed | lost
  */
+
+import { supabase } from "@/integrations/supabase/client";
 
 export type LaneState = 'detected' | 'pending' | 'activated' | 'fulfilling' | 'closed' | 'lost';
 
@@ -111,6 +117,98 @@ export function buildLaneTransitionEvent(
     occurred_at: new Date().toISOString(),
     metadata,
   };
+}
+
+/**
+ * Atomic Lane Transition Commit Function
+ * Single entry point for all lane state changes.
+ * - Validates terminal state guard
+ * - Computes next state
+ * - Writes lane state to DB
+ * - Writes audit event to lane_events table
+ * 
+ * @throws Error if lane is terminal or transition is invalid
+ */
+export async function commitLaneTransition(
+  signalId: string,
+  country: string,
+  category: string,
+  current: LaneState,
+  action: string,
+  actor: LaneActor,
+  metadata?: Record<string, unknown>
+): Promise<LaneState> {
+  // 1) Terminal state guard
+  if (!canTransitionFrom(current)) {
+    throw new Error(`Lane is terminal (${current}). No further transitions allowed.`);
+  }
+
+  // 2) Compute next state
+  const next = getNextLaneState(current, action);
+  if (!next) {
+    throw new Error(`Invalid transition: ${current} → ${action}`);
+  }
+
+  // 3) Build timestamp field based on new state
+  const timestampField = getTimestampFieldForState(next);
+  const updatePayload: Record<string, unknown> = { 
+    lane_state: next,
+    updated_at: new Date().toISOString()
+  };
+  if (timestampField) {
+    updatePayload[timestampField] = new Date().toISOString();
+  }
+
+  // 4) Write lane state atomically
+  const { error: updateError } = await supabase
+    .from('demand_intelligence_signals')
+    .update(updatePayload)
+    .eq('id', signalId);
+
+  if (updateError) {
+    throw new Error(`Failed to update lane state: ${updateError.message}`);
+  }
+
+  // 5) Build and write audit event
+  const event = buildLaneTransitionEvent(country, category, current, next, actor, {
+    signal_id: signalId,
+    action,
+    ...metadata
+  });
+
+  const { error: eventError } = await supabase
+    .from('lane_events')
+    .insert([{
+      signal_id: signalId,
+      event_type: event.event_type,
+      country: event.country,
+      category: event.category,
+      from_state: event.from_state,
+      to_state: event.to_state,
+      actor: event.actor,
+      occurred_at: event.occurred_at,
+      metadata: event.metadata ? JSON.parse(JSON.stringify(event.metadata)) : null
+    }]);
+
+  if (eventError) {
+    console.error('Failed to write audit event:', eventError);
+    // Don't throw - state change succeeded, audit is secondary
+  }
+
+  return next;
+}
+
+/**
+ * Get the timestamp field to update based on target state
+ */
+function getTimestampFieldForState(state: LaneState): string | null {
+  switch (state) {
+    case 'activated': return 'activated_at';
+    case 'fulfilling': return 'fulfilling_at';
+    case 'closed': return 'closed_at';
+    case 'lost': return 'lost_at';
+    default: return null;
+  }
 }
 
 /**
