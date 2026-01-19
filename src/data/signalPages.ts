@@ -634,6 +634,471 @@ Suppliers operate as verified fulfilment partners.`,
     successfulDealsCount: 88,
     typicalDealRange: { min: 1000000, max: 40000000 },
     deliveryTimeline: '7–20 days'
+  },
+
+  // 16) Ready Mix Concrete (RMC)
+  {
+    slug: 'ready-mix-concrete-rmc',
+    h1: 'Ready Mix Concrete Procurement for Infrastructure Projects',
+    subheading: 'Project-based RMC supply with grade assurance and scheduled pours.',
+    bodyText: `ProcureSaathi manages RMC procurement for infrastructure and real estate projects.
+
+We coordinate plant allocation, grade compliance, and pour schedules.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Infrastructure projects', 'High-rise buildings', 'Industrial foundations'],
+    whatBuyerGets: ['Single consolidated price', 'Grade compliance', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['M20–M60 grades', 'IS 4926'],
+    metaTitle: 'Ready Mix Concrete Procurement India | RMC Bulk Supply',
+    metaDescription: 'Managed RMC procurement for infrastructure and real estate. M20–M60 grades.',
+    intentKeywords: ['RMC procurement', 'ready mix concrete bulk', 'M30 concrete supply'],
+    signalMapping: {
+      category: 'concrete',
+      subcategory: 'rmc',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 70,
+    successfulDealsCount: 210,
+    typicalDealRange: { min: 800000, max: 80000000 },
+    deliveryTimeline: '2–10 days'
+  },
+
+  // 17) Fly Ash
+  {
+    slug: 'fly-ash-procurement',
+    h1: 'Fly Ash Procurement for Cement & RMC Plants',
+    subheading: 'Consistent grade fly ash with bulk logistics handling.',
+    bodyText: `ProcureSaathi manages fly ash procurement for cement manufacturers and RMC plants.
+
+We handle grade matching, long-term contracts, and logistics.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['RMC plants', 'Cement grinding units', 'Infrastructure projects'],
+    whatBuyerGets: ['Single consolidated price', 'Consistent grade', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['IS 3812'],
+    metaTitle: 'Fly Ash Procurement India | Cement & RMC',
+    metaDescription: 'Managed fly ash procurement for cement & RMC plants.',
+    intentKeywords: ['fly ash procurement', 'bulk fly ash India'],
+    signalMapping: {
+      category: 'cement',
+      subcategory: 'fly_ash',
+      industry: 'cement_rmc',
+      buyer_type: 'plant_operator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 88,
+    typicalDealRange: { min: 500000, max: 30000000 },
+    deliveryTimeline: '3–12 days'
+  },
+
+  // 18) Construction Aggregates
+  {
+    slug: 'construction-aggregates',
+    h1: 'Construction Aggregate Procurement for Infrastructure',
+    subheading: 'Crushed stone and sand with logistics coordination.',
+    bodyText: `ProcureSaathi manages aggregate procurement for infrastructure and RMC plants.
+
+We coordinate quarry allocation and delivery scheduling.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Road projects', 'RMC plants', 'Foundations'],
+    whatBuyerGets: ['Single consolidated price', 'Size compliance', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['10mm, 20mm, 40mm'],
+    metaTitle: 'Construction Aggregate Procurement India',
+    metaDescription: 'Managed aggregate procurement for infrastructure.',
+    intentKeywords: ['aggregate procurement', 'crushed stone bulk'],
+    signalMapping: {
+      category: 'construction',
+      subcategory: 'aggregates',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 120,
+    typicalDealRange: { min: 300000, max: 25000000 },
+    deliveryTimeline: '2–7 days'
+  },
+
+  // 19) Aluminium Extrusions
+  {
+    slug: 'aluminium-extrusions',
+    h1: 'Aluminium Extrusion Procurement for OEMs',
+    subheading: 'Custom profiles with alloy and temper control.',
+    bodyText: `ProcureSaathi manages aluminium extrusion procurement for OEMs and exporters.
+
+We coordinate die development, alloy matching, and logistics.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Automotive', 'Solar frames', 'Industrial equipment'],
+    whatBuyerGets: ['Single consolidated price', 'Die support', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['6063-T5', '6061-T6'],
+    metaTitle: 'Aluminium Extrusion Procurement India',
+    metaDescription: 'Managed aluminium extrusion procurement.',
+    intentKeywords: ['aluminium extrusion procurement'],
+    signalMapping: {
+      category: 'non_ferrous',
+      subcategory: 'extrusions',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 76,
+    typicalDealRange: { min: 2000000, max: 120000000 },
+    deliveryTimeline: '15–40 days'
+  },
+
+  // 20) Industrial Fasteners
+  {
+    slug: 'industrial-fasteners',
+    h1: 'Industrial Fastener Procurement',
+    subheading: 'High-tensile fasteners with batch traceability.',
+    bodyText: `ProcureSaathi manages fastener procurement for EPC and OEM buyers.
+
+We ensure grade compliance and quality documentation.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Steel structures', 'Heavy machinery', 'Infrastructure'],
+    whatBuyerGets: ['Single consolidated price', 'Test certificates', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['8.8, 10.9, 12.9 grades'],
+    metaTitle: 'Industrial Fastener Procurement India',
+    metaDescription: 'Managed fastener procurement for EPC and OEM buyers.',
+    intentKeywords: ['industrial fasteners procurement'],
+    signalMapping: {
+      category: 'hardware',
+      subcategory: 'fasteners',
+      industry: 'infrastructure',
+      buyer_type: 'epc',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 50,
+    successfulDealsCount: 165,
+    typicalDealRange: { min: 500000, max: 40000000 },
+    deliveryTimeline: '7–20 days'
+  },
+
+  // 21) Industrial Bearings
+  {
+    slug: 'bearings-industrial',
+    h1: 'Industrial Bearing Procurement for Manufacturing',
+    subheading: 'OEM-grade bearings with authentic sourcing and traceability.',
+    bodyText: `ProcureSaathi manages industrial bearing procurement for OEMs and MRO buyers.
+
+We ensure authentic sourcing, brand verification, and bulk pricing.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Manufacturing plants', 'Heavy machinery', 'Automotive OEMs'],
+    whatBuyerGets: ['Single consolidated price', 'Authentic sourcing', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['SKF, FAG, NSK, Timken', 'Ball, Roller, Taper bearings'],
+    metaTitle: 'Industrial Bearing Procurement India',
+    metaDescription: 'Managed industrial bearing procurement. OEM grades. Authentic sourcing.',
+    intentKeywords: ['industrial bearings procurement', 'bulk bearings India'],
+    signalMapping: {
+      category: 'hardware',
+      subcategory: 'bearings',
+      industry: 'manufacturing',
+      buyer_type: 'oem',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 98,
+    typicalDealRange: { min: 500000, max: 50000000 },
+    deliveryTimeline: '5–15 days'
+  },
+
+  // 22) Welding Consumables
+  {
+    slug: 'welding-consumables',
+    h1: 'Welding Consumables Procurement for Fabrication',
+    subheading: 'Electrodes, wires, and fluxes with AWS/IS compliance.',
+    bodyText: `ProcureSaathi manages welding consumables procurement for fabricators and shipyards.
+
+We handle brand sourcing, grade matching, and project-wise supply.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Fabrication units', 'Shipyards', 'Heavy engineering'],
+    whatBuyerGets: ['Single consolidated price', 'AWS/IS compliance', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['E6013, E7018', 'ER70S-6', 'Flux-cored wires'],
+    metaTitle: 'Welding Consumables Procurement India',
+    metaDescription: 'Managed welding consumables procurement. Electrodes & wires. AWS certified.',
+    intentKeywords: ['welding consumables procurement', 'electrodes bulk India'],
+    signalMapping: {
+      category: 'consumables',
+      subcategory: 'welding',
+      industry: 'fabrication',
+      buyer_type: 'fabricator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 145,
+    typicalDealRange: { min: 200000, max: 20000000 },
+    deliveryTimeline: '3–10 days'
+  },
+
+  // 23) Gaskets & Seals
+  {
+    slug: 'gaskets-seals',
+    h1: 'Gaskets & Seals Procurement for Process Industries',
+    subheading: 'API and ASME grade gaskets with material traceability.',
+    bodyText: `ProcureSaathi manages gasket and seal procurement for refineries, power plants, and process industries.
+
+We ensure material compliance and pressure rating documentation.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Refineries', 'Power plants', 'Chemical plants'],
+    whatBuyerGets: ['Single consolidated price', 'Material test certificates', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['Spiral wound', 'Ring joint', 'PTFE', 'Graphite'],
+    metaTitle: 'Gaskets & Seals Procurement India | Process Industries',
+    metaDescription: 'Managed gaskets procurement. API/ASME grades. Refineries & power plants.',
+    intentKeywords: ['gaskets procurement', 'industrial seals bulk'],
+    signalMapping: {
+      category: 'consumables',
+      subcategory: 'gaskets',
+      industry: 'process_industry',
+      buyer_type: 'plant_operator',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 78,
+    typicalDealRange: { min: 300000, max: 25000000 },
+    deliveryTimeline: '7–21 days'
+  },
+
+  // 24) Power Cables
+  {
+    slug: 'power-cables',
+    h1: 'Power Cable Procurement for Infrastructure Projects',
+    subheading: 'LT/HT cables with ISI marking and project delivery.',
+    bodyText: `ProcureSaathi manages power cable procurement for infrastructure and industrial projects.
+
+We handle manufacturer coordination, testing, and project-wise dispatch.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Power substations', 'Industrial plants', 'Infrastructure projects'],
+    whatBuyerGets: ['Single consolidated price', 'ISI marked cables', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['LT Cables (up to 1.1kV)', 'HT Cables (11kV, 33kV)', 'XLPE/PVC insulation'],
+    metaTitle: 'Power Cable Procurement India | LT HT Cables',
+    metaDescription: 'Managed power cable procurement. LT/HT cables. ISI marked. Infrastructure projects.',
+    intentKeywords: ['power cables procurement', 'HT cables bulk India'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'power_cables',
+      industry: 'infrastructure',
+      buyer_type: 'contractor',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 45,
+    successfulDealsCount: 134,
+    typicalDealRange: { min: 1000000, max: 100000000 },
+    deliveryTimeline: '10–30 days'
+  },
+
+  // 25) Control Cables
+  {
+    slug: 'control-cables',
+    h1: 'Control Cable Procurement for Automation Projects',
+    subheading: 'Instrumentation and control cables with shielding options.',
+    bodyText: `ProcureSaathi manages control cable procurement for automation and instrumentation projects.
+
+We coordinate manufacturer sourcing and project-wise delivery.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Automation projects', 'Process plants', 'Power plants'],
+    whatBuyerGets: ['Single consolidated price', 'Shielding options', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['Multi-core control cables', 'Instrumentation cables', 'Shielded/Unshielded'],
+    metaTitle: 'Control Cable Procurement India | Automation',
+    metaDescription: 'Managed control cable procurement. Instrumentation cables. Automation projects.',
+    intentKeywords: ['control cables procurement', 'instrumentation cables bulk'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'control_cables',
+      industry: 'automation',
+      buyer_type: 'system_integrator',
+      estimated_value_band: 'medium_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 89,
+    typicalDealRange: { min: 500000, max: 50000000 },
+    deliveryTimeline: '7–25 days'
+  },
+
+  // 26) Power Transformers
+  {
+    slug: 'transformers-power',
+    h1: 'Power Transformer Procurement for Utilities & Industry',
+    subheading: 'Distribution and power transformers with testing support.',
+    bodyText: `ProcureSaathi manages transformer procurement for utilities and industrial buyers.
+
+We coordinate manufacturer selection, testing, and delivery.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Utilities', 'Industrial plants', 'Infrastructure projects'],
+    whatBuyerGets: ['Single consolidated price', 'Factory testing', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['Distribution (up to 2.5MVA)', 'Power (5MVA+)', 'BIS certified'],
+    metaTitle: 'Power Transformer Procurement India',
+    metaDescription: 'Managed transformer procurement. Distribution & power. BIS certified.',
+    intentKeywords: ['transformer procurement', 'power transformer bulk India'],
+    signalMapping: {
+      category: 'electrical',
+      subcategory: 'transformers',
+      industry: 'power',
+      buyer_type: 'utility',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 45,
+    typicalDealRange: { min: 5000000, max: 500000000 },
+    deliveryTimeline: '30–90 days'
+  },
+
+  // 27) Industrial Valves
+  {
+    slug: 'industrial-valves',
+    h1: 'Industrial Valve Procurement for Oil, Gas & Water',
+    subheading: 'API and ASME valves with pressure testing documentation.',
+    bodyText: `ProcureSaathi manages industrial valve procurement for oil & gas, water, and process industries.
+
+We handle specification matching, testing, and delivery coordination.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Oil & gas', 'Water treatment', 'Chemical plants'],
+    whatBuyerGets: ['Single consolidated price', 'Pressure test reports', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['Gate, Globe, Ball, Butterfly', 'API 600/602/608', 'ASME B16.34'],
+    metaTitle: 'Industrial Valve Procurement India | Oil Gas Water',
+    metaDescription: 'Managed valve procurement. API/ASME grades. Oil, gas & water industries.',
+    intentKeywords: ['industrial valves procurement', 'API valves bulk India'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'valves',
+      industry: 'oil_gas_water',
+      buyer_type: 'epc',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 112,
+    typicalDealRange: { min: 1000000, max: 80000000 },
+    deliveryTimeline: '15–45 days'
+  },
+
+  // 28) Centrifugal Pumps
+  {
+    slug: 'centrifugal-pumps',
+    h1: 'Centrifugal Pump Procurement for Water & Process',
+    subheading: 'API and IS pumps with performance curve verification.',
+    bodyText: `ProcureSaathi manages centrifugal pump procurement for water, process, and industrial applications.
+
+We handle manufacturer coordination, testing, and delivery.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Water treatment', 'Process industries', 'Irrigation'],
+    whatBuyerGets: ['Single consolidated price', 'Performance curves', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['API 610', 'IS 1710', 'End suction, Split case'],
+    metaTitle: 'Centrifugal Pump Procurement India | Water & Process',
+    metaDescription: 'Managed pump procurement. API/IS grades. Water & process industries.',
+    intentKeywords: ['centrifugal pumps procurement', 'industrial pumps bulk India'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'pumps',
+      industry: 'water_process',
+      buyer_type: 'contractor',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 98,
+    typicalDealRange: { min: 500000, max: 60000000 },
+    deliveryTimeline: '15–40 days'
+  },
+
+  // 29) Diesel Generators
+  {
+    slug: 'diesel-generators',
+    h1: 'Diesel Generator Procurement for Infrastructure',
+    subheading: 'Prime and standby DG sets with AMC options.',
+    bodyText: `ProcureSaathi manages diesel generator procurement for infrastructure and industrial projects.
+
+We coordinate OEM selection, installation support, and AMC options.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Infrastructure projects', 'Commercial buildings', 'Industrial plants'],
+    whatBuyerGets: ['Single consolidated price', 'Installation support', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['15kVA–2000kVA', 'Cummins, Kirloskar, CAT', 'Prime/Standby rating'],
+    metaTitle: 'Diesel Generator Procurement India | DG Sets',
+    metaDescription: 'Managed DG set procurement. Prime & standby. All major brands.',
+    intentKeywords: ['diesel generator procurement', 'DG sets bulk India'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'generators',
+      industry: 'infrastructure',
+      buyer_type: 'developer',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 67,
+    typicalDealRange: { min: 1000000, max: 100000000 },
+    deliveryTimeline: '15–45 days'
+  },
+
+  // 30) HVAC Equipment
+  {
+    slug: 'hvac-equipment',
+    h1: 'HVAC Equipment Procurement for Commercial Projects',
+    subheading: 'Chillers, AHUs, and VRF systems with project coordination.',
+    bodyText: `ProcureSaathi manages HVAC equipment procurement for commercial and industrial projects.
+
+We coordinate OEM selection, sizing, and delivery scheduling.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: ['Commercial buildings', 'Hospitals', 'Data centers'],
+    whatBuyerGets: ['Single consolidated price', 'Sizing support', 'Contract with ProcureSaathi Pvt Ltd'],
+    specifications: ['Chillers', 'AHUs', 'VRF/VRV systems', 'Ducted splits'],
+    metaTitle: 'HVAC Equipment Procurement India | Commercial',
+    metaDescription: 'Managed HVAC procurement. Chillers, AHUs, VRF. Commercial projects.',
+    intentKeywords: ['HVAC equipment procurement', 'chillers bulk India'],
+    signalMapping: {
+      category: 'equipment',
+      subcategory: 'hvac',
+      industry: 'commercial_real_estate',
+      buyer_type: 'developer',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 25,
+    successfulDealsCount: 56,
+    typicalDealRange: { min: 2000000, max: 200000000 },
+    deliveryTimeline: '30–60 days'
   }
 ];
 
