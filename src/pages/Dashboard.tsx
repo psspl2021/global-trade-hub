@@ -40,6 +40,7 @@ import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
 import { AdminControlTower } from '@/components/admin/AdminControlTower';
 import { AISalesDashboard } from '@/components/admin/AISalesDashboard';
+import { AdminDemandHeatmap } from '@/components/admin/AdminDemandHeatmap';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -92,6 +93,7 @@ const Dashboard = () => {
   const [showSupplierSelection, setShowSupplierSelection] = useState(false);
   const [showControlTower, setShowControlTower] = useState(false);
   const [showAISalesEngine, setShowAISalesEngine] = useState(false);
+  const [showDemandHeatmap, setShowDemandHeatmap] = useState(false);
   const [showPartnerDocVerification, setShowPartnerDocVerification] = useState(false);
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
@@ -272,6 +274,7 @@ const Dashboard = () => {
               onOpenSupplierSelection={() => setShowSupplierSelection(true)}
               onOpenControlTower={() => setShowControlTower(true)}
               onOpenAISalesEngine={() => setShowAISalesEngine(true)}
+              onOpenDemandHeatmap={() => setShowDemandHeatmap(true)}
             />
             <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
             {user && (
@@ -344,6 +347,19 @@ const Dashboard = () => {
                       <Button variant="outline" onClick={() => setShowAISalesEngine(false)}>Close</Button>
                     </div>
                     <AISalesDashboard />
+                  </div>
+                </div>
+              </div>
+            )}
+            {showDemandHeatmap && (
+              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">Global Demand Heatmap</h2>
+                      <Button variant="outline" onClick={() => setShowDemandHeatmap(false)}>Close</Button>
+                    </div>
+                    <AdminDemandHeatmap />
                   </div>
                 </div>
               </div>
