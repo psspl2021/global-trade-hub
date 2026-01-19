@@ -2039,6 +2039,63 @@ export type Database = {
           },
         ]
       }
+      lane_events: {
+        Row: {
+          actor: string
+          category: string | null
+          country: string | null
+          created_at: string
+          event_type: string
+          from_state: string
+          id: string
+          metadata: Json | null
+          occurred_at: string
+          signal_id: string | null
+          to_state: string
+        }
+        Insert: {
+          actor: string
+          category?: string | null
+          country?: string | null
+          created_at?: string
+          event_type?: string
+          from_state: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          signal_id?: string | null
+          to_state: string
+        }
+        Update: {
+          actor?: string
+          category?: string | null
+          country?: string | null
+          created_at?: string
+          event_type?: string
+          from_state?: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          signal_id?: string | null
+          to_state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lane_events_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lane_events_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_activities: {
         Row: {
           activity_date: string
