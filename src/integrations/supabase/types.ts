@@ -2209,9 +2209,55 @@ export type Database = {
           },
         ]
       }
+      logistics_requirement_events: {
+        Row: {
+          actor: string | null
+          created_at: string | null
+          id: string
+          new_buyer_closure_status: string | null
+          new_status: string | null
+          notes: string | null
+          old_buyer_closure_status: string | null
+          old_status: string | null
+          requirement_id: string | null
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string | null
+          id?: string
+          new_buyer_closure_status?: string | null
+          new_status?: string | null
+          notes?: string | null
+          old_buyer_closure_status?: string | null
+          old_status?: string | null
+          requirement_id?: string | null
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string | null
+          id?: string
+          new_buyer_closure_status?: string | null
+          new_status?: string | null
+          notes?: string | null
+          old_buyer_closure_status?: string | null
+          old_status?: string | null
+          requirement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_requirement_events_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logistics_requirements: {
         Row: {
+          bidding_deadline_at: string | null
           budget_max: number | null
+          buyer_closure_status: string | null
           created_at: string
           customer_id: string
           delivery_deadline: string
@@ -2232,7 +2278,9 @@ export type Database = {
             | null
         }
         Insert: {
+          bidding_deadline_at?: string | null
           budget_max?: number | null
+          buyer_closure_status?: string | null
           created_at?: string
           customer_id: string
           delivery_deadline: string
@@ -2253,7 +2301,9 @@ export type Database = {
             | null
         }
         Update: {
+          bidding_deadline_at?: string | null
           budget_max?: number | null
+          buyer_closure_status?: string | null
           created_at?: string
           customer_id?: string
           delivery_deadline?: string
@@ -5961,6 +6011,12 @@ export type Database = {
       get_delivery_success_rate: {
         Args: { p_supplier_id: string }
         Returns: number
+      }
+      get_effective_logistics_state: {
+        Args: {
+          r: Database["public"]["Tables"]["logistics_requirements"]["Row"]
+        }
+        Returns: string
       }
       get_effective_requirement_state: {
         Args: { r: Database["public"]["Tables"]["requirements"]["Row"] }
