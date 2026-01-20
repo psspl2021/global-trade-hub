@@ -5,8 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, MapPin, Calendar, Package, Truck, CheckCircle, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, MapPin, Calendar, Package, Truck, CheckCircle, Filter, ChevronLeft, ChevronRight, MoreVertical, XCircle, RotateCcw, Clock, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface LogisticsRequirement {
@@ -24,6 +32,7 @@ interface LogisticsRequirement {
   special_requirements: string | null;
   budget_max: number | null;
   status: string;
+  buyer_closure_status?: 'open' | 'closed';
   created_at: string;
 }
 
@@ -39,6 +48,29 @@ interface LogisticsBid {
   created_at: string;
 }
 
+// Canonical effective state resolver - matches DB function
+type EffectiveState = 'active' | 'expired_soft' | 'closed' | 'awarded' | 'expired' | 'cancelled';
+
+const getEffectiveState = (req: LogisticsRequirement): EffectiveState => {
+  // Buyer explicitly closed → always closed
+  if (req.buyer_closure_status === 'closed') {
+    return 'closed';
+  }
+  // Awarded (status = 'closed' in old logic means awarded)
+  if (req.status === 'closed') {
+    return 'awarded';
+  }
+  // Expired but buyer still open → soft-expired (can re-open)
+  if (req.status === 'expired' && req.buyer_closure_status === 'open') {
+    return 'expired_soft';
+  }
+  // Active + buyer open → tradable
+  if (req.status === 'active' && req.buyer_closure_status === 'open') {
+    return 'active';
+  }
+  return req.status as EffectiveState;
+};
+
 interface BuyerLogisticsRequirementsProps {
   userId: string;
 }
@@ -53,6 +85,13 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
   const { toast } = useToast();
+
+  // Re-open / Extend deadline modal state
+  const [reopenDeadlineModal, setReopenDeadlineModal] = useState<{
+    requirementId: string;
+    action: 'reopen' | 'extend';
+  } | null>(null);
+  const [newDeadline, setNewDeadline] = useState('');
 
   const fetchRequirements = async () => {
     const { data, error } = await (supabase
@@ -91,6 +130,19 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
   const handleAcceptBid = async (bidId: string) => {
     if (!selectedRequirement) return;
 
+    // Check effective state before accepting
+    const effectiveState = getEffectiveState(selectedRequirement);
+    if (effectiveState !== 'active') {
+      toast({ 
+        title: 'Cannot Accept Quote', 
+        description: effectiveState === 'expired_soft' 
+          ? 'This requirement has expired. Please extend the deadline or re-open it first.'
+          : 'This requirement is closed. Please re-open it first.',
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     try {
       // Accept the selected bid
       const { error: bidError } = await (supabase
@@ -108,7 +160,7 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
         .eq('status', 'pending')
         .neq('id', bidId);
 
-      // Close the requirement
+      // Award the requirement (set status to closed, but NOT buyer_closure_status)
       await (supabase
         .from('logistics_requirements') as any)
         .update({ status: 'closed' })
@@ -125,23 +177,96 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
     }
   };
 
+  // Close requirement - sets buyer_closure_status to 'closed'
+  const handleCloseRequirement = async (requirementId: string) => {
+    try {
+      const { error } = await (supabase
+        .from('logistics_requirements') as any)
+        .update({ buyer_closure_status: 'closed' })
+        .eq('id', requirementId);
+
+      if (error) throw error;
+      
+      toast({ title: 'Success', description: 'Load closed successfully' });
+      fetchRequirements();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  // Re-open requirement - sets buyer_closure_status to 'open' and status to 'active'
+  const handleReopenRequirement = async (requirementId: string, deadline: string) => {
+    try {
+      const { error } = await (supabase
+        .from('logistics_requirements') as any)
+        .update({
+          buyer_closure_status: 'open',
+          status: 'active',
+          delivery_deadline: deadline,
+        })
+        .eq('id', requirementId);
+
+      if (error) throw error;
+      
+      toast({ title: 'Success', description: 'Load re-opened successfully!' });
+      fetchRequirements();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  // Extend deadline
+  const handleExtendDeadline = async (requirementId: string, deadline: string) => {
+    try {
+      const { error } = await (supabase
+        .from('logistics_requirements') as any)
+        .update({
+          delivery_deadline: deadline,
+          status: 'active',
+        })
+        .eq('id', requirementId);
+
+      if (error) throw error;
+      
+      toast({ title: 'Success', description: 'Deadline extended successfully!' });
+      fetchRequirements();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
   useEffect(() => {
     fetchRequirements();
   }, [userId]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active': return <Badge className="bg-green-500">Active</Badge>;
-      case 'closed': return <Badge className="bg-primary/20 text-primary border-primary/30">Awarded</Badge>;
-      case 'cancelled': return <Badge variant="destructive">Cancelled</Badge>;
-      default: return <Badge variant="outline">{status}</Badge>;
+  // Get effective state badge
+  const getEffectiveStateBadge = (req: LogisticsRequirement) => {
+    const effectiveState = getEffectiveState(req);
+    
+    switch (effectiveState) {
+      case 'active':
+        return <Badge className="bg-success/20 text-success border-success/30">🟢 Active</Badge>;
+      case 'expired_soft':
+        return <Badge className="bg-warning/20 text-warning border-warning/30">🟡 Expired — Extend or Close</Badge>;
+      case 'closed':
+        return <Badge className="bg-muted text-muted-foreground border-muted-foreground/30">⚫ Closed</Badge>;
+      case 'awarded':
+        return <Badge className="bg-primary/20 text-primary border-primary/30">🟣 Awarded</Badge>;
+      case 'cancelled':
+        return <Badge variant="destructive">Cancelled</Badge>;
+      default:
+        return <Badge variant="outline">{effectiveState}</Badge>;
     }
   };
 
   // Filter and paginate
   const filteredRequirements = requirements.filter(req => {
     if (statusFilter === 'all') return true;
-    if (statusFilter === 'awarded') return req.status === 'closed';
+    const effectiveState = getEffectiveState(req);
+    if (statusFilter === 'awarded') return effectiveState === 'awarded';
+    if (statusFilter === 'active') return effectiveState === 'active';
+    if (statusFilter === 'expired') return effectiveState === 'expired_soft';
+    if (statusFilter === 'closed') return effectiveState === 'closed';
     return req.status === statusFilter;
   });
 
@@ -176,14 +301,15 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[130px] bg-background">
+              <SelectTrigger className="w-[150px] bg-background">
                 <SelectValue placeholder="Filter" />
               </SelectTrigger>
               <SelectContent className="bg-background border shadow-lg z-50">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="awarded">Awarded</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -201,10 +327,10 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
                 <Card key={req.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <h4 className="font-medium">{req.title}</h4>
-                          {getStatusBadge(req.status)}
+                          {getEffectiveStateBadge(req)}
                         </div>
                         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
@@ -221,9 +347,74 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
                           </span>
                         </div>
                       </div>
-                      <Button size="sm" onClick={() => handleViewBids(req)}>
-                        View Quotes
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleViewBids(req)}>
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Quotes
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                            <DropdownMenuItem onClick={() => handleViewBids(req)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            
+                            {/* Close - available when active */}
+                            {getEffectiveState(req) === 'active' && (
+                              <DropdownMenuItem 
+                                onClick={() => handleCloseRequirement(req.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Close Load
+                              </DropdownMenuItem>
+                            )}
+                            
+                            {/* Re-open - available when expired_soft or closed */}
+                            {(getEffectiveState(req) === 'expired_soft' || getEffectiveState(req) === 'closed') && (
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setReopenDeadlineModal({ requirementId: req.id, action: 'reopen' });
+                                  setNewDeadline('');
+                                }}
+                                className="text-success focus:text-success"
+                              >
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Re-open Load
+                              </DropdownMenuItem>
+                            )}
+                            
+                            {/* Extend Deadline - available when active or expired_soft */}
+                            {(getEffectiveState(req) === 'active' || getEffectiveState(req) === 'expired_soft') && (
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setReopenDeadlineModal({ requirementId: req.id, action: 'extend' });
+                                  setNewDeadline('');
+                                }}
+                              >
+                                <Clock className="h-4 w-4 mr-2" />
+                                Extend Deadline
+                              </DropdownMenuItem>
+                            )}
+                            
+                            {/* Close Permanently - available when expired_soft */}
+                            {getEffectiveState(req) === 'expired_soft' && (
+                              <DropdownMenuItem 
+                                onClick={() => handleCloseRequirement(req.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Close Permanently
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -263,6 +454,7 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
         </CardContent>
       </Card>
 
+      {/* Bids Dialog */}
       <Dialog open={!!selectedRequirement} onOpenChange={() => setSelectedRequirement(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -300,11 +492,29 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
                           <p className="text-xs text-muted-foreground mt-2">{bid.terms_and_conditions}</p>
                         )}
                       </div>
-                      {selectedRequirement?.status === 'active' && bid.status === 'pending' && (
+                      {/* Accept quote only when load is active */}
+                      {selectedRequirement && getEffectiveState(selectedRequirement) === 'active' && bid.status === 'pending' && (
                         <Button onClick={() => handleAcceptBid(bid.id)}>
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Accept Quote
                         </Button>
+                      )}
+                      {/* Show message when expired_soft */}
+                      {selectedRequirement && getEffectiveState(selectedRequirement) === 'expired_soft' && bid.status === 'pending' && (
+                        <div className="text-right">
+                          <p className="text-xs text-warning mb-1">Load expired</p>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setReopenDeadlineModal({ requirementId: selectedRequirement.id, action: 'extend' });
+                              setNewDeadline('');
+                            }}
+                          >
+                            <Clock className="h-4 w-4 mr-1" />
+                            Extend to Accept
+                          </Button>
+                        </div>
                       )}
                       {bid.status === 'accepted' && (
                         <Badge className="bg-green-500">Accepted</Badge>
@@ -318,6 +528,59 @@ export const BuyerLogisticsRequirements = ({ userId }: BuyerLogisticsRequirement
               ))}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Re-open / Extend Deadline Modal */}
+      <Dialog 
+        open={!!reopenDeadlineModal} 
+        onOpenChange={(open) => !open && setReopenDeadlineModal(null)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {reopenDeadlineModal?.action === 'reopen' ? 'Re-open Load' : 'Extend Deadline'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-deadline">New Delivery Deadline</Label>
+              <Input
+                id="new-deadline"
+                type="date"
+                value={newDeadline}
+                min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+                onChange={(e) => setNewDeadline(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                {reopenDeadlineModal?.action === 'reopen' 
+                  ? 'Select a new deadline to re-activate this load for bidding.'
+                  : 'Extend the deadline to give transporters more time to quote.'}
+              </p>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setReopenDeadlineModal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={!newDeadline}
+                onClick={() => {
+                  if (!reopenDeadlineModal || !newDeadline) return;
+                  if (reopenDeadlineModal.action === 'reopen') {
+                    handleReopenRequirement(reopenDeadlineModal.requirementId, newDeadline);
+                  } else {
+                    handleExtendDeadline(reopenDeadlineModal.requirementId, newDeadline);
+                  }
+                  setReopenDeadlineModal(null);
+                }}
+              >
+                {reopenDeadlineModal?.action === 'reopen' ? 'Re-open Load' : 'Extend Deadline'}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>

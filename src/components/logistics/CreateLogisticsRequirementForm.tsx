@@ -76,6 +76,28 @@ export const CreateLogisticsRequirementForm = ({
   const onSubmit = async (data: LogisticsFormData) => {
     setIsSubmitting(true);
     try {
+      // Check for duplicate open/expired logistics requirements with same route
+      const { count: duplicateCount, error: dupError } = await (supabase
+        .from('logistics_requirements') as any)
+        .select('id', { count: 'exact', head: true })
+        .eq('customer_id', userId)
+        .eq('pickup_location', data.pickup_location)
+        .eq('delivery_location', data.delivery_location)
+        .in('status', ['active', 'expired'])
+        .or('buyer_closure_status.is.null,buyer_closure_status.eq.open');
+
+      if (dupError) {
+        if (import.meta.env.DEV) console.error('Duplicate check error:', dupError);
+      } else if (duplicateCount && duplicateCount > 0) {
+        toast({
+          title: 'Duplicate Load',
+          description: 'You already have an open or recently expired load for this route. Please close or extend the existing one before creating a new load.',
+          variant: 'destructive',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error } = await (supabase.from('logistics_requirements') as any).insert({
         customer_id: userId,
         title: data.title,
@@ -90,6 +112,7 @@ export const CreateLogisticsRequirementForm = ({
         vehicle_type_preference: data.vehicle_type_preference || null,
         special_requirements: data.special_requirements || null,
         budget_max: data.budget_max || null,
+        buyer_closure_status: 'open', // Always start as open
       });
 
       if (error) throw error;
