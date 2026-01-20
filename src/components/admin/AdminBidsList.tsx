@@ -403,15 +403,96 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
        * - Historical audit reference
        */
 
+      let workingBidItems = [...bidItems];
+      
+      // AUTO-CREATE bid_items from parsed terms if they don't exist
+      // This fixes legacy bids that only have terms_and_conditions
+      if (workingBidItems.length === 0) {
+        const parsedItems = parseItemsFromTerms(editForm.terms_and_conditions);
+        
+        if (parsedItems.length > 0) {
+          // First, get or create a requirement_item for this bid
+          // Check if requirement_items exist for this requirement
+          const { data: existingReqItems } = await supabase
+            .from('requirement_items')
+            .select('id, item_name')
+            .eq('requirement_id', editingBid.requirement_id);
+          
+          // Map parsed items to requirement_items (create if needed)
+          for (const parsed of parsedItems) {
+            // Find matching requirement_item or use first one
+            let reqItemId = existingReqItems?.[0]?.id;
+            
+            // Try to match by item name
+            const matchingReqItem = existingReqItems?.find(
+              ri => ri.item_name.toLowerCase().includes(parsed.item_name.toLowerCase()) ||
+                    parsed.item_name.toLowerCase().includes(ri.item_name.toLowerCase())
+            );
+            if (matchingReqItem) {
+              reqItemId = matchingReqItem.id;
+            }
+            
+            // If no requirement_items exist, create one from the requirement
+            if (!reqItemId && editingBid.requirement) {
+              const { data: newReqItem, error: reqItemError } = await supabase
+                .from('requirement_items')
+                .insert({
+                  requirement_id: editingBid.requirement_id,
+                  item_name: parsed.item_name || editingBid.requirement.title,
+                  quantity: parsed.quantity,
+                  unit: parsed.unit || editingBid.requirement.unit || 'Tons',
+                  category: editingBid.requirement.product_category || 'Other',
+                })
+                .select('id')
+                .single();
+              
+              if (reqItemError) {
+                console.error('Error creating requirement_item:', reqItemError);
+                throw new Error('Failed to create requirement item for bid');
+              }
+              reqItemId = newReqItem.id;
+            }
+            
+            if (reqItemId) {
+              // Create bid_item
+              const { data: newBidItem, error: bidItemError } = await supabase
+                .from('bid_items')
+                .insert({
+                  bid_id: editingBid.id,
+                  requirement_item_id: reqItemId,
+                  unit_price: parsed.unit_price,
+                  supplier_unit_price: parsed.unit_price,
+                  quantity: parsed.quantity,
+                  total: parsed.total,
+                })
+                .select('*')
+                .single();
+              
+              if (bidItemError) {
+                console.error('Error creating bid_item:', bidItemError);
+                throw new Error('Failed to create bid item');
+              }
+              
+              workingBidItems.push(newBidItem);
+            }
+          }
+          
+          toast.info(`Created ${workingBidItems.length} bid items from parsed terms`);
+        } else {
+          // No parsed items and no bid_items - cannot save due to trigger constraint
+          throw new Error('Cannot save bid without line items. Please ensure Terms & Conditions contains properly formatted item details.');
+        }
+      }
+
       // Get the current bid items with recalculated totals
-      const updatedBidItems = bidItems.map(item => ({
+      const updatedBidItems = workingBidItems.map(item => ({
         ...item,
         total: item.unit_price * item.quantity, // Ensure total is recalculated
       }));
 
-      // Update bid items first
-      if (updatedBidItems.length > 0) {
-        for (const item of updatedBidItems) {
+      // Update bid items (only existing ones, new ones were just created)
+      for (const item of updatedBidItems) {
+        if (bidItems.some(bi => bi.id === item.id)) {
           const { error: itemError } = await supabase
             .from('bid_items')
             .update({
@@ -426,9 +507,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
 
       // Calculate supplier_net_price from the SAME updated items
       // This is what the supplier quoted (sum of unit_price × quantity)
-      const supplierNetPrice = updatedBidItems.length > 0 
-        ? updatedBidItems.reduce((sum, item) => sum + item.total, 0)
-        : editForm.bid_amount;
+      const supplierNetPrice = updatedBidItems.reduce((sum, item) => sum + item.total, 0);
 
       // Calculate profit based on trade type: 0.5% domestic, 2% export/import
       const markupRate = getProfitPercentage(editingBid.requirement?.trade_type);
@@ -468,6 +547,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
 
       toast.success('Bid updated successfully');
       setEditingBid(null);
+      setBidItems([]); // Reset bid items state
       fetchSupplierBids();
       fetchTabCounts();
     } catch (error: any) {
