@@ -96,7 +96,13 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
     title: string;
     quantity: number;
     unit: string;
+    status?: string;
+    bidding_deadline_at?: string;
   } | null>(null);
+  
+  // Check if requirement is expired (deadline passed or status is expired)
+  const isRequirementExpired = requirementDetails?.status === 'expired' || 
+    (requirementDetails?.bidding_deadline_at && new Date(requirementDetails.bidding_deadline_at) < new Date());
   
   // Dispatch modal state
   const [dispatchModalData, setDispatchModalData] = useState<{
@@ -154,19 +160,21 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
 
       let requirementItems = (itemsData || []) as RequirementItem[];
 
-      // Fetch requirement details for fallback
+      // Fetch requirement details for fallback (include deadline and status)
       const { data: reqData } = await supabase
         .from('requirements')
-        .select('title, quantity, unit, product_category')
+        .select('title, quantity, unit, product_category, status, bidding_deadline_at')
         .eq('id', requirementId)
         .maybeSingle();
 
-      // Store requirement details for dispatch modal
+      // Store requirement details for dispatch modal and deadline check
       if (reqData) {
         setRequirementDetails({
           title: reqData.title,
           quantity: reqData.quantity,
           unit: reqData.unit,
+          status: reqData.status,
+          bidding_deadline_at: reqData.bidding_deadline_at,
         });
       }
 
@@ -992,6 +1000,16 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
                       {l1SupplierBid?.award_coverage_percentage && ` (${l1SupplierBid.award_coverage_percentage}%)`}
                     </div>
                   )}
+                </div>
+              ) : isRequirementExpired ? (
+                <div className="text-right">
+                  <Badge variant="destructive" className="text-sm px-3 py-1">
+                    <AlertTriangle className="h-4 w-4 mr-1" />
+                    EXPIRED
+                  </Badge>
+                  <div className="text-xs text-destructive mt-1">
+                    Deadline passed - Cannot award
+                  </div>
                 </div>
               ) : showAllSuppliers && !isAnyFullAward && (
                 <div className="flex gap-2">

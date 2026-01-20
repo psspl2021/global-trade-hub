@@ -3668,6 +3668,7 @@ export type Database = {
       }
       requirements: {
         Row: {
+          bidding_deadline_at: string | null
           budget_max: number | null
           budget_min: number | null
           buyer_id: string
@@ -3701,6 +3702,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
           buyer_id: string
@@ -3734,6 +3736,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
           buyer_id?: string
