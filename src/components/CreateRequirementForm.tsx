@@ -245,6 +245,27 @@ export function CreateRequirementForm({
       const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
       const primaryCategory = items[0].category;
 
+      // Check for duplicate open/expired RFQs with same category and location
+      const { count: duplicateCount, error: dupError } = await supabase
+        .from('requirements')
+        .select('id', { count: 'exact', head: true })
+        .eq('buyer_id', userId)
+        .eq('product_category', primaryCategory)
+        .eq('delivery_location', data.delivery_location)
+        .in('status', ['active', 'expired'])
+        .or('buyer_closure_status.is.null,buyer_closure_status.eq.open');
+
+      if (dupError) {
+        if (import.meta.env.DEV) console.error('Duplicate check error:', dupError);
+      } else if (duplicateCount && duplicateCount > 0) {
+        toast.error(
+          'You already have an open or recently expired RFQ for this category and location. Please close or extend the existing one before creating a new RFQ.',
+          { duration: 6000 }
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       // Insert main requirement
       // Build insert payload with attribution tracking
       const insertPayload: Record<string, unknown> = {
@@ -267,6 +288,8 @@ export function CreateRequirementForm({
         source: source || 'direct',
         source_run_id: sourceRunId || null,
         signal_page_id: signalPageId || null,
+        // Always set buyer_closure_status to 'open' for new RFQs
+        buyer_closure_status: 'open',
       };
 
       // Type cast needed as the DB types haven't regenerated yet with new columns
