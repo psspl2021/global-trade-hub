@@ -3566,6 +3566,50 @@ export type Database = {
         }
         Relationships: []
       }
+      requirement_events: {
+        Row: {
+          actor: string | null
+          created_at: string | null
+          id: string
+          new_buyer_closure_status: string | null
+          new_status: string | null
+          notes: string | null
+          old_buyer_closure_status: string | null
+          old_status: string | null
+          requirement_id: string | null
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string | null
+          id?: string
+          new_buyer_closure_status?: string | null
+          new_status?: string | null
+          notes?: string | null
+          old_buyer_closure_status?: string | null
+          old_status?: string | null
+          requirement_id?: string | null
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string | null
+          id?: string
+          new_buyer_closure_status?: string | null
+          new_status?: string | null
+          notes?: string | null
+          old_buyer_closure_status?: string | null
+          old_status?: string | null
+          requirement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_events_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requirement_items: {
         Row: {
           budget_max: number | null
@@ -3671,6 +3715,7 @@ export type Database = {
           bidding_deadline_at: string | null
           budget_max: number | null
           budget_min: number | null
+          buyer_closure_status: string | null
           buyer_id: string
           certifications_required: string | null
           created_at: string
@@ -3705,6 +3750,7 @@ export type Database = {
           bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
+          buyer_closure_status?: string | null
           buyer_id: string
           certifications_required?: string | null
           created_at?: string
@@ -3739,6 +3785,7 @@ export type Database = {
           bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
+          buyer_closure_status?: string | null
           buyer_id?: string
           certifications_required?: string | null
           created_at?: string
@@ -5914,6 +5961,10 @@ export type Database = {
       get_delivery_success_rate: {
         Args: { p_supplier_id: string }
         Returns: number
+      }
+      get_effective_requirement_state: {
+        Args: { r: Database["public"]["Tables"]["requirements"]["Row"] }
+        Returns: string
       }
       get_email_quota_status: {
         Args: { p_supplier_id: string }
