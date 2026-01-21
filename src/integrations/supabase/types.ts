@@ -917,15 +917,16 @@ export type Database = {
       }
       bids: {
         Row: {
-          approved_at: string | null
           approved_by: string | null
           award_coverage_percentage: number | null
           award_justification: string | null
           award_type: string | null
+          awarded_at: string | null
           bid_amount: number
           buyer_logistics_price: number | null
           buyer_material_price: number | null
           buyer_visible_price: number
+          closed_at: string | null
           created_at: string
           delivered_at: string | null
           delivery_timeline_days: number
@@ -939,6 +940,7 @@ export type Database = {
           markup_percentage: number | null
           platform_margin: number | null
           quality_status: string | null
+          rejected_at: string | null
           requirement_id: string
           service_fee: number
           status: Database["public"]["Enums"]["bid_status"]
@@ -952,15 +954,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          approved_at?: string | null
           approved_by?: string | null
           award_coverage_percentage?: number | null
           award_justification?: string | null
           award_type?: string | null
+          awarded_at?: string | null
           bid_amount: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
           buyer_visible_price: number
+          closed_at?: string | null
           created_at?: string
           delivered_at?: string | null
           delivery_timeline_days: number
@@ -974,6 +977,7 @@ export type Database = {
           markup_percentage?: number | null
           platform_margin?: number | null
           quality_status?: string | null
+          rejected_at?: string | null
           requirement_id: string
           service_fee: number
           status?: Database["public"]["Enums"]["bid_status"]
@@ -987,15 +991,16 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          approved_at?: string | null
           approved_by?: string | null
           award_coverage_percentage?: number | null
           award_justification?: string | null
           award_type?: string | null
+          awarded_at?: string | null
           bid_amount?: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
           buyer_visible_price?: number
+          closed_at?: string | null
           created_at?: string
           delivered_at?: string | null
           delivery_timeline_days?: number
@@ -1009,6 +1014,7 @@ export type Database = {
           markup_percentage?: number | null
           platform_margin?: number | null
           quality_status?: string | null
+          rejected_at?: string | null
           requirement_id?: string
           service_fee?: number
           status?: Database["public"]["Enums"]["bid_status"]
@@ -2251,12 +2257,15 @@ export type Database = {
       }
       logistics_bids: {
         Row: {
+          awarded_at: string | null
           bid_amount: number
+          closed_at: string | null
           created_at: string
           estimated_transit_days: number
           id: string
           is_paid_bid: boolean
           rate_per_unit: number | null
+          rejected_at: string | null
           requirement_id: string
           service_fee: number
           status: Database["public"]["Enums"]["logistics_bid_status"]
@@ -2267,12 +2276,15 @@ export type Database = {
           vehicle_id: string | null
         }
         Insert: {
+          awarded_at?: string | null
           bid_amount: number
+          closed_at?: string | null
           created_at?: string
           estimated_transit_days: number
           id?: string
           is_paid_bid?: boolean
           rate_per_unit?: number | null
+          rejected_at?: string | null
           requirement_id: string
           service_fee: number
           status?: Database["public"]["Enums"]["logistics_bid_status"]
@@ -2283,12 +2295,15 @@ export type Database = {
           vehicle_id?: string | null
         }
         Update: {
+          awarded_at?: string | null
           bid_amount?: number
+          closed_at?: string | null
           created_at?: string
           estimated_transit_days?: number
           id?: string
           is_paid_bid?: boolean
           rate_per_unit?: number | null
+          rejected_at?: string | null
           requirement_id?: string
           service_fee?: number
           status?: Database["public"]["Enums"]["logistics_bid_status"]

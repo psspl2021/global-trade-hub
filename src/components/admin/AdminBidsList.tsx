@@ -46,6 +46,9 @@ interface Bid {
   delivery_timeline_days: number;
   status: string;
   created_at: string;
+  awarded_at: string | null;
+  rejected_at: string | null;
+  closed_at: string | null;
   terms_and_conditions: string | null;
   requirement_id: string;
   requirement: {
@@ -70,6 +73,9 @@ interface LogisticsBid {
   estimated_transit_days: number;
   status: string;
   created_at: string;
+  awarded_at: string | null;
+  rejected_at: string | null;
+  closed_at: string | null;
   terms_and_conditions: string | null;
   rate_per_unit: number | null;
   requirement_id: string;
@@ -152,6 +158,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('comparison');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   
   const [supplierPage, setSupplierPage] = useState(1);
   const [supplierTotal, setSupplierTotal] = useState(0);
@@ -162,6 +169,18 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   
   // Comparison tab state
   const [requirements, setRequirements] = useState<Array<{ id: string; title: string; product_category: string; trade_type?: string }>>([]);
+  
+  // Helper to get display date based on status
+  const getDisplayDate = (bid: Bid | LogisticsBid): { date: string; label: string } => {
+    if (bid.status === 'accepted' && bid.awarded_at) {
+      return { date: bid.awarded_at, label: 'Awarded' };
+    } else if (bid.status === 'rejected' && bid.rejected_at) {
+      return { date: bid.rejected_at, label: 'Rejected' };
+    } else if ((bid.status === 'closed' || bid.status === 'expired') && bid.closed_at) {
+      return { date: bid.closed_at, label: bid.status === 'expired' ? 'Expired' : 'Closed' };
+    }
+    return { date: bid.created_at, label: 'Created' };
+  };
   const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
 
   // Edit state
@@ -601,15 +620,19 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
   };
 
   const filteredSupplierBids = bids.filter(bid => {
-    return search === '' ||
+    const matchesSearch = search === '' ||
       bid.requirement?.title.toLowerCase().includes(search.toLowerCase()) ||
       bid.supplier?.company_name.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || bid.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
   const filteredLogisticsBids = logisticsBids.filter(bid => {
-    return search === '' ||
+    const matchesSearch = search === '' ||
       bid.requirement?.title.toLowerCase().includes(search.toLowerCase()) ||
       bid.transporter?.company_name.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || bid.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
   const currentPage = activeTab === 'supplier' ? supplierPage : logisticsPage;
@@ -644,14 +667,29 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by requirement or company..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex gap-4 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by requirement or company..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="accepted">Accepted (Awarded)</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
@@ -812,7 +850,12 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                 )}
                               </TableCell>
                               <TableCell>{getStatusBadge(bid.status)}</TableCell>
-                              <TableCell className="text-xs">{format(new Date(bid.created_at), 'dd MMM yy')}</TableCell>
+                              <TableCell className="text-xs">
+                                <div>
+                                  <div>{format(new Date(getDisplayDate(bid).date), 'dd MMM yy')}</div>
+                                  <div className="text-muted-foreground">{getDisplayDate(bid).label}</div>
+                                </div>
+                              </TableCell>
                               <TableCell>
                                 <Button
                                   variant="ghost"
@@ -895,7 +938,12 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               </TableCell>
                               <TableCell>{bid.estimated_transit_days} days</TableCell>
                               <TableCell>{getStatusBadge(bid.status)}</TableCell>
-                              <TableCell>{format(new Date(bid.created_at), 'dd MMM yyyy')}</TableCell>
+                              <TableCell className="text-xs">
+                                <div>
+                                  <div>{format(new Date(getDisplayDate(bid).date), 'dd MMM yy')}</div>
+                                  <div className="text-muted-foreground">{getDisplayDate(bid).label}</div>
+                                </div>
+                              </TableCell>
                               <TableCell>
                                 <Button
                                   variant="ghost"
