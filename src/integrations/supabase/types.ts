@@ -1568,6 +1568,8 @@ export type Database = {
           awarded_value: number | null
           best_supplier_match_score: number | null
           buyer_type: string | null
+          capacity_lane_id: string | null
+          capacity_utilization_at_award: number | null
           category: string | null
           classification: string
           closed_at: string | null
@@ -1622,6 +1624,8 @@ export type Database = {
           awarded_value?: number | null
           best_supplier_match_score?: number | null
           buyer_type?: string | null
+          capacity_lane_id?: string | null
+          capacity_utilization_at_award?: number | null
           category?: string | null
           classification?: string
           closed_at?: string | null
@@ -1676,6 +1680,8 @@ export type Database = {
           awarded_value?: number | null
           best_supplier_match_score?: number | null
           buyer_type?: string | null
+          capacity_lane_id?: string | null
+          capacity_utilization_at_award?: number | null
           category?: string | null
           classification?: string
           closed_at?: string | null
@@ -1722,6 +1728,13 @@ export type Database = {
           value_score?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "demand_intelligence_signals_capacity_lane_id_fkey"
+            columns: ["capacity_lane_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_capacity_lanes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "demand_intelligence_signals_converted_to_rfq_id_fkey"
             columns: ["converted_to_rfq_id"]
