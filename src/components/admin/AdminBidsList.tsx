@@ -686,8 +686,7 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="accepted">Accepted (Awarded)</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="withdrawn">Withdrawn</SelectItem>
               </SelectContent>
             </Select>
           </div>
