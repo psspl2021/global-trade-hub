@@ -2262,6 +2262,7 @@ export type Database = {
           customer_id: string
           delivery_deadline: string
           delivery_location: string
+          effective_state: string | null
           id: string
           material_description: string | null
           material_type: string
@@ -2285,6 +2286,7 @@ export type Database = {
           customer_id: string
           delivery_deadline: string
           delivery_location: string
+          effective_state?: string | null
           id?: string
           material_description?: string | null
           material_type: string
@@ -2308,6 +2310,7 @@ export type Database = {
           customer_id?: string
           delivery_deadline?: string
           delivery_location?: string
+          effective_state?: string | null
           id?: string
           material_description?: string | null
           material_type?: string
@@ -3773,6 +3776,7 @@ export type Database = {
           deadline: string
           delivery_location: string
           description: string
+          effective_state: string | null
           fast_track: boolean | null
           id: string
           payment_terms: string | null
@@ -3808,6 +3812,7 @@ export type Database = {
           deadline: string
           delivery_location: string
           description: string
+          effective_state?: string | null
           fast_track?: boolean | null
           id?: string
           payment_terms?: string | null
@@ -3843,6 +3848,7 @@ export type Database = {
           deadline?: string
           delivery_location?: string
           description?: string
+          effective_state?: string | null
           fast_track?: boolean | null
           id?: string
           payment_terms?: string | null
@@ -5886,6 +5892,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      admin_force_close_logistics_requirement: {
+        Args: { p_reason?: string; p_requirement_id: string }
+        Returns: undefined
+      }
+      admin_force_close_requirement: {
+        Args: { p_reason?: string; p_requirement_id: string }
+        Returns: undefined
+      }
       apply_platform_margin: {
         Args: { p_logistics: number; p_material: number; p_trade_type: string }
         Returns: {
@@ -6188,7 +6202,11 @@ export type Database = {
       fuel_type: "diesel" | "petrol" | "cng" | "electric" | "hybrid"
       logistics_bid_status: "pending" | "accepted" | "rejected"
       logistics_partner_type: "agent" | "fleet_owner"
-      logistics_requirement_status: "active" | "closed" | "cancelled"
+      logistics_requirement_status:
+        | "active"
+        | "closed"
+        | "cancelled"
+        | "expired"
       requirement_status: "active" | "closed" | "awarded" | "expired"
       shipment_status:
         | "awaiting_pickup"
@@ -6370,7 +6388,12 @@ export const Constants = {
       fuel_type: ["diesel", "petrol", "cng", "electric", "hybrid"],
       logistics_bid_status: ["pending", "accepted", "rejected"],
       logistics_partner_type: ["agent", "fleet_owner"],
-      logistics_requirement_status: ["active", "closed", "cancelled"],
+      logistics_requirement_status: [
+        "active",
+        "closed",
+        "cancelled",
+        "expired",
+      ],
       requirement_status: ["active", "closed", "awarded", "expired"],
       shipment_status: [
         "awaiting_pickup",
