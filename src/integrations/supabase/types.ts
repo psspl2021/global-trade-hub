@@ -831,6 +831,13 @@ export type Database = {
             foreignKeyName: "award_audit_logs_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: false
+            referencedRelation: "bids_with_display_date"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "award_audit_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
             referencedRelation: "supplier_deal_closures"
             referencedColumns: ["bid_id"]
           },
@@ -897,6 +904,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids_with_display_date"
             referencedColumns: ["id"]
           },
           {
@@ -1429,6 +1443,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids_with_display_date"
             referencedColumns: ["id"]
           },
           {
@@ -2494,6 +2515,13 @@ export type Database = {
             referencedRelation: "logistics_bids"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "logistics_transactions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_bids_with_display_date"
+            referencedColumns: ["id"]
+          },
         ]
       }
       margin_settings: {
@@ -3072,6 +3100,13 @@ export type Database = {
             foreignKeyName: "price_confidence_scores_bid_id_fkey"
             columns: ["bid_id"]
             isOneToOne: false
+            referencedRelation: "bids_with_display_date"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_confidence_scores_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
             referencedRelation: "supplier_deal_closures"
             referencedColumns: ["bid_id"]
           },
@@ -3534,6 +3569,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: true
             referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_commissions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: true
+            referencedRelation: "bids_with_display_date"
             referencedColumns: ["id"]
           },
           {
@@ -4243,6 +4285,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "logistics_bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_bids_with_display_date"
             referencedColumns: ["id"]
           },
           {
@@ -5249,6 +5298,13 @@ export type Database = {
             foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
             columns: ["selected_bid_id"]
             isOneToOne: false
+            referencedRelation: "bids_with_display_date"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_selection_log_selected_bid_id_fkey"
+            columns: ["selected_bid_id"]
+            isOneToOne: false
             referencedRelation: "supplier_deal_closures"
             referencedColumns: ["bid_id"]
           },
@@ -5359,6 +5415,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids_with_display_date"
             referencedColumns: ["id"]
           },
           {
@@ -5737,6 +5800,131 @@ export type Database = {
           },
         ]
       }
+      bids_with_display_date: {
+        Row: {
+          approved_by: string | null
+          award_coverage_percentage: number | null
+          award_justification: string | null
+          award_type: string | null
+          awarded_at: string | null
+          bid_amount: number | null
+          buyer_logistics_price: number | null
+          buyer_material_price: number | null
+          buyer_visible_price: number | null
+          closed_at: string | null
+          created_at: string | null
+          delivered_at: string | null
+          delivery_timeline_days: number | null
+          dispatched_qty: number | null
+          display_date: string | null
+          expected_delivery_date: string | null
+          id: string | null
+          is_paid_bid: boolean | null
+          logistics_execution_mode: string | null
+          logistics_notes: string | null
+          markup_amount: number | null
+          markup_percentage: number | null
+          platform_margin: number | null
+          quality_status: string | null
+          rejected_at: string | null
+          requirement_id: string | null
+          service_fee: number | null
+          status: Database["public"]["Enums"]["bid_status"] | null
+          supplier_id: string | null
+          supplier_logistics_price: number | null
+          supplier_material_price: number | null
+          supplier_net_price: number | null
+          terms_and_conditions: string | null
+          total_amount: number | null
+          transaction_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_by?: string | null
+          award_coverage_percentage?: number | null
+          award_justification?: string | null
+          award_type?: string | null
+          awarded_at?: string | null
+          bid_amount?: number | null
+          buyer_logistics_price?: number | null
+          buyer_material_price?: number | null
+          buyer_visible_price?: number | null
+          closed_at?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          delivery_timeline_days?: number | null
+          dispatched_qty?: number | null
+          display_date?: never
+          expected_delivery_date?: string | null
+          id?: string | null
+          is_paid_bid?: boolean | null
+          logistics_execution_mode?: string | null
+          logistics_notes?: string | null
+          markup_amount?: number | null
+          markup_percentage?: number | null
+          platform_margin?: number | null
+          quality_status?: string | null
+          rejected_at?: string | null
+          requirement_id?: string | null
+          service_fee?: number | null
+          status?: Database["public"]["Enums"]["bid_status"] | null
+          supplier_id?: string | null
+          supplier_logistics_price?: number | null
+          supplier_material_price?: number | null
+          supplier_net_price?: number | null
+          terms_and_conditions?: string | null
+          total_amount?: number | null
+          transaction_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_by?: string | null
+          award_coverage_percentage?: number | null
+          award_justification?: string | null
+          award_type?: string | null
+          awarded_at?: string | null
+          bid_amount?: number | null
+          buyer_logistics_price?: number | null
+          buyer_material_price?: number | null
+          buyer_visible_price?: number | null
+          closed_at?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          delivery_timeline_days?: number | null
+          dispatched_qty?: number | null
+          display_date?: never
+          expected_delivery_date?: string | null
+          id?: string | null
+          is_paid_bid?: boolean | null
+          logistics_execution_mode?: string | null
+          logistics_notes?: string | null
+          markup_amount?: number | null
+          markup_percentage?: number | null
+          platform_margin?: number | null
+          quality_status?: string | null
+          rejected_at?: string | null
+          requirement_id?: string | null
+          service_fee?: number | null
+          status?: Database["public"]["Enums"]["bid_status"] | null
+          supplier_id?: string | null
+          supplier_logistics_price?: number | null
+          supplier_material_price?: number | null
+          supplier_net_price?: number | null
+          terms_and_conditions?: string | null
+          total_amount?: number | null
+          transaction_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buyer_bid_items_view: {
         Row: {
           bid_id: string | null
@@ -5791,6 +5979,13 @@ export type Database = {
             columns: ["bid_id"]
             isOneToOne: false
             referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids_with_display_date"
             referencedColumns: ["id"]
           },
           {
@@ -5915,6 +6110,84 @@ export type Database = {
             columns: ["converted_to_rfq_id"]
             isOneToOne: false
             referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logistics_bids_with_display_date: {
+        Row: {
+          awarded_at: string | null
+          bid_amount: number | null
+          closed_at: string | null
+          created_at: string | null
+          display_date: string | null
+          estimated_transit_days: number | null
+          id: string | null
+          is_paid_bid: boolean | null
+          rate_per_unit: number | null
+          rejected_at: string | null
+          requirement_id: string | null
+          service_fee: number | null
+          status: Database["public"]["Enums"]["logistics_bid_status"] | null
+          terms_and_conditions: string | null
+          total_amount: number | null
+          transporter_id: string | null
+          updated_at: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          awarded_at?: string | null
+          bid_amount?: number | null
+          closed_at?: string | null
+          created_at?: string | null
+          display_date?: never
+          estimated_transit_days?: number | null
+          id?: string | null
+          is_paid_bid?: boolean | null
+          rate_per_unit?: number | null
+          rejected_at?: string | null
+          requirement_id?: string | null
+          service_fee?: number | null
+          status?: Database["public"]["Enums"]["logistics_bid_status"] | null
+          terms_and_conditions?: string | null
+          total_amount?: number | null
+          transporter_id?: string | null
+          updated_at?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          awarded_at?: string | null
+          bid_amount?: number | null
+          closed_at?: string | null
+          created_at?: string | null
+          display_date?: never
+          estimated_transit_days?: number | null
+          id?: string | null
+          is_paid_bid?: boolean | null
+          rate_per_unit?: number | null
+          rejected_at?: string | null
+          requirement_id?: string | null
+          service_fee?: number | null
+          status?: Database["public"]["Enums"]["logistics_bid_status"] | null
+          terms_and_conditions?: string | null
+          total_amount?: number | null
+          transporter_id?: string | null
+          updated_at?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_bids_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_bids_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
