@@ -2,12 +2,27 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
+
+const CRON_SECRET = Deno.env.get("SLA_CRON_SECRET");
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // 🔒 Verify cron secret - reject unauthorized calls
+  const authSecret = req.headers.get("x-cron-secret");
+  if (!CRON_SECRET || authSecret !== CRON_SECRET) {
+    console.error("Unauthorized SLA cron attempt");
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized" }),
+      { 
+        status: 401, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      }
+    );
   }
 
   try {
