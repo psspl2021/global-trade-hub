@@ -56,7 +56,7 @@ interface Bid {
   award_justification?: string | null;
   award_coverage_percentage?: number | null;
   approved_by?: string | null;
-  approved_at?: string | null;
+  awarded_at?: string | null;
 }
 
 interface SupplierProfile {
@@ -203,7 +203,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           award_type,
           award_justification,
           approved_by,
-          approved_at,
+          awarded_at,
           bid_items (
             id,
             bid_id,
@@ -728,7 +728,7 @@ export function LineItemL1View({ requirementId, tradeType, showAllSuppliers = fa
           award_justification: awardType === 'PARTIAL' ? awardJustification : null,
           award_coverage_percentage: awardType === 'FULL' ? 100 : awardCoveragePercent,
           approved_by: user.id,
-          approved_at: new Date().toISOString(),
+          awarded_at: new Date().toISOString(),
         } as any) // Type assertion until types regenerate
         .eq('id', l1SupplierBid.id);
       
