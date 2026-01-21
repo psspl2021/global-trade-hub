@@ -2255,6 +2255,7 @@ export type Database = {
       }
       logistics_requirements: {
         Row: {
+          award_locked: boolean | null
           bidding_deadline_at: string | null
           budget_max: number | null
           buyer_closure_status: string | null
@@ -2279,6 +2280,7 @@ export type Database = {
             | null
         }
         Insert: {
+          award_locked?: boolean | null
           bidding_deadline_at?: string | null
           budget_max?: number | null
           buyer_closure_status?: string | null
@@ -2303,6 +2305,7 @@ export type Database = {
             | null
         }
         Update: {
+          award_locked?: boolean | null
           bidding_deadline_at?: string | null
           budget_max?: number | null
           buyer_closure_status?: string | null
@@ -3765,6 +3768,7 @@ export type Database = {
       }
       requirements: {
         Row: {
+          award_locked: boolean | null
           bidding_deadline_at: string | null
           budget_max: number | null
           budget_min: number | null
@@ -3801,6 +3805,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          award_locked?: boolean | null
           bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
@@ -3837,6 +3842,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          award_locked?: boolean | null
           bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
@@ -5882,6 +5888,14 @@ export type Database = {
         Args: { p_affiliate_id: string }
         Returns: string
       }
+      activate_lane_from_award: {
+        Args: { bid_id: string; req_id: string }
+        Returns: string
+      }
+      activate_logistics_lane_from_award: {
+        Args: { bid_id: string; req_id: string }
+        Returns: string
+      }
       admin_adjust_supplier_quota: {
         Args: {
           p_daily_adjustment?: number
@@ -6134,6 +6148,11 @@ export type Database = {
       increment_page_views: { Args: { page_id: string }; Returns: undefined }
       increment_rfq_count: { Args: { page_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
+      lock_logistics_awarding: { Args: { req_id: string }; Returns: undefined }
+      lock_requirement_awarding: {
+        Args: { req_id: string }
+        Returns: undefined
+      }
       log_email_sent: {
         Args: {
           p_brevo_message_id: string
@@ -6170,6 +6189,14 @@ export type Database = {
           p_to: string
           p_type: string
         }
+        Returns: undefined
+      }
+      unlock_logistics_awarding: {
+        Args: { req_id: string }
+        Returns: undefined
+      }
+      unlock_requirement_awarding: {
+        Args: { req_id: string }
         Returns: undefined
       }
       validate_referral_eligibility: {
