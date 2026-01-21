@@ -1561,6 +1561,11 @@ export type Database = {
       demand_intelligence_signals: {
         Row: {
           activated_at: string | null
+          actual_delivery_at: string | null
+          awarded_bid_id: string | null
+          awarded_quantity: number | null
+          awarded_supplier_id: string | null
+          awarded_value: number | null
           best_supplier_match_score: number | null
           buyer_type: string | null
           category: string | null
@@ -1581,6 +1586,7 @@ export type Database = {
           estimated_quantity: number | null
           estimated_unit: string | null
           estimated_value: number | null
+          expected_delivery_at: string | null
           external_source_url: string | null
           feasibility_score: number | null
           first_signal_at: string | null
@@ -1589,14 +1595,19 @@ export type Database = {
           id: string
           industry: string | null
           intent_score: number | null
+          is_partial_award: boolean | null
           lane_state: string | null
           lost_at: string | null
           matching_suppliers_count: number | null
           overall_score: number | null
+          parent_lane_id: string | null
           product_description: string | null
           run_id: string | null
           signal_page_id: string | null
           signal_source: string
+          sla_breach_hours: number | null
+          sla_notes: string | null
+          sla_status: string | null
           subcategory: string | null
           updated_at: string | null
           urgency_score: number | null
@@ -1604,6 +1615,11 @@ export type Database = {
         }
         Insert: {
           activated_at?: string | null
+          actual_delivery_at?: string | null
+          awarded_bid_id?: string | null
+          awarded_quantity?: number | null
+          awarded_supplier_id?: string | null
+          awarded_value?: number | null
           best_supplier_match_score?: number | null
           buyer_type?: string | null
           category?: string | null
@@ -1624,6 +1640,7 @@ export type Database = {
           estimated_quantity?: number | null
           estimated_unit?: string | null
           estimated_value?: number | null
+          expected_delivery_at?: string | null
           external_source_url?: string | null
           feasibility_score?: number | null
           first_signal_at?: string | null
@@ -1632,14 +1649,19 @@ export type Database = {
           id?: string
           industry?: string | null
           intent_score?: number | null
+          is_partial_award?: boolean | null
           lane_state?: string | null
           lost_at?: string | null
           matching_suppliers_count?: number | null
           overall_score?: number | null
+          parent_lane_id?: string | null
           product_description?: string | null
           run_id?: string | null
           signal_page_id?: string | null
           signal_source: string
+          sla_breach_hours?: number | null
+          sla_notes?: string | null
+          sla_status?: string | null
           subcategory?: string | null
           updated_at?: string | null
           urgency_score?: number | null
@@ -1647,6 +1669,11 @@ export type Database = {
         }
         Update: {
           activated_at?: string | null
+          actual_delivery_at?: string | null
+          awarded_bid_id?: string | null
+          awarded_quantity?: number | null
+          awarded_supplier_id?: string | null
+          awarded_value?: number | null
           best_supplier_match_score?: number | null
           buyer_type?: string | null
           category?: string | null
@@ -1667,6 +1694,7 @@ export type Database = {
           estimated_quantity?: number | null
           estimated_unit?: string | null
           estimated_value?: number | null
+          expected_delivery_at?: string | null
           external_source_url?: string | null
           feasibility_score?: number | null
           first_signal_at?: string | null
@@ -1675,14 +1703,19 @@ export type Database = {
           id?: string
           industry?: string | null
           intent_score?: number | null
+          is_partial_award?: boolean | null
           lane_state?: string | null
           lost_at?: string | null
           matching_suppliers_count?: number | null
           overall_score?: number | null
+          parent_lane_id?: string | null
           product_description?: string | null
           run_id?: string | null
           signal_page_id?: string | null
           signal_source?: string
+          sla_breach_hours?: number | null
+          sla_notes?: string | null
+          sla_status?: string | null
           subcategory?: string | null
           updated_at?: string | null
           urgency_score?: number | null
@@ -2035,6 +2068,66 @@ export type Database = {
             columns: ["reference_invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lane_capacity_events: {
+        Row: {
+          actor_id: string | null
+          actor_type: string | null
+          capacity_lane_id: string | null
+          created_at: string | null
+          event_type: string
+          id: string
+          lane_id: string | null
+          metadata: Json | null
+          new_allocated: number | null
+          previous_allocated: number | null
+          quantity_delta: number | null
+          value_delta: number | null
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_type?: string | null
+          capacity_lane_id?: string | null
+          created_at?: string | null
+          event_type: string
+          id?: string
+          lane_id?: string | null
+          metadata?: Json | null
+          new_allocated?: number | null
+          previous_allocated?: number | null
+          quantity_delta?: number | null
+          value_delta?: number | null
+        }
+        Update: {
+          actor_id?: string | null
+          actor_type?: string | null
+          capacity_lane_id?: string | null
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          lane_id?: string | null
+          metadata?: Json | null
+          new_allocated?: number | null
+          previous_allocated?: number | null
+          quantity_delta?: number | null
+          value_delta?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lane_capacity_events_lane_id_fkey"
+            columns: ["lane_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lane_capacity_events_lane_id_fkey"
+            columns: ["lane_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_signals"
             referencedColumns: ["id"]
           },
         ]
@@ -4474,32 +4567,41 @@ export type Database = {
         Row: {
           active: boolean | null
           allocated_capacity_value: number | null
+          allocated_quantity: number | null
           category: string
           country: string
           created_at: string | null
           id: string
           monthly_capacity_value: number
+          supplier_id: string | null
           updated_at: string | null
+          utilization_percent: number | null
         }
         Insert: {
           active?: boolean | null
           allocated_capacity_value?: number | null
+          allocated_quantity?: number | null
           category: string
           country: string
           created_at?: string | null
           id?: string
           monthly_capacity_value?: number
+          supplier_id?: string | null
           updated_at?: string | null
+          utilization_percent?: number | null
         }
         Update: {
           active?: boolean | null
           allocated_capacity_value?: number | null
+          allocated_quantity?: number | null
           category?: string
           country?: string
           created_at?: string | null
           id?: string
           monthly_capacity_value?: number
+          supplier_id?: string | null
           updated_at?: string | null
+          utilization_percent?: number | null
         }
         Relationships: []
       }
@@ -6000,6 +6102,10 @@ export type Database = {
         Returns: boolean
       }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
+      create_partial_lane: {
+        Args: { bid_id: string; coverage_percent?: number; req_id: string }
+        Returns: string
+      }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_bids_for_buyer: {
         Args: { p_requirement_id: string }
@@ -6199,6 +6305,7 @@ export type Database = {
         Args: { req_id: string }
         Returns: undefined
       }
+      update_lane_sla_statuses: { Args: never; Returns: undefined }
       validate_referral_eligibility: {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: boolean
