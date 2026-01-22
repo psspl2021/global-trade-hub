@@ -286,10 +286,10 @@ Example: I need 5000 kg of food-grade stainless steel containers for a dairy pla
                     Edit Description
                   </Button>
                   <Button 
-                    className="flex-1 gap-2"
+                    className="flex-1 gap-2 bg-green-600 hover:bg-green-700"
                     onClick={handleProceed}
                   >
-                    Sign Up & Post RFQ
+                    Get Quotes (Free)
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
