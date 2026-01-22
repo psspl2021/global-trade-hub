@@ -39,11 +39,18 @@ export const PHASE1_SLUGS = [
 // =============================================================
 
 export const PHASE2_SLUGS = [
+  // Batch 1 - Enterprise Verticals
   'pharmaceutical-apis-intermediates',
   'electrical-equipment-power-distribution',
   'water-treatment-chemicals-systems',
   'industrial-storage-tanks-silos',
   'medical-equipment-diagnostics',
+  // Batch 2 - Revenue First (Oil, Gas, Power, Fabrication)
+  'energy-power-equipment',
+  'industrial-pipes-tubes-oil-gas',
+  'petroleum-bitumen-procurement',
+  'steel-fabrication-structures-epc',
+  'gfrp-composites-industrial',
 ] as const;
 
 // =============================================================
@@ -82,6 +89,11 @@ export const ENTERPRISE_CATEGORIES = [
   'export',
   'non_ferrous',
   'pipes',
+  // Batch 2 categories
+  'energy_power',
+  'petroleum',
+  'steel_fabrication',
+  'composites',
 ] as const;
 
 // =============================================================
