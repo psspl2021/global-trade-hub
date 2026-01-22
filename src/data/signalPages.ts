@@ -2,7 +2,7 @@
 // Each page = Demand Capture → AI Structuring → Managed Fulfilment
 // NOT a marketplace. NOT a lead form.
 
-import { getCountryByCode, DEFAULT_COUNTRY, type SupportedCountry } from './supportedCountries';
+import { getCountryByCode, DEFAULT_COUNTRY, supportedCountries, type SupportedCountry } from './supportedCountries';
 
 export interface SignalPageConfig {
   slug: string;
@@ -2613,4 +2613,100 @@ export function getCanonicalSignalPageSlugs(): string[] {
   return signalPagesConfig
     .filter(page => !page.canonicalSlug)
     .map(page => page.slug);
+}
+
+// =======================================================
+// GLOBAL COUNTRY REPLICATION ENGINE
+// =======================================================
+
+import { 
+  REPLICATE_SLUGS, 
+  REVENUE_HIGH_SLUGS, 
+  isRevenueHighSlug,
+  type SignalPriority 
+} from './replicationConfig';
+
+/**
+ * Extended signal page config with geo-replication metadata
+ */
+export interface ReplicatedSignalPageConfig extends SignalPageConfig {
+  country: string;
+  priority: SignalPriority;
+  geoSlug: string; // e.g., "uae/structural-steel-infrastructure"
+  countryInfo: SupportedCountry;
+}
+
+/**
+ * Generate all geo-replicated signal pages from canonical pages
+ * This creates (Phase1 + Phase2) × 6 countries = 90+ global demand sensors
+ */
+export function generateReplicatedSignalPages(): ReplicatedSignalPageConfig[] {
+  const replicatedPages: ReplicatedSignalPageConfig[] = [];
+  
+  for (const page of signalPagesConfig) {
+    // Only replicate canonical pages (not aliases)
+    if (page.canonicalSlug) continue;
+    
+    // Only replicate pages in our replication list
+    if (!REPLICATE_SLUGS.includes(page.slug as any)) continue;
+    
+    // Skip if already handled (prevent duplicates)
+    for (const country of supportedCountries) {
+      // Skip India - it uses the base route without country prefix
+      if (country.code === 'india') continue;
+      
+      const geoSlug = `${country.code}/${page.slug}`;
+      const priority = isRevenueHighSlug(page.slug) ? 'revenue_high' : 'normal';
+      
+      replicatedPages.push({
+        ...page,
+        country: country.code,
+        priority,
+        geoSlug,
+        countryInfo: country,
+        // Override SEO metadata for country
+        metaTitle: `${page.metaTitle} | ${country.seoLabel}`,
+        metaDescription: `${page.metaDescription} Export & delivery to ${country.seoLabel}.`,
+        // Update signal mapping for country tracking
+        signalMapping: {
+          ...page.signalMapping,
+          signal_source: 'signal_page' as const
+        }
+      });
+    }
+  }
+  
+  return replicatedPages;
+}
+
+/**
+ * Combined export of all signal pages (India canonicals + global replications)
+ * Use this for sitemap generation and global page registry
+ */
+export function getAllSignalPagesWithReplications(): (SignalPageConfig | ReplicatedSignalPageConfig)[] {
+  return [
+    ...signalPagesConfig,
+    ...generateReplicatedSignalPages()
+  ];
+}
+
+/**
+ * Get replication stats for monitoring
+ */
+export function getReplicationStats() {
+  const canonicalCount = signalPagesConfig.filter(p => !p.canonicalSlug).length;
+  const aliasCount = signalPagesConfig.filter(p => !!p.canonicalSlug).length;
+  const replicatedCount = generateReplicatedSignalPages().length;
+  const countriesExcludingIndia = supportedCountries.filter(c => c.code !== 'india').length;
+  
+  return {
+    canonicalPages: canonicalCount,
+    aliasPages: aliasCount,
+    replicatedPages: replicatedCount,
+    totalGlobalSensors: canonicalCount + replicatedCount,
+    countriesSupported: supportedCountries.length,
+    phase1Slugs: REPLICATE_SLUGS.filter(s => !REVENUE_HIGH_SLUGS.includes(s as any)).length,
+    phase2Slugs: REVENUE_HIGH_SLUGS.length,
+    revenueHighSensors: replicatedCount / countriesExcludingIndia * REVENUE_HIGH_SLUGS.length
+  };
 }

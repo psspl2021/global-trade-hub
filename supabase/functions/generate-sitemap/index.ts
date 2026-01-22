@@ -117,6 +117,42 @@ const internationalPages = [
   { url: '/source/armenia', priority: 0.65, changefreq: 'weekly', hreflang: 'hy-am' },
 ];
 
+// Supported countries for procurement signal pages
+const procurementCountries = [
+  { code: 'india', hreflang: 'en-in' },
+  { code: 'uae', hreflang: 'en-ae' },
+  { code: 'saudi', hreflang: 'en-sa' },
+  { code: 'qatar', hreflang: 'en-qa' },
+  { code: 'kenya', hreflang: 'en-ke' },
+  { code: 'nigeria', hreflang: 'en-ng' },
+];
+
+// Phase 1 + Phase 2 Canonical Procurement Signal Pages (Demand Sensors)
+const procurementSignalPages = [
+  // PHASE 1: Infrastructure & Steel
+  { slug: 'structural-steel-infrastructure', priority: 0.95, isEnterprise: false },
+  { slug: 'tmt-bars-epc-projects', priority: 0.9, isEnterprise: false },
+  { slug: 'hot-rolled-coil-industrial', priority: 0.9, isEnterprise: false },
+  { slug: 'peb-steel-structures', priority: 0.85, isEnterprise: false },
+  { slug: 'colour-coated-steel', priority: 0.85, isEnterprise: false },
+  { slug: 'aluminium-industrial-export', priority: 0.9, isEnterprise: true },
+  { slug: 'non-ferrous-metals', priority: 0.9, isEnterprise: true },
+  { slug: 'cement-bulk-infra', priority: 0.85, isEnterprise: false },
+  { slug: 'industrial-pipes-tubes', priority: 0.9, isEnterprise: true },
+  { slug: 'export-industrial-materials', priority: 0.95, isEnterprise: true },
+  // Phase 1 expansion
+  { slug: 'agricultural-machinery-equipment-procurement', priority: 0.85, isEnterprise: false },
+  { slug: 'auto-parts-vehicle-components-procurement', priority: 0.85, isEnterprise: false },
+  { slug: 'industrial-chemicals-bulk-procurement', priority: 0.9, isEnterprise: false },
+  { slug: 'hardware-fasteners-tools-procurement', priority: 0.85, isEnterprise: false },
+  // PHASE 2: Enterprise Verticals (revenue_high)
+  { slug: 'pharmaceutical-apis-intermediates', priority: 0.95, isEnterprise: true },
+  { slug: 'electrical-equipment-power-distribution', priority: 0.95, isEnterprise: true },
+  { slug: 'water-treatment-chemicals-systems', priority: 0.95, isEnterprise: true },
+  { slug: 'industrial-storage-tanks-silos', priority: 0.95, isEnterprise: true },
+  { slug: 'medical-equipment-diagnostics', priority: 0.95, isEnterprise: true },
+];
+
 // High-value categories (priority 0.9 for SEO)
 const highValueCategories = [
   'Metals - Ferrous (Steel, Iron)',
@@ -275,6 +311,54 @@ async function generateSitemap(): Promise<string> {
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${isHighValue ? 0.8 : 0.6}</priority>
+  </url>
+`;
+    }
+  }
+
+  // Procurement Signal Pages (Phase 1 + Phase 2) with country replication
+  // These are high-value demand capture pages with hreflang for international SEO
+  for (const signal of procurementSignalPages) {
+    // India canonical (no country prefix)
+    xml += `  <url>
+    <loc>${baseUrl}/procurement/${signal.slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${signal.priority}</priority>`;
+    
+    // Add hreflang for all countries
+    for (const country of procurementCountries) {
+      const href = country.code === 'india' 
+        ? `${baseUrl}/procurement/${signal.slug}`
+        : `${baseUrl}/${country.code}/procurement/${signal.slug}`;
+      xml += `
+    <xhtml:link rel="alternate" hreflang="${country.hreflang}" href="${href}" />`;
+    }
+    xml += `
+    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}/procurement/${signal.slug}" />
+  </url>
+`;
+
+    // Country-specific replicated pages (excluding India)
+    for (const country of procurementCountries) {
+      if (country.code === 'india') continue;
+      
+      xml += `  <url>
+    <loc>${baseUrl}/${country.code}/procurement/${signal.slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${signal.isEnterprise ? 0.9 : 0.85}</priority>`;
+      
+      // Add hreflang for all countries
+      for (const hrefCountry of procurementCountries) {
+        const href = hrefCountry.code === 'india' 
+          ? `${baseUrl}/procurement/${signal.slug}`
+          : `${baseUrl}/${hrefCountry.code}/procurement/${signal.slug}`;
+        xml += `
+    <xhtml:link rel="alternate" hreflang="${hrefCountry.hreflang}" href="${href}" />`;
+      }
+      xml += `
+    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}/procurement/${signal.slug}" />
   </url>
 `;
     }
