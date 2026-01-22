@@ -12,7 +12,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap, Lock, Eye, EyeOff } from 'lucide-react';
-import { trackIntentScore, incrementRFQCount, createDemandSignal } from '@/lib/signalPageTracking';
+import { trackRFQSubmission } from '@/utils/signalTracking';
+import { createDemandSignal } from '@/lib/signalPageTracking';
 
 interface RFQItem {
   item_name: string;
@@ -109,11 +110,8 @@ export function PostRFQModal({
 
       // CRITICAL: Auto-create demand signal on RFQ submit
       if (signalPageId && signalPageCategory) {
-        // Track RFQ submitted intent (+5)
-        await trackIntentScore(signalPageId, 'rfq_submitted');
-        
-        // Increment RFQ count on signal page
-        await incrementRFQCount(signalPageId);
+        // Track RFQ submission with throttled safe promotion (replaces trackIntentScore + incrementRFQCount)
+        await trackRFQSubmission(signalPageId);
 
         // Create demand intelligence signal with country
         await createDemandSignal({

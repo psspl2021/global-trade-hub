@@ -51,6 +51,9 @@ interface Bid {
   closed_at: string | null;
   terms_and_conditions: string | null;
   requirement_id: string;
+  // Commission lock fields (frozen on award)
+  awarded_commission_pct: number | null;
+  awarded_commission_value: number | null;
   requirement: {
     title: string;
     product_category: string;
@@ -848,7 +851,19 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                                   <span className="text-muted-foreground text-xs">-</span>
                                 )}
                               </TableCell>
-                              <TableCell>{getStatusBadge(bid.status)}</TableCell>
+                              <TableCell>
+                                <div className="space-y-1">
+                                  {getStatusBadge(bid.status)}
+                                  {/* Commission Lock Display - Read-only for accepted bids */}
+                                  {bid.status === 'accepted' && bid.awarded_commission_pct !== null && (
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      <span className="text-orange-600 font-medium">
+                                        🔒 {bid.awarded_commission_pct}% (₹{Math.round(bid.awarded_commission_value || 0).toLocaleString()})
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
                               <TableCell className="text-xs">
                                 <div>
                                   <div>{format(new Date(getDisplayDate(bid).date), 'dd MMM yy')}</div>

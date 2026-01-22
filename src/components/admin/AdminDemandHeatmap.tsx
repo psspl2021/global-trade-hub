@@ -993,6 +993,15 @@ export function AdminDemandHeatmap() {
                                 Enterprise
                               </Badge>
                             )}
+                            {/* Hot Lane Badge - triggers when pre-tender signal is forming */}
+                            {(cell.lane_state === 'pending' ||
+                              cell.intent_score >= 8 ||
+                              cell.rfqs_submitted >= 2) && (
+                              <Badge className="bg-red-600 text-white text-xs animate-pulse flex items-center gap-1">
+                                <Flame className="h-3 w-3" />
+                                Hot Lane
+                              </Badge>
+                            )}
                           </div>
                         </td>
                         <td className="p-3">

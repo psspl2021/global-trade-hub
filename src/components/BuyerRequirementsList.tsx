@@ -218,7 +218,14 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       if (itemsError) throw itemsError;
       setRequirementItems((itemsData || []) as RequirementItem[]);
 
-      // Fetch all bids with bid_items to find the one with lowest TOTAL value (not just lowest per-unit rate)
+      /**
+       * SECURITY: Buyer bids query - Hard masked architecture
+       * --------------------------------------------------------
+       * - Does NOT expose supplier contact info (email, phone, company)
+       * - Supplier identity is NEVER shown to buyers
+       * - Use anonymized_supplier_quotes view for proper anonymity
+       * - ProcureSaathi manages all supplier communication
+       */
       const { data: allBidsData, error: bidsError } = await supabase
         .from('bids')
         .select(`
