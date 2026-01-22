@@ -277,6 +277,12 @@ Example: I need 5000 kg of food-grade stainless steel containers for a dairy pla
                   </p>
                 )}
 
+                {/* Trust messaging for buyer anonymity */}
+                <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 text-sm text-blue-700 dark:text-blue-400">
+                  <Lock className="h-4 w-4 shrink-0" />
+                  <span>Supplier details are hidden. ProcureSaathi manages all communication and fulfilment.</span>
+                </div>
+
                 <div className="flex gap-3 pt-2">
                   <Button 
                     variant="outline" 

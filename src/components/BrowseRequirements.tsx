@@ -855,7 +855,11 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
                   <div className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedRequirement.delivery_location}</div>
                 </div>
 
-                {/* Benchmark Rate - Only visible for preferred categories */}
+                {/* Buyer anonymity trust line for suppliers */}
+                <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 text-sm text-blue-700 dark:text-blue-400">
+                  <Lock className="h-4 w-4 shrink-0" />
+                  <span>Buyer identity is confidential until order confirmation.</span>
+                </div>
                 {lowestRates[selectedRequirement.id] && canViewL1Price(selectedRequirement) ? (
                   (() => {
                     const feeRate = getServiceFeeRate(selectedRequirement.trade_type);

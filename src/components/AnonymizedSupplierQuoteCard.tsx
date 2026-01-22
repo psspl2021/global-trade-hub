@@ -119,6 +119,11 @@ export function AnonymizedSupplierQuoteCard({
           </div>
         </div>
 
+        {/* Buyer anonymity trust line */}
+        <p className="text-xs text-muted-foreground flex items-center gap-1">
+          🔒 Buyer identity is confidential until order confirmation.
+        </p>
+
         {/* Category Tag */}
         {partnerCategory && (
           <Badge variant="secondary" className="font-normal">

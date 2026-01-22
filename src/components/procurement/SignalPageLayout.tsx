@@ -72,6 +72,14 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
             setSignalPageId(newPage.id);
           }
         }
+
+        // Auto-promote demand signal on page visit (CRITICAL: live heatmap activation)
+        // Note: Type assertion needed as RPC was just created, types will sync on next deploy
+        await (supabase.rpc as any)('promote_signal_on_visit', {
+          p_country: countryInfo.name,
+          p_category: config.signalMapping.category,
+        });
+
       } catch (error) {
         console.error('Error tracking signal page:', error);
       }

@@ -6540,6 +6540,15 @@ export type Database = {
           total_sent: number
         }[]
       }
+      get_supplier_shortlist: {
+        Args: { p_category: string; p_country: string }
+        Returns: {
+          company_name: string
+          is_verified: boolean
+          supplier_country: string
+          supplier_id: string
+        }[]
+      }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean

@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { 
   Flame, 
@@ -42,7 +43,9 @@ import {
   Gauge,
   Package,
   CheckCircle2,
-  Crown
+  Crown,
+  Radar,
+  Shield
 } from 'lucide-react';
 import { 
   type LaneState, 
@@ -104,6 +107,24 @@ interface DashboardTiles {
   avgTimeToActivation: number; // in days
 }
 
+interface PreTenderOpportunity {
+  id: string;
+  category: string;
+  country: string;
+  intent_score: number;
+  priority: string;
+  status: string;
+  estimated_value: number;
+  created_at: string;
+}
+
+interface SupplierMatch {
+  supplier_id: string;
+  company_name: string;
+  supplier_country: string;
+  is_verified: boolean;
+}
+
 export function AdminDemandHeatmap() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -124,6 +145,15 @@ export function AdminDemandHeatmap() {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLaneState, setSelectedLaneState] = useState<string | null>(null);
+  
+  // Pre-Tender Opportunities state
+  const [preTenderOpportunities, setPreTenderOpportunities] = useState<PreTenderOpportunity[]>([]);
+  const [showPreTender, setShowPreTender] = useState(false);
+  
+  // Supplier Shortlist modal state
+  const [showSupplierModal, setShowSupplierModal] = useState(false);
+  const [supplierShortlist, setSupplierShortlist] = useState<SupplierMatch[]>([]);
+  const [activatingLane, setActivatingLane] = useState<{ country: string; category: string } | null>(null);
 
   const fetchDashboard = useCallback(async () => {
     setRefreshing(true);
@@ -427,7 +457,108 @@ export function AdminDemandHeatmap() {
     fetchDashboard();
   }, [fetchDashboard]);
 
-  // Lane activation action
+  // Fetch pre-tender opportunities (uses new view - type assertion needed)
+  const fetchPreTenderOpportunities = useCallback(async () => {
+    try {
+      // Query demand_intelligence_signals directly with same filter as view
+      const { data, error } = await supabase
+        .from('demand_intelligence_signals')
+        .select('id, category, country, intent_score, priority, lane_state, estimated_value, created_at')
+        .eq('priority', 'revenue_high')
+        .or('lane_state.eq.detected,lane_state.is.null')
+        .order('intent_score', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      
+      // Map to PreTenderOpportunity format
+      const mapped = (data || []).map(d => ({
+        id: d.id,
+        category: d.category || '',
+        country: d.country || '',
+        intent_score: d.intent_score || 0,
+        priority: d.priority || 'normal',
+        status: d.lane_state || 'detected',
+        estimated_value: d.estimated_value || 0,
+        created_at: d.created_at || '',
+      }));
+      
+      setPreTenderOpportunities(mapped);
+    } catch (error) {
+      console.error('Error fetching pre-tender opportunities:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPreTenderOpportunities();
+  }, [fetchPreTenderOpportunities]);
+
+  // Fetch supplier shortlist for activation modal
+  async function fetchSupplierShortlist(country: string, category: string) {
+    try {
+      // Note: Type assertion needed as RPC was just created
+      const { data, error } = await (supabase.rpc as any)('get_supplier_shortlist', {
+        p_country: country,
+        p_category: category,
+      });
+
+      if (error) throw error;
+      setSupplierShortlist(data || []);
+    } catch (error) {
+      console.error('Error fetching supplier shortlist:', error);
+      setSupplierShortlist([]);
+    }
+  }
+
+  // Lane activation with supplier shortlist modal
+  async function handleActivateLaneClick(country: string, category: string) {
+    setActivatingLane({ country, category });
+    await fetchSupplierShortlist(country, category);
+    setShowSupplierModal(true);
+  }
+
+  // Confirm lane activation
+  async function confirmActivateLane() {
+    if (!activatingLane) return;
+    
+    const { country, category } = activatingLane;
+    try {
+      const { error } = await supabase
+        .from('demand_intelligence_signals')
+        .update({
+          decision_action: 'activated',
+          lane_state: 'activated',
+          activated_at: new Date().toISOString(),
+        })
+        .eq('country', country.toLowerCase())
+        .in('lane_state', ['detected', 'pending']);
+
+      // Also try with original case
+      await supabase
+        .from('demand_intelligence_signals')
+        .update({
+          decision_action: 'activated',
+          lane_state: 'activated',
+          activated_at: new Date().toISOString(),
+        })
+        .eq('country', country)
+        .eq('category', category)
+        .in('lane_state', ['detected', 'pending']);
+
+      if (error) throw error;
+      
+      toast.success(`Lane ${country} × ${category} activated`);
+      setShowSupplierModal(false);
+      setActivatingLane(null);
+      fetchDashboard();
+      fetchPreTenderOpportunities();
+    } catch (error) {
+      console.error('Error activating lane:', error);
+      toast.error('Failed to activate lane');
+    }
+  }
+
+  // Legacy lane activation (backward compatibility)
   async function activateLane(country: string, category: string) {
     try {
       const { error } = await supabase
@@ -625,6 +756,10 @@ export function AdminDemandHeatmap() {
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             Signals are generated from SEO pages, RFQs, and buyer intent across countries.
+          </p>
+          {/* Coverage Badge */}
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            🌍 Monitoring demand across 6 countries • 9 enterprise categories
           </p>
         </div>
         <Button 
@@ -1035,6 +1170,139 @@ export function AdminDemandHeatmap() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Pre-Tender Opportunities Section */}
+      {preTenderOpportunities.length > 0 && (
+        <Card className="border-blue-500/30 bg-gradient-to-r from-blue-500/5 to-transparent">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Radar className="h-5 w-5 text-blue-500" />
+                Pre-Tender Opportunities (Sales Radar)
+              </CardTitle>
+              <Badge variant="outline" className="text-blue-600 border-blue-300">
+                {preTenderOpportunities.length} Lanes
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Enterprise lanes detected before RFQs come in. Activate to prepare supplier shortlist.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[250px]">
+              <div className="space-y-2">
+                {preTenderOpportunities.map((opp) => (
+                  <div 
+                    key={opp.id}
+                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-black text-yellow-400 text-xs flex items-center gap-1">
+                          <Crown className="h-3 w-3" />
+                          Enterprise
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="font-medium">{formatCategoryName(opp.category)}</p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          {getCountryFlag(opp.country)} {opp.country}
+                          <span className="mx-1">•</span>
+                          Intent: {opp.intent_score}
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleActivateLaneClick(opp.country, opp.category)}
+                      className="gap-1"
+                    >
+                      <ArrowUpRight className="h-3 w-3" />
+                      Activate Lane
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Supplier Shortlist Modal */}
+      <Dialog open={showSupplierModal} onOpenChange={setShowSupplierModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Suggested Suppliers for Lane
+            </DialogTitle>
+          </DialogHeader>
+          
+          {activatingLane && (
+            <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+              <p className="font-medium">{formatCategoryName(activatingLane.category)}</p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                {getCountryFlag(activatingLane.country)} {activatingLane.country}
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {supplierShortlist.length === 0 ? (
+              <div className="text-center py-4 text-muted-foreground">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No pre-qualified suppliers found for this lane.</p>
+                <p className="text-xs mt-1">Consider onboarding suppliers in this category.</p>
+              </div>
+            ) : (
+              supplierShortlist.map((supplier) => (
+                <div 
+                  key={supplier.supplier_id}
+                  className="p-3 rounded-lg border bg-card flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium flex items-center gap-2">
+                        {supplier.company_name || 'Verified Supplier'}
+                        {supplier.is_verified && (
+                          <Shield className="h-4 w-4 text-green-600" />
+                        )}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {supplier.supplier_country || 'India'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="ghost">
+                    Invite
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="flex gap-2 mt-4">
+            <Button 
+              variant="outline" 
+              className="flex-1"
+              onClick={() => setShowSupplierModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="flex-1 gap-2"
+              onClick={confirmActivateLane}
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Activate Lane
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
