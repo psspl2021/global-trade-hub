@@ -41,7 +41,8 @@ import {
   Timer,
   Gauge,
   Package,
-  CheckCircle2
+  CheckCircle2,
+  Crown
 } from 'lucide-react';
 import { 
   type LaneState, 
@@ -49,6 +50,7 @@ import {
   computeLaneCapacityStatus,
   LANE_STATE_CONFIG 
 } from '@/lib/laneStateTransitions';
+import { isEnterpriseCategory } from '@/data/replicationConfig';
 
 interface HeatmapCell {
   country: string;
@@ -59,6 +61,8 @@ interface HeatmapCell {
   estimated_value: number;
   priority_score: number;
   lane_state: LaneState;
+  // Enterprise priority
+  priority: 'revenue_high' | 'normal';
   // Capacity overlay
   capacity_status: 'OK' | 'DEFICIT' | 'NO_CAPACITY';
   available_capacity: number;
@@ -84,6 +88,7 @@ interface UrgentAction {
   reason: string;
   lane_state: LaneState;
   can_allocate: boolean;
+  priority?: 'revenue_high' | 'normal';
 }
 
 interface DashboardTiles {
@@ -197,15 +202,17 @@ export function AdminDemandHeatmap() {
         } else {
           const capacity = capacityMap.get(key);
           const laneState = stateByCell.get(key) || 'detected';
+          const category = page.category || 'Unknown';
           
           heatmapMap.set(key, {
             country: (page.target_country || 'INDIA').toUpperCase(),
-            category: page.category,
+            category,
             intent_score: page.intent_score || 0,
             rfqs_submitted: page.rfqs_submitted || 0,
             rfqs_pending: pendingByCell.get(key) || 0,
             estimated_value: 0,
             priority_score: 0,
+            priority: isEnterpriseCategory(category) ? 'revenue_high' : 'normal',
             lane_state: laneState,
             capacity_status: 'NO_CAPACITY',
             available_capacity: 0,
@@ -224,16 +231,22 @@ export function AdminDemandHeatmap() {
           existing.estimated_value += signal.estimated_value || 0;
           existing.rfqs_pending = pendingByCell.get(key) || 0;
           existing.lane_state = stateByCell.get(key) || 'detected';
+          // Update priority if signal has priority set
+          if (signal.priority === 'revenue_high') {
+            existing.priority = 'revenue_high';
+          }
         } else {
           const laneState = stateByCell.get(key) || 'detected';
+          const category = signal.category || 'Unknown';
           heatmapMap.set(key, {
             country: (signal.country || 'IN').toUpperCase(),
-            category: signal.category || 'Unknown',
+            category,
             intent_score: 0,
             rfqs_submitted: 0,
             rfqs_pending: pendingByCell.get(key) || 0,
             estimated_value: signal.estimated_value || 0,
             priority_score: 0,
+            priority: signal.priority === 'revenue_high' || isEnterpriseCategory(category) ? 'revenue_high' : 'normal',
             lane_state: laneState,
             capacity_status: 'NO_CAPACITY',
             available_capacity: 0,
@@ -243,7 +256,8 @@ export function AdminDemandHeatmap() {
         }
       });
 
-      // Enrich with capacity data and calculate priority
+      // Enrich with capacity data and calculate priority score
+      // NEW FORMULA: Revenue-weighted with enterprise priority boost
       const heatmapData = Array.from(heatmapMap.values())
         .map(cell => {
           const key = `${cell.country}-${cell.category}`;
@@ -258,11 +272,22 @@ export function AdminDemandHeatmap() {
             } : null
           );
 
+          // Revenue-weighted priority score
+          // Value weight: 50%, Intent: 30%, RFQs: 20%
+          const valueScore = (cell.estimated_value || 0) / 1_000_000;
+          const intentScore = cell.intent_score || 0;
+          const rfqScore = cell.rfqs_submitted || 0;
+          
+          let priorityScore = (valueScore * 0.5) + (intentScore * 0.3) + (rfqScore * 0.2);
+          
+          // Enterprise boost: +25% for revenue_high lanes
+          if (cell.priority === 'revenue_high') {
+            priorityScore *= 1.25;
+          }
+
           return {
             ...cell,
-            priority_score: (cell.intent_score * 0.4) 
-              + (cell.rfqs_submitted * 0.3) 
-              + ((cell.estimated_value || 0) / 1_000_000 * 0.3),
+            priority_score: priorityScore,
             capacity_status: capacityStatus.status,
             available_capacity: capacityStatus.available_capacity,
             deficit_value: capacityStatus.deficit_value,
@@ -346,16 +371,31 @@ export function AdminDemandHeatmap() {
         avgTimeToActivation,
       });
 
-      // Generate urgent actions
+      // Generate urgent actions - ENTERPRISE FIRST
+      // Prioritize revenue_high lanes and high-value opportunities
       const urgentList: UrgentAction[] = heatmapData
-        .filter(cell => cell.intent_score > 30 || cell.estimated_value > 5000000)
+        .filter(cell => 
+          cell.priority === 'revenue_high' ||
+          cell.priority_score > 25 ||
+          cell.intent_score > 30 || 
+          cell.estimated_value > 5000000
+        )
         .slice(0, 10)
         .map(cell => {
           let reason = '';
-          if (cell.intent_score > 50) reason = 'High intent detected';
-          else if (cell.estimated_value > 10000000) reason = 'Large deal opportunity';
-          else if (cell.rfqs_pending === 0) reason = 'Intent but no pending RFQs';
-          else reason = 'Active demand';
+          if (cell.priority === 'revenue_high' && cell.estimated_value > 10000000) {
+            reason = '🏆 Enterprise Lane – High Value';
+          } else if (cell.priority === 'revenue_high') {
+            reason = '🏆 Enterprise Lane';
+          } else if (cell.intent_score > 50) {
+            reason = 'High intent detected';
+          } else if (cell.estimated_value > 10000000) {
+            reason = 'Large deal opportunity';
+          } else if (cell.rfqs_pending === 0) {
+            reason = 'Intent but no pending RFQs';
+          } else {
+            reason = 'Active demand';
+          }
 
           const canAllocate = cell.lane_state === 'activated' && cell.capacity_status === 'OK';
 
@@ -368,6 +408,7 @@ export function AdminDemandHeatmap() {
             reason,
             lane_state: cell.lane_state,
             can_allocate: canAllocate,
+            priority: cell.priority,
           };
         });
 
@@ -790,7 +831,15 @@ export function AdminDemandHeatmap() {
                         className={`border-b hover:bg-muted/50 transition-colors ${getIntentColor(cell.intent_score)}`}
                       >
                         <td className="p-3 font-medium">
-                          {formatCategoryName(cell.category)}
+                          <div className="flex items-center gap-2">
+                            {formatCategoryName(cell.category)}
+                            {cell.priority === 'revenue_high' && (
+                              <Badge className="bg-black text-yellow-400 text-xs flex items-center gap-1">
+                                <Crown className="h-3 w-3" />
+                                Enterprise
+                              </Badge>
+                            )}
+                          </div>
                         </td>
                         <td className="p-3">
                           <span className="flex items-center gap-2">
@@ -849,11 +898,21 @@ export function AdminDemandHeatmap() {
                   urgentActions.map((action, i) => (
                     <div 
                       key={i}
-                      className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                      className={`p-3 rounded-lg border transition-colors ${
+                        action.priority === 'revenue_high' 
+                          ? 'bg-gradient-to-r from-yellow-500/10 to-amber-500/5 border-yellow-500/30 hover:from-yellow-500/20' 
+                          : 'bg-card hover:bg-muted/50'
+                      }`}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <div className="font-medium">
+                        <div className="font-medium flex items-center gap-2">
                           {formatCategoryName(action.category)}
+                          {action.priority === 'revenue_high' && (
+                            <Badge className="bg-black text-yellow-400 text-xs flex items-center gap-1">
+                              <Crown className="h-3 w-3" />
+                              Enterprise
+                            </Badge>
+                          )}
                         </div>
                         {getLaneStateBadge(action.lane_state)}
                       </div>

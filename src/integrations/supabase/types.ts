@@ -1630,6 +1630,7 @@ export type Database = {
           matching_suppliers_count: number | null
           overall_score: number | null
           parent_lane_id: string | null
+          priority: string | null
           product_description: string | null
           run_id: string | null
           signal_page_id: string | null
@@ -1686,6 +1687,7 @@ export type Database = {
           matching_suppliers_count?: number | null
           overall_score?: number | null
           parent_lane_id?: string | null
+          priority?: string | null
           product_description?: string | null
           run_id?: string | null
           signal_page_id?: string | null
@@ -1742,6 +1744,7 @@ export type Database = {
           matching_suppliers_count?: number | null
           overall_score?: number | null
           parent_lane_id?: string | null
+          priority?: string | null
           product_description?: string | null
           run_id?: string | null
           signal_page_id?: string | null
