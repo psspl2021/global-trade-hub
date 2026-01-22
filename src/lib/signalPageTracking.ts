@@ -1,7 +1,47 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
+ * Generate or retrieve session ID for throttling
+ */
+function getSessionId(): string {
+  let sessionId = sessionStorage.getItem('ps_session_id');
+  if (!sessionId) {
+    sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    sessionStorage.setItem('ps_session_id', sessionId);
+  }
+  return sessionId;
+}
+
+/**
+ * Track page-level intent score increment using SAFE THROTTLED RPC
+ * Prevents spam/bot abuse with 30-min cooldown per session/IP
+ * NO UI CHANGE - background tracking only
+ */
+export async function trackSignalPromotion(
+  signalPageId: string,
+  isRfq: boolean = false
+): Promise<void> {
+  if (!signalPageId) return;
+
+  const sessionId = getSessionId();
+
+  try {
+    // Use safe_promote_signal RPC with throttling
+    await (supabase.rpc as any)('safe_promote_signal', {
+      p_signal_page_id: signalPageId,
+      p_session_id: sessionId,
+      p_ip: '', // IP is captured server-side if needed
+      p_is_rfq: isRfq
+    });
+  } catch (error) {
+    // Silent fail - don't interrupt user flow
+    console.error('[signalPageTracking] Safe promotion failed:', error);
+  }
+}
+
+/**
  * Track page-level intent score increment using atomic RPC
+ * @deprecated Use trackSignalPromotion with throttling instead
  * NO UI CHANGE - background tracking only
  */
 export async function trackIntentScore(
@@ -31,33 +71,22 @@ export async function trackIntentScore(
 }
 
 /**
- * Increment page views using atomic RPC (also adds +1 intent score)
+ * Increment page views using SAFE THROTTLED RPC
+ * Replaces direct incrementPageViews with bot-protection
  */
 export async function incrementPageViews(signalPageId: string): Promise<void> {
   if (!signalPageId) return;
-
-  try {
-    await supabase.rpc('increment_page_views', {
-      page_id: signalPageId
-    });
-  } catch (error) {
-    console.error('[signalPageTracking] Page views increment failed:', error);
-  }
+  // Use throttled promotion instead
+  await trackSignalPromotion(signalPageId, false);
 }
 
 /**
- * Increment RFQ submitted count using atomic RPC
+ * Increment RFQ submitted count using SAFE THROTTLED RPC
  */
 export async function incrementRFQCount(signalPageId: string): Promise<void> {
   if (!signalPageId) return;
-
-  try {
-    await supabase.rpc('increment_rfq_count', {
-      page_id: signalPageId
-    });
-  } catch (error) {
-    console.error('[signalPageTracking] RFQ count increment failed:', error);
-  }
+  // Use throttled promotion with RFQ flag
+  await trackSignalPromotion(signalPageId, true);
 }
 
 interface DemandSignalData {

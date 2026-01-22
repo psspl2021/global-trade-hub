@@ -13,7 +13,7 @@ import { CountryEnrichedSignalPageConfig, getCanonicalSignalPageSlugs } from '@/
 import { supportedCountries } from '@/data/supportedCountries';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
-import { trackIntentScore, incrementPageViews } from '@/lib/signalPageTracking';
+import { trackSignalPromotion, incrementPageViews } from '@/lib/signalPageTracking';
 
 interface SignalPageLayoutProps {
   config: CountryEnrichedSignalPageConfig;
@@ -88,13 +88,11 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
     trackAndGetSignalPage();
   }, [dbSlug, config.signalMapping, config.h1, config.subheading, countryInfo.name]);
 
-  // Track RFQ modal opened intent (+2) using atomic RPC
+  // Track RFQ modal opened (throttled - no extra call needed, tracked on submit)
   const handleOpenRFQModal = useCallback(() => {
     setShowRFQModal(true);
-    if (signalPageId) {
-      trackIntentScore(signalPageId, 'rfq_modal_opened');
-    }
-  }, [signalPageId]);
+    // Note: Intent tracking now happens via safe_promote_signal on RFQ submit
+  }, []);
 
   // SEO - Country-aware meta tags and structured data
   useEffect(() => {
