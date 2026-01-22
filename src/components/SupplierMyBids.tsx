@@ -75,7 +75,14 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
   const fetchBids = async () => {
     setLoading(true);
     try {
-      // Fetch supplier's bids with requirement details - only fetch supplier_net_price (not markup/buyer price)
+      /**
+       * SECURITY: Supplier bids query - Hard masked architecture
+       * --------------------------------------------------------
+       * - Query is filtered by supplier_id (own bids only)
+       * - Does NOT select buyer contact info (email, phone, company)
+       * - Buyer identity is NEVER exposed to suppliers
+       * - Use anonymized_supplier_quotes view for buyer-side viewing
+       */
       const { data: bidsData, error: bidsError } = await supabase
         .from('bids')
         .select(`

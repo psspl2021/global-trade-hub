@@ -330,7 +330,13 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       setRequirements([]);
     }
 
-    // Fetch my existing bids with details (only for logged-in users)
+    /**
+     * SECURITY: Own bids lookup - Hard masked architecture
+     * --------------------------------------------------------
+     * - Filtered by supplier_id = current user
+     * - Only retrieves own bid details for re-bid functionality
+     * - Does NOT expose other suppliers' bids or buyer contacts
+     */
     if (userId) {
       const { data: myBidsData } = await supabase
         .from('bids')

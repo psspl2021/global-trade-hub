@@ -13,7 +13,7 @@ import { CountryEnrichedSignalPageConfig, getCanonicalSignalPageSlugs } from '@/
 import { supportedCountries } from '@/data/supportedCountries';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
-import { trackSignalPromotion, incrementPageViews } from '@/lib/signalPageTracking';
+import { promoteSignalSafely, trackRFQSubmission } from '@/utils/signalTracking';
 
 interface SignalPageLayoutProps {
   config: CountryEnrichedSignalPageConfig;
@@ -46,8 +46,8 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
 
         if (existingPage) {
           setSignalPageId(existingPage.id);
-          // Use atomic RPC for page view + intent score increment
-          await incrementPageViews(existingPage.id);
+          // Use throttled safe promotion for page view
+          await promoteSignalSafely(existingPage.id, false);
         } else {
           const { data: newPage } = await supabase
             .from('admin_signal_pages')

@@ -53,6 +53,14 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
 
   const fetchAcceptedBids = async () => {
     try {
+      /**
+       * SECURITY: Accepted bids query - Hard masked architecture
+       * --------------------------------------------------------
+       * - Filtered by supplier_id AND status='accepted'
+       * - Does NOT expose buyer contact info
+       * - Buyer identity remains confidential even after award
+       * - ProcureSaathi manages all communication
+       */
       const { data, error } = await supabase
         .from('bids')
         .select(`
