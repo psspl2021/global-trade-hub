@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
@@ -375,6 +375,11 @@ const Signup = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Trust line for signup flow */}
+            <div className="mb-4 p-3 rounded-lg bg-muted/50 border text-sm text-muted-foreground flex items-center gap-2">
+              <Lock className="h-4 w-4 text-primary shrink-0" />
+              We need your contact details to share verified supplier quotes and manage fulfillment.
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>I am a</Label>

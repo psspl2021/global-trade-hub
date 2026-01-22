@@ -578,13 +578,21 @@ export function AdminDemandHeatmap() {
     );
   }
 
-  // Filter heatmap
-  const filteredHeatmap = heatmap.filter(cell => {
-    if (selectedCountry && cell.country !== selectedCountry) return false;
-    if (selectedCategory && cell.category !== selectedCategory) return false;
-    if (selectedLaneState && cell.lane_state !== selectedLaneState) return false;
-    return true;
-  });
+  // Filter heatmap and sort enterprise first
+  const filteredHeatmap = heatmap
+    .filter(cell => {
+      if (selectedCountry && cell.country !== selectedCountry) return false;
+      if (selectedCategory && cell.category !== selectedCategory) return false;
+      if (selectedLaneState && cell.lane_state !== selectedLaneState) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      // Enterprise lanes always first
+      if (a.priority === 'revenue_high' && b.priority !== 'revenue_high') return -1;
+      if (a.priority !== 'revenue_high' && b.priority === 'revenue_high') return 1;
+      // Then by priority score
+      return b.priority_score - a.priority_score;
+    });
 
   const uniqueCountries = [...new Set(heatmap.map(h => h.country))];
   const uniqueCategories = [...new Set(heatmap.map(h => h.category))];
@@ -610,10 +618,13 @@ export function AdminDemandHeatmap() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Globe className="h-6 w-6 text-primary" />
-            Global Demand Heatmap
+            Global Demand Signals (Live)
           </h2>
           <p className="text-muted-foreground text-sm">
             Real-time demand intelligence across {uniqueCountries.length} countries × {uniqueCategories.length} categories
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Signals are generated from SEO pages, RFQs, and buyer intent across countries.
           </p>
         </div>
         <Button 
@@ -626,6 +637,14 @@ export function AdminDemandHeatmap() {
           Refresh
         </Button>
       </div>
+
+      {/* Empty-State Helper Banner */}
+      {heatmap.length < 5 && (
+        <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 text-sm text-yellow-800 dark:text-yellow-300 flex items-center gap-2">
+          <Zap className="h-4 w-4" />
+          Enterprise lanes appear automatically when buyers visit signal pages or submit RFQs.
+        </div>
+      )}
 
       {/* Top KPI Tiles - Original 5 */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -920,9 +939,15 @@ export function AdminDemandHeatmap() {
                         <span>{getCountryFlag(action.country)}</span>
                         <span>{action.country}</span>
                         <span className="text-muted-foreground">•</span>
-                        <span className="text-green-600 font-medium">
-                          {formatCurrency(action.estimated_value)}
-                        </span>
+                        {action.estimated_value > 0 ? (
+                          <span className="text-green-600 font-medium">
+                            {formatCurrency(action.estimated_value)}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground italic text-xs">
+                            Potential Enterprise Lane
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-orange-600">
