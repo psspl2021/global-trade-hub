@@ -936,6 +936,8 @@ export type Database = {
           award_justification: string | null
           award_type: string | null
           awarded_at: string | null
+          awarded_commission_pct: number | null
+          awarded_commission_value: number | null
           bid_amount: number
           buyer_logistics_price: number | null
           buyer_material_price: number | null
@@ -973,6 +975,8 @@ export type Database = {
           award_justification?: string | null
           award_type?: string | null
           awarded_at?: string | null
+          awarded_commission_pct?: number | null
+          awarded_commission_value?: number | null
           bid_amount: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
@@ -1010,6 +1014,8 @@ export type Database = {
           award_justification?: string | null
           award_type?: string | null
           awarded_at?: string | null
+          awarded_commission_pct?: number | null
+          awarded_commission_value?: number | null
           bid_amount?: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
@@ -1904,6 +1910,41 @@ export type Database = {
           supplier_id?: string
         }
         Relationships: []
+      }
+      identity_reveal_events: {
+        Row: {
+          id: string
+          metadata: Json | null
+          requirement_id: string | null
+          reveal_reason: string | null
+          revealed_at: string | null
+          revealed_by: string | null
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          requirement_id?: string | null
+          reveal_reason?: string | null
+          revealed_at?: string | null
+          revealed_by?: string | null
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          requirement_id?: string | null
+          reveal_reason?: string | null
+          revealed_at?: string | null
+          revealed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_reveal_events_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       international_leads: {
         Row: {
@@ -3949,6 +3990,9 @@ export type Database = {
           effective_state: string | null
           fast_track: boolean | null
           id: string
+          identity_revealed: boolean | null
+          identity_revealed_at: string | null
+          identity_revealed_by: string | null
           payment_terms: string | null
           product_category: string
           quality_standards: string | null
@@ -3986,6 +4030,9 @@ export type Database = {
           effective_state?: string | null
           fast_track?: boolean | null
           id?: string
+          identity_revealed?: boolean | null
+          identity_revealed_at?: string | null
+          identity_revealed_by?: string | null
           payment_terms?: string | null
           product_category: string
           quality_standards?: string | null
@@ -4023,6 +4070,9 @@ export type Database = {
           effective_state?: string | null
           fast_track?: boolean | null
           id?: string
+          identity_revealed?: boolean | null
+          identity_revealed_at?: string | null
+          identity_revealed_by?: string | null
           payment_terms?: string | null
           product_category?: string
           quality_standards?: string | null
@@ -4316,6 +4366,41 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signal_promotion_logs: {
+        Row: {
+          id: string
+          ip_address: string | null
+          is_rfq: boolean | null
+          promoted_at: string | null
+          session_id: string | null
+          signal_page_id: string | null
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          is_rfq?: boolean | null
+          promoted_at?: string | null
+          session_id?: string | null
+          signal_page_id?: string | null
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          is_rfq?: boolean | null
+          promoted_at?: string | null
+          session_id?: string | null
+          signal_page_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_promotion_logs_signal_page_id_fkey"
+            columns: ["signal_page_id"]
+            isOneToOne: false
+            referencedRelation: "admin_signal_pages"
             referencedColumns: ["id"]
           },
         ]
@@ -5310,6 +5395,67 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "supplier_deal_closures"
             referencedColumns: ["bid_id"]
+          },
+        ]
+      }
+      supplier_shortlists: {
+        Row: {
+          contacted: boolean | null
+          contacted_at: string | null
+          id: string
+          match_score: number | null
+          notes: string | null
+          requirement_id: string | null
+          shortlisted_at: string | null
+          shortlisted_by: string | null
+          signal_id: string | null
+          supplier_id: string
+        }
+        Insert: {
+          contacted?: boolean | null
+          contacted_at?: string | null
+          id?: string
+          match_score?: number | null
+          notes?: string | null
+          requirement_id?: string | null
+          shortlisted_at?: string | null
+          shortlisted_by?: string | null
+          signal_id?: string | null
+          supplier_id: string
+        }
+        Update: {
+          contacted?: boolean | null
+          contacted_at?: string | null
+          id?: string
+          match_score?: number | null
+          notes?: string | null
+          requirement_id?: string | null
+          shortlisted_at?: string | null
+          shortlisted_by?: string | null
+          signal_id?: string | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_shortlists_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_shortlists_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_shortlists_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_signals"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -6595,6 +6741,19 @@ export type Database = {
         Returns: Json
       }
       reset_all_supplier_daily_loads: { Args: never; Returns: number }
+      reveal_identities: {
+        Args: { p_reason?: string; p_req_id: string }
+        Returns: undefined
+      }
+      safe_promote_signal: {
+        Args: {
+          p_ip: string
+          p_is_rfq?: boolean
+          p_session_id: string
+          p_signal_page_id: string
+        }
+        Returns: undefined
+      }
       select_supplier_with_bidding: {
         Args: { p_requirement_id: string }
         Returns: Json
