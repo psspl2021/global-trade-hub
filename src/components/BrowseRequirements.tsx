@@ -563,38 +563,21 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       if (bidData && data.items.length > 0) {
         let itemsToInsert = data.items;
         
-        // For single-item requirements (itemId === 'main'), we need to create a requirement_item first
+        // For single-item requirements (itemId === 'main'), we need to ensure requirement_item exists
+        // Use RPC function that bypasses RLS to handle this safely
         if (data.items[0].itemId === 'main') {
-          // Check if requirement_item already exists
-          const { data: existingItems } = await supabase
-            .from('requirement_items')
-            .select('id')
-            .eq('requirement_id', selectedRequirement.id)
-            .limit(1);
+          const { data: requirementItemId, error: rpcError } = await supabase
+            .rpc('ensure_requirement_item_exists', {
+              p_requirement_id: selectedRequirement.id,
+              p_item_name: data.items[0].itemName,
+              p_category: selectedRequirement.product_category || '',
+              p_quantity: data.items[0].quantity,
+              p_unit: data.items[0].unit,
+            });
           
-          let requirementItemId: string;
-          
-          if (existingItems && existingItems.length > 0) {
-            requirementItemId = existingItems[0].id;
-          } else {
-            // Create requirement_item for single-item requirements
-            const { data: newItem, error: itemError } = await supabase
-              .from('requirement_items')
-              .insert({
-                requirement_id: selectedRequirement.id,
-                item_name: data.items[0].itemName,
-                category: selectedRequirement.product_category || '',
-                quantity: data.items[0].quantity,
-                unit: data.items[0].unit,
-              })
-              .select('id')
-              .single();
-            
-            if (itemError) {
-              console.error('Error creating requirement item:', itemError);
-              throw new Error('Failed to create requirement item for bid');
-            }
-            requirementItemId = newItem.id;
+          if (rpcError || !requirementItemId) {
+            console.error('Error ensuring requirement item exists:', rpcError);
+            throw new Error('Failed to prepare requirement for bidding');
           }
           
           // Update items with the real requirement_item_id
