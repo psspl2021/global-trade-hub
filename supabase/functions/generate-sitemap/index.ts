@@ -127,30 +127,58 @@ const procurementCountries = [
   { code: 'nigeria', hreflang: 'en-ng' },
 ];
 
-// Phase 1 + Phase 2 Canonical Procurement Signal Pages (Demand Sensors)
+// Phase 1 + Phase 2 Canonical Procurement Signal Pages (33 Enterprise Demand Sensors)
 const procurementSignalPages = [
-  // PHASE 1: Infrastructure & Steel
-  { slug: 'structural-steel-infrastructure', priority: 0.95, isEnterprise: false },
-  { slug: 'tmt-bars-epc-projects', priority: 0.9, isEnterprise: false },
+  // PHASE 1: Infrastructure & Steel (Canonicals)
+  { slug: 'structural-steel-infrastructure', priority: 0.95, isEnterprise: true },
+  { slug: 'tmt-bars-epc-projects', priority: 0.95, isEnterprise: true },
   { slug: 'hot-rolled-coil-industrial', priority: 0.9, isEnterprise: false },
+  { slug: 'cold-rolled-coil-manufacturing', priority: 0.9, isEnterprise: false },
+  { slug: 'galvanized-steel-coils', priority: 0.9, isEnterprise: false },
+  { slug: 'steel-plates-heavy', priority: 0.9, isEnterprise: false },
+  { slug: 'steel-wire-rods', priority: 0.85, isEnterprise: false },
+  { slug: 'chequered-plates', priority: 0.85, isEnterprise: false },
   { slug: 'peb-steel-structures', priority: 0.85, isEnterprise: false },
   { slug: 'colour-coated-steel', priority: 0.85, isEnterprise: false },
+  // Non-Ferrous & Metals
   { slug: 'aluminium-industrial-export', priority: 0.9, isEnterprise: true },
+  { slug: 'aluminium-extrusions', priority: 0.85, isEnterprise: false },
   { slug: 'non-ferrous-metals', priority: 0.9, isEnterprise: true },
+  // Construction Materials
   { slug: 'cement-bulk-infra', priority: 0.85, isEnterprise: false },
+  { slug: 'ready-mix-concrete-rmc', priority: 0.85, isEnterprise: false },
+  { slug: 'fly-ash-procurement', priority: 0.8, isEnterprise: false },
+  { slug: 'construction-aggregates', priority: 0.8, isEnterprise: false },
+  // Pipes & Tubes
   { slug: 'industrial-pipes-tubes', priority: 0.9, isEnterprise: true },
+  // Hardware & Consumables
+  { slug: 'industrial-fasteners', priority: 0.85, isEnterprise: false },
+  { slug: 'bearings-industrial', priority: 0.85, isEnterprise: false },
+  { slug: 'welding-consumables', priority: 0.85, isEnterprise: false },
+  { slug: 'gaskets-seals', priority: 0.85, isEnterprise: false },
+  // Electrical (Basic)
+  { slug: 'power-cables', priority: 0.85, isEnterprise: false },
+  { slug: 'control-cables', priority: 0.85, isEnterprise: false },
+  { slug: 'transformers-power', priority: 0.9, isEnterprise: true },
+  // Equipment (Basic)
+  { slug: 'industrial-valves', priority: 0.9, isEnterprise: true },
+  { slug: 'centrifugal-pumps', priority: 0.85, isEnterprise: false },
+  { slug: 'diesel-generators', priority: 0.85, isEnterprise: false },
+  { slug: 'hvac-equipment', priority: 0.85, isEnterprise: false },
+  // Export
   { slug: 'export-industrial-materials', priority: 0.95, isEnterprise: true },
-  // Phase 1 expansion
-  { slug: 'agricultural-machinery-equipment-procurement', priority: 0.85, isEnterprise: false },
-  { slug: 'auto-parts-vehicle-components-procurement', priority: 0.85, isEnterprise: false },
-  { slug: 'industrial-chemicals-bulk-procurement', priority: 0.9, isEnterprise: false },
-  { slug: 'hardware-fasteners-tools-procurement', priority: 0.85, isEnterprise: false },
-  // PHASE 2: Enterprise Verticals (revenue_high)
+  // PHASE 2: Enterprise Verticals (Batch 1 - All revenue_high)
   { slug: 'pharmaceutical-apis-intermediates', priority: 0.95, isEnterprise: true },
   { slug: 'electrical-equipment-power-distribution', priority: 0.95, isEnterprise: true },
   { slug: 'water-treatment-chemicals-systems', priority: 0.95, isEnterprise: true },
   { slug: 'industrial-storage-tanks-silos', priority: 0.95, isEnterprise: true },
   { slug: 'medical-equipment-diagnostics', priority: 0.95, isEnterprise: true },
+  // PHASE 2: Enterprise Verticals (Batch 2 - Revenue First)
+  { slug: 'energy-power-equipment', priority: 0.95, isEnterprise: true },
+  { slug: 'industrial-pipes-tubes-oil-gas', priority: 0.95, isEnterprise: true },
+  { slug: 'petroleum-bitumen-procurement', priority: 0.9, isEnterprise: true },
+  { slug: 'steel-fabrication-structures-epc', priority: 0.95, isEnterprise: true },
+  { slug: 'gfrp-composites-industrial', priority: 0.9, isEnterprise: true },
 ];
 
 // High-value categories (priority 0.9 for SEO)

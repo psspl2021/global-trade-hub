@@ -17,21 +17,44 @@
 // =============================================================
 
 export const PHASE1_SLUGS = [
+  // Core Infrastructure Steel (canonical slugs)
   'structural-steel-infrastructure',
   'tmt-bars-epc-projects',
   'hot-rolled-coil-industrial',
+  'cold-rolled-coil-manufacturing', // canonical for cold-rolled-coils
+  'galvanized-steel-coils',
+  'steel-plates-heavy',
+  'steel-wire-rods',
+  'chequered-plates',
   'peb-steel-structures',
   'colour-coated-steel',
+  // Non-Ferrous & Metals
   'aluminium-industrial-export',
+  'aluminium-extrusions',
   'non-ferrous-metals',
+  // Construction Materials
   'cement-bulk-infra',
+  'ready-mix-concrete-rmc', // canonical for rmc-concrete
+  'fly-ash-procurement', // canonical for fly-ash
+  'construction-aggregates',
+  // Pipes & Tubes
   'industrial-pipes-tubes',
+  // Hardware & Consumables
+  'industrial-fasteners',
+  'bearings-industrial', // canonical for industrial-bearings
+  'welding-consumables',
+  'gaskets-seals', // canonical for industrial-gaskets
+  // Electrical (Basic)
+  'power-cables',
+  'control-cables',
+  'transformers-power', // canonical for power-transformers
+  // Equipment (Basic)
+  'industrial-valves',
+  'centrifugal-pumps', // canonical for industrial-pumps
+  'diesel-generators', // canonical for dg-sets
+  'hvac-equipment', // canonical for hvac-systems
+  // Export
   'export-industrial-materials',
-  // Phase 1 expansion - Agriculture, Auto, Chemicals, Hardware
-  'agricultural-machinery-equipment-procurement',
-  'auto-parts-vehicle-components-procurement',
-  'industrial-chemicals-bulk-procurement',
-  'hardware-fasteners-tools-procurement',
 ] as const;
 
 // =============================================================
@@ -39,18 +62,18 @@ export const PHASE1_SLUGS = [
 // =============================================================
 
 export const PHASE2_SLUGS = [
-  // Batch 1 - Enterprise Verticals
+  // Batch 1 - Enterprise Verticals (Pharma, Electrical, Water, Medical)
   'pharmaceutical-apis-intermediates',
   'electrical-equipment-power-distribution',
   'water-treatment-chemicals-systems',
   'industrial-storage-tanks-silos',
   'medical-equipment-diagnostics',
-  // Batch 2 - Revenue First (Oil, Gas, Power, Fabrication)
-  'energy-power-equipment',
-  'industrial-pipes-tubes-oil-gas',
-  'petroleum-bitumen-procurement',
-  'steel-fabrication-structures-epc',
-  'gfrp-composites-industrial',
+  // Batch 2 - Revenue First (Energy, Oil & Gas, Power, Fabrication)
+  'energy-power-equipment', // canonical for solar-equipment-power
+  'industrial-pipes-tubes-oil-gas', // canonical for industrial-pipes-oil-gas
+  'petroleum-bitumen-procurement', // canonical for petroleum-bitumen
+  'steel-fabrication-structures-epc', // canonical for steel-fabrication-structures
+  'gfrp-composites-industrial', // canonical for gfrp-composites
 ] as const;
 
 // =============================================================
@@ -69,11 +92,16 @@ export const REPLICATE_SLUGS = [
 export const REVENUE_HIGH_SLUGS = [
   // All Phase-2 are enterprise/revenue-high
   ...PHASE2_SLUGS,
-  // Plus select Phase-1 export lanes
+  // Plus select Phase-1 high-value export lanes
   'export-industrial-materials',
   'aluminium-industrial-export',
   'industrial-pipes-tubes',
   'non-ferrous-metals',
+  'transformers-power',
+  'industrial-valves',
+  // Enterprise categories from Phase 1
+  'structural-steel-infrastructure',
+  'tmt-bars-epc-projects',
 ] as const;
 
 // =============================================================
