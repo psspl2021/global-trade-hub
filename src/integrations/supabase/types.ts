@@ -6556,6 +6556,16 @@ export type Database = {
         Args: { bid_id: string; coverage_percent?: number; req_id: string }
         Returns: string
       }
+      ensure_requirement_item_exists: {
+        Args: {
+          p_category: string
+          p_item_name: string
+          p_quantity: number
+          p_requirement_id: string
+          p_unit: string
+        }
+        Returns: string
+      }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_bids_for_buyer: {
         Args: { p_requirement_id: string }
