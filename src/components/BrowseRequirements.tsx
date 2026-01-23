@@ -536,75 +536,37 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       termsString += `Grand Total: ₹${data.grandTotal.toLocaleString('en-IN')}\n`;
       if (data.termsAndConditions) termsString += `\nTerms: ${data.termsAndConditions}`;
 
-      // Insert bid with new markup-based pricing model
-      const { data: bidData, error: bidError } = await supabase
-        .from('bids')
-        .insert({
-          requirement_id: selectedRequirement.id,
-          supplier_id: userId,
-          bid_amount: bidAmountToStore,
-          supplier_net_price: supplierNetPrice,
-          buyer_visible_price: buyerVisiblePrice,
-          markup_percentage: markupPercentage,
-          markup_amount: markupAmount,
-          transaction_type: transactionType,
-          service_fee: 0, // No fee deducted from supplier
-          total_amount: buyerVisiblePrice,
-          delivery_timeline_days: data.deliveryDays,
-          terms_and_conditions: termsString.trim() || null,
-          is_paid_bid: isPaidBid ? true : false,
-        })
-        .select('id')
-        .single();
+      // Prepare items for the RPC call
+      const itemsPayload = data.items.map(item => ({
+        requirement_item_id: item.itemId,
+        item_name: item.itemName,
+        unit: item.unit,
+        unit_price: item.rate,
+        supplier_unit_price: item.rate,
+        quantity: item.quantity,
+        total: item.lineTotal,
+      }));
+
+      // Insert bid with items using single-transaction RPC
+      const { data: bidId, error: bidError } = await supabase
+        .rpc('insert_bid_with_items', {
+          p_requirement_id: selectedRequirement.id,
+          p_supplier_id: userId,
+          p_bid_amount: bidAmountToStore,
+          p_supplier_net_price: supplierNetPrice,
+          p_buyer_visible_price: buyerVisiblePrice,
+          p_markup_percentage: markupPercentage,
+          p_markup_amount: markupAmount,
+          p_transaction_type: transactionType,
+          p_service_fee: 0,
+          p_total_amount: buyerVisiblePrice,
+          p_delivery_timeline_days: data.deliveryDays,
+          p_terms_and_conditions: termsString.trim() || null,
+          p_is_paid_bid: isPaidBid ? true : false,
+          p_items: itemsPayload,
+        });
 
       if (bidError) throw bidError;
-
-      // Insert bid items - ALWAYS required by database constraint
-      if (bidData && data.items.length > 0) {
-        let itemsToInsert = data.items;
-        
-        // For single-item requirements (itemId === 'main'), we need to ensure requirement_item exists
-        // Use RPC function that bypasses RLS to handle this safely
-        if (data.items[0].itemId === 'main') {
-          const { data: requirementItemId, error: rpcError } = await supabase
-            .rpc('ensure_requirement_item_exists', {
-              p_requirement_id: selectedRequirement.id,
-              p_item_name: data.items[0].itemName,
-              p_category: selectedRequirement.product_category || '',
-              p_quantity: data.items[0].quantity,
-              p_unit: data.items[0].unit,
-            });
-          
-          if (rpcError || !requirementItemId) {
-            console.error('Error ensuring requirement item exists:', rpcError);
-            throw new Error('Failed to prepare requirement for bidding');
-          }
-          
-          // Update items with the real requirement_item_id
-          itemsToInsert = data.items.map(item => ({
-            ...item,
-            itemId: requirementItemId,
-          }));
-        }
-        
-        const bidItemsToInsert = itemsToInsert.map(item => ({
-          bid_id: bidData.id,
-          requirement_item_id: item.itemId,
-          unit_price: item.rate,
-          supplier_unit_price: item.rate,
-          quantity: item.quantity,
-          total: item.lineTotal,
-        }));
-
-        const { error: itemsError } = await supabase
-          .from('bid_items')
-          .insert(bidItemsToInsert);
-
-        if (itemsError) {
-          console.error('Error inserting bid items:', itemsError);
-          throw new Error('Failed to create bid items');
-        }
-      }
 
       // Update subscription based on bid type
       if (isUsingPremiumBid) {
