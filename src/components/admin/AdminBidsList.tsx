@@ -818,17 +818,11 @@ export function AdminBidsList({ open, onOpenChange }: AdminBidsListProps) {
                               <TableCell>
                                 <div className="text-sm">
                                   <div className="font-medium">₹{Math.round(supplierTotal).toLocaleString()}</div>
-                                  <div className="text-xs text-muted-foreground">
-                                    ₹{Math.round(supplierTotal / qty).toLocaleString()} ex plant
-                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="text-sm">
                                   <div className="font-medium">₹{Math.round(buyerTotal).toLocaleString()}</div>
-                                  <div className="text-xs text-muted-foreground">
-                                    ₹{Math.round(buyerTotal / qty).toLocaleString()}/unit
-                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell>
