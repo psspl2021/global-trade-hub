@@ -6440,10 +6440,24 @@ export type Database = {
         Args: { p_affiliate_id: string }
         Returns: string
       }
-      activate_lane_from_award: {
-        Args: { bid_id: string; req_id: string }
-        Returns: string
-      }
+      activate_lane_from_award:
+        | {
+            Args: {
+              awarded_quantity?: number
+              awarded_value: number
+              bid_id: string
+              coverage_pct?: number
+              delivery_location?: string
+              delivery_timeline?: number
+              is_partial?: boolean
+              product_category?: string
+              product_subcategory?: string
+              requirement_id: string
+              supplier_id: string
+            }
+            Returns: string
+          }
+        | { Args: { bid_id: string; req_id: string }; Returns: string }
       activate_logistics_lane_from_award: {
         Args: { bid_id: string; req_id: string }
         Returns: string
