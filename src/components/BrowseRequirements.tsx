@@ -559,13 +559,56 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
 
       if (bidError) throw bidError;
 
-      // Insert bid items if there are line items
-      if (bidData && data.items.length > 0 && data.items[0].itemId !== 'main') {
-        const bidItemsToInsert = data.items.map(item => ({
+      // Insert bid items - ALWAYS required by database constraint
+      if (bidData && data.items.length > 0) {
+        let itemsToInsert = data.items;
+        
+        // For single-item requirements (itemId === 'main'), we need to create a requirement_item first
+        if (data.items[0].itemId === 'main') {
+          // Check if requirement_item already exists
+          const { data: existingItems } = await supabase
+            .from('requirement_items')
+            .select('id')
+            .eq('requirement_id', selectedRequirement.id)
+            .limit(1);
+          
+          let requirementItemId: string;
+          
+          if (existingItems && existingItems.length > 0) {
+            requirementItemId = existingItems[0].id;
+          } else {
+            // Create requirement_item for single-item requirements
+            const { data: newItem, error: itemError } = await supabase
+              .from('requirement_items')
+              .insert({
+                requirement_id: selectedRequirement.id,
+                item_name: data.items[0].itemName,
+                category: selectedRequirement.product_category || '',
+                quantity: data.items[0].quantity,
+                unit: data.items[0].unit,
+              })
+              .select('id')
+              .single();
+            
+            if (itemError) {
+              console.error('Error creating requirement item:', itemError);
+              throw new Error('Failed to create requirement item for bid');
+            }
+            requirementItemId = newItem.id;
+          }
+          
+          // Update items with the real requirement_item_id
+          itemsToInsert = data.items.map(item => ({
+            ...item,
+            itemId: requirementItemId,
+          }));
+        }
+        
+        const bidItemsToInsert = itemsToInsert.map(item => ({
           bid_id: bidData.id,
           requirement_item_id: item.itemId,
           unit_price: item.rate,
-          supplier_unit_price: item.rate, // Per-unit rate from supplier
+          supplier_unit_price: item.rate,
           quantity: item.quantity,
           total: item.lineTotal,
         }));
@@ -574,7 +617,10 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
           .from('bid_items')
           .insert(bidItemsToInsert);
 
-        if (itemsError) console.error('Error inserting bid items:', itemsError);
+        if (itemsError) {
+          console.error('Error inserting bid items:', itemsError);
+          throw new Error('Failed to create bid items');
+        }
       }
 
       // Update subscription based on bid type
