@@ -6722,6 +6722,26 @@ export type Database = {
       }
       increment_page_views: { Args: { page_id: string }; Returns: undefined }
       increment_rfq_count: { Args: { page_id: string }; Returns: undefined }
+      insert_bid_with_items: {
+        Args: {
+          p_bid_amount: number
+          p_buyer_visible_price: number
+          p_delivery_timeline_days: number
+          p_is_paid_bid: boolean
+          p_items: Json
+          p_logistics_execution_mode?: string
+          p_markup_amount: number
+          p_markup_percentage: number
+          p_requirement_id: string
+          p_service_fee: number
+          p_supplier_id: string
+          p_supplier_net_price: number
+          p_terms_and_conditions: string
+          p_total_amount: number
+          p_transaction_type: string
+        }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
       lock_logistics_awarding: { Args: { req_id: string }; Returns: undefined }
       lock_requirement_awarding: {
