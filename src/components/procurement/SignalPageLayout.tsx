@@ -74,8 +74,8 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
         }
 
         // Auto-promote demand signal on page visit (CRITICAL: live heatmap activation)
-        // Note: Type assertion needed as RPC was just created, types will sync on next deploy
-        await (supabase.rpc as any)('promote_signal_on_visit', {
+        // RPC now exists - creates/updates demand_intelligence_signals for heatmap
+        await supabase.rpc('promote_signal_on_visit', {
           p_country: countryInfo.name,
           p_category: config.signalMapping.category,
         });

@@ -26,8 +26,8 @@ export async function trackSignalPromotion(
   const sessionId = getSessionId();
 
   try {
-    // Use safe_promote_signal RPC with throttling
-    await (supabase.rpc as any)('safe_promote_signal', {
+    // Use safe_promote_signal RPC with throttling (RPC exists in DB)
+    await supabase.rpc('safe_promote_signal', {
       p_signal_page_id: signalPageId,
       p_session_id: sessionId,
       p_ip: '', // IP is captured server-side if needed

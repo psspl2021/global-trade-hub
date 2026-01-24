@@ -45,8 +45,8 @@ export async function promoteSignalSafely(
   try {
     const sessionId = getSessionId();
 
-    // Call the safe_promote_signal RPC with throttling
-    await (supabase.rpc as any)("safe_promote_signal", {
+    // Call the safe_promote_signal RPC with throttling (RPC exists in DB)
+    await supabase.rpc("safe_promote_signal", {
       p_signal_page_id: signalPageId,
       p_session_id: sessionId,
       p_ip: "client", // Backend captures actual IP from headers
