@@ -294,6 +294,22 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
   const handleAcceptBid = async (bidId: string) => {
     try {
+      // VALIDATION: Check bid has items before accepting
+      const bidToAccept = bids.find(b => b.id === bidId);
+      if (!bidToAccept?.bid_items || bidToAccept.bid_items.length === 0) {
+        // Double-check by querying database directly
+        const { data: bidItemsCheck, error: checkError } = await supabase
+          .from('bid_items')
+          .select('id')
+          .eq('bid_id', bidId)
+          .limit(1);
+        
+        if (checkError || !bidItemsCheck || bidItemsCheck.length === 0) {
+          toast.error('Cannot accept bid without items. Please contact support.');
+          return;
+        }
+      }
+
       const { error: bidError } = await supabase
         .from('bids')
         .update({ status: 'accepted' })
