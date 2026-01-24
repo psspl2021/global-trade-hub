@@ -6854,6 +6854,10 @@ export type Database = {
       }
       promote_next_affiliate: { Args: never; Returns: undefined }
       promote_next_waitlisted_affiliate: { Args: never; Returns: undefined }
+      promote_signal_on_visit: {
+        Args: { p_category: string; p_country: string }
+        Returns: undefined
+      }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
       request_supplier_reveal: {
         Args: {
