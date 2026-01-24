@@ -850,6 +850,72 @@ export type Database = {
           },
         ]
       }
+      bid_integrity_logs: {
+        Row: {
+          bid_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          issue_type: string
+          resolved_at: string | null
+          resolved_by: string | null
+        }
+        Insert: {
+          bid_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          issue_type: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Update: {
+          bid_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          issue_type?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_integrity_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "bid_integrity_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "bid_integrity_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_integrity_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids_with_display_date"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_integrity_logs_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
+          },
+        ]
+      }
       bid_items: {
         Row: {
           bid_id: string
@@ -6566,6 +6632,15 @@ export type Database = {
         Returns: boolean
       }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
+      create_bid_item_for_auto_bid: {
+        Args: {
+          p_bid_id: string
+          p_buyer_visible_price: number
+          p_requirement_id: string
+          p_supplier_net_price: number
+        }
+        Returns: undefined
+      }
       create_partial_lane: {
         Args: { bid_id: string; coverage_percent?: number; req_id: string }
         Returns: string
@@ -6761,6 +6836,10 @@ export type Database = {
       lock_requirement_awarding: {
         Args: { req_id: string }
         Returns: undefined
+      }
+      log_bid_integrity_issue: {
+        Args: { p_bid_id: string; p_details?: Json; p_issue_type: string }
+        Returns: string
       }
       log_email_sent: {
         Args: {
