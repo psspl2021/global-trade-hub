@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -9,11 +9,10 @@ import {
   TrendingUp, EyeOff, Globe
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
-import { CountryEnrichedSignalPageConfig, getCanonicalSignalPageSlugs } from '@/data/signalPages';
+import { CountryEnrichedSignalPageConfig } from '@/data/signalPages';
 import { supportedCountries } from '@/data/supportedCountries';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
-import { trackRFQSubmission } from '@/utils/signalTracking';
 import { saveCountryContext } from '@/data/countryTaxConfig';
 
 interface SignalPageLayoutProps {
@@ -35,6 +34,13 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
     ? config.slug 
     : `${countryCode}/${config.slug}`;
 
+  // Extract stable primitives for dependency array
+  const category = config.signalMapping.category;
+  const subcategory = config.signalMapping.subcategory;
+  const industry = config.signalMapping.industry;
+  const h1 = config.h1;
+  const subheading = config.subheading;
+
   // CRITICAL: Save country context to localStorage ON PAGE LOAD for signup flow
   useEffect(() => {
     if (countryCode && countryCode !== 'india') {
@@ -45,6 +51,8 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
   // Track page view and get/create signal page record
   // SINGLE SOURCE OF TRUTH: Only RPC handles view/intent counting
   useEffect(() => {
+    let cancelled = false;
+
     const trackAndGetSignalPage = async () => {
       try {
         // FIX RISK #1: Use maybeSingle() to avoid throwing when row not found
@@ -61,7 +69,7 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
         let pageExists = false;
 
         if (existingPage) {
-          setSignalPageId(existingPage.id);
+          if (!cancelled) setSignalPageId(existingPage.id);
           pageExists = true;
         } else {
           // views/intent start at 0 (RPC increments), use countryCode not name
@@ -69,12 +77,12 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
             .from('admin_signal_pages')
             .insert({
               slug: dbSlug,
-              category: config.signalMapping.category,
-              subcategory: config.signalMapping.subcategory,
-              headline: config.h1,
-              subheadline: config.subheading,
+              category: category,
+              subcategory: subcategory,
+              headline: h1,
+              subheadline: subheading,
               target_country: countryCode,
-              target_industries: [config.signalMapping.industry],
+              target_industries: [industry],
               primary_cta: 'Request Managed Procurement Quote',
               secondary_cta: 'Talk to Expert',
               views: 0,
@@ -94,13 +102,13 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
               .maybeSingle();
 
             if (retryPage) {
-              setSignalPageId(retryPage.id);
+              if (!cancelled) setSignalPageId(retryPage.id);
               pageExists = true;
             }
           }
 
           if (newPage) {
-            setSignalPageId(newPage.id);
+            if (!cancelled) setSignalPageId(newPage.id);
             pageExists = true;
           }
         }
@@ -119,7 +127,11 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
     };
 
     trackAndGetSignalPage();
-  }, [dbSlug, config.signalMapping, config.h1, config.subheading, countryCode]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dbSlug, category, subcategory, industry, h1, subheading, countryCode]);
 
   // Track RFQ modal opened (throttled - no extra call needed, tracked on submit)
   const handleOpenRFQModal = useCallback(() => {
