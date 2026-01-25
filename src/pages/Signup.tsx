@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,8 @@ import authBg from '@/assets/auth-bg.jpg';
 import { useSEO } from '@/hooks/useSEO';
 import { SupplierCategorySelector } from '@/components/signup/SupplierCategorySelector';
 import { EmailNotificationConsent } from '@/components/signup/EmailNotificationConsent';
+import { getTaxConfigForCountry, getCountryFromContext, clearCountryContext } from '@/data/countryTaxConfig';
+import { getCountryByCode } from '@/data/supportedCountries';
 
 type FormErrors = {
   email?: string;
@@ -38,6 +40,20 @@ const Signup = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, signUp } = useAuth();
+  
+  // Detect country context from URL or referrer
+  const detectedCountry = useMemo(() => {
+    // First check URL param
+    const countryParam = searchParams.get('country');
+    if (countryParam) return countryParam.toLowerCase();
+    
+    // Then check localStorage/referrer
+    return getCountryFromContext() || 'india';
+  }, [searchParams]);
+  
+  // Get tax config based on detected country
+  const taxConfig = useMemo(() => getTaxConfigForCountry(detectedCountry), [detectedCountry]);
+  const countryInfo = useMemo(() => getCountryByCode(detectedCountry), [detectedCountry]);
   
   const getInitialRole = () => {
     const roleParam = searchParams.get('role');
@@ -61,7 +77,7 @@ const Signup = () => {
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
 
   // Referrer selection mode: 'priyanka' | 'other' | ''
-  const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other' | ''>('');
+  const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other' | ''>('')
 
   const [formData, setFormData] = useState({
     email: '',
@@ -241,10 +257,19 @@ const Signup = () => {
       return;
     }
 
-    // Validate GSTIN is required for buyers and suppliers (not logistics partners)
-    if (formData.role !== 'logistics_partner' && !formData.gstin.trim()) {
-      setErrors({ gstin: 'GSTIN is required' });
+    // Validate Tax ID based on country config
+    const isTaxRequired = taxConfig.isRequired && formData.role !== 'logistics_partner';
+    if (isTaxRequired && !formData.gstin.trim()) {
+      setErrors({ gstin: `${taxConfig.label} is required` });
       return;
+    }
+    
+    // Validate tax ID format if pattern is defined and value is provided
+    if (formData.gstin.trim() && taxConfig.pattern) {
+      if (!taxConfig.pattern.test(formData.gstin.trim())) {
+        setErrors({ gstin: taxConfig.patternError || `Please enter a valid ${taxConfig.label}` });
+        return;
+      }
     }
 
     // ============================================
@@ -354,6 +379,8 @@ const Signup = () => {
     
     // Redirect to login page after successful signup
     if (!error) {
+      // Clear country context after successful signup
+      clearCountryContext();
       navigate('/login');
     }
   };
@@ -371,7 +398,7 @@ const Signup = () => {
           <CardHeader>
             <CardTitle>Create Your Account</CardTitle>
             <CardDescription>
-              Join India's trusted B2B procurement marketplace
+              {countryInfo ? `Join ${countryInfo.name}'s trusted B2B procurement marketplace` : "Join India's trusted B2B procurement marketplace"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -553,22 +580,26 @@ const Signup = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="gstin">
-                  GSTIN {formData.role !== 'logistics_partner' && '*'}
-                  {formData.role === 'logistics_partner' && <span className="text-muted-foreground font-normal">(Optional)</span>}
+                  {taxConfig.label} {(taxConfig.isRequired && formData.role !== 'logistics_partner') && '*'}
+                  {(formData.role === 'logistics_partner' || !taxConfig.isRequired) && <span className="text-muted-foreground font-normal">(Optional)</span>}
                 </Label>
                 <Input
                   id="gstin"
-                  placeholder="22AAAAA0000A1Z5"
+                  placeholder={taxConfig.placeholder}
                   value={formData.gstin}
                   onChange={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
                   className={`min-h-[44px] ${errors.gstin ? 'border-destructive' : ''}`}
-                  maxLength={15}
+                  maxLength={taxConfig.maxLength}
                 />
                 {errors.gstin && (
                   <p className="text-sm text-destructive">{errors.gstin}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  15-character GST Identification Number {formData.role === 'logistics_partner' && '- not required for logistics partners'}
+                  {taxConfig.helperText}
+                  {formData.role === 'logistics_partner' && ' - not required for logistics partners'}
+                  {taxConfig.vatRate && detectedCountry !== 'india' && (
+                    <span className="ml-1 text-primary font-medium">({taxConfig.vatRate})</span>
+                  )}
                 </p>
               </div>
 

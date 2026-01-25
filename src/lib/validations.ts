@@ -46,9 +46,11 @@ export const signupSchema = z.object({
     .trim()
     .min(2, 'Location is required')
     .max(200, 'Location must be less than 200 characters'),
+  // GSTIN/Tax ID validation is now handled dynamically in the signup form
+  // based on country context - no strict regex here
   gstin: z.string()
     .trim()
-    .regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Please enter a valid 15-character GSTIN')
+    .max(30, 'Tax ID must be less than 30 characters')
     .optional()
     .or(z.literal('')),
 });
