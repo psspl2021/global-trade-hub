@@ -13,7 +13,7 @@ import { CountryEnrichedSignalPageConfig, getCanonicalSignalPageSlugs } from '@/
 import { supportedCountries } from '@/data/supportedCountries';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
-import { promoteSignalSafely, trackRFQSubmission } from '@/utils/signalTracking';
+import { trackRFQSubmission } from '@/utils/signalTracking';
 import { saveCountryContext } from '@/data/countryTaxConfig';
 
 interface SignalPageLayoutProps {
@@ -43,6 +43,7 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
   }, [countryCode]);
 
   // Track page view and get/create signal page record
+  // SINGLE SOURCE OF TRUTH: Only RPC handles view/intent counting
   useEffect(() => {
     const trackAndGetSignalPage = async () => {
       try {
@@ -54,9 +55,9 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
 
         if (existingPage) {
           setSignalPageId(existingPage.id);
-          // Use throttled safe promotion for page view
-          await promoteSignalSafely(existingPage.id, false);
+          // FIX #4: Removed promoteSignalSafely - RPC is single source of truth
         } else {
+          // FIX #2 & #3: views/intent start at 0 (RPC increments), use countryCode not name
           const { data: newPage } = await supabase
             .from('admin_signal_pages')
             .insert({
@@ -65,12 +66,12 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
               subcategory: config.signalMapping.subcategory,
               headline: config.h1,
               subheadline: config.subheading,
-              target_country: countryInfo.name, // Full country name for DB
+              target_country: countryCode, // FIX #3: Use code ('uae') not name ('United Arab Emirates')
               target_industries: [config.signalMapping.industry],
               primary_cta: 'Request Managed Procurement Quote',
               secondary_cta: 'Talk to Expert',
-              views: 1,
-              intent_score: 1, // Initial page view score
+              views: 0,        // FIX #2: Start at 0, RPC will increment
+              intent_score: 0, // FIX #2: Start at 0, RPC will increment
               is_active: true
             })
             .select('id')
@@ -82,9 +83,9 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
         }
 
         // Auto-promote demand signal on page visit (CRITICAL: live heatmap activation)
-        // RPC updates admin_signal_pages views/intent_score for heatmap
+        // RPC is the SINGLE SOURCE OF TRUTH for view/intent counting
         await supabase.rpc('promote_signal_on_visit', {
-          p_slug: config.slug,
+          p_slug: dbSlug,  // FIX #1: Use dbSlug (e.g., 'uae/heavy-steel-plates') not config.slug
           p_country: countryCode || 'india',
         });
 
@@ -94,7 +95,7 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
     };
 
     trackAndGetSignalPage();
-  }, [dbSlug, config.signalMapping, config.h1, config.subheading, countryInfo.name]);
+  }, [dbSlug, config.signalMapping, config.h1, config.subheading, countryCode]);
 
   // Track RFQ modal opened (throttled - no extra call needed, tracked on submit)
   const handleOpenRFQModal = useCallback(() => {
