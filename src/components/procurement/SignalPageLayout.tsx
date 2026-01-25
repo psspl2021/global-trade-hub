@@ -85,7 +85,18 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
             .single();
 
           if (insertError) {
-            console.error('Error creating signal page:', insertError);
+            console.warn('Insert failed (likely race condition), refetching existing signal page...');
+            
+            const { data: retryPage } = await supabase
+              .from('admin_signal_pages')
+              .select('id')
+              .eq('slug', dbSlug)
+              .maybeSingle();
+
+            if (retryPage) {
+              setSignalPageId(retryPage.id);
+              pageExists = true;
+            }
           }
 
           if (newPage) {
