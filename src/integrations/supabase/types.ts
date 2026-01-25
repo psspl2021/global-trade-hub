@@ -5875,6 +5875,7 @@ export type Database = {
         Row: {
           ai_rfqs: number | null
           bids_received: number | null
+          daily_gmv: number | null
           daily_margin: number | null
           date: string | null
           deals_closed: number | null
@@ -5963,6 +5964,8 @@ export type Database = {
           deals_closed: number | null
           deals_completed: number | null
           manual_requirements: number | null
+          total_gmv: number | null
+          total_profit: number | null
           total_requirements: number | null
         }
         Relationships: []
