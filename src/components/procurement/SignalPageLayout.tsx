@@ -47,18 +47,25 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
   useEffect(() => {
     const trackAndGetSignalPage = async () => {
       try {
-        const { data: existingPage } = await supabase
+        // FIX RISK #1: Use maybeSingle() to avoid throwing when row not found
+        const { data: existingPage, error: fetchError } = await supabase
           .from('admin_signal_pages')
           .select('id')
           .eq('slug', dbSlug)
-          .single();
+          .maybeSingle();
+
+        if (fetchError) {
+          console.error('Error fetching signal page:', fetchError);
+        }
+
+        let pageExists = false;
 
         if (existingPage) {
           setSignalPageId(existingPage.id);
-          // FIX #4: Removed promoteSignalSafely - RPC is single source of truth
+          pageExists = true;
         } else {
-          // FIX #2 & #3: views/intent start at 0 (RPC increments), use countryCode not name
-          const { data: newPage } = await supabase
+          // views/intent start at 0 (RPC increments), use countryCode not name
+          const { data: newPage, error: insertError } = await supabase
             .from('admin_signal_pages')
             .insert({
               slug: dbSlug,
@@ -66,28 +73,34 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
               subcategory: config.signalMapping.subcategory,
               headline: config.h1,
               subheadline: config.subheading,
-              target_country: countryCode, // FIX #3: Use code ('uae') not name ('United Arab Emirates')
+              target_country: countryCode,
               target_industries: [config.signalMapping.industry],
               primary_cta: 'Request Managed Procurement Quote',
               secondary_cta: 'Talk to Expert',
-              views: 0,        // FIX #2: Start at 0, RPC will increment
-              intent_score: 0, // FIX #2: Start at 0, RPC will increment
+              views: 0,
+              intent_score: 0,
               is_active: true
             })
             .select('id')
             .single();
 
+          if (insertError) {
+            console.error('Error creating signal page:', insertError);
+          }
+
           if (newPage) {
             setSignalPageId(newPage.id);
+            pageExists = true;
           }
         }
 
-        // Auto-promote demand signal on page visit (CRITICAL: live heatmap activation)
-        // RPC is the SINGLE SOURCE OF TRUTH for view/intent counting
-        await supabase.rpc('promote_signal_on_visit', {
-          p_slug: dbSlug,  // FIX #1: Use dbSlug (e.g., 'uae/heavy-steel-plates') not config.slug
-          p_country: countryCode || 'india',
-        });
+        // FIX RISK #2: Only call RPC if page exists (either found or created)
+        if (pageExists) {
+          await supabase.rpc('promote_signal_on_visit', {
+            p_slug: dbSlug,
+            p_country: countryCode || 'india',
+          });
+        }
 
       } catch (error) {
         console.error('Error tracking signal page:', error);
