@@ -75,10 +75,10 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
         }
 
         // Auto-promote demand signal on page visit (CRITICAL: live heatmap activation)
-        // RPC now exists - creates/updates demand_intelligence_signals for heatmap
+        // RPC updates admin_signal_pages views/intent_score for heatmap
         await supabase.rpc('promote_signal_on_visit', {
-          p_country: countryInfo.name,
-          p_category: config.signalMapping.category,
+          p_slug: config.slug,
+          p_country: countryCode || 'india',
         });
 
       } catch (error) {
