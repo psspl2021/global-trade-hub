@@ -783,7 +783,16 @@ export function AdminDemandHeatmap() {
 
       {/* Top KPI Tiles - Original 5 */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card className="border-red-500/30 bg-gradient-to-br from-red-500/10 to-orange-500/5">
+        {/* Active Signals - CLICKABLE */}
+        <Card 
+          className="border-red-500/30 bg-gradient-to-br from-red-500/10 to-orange-500/5 cursor-pointer hover:shadow-md hover:bg-red-500/15 transition-all"
+          onClick={() => {
+            setSelectedCountry(null);
+            setSelectedCategory(null);
+            setSelectedLaneState('detected');
+            toast.info('Filtered to active signals (detected/pending)');
+          }}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <Flame className="h-4 w-4 text-red-500" />
@@ -796,7 +805,18 @@ export function AdminDemandHeatmap() {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-cyan-500/5">
+        {/* Top Country - CLICKABLE */}
+        <Card 
+          className="border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-cyan-500/5 cursor-pointer hover:shadow-md hover:bg-blue-500/15 transition-all"
+          onClick={() => {
+            if (tiles.topCountry) {
+              setSelectedCountry(tiles.topCountry.label);
+              setSelectedCategory(null);
+              setSelectedLaneState(null);
+              toast.info(`Filtered to ${tiles.topCountry.label}`);
+            }
+          }}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <Globe className="h-4 w-4 text-blue-500" />
@@ -816,7 +836,18 @@ export function AdminDemandHeatmap() {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-pink-500/5">
+        {/* Top Category - CLICKABLE */}
+        <Card 
+          className="border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-pink-500/5 cursor-pointer hover:shadow-md hover:bg-purple-500/15 transition-all"
+          onClick={() => {
+            if (tiles.topCategory) {
+              setSelectedCategory(tiles.topCategory.label);
+              setSelectedCountry(null);
+              setSelectedLaneState(null);
+              toast.info(`Filtered to ${formatCategoryName(tiles.topCategory.label)}`);
+            }
+          }}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <Building2 className="h-4 w-4 text-purple-500" />
@@ -831,6 +862,7 @@ export function AdminDemandHeatmap() {
           </CardContent>
         </Card>
 
+        {/* Revenue at Risk - NON-CLICKABLE (stays static for now) */}
         <Card className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-emerald-500/5">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
@@ -844,7 +876,16 @@ export function AdminDemandHeatmap() {
           </CardContent>
         </Card>
 
-        <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-yellow-500/5">
+        {/* RFQs (7 days) - CLICKABLE */}
+        <Card 
+          className="border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-yellow-500/5 cursor-pointer hover:shadow-md hover:bg-amber-500/15 transition-all"
+          onClick={() => {
+            // Navigate to requirements tab (admin dashboard tab) or show recent RFQs
+            // For now, show a toast and could be extended to navigate
+            toast.info('Showing RFQs from last 7 days - check Requirements tab');
+            // Future: navigate('/admin?tab=requirements&filter=7days')
+          }}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <FileText className="h-4 w-4 text-amber-500" />
