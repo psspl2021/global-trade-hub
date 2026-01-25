@@ -35,6 +35,13 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
     ? config.slug 
     : `${countryCode}/${config.slug}`;
 
+  // CRITICAL: Save country context to localStorage ON PAGE LOAD for signup flow
+  useEffect(() => {
+    if (countryCode && countryCode !== 'india') {
+      saveCountryContext(countryCode);
+    }
+  }, [countryCode]);
+
   // Track page view and get/create signal page record
   useEffect(() => {
     const trackAndGetSignalPage = async () => {
@@ -91,13 +98,10 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
 
   // Track RFQ modal opened (throttled - no extra call needed, tracked on submit)
   const handleOpenRFQModal = useCallback(() => {
-    // Save country context for signup flow
-    if (countryCode && countryCode !== 'india') {
-      saveCountryContext(countryCode);
-    }
+    // Country context already saved on page load - no need to save again
     setShowRFQModal(true);
     // Note: Intent tracking now happens via safe_promote_signal on RFQ submit
-  }, [countryCode]);
+  }, []);
 
   // SEO - Country-aware meta tags and structured data
   useEffect(() => {
