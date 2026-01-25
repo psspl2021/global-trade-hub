@@ -21,6 +21,8 @@ interface OverviewMetrics {
   active_rfqs: number;
   deals_closed: number;
   deals_completed: number;
+  total_gmv: number;
+  total_profit: number;
 }
 
 interface ProfitSummary {
@@ -74,6 +76,7 @@ interface DailyKPI {
   bids_received: number;
   deals_closed: number;
   daily_margin: number;
+  daily_gmv: number;
   unique_buyers: number;
   unique_suppliers: number;
 }
@@ -148,16 +151,18 @@ export function AdminControlTower() {
     });
   };
 
-  const totalProfit = profitSummary.reduce((sum, d) => sum + (d.total_profit || 0), 0);
-  const totalGMV = profitSummary.reduce((sum, d) => sum + (d.total_gmv || 0), 0);
-  const totalDeals = profitSummary.reduce((sum, d) => sum + (d.deals_closed || 0), 0);
+  // Use overview metrics directly for totals (more reliable from single source of truth)
+  const totalProfit = overview?.total_profit || 0;
+  const totalGMV = overview?.total_gmv || 0;
+  const totalDeals = overview?.deals_closed || 0;
 
   const chartData = dailyKPIs.slice(0, 14).reverse().map(d => ({
     date: formatDate(d.date),
-    rfqs: d.rfqs_created,
-    aiRfqs: d.ai_rfqs,
-    deals: d.deals_closed,
-    margin: d.daily_margin || 0
+    rfqs: d.rfqs_created || 0,
+    aiRfqs: d.ai_rfqs || 0,
+    deals: d.deals_closed || 0,
+    margin: d.daily_margin || 0,
+    gmv: d.daily_gmv || 0
   }));
 
   const tradeTypePieData = revenueByType.map(r => ({
@@ -167,30 +172,51 @@ export function AdminControlTower() {
     deals: r.deals_count
   }));
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
         <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+        <p className="text-muted-foreground text-sm">Loading dashboard data...</p>
       </div>
     );
   }
 
+  const hasNoData = !overview || (overview.total_requirements === 0 && overview.deals_closed === 0);
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-primary" />
+          <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             Admin Control Tower
           </h2>
-          <p className="text-muted-foreground">Real-time platform metrics & AI inventory analytics</p>
+          <p className="text-muted-foreground text-sm">Real-time platform metrics & AI inventory analytics</p>
         </div>
-        <Button onClick={fetchData} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
+        <Button onClick={handleRefresh} variant="outline" size="sm" disabled={refreshing}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
+
+      {hasNoData && (
+        <Card className="border-dashed">
+          <CardContent className="py-8 text-center">
+            <Package className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+            <h3 className="font-semibold mb-1">No data yet</h3>
+            <p className="text-sm text-muted-foreground">Start creating RFQs and closing deals to see your metrics here.</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Overview KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -238,9 +264,11 @@ export function AdminControlTower() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-amber-600">{formatCurrency(totalProfit)}</div>
+            <div className="text-3xl font-bold text-amber-600">
+              {totalProfit > 0 ? formatCurrency(totalProfit) : <span className="text-muted-foreground text-lg">No profit yet</span>}
+            </div>
             <div className="text-xs text-muted-foreground mt-2">
-              GMV: {formatCurrency(totalGMV)}
+              GMV: {totalGMV > 0 ? formatCurrency(totalGMV) : 'No deals yet'}
             </div>
           </CardContent>
         </Card>
@@ -263,11 +291,11 @@ export function AdminControlTower() {
 
       {/* Tabs for detailed views */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="ai-inventory">AI Inventory</TabsTrigger>
-          <TabsTrigger value="deals">Deal Analytics</TabsTrigger>
-          <TabsTrigger value="suppliers">Supplier Leaderboard</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-1">
+          <TabsTrigger value="overview" className="text-xs md:text-sm px-2 py-2">Overview</TabsTrigger>
+          <TabsTrigger value="ai-inventory" className="text-xs md:text-sm px-2 py-2">AI Inventory</TabsTrigger>
+          <TabsTrigger value="deals" className="text-xs md:text-sm px-2 py-2">Deal Analytics</TabsTrigger>
+          <TabsTrigger value="suppliers" className="text-xs md:text-sm px-2 py-2">Leaderboard</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -292,8 +320,13 @@ export function AdminControlTower() {
                       <Tooltip 
                         contentStyle={{ 
                           backgroundColor: 'hsl(var(--background))', 
-                          border: '1px solid hsl(var(--border))' 
-                        }} 
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px'
+                        }}
+                        formatter={(value: number, name: string) => {
+                          if (name === 'GMV' || name === 'Margin') return formatCurrency(value);
+                          return value;
+                        }}
                       />
                       <Legend />
                       <Line yAxisId="left" type="monotone" dataKey="rfqs" name="RFQs" stroke="hsl(var(--primary))" strokeWidth={2} />
