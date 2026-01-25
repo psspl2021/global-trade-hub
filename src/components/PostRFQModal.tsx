@@ -126,7 +126,11 @@ export function PostRFQModal({
       }
     }
     onOpenChange(false);
-    navigate('/signup?role=buyer');
+    // Pass country context to signup for dynamic tax field
+    const signupUrl = signalPageCountry && signalPageCountry.toLowerCase() !== 'india'
+      ? `/signup?role=buyer&country=${signalPageCountry.toLowerCase()}`
+      : '/signup?role=buyer';
+    navigate(signupUrl);
   };
 
   const tradeTypeLabels = {

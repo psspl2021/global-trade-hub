@@ -14,6 +14,7 @@ import { supportedCountries } from '@/data/supportedCountries';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { promoteSignalSafely, trackRFQSubmission } from '@/utils/signalTracking';
+import { saveCountryContext } from '@/data/countryTaxConfig';
 
 interface SignalPageLayoutProps {
   config: CountryEnrichedSignalPageConfig;
@@ -90,9 +91,13 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
 
   // Track RFQ modal opened (throttled - no extra call needed, tracked on submit)
   const handleOpenRFQModal = useCallback(() => {
+    // Save country context for signup flow
+    if (countryCode && countryCode !== 'india') {
+      saveCountryContext(countryCode);
+    }
     setShowRFQModal(true);
     // Note: Intent tracking now happens via safe_promote_signal on RFQ submit
-  }, []);
+  }, [countryCode]);
 
   // SEO - Country-aware meta tags and structured data
   useEffect(() => {
