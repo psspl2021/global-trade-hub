@@ -84,7 +84,9 @@ const App = () => (
               <Route path="/affiliate-signup" element={<AffiliateSignup />} />
               <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
               {/* Country-specific signal pages for geo-intelligence */}
+              {/* Phase 1: Middle East + Africa */}
               <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
+              {/* Phase 2: USA, UK, Europe, Singapore - supported via same dynamic route */}
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

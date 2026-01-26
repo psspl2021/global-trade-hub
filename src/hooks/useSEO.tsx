@@ -146,26 +146,42 @@ export const injectStructuredData = (data: object, id: string) => {
   script.textContent = JSON.stringify(data);
 };
 
-// Global Organization schema with international reach
+// Global Organization schema with international reach - AEO/GEO optimized
 export const getOrganizationSchema = () => ({
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "ProcureSaathi",
-  "alternateName": ["Procure Saathi", "ProcureSaathi India", "ProcureSaathi Global"],
+  "alternateName": ["Procure Saathi", "ProcureSaathi India", "ProcureSaathi Global", "AI B2B Procurement Platform"],
   "url": "https://procuresaathi.com",
   "logo": "https://procuresaathi.com/procuresaathi-logo.png",
-  "description": "Global B2B sourcing and procurement platform connecting verified buyers with suppliers worldwide for industrial raw materials, chemicals, and commodities.",
+  "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing platform helping buyers and suppliers connect across domestic and export–import markets in India. Post AI RFQs, receive transparent bids, and source from verified suppliers.",
+  "foundingDate": "2021",
+  "slogan": "AI-Powered B2B Procurement for Smart Sourcing",
   "areaServed": [
     {"@type": "Country", "name": "India"},
     {"@type": "Country", "name": "United States"},
     {"@type": "Country", "name": "United Arab Emirates"},
     {"@type": "Country", "name": "United Kingdom"},
     {"@type": "Country", "name": "Germany"},
-    {"@type": "Country", "name": "Australia"},
+    {"@type": "Country", "name": "Saudi Arabia"},
     {"@type": "Country", "name": "Singapore"},
+    {"@type": "Country", "name": "Kenya"},
+    {"@type": "Country", "name": "Nigeria"},
+    {"@type": "Country", "name": "Qatar"},
     {"@type": "Continent", "name": "Africa"},
     {"@type": "Continent", "name": "Asia"},
-    {"@type": "Continent", "name": "Europe"}
+    {"@type": "Continent", "name": "Europe"},
+    {"@type": "Continent", "name": "North America"}
+  ],
+  "knowsAbout": [
+    "B2B Procurement",
+    "AI RFQ Software",
+    "Digital Sourcing Platform",
+    "Online Bidding Platform",
+    "Supplier Discovery",
+    "Transparent Bidding",
+    "Domestic Sourcing India",
+    "Export Import Sourcing"
   ],
   "sameAs": [
     "https://twitter.com/ProcureSaathi",

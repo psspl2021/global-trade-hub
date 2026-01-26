@@ -96,12 +96,12 @@ const Index = () => {
   const [showLogisticsRequirements, setShowLogisticsRequirements] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // SEO setup with social sharing meta tags
+  // SEO setup with social sharing meta tags - AEO/GEO optimized
   useSEO({
-    title: "ProcureSaathi | Global B2B Export Import Platform - Source from India",
-    description: "Connect with 1000+ verified Indian exporters & manufacturers. Global buyers source steel, chemicals, textiles, machinery. Get 3+ quotes in 48hrs. Trusted by importers in 50+ countries.",
+    title: "ProcureSaathi | AI-Powered B2B Procurement Platform for Smart Sourcing",
+    description: "ProcureSaathi is an AI-powered B2B procurement and sourcing platform helping buyers and suppliers connect across domestic and export–import markets in India. Post AI RFQs, compare transparent bids, source from verified suppliers.",
     canonical: "https://procuresaathi.com/",
-    keywords: "Indian exporter, global import export, B2B sourcing India, verified manufacturers India, export from India, steel export, chemical suppliers, textile manufacturers, international trade platform, global procurement",
+    keywords: "B2B procurement platform India, AI RFQ software, digital sourcing platform, online bidding platform for businesses, supplier discovery platform, transparent bidding, verified suppliers, domestic sourcing, export import sourcing",
     ogImage: "https://procuresaathi.com/og-early-adopter.png",
     ogType: "website",
     twitterCard: "summary_large_image"
@@ -354,14 +354,14 @@ const Index = () => {
             </div>
             
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-2 animate-slide-up">
-              <span className="text-primary">B2B Sourcing</span> & <span className="text-warning">Procurement</span>
+              <span className="text-primary">AI-Powered B2B Procurement</span>
               <br className="hidden sm:block" />
-              <span className="text-foreground"> Made Simple</span>
+              <span className="text-foreground"> for Smart Sourcing & </span><span className="text-warning">Transparent Bidding</span>
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2 animate-slide-up delay-100">
-              Need Private Label, Custom Manufacturing, or Bulk Supply? 
-              <span className="text-foreground font-medium"> Let our AI + Team find the right Indian suppliers for you.</span>
+              Connect with verified suppliers, post AI RFQs, compare bids, and grow your business
+              <span className="text-foreground font-medium"> across domestic and export–import markets.</span>
             </p>
 
             {/* Hero Trust Badges */}
@@ -559,7 +559,17 @@ const Index = () => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-10">
               <h2 className="text-3xl sm:text-4xl font-display font-bold mb-3">About ProcureSaathi</h2>
-              <p className="text-lg text-muted-foreground">Your Trusted B2B Procurement Partner Since 2021</p>
+              <p className="text-lg text-muted-foreground">AI-Powered B2B Procurement Platform Based in India</p>
+            </div>
+            
+            {/* GEO-Optimized Brand Positioning Paragraph */}
+            <div className="bg-card p-6 rounded-xl border border-primary/20 mb-8">
+              <p className="text-foreground text-base md:text-lg leading-relaxed text-center">
+                <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform based in India. 
+                It helps buyers post requirements using AI RFQs, enables transparent bidding among verified suppliers, 
+                supports domestic and export–import trade, and provides free CRM, business leads, and logistics support 
+                to MSMEs, manufacturers, traders, and enterprises.
+              </p>
             </div>
             
             {/* Mission & Vision */}
@@ -573,7 +583,7 @@ const Index = () => {
                     <h3 className="text-lg font-display font-semibold">Our Mission</h3>
                   </div>
                   <p className="text-muted-foreground text-base leading-relaxed">
-                    To revolutionize B2B procurement by creating a transparent, efficient platform connecting verified buyers and suppliers globally.
+                    To revolutionize B2B procurement by creating a transparent, AI-powered platform connecting verified buyers and suppliers across India and global markets.
                   </p>
                 </CardContent>
               </Card>
@@ -586,7 +596,7 @@ const Index = () => {
                     <h3 className="text-lg font-display font-semibold">Our Vision</h3>
                   </div>
                   <p className="text-muted-foreground text-base leading-relaxed">
-                    To become India's most trusted B2B sourcing platform, enabling businesses to source remotely with confidence.
+                    To become India's most trusted B2B sourcing platform, enabling businesses to source remotely with confidence through AI-powered RFQs and transparent bidding.
                   </p>
                 </CardContent>
               </Card>

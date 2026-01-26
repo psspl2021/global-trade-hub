@@ -1,5 +1,6 @@
 // Supported Countries for Geo-Replication Engine
 // Phase 1: Middle East + Africa
+// Phase 2: USA, UK, Europe, Singapore expansion
 
 export interface SupportedCountry {
   code: string;
@@ -9,9 +10,11 @@ export interface SupportedCountry {
   currencySymbol: string;
   hreflangCode: string; // ISO 639-1 + ISO 3166-1 alpha-2
   logisticsHint: string;
+  region?: 'asia' | 'middle-east' | 'africa' | 'americas' | 'europe';
 }
 
 export const supportedCountries: SupportedCountry[] = [
+  // India - Primary Market
   {
     code: 'india',
     name: 'India',
@@ -19,8 +22,10 @@ export const supportedCountries: SupportedCountry[] = [
     currency: 'INR',
     currencySymbol: '₹',
     hreflangCode: 'en-in',
-    logisticsHint: 'Pan-India delivery via ProcureSaathi logistics network'
+    logisticsHint: 'Pan-India delivery via ProcureSaathi logistics network',
+    region: 'asia'
   },
+  // Middle East Markets
   {
     code: 'uae',
     name: 'United Arab Emirates',
@@ -28,7 +33,8 @@ export const supportedCountries: SupportedCountry[] = [
     currency: 'AED',
     currencySymbol: 'AED',
     hreflangCode: 'en-ae',
-    logisticsHint: 'Delivered to Dubai, Abu Dhabi, Sharjah'
+    logisticsHint: 'Delivered to Dubai, Abu Dhabi, Sharjah',
+    region: 'middle-east'
   },
   {
     code: 'saudi',
@@ -37,7 +43,8 @@ export const supportedCountries: SupportedCountry[] = [
     currency: 'SAR',
     currencySymbol: 'SAR',
     hreflangCode: 'en-sa',
-    logisticsHint: 'Delivered to Riyadh, Jeddah, Dammam'
+    logisticsHint: 'Delivered to Riyadh, Jeddah, Dammam',
+    region: 'middle-east'
   },
   {
     code: 'qatar',
@@ -46,8 +53,10 @@ export const supportedCountries: SupportedCountry[] = [
     currency: 'QAR',
     currencySymbol: 'QAR',
     hreflangCode: 'en-qa',
-    logisticsHint: 'Delivered to Doha'
+    logisticsHint: 'Delivered to Doha',
+    region: 'middle-east'
   },
+  // African Markets
   {
     code: 'kenya',
     name: 'Kenya',
@@ -55,7 +64,8 @@ export const supportedCountries: SupportedCountry[] = [
     currency: 'KES',
     currencySymbol: 'KES',
     hreflangCode: 'en-ke',
-    logisticsHint: 'Delivered to Nairobi, Mombasa'
+    logisticsHint: 'Delivered to Nairobi, Mombasa',
+    region: 'africa'
   },
   {
     code: 'nigeria',
@@ -64,7 +74,51 @@ export const supportedCountries: SupportedCountry[] = [
     currency: 'NGN',
     currencySymbol: '₦',
     hreflangCode: 'en-ng',
-    logisticsHint: 'Delivered to Lagos, Abuja, Port Harcourt'
+    logisticsHint: 'Delivered to Lagos, Abuja, Port Harcourt',
+    region: 'africa'
+  },
+  // Phase 2: Americas
+  {
+    code: 'usa',
+    name: 'United States',
+    seoLabel: 'USA',
+    currency: 'USD',
+    currencySymbol: '$',
+    hreflangCode: 'en-us',
+    logisticsHint: 'Delivered to major US ports and cities',
+    region: 'americas'
+  },
+  // Phase 2: Europe
+  {
+    code: 'uk',
+    name: 'United Kingdom',
+    seoLabel: 'UK',
+    currency: 'GBP',
+    currencySymbol: '£',
+    hreflangCode: 'en-gb',
+    logisticsHint: 'Delivered to London, Manchester, Birmingham',
+    region: 'europe'
+  },
+  {
+    code: 'europe',
+    name: 'European Union',
+    seoLabel: 'Europe',
+    currency: 'EUR',
+    currencySymbol: '€',
+    hreflangCode: 'en',
+    logisticsHint: 'Delivered to major EU ports and cities',
+    region: 'europe'
+  },
+  // Phase 2: Asia-Pacific
+  {
+    code: 'singapore',
+    name: 'Singapore',
+    seoLabel: 'Singapore',
+    currency: 'SGD',
+    currencySymbol: 'S$',
+    hreflangCode: 'en-sg',
+    logisticsHint: 'Delivered to Singapore',
+    region: 'asia'
   }
 ];
 
@@ -88,6 +142,11 @@ export function isCountrySupported(code: string): boolean {
 // Get all country codes
 export function getAllCountryCodes(): string[] {
   return supportedCountries.map(c => c.code);
+}
+
+// Get countries by region
+export function getCountriesByRegion(region: SupportedCountry['region']): SupportedCountry[] {
+  return supportedCountries.filter(c => c.region === region);
 }
 
 // Default country (for non-country routes)

@@ -26,14 +26,14 @@ const SUPPORTED_COUNTRIES = [
   { code: 'en-IN', country: 'in', url: 'https://procuresaathi.com' },
 ];
 
-// Global website schema for export/import
+// Global website schema for AEO/GEO optimization
 const getWebsiteSchema = () => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "ProcureSaathi",
-  "alternateName": ["Procure Saathi", "ProcureSaathi Global", "India Export Platform"],
+  "alternateName": ["Procure Saathi", "ProcureSaathi Global", "AI B2B Procurement Platform"],
   "url": "https://procuresaathi.com",
-  "description": "Global B2B export import platform connecting international buyers with verified Indian exporters & manufacturers for steel, chemicals, textiles, machinery, and industrial commodities.",
+  "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing platform helping buyers and suppliers connect across domestic and export–import markets in India.",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
@@ -42,7 +42,7 @@ const getWebsiteSchema = () => ({
     },
     "query-input": "required name=search_term_string"
   },
-  "inLanguage": ["en", "hi", "de", "fr", "es", "zh", "ja", "ar", "pt", "ru", "nl", "it", "ko"],
+  "inLanguage": ["en", "hi"],
   "publisher": {
     "@type": "Organization",
     "name": "ProcureSaathi",
@@ -53,17 +53,22 @@ const getWebsiteSchema = () => ({
   },
   "audience": {
     "@type": "Audience",
-    "audienceType": "Global Importers, International Buyers, Trading Companies, Export Agents, Procurement Managers"
+    "audienceType": "B2B Buyers, Procurement Managers, MSMEs, Manufacturers, Traders, Enterprises"
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "B2B Procurement Platform",
+    "description": "AI-powered platform for posting RFQs, transparent bidding, and supplier discovery"
   }
 });
 
-// B2B Export Import Marketplace schema
+// B2B Procurement Marketplace schema - AEO/GEO optimized
 const getB2BMarketplaceSchema = () => ({
   "@context": "https://schema.org",
   "@type": "OnlineBusiness",
   "@id": "https://procuresaathi.com/#business",
-  "name": "ProcureSaathi Global Export Import Marketplace",
-  "description": "Connect with 1000+ verified Indian exporters & manufacturers. Global buyers source steel, chemicals, textiles, machinery. Trusted by importers in 50+ countries across all continents.",
+  "name": "ProcureSaathi - AI-Powered B2B Procurement Platform",
+  "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing platform based in India. It helps buyers post requirements using AI RFQs, enables transparent bidding among verified suppliers, supports domestic and export–import trade, and provides free CRM, business leads, and logistics support to MSMEs, manufacturers, traders, and enterprises.",
   "url": "https://procuresaathi.com",
   "logo": "https://procuresaathi.com/procuresaathi-logo.png",
   "image": "https://procuresaathi.com/og-early-adopter.png",
@@ -133,13 +138,13 @@ const getB2BMarketplaceSchema = () => ({
   }
 });
 
-// Service schema for B2B sourcing
+// Service schema for B2B sourcing - AEO/GEO optimized
 const getSourcingServiceSchema = () => ({
   "@context": "https://schema.org",
   "@type": "Service",
-  "serviceType": "B2B Sourcing Platform",
-  "name": "ProcureSaathi B2B Sourcing Services",
-  "description": "Connect with verified suppliers worldwide. Post requirements, receive sealed bids, and source products with complete transparency.",
+  "serviceType": "AI-Powered B2B Procurement Platform",
+  "name": "ProcureSaathi B2B Procurement Services",
+  "description": "ProcureSaathi helps buyers post requirements using AI RFQs, enables transparent bidding among verified suppliers, and supports domestic and export–import trade with free CRM and logistics support.",
   "provider": {
     "@type": "Organization",
     "name": "ProcureSaathi",
@@ -155,12 +160,24 @@ const getSourcingServiceSchema = () => ({
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "INR",
-    "description": "Free account creation and RFQ posting"
+    "description": "Free account creation, AI RFQ posting, and CRM tools"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "B2B Procurement Services",
+    "itemListElement": [
+      {"@type": "Offer", "name": "AI RFQ Generation"},
+      {"@type": "Offer", "name": "Transparent Bidding Platform"},
+      {"@type": "Offer", "name": "Verified Supplier Discovery"},
+      {"@type": "Offer", "name": "Free CRM Software"},
+      {"@type": "Offer", "name": "GST Invoice Generator"},
+      {"@type": "Offer", "name": "Logistics Support"}
+    ]
   },
   "termsOfService": "https://procuresaathi.com/terms",
   "serviceOutput": {
     "@type": "Thing",
-    "name": "Competitive supplier quotations"
+    "name": "Competitive supplier quotations via transparent bidding"
   }
 });
 
