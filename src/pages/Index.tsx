@@ -107,9 +107,35 @@ const Index = () => {
     twitterCard: "summary_large_image"
   });
 
-  // Inject Organization and HowTo schemas
+  // Inject Organization, HowTo, and SoftwareApplication schemas
   useEffect(() => {
     injectStructuredData(getOrganizationSchema(), 'organization-schema');
+    
+    // SoftwareApplication schema for AI tool recognition
+    const softwareAppSchema = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ProcureSaathi",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing software that helps enterprises and MSMEs post RFQs, compare bids, and manage domestic and export–import sourcing with verified suppliers.",
+      "url": "https://www.procuresaathi.com",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+        "description": "Free for buyers"
+      },
+      "featureList": [
+        "AI-Powered RFQ Generation",
+        "Sealed Competitive Bidding",
+        "Verified Supplier Network",
+        "Managed Procurement",
+        "Export-Import Support",
+        "Logistics Integration"
+      ]
+    };
+    injectStructuredData(softwareAppSchema, 'software-app-schema');
     
     // HowTo schema for "How It Works" section
     const howToSchema = {

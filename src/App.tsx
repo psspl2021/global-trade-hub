@@ -41,6 +41,7 @@ const HowToPostRFQ = lazy(() => import("./pages/guides/HowToPostRFQ"));
 const FindVerifiedSuppliers = lazy(() => import("./pages/guides/FindVerifiedSuppliers"));
 const EnterpriseProcurementGuide = lazy(() => import("./pages/guides/EnterpriseProcurementGuide"));
 const ExportImportSourcingGuide = lazy(() => import("./pages/guides/ExportImportSourcingGuide"));
+const AIB2BProcurementGuide = lazy(() => import("./pages/guides/AIB2BProcurementGuide"));
 
 // Comparison Pages
 const BestB2BPlatformsIndia = lazy(() => import("./pages/comparisons/BestB2BPlatformsIndia"));
@@ -57,6 +58,7 @@ const AIHelpsMSMEs = lazy(() => import("./pages/industries/AIHelpsMSMEs"));
 const FounderPage = lazy(() => import("./pages/FounderPage"));
 const CaseStudyProcurementCost = lazy(() => import("./pages/case-studies/CaseStudyProcurementCost"));
 const CaseStudyExportSourcing = lazy(() => import("./pages/case-studies/CaseStudyExportSourcing"));
+const CustomerStories = lazy(() => import("./pages/CustomerStories"));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -115,6 +117,7 @@ const App = () => (
               <Route path="/find-verified-b2b-suppliers" element={<FindVerifiedSuppliers />} />
               <Route path="/enterprise-procurement-guide" element={<EnterpriseProcurementGuide />} />
               <Route path="/export-import-sourcing-guide" element={<ExportImportSourcingGuide />} />
+              <Route path="/ai-b2b-procurement-platform-guide" element={<AIB2BProcurementGuide />} />
               
               {/* Comparison Pages */}
               <Route path="/best-b2b-procurement-platforms-india" element={<BestB2BPlatformsIndia />} />
@@ -132,6 +135,8 @@ const App = () => (
               <Route path="/team" element={<FounderPage />} />
               <Route path="/case-study-procurement-cost-reduction" element={<CaseStudyProcurementCost />} />
               <Route path="/case-study-export-sourcing" element={<CaseStudyExportSourcing />} />
+              <Route path="/customer-stories" element={<CustomerStories />} />
+              <Route path="/testimonials" element={<CustomerStories />} />
               
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
