@@ -191,6 +191,29 @@ const ProcurementForSteelManufacturers = () => {
         </div>
       </section>
 
+      {/* Related Pages */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
+            Related Resources
+          </h2>
+          <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
+            <Button variant="outline" onClick={() => navigate('/procurement/steel-plates-heavy')}>
+              Steel Plates Signal Page
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/how-to-post-rfq-online')}>
+              How to Post RFQ
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/ai-b2b-procurement-platform-guide')}>
+              Complete Procurement Guide
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/case-study-procurement-cost-reduction')}>
+              Cost Reduction Case Study
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">
         <div className="container mx-auto px-4 text-center">
