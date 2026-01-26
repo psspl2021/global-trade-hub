@@ -36,6 +36,28 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 
+// AEO/GEO How-To & Guide Pages
+const HowToPostRFQ = lazy(() => import("./pages/guides/HowToPostRFQ"));
+const FindVerifiedSuppliers = lazy(() => import("./pages/guides/FindVerifiedSuppliers"));
+const EnterpriseProcurementGuide = lazy(() => import("./pages/guides/EnterpriseProcurementGuide"));
+const ExportImportSourcingGuide = lazy(() => import("./pages/guides/ExportImportSourcingGuide"));
+
+// Comparison Pages
+const BestB2BPlatformsIndia = lazy(() => import("./pages/comparisons/BestB2BPlatformsIndia"));
+const AIProcurementVsTraditional = lazy(() => import("./pages/comparisons/AIProcurementVsTraditional"));
+const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMarketplace"));
+
+// Industry Use-Case Pages
+const ProcurementForSteelManufacturers = lazy(() => import("./pages/industries/ProcurementForSteelManufacturers"));
+const ProcurementForChemicalBuyers = lazy(() => import("./pages/industries/ProcurementForChemicalBuyers"));
+const ProcurementForConstruction = lazy(() => import("./pages/industries/ProcurementForConstruction"));
+const AIHelpsMSMEs = lazy(() => import("./pages/industries/AIHelpsMSMEs"));
+
+// Founder & Case Study Pages
+const FounderPage = lazy(() => import("./pages/FounderPage"));
+const CaseStudyProcurementCost = lazy(() => import("./pages/case-studies/CaseStudyProcurementCost"));
+const CaseStudyExportSourcing = lazy(() => import("./pages/case-studies/CaseStudyExportSourcing"));
+
 // Simple loading fallback
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
@@ -87,6 +109,30 @@ const App = () => (
               {/* Phase 1: Middle East + Africa */}
               <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
               {/* Phase 2: USA, UK, Europe, Singapore - supported via same dynamic route */}
+              
+              {/* AEO/GEO How-To & Guide Pages */}
+              <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />
+              <Route path="/find-verified-b2b-suppliers" element={<FindVerifiedSuppliers />} />
+              <Route path="/enterprise-procurement-guide" element={<EnterpriseProcurementGuide />} />
+              <Route path="/export-import-sourcing-guide" element={<ExportImportSourcingGuide />} />
+              
+              {/* Comparison Pages */}
+              <Route path="/best-b2b-procurement-platforms-india" element={<BestB2BPlatformsIndia />} />
+              <Route path="/ai-procurement-vs-traditional-rfq" element={<AIProcurementVsTraditional />} />
+              <Route path="/managed-procurement-vs-b2b-marketplace" element={<ManagedVsMarketplace />} />
+              
+              {/* Industry Use-Case Pages */}
+              <Route path="/procurement-for-steel-manufacturers" element={<ProcurementForSteelManufacturers />} />
+              <Route path="/procurement-for-chemical-buyers" element={<ProcurementForChemicalBuyers />} />
+              <Route path="/procurement-for-construction-companies" element={<ProcurementForConstruction />} />
+              <Route path="/ai-helps-msmes-enterprise-supply-chains" element={<AIHelpsMSMEs />} />
+              
+              {/* Founder & Case Study Pages */}
+              <Route path="/founder" element={<FounderPage />} />
+              <Route path="/team" element={<FounderPage />} />
+              <Route path="/case-study-procurement-cost-reduction" element={<CaseStudyProcurementCost />} />
+              <Route path="/case-study-export-sourcing" element={<CaseStudyExportSourcing />} />
+              
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

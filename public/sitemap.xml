@@ -1,4 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- ProcureSaathi Sitemap - Updated 2026-01-26 -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core Pages -->
+  <url><loc>https://procuresaathi.com/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://procuresaathi.com/buyer</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://procuresaathi.com/seller</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://procuresaathi.com/post-rfq</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://procuresaathi.com/private-label</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/contact</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/categories</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/blogs</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  
+  <!-- How-To & Guide Pages (AEO/GEO) -->
+  <url><loc>https://procuresaathi.com/how-to-post-rfq-online</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/find-verified-b2b-suppliers</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/enterprise-procurement-guide</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/export-import-sourcing-guide</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  
+  <!-- Comparison Pages (AEO/GEO) -->
+  <url><loc>https://procuresaathi.com/best-b2b-procurement-platforms-india</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/ai-procurement-vs-traditional-rfq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/managed-procurement-vs-b2b-marketplace</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  
+  <!-- Industry Use-Case Pages -->
+  <url><loc>https://procuresaathi.com/procurement-for-steel-manufacturers</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/procurement-for-chemical-buyers</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/procurement-for-construction-companies</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://procuresaathi.com/ai-helps-msmes-enterprise-supply-chains</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  
+  <!-- Founder & Case Studies -->
+  <url><loc>https://procuresaathi.com/founder</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/case-study-procurement-cost-reduction</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/case-study-export-sourcing</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  
+  <!-- Blog Posts -->
+  <url><loc>https://procuresaathi.com/blogs/ai-rfq-software-enterprise-procurement</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/future-of-supplier-discovery-b2b</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/verified-suppliers-industrial-procurement</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/ai-procurement-platform-vs-b2b-marketplace</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/reduce-procurement-risk-using-ai</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/end-to-end-managed-procurement</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/digital-sourcing-platform-global-supply-chain</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/transparent-bidding-enterprise-compliance</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/ai-helps-msmes-enterprise-supply-chains</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://procuresaathi.com/blogs/resilient-procurement-strategy-2026</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <!-- Core Pages -->
