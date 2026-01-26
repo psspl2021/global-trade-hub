@@ -32,7 +32,7 @@ const faqData = [
         answer: "ProcureSaathi supports multiple industries including manufacturing, construction, steel, chemicals, packaging, logistics, and industrial supplies."
       },
       {
-        question: "How does ProcureSaathi ensure supplier verification?",
+        question: "How does ProcureSaathi verify partners?",
         answer: "ProcureSaathi verifies partners through document checks, performance scoring, delivery history, and quality assessments to ensure reliable and trusted sourcing."
       },
     ]
@@ -42,7 +42,7 @@ const faqData = [
     questions: [
       {
         question: "How do I post a sourcing requirement on ProcureSaathi?",
-        answer: "To post a sourcing requirement on ProcureSaathi, simply sign up, log in to your dashboard, and click on 'Post Requirement.' Enter your product details, quantity, budget range, and delivery requirements. ProcureSaathi's verified fulfillment network will then provide competitive offers for your requirement."
+        answer: "To post a sourcing requirement on ProcureSaathi, sign up, log in to your dashboard, and click on 'Post Requirement'. Enter product details, quantity, budget range, and delivery requirements. ProcureSaathi's verified fulfillment network will provide competitive offers for your requirement."
       },
       {
         question: "Who fulfills my orders on ProcureSaathi?",
@@ -50,7 +50,7 @@ const faqData = [
       },
       {
         question: "How does ProcureSaathi ensure competitive pricing?",
-        answer: "ProcureSaathi uses an internal AI-based scoring system to rank fulfillment partners based on pricing, delivery reliability, quality performance, and capacity. Buyers automatically receive the best-value offer without the need for manual negotiations."
+        answer: "ProcureSaathi uses an internal AI-based scoring system to rank fulfillment partners based on pricing, delivery reliability, quality performance, and capacity. Buyers automatically receive the best-value offer without manual negotiations."
       },
     ]
   },
@@ -59,15 +59,15 @@ const faqData = [
     questions: [
       {
         question: "How does ProcureSaathi select fulfillment partners?",
-        answer: "ProcureSaathi selects and ranks fulfillment partners using an internal scoring system that evaluates price competitiveness, delivery reliability, quality history, and production capacity. Top-ranked partners receive higher order allocation and better visibility."
+        answer: "ProcureSaathi selects fulfillment partners using an internal scoring system that evaluates price competitiveness, delivery reliability, quality history, and production capacity. Top-ranked partners receive higher order allocation and better visibility."
       },
       {
-        question: "How many offers can I submit per month?",
-        answer: "Free-tier fulfillment partners can submit up to 5 offers per month. Premium partners receive unlimited offer submissions, priority ranking, and enhanced visibility across ProcureSaathi's buyer network."
+        question: "How many offers can fulfillment partners submit per month?",
+        answer: "Free-tier fulfillment partners can submit up to five offers per month. Premium partners receive unlimited submissions, priority ranking, and enhanced visibility across ProcureSaathi's buyer network."
       },
       {
-        question: "Can I upload my product catalog on ProcureSaathi?",
-        answer: "Yes, fulfillment partners can upload and manage detailed product catalogs on ProcureSaathi, including product images, technical specifications, pricing ranges, minimum order quantities, and certifications. This helps ProcureSaathi match partners with relevant buyer requirements."
+        question: "Can fulfillment partners upload product catalogs on ProcureSaathi?",
+        answer: "Yes, fulfillment partners can upload detailed product catalogs including images, specifications, pricing ranges, minimum order quantities, and certifications to help ProcureSaathi match them with relevant buyer requirements."
       },
     ]
   },
@@ -75,12 +75,16 @@ const faqData = [
     category: "For Logistics Partners",
     questions: [
       {
-        question: "What vehicles can I register on ProcureSaathi?",
-        answer: "Logistics partners can register trucks, trailers, tankers, container trucks, mini trucks, pickups, tempos, and light commercial vehicles (LPVs). Each vehicle must be verified with valid RC documentation before becoming visible to customers."
+        question: "What vehicles can logistics partners register on ProcureSaathi?",
+        answer: "Logistics partners can register trucks, trailers, tankers, container trucks, mini trucks, pickups, tempos, and light commercial vehicles. Each vehicle must be verified with valid RC documentation before becoming visible to customers."
       },
       {
-        question: "Can I list warehousing space on ProcureSaathi?",
-        answer: "Yes, logistics partners can list warehousing facilities including dry storage, cold storage, bonded warehouses, open yards, and hazardous material storage. This allows buyers to access integrated storage and transportation solutions."
+        question: "What is the logistics service fee on ProcureSaathi?",
+        answer: "ProcureSaathi charges logistics partners a service fee of 0.25 percent on successful transport bookings, which is significantly lower than the one percent service fee charged on product supply transactions."
+      },
+      {
+        question: "Can logistics partners list warehousing space on ProcureSaathi?",
+        answer: "Yes, logistics partners can list warehousing facilities including dry storage, cold storage, bonded warehouses, open yards, and hazardous material storage to offer integrated logistics and storage solutions."
       },
     ]
   },
