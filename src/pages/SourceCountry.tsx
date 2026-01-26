@@ -708,6 +708,54 @@ export default function SourceCountry() {
   // Regional LocalBusiness schema
   useRegionalSEO(countryKey, data.name);
 
+  // CRITICAL: Track page view for demand intelligence heatmap
+  // This ensures /source/:country SEO traffic feeds into Global Demand Signals
+  useEffect(() => {
+    const trackCountryPageView = async () => {
+      const signalSlug = `source-${countryKey}`;
+      
+      try {
+        // Check if admin_signal_pages entry exists for this country source page
+        const { data: existingPage } = await supabase
+          .from('admin_signal_pages')
+          .select('id')
+          .eq('slug', signalSlug)
+          .maybeSingle();
+
+        if (!existingPage) {
+          // Create entry for country source page (one per country)
+          await supabase
+            .from('admin_signal_pages')
+            .insert({
+              slug: signalSlug,
+              category: 'International Trade',
+              subcategory: `${data.name} Import`,
+              headline: data.headline,
+              subheadline: data.description,
+              target_country: countryKey,
+              target_industries: data.topCategories.slice(0, 5),
+              primary_cta: 'Get Quotes',
+              views: 0,
+              intent_score: 0,
+              is_active: true
+            })
+            .select('id')
+            .maybeSingle();
+        }
+
+        // Call RPC to track view and increment intent score (throttled)
+        await supabase.rpc('promote_signal_on_visit', {
+          p_slug: signalSlug,
+          p_country: countryKey,
+        });
+      } catch (error) {
+        console.warn('[SourceCountry] Signal tracking failed:', error);
+      }
+    };
+
+    trackCountryPageView();
+  }, [countryKey, data.name, data.headline, data.description, data.topCategories]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);

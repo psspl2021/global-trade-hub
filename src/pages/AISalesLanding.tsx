@@ -30,6 +30,7 @@ export default function AISalesLanding() {
   const [page, setPage] = useState<LandingPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRFQModal, setShowRFQModal] = useState(false);
+  const [signalPageId, setSignalPageId] = useState<string | undefined>();
 
   useSEO({
     title: page?.meta_title || 'Get Quotes from Verified Suppliers | ProcureSaathi',
@@ -64,6 +65,59 @@ export default function AISalesLanding() {
 
     fetchPage();
   }, [slug, navigate]);
+
+  // CRITICAL: Track page view for demand intelligence heatmap
+  useEffect(() => {
+    const trackPageView = async () => {
+      if (!page || !slug) return;
+
+      try {
+        // Check if admin_signal_pages entry exists for this slug
+        const { data: existingPage } = await supabase
+          .from('admin_signal_pages')
+          .select('id')
+          .eq('slug', slug)
+          .maybeSingle();
+
+        if (existingPage) {
+          setSignalPageId(existingPage.id);
+        } else {
+          // Create entry if it doesn't exist (bridging ai_sales_landing_pages → admin_signal_pages)
+          const { data: newPage } = await supabase
+            .from('admin_signal_pages')
+            .insert({
+              slug: slug,
+              category: page.category,
+              subcategory: page.category, // Use category as subcategory for AI sales pages
+              headline: page.headline,
+              subheadline: page.subheadline,
+              target_country: page.country?.toLowerCase() || 'india',
+              target_industries: [],
+              primary_cta: page.cta_text,
+              views: 0,
+              intent_score: 0,
+              is_active: true
+            })
+            .select('id')
+            .maybeSingle();
+
+          if (newPage) {
+            setSignalPageId(newPage.id);
+          }
+        }
+
+        // Call RPC to track view and increment intent score (throttled)
+        await supabase.rpc('promote_signal_on_visit', {
+          p_slug: slug,
+          p_country: page.country?.toLowerCase() || 'india',
+        });
+      } catch (error) {
+        console.warn('[AISalesLanding] Signal tracking failed:', error);
+      }
+    };
+
+    trackPageView();
+  }, [page, slug]);
 
   if (loading) {
     return (
@@ -225,7 +279,7 @@ export default function AISalesLanding() {
       <PostRFQModal 
         open={showRFQModal} 
         onOpenChange={setShowRFQModal}
-        signalPageId={page.id}
+        signalPageId={signalPageId || page.id}
         signalPageCategory={page.category}
         signalPageCountry={page.country}
       />
