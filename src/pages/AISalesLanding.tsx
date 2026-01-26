@@ -32,9 +32,11 @@ export default function AISalesLanding() {
   const [showRFQModal, setShowRFQModal] = useState(false);
   const [signalPageId, setSignalPageId] = useState<string | undefined>();
 
+  // FIX #3: Add canonical + hreflang for SEO + GEO
   useSEO({
     title: page?.meta_title || 'Get Quotes from Verified Suppliers | ProcureSaathi',
     description: page?.meta_description || 'Connect with verified B2B suppliers from India. Get competitive quotes for your procurement needs.',
+    canonical: slug ? `https://www.procuresaathi.com/source/${slug}` : undefined,
   });
 
   useEffect(() => {
@@ -71,24 +73,27 @@ export default function AISalesLanding() {
     const trackPageView = async () => {
       if (!page || !slug) return;
 
+      // FIX #2: Use prefixed slug to avoid clashes with procurement signal pages
+      const dbSlug = `ai/${slug}`;
+
       try {
         // Check if admin_signal_pages entry exists for this slug
         const { data: existingPage } = await supabase
           .from('admin_signal_pages')
           .select('id')
-          .eq('slug', slug)
+          .eq('slug', dbSlug)
           .maybeSingle();
 
         if (existingPage) {
           setSignalPageId(existingPage.id);
         } else {
-          // Create entry if it doesn't exist (bridging ai_sales_landing_pages → admin_signal_pages)
-          const { data: newPage } = await supabase
+          // FIX #1: Handle race condition with retry pattern (same as SignalPageLayout)
+          const { data: newPage, error: insertError } = await supabase
             .from('admin_signal_pages')
             .insert({
-              slug: slug,
+              slug: dbSlug,
               category: page.category,
-              subcategory: page.category, // Use category as subcategory for AI sales pages
+              subcategory: page.category,
               headline: page.headline,
               subheadline: page.subheadline,
               target_country: page.country?.toLowerCase() || 'india',
@@ -101,14 +106,25 @@ export default function AISalesLanding() {
             .select('id')
             .maybeSingle();
 
-          if (newPage) {
+          if (insertError) {
+            // Retry: Another user might have created this page simultaneously
+            const { data: retryPage } = await supabase
+              .from('admin_signal_pages')
+              .select('id')
+              .eq('slug', dbSlug)
+              .maybeSingle();
+
+            if (retryPage) {
+              setSignalPageId(retryPage.id);
+            }
+          } else if (newPage) {
             setSignalPageId(newPage.id);
           }
         }
 
         // Call RPC to track view and increment intent score (throttled)
         await supabase.rpc('promote_signal_on_visit', {
-          p_slug: slug,
+          p_slug: dbSlug,
           p_country: page.country?.toLowerCase() || 'india',
         });
       } catch (error) {
