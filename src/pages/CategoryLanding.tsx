@@ -10,6 +10,7 @@ import {
 import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
 import { categoriesData } from '@/data/categories';
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getProductSchema } from '@/hooks/useSEO';
+import { supabase } from '@/integrations/supabase/client';
 
 // Convert slug to category name
 const slugToName = (slug: string) => {
@@ -575,6 +576,99 @@ const CategoryLanding = () => {
     keywords: content.keywords.join(', ')
   });
 
+  // CRITICAL: Track category page view for demand intelligence heatmap
+  // Links category SEO traffic into global demand signals
+  useEffect(() => {
+    const trackCategoryPageView = async () => {
+      const signalSlug = `category-${categorySlug}${subcategorySlug ? `-${subcategorySlug}` : ''}`;
+      
+      try {
+        // Check if admin_signal_pages entry exists for this category
+        const { data: existingPage } = await supabase
+          .from('admin_signal_pages')
+          .select('id')
+          .eq('slug', signalSlug)
+          .maybeSingle();
+
+        if (!existingPage) {
+          // Create entry for category landing page
+          await supabase
+            .from('admin_signal_pages')
+            .insert({
+              slug: signalSlug,
+              category: categoryName,
+              subcategory: subcategoryName || categoryName,
+              headline: pageTitle,
+              subheadline: pageDescription,
+              target_country: 'india',
+              target_industries: [],
+              primary_cta: 'Get Started Free',
+              views: 0,
+              intent_score: 0,
+              is_active: true
+            })
+            .select('id')
+            .maybeSingle();
+        }
+
+        // Call RPC to track view and increment intent score (throttled)
+        await supabase.rpc('promote_signal_on_visit', {
+          p_slug: signalSlug,
+          p_country: 'india',
+        });
+      } catch (error) {
+        console.warn('[CategoryLanding] Signal tracking failed:', error);
+      }
+    };
+
+    if (categorySlug) {
+      trackCategoryPageView();
+    }
+  }, [categorySlug, subcategorySlug, categoryName, subcategoryName, pageTitle, pageDescription]);
+
+  // Map category to nearest signal page for CTA linking
+  const getSignalPageUrl = () => {
+    // Mapping of category names to canonical signal page slugs
+    const categoryToSignalSlug: Record<string, string> = {
+      'metals raw materials': 'structural-steel-infrastructure',
+      'steel': 'structural-steel-infrastructure',
+      'non-ferrous metals': 'non-ferrous-metals',
+      'aluminium': 'aluminium-industrial-export',
+      'copper': 'non-ferrous-metals',
+      'chemicals raw materials': 'industrial-chemicals',
+      'chemicals': 'industrial-chemicals',
+      'water treatment chemicals': 'water-treatment-chemicals',
+      'pharmaceuticals': 'pharmaceutical-apis',
+      'pharma': 'pharmaceutical-apis',
+      'energy power': 'solar-equipment-power',
+      'solar': 'solar-equipment-power',
+      'textiles': 'industrial-textiles',
+      'packaging': 'industrial-packaging',
+      'polymers': 'polymers-plastics',
+      'plastics': 'polymers-plastics',
+      'rubber': 'rubber-products',
+      'petroleum': 'petroleum-bitumen',
+      'bitumen': 'petroleum-bitumen',
+      'food beverages': 'food-additives',
+      'food additives': 'food-additives',
+      'agriculture': 'agri-commodities',
+      'building construction': 'construction-materials',
+      'construction': 'construction-materials',
+      'electrical equipment': 'electrical-equipment',
+      'machinery': 'industrial-machinery',
+      'auto vehicle': 'auto-components',
+      'furniture': 'office-furniture',
+      'healthcare': 'medical-equipment',
+    };
+    
+    const normalizedCategory = categoryName.toLowerCase();
+    const slug = categoryToSignalSlug[normalizedCategory];
+    
+    return slug ? `/procurement/${slug}` : null;
+  };
+
+  const signalPageUrl = getSignalPageUrl();
+
   // Inject structured data
   useEffect(() => {
     const faqSchemaId = `category-faq-schema-${categorySlug}${subcategorySlug ? `-${subcategorySlug}` : ''}`;
@@ -872,9 +966,15 @@ const CategoryLanding = () => {
             Join 5,000+ businesses sourcing from verified Indian suppliers. Free to post requirements.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" onClick={() => navigate('/signup')}>
-              Get Started Free
-            </Button>
+            {signalPageUrl ? (
+              <Button size="lg" variant="secondary" onClick={() => navigate(signalPageUrl)}>
+                Request Managed Quote <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button size="lg" variant="secondary" onClick={() => navigate('/signup')}>
+                Get Started Free
+              </Button>
+            )}
             <Button 
               size="lg" 
               variant="outline" 
