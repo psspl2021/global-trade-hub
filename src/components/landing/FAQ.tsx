@@ -79,10 +79,6 @@ const faqData = [
         answer: "Logistics partners can register trucks, trailers, tankers, container trucks, mini trucks, pickups, tempos, and light commercial vehicles. Each vehicle must be verified with valid RC documentation before becoming visible to customers."
       },
       {
-        question: "What is the logistics service fee on ProcureSaathi?",
-        answer: "ProcureSaathi charges logistics partners a service fee of 0.25 percent on successful transport bookings, which is significantly lower than the one percent service fee charged on product supply transactions."
-      },
-      {
         question: "Can logistics partners list warehousing space on ProcureSaathi?",
         answer: "Yes, logistics partners can list warehousing facilities including dry storage, cold storage, bonded warehouses, open yards, and hazardous material storage to offer integrated logistics and storage solutions."
       },
