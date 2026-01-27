@@ -60,6 +60,13 @@ const CaseStudyProcurementCost = lazy(() => import("./pages/case-studies/CaseStu
 const CaseStudyExportSourcing = lazy(() => import("./pages/case-studies/CaseStudyExportSourcing"));
 const CustomerStories = lazy(() => import("./pages/CustomerStories"));
 
+// GEO Landing Pages
+const GeoUSA = lazy(() => import("./pages/geo/GeoUSA"));
+const GeoUK = lazy(() => import("./pages/geo/GeoUK"));
+const GeoEurope = lazy(() => import("./pages/geo/GeoEurope"));
+const GeoGermany = lazy(() => import("./pages/geo/GeoGermany"));
+const GeoSingapore = lazy(() => import("./pages/geo/GeoSingapore"));
+
 // Simple loading fallback
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
@@ -137,6 +144,13 @@ const App = () => (
               <Route path="/case-study-export-sourcing" element={<CaseStudyExportSourcing />} />
               <Route path="/customer-stories" element={<CustomerStories />} />
               <Route path="/testimonials" element={<CustomerStories />} />
+              
+              {/* GEO Landing Pages */}
+              <Route path="/usa/ai-b2b-procurement" element={<GeoUSA />} />
+              <Route path="/uk/ai-b2b-procurement" element={<GeoUK />} />
+              <Route path="/europe/ai-b2b-procurement" element={<GeoEurope />} />
+              <Route path="/germany/ai-b2b-procurement" element={<GeoGermany />} />
+              <Route path="/singapore/ai-b2b-procurement" element={<GeoSingapore />} />
               
               <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />

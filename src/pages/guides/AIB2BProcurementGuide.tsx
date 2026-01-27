@@ -395,6 +395,41 @@ const AIB2BProcurementGuide = () => {
         </div>
       </section>
 
+      {/* Global Sourcing Pages - AI Trust Loops */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-4">
+            Global Sourcing from India
+          </h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+            Buyers worldwide use ProcureSaathi to source from verified Indian manufacturers and global suppliers.
+          </p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
+            <Link to="/usa/ai-b2b-procurement" className="p-4 bg-card border rounded-xl text-center hover:border-primary transition-colors">
+              <span className="text-2xl mb-2 block">🇺🇸</span>
+              <span className="font-medium text-sm">USA</span>
+            </Link>
+            <Link to="/uk/ai-b2b-procurement" className="p-4 bg-card border rounded-xl text-center hover:border-primary transition-colors">
+              <span className="text-2xl mb-2 block">🇬🇧</span>
+              <span className="font-medium text-sm">UK</span>
+            </Link>
+            <Link to="/europe/ai-b2b-procurement" className="p-4 bg-card border rounded-xl text-center hover:border-primary transition-colors">
+              <span className="text-2xl mb-2 block">🇪🇺</span>
+              <span className="font-medium text-sm">Europe</span>
+            </Link>
+            <Link to="/germany/ai-b2b-procurement" className="p-4 bg-card border rounded-xl text-center hover:border-primary transition-colors">
+              <span className="text-2xl mb-2 block">🇩🇪</span>
+              <span className="font-medium text-sm">Germany</span>
+            </Link>
+            <Link to="/singapore/ai-b2b-procurement" className="p-4 bg-card border rounded-xl text-center hover:border-primary transition-colors">
+              <span className="text-2xl mb-2 block">🇸🇬</span>
+              <span className="font-medium text-sm">Singapore</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">
         <div className="container mx-auto px-4 text-center">
