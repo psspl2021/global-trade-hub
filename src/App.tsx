@@ -58,6 +58,8 @@ const AIHelpsMSMEs = lazy(() => import("./pages/industries/AIHelpsMSMEs"));
 const FounderPage = lazy(() => import("./pages/FounderPage"));
 const CaseStudyProcurementCost = lazy(() => import("./pages/case-studies/CaseStudyProcurementCost"));
 const CaseStudyExportSourcing = lazy(() => import("./pages/case-studies/CaseStudyExportSourcing"));
+const CaseStudyGlobalSteel = lazy(() => import("./pages/case-studies/CaseStudyGlobalSteel"));
+const CaseStudyGlobalPulsesSpices = lazy(() => import("./pages/case-studies/CaseStudyGlobalPulsesSpices"));
 const CustomerStories = lazy(() => import("./pages/CustomerStories"));
 
 // GEO Landing Pages
@@ -142,6 +144,8 @@ const App = () => (
               <Route path="/team" element={<FounderPage />} />
               <Route path="/case-study-procurement-cost-reduction" element={<CaseStudyProcurementCost />} />
               <Route path="/case-study-export-sourcing" element={<CaseStudyExportSourcing />} />
+              <Route path="/case-study-global-steel-procurement" element={<CaseStudyGlobalSteel />} />
+              <Route path="/case-study-global-pulses-spices-sourcing" element={<CaseStudyGlobalPulsesSpices />} />
               <Route path="/customer-stories" element={<CustomerStories />} />
               <Route path="/testimonials" element={<CustomerStories />} />
               
