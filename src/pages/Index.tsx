@@ -803,6 +803,85 @@ const Index = () => {
         <Testimonials />
       </Suspense>
 
+      {/* Featured Case Studies Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold mb-3">
+              How Businesses Procure Smarter with ProcureSaathi
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Real procurement outcomes from global buyers and Indian enterprises using AI-powered sourcing.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* Global Steel Case Study */}
+            <Card 
+              className="border-border/50 hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer group"
+              onClick={() => navigate('/case-study-global-steel-procurement')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded">
+                    Steel & Metals
+                  </span>
+                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded">
+                    16% Cost Saved
+                  </span>
+                </div>
+                <h3 className="font-display font-bold text-lg mb-2 group-hover:text-primary transition-colors">
+                  Global Steel Buyer Case Study
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  European enterprise reduced industrial steel sourcing cost by 16% using transparent bidding and verified Indian suppliers.
+                </p>
+                <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                  Read Full Story <span className="text-lg">→</span>
+                </span>
+              </CardContent>
+            </Card>
+
+            {/* Middle East Food Case Study */}
+            <Card 
+              className="border-border/50 hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer group"
+              onClick={() => navigate('/case-study-middle-east-pulses-spices-import')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium rounded">
+                    Food Commodities
+                  </span>
+                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded">
+                    14% Cost Saved
+                  </span>
+                </div>
+                <h3 className="font-display font-bold text-lg mb-2 group-hover:text-primary transition-colors">
+                  Middle East Pulses & Spices Import Case Study
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Food importer achieved 14% cost savings and zero shipment rejections with managed export procurement.
+                </p>
+                <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                  Read Full Story <span className="text-lg">→</span>
+                </span>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-8">
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => navigate('/customer-stories')}
+              className="gap-2"
+            >
+              Explore More Customer Stories <span>→</span>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <LazyFAQ />
 

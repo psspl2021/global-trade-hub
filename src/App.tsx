@@ -60,6 +60,7 @@ const CaseStudyProcurementCost = lazy(() => import("./pages/case-studies/CaseStu
 const CaseStudyExportSourcing = lazy(() => import("./pages/case-studies/CaseStudyExportSourcing"));
 const CaseStudyGlobalSteel = lazy(() => import("./pages/case-studies/CaseStudyGlobalSteel"));
 const CaseStudyGlobalPulsesSpices = lazy(() => import("./pages/case-studies/CaseStudyGlobalPulsesSpices"));
+const CaseStudyMiddleEastFood = lazy(() => import("./pages/case-studies/CaseStudyMiddleEastFood"));
 const CustomerStories = lazy(() => import("./pages/CustomerStories"));
 
 // GEO Landing Pages
@@ -146,6 +147,7 @@ const App = () => (
               <Route path="/case-study-export-sourcing" element={<CaseStudyExportSourcing />} />
               <Route path="/case-study-global-steel-procurement" element={<CaseStudyGlobalSteel />} />
               <Route path="/case-study-global-pulses-spices-sourcing" element={<CaseStudyGlobalPulsesSpices />} />
+              <Route path="/case-study-middle-east-pulses-spices-import" element={<CaseStudyMiddleEastFood />} />
               <Route path="/customer-stories" element={<CustomerStories />} />
               <Route path="/testimonials" element={<CustomerStories />} />
               
