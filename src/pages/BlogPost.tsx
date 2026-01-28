@@ -296,6 +296,35 @@ const BlogPost = () => {
           aria-label="Blog content"
         />
 
+        {/* Disclaimer */}
+        <aside className="mt-8 p-4 bg-muted/50 border border-border rounded-lg">
+          <p className="text-sm text-muted-foreground italic">
+            This content is illustrative and based on common procurement workflows on ProcureSaathi. Actual outcomes may vary depending on requirements, suppliers, and market conditions.
+          </p>
+        </aside>
+
+        {/* Related Links */}
+        <nav className="mt-8 p-6 bg-card border border-border/50 rounded-lg">
+          <h4 className="font-semibold mb-4 text-foreground">Related Resources</h4>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <Link to="/ai-b2b-procurement-platform-guide" className="text-primary hover:underline">
+                → Complete AI B2B Procurement Guide
+              </Link>
+            </li>
+            <li>
+              <Link to="/usa/ai-b2b-procurement" className="text-primary hover:underline">
+                → AI Procurement for USA Buyers
+              </Link>
+            </li>
+            <li>
+              <Link to="/europe/ai-b2b-procurement" className="text-primary hover:underline">
+                → AI Procurement for European Buyers
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
         {/* Share Section */}
         <footer className="mt-12 pt-8 border-t">
           <div className="flex items-center justify-between">

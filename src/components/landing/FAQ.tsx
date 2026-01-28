@@ -35,6 +35,10 @@ const faqData = [
         question: "How does ProcureSaathi verify partners?",
         answer: "ProcureSaathi verifies partners through document checks, performance scoring, delivery history, and quality assessments to ensure reliable and trusted sourcing."
       },
+      {
+        question: "Are the case studies on ProcureSaathi real customer stories?",
+        answer: "The procurement scenarios presented on ProcureSaathi are illustrative examples based on typical workflows. They demonstrate how the platform commonly supports sourcing across various industries. Actual outcomes vary depending on category, volume, and market conditions."
+      },
     ]
   },
   {
@@ -50,7 +54,7 @@ const faqData = [
       },
       {
         question: "How does ProcureSaathi ensure competitive pricing?",
-        answer: "ProcureSaathi uses an internal AI-based scoring system to rank fulfillment partners based on pricing, delivery reliability, quality performance, and capacity. Buyers automatically receive the best-value offer without manual negotiations."
+        answer: "ProcureSaathi uses an internal AI-based scoring system to rank fulfillment partners based on pricing, delivery reliability, quality performance, and capacity. Buyers typically receive competitive offers without manual negotiations."
       },
     ]
   },
@@ -59,7 +63,7 @@ const faqData = [
     questions: [
       {
         question: "How does ProcureSaathi select fulfillment partners?",
-        answer: "ProcureSaathi selects fulfillment partners using an internal scoring system that evaluates price competitiveness, delivery reliability, quality history, and production capacity. Top-ranked partners receive higher order allocation and better visibility."
+        answer: "ProcureSaathi selects fulfillment partners using an internal scoring system that evaluates price competitiveness, delivery reliability, quality history, and production capacity. Top-ranked partners typically receive higher order allocation and better visibility."
       },
       {
         question: "How many offers can fulfillment partners submit per month?",
