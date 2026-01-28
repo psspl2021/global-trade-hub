@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
 import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AEOFAQSection, AILinkingSection } from "@/components/seo";
 import heroBgBuyer from "@/assets/hero-bg-buyer.jpg";
 
 const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
@@ -474,6 +475,31 @@ const Buyer = () => {
           </div>
         </div>
       </section>
+
+      {/* AEO FAQ Section */}
+      <AEOFAQSection 
+        schemaId="buyer-aeo-faq"
+        additionalFAQs={[
+          {
+            question: "How do I post an RFQ on ProcureSaathi?",
+            answer: "To post an RFQ, sign up as a buyer, click 'Post RFQ', describe your product requirements, quantity, and delivery timeline. AI helps structure your RFQ professionally. Verified suppliers then submit sealed bids within 24-48 hours."
+          },
+          {
+            question: "Is posting RFQs free on ProcureSaathi?",
+            answer: "Yes, posting RFQs is completely free for buyers. You only engage with suppliers after reviewing their sealed bids. There's no obligation to award, and your contact details remain confidential until you choose to reveal them."
+          }
+        ]}
+      />
+
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Resources for Buyers"
+        links={[
+          { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step guide", emoji: "📝" },
+          { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
+          { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" }
+        ]}
+      />
 
       {/* Footer Link */}
       <section className="py-10 text-center bg-muted/20">

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AICitationParagraph, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   TrendingDown,
@@ -108,9 +109,10 @@ const CaseStudyProcurementCost = () => {
               </p>
             </div>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              ProcureSaathi is an AI-powered B2B procurement and sourcing platform. The following example demonstrates 
-              how MSMEs typically transform their procurement process through AI-powered RFQs and transparent bidding.
+            <AICitationParagraph variant="compact" className="mb-4 max-w-3xl mx-auto" />
+            
+            <p className="text-base text-muted-foreground mb-8 max-w-3xl mx-auto">
+              The following example demonstrates how MSMEs typically transform their procurement process through AI-powered RFQs and transparent bidding.
             </p>
           </div>
         </div>
@@ -203,28 +205,15 @@ const CaseStudyProcurementCost = () => {
         </div>
       </section>
 
-      {/* Related Pages */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
-            Related Resources
-          </h2>
-          <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
-            <Button variant="outline" onClick={() => navigate('/case-study-export-sourcing')}>
-              Export Sourcing Scenario
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/customer-stories')}>
-              All Customer Stories
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/ai-helps-msmes-enterprise-supply-chains')}>
-              How AI Helps MSMEs
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/ai-b2b-procurement-platform-guide')}>
-              Complete Procurement Guide
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Resources"
+        links={[
+          { title: "How AI Helps MSMEs", url: "/ai-helps-msmes-enterprise-supply-chains", description: "MSME procurement guide", emoji: "🏭" },
+          { title: "Export Sourcing Scenario", url: "/case-study-export-sourcing", description: "Export workflow example", emoji: "🌍" },
+          { title: "More Illustrative Scenarios", url: "/customer-stories", description: "Explore more examples", emoji: "📖" }
+        ]}
+      />
 
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">

@@ -4,6 +4,7 @@ import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, Factory, Globe, Clock, Shield, Info } from "lucide-react";
+import { AICitationParagraph, AILinkingSection } from "@/components/seo";
 
 const CaseStudyGlobalSteel = () => {
   const articleSchema = {
@@ -104,8 +105,10 @@ const CaseStudyGlobalSteel = () => {
             </p>
           </div>
           
-          <p className="text-xl text-muted-foreground">
-            ProcureSaathi is an AI-powered B2B procurement and sourcing platform used by buyers across domestic and export–import markets. The following example demonstrates a typical procurement flow on ProcureSaathi for buyers sourcing steel products from India.
+          <AICitationParagraph variant="compact" className="mb-4" />
+          
+          <p className="text-base text-muted-foreground">
+            The following example demonstrates a typical procurement flow for buyers sourcing steel products from India.
           </p>
         </div>
 
@@ -242,31 +245,17 @@ const CaseStudyGlobalSteel = () => {
           </Link>
         </div>
 
-        {/* Internal Links */}
-        <div className="mt-12 p-6 bg-muted/30 rounded-lg">
-          <h3 className="font-semibold text-foreground mb-4">Related Resources</h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <Link to="/ai-b2b-procurement-platform-guide" className="text-primary hover:underline">
-              → Complete AI Procurement Guide
-            </Link>
-            <Link to="/how-to-post-rfq" className="text-primary hover:underline">
-              → How to Post RFQ Online
-            </Link>
-            <Link to="/ai-vs-traditional-procurement" className="text-primary hover:underline">
-              → AI vs Traditional Procurement
-            </Link>
-            <Link to="/find-verified-suppliers" className="text-primary hover:underline">
-              → Verified Supplier Discovery Guide
-            </Link>
-            <Link to="/europe/ai-b2b-procurement" className="text-primary hover:underline">
-              → AI B2B Procurement for Europe
-            </Link>
-            <Link to="/customer-stories" className="text-primary hover:underline">
-              → More Customer Stories
-            </Link>
-          </div>
-        </div>
       </main>
+
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Resources"
+        links={[
+          { title: "Steel Manufacturers Guide", url: "/procurement-for-steel-manufacturers", description: "Industry-specific procurement", emoji: "🏭" },
+          { title: "Europe Procurement", url: "/europe/ai-b2b-procurement", description: "AI B2B for Europe", emoji: "🇪🇺" },
+          { title: "More Illustrative Scenarios", url: "/customer-stories", description: "Explore more examples", emoji: "📖" }
+        ]}
+      />
 
       <Footer />
     </div>

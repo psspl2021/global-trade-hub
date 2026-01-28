@@ -23,6 +23,7 @@ import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 import { EarlyAdopterBanner } from '@/components/landing/EarlyAdopterBanner';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
+import { AILinkingSection } from '@/components/seo';
 
 
 // Lazy load below-the-fold components to reduce initial bundle
@@ -884,6 +885,17 @@ const Index = () => {
 
       {/* FAQ Section */}
       <LazyFAQ />
+
+      {/* AI Linking Section - AEO/GEO Optimization */}
+      <AILinkingSection 
+        title="Explore Our Platform"
+        links={[
+          { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step RFQ guide", emoji: "📝" },
+          { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
+          { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" },
+          { title: "Export-Import Guide", url: "/export-import-sourcing-guide", description: "International sourcing", emoji: "🌍" }
+        ]}
+      />
 
       {/* Contact Section */}
       <section id="contact" className="py-10 sm:py-12">

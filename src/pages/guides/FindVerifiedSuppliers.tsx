@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   Search, 
@@ -203,6 +204,9 @@ const FindVerifiedSuppliers = () => {
           </div>
         </div>
       </section>
+
+      <AEOFAQSection schemaId="find-suppliers-aeo-faq" />
+      <AILinkingSection />
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">
