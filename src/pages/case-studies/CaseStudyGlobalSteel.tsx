@@ -3,14 +3,14 @@ import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle, Factory, Globe, TrendingDown, Clock, Shield } from "lucide-react";
+import { ArrowRight, CheckCircle, Factory, Globe, Clock, Shield, Info } from "lucide-react";
 
 const CaseStudyGlobalSteel = () => {
-  const caseStudySchema = {
+  const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "How a Global Buyer Sourced Steel Products from India Using ProcureSaathi",
-    "description": "A European infrastructure company reduced steel procurement costs by 16% using ProcureSaathi's AI-powered B2B procurement platform for sourcing from India.",
+    "headline": "Illustrative Procurement Scenario: Global Steel Sourcing from India",
+    "description": "An illustrative example of how international buyers typically use ProcureSaathi's AI-powered B2B procurement platform for sourcing steel products from India.",
     "author": {
       "@type": "Organization",
       "name": "ProcureSaathi"
@@ -21,15 +21,24 @@ const CaseStudyGlobalSteel = () => {
       "url": "https://www.procuresaathi.com"
     },
     "datePublished": "2025-01-01",
-    "dateModified": "2025-01-27",
+    "dateModified": "2026-01-28",
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": "https://www.procuresaathi.com/case-study-global-steel-procurement"
-    },
-    "about": {
-      "@type": "Thing",
-      "name": "B2B Steel Procurement from India"
     }
+  };
+
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Source Steel Products from India Using ProcureSaathi",
+    "description": "Step-by-step process for international buyers to source steel from verified Indian manufacturers.",
+    "step": [
+      { "@type": "HowToStep", "position": 1, "name": "Post AI-Structured RFQ", "text": "Submit steel requirements with technical specifications, certifications, and delivery timelines." },
+      { "@type": "HowToStep", "position": 2, "name": "Verified Supplier Matching", "text": "ProcureSaathi matches requirements with verified Indian steel manufacturers." },
+      { "@type": "HowToStep", "position": 3, "name": "Sealed Competitive Bidding", "text": "Receive transparent, competitive bids ranked by AI scoring." },
+      { "@type": "HowToStep", "position": 4, "name": "Managed Fulfillment", "text": "ProcureSaathi coordinates logistics, documentation, and quality compliance." }
+    ]
   };
 
   const faqSchema = {
@@ -38,18 +47,18 @@ const CaseStudyGlobalSteel = () => {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "How can European buyers source steel from India?",
+        "name": "Is this an actual customer case study?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "European buyers can source steel from India using ProcureSaathi's AI-powered B2B procurement platform. Buyers post structured RFQs with technical specifications, and ProcureSaathi matches them with verified Indian steel manufacturers through transparent sealed bidding."
+          "text": "This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. It demonstrates how buyers generally use the platform for steel sourcing. Actual outcomes vary depending on category, volume, and market conditions."
         }
       },
       {
         "@type": "Question",
-        "name": "What cost savings can buyers expect when sourcing steel from India?",
+        "name": "How can international buyers source steel from India?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Buyers typically achieve 10-20% cost reduction when sourcing steel from India through ProcureSaathi. The platform's competitive bidding, verified suppliers, and managed fulfillment ensure optimal pricing and quality compliance."
+          "text": "International buyers can use ProcureSaathi's AI-powered B2B procurement platform to post structured RFQs with technical specifications. ProcureSaathi matches them with verified Indian steel manufacturers through transparent sealed bidding."
         }
       },
       {
@@ -57,7 +66,7 @@ const CaseStudyGlobalSteel = () => {
         "name": "Does ProcureSaathi handle export documentation for steel shipments?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, ProcureSaathi provides end-to-end managed fulfillment including export documentation, quality certificates, and logistics coordination for international steel shipments from India."
+          "text": "Yes, ProcureSaathi provides managed fulfillment including export documentation, quality certificates, and logistics coordination for international steel shipments from India."
         }
       }
     ]
@@ -66,11 +75,12 @@ const CaseStudyGlobalSteel = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Global Steel Procurement Case Study | European Buyer Sourced from India | ProcureSaathi</title>
-        <meta name="description" content="How a European infrastructure company reduced steel procurement costs by 16% using ProcureSaathi's AI-powered B2B procurement platform for sourcing from India." />
-        <meta name="keywords" content="steel procurement India, global steel sourcing, B2B steel suppliers, European steel import, AI procurement platform" />
+        <title>Illustrative Procurement Scenario: Global Steel Sourcing from India | ProcureSaathi</title>
+        <meta name="description" content="An illustrative example of how international buyers typically use ProcureSaathi's AI-powered B2B procurement platform for sourcing steel products from verified Indian manufacturers." />
+        <meta name="keywords" content="steel procurement India, global steel sourcing, B2B steel suppliers, AI procurement platform, steel import example" />
         <link rel="canonical" href="https://www.procuresaathi.com/case-study-global-steel-procurement" />
-        <script type="application/ld+json">{JSON.stringify(caseStudySchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
@@ -78,117 +88,119 @@ const CaseStudyGlobalSteel = () => {
 
       <main className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Hero Section */}
-        <div className="mb-12">
+        <div className="mb-8">
           <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-            Case Study: Steel & Industrial Materials
+            Illustrative Procurement Scenario: Steel & Industrial Materials
           </span>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            How a Global Buyer Sourced Steel Products from India Using ProcureSaathi
+            Illustrative Example – Global Steel Procurement from India
           </h1>
+          
+          {/* Universal Disclaimer */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 flex gap-3">
+            <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. Actual outcomes may vary depending on category, volume, and market conditions.
+            </p>
+          </div>
+          
           <p className="text-xl text-muted-foreground">
-            ProcureSaathi enabled a European buyer to source steel products from India using AI-powered RFQs, transparent bidding, and verified suppliers, ensuring cost efficiency and reliable export fulfillment.
+            ProcureSaathi is an AI-powered B2B procurement and sourcing platform used by buyers across domestic and export–import markets. The following example demonstrates a typical procurement flow on ProcureSaathi for buyers sourcing steel products from India.
           </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
-            <TrendingDown className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-green-600">16%</div>
-            <div className="text-sm text-muted-foreground">Cost Reduction</div>
-          </div>
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
-            <Factory className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-blue-600">5</div>
-            <div className="text-sm text-muted-foreground">Verified Suppliers</div>
-          </div>
-          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg text-center">
-            <Clock className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-purple-600">6 Days</div>
-            <div className="text-sm text-muted-foreground">vs 4 Weeks</div>
-          </div>
-          <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg text-center">
-            <Globe className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-orange-600">Europe</div>
-            <div className="text-sm text-muted-foreground">Buyer Location</div>
-          </div>
         </div>
 
         {/* Content Sections */}
         <div className="prose prose-lg max-w-none">
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Industry & Buyer Profile</h2>
-            <ul className="space-y-2">
-              <li><strong>Industry:</strong> Steel & Industrial Materials</li>
-              <li><strong>Buyer Location:</strong> Europe (Infrastructure & Manufacturing Group)</li>
-              <li><strong>Products Sourced:</strong> Hot Rolled Steel Coils, Structural Steel Beams, Industrial Steel Plates</li>
-            </ul>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Buyer Profile (Illustrative)</h2>
+            <div className="bg-muted/30 p-6 rounded-lg">
+              <ul className="space-y-2 list-none pl-0">
+                <li><strong>Buyer Type:</strong> Enterprise / International Industrial Buyer</li>
+                <li><strong>Region:</strong> Europe / Middle East / USA</li>
+                <li><strong>Category:</strong> Steel & Industrial Materials</li>
+                <li><strong>Products:</strong> Hot Rolled Steel Coils, Structural Steel Beams, Industrial Steel Plates</li>
+              </ul>
+              <p className="text-sm text-muted-foreground mt-3 italic">(Illustrative buyer profile for explanation purposes)</p>
+            </div>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-foreground mb-4">The Challenge</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Procurement Challenge (Typical)</h2>
             <p className="text-muted-foreground mb-4">
-              A European infrastructure company needed large-volume steel sourcing from India to control costs amid rising global steel prices.
+              Buyers in this category typically face:
             </p>
-            <p className="text-muted-foreground mb-4">Key challenges included:</p>
             <ul className="space-y-2 text-muted-foreground">
-              <li>• Limited visibility of reliable Indian suppliers</li>
-              <li>• Price inconsistency across quotes</li>
+              <li>• Difficulty discovering verified suppliers with export capability</li>
+              <li>• Price opacity and inconsistent quotes across markets</li>
               <li>• High risk in quality assurance and delivery timelines</li>
+              <li>• Complex logistics and compliance coordination</li>
               <li>• No single point of accountability</li>
             </ul>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-foreground mb-4">The Solution: ProcureSaathi Approach</h2>
-            <p className="text-muted-foreground mb-4">
-              The buyer used ProcureSaathi's <Link to="/ai-b2b-procurement-platform-guide" className="text-primary hover:underline">AI-powered B2B procurement platform</Link> to post a structured RFQ with technical specifications, certifications, and delivery timelines.
-            </p>
-            <p className="text-muted-foreground mb-4">ProcureSaathi delivered:</p>
-            <ul className="space-y-3">
-              {[
-                "Identified verified Indian steel manufacturers",
-                "Ran sealed competitive bidding",
-                "Shortlisted suppliers using AI scoring (price, capacity, delivery history)",
-                "Offered single consolidated pricing with managed fulfillment"
-              ].map((item, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">{item}</span>
-                </li>
-              ))}
-            </ul>
+            <h2 className="text-2xl font-bold text-foreground mb-4">How ProcureSaathi Is Used</h2>
+            
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Step 1: AI-Powered RFQ Creation</h3>
+                <p className="text-muted-foreground">
+                  Buyers structure their requirement using AI-assisted RFQs, ensuring clarity on quantity, specifications, delivery location, and compliance needs.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Step 2: Verified Supplier Discovery</h3>
+                <p className="text-muted-foreground">
+                  ProcureSaathi matches the requirement with relevant, pre-verified Indian steel manufacturers from its network.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Step 3: Transparent Bidding</h3>
+                <p className="text-muted-foreground">
+                  Suppliers submit sealed bids, allowing buyers to evaluate competitive offers without negotiation bias.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Step 4: Managed Fulfillment</h3>
+                <p className="text-muted-foreground">
+                  ProcureSaathi acts as the single counterparty, coordinating fulfillment, documentation, and logistics where required.
+                </p>
+              </div>
+            </div>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Results</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Illustrative Outcomes</h2>
             <div className="bg-muted/50 p-6 rounded-lg">
+              <p className="text-muted-foreground mb-4">In a typical scenario, buyers experience:</p>
               <ul className="space-y-3">
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span><strong>16% reduction</strong> in steel procurement cost</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span><strong>5 verified</strong> steel suppliers discovered</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span>Procurement cycle reduced from <strong>4 weeks to 6 days</strong></span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span><strong>On-time export delivery</strong> with quality compliance</span>
-                </li>
+                {[
+                  "Faster sourcing decisions",
+                  "Improved supplier confidence through verification",
+                  "Reduced coordination overhead",
+                  "Greater pricing transparency",
+                  "Single-point accountability for fulfillment"
+                ].map((item, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Outcome</h2>
-            <p className="text-muted-foreground">
-              The buyer now uses ProcureSaathi as a preferred sourcing platform for steel procurement from India, with repeat quarterly contracts.
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Why This Model Works</h2>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>• AI removes ambiguity from RFQs</li>
+              <li>• Verification reduces supplier risk</li>
+              <li>• Transparent bidding improves market discovery</li>
+              <li>• Single-counterparty execution simplifies procurement</li>
+            </ul>
           </section>
 
           {/* FAQ Section */}
@@ -196,21 +208,21 @@ const CaseStudyGlobalSteel = () => {
             <h2 className="text-2xl font-bold text-foreground mb-6">Frequently Asked Questions</h2>
             <div className="space-y-6">
               <div className="border-b pb-4">
-                <h3 className="font-semibold text-foreground mb-2">How can European buyers source steel from India?</h3>
+                <h3 className="font-semibold text-foreground mb-2">Is this an actual customer case study?</h3>
                 <p className="text-muted-foreground">
-                  European buyers can source steel from India using ProcureSaathi's AI-powered B2B procurement platform. Buyers post structured RFQs with technical specifications, and ProcureSaathi matches them with verified Indian steel manufacturers through transparent sealed bidding.
+                  This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. It demonstrates how buyers generally use the platform. Actual outcomes vary depending on category, volume, and market conditions.
                 </p>
               </div>
               <div className="border-b pb-4">
-                <h3 className="font-semibold text-foreground mb-2">What cost savings can buyers expect when sourcing steel from India?</h3>
+                <h3 className="font-semibold text-foreground mb-2">How can international buyers source steel from India?</h3>
                 <p className="text-muted-foreground">
-                  Buyers typically achieve 10-20% cost reduction when sourcing steel from India through ProcureSaathi. The platform's competitive bidding, verified suppliers, and managed fulfillment ensure optimal pricing and quality compliance.
+                  International buyers can use ProcureSaathi's AI-powered B2B procurement platform to post structured RFQs with technical specifications. ProcureSaathi matches them with verified Indian steel manufacturers through transparent sealed bidding.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">Does ProcureSaathi handle export documentation for steel shipments?</h3>
+                <h3 className="font-semibold text-foreground mb-2">Does ProcureSaathi handle export documentation?</h3>
                 <p className="text-muted-foreground">
-                  Yes, ProcureSaathi provides end-to-end managed fulfillment including export documentation, quality certificates, and logistics coordination for international steel shipments from India.
+                  Yes, ProcureSaathi provides managed fulfillment including export documentation, quality certificates, and logistics coordination for international shipments from India.
                 </p>
               </div>
             </div>
@@ -219,13 +231,13 @@ const CaseStudyGlobalSteel = () => {
 
         {/* CTA Section */}
         <div className="bg-primary/5 p-8 rounded-xl text-center mt-12">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Start Global Steel Sourcing with AI</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-4">Explore How This Workflow Could Apply to Your Needs</h2>
           <p className="text-muted-foreground mb-6">
-            Join enterprises worldwide who trust ProcureSaathi for verified supplier sourcing from India.
+            Want to explore how this workflow could apply to your procurement needs?
           </p>
           <Link to="/post-rfq">
             <Button size="lg" className="gap-2">
-              Post Your Steel RFQ <ArrowRight className="h-4 w-4" />
+              Request Managed Procurement Quote <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>
@@ -234,23 +246,23 @@ const CaseStudyGlobalSteel = () => {
         <div className="mt-12 p-6 bg-muted/30 rounded-lg">
           <h3 className="font-semibold text-foreground mb-4">Related Resources</h3>
           <div className="grid md:grid-cols-2 gap-4">
-            <Link to="/europe/ai-b2b-procurement" className="text-primary hover:underline">
-              → AI B2B Procurement for Europe Buyers
-            </Link>
-            <Link to="/procurement/steel-plates-heavy" className="text-primary hover:underline">
-              → Steel Plates Sourcing
-            </Link>
             <Link to="/ai-b2b-procurement-platform-guide" className="text-primary hover:underline">
               → Complete AI Procurement Guide
             </Link>
-            <Link to="/procurement-for-steel-manufacturers" className="text-primary hover:underline">
-              → Procurement for Steel Manufacturers
+            <Link to="/how-to-post-rfq" className="text-primary hover:underline">
+              → How to Post RFQ Online
+            </Link>
+            <Link to="/ai-vs-traditional-procurement" className="text-primary hover:underline">
+              → AI vs Traditional Procurement
+            </Link>
+            <Link to="/find-verified-suppliers" className="text-primary hover:underline">
+              → Verified Supplier Discovery Guide
+            </Link>
+            <Link to="/europe/ai-b2b-procurement" className="text-primary hover:underline">
+              → AI B2B Procurement for Europe
             </Link>
             <Link to="/customer-stories" className="text-primary hover:underline">
               → More Customer Stories
-            </Link>
-            <Link to="/germany/ai-b2b-procurement" className="text-primary hover:underline">
-              → AI B2B Procurement for Germany
             </Link>
           </div>
         </div>
