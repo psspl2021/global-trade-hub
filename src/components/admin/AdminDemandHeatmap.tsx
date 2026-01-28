@@ -45,8 +45,12 @@ import {
   CheckCircle2,
   Crown,
   Radar,
-  Shield
+  Shield,
+  Brain
 } from 'lucide-react';
+import { AIInsightsCard } from './AIInsightsCard';
+import { AIRecommendedActionsCard } from './AIRecommendedActionsCard';
+import { AIMonitoringBadge } from './AIMonitoringBadge';
 import { 
   type LaneState, 
   type LaneCapacityStatus,
@@ -750,6 +754,10 @@ export function AdminDemandHeatmap() {
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Globe className="h-6 w-6 text-primary" />
             Global Demand Signals (Live)
+            <AIMonitoringBadge 
+              variant={heatmap.length > 0 ? 'active' : 'monitoring'} 
+              label={heatmap.length > 0 ? 'AI Monitoring Live' : 'AI Monitoring'}
+            />
           </h2>
           <p className="text-muted-foreground text-sm">
             Real-time demand intelligence across {uniqueCountries.length} countries × {uniqueCategories.length} categories
@@ -759,7 +767,8 @@ export function AdminDemandHeatmap() {
           </p>
           {/* Coverage Badge */}
           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-            🌍 Monitoring demand across 6 countries • 9 enterprise categories
+            <Brain className="h-3 w-3" />
+            AI-powered analysis across 6 countries • 9 enterprise categories
           </p>
         </div>
         <Button 
@@ -1172,54 +1181,32 @@ export function AdminDemandHeatmap() {
         </Card>
       </div>
 
-      {/* Strategy Insights */}
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
-            Demand Intelligence Insights
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="p-4 rounded-lg bg-background border">
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
-                <Globe className="h-4 w-4 text-blue-500" />
-                Country Expansion Signal
-              </h4>
-              <p className="text-muted-foreground">
-                {tiles.topCountry && tiles.topCountry.value > 50 
-                  ? `${tiles.topCountry.label} shows strong demand. Consider opening a fulfillment lane.`
-                  : 'Monitor emerging markets for expansion opportunities.'}
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-background border">
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-purple-500" />
-                Category Focus
-              </h4>
-              <p className="text-muted-foreground">
-                {tiles.topCategory 
-                  ? `${formatCategoryName(tiles.topCategory.label)} leads demand. Prioritize supplier onboarding.`
-                  : 'Build supplier capacity across high-intent categories.'}
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-background border">
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
-                <IndianRupee className="h-4 w-4 text-green-500" />
-                Capacity Alert
-              </h4>
-              <p className="text-muted-foreground">
-                {tiles.demandCapacityGap > 10000000 
-                  ? `${formatCurrency(tiles.demandCapacityGap)} demand exceeds capacity. Urgent supplier expansion needed.`
-                  : tiles.avgCapacityUtilization > 80
-                    ? 'Capacity utilization high. Consider adding supplier lanes.'
-                    : 'Capacity healthy. Focus on demand activation.'}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* AI Intelligence Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* AI Insights Card */}
+        <AIInsightsCard
+          topCountry={tiles.topCountry}
+          topCategory={tiles.topCategory}
+          totalSignals={tiles.totalSignals}
+          totalRevenueAtRisk={tiles.totalRevenueAtRisk}
+          rfqsLast7Days={tiles.rfqsLast7Days}
+          avgCapacityUtilization={tiles.avgCapacityUtilization}
+          demandCapacityGap={tiles.demandCapacityGap}
+          activeLanes={tiles.activeLanes}
+          hasData={heatmap.length > 0 || tiles.totalSignals > 0 || tiles.rfqsLast7Days > 0}
+        />
+
+        {/* AI Recommended Actions Card */}
+        <AIRecommendedActionsCard
+          topCountry={tiles.topCountry}
+          topCategory={tiles.topCategory}
+          heatmapData={heatmap}
+          activeLanes={tiles.activeLanes}
+          demandCapacityGap={tiles.demandCapacityGap}
+          rfqsLast7Days={tiles.rfqsLast7Days}
+          onActivateLane={(country, category) => handleActivateLaneClick(country, category)}
+        />
+      </div>
 
       {/* Pre-Tender Opportunities Section */}
       {preTenderOpportunities.length > 0 && (

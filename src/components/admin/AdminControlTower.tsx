@@ -9,9 +9,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   BarChart3, Brain, TrendingUp, IndianRupee, Package, 
   Users, FileText, RefreshCw, ArrowUpRight, ArrowDownRight,
-  Globe, Warehouse, CheckCircle2, Clock
+  Globe, Warehouse, CheckCircle2, Clock, Activity, Sparkles
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Legend } from 'recharts';
+import { AIMonitoringBadge } from './AIMonitoringBadge';
 
 interface OverviewMetrics {
   ai_inventory_requirements: number;
@@ -199,6 +200,10 @@ export function AdminControlTower() {
           <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             Admin Control Tower
+            <AIMonitoringBadge 
+              variant={hasNoData ? 'monitoring' : 'active'} 
+              label={hasNoData ? 'AI Monitoring' : 'AI Active'}
+            />
           </h2>
           <p className="text-muted-foreground text-sm">Real-time platform metrics & AI inventory analytics</p>
         </div>
@@ -209,11 +214,27 @@ export function AdminControlTower() {
       </div>
 
       {hasNoData && (
-        <Card className="border-dashed">
-          <CardContent className="py-8 text-center">
-            <Package className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-            <h3 className="font-semibold mb-1">No data yet</h3>
-            <p className="text-sm text-muted-foreground">Start creating RFQs and closing deals to see your metrics here.</p>
+        <Card className="border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardContent className="py-8">
+            <div className="flex flex-col items-center text-center max-w-md mx-auto">
+              <div className="p-3 rounded-full bg-primary/10 mb-4">
+                <Activity className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                <Brain className="h-4 w-4 text-primary" />
+                AI Monitoring Live Demand
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                The AI intelligence system is operational and monitoring platform activity.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Insights and analytics will appear automatically once RFQs are submitted, bids are received, or deals are closed. This ensures all metrics represent real platform activity.
+              </p>
+              <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-dashed text-xs text-muted-foreground flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                <span>Tip: Create your first RFQ to see AI-powered analytics and recommendations.</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -430,6 +451,7 @@ export function AdminControlTower() {
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Brain className="h-4 w-4 text-purple-600" />
                   AI RFQs Generated
+                  <AIMonitoringBadge variant="insight" label="AI Insight" className="ml-auto" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
