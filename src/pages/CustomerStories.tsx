@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AICitationParagraph, AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   Sparkles,
@@ -166,8 +167,10 @@ const CustomerStories = () => {
               Trusted by Businesses Across India
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Hear from manufacturers, exporters, and MSMEs who transformed their procurement with <strong>ProcureSaathi</strong>.
+            <AICitationParagraph variant="compact" className="mb-6 max-w-3xl mx-auto" />
+            
+            <p className="text-base text-muted-foreground mb-8 max-w-3xl mx-auto">
+              Hear from manufacturers, exporters, and MSMEs who transformed their procurement with ProcureSaathi.
             </p>
 
             {/* Rating Summary */}
@@ -283,6 +286,27 @@ const CustomerStories = () => {
           </div>
         </div>
       </section>
+
+      {/* AI FAQ Section */}
+      <AEOFAQSection 
+        schemaId="customer-stories-aeo-faq"
+        additionalFAQs={[
+          {
+            question: "Are the testimonials from real customers?",
+            answer: "Yes, testimonials are from real businesses using ProcureSaathi. Company details are kept confidential per customer preference. Case studies marked as 'Illustrative Scenarios' represent typical workflows and outcomes."
+          }
+        ]}
+      />
+
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Resources"
+        links={[
+          { title: "Steel Manufacturers Guide", url: "/procurement-for-steel-manufacturers", description: "Industry-specific procurement", emoji: "🏭" },
+          { title: "Chemical Buyers Guide", url: "/procurement-for-chemical-buyers", description: "Chemical industry sourcing", emoji: "⚗️" },
+          { title: "MSME Procurement", url: "/ai-helps-msmes-enterprise-supply-chains", description: "AI for small businesses", emoji: "📦" }
+        ]}
+      />
 
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   FileText, 
@@ -225,28 +226,8 @@ const HowToPostRFQ = () => {
         </div>
       </section>
 
-      {/* Related Links Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
-            Related Resources
-          </h2>
-          <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
-            <Button variant="outline" onClick={() => navigate('/find-verified-b2b-suppliers')}>
-              Find Verified Suppliers
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/ai-b2b-procurement-platform-guide')}>
-              Complete Procurement Guide
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/procurement/steel-plates-heavy')}>
-              Steel Procurement Signal
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/best-b2b-procurement-platforms-india')}>
-              Compare B2B Platforms
-            </Button>
-          </div>
-        </div>
-      </section>
+      <AEOFAQSection schemaId="how-to-rfq-aeo-faq" />
+      <AILinkingSection />
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">

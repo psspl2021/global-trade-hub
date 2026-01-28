@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   Building2, 
@@ -211,6 +212,27 @@ const EnterpriseProcurementGuide = () => {
           </div>
         </div>
       </section>
+
+      {/* AEO FAQ Section */}
+      <AEOFAQSection 
+        schemaId="enterprise-guide-aeo-faq"
+        additionalFAQs={[
+          {
+            question: "How does ProcureSaathi support enterprise procurement?",
+            answer: "ProcureSaathi provides enterprises with AI-powered RFQ creation, sealed competitive bidding from verified suppliers, complete audit trails for compliance, and managed fulfillment with single-counterparty accountability. The platform supports multi-category sourcing across 23+ categories."
+          }
+        ]}
+      />
+
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Enterprise Resources"
+        links={[
+          { title: "How AI Helps MSMEs", url: "/ai-helps-msmes-enterprise-supply-chains", description: "AI for growing businesses", emoji: "📦" },
+          { title: "Steel Procurement", url: "/procurement-for-steel-manufacturers", description: "Industry-specific guide", emoji: "🏭" },
+          { title: "Chemical Procurement", url: "/procurement-for-chemical-buyers", description: "Chemical industry focus", emoji: "⚗️" }
+        ]}
+      />
 
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">

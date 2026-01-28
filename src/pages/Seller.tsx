@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/landing/PageHeader";
 import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
 import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AEOFAQSection, AILinkingSection } from "@/components/seo";
 import heroBgSeller from "@/assets/hero-bg-seller.jpg";
 
 const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
@@ -328,6 +329,31 @@ const Seller = () => {
           </div>
         </div>
       </section>
+
+      {/* AEO FAQ Section */}
+      <AEOFAQSection 
+        schemaId="seller-aeo-faq"
+        additionalFAQs={[
+          {
+            question: "How do suppliers get buyer leads on ProcureSaathi?",
+            answer: "Verified suppliers receive RFQ notifications matching their category and capacity. They can submit sealed bids on relevant requirements. The AI matches suppliers with buyers based on capabilities, past performance, and pricing competitiveness."
+          },
+          {
+            question: "What are the fees for suppliers on ProcureSaathi?",
+            answer: "Listing products and browsing requirements is free. Suppliers pay a small service fee only when a deal is successfully closed. This ensures suppliers pay for results, not listings."
+          }
+        ]}
+      />
+
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Resources for Suppliers"
+        links={[
+          { title: "Supplier Discovery Guide", url: "/find-verified-b2b-suppliers", description: "How buyers find you", emoji: "🔍" },
+          { title: "Export-Import Guide", url: "/export-import-sourcing-guide", description: "International trade", emoji: "🌍" },
+          { title: "Industry Procurement", url: "/procurement-for-steel-manufacturers", description: "Steel industry focus", emoji: "🏭" }
+        ]}
+      />
 
       {/* Footer Link */}
       <section className="py-10 text-center bg-muted/20">

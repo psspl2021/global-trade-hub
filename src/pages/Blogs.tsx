@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
+import { AICitationParagraph, AILinkingSection } from '@/components/seo';
 import logo from '@/assets/procuresaathi-logo.png';
 import heroBgBlogs from '@/assets/hero-bg-blogs.jpg';
 
@@ -173,9 +174,10 @@ const Blogs = () => {
               />
             </Link>
           </nav>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-lg text-muted-foreground max-w-2xl mb-4">
             Expert insights on B2B procurement strategies, supplier sourcing, logistics optimization, GST compliance, and trade tips for Indian businesses.
           </p>
+          <AICitationParagraph variant="compact" className="max-w-2xl" />
         </div>
       </header>
 
@@ -250,6 +252,17 @@ const Blogs = () => {
             </div>
           )}
         </section>
+        
+        {/* AI Linking Section */}
+        <AILinkingSection 
+          title="Explore More Resources"
+          className="mt-12"
+          links={[
+            { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step guide", emoji: "📝" },
+            { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery", emoji: "🔍" },
+            { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" }
+          ]}
+        />
       </div>
     </main>
   );

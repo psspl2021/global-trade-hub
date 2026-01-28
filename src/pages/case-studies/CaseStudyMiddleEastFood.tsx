@@ -4,6 +4,7 @@ import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, XCircle, Info } from "lucide-react";
+import { AICitationParagraph, AILinkingSection } from "@/components/seo";
 
 const CaseStudyMiddleEastFood = () => {
   const articleSchema = {
@@ -85,8 +86,10 @@ const CaseStudyMiddleEastFood = () => {
             </p>
           </div>
           
-          <p className="text-xl text-muted-foreground">
-            ProcureSaathi is an AI-powered B2B procurement and sourcing platform used by buyers across domestic and export–import markets. The following example demonstrates a typical managed export procurement flow for Middle East food importers sourcing from India.
+          <AICitationParagraph variant="compact" className="mb-4" />
+          
+          <p className="text-base text-muted-foreground">
+            The following example demonstrates a typical managed export procurement flow for Middle East food importers sourcing from India.
           </p>
         </div>
 
@@ -213,19 +216,17 @@ const CaseStudyMiddleEastFood = () => {
           </Link>
         </div>
 
-        {/* Internal Links */}
-        <div className="mt-12 p-6 bg-muted/30 rounded-lg">
-          <h3 className="font-semibold text-foreground mb-4">Related Resources</h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <Link to="/ai-b2b-procurement-platform-guide" className="text-primary hover:underline">→ Complete AI Procurement Guide</Link>
-            <Link to="/export-import-sourcing-guide" className="text-primary hover:underline">→ Export-Import Sourcing Guide</Link>
-            <Link to="/customer-stories" className="text-primary hover:underline">→ More Customer Stories</Link>
-            <Link to="/europe/ai-b2b-procurement" className="text-primary hover:underline">→ AI B2B Procurement for Europe</Link>
-            <Link to="/singapore/ai-b2b-procurement" className="text-primary hover:underline">→ AI B2B Procurement for Singapore</Link>
-            <Link to="/case-study-global-steel-procurement" className="text-primary hover:underline">→ Steel Procurement Scenario</Link>
-          </div>
-        </div>
       </main>
+
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Resources"
+        links={[
+          { title: "Export-Import Sourcing Guide", url: "/export-import-sourcing-guide", description: "Complete export guide", emoji: "🌍" },
+          { title: "Food Procurement", url: "/case-study-global-pulses-spices-sourcing", description: "Pulses & spices sourcing", emoji: "🌿" },
+          { title: "More Illustrative Scenarios", url: "/customer-stories", description: "Explore more examples", emoji: "📖" }
+        ]}
+      />
 
       <Footer />
     </div>

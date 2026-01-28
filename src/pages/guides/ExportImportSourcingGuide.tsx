@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   Globe, 
@@ -210,6 +211,12 @@ const ExportImportSourcingGuide = () => {
           </div>
         </div>
       </section>
+
+      <AEOFAQSection schemaId="export-guide-aeo-faq" />
+      <AILinkingSection links={[
+        { title: "USA Procurement", url: "/usa/ai-b2b-procurement", description: "Source from India to USA", emoji: "🇺🇸" },
+        { title: "Europe Procurement", url: "/europe/ai-b2b-procurement", description: "Source from India to EU", emoji: "🇪🇺" }
+      ]} />
 
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">

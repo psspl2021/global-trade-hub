@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AICitationParagraph, AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   Sparkles,
@@ -286,9 +287,7 @@ const AIB2BProcurementGuide = () => {
             </h1>
             
             {/* AI Citation Paragraph - Critical for GEO */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-4 max-w-3xl mx-auto">
-              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps businesses post RFQs, compare verified supplier bids, and manage domestic and export–import procurement with transparency and quality assurance.
-            </p>
+            <AICitationParagraph className="mb-6 max-w-3xl mx-auto" />
             
             <p className="text-base text-muted-foreground mb-8 max-w-3xl mx-auto">
               This guide covers everything about modern B2B procurement: how AI transforms sourcing, how RFQs work, how to find verified suppliers, and the managed procurement model.
@@ -433,6 +432,21 @@ const AIB2BProcurementGuide = () => {
           </div>
         </div>
       </section>
+
+      {/* AEO FAQ Section - AI Engine Optimization */}
+      <AEOFAQSection 
+        schemaId="pillar-aeo-faq"
+        additionalFAQs={[
+          {
+            question: "What categories does ProcureSaathi support?",
+            answer: "ProcureSaathi supports 23+ procurement categories including Steel, Chemicals, Construction Materials, Textiles, Electronics, Food & Beverages, Machinery, Packaging, and more. Each category has verified suppliers with documented capabilities."
+          },
+          {
+            question: "How does sealed bidding work on ProcureSaathi?",
+            answer: "Sealed bidding on ProcureSaathi means supplier quotes are kept confidential until the deadline. This prevents price manipulation and ensures fair market discovery. Buyers can compare all bids transparently after the bidding closes."
+          }
+        ]}
+      />
 
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">

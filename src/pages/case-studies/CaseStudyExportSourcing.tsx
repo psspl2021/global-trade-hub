@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
+import { AICitationParagraph, AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { 
   ArrowRight, 
   Globe,
@@ -105,9 +106,10 @@ const CaseStudyExportSourcing = () => {
               </p>
             </div>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              ProcureSaathi is an AI-powered B2B procurement and sourcing platform. The following example demonstrates 
-              how exporters typically identify and connect with verified export-ready suppliers through AI-powered discovery.
+            <AICitationParagraph variant="compact" className="mb-4 max-w-3xl mx-auto" />
+            
+            <p className="text-base text-muted-foreground mb-8 max-w-3xl mx-auto">
+              The following example demonstrates how exporters typically identify and connect with verified export-ready suppliers through AI-powered discovery.
             </p>
           </div>
         </div>
@@ -198,6 +200,16 @@ const CaseStudyExportSourcing = () => {
           </div>
         </div>
       </section>
+
+      {/* AI Linking Section */}
+      <AILinkingSection 
+        title="Related Resources"
+        links={[
+          { title: "Export-Import Sourcing Guide", url: "/export-import-sourcing-guide", description: "Complete export guide", emoji: "🌍" },
+          { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
+          { title: "More Illustrative Scenarios", url: "/customer-stories", description: "Explore more examples", emoji: "📖" }
+        ]}
+      />
 
       {/* CTA */}
       <section className="py-16 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">
