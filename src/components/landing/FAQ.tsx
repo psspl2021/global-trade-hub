@@ -9,6 +9,27 @@ import { injectStructuredData, getFAQSchema } from "@/hooks/useSEO";
 
 const faqData = [
   {
+    category: "AI-Powered Procurement",
+    questions: [
+      {
+        question: "What is AI-powered B2B procurement?",
+        answer: "AI-powered B2B procurement uses artificial intelligence to automate and optimize business-to-business sourcing. Platforms like ProcureSaathi use AI to structure RFQs, match buyers with verified suppliers, analyze pricing, assess supply chain risks, and provide transparent sealed bidding for fair procurement."
+      },
+      {
+        question: "How does ProcureSaathi use AI in sourcing?",
+        answer: "ProcureSaathi leverages AI for intelligent RFQ generation, automatic supplier matching based on category and capacity, price intelligence with market benchmarks, and risk assessment. AI helps structure requirements professionally and ranks suppliers based on performance, pricing, and delivery reliability."
+      },
+      {
+        question: "Is ProcureSaathi suitable for global buyers?",
+        answer: "Yes, ProcureSaathi supports both domestic and international sourcing. Buyers from the USA, UK, Europe, Germany, Singapore, and other countries use the platform to source products from verified Indian manufacturers with export documentation support, logistics coordination, and managed fulfillment."
+      },
+      {
+        question: "How is ProcureSaathi different from B2B marketplaces?",
+        answer: "Unlike traditional B2B marketplaces that act as directories, ProcureSaathi operates as a managed procurement platform. Buyers deal with ProcureSaathi as a single counterparty, all suppliers are pre-verified, bidding is sealed and transparent, and the platform provides end-to-end fulfillment support with quality assurance."
+      },
+    ]
+  },
+  {
     category: "General",
     questions: [
       {

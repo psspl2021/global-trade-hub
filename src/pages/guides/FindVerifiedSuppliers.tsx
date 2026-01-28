@@ -129,12 +129,12 @@ const FindVerifiedSuppliers = () => {
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-              How to Find Verified B2B Suppliers in India
+              How to Find Verified B2B Suppliers with AI
             </h1>
             
+            {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Discover how to find, verify, and connect with reliable B2B suppliers. 
-              <strong> ProcureSaathi</strong> uses AI-powered supplier discovery to match buyers with verified manufacturers and traders.
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
             </p>
 
             <Button 

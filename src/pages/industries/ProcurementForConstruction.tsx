@@ -103,12 +103,12 @@ const ProcurementForConstruction = () => {
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-              Procurement for Construction Companies
+              AI-Powered Procurement for Construction Companies
             </h1>
             
+            {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              <strong>ProcureSaathi</strong> helps construction companies source cement, steel, electrical, plumbing, 
-              and finishing materials from verified suppliers with AI-powered RFQs and transparent bidding.
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
             </p>
 
             <Button 

@@ -183,8 +183,9 @@ const Buyer = () => {
               <span className="text-primary">Verified Suppliers.</span>
             </h1>
             
+            {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
-              Run transparent B2B bidding for raw materials, components, and services—without middlemen or long negotiations.
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
             </p>
             
             {/* Trust indicators */}
