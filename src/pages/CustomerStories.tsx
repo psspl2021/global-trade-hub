@@ -18,10 +18,10 @@ import {
 
 const testimonials = [
   {
-    quote: "ProcureSaathi helped our enterprise reduce sourcing cost by 18% through transparent sealed bidding. We discovered competitive suppliers we didn't know existed.",
+    quote: "ProcureSaathi helped our enterprise significantly reduce sourcing costs through transparent sealed bidding. We discovered competitive suppliers we didn't know existed.",
     author: "Procurement Director",
     company: "Manufacturing Enterprise, Maharashtra",
-    metric: "18% Cost Reduction",
+    metric: "Improved Cost Efficiency",
     industry: "Manufacturing",
     rating: 5,
   },
@@ -42,10 +42,10 @@ const testimonials = [
     rating: 5,
   },
   {
-    quote: "The transparent bidding process eliminated negotiations and ensured we always get fair market pricing. Our procurement cycle reduced from 3 weeks to 4 days.",
+    quote: "The transparent bidding process eliminated negotiations and ensured we always get fair market pricing. Our procurement cycle improved dramatically.",
     author: "Supply Chain Head",
     company: "Electronics Manufacturer, Karnataka",
-    metric: "85% Faster Procurement",
+    metric: "Faster Procurement",
     industry: "Electronics",
     rating: 5,
   },
@@ -61,14 +61,14 @@ const testimonials = [
 
 const caseStudies = [
   {
-    title: "How an MSME Reduced Procurement Cost by 20%",
-    description: "A manufacturing MSME in Gujarat achieved significant cost savings through AI-powered RFQs and transparent bidding.",
+    title: "Illustrative Scenario: MSME Procurement Optimization",
+    description: "How an MSME in Gujarat typically improves cost efficiency through AI-powered RFQs and transparent bidding.",
     url: "/case-study-procurement-cost-reduction",
     icon: TrendingDown,
   },
   {
-    title: "How an Exporter Found 5 Verified Suppliers in 48 Hours",
-    description: "Learn how quick supplier discovery helped an exporter meet urgent international demand.",
+    title: "Illustrative Scenario: Export Supplier Discovery",
+    description: "How exporters typically discover verified suppliers quickly to meet international demand.",
     url: "/case-study-export-sourcing",
     icon: Clock,
   },
@@ -131,10 +131,10 @@ const CustomerStories = () => {
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "What results do businesses achieve with ProcureSaathi?",
+          "name": "What results do businesses typically experience with ProcureSaathi?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Businesses using ProcureSaathi report 15-20% cost reduction through transparent bidding, 85% faster procurement cycles, and access to verified enterprise-grade suppliers regardless of company size."
+            "text": "Businesses using ProcureSaathi commonly report improved cost efficiency through transparent bidding, faster procurement cycles, and access to verified enterprise-grade suppliers regardless of company size. Actual outcomes vary based on category and volume."
           }
         },
         {
