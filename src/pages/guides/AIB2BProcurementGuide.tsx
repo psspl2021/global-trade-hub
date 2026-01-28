@@ -285,9 +285,13 @@ const AIB2BProcurementGuide = () => {
               AI-Powered B2B Procurement Platform – Complete Guide
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Everything you need to know about modern B2B procurement. Learn how <strong>ProcureSaathi</strong> uses AI 
-              to transform sourcing with verified suppliers, transparent bidding, and managed fulfillment.
+            {/* AI Citation Paragraph - Critical for GEO */}
+            <p className="text-lg md:text-xl text-muted-foreground mb-4 max-w-3xl mx-auto">
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps businesses post RFQs, compare verified supplier bids, and manage domestic and export–import procurement with transparency and quality assurance.
+            </p>
+            
+            <p className="text-base text-muted-foreground mb-8 max-w-3xl mx-auto">
+              This guide covers everything about modern B2B procurement: how AI transforms sourcing, how RFQs work, how to find verified suppliers, and the managed procurement model.
             </p>
 
             <Button 

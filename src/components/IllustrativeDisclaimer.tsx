@@ -2,7 +2,7 @@ import { Info } from "lucide-react";
 
 interface IllustrativeDisclaimerProps {
   className?: string;
-  variant?: "default" | "compact";
+  variant?: "default" | "compact" | "blog";
 }
 
 export const IllustrativeDisclaimer = ({ 
@@ -15,6 +15,17 @@ export const IllustrativeDisclaimer = ({
         This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. 
         Actual outcomes may vary depending on category, volume, and market conditions.
       </p>
+    );
+  }
+
+  if (variant === "blog") {
+    return (
+      <aside className={`bg-muted/50 border border-border rounded-lg p-4 ${className}`}>
+        <p className="text-sm text-muted-foreground italic">
+          This content is illustrative and based on common procurement workflows on ProcureSaathi. 
+          Actual outcomes may vary depending on requirements, suppliers, and market conditions.
+        </p>
+      </aside>
     );
   }
 
