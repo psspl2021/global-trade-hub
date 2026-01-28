@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { AIChatBox } from "@/components/AIChatBox";
 import { GlobalSEOTools } from "@/components/admin/GlobalSEOTools";
 import GlobalSEO from "@/components/GlobalSEO";
@@ -81,90 +82,92 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AIChatBox />
-        <GlobalSEOTools />
-        <GlobalSEO />
-        <BrowserRouter>
-          <VisitorTracker />
-          <SEMTracker />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/category/:categorySlug" element={<CategoryLanding />} />
-              <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryLanding />} />
-              <Route path="/browseproducts" element={<Browse />} />
-              <Route path="/browse" element={<Navigate to="/browseproducts" replace />} />
-              <Route path="/book-truck" element={<BookTruck />} />
-              <Route path="/blogs" element={<Blogs />} />
-              <Route path="/blogs/:slug" element={<BlogPost />} />
-              <Route path="/requirements" element={<Requirements />} />
-              <Route path="/post-rfq" element={<PostRFQ />} />
-              <Route path="/seller" element={<Seller />} />
-              <Route path="/buyer" element={<Buyer />} />
-              <Route path="/private-label" element={<PrivateLabel />} />
-              <Route path="/source/:country" element={<SourceCountry />} />
-              <Route path="/invoice-generator" element={<InvoiceGenerator />} />
-              <Route path="/affiliate" element={<AffiliatePortal />} />
-              <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-              <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
-              {/* Country-specific signal pages for geo-intelligence */}
-              {/* Phase 1: Middle East + Africa */}
-              <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
-              {/* Phase 2: USA, UK, Europe, Singapore - supported via same dynamic route */}
-              
-              {/* AEO/GEO How-To & Guide Pages */}
-              <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />
-              <Route path="/find-verified-b2b-suppliers" element={<FindVerifiedSuppliers />} />
-              <Route path="/enterprise-procurement-guide" element={<EnterpriseProcurementGuide />} />
-              <Route path="/export-import-sourcing-guide" element={<ExportImportSourcingGuide />} />
-              <Route path="/ai-b2b-procurement-platform-guide" element={<AIB2BProcurementGuide />} />
-              
-              {/* Comparison Pages */}
-              <Route path="/best-b2b-procurement-platforms-india" element={<BestB2BPlatformsIndia />} />
-              <Route path="/ai-procurement-vs-traditional-rfq" element={<AIProcurementVsTraditional />} />
-              <Route path="/managed-procurement-vs-b2b-marketplace" element={<ManagedVsMarketplace />} />
-              
-              {/* Industry Use-Case Pages */}
-              <Route path="/procurement-for-steel-manufacturers" element={<ProcurementForSteelManufacturers />} />
-              <Route path="/procurement-for-chemical-buyers" element={<ProcurementForChemicalBuyers />} />
-              <Route path="/procurement-for-construction-companies" element={<ProcurementForConstruction />} />
-              <Route path="/ai-helps-msmes-enterprise-supply-chains" element={<AIHelpsMSMEs />} />
-              
-              {/* Founder & Case Study Pages */}
-              <Route path="/founder" element={<FounderPage />} />
-              <Route path="/team" element={<FounderPage />} />
-              <Route path="/case-study-procurement-cost-reduction" element={<CaseStudyProcurementCost />} />
-              <Route path="/case-study-export-sourcing" element={<CaseStudyExportSourcing />} />
-              <Route path="/case-study-global-steel-procurement" element={<CaseStudyGlobalSteel />} />
-              <Route path="/case-study-global-pulses-spices-sourcing" element={<CaseStudyGlobalPulsesSpices />} />
-              <Route path="/case-study-middle-east-pulses-spices-import" element={<CaseStudyMiddleEastFood />} />
-              <Route path="/customer-stories" element={<CustomerStories />} />
-              <Route path="/testimonials" element={<CustomerStories />} />
-              
-              {/* GEO Landing Pages */}
-              <Route path="/usa/ai-b2b-procurement" element={<GeoUSA />} />
-              <Route path="/uk/ai-b2b-procurement" element={<GeoUK />} />
-              <Route path="/europe/ai-b2b-procurement" element={<GeoEurope />} />
-              <Route path="/germany/ai-b2b-procurement" element={<GeoGermany />} />
-              <Route path="/singapore/ai-b2b-procurement" element={<GeoSingapore />} />
-              
-              <Route path="/auth" element={<Navigate to="/login" replace />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AIChatBox />
+          <GlobalSEOTools />
+          <GlobalSEO />
+          <BrowserRouter>
+            <VisitorTracker />
+            <SEMTracker />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/category/:categorySlug" element={<CategoryLanding />} />
+                <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryLanding />} />
+                <Route path="/browseproducts" element={<Browse />} />
+                <Route path="/browse" element={<Navigate to="/browseproducts" replace />} />
+                <Route path="/book-truck" element={<BookTruck />} />
+                <Route path="/blogs" element={<Blogs />} />
+                <Route path="/blogs/:slug" element={<BlogPost />} />
+                <Route path="/requirements" element={<Requirements />} />
+                <Route path="/post-rfq" element={<PostRFQ />} />
+                <Route path="/seller" element={<Seller />} />
+                <Route path="/buyer" element={<Buyer />} />
+                <Route path="/private-label" element={<PrivateLabel />} />
+                <Route path="/source/:country" element={<SourceCountry />} />
+                <Route path="/invoice-generator" element={<InvoiceGenerator />} />
+                <Route path="/affiliate" element={<AffiliatePortal />} />
+                <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+                <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
+                {/* Country-specific signal pages for geo-intelligence */}
+                {/* Phase 1: Middle East + Africa */}
+                <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
+                {/* Phase 2: USA, UK, Europe, Singapore - supported via same dynamic route */}
+                
+                {/* AEO/GEO How-To & Guide Pages */}
+                <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />
+                <Route path="/find-verified-b2b-suppliers" element={<FindVerifiedSuppliers />} />
+                <Route path="/enterprise-procurement-guide" element={<EnterpriseProcurementGuide />} />
+                <Route path="/export-import-sourcing-guide" element={<ExportImportSourcingGuide />} />
+                <Route path="/ai-b2b-procurement-platform-guide" element={<AIB2BProcurementGuide />} />
+                
+                {/* Comparison Pages */}
+                <Route path="/best-b2b-procurement-platforms-india" element={<BestB2BPlatformsIndia />} />
+                <Route path="/ai-procurement-vs-traditional-rfq" element={<AIProcurementVsTraditional />} />
+                <Route path="/managed-procurement-vs-b2b-marketplace" element={<ManagedVsMarketplace />} />
+                
+                {/* Industry Use-Case Pages */}
+                <Route path="/procurement-for-steel-manufacturers" element={<ProcurementForSteelManufacturers />} />
+                <Route path="/procurement-for-chemical-buyers" element={<ProcurementForChemicalBuyers />} />
+                <Route path="/procurement-for-construction-companies" element={<ProcurementForConstruction />} />
+                <Route path="/ai-helps-msmes-enterprise-supply-chains" element={<AIHelpsMSMEs />} />
+                
+                {/* Founder & Case Study Pages */}
+                <Route path="/founder" element={<FounderPage />} />
+                <Route path="/team" element={<FounderPage />} />
+                <Route path="/case-study-procurement-cost-reduction" element={<CaseStudyProcurementCost />} />
+                <Route path="/case-study-export-sourcing" element={<CaseStudyExportSourcing />} />
+                <Route path="/case-study-global-steel-procurement" element={<CaseStudyGlobalSteel />} />
+                <Route path="/case-study-global-pulses-spices-sourcing" element={<CaseStudyGlobalPulsesSpices />} />
+                <Route path="/case-study-middle-east-pulses-spices-import" element={<CaseStudyMiddleEastFood />} />
+                <Route path="/customer-stories" element={<CustomerStories />} />
+                <Route path="/testimonials" element={<CustomerStories />} />
+                
+                {/* GEO Landing Pages */}
+                <Route path="/usa/ai-b2b-procurement" element={<GeoUSA />} />
+                <Route path="/uk/ai-b2b-procurement" element={<GeoUK />} />
+                <Route path="/europe/ai-b2b-procurement" element={<GeoEurope />} />
+                <Route path="/germany/ai-b2b-procurement" element={<GeoGermany />} />
+                <Route path="/singapore/ai-b2b-procurement" element={<GeoSingapore />} />
+                
+                <Route path="/auth" element={<Navigate to="/login" replace />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </ErrorBoundary>
 );
 
