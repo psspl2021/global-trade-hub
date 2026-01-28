@@ -137,9 +137,9 @@ const AIProcurementVsTraditional = () => {
               AI Procurement Software vs Traditional RFQ
             </h1>
             
+            {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              See how AI-powered procurement platforms like <strong>ProcureSaathi</strong> compare to traditional 
-              RFQ methods across key procurement dimensions.
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
             </p>
           </div>
         </div>

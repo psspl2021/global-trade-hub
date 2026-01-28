@@ -118,9 +118,9 @@ const ManagedVsMarketplace = () => {
               Managed Procurement vs B2B Marketplaces
             </h1>
             
+            {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Understand the key differences between managed procurement platforms and traditional B2B marketplaces. 
-              <strong> ProcureSaathi</strong> operates as a managed platform, providing end-to-end procurement support.
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
             </p>
           </div>
         </div>

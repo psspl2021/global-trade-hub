@@ -385,9 +385,9 @@ const Index = () => {
               <span className="text-foreground"> for Smart Sourcing & </span><span className="text-warning">Transparent Bidding</span>
             </h1>
             
+            {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2 animate-slide-up delay-100">
-              Connect with verified suppliers, post AI RFQs, compare bids, and grow your business
-              <span className="text-foreground font-medium"> across domestic and export–import markets.</span>
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
             </p>
 
             {/* Hero Trust Badges */}

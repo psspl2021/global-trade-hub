@@ -115,12 +115,12 @@ const AIHelpsMSMEs = () => {
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-              How AI Helps MSMEs Compete in Enterprise Supply Chains
+              How AI-Powered Procurement Helps MSMEs Compete in Enterprise Supply Chains
             </h1>
             
+            {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              <strong>ProcureSaathi</strong> democratizes access to enterprise supply chains. 
-              AI-powered procurement enables MSMEs to connect with large buyers, compete fairly, and scale their business.
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
             </p>
 
             <Button 

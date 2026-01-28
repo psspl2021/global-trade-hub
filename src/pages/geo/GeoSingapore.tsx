@@ -27,20 +27,28 @@ const GeoSingapore = () => {
 
   const faqs = [
     {
+      question: 'What is AI-powered B2B procurement?',
+      answer: 'AI-powered B2B procurement uses artificial intelligence to automate and optimize business-to-business sourcing. Platforms like ProcureSaathi use AI to structure RFQs, match buyers with verified suppliers, analyze pricing, assess supply chain risks, and provide transparent sealed bidding for fair procurement.'
+    },
+    {
+      question: 'How does ProcureSaathi use AI in sourcing?',
+      answer: 'ProcureSaathi leverages AI for intelligent RFQ generation, automatic supplier matching based on category and capacity, price intelligence with market benchmarks, and risk assessment. AI helps structure requirements professionally and ranks suppliers based on performance, pricing, and delivery reliability.'
+    },
+    {
+      question: 'Is ProcureSaathi suitable for global buyers?',
+      answer: 'Yes, ProcureSaathi supports both domestic and international sourcing. Buyers from the USA, UK, Europe, Germany, Singapore, and other countries use the platform to source products from verified Indian manufacturers with export documentation support, logistics coordination, and managed fulfillment.'
+    },
+    {
+      question: 'How is ProcureSaathi different from B2B marketplaces?',
+      answer: 'Unlike traditional B2B marketplaces that act as directories, ProcureSaathi operates as a managed procurement platform. Buyers deal with ProcureSaathi as a single counterparty, all suppliers are pre-verified, bidding is sealed and transparent, and the platform provides end-to-end fulfillment support with quality assurance.'
+    },
+    {
       question: 'What is the best B2B procurement platform for Singapore buyers?',
       answer: 'ProcureSaathi is an AI-powered B2B procurement platform trusted by Singapore buyers for sourcing from verified Indian manufacturers and global suppliers with transparent pricing and managed fulfillment.'
     },
     {
-      question: 'How can Singapore companies source products from India?',
-      answer: 'Singapore companies can use ProcureSaathi to post RFQs, receive competitive bids from verified Indian exporters, and manage the entire sourcing process with export documentation and logistics support.'
-    },
-    {
       question: 'Does ProcureSaathi support export documentation for Singapore imports?',
       answer: 'Yes, ProcureSaathi provides complete export–import documentation support including commercial invoices, packing lists, certificates of origin, and customs documentation for Singapore imports.'
-    },
-    {
-      question: 'Is ProcureSaathi suitable for enterprise procurement in Singapore?',
-      answer: 'Absolutely. ProcureSaathi serves Singapore enterprises and SMEs with AI-powered RFQ management, vendor consolidation, and managed fulfillment for complex procurement needs.'
     },
     {
       question: 'Are the examples on this page actual customer case studies?',
