@@ -41,6 +41,10 @@ const GeoEurope = () => {
     {
       question: 'Is ProcureSaathi suitable for enterprise procurement in Europe?',
       answer: 'Absolutely. ProcureSaathi serves large enterprises across EU with AI-powered RFQ management, vendor consolidation, and managed fulfillment for complex procurement needs.'
+    },
+    {
+      question: 'Are the examples on this page actual customer case studies?',
+      answer: 'The scenarios described are illustrative examples based on typical procurement workflows on ProcureSaathi. Actual outcomes vary depending on category, volume, and market conditions.'
     }
   ];
 

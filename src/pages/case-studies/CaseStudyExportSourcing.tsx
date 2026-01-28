@@ -11,16 +11,8 @@ import {
   CheckCircle2,
   Sparkles,
   Clock,
-  Users,
-  Ship
+  Info
 } from "lucide-react";
-
-const results = [
-  { metric: "5", label: "Verified Suppliers", description: "Connected within 48 hours" },
-  { metric: "48hrs", label: "Turnaround", description: "From RFQ to supplier quotes" },
-  { metric: "3", label: "Countries", description: "Export-ready suppliers identified" },
-  { metric: "100%", label: "Documentation", description: "Export compliance verified" },
-];
 
 const challenges = [
   "Finding export-ready suppliers with proper certifications",
@@ -38,13 +30,20 @@ const solutions = [
   "Performance scoring and capacity verification",
 ];
 
+const illustrativeOutcomes = [
+  { label: "Verified Suppliers", description: "Matched from network" },
+  { label: "Faster Turnaround", description: "RFQ to supplier quotes" },
+  { label: "Export Markets", description: "Suppliers identified" },
+  { label: "Documentation", description: "Compliance verified" },
+];
+
 const CaseStudyExportSourcing = () => {
   const navigate = useNavigate();
 
   useSEO({
-    title: "Case Study: How an Exporter Found 5 Verified Suppliers in 48 Hours | ProcureSaathi",
-    description: "Learn how an exporter used ProcureSaathi to find 5 verified export-ready suppliers within 48 hours through AI-powered supplier discovery.",
-    keywords: "export sourcing case study, find verified suppliers, exporter success story, B2B supplier discovery",
+    title: "Illustrative Procurement Scenario: Export Sourcing | ProcureSaathi",
+    description: "An illustrative example of how exporters typically use ProcureSaathi to find verified export-ready suppliers through AI-powered supplier discovery.",
+    keywords: "export sourcing, find verified suppliers, exporter guide, B2B supplier discovery",
     canonical: "https://procuresaathi.com/case-study-export-sourcing",
   });
 
@@ -52,22 +51,31 @@ const CaseStudyExportSourcing = () => {
     injectStructuredData({
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "How an Exporter Found 5 Verified Suppliers in 48 Hours",
-      "description": "Case study on how an exporter used AI-powered supplier discovery to find verified export-ready suppliers quickly.",
-      "author": {
-        "@type": "Organization",
-        "name": "ProcureSaathi"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "ProcureSaathi"
-      },
+      "headline": "Illustrative Procurement Scenario: Export Sourcing",
+      "description": "An illustrative example of how exporters typically use AI-powered supplier discovery to find verified export-ready suppliers.",
+      "author": { "@type": "Organization", "name": "ProcureSaathi" },
+      "publisher": { "@type": "Organization", "name": "ProcureSaathi" },
       "datePublished": "2026-01-01"
     }, "case-study-export-article-schema");
 
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is this an actual customer case study?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. Actual outcomes vary depending on category, volume, and market conditions."
+          }
+        }
+      ]
+    }, "case-study-export-faq-schema");
+
     injectStructuredData(getBreadcrumbSchema([
       { name: "Home", url: "https://procuresaathi.com" },
-      { name: "Case Studies", url: "https://procuresaathi.com/case-studies" },
+      { name: "Illustrative Scenarios", url: "https://procuresaathi.com/customer-stories" },
       { name: "Export Sourcing", url: "https://procuresaathi.com/case-study-export-sourcing" },
     ]), "case-study-export-breadcrumb");
   }, []);
@@ -82,37 +90,44 @@ const CaseStudyExportSourcing = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-6">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold text-primary">CASE STUDY</span>
+              <span className="text-sm font-semibold text-primary">ILLUSTRATIVE PROCUREMENT SCENARIO</span>
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-              How an Exporter Found 5 Verified Suppliers in 48 Hours
+              Illustrative Example – Export Supplier Discovery
             </h1>
             
+            {/* Universal Disclaimer */}
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 flex gap-3 text-left max-w-3xl mx-auto">
+              <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. Actual outcomes may vary depending on category, volume, and market conditions.
+              </p>
+            </div>
+            
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              A textile exporter based in Delhi used <strong>ProcureSaathi</strong> to rapidly identify and connect 
-              with verified export-ready suppliers for an urgent international order.
+              ProcureSaathi is an AI-powered B2B procurement and sourcing platform. The following example demonstrates 
+              how exporters typically identify and connect with verified export-ready suppliers through AI-powered discovery.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Results */}
+      {/* Illustrative Outcomes */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-12">
-            Key Results Achieved
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
+            Illustrative Outcomes
           </h2>
+          <p className="text-muted-foreground text-center mb-8">In a typical scenario, exporters experience:</p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {results.map((result) => (
-              <Card key={result.label} className="border-border/50 text-center">
+            {illustrativeOutcomes.map((outcome) => (
+              <Card key={outcome.label} className="border-border/50 text-center">
                 <CardContent className="p-6">
-                  <div className="text-3xl md:text-4xl font-display font-bold text-primary mb-2">
-                    {result.metric}
-                  </div>
-                  <div className="font-semibold mb-1">{result.label}</div>
-                  <div className="text-xs text-muted-foreground">{result.description}</div>
+                  <CheckCircle2 className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                  <div className="font-semibold mb-1">{outcome.label}</div>
+                  <div className="text-xs text-muted-foreground">{outcome.description}</div>
                 </CardContent>
               </Card>
             ))}
@@ -126,7 +141,7 @@ const CaseStudyExportSourcing = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
             {/* Challenges */}
             <div>
-              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">The Challenges</h2>
+              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">Typical Challenges</h2>
               <div className="space-y-3">
                 {challenges.map((challenge, index) => (
                   <div key={index} className="flex items-start gap-3 p-3 bg-card rounded-lg border border-border/50">
@@ -139,11 +154,11 @@ const CaseStudyExportSourcing = () => {
             
             {/* Solutions */}
             <div>
-              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">The ProcureSaathi Solution</h2>
+              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">How ProcureSaathi Helps</h2>
               <div className="space-y-3">
                 {solutions.map((solution, index) => (
                   <div key={index} className="flex items-start gap-3 p-3 bg-card rounded-lg border border-border/50">
-                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                     <span className="text-sm">{solution}</span>
                   </div>
                 ))}
@@ -153,19 +168,33 @@ const CaseStudyExportSourcing = () => {
         </div>
       </section>
 
-      {/* Quote */}
+      {/* Why This Model Works */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="text-6xl text-primary/20 mb-4">"</div>
-            <blockquote className="text-xl md:text-2xl font-display italic text-muted-foreground mb-6">
-              We had an urgent export order and needed suppliers fast. ProcureSaathi's AI matched us with 
-              5 verified suppliers who had the exact certifications we needed. What would have taken weeks 
-              happened in 48 hours.
-            </blockquote>
-            <p className="text-sm text-muted-foreground">
-              — Export Manager, Textile Trading Company, Delhi
-            </p>
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
+            Why This Model Works
+          </h2>
+          <div className="max-w-3xl mx-auto space-y-4">
+            <p className="text-muted-foreground">• AI removes ambiguity from RFQs</p>
+            <p className="text-muted-foreground">• Verification reduces supplier risk</p>
+            <p className="text-muted-foreground">• Transparent bidding improves market discovery</p>
+            <p className="text-muted-foreground">• Single-counterparty execution simplifies procurement</p>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl font-display font-bold mb-6">Frequently Asked Questions</h2>
+            <div className="border-b pb-4">
+              <h3 className="font-semibold text-foreground mb-2">Is this an actual customer case study?</h3>
+              <p className="text-muted-foreground">
+                This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. 
+                Actual outcomes vary depending on category, volume, and market conditions.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -175,17 +204,17 @@ const CaseStudyExportSourcing = () => {
         <div className="container mx-auto px-4 text-center">
           <Globe className="h-12 w-12 text-primary mx-auto mb-4" />
           <h2 className="text-2xl md:text-3xl font-display font-bold mb-4">
-            Find Verified Export Suppliers Fast
+            Explore How This Workflow Could Apply to Your Needs
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Connect with export-ready suppliers through AI-powered discovery.
+            Want to explore how this workflow could apply to your export sourcing needs?
           </p>
           <Button 
             size="lg"
             className="h-14 px-10 text-lg font-semibold gradient-primary"
             onClick={() => navigate('/post-rfq')}
           >
-            Post Your RFQ – Free
+            Request Managed Procurement Quote
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>

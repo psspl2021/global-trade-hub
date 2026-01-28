@@ -12,39 +12,41 @@ import {
   Sparkles,
   Building2,
   Clock,
-  Shield
+  Shield,
+  Info
 } from "lucide-react";
 
-const results = [
-  { metric: "20%", label: "Cost Reduction", description: "Achieved through competitive sealed bidding" },
-  { metric: "48hrs", label: "Quote Time", description: "From RFQ posting to supplier quotes" },
-  { metric: "5", label: "Verified Suppliers", description: "Average bids received per RFQ" },
-  { metric: "100%", label: "Transparency", description: "Full visibility into pricing and terms" },
-];
-
 const challenges = [
-  "Manual RFQ process taking 2-3 weeks per procurement cycle",
+  "Manual RFQ process taking extended time per procurement cycle",
   "Limited visibility into supplier pricing and market rates",
   "Inconsistent supplier quality and delivery performance",
-  "Spreadsheet-based bid comparison with high error rates",
+  "Spreadsheet-based bid comparison with high error potential",
   "No audit trail for procurement decisions",
 ];
 
 const solutions = [
-  "AI-powered RFQ creation in under 10 minutes",
+  "AI-powered RFQ creation with structured specifications",
   "Sealed competitive bidding from verified suppliers",
   "Supplier performance tracking and quality scoring",
   "Automated bid comparison with line-item analysis",
   "Complete audit trail for compliance requirements",
 ];
 
+const illustrativeOutcomes = [
+  "Faster sourcing decisions",
+  "Improved supplier confidence through verification",
+  "Reduced coordination overhead",
+  "Greater pricing transparency",
+  "Streamlined procurement workflow"
+];
+
 const CaseStudyProcurementCost = () => {
   const navigate = useNavigate();
 
   useSEO({
-    title: "Case Study: How an MSME Reduced Procurement Cost by 20% | ProcureSaathi",
-    description: "Learn how an Indian MSME reduced procurement costs by 20% using ProcureSaathi's AI-powered RFQ platform and transparent sealed bidding.",
-    keywords: "procurement cost reduction, MSME case study, B2B procurement success, cost savings procurement",
+    title: "Illustrative Procurement Scenario: MSME Procurement Optimization | ProcureSaathi",
+    description: "An illustrative example of how MSMEs typically use ProcureSaathi's AI-powered RFQ platform and transparent sealed bidding for procurement optimization.",
+    keywords: "procurement optimization, MSME procurement, B2B procurement platform, transparent bidding",
     canonical: "https://procuresaathi.com/case-study-procurement-cost-reduction",
   });
 
@@ -52,23 +54,32 @@ const CaseStudyProcurementCost = () => {
     injectStructuredData({
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "How an MSME Reduced Procurement Cost by 20%",
-      "description": "Case study on how an Indian MSME achieved 20% procurement cost reduction using AI-powered RFQ and transparent bidding.",
-      "author": {
-        "@type": "Organization",
-        "name": "ProcureSaathi"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "ProcureSaathi"
-      },
+      "headline": "Illustrative Procurement Scenario: MSME Procurement Optimization",
+      "description": "An illustrative example of how MSMEs typically use ProcureSaathi's AI-powered RFQ platform and transparent sealed bidding.",
+      "author": { "@type": "Organization", "name": "ProcureSaathi" },
+      "publisher": { "@type": "Organization", "name": "ProcureSaathi" },
       "datePublished": "2026-01-01"
     }, "case-study-cost-article-schema");
 
+    injectStructuredData({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is this an actual customer case study?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. Actual outcomes vary depending on category, volume, and market conditions."
+          }
+        }
+      ]
+    }, "case-study-cost-faq-schema");
+
     injectStructuredData(getBreadcrumbSchema([
       { name: "Home", url: "https://procuresaathi.com" },
-      { name: "Case Studies", url: "https://procuresaathi.com/case-studies" },
-      { name: "Procurement Cost Reduction", url: "https://procuresaathi.com/case-study-procurement-cost-reduction" },
+      { name: "Illustrative Scenarios", url: "https://procuresaathi.com/customer-stories" },
+      { name: "Procurement Optimization", url: "https://procuresaathi.com/case-study-procurement-cost-reduction" },
     ]), "case-study-cost-breadcrumb");
   }, []);
 
@@ -82,40 +93,25 @@ const CaseStudyProcurementCost = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-6">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold text-primary">CASE STUDY</span>
+              <span className="text-sm font-semibold text-primary">ILLUSTRATIVE PROCUREMENT SCENARIO</span>
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-              How an MSME Reduced Procurement Cost by 20%
+              Illustrative Example – MSME Procurement Optimization
             </h1>
             
+            {/* Universal Disclaimer */}
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 flex gap-3 text-left max-w-3xl mx-auto">
+              <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. Actual outcomes may vary depending on category, volume, and market conditions.
+              </p>
+            </div>
+            
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              A manufacturing MSME in Gujarat used <strong>ProcureSaathi</strong> to transform their procurement process, 
-              achieving significant cost savings through AI-powered RFQs and transparent bidding.
+              ProcureSaathi is an AI-powered B2B procurement and sourcing platform. The following example demonstrates 
+              how MSMEs typically transform their procurement process through AI-powered RFQs and transparent bidding.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Results */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-12">
-            Key Results Achieved
-          </h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {results.map((result) => (
-              <Card key={result.label} className="border-border/50 text-center">
-                <CardContent className="p-6">
-                  <div className="text-3xl md:text-4xl font-display font-bold text-primary mb-2">
-                    {result.metric}
-                  </div>
-                  <div className="font-semibold mb-1">{result.label}</div>
-                  <div className="text-xs text-muted-foreground">{result.description}</div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
@@ -126,7 +122,7 @@ const CaseStudyProcurementCost = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
             {/* Challenges */}
             <div>
-              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">The Challenges</h2>
+              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">Typical Challenges</h2>
               <div className="space-y-3">
                 {challenges.map((challenge, index) => (
                   <div key={index} className="flex items-start gap-3 p-3 bg-card rounded-lg border border-border/50">
@@ -139,11 +135,11 @@ const CaseStudyProcurementCost = () => {
             
             {/* Solutions */}
             <div>
-              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">The ProcureSaathi Solution</h2>
+              <h2 className="text-xl md:text-2xl font-display font-bold mb-6">How ProcureSaathi Helps</h2>
               <div className="space-y-3">
                 {solutions.map((solution, index) => (
                   <div key={index} className="flex items-start gap-3 p-3 bg-card rounded-lg border border-border/50">
-                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                     <span className="text-sm">{solution}</span>
                   </div>
                 ))}
@@ -153,19 +149,56 @@ const CaseStudyProcurementCost = () => {
         </div>
       </section>
 
-      {/* Quote */}
+      {/* Illustrative Outcomes */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="text-6xl text-primary/20 mb-4">"</div>
-            <blockquote className="text-xl md:text-2xl font-display italic text-muted-foreground mb-6">
-              ProcureSaathi transformed how we source materials. The transparent bidding process helped us 
-              discover competitive suppliers we didn't know existed, resulting in 20% cost savings on our 
-              regular procurement.
-            </blockquote>
-            <p className="text-sm text-muted-foreground">
-              — Procurement Manager, Manufacturing MSME, Gujarat
-            </p>
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
+            Illustrative Outcomes
+          </h2>
+          <p className="text-muted-foreground text-center mb-8 max-w-2xl mx-auto">
+            In a typical scenario, MSMEs experience:
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {illustrativeOutcomes.map((outcome, index) => (
+              <Card key={index} className="border-border/50 text-center">
+                <CardContent className="p-6">
+                  <CheckCircle2 className="h-8 w-8 text-green-600 mx-auto mb-3" />
+                  <div className="font-semibold">{outcome}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why This Model Works */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
+            Why This Model Works
+          </h2>
+          <div className="max-w-3xl mx-auto space-y-4">
+            <p className="text-muted-foreground">• AI removes ambiguity from RFQs</p>
+            <p className="text-muted-foreground">• Verification reduces supplier risk</p>
+            <p className="text-muted-foreground">• Transparent bidding improves market discovery</p>
+            <p className="text-muted-foreground">• Single-counterparty execution simplifies procurement</p>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl font-display font-bold mb-6">Frequently Asked Questions</h2>
+            <div className="border-b pb-4">
+              <h3 className="font-semibold text-foreground mb-2">Is this an actual customer case study?</h3>
+              <p className="text-muted-foreground">
+                This is an illustrative procurement scenario based on typical workflows on ProcureSaathi. 
+                Actual outcomes vary depending on category, volume, and market conditions.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -174,11 +207,11 @@ const CaseStudyProcurementCost = () => {
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
-            More Resources
+            Related Resources
           </h2>
           <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
             <Button variant="outline" onClick={() => navigate('/case-study-export-sourcing')}>
-              Export Sourcing Case Study
+              Export Sourcing Scenario
             </Button>
             <Button variant="outline" onClick={() => navigate('/customer-stories')}>
               All Customer Stories
@@ -198,17 +231,17 @@ const CaseStudyProcurementCost = () => {
         <div className="container mx-auto px-4 text-center">
           <TrendingDown className="h-12 w-12 text-primary mx-auto mb-4" />
           <h2 className="text-2xl md:text-3xl font-display font-bold mb-4">
-            Ready to Reduce Your Procurement Costs?
+            Explore How This Workflow Could Apply to Your Needs
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Join MSMEs and enterprises saving on procurement through transparent bidding.
+            Want to explore how this workflow could apply to your procurement needs?
           </p>
           <Button 
             size="lg"
             className="h-14 px-10 text-lg font-semibold gradient-primary"
             onClick={() => navigate('/post-rfq')}
           >
-            Post Your RFQ – Free
+            Request Managed Procurement Quote
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
