@@ -9,7 +9,7 @@ const indianTestimonials = [
     type: "Buyer",
     country: "India",
     flag: "🇮🇳",
-    quote: "ProcureSaathi transformed our sourcing process. We reduced procurement costs by 15% through competitive bidding.",
+    quote: "ProcureSaathi transformed our sourcing process. Transparent competitive bidding helped us find better pricing consistently.",
     rating: 5,
   },
   {
