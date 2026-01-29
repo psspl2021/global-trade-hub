@@ -4,8 +4,8 @@ export const HeroTrustBadges = () => {
   const badges = [
     { text: 'GST Verified', color: 'text-success' },
     { text: 'FIEO Certified', color: 'text-primary' },
-    { text: '1000+ Suppliers', color: 'text-warning' },
     { text: 'AI-Powered Matching', color: 'text-primary' },
+    { text: 'Verified Suppliers', color: 'text-warning' },
   ];
 
   return (

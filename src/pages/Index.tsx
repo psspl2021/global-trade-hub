@@ -350,7 +350,7 @@ const Index = () => {
                       Join as Buyer
                     </Button>
                     <Button variant="outline" className="w-full" onClick={() => handleMobileNavigation('/signup?role=supplier')}>
-                      Join as Supplier
+                      AI Detected Demand – List Products
                     </Button>
                     <Button variant="outline" className="w-full" onClick={() => handleMobileNavigation('/signup?role=logistics_partner')}>
                       Join as Logistics Partner
@@ -1107,9 +1107,11 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="border-t border-border/50 pt-8 text-center">
+          <div className="border-t border-border/50 pt-8 text-center space-y-2">
             <p className="text-sm text-muted-foreground">&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
-            <p className="mt-2 text-sm font-medium text-primary">India's #1 B2B Sourcing & Procurement Platform</p>
+            <p className="text-xs text-muted-foreground/80 max-w-md mx-auto">
+              ProcureSaathi does not sell leads. AI matches verified buyers and suppliers based on real demand signals.
+            </p>
           </div>
         </div>
       </footer>
