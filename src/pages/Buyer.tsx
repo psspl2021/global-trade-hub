@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { PostRFQModal } from "@/components/PostRFQModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
-import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
 import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getFAQSchema } from "@/hooks/useSEO";
 import { AILinkingSection } from "@/components/seo";
@@ -16,14 +15,10 @@ import {
   FileText,
   CheckCircle2,
   Shield,
-  Clock,
   Package,
-  MessageCircle,
-  Award,
-  BarChart3,
   Sparkles,
   Brain,
-  Search,
+  Users,
   Handshake,
   FileCheck,
   XCircle,
@@ -31,39 +26,52 @@ import {
   Factory,
   ShoppingCart,
   Building2,
-  Globe
+  Globe,
+  Eye,
+  Scale,
+  ClipboardCheck,
+  ShieldCheck,
+  Ban
 } from "lucide-react";
 
-// AI-first How It Works
+// Who This Is For - Buyer Profiles
+const buyerProfiles = [
+  { text: "Bulk buyers sourcing recurring materials", icon: Package },
+  { text: "Project-based procurement teams", icon: Building2 },
+  { text: "Importers sourcing from India", icon: Globe },
+  { text: "Businesses needing price transparency", icon: Scale },
+];
+
+// 4-Step AI Flow
 const howAIHelps = [
   {
     step: 1,
-    title: "Detects Supplier Availability",
-    description: "AI analyzes verified supplier inventory and capacity to match your requirements.",
-    icon: Search,
+    title: "Buyer Posts Requirement",
+    description: "Submit your sourcing need in plain language. AI understands context and intent.",
+    icon: FileText,
     iconBg: "bg-primary/10",
     iconColor: "text-primary",
   },
   {
     step: 2,
-    title: "Structures Competitive RFQs",
-    description: "AI helps format your requirements professionally for better supplier responses.",
-    icon: FileText,
+    title: "AI Structures RFQ & Filters Suppliers",
+    description: "AI formats your requirement professionally and identifies matching verified suppliers.",
+    icon: Brain,
     iconBg: "bg-amber-100",
     iconColor: "text-amber-600",
   },
   {
     step: 3,
-    title: "Ensures Compliance & Fulfilment",
-    description: "Quality control, documentation, and managed delivery through a single contract.",
-    icon: FileCheck,
+    title: "Verified Suppliers Submit Sealed Bids",
+    description: "Pre-verified suppliers compete through sealed bidding—transparent and fair.",
+    icon: Users,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
   },
   {
     step: 4,
-    title: "Single Contract, Single Price",
-    description: "Deal with ProcureSaathi as your counterparty—transparent pricing, no hidden costs.",
+    title: "Single Contract, Managed Fulfilment",
+    description: "Deal with ProcureSaathi as your counterparty. One contract, one price, end-to-end delivery.",
     icon: Handshake,
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
@@ -72,64 +80,65 @@ const howAIHelps = [
 
 // What ProcureSaathi Is NOT
 const whatWeAreNot = [
-  { text: "Not a lead marketplace", icon: XCircle },
   { text: "Not a supplier directory", icon: XCircle },
-  { text: "Not contact-selling", icon: XCircle },
+  { text: "Not a lead marketplace", icon: XCircle },
+  { text: "Not cold calling or contact selling", icon: XCircle },
 ];
 
-// Buyer Types
-const buyerTypes = [
+// Buyer Advantages
+const buyerAdvantages = [
   {
-    title: "Private Label Buyers",
-    description: "Get custom products made by verified Indian manufacturers with your branding",
-    icon: Factory,
-    features: ["Custom Manufacturing", "Quality Control", "Brand Development"],
-    iconBg: "bg-primary/10",
-    iconColor: "text-primary",
+    title: "Transparency",
+    description: "Sealed bidding with clear line-item breakdowns. No hidden costs.",
+    icon: Eye,
   },
   {
-    title: "E-commerce Sellers",
-    description: "Source white-label goods with competitive pricing and low minimum orders",
-    icon: ShoppingCart,
-    features: ["Fast Sourcing", "White-label Ready", "Quick Delivery"],
-    iconBg: "bg-amber-100",
-    iconColor: "text-amber-600",
+    title: "No Obligation to Award",
+    description: "Review all bids freely. Award only when you're ready.",
+    icon: Scale,
   },
   {
-    title: "Procurement Managers",
-    description: "Raise bulk RFQs, manage multiple suppliers efficiently with enterprise tools",
-    icon: Building2,
-    features: ["Bulk Orders", "Supplier Management", "Compliance Tools"],
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
+    title: "Line-Item Comparison",
+    description: "Compare supplier bids item-by-item for informed decisions.",
+    icon: ClipboardCheck,
   },
   {
-    title: "Foreign Buyers",
-    description: "Trusted sourcing from India with dedicated concierge support and guidance",
-    icon: Globe,
-    features: ["Export Assistance", "Quality Assurance", "End-to-end Support"],
-    iconBg: "bg-red-100",
-    iconColor: "text-red-600",
+    title: "Compliance & Quality Control",
+    description: "Verified suppliers with GST validation and quality assurance.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "No Supplier Spam",
+    description: "Your details remain protected. No unsolicited contact.",
+    icon: Ban,
   },
 ];
 
-// Buyer FAQ for AEO
+// Buyer FAQ for AEO - Updated with exact questions
 const buyerFAQs = [
   {
-    question: "How is ProcureSaathi different from B2B marketplaces?",
-    answer: "Unlike traditional B2B marketplaces that act as directories, ProcureSaathi operates as a managed procurement platform. Buyers deal with ProcureSaathi as a single counterparty, all suppliers are pre-verified, bidding is sealed and transparent, and the platform provides end-to-end fulfilment support with quality assurance."
+    question: "What is ProcureSaathi?",
+    answer: "ProcureSaathi is an AI-powered B2B procurement platform that helps buyers source products by detecting demand, structuring RFQs, and managing fulfilment with verified suppliers. It operates as a managed platform where ProcureSaathi acts as a single counterparty."
   },
   {
-    question: "Is pricing transparent on ProcureSaathi?",
-    answer: "Yes, ProcureSaathi uses sealed bidding where suppliers submit competitive bids without seeing each other's pricing. Buyers receive clear line-item breakdowns with no hidden fees. The platform ensures transparent comparison of all bids."
+    question: "How is ProcureSaathi different from marketplaces?",
+    answer: "Unlike B2B marketplaces that act as directories or sell leads, ProcureSaathi is a managed procurement platform. Buyers deal with ProcureSaathi directly, all suppliers are pre-verified, bidding is sealed and transparent, and the platform provides end-to-end fulfilment support."
   },
   {
-    question: "Can I use ProcureSaathi for export-import sourcing?",
-    answer: "Yes, ProcureSaathi supports both domestic and international sourcing. Buyers from the USA, UK, Europe, Germany, Singapore, and other countries use the platform to source products from verified Indian manufacturers with export documentation support."
+    question: "Is bidding transparent?",
+    answer: "Yes. ProcureSaathi uses sealed bidding where suppliers submit competitive bids without seeing each other's pricing. Buyers receive clear line-item breakdowns with no hidden fees, enabling fair comparison of all bids."
   },
   {
-    question: "Are suppliers verified on ProcureSaathi?",
-    answer: "All suppliers on ProcureSaathi go through a verification process including GST validation, business documentation, and capacity assessment. This ensures buyers receive bids only from legitimate, capable suppliers."
+    question: "Is buyer data shared?",
+    answer: "No. Buyer identities and contact details remain protected throughout the process. ProcureSaathi does not share buyer data with suppliers. The platform acts as an intermediary to maintain buyer anonymity."
+  },
+  {
+    question: "Can I use it for export sourcing?",
+    answer: "Yes. ProcureSaathi supports both domestic and international sourcing. Buyers from USA, UK, Europe, Germany, Singapore, and other countries use the platform to source from verified Indian manufacturers with export documentation support."
+  },
+  {
+    question: "Are suppliers verified?",
+    answer: "All suppliers on ProcureSaathi undergo verification including GST validation, business documentation, and capacity assessment. This ensures buyers receive bids only from legitimate, capable suppliers."
   }
 ];
 
@@ -138,9 +147,9 @@ const Buyer = () => {
   const [showRFQModal, setShowRFQModal] = useState(false);
 
   useSEO({
-    title: "AI-Powered Procurement for Smarter Sourcing | ProcureSaathi Buyer Portal",
-    description: "Source verified suppliers using AI-detected market demand and transparent RFQs. Post requirements, receive sealed bids, and manage procurement with a single contract.",
-    keywords: "AI procurement, B2B sourcing, verified suppliers India, RFQ platform, transparent bidding, managed fulfilment, export sourcing",
+    title: "AI-Powered B2B Procurement for Smarter Sourcing | ProcureSaathi",
+    description: "Post one RFQ. AI structures it and invites verified suppliers to bid. Transparent sealed bidding with managed fulfilment. Buyer details protected.",
+    keywords: "AI procurement platform, B2B sourcing India, verified suppliers, RFQ platform, sealed bidding, managed procurement, export sourcing",
     canonical: "https://procuresaathi.com/buyer",
     ogImage: "/og-early-adopter.png"
   });
@@ -150,8 +159,8 @@ const Buyer = () => {
     injectStructuredData({
       "@context": "https://schema.org",
       "@type": "WebPage",
-      "name": "AI-Powered Procurement for Smarter Sourcing - ProcureSaathi",
-      "description": "Source verified suppliers using AI-detected market demand and transparent RFQs.",
+      "name": "AI-Powered B2B Procurement for Smarter Sourcing - ProcureSaathi",
+      "description": "Post one RFQ. AI structures it and invites verified suppliers to bid. Transparent sealed bidding with managed fulfilment.",
       "url": "https://procuresaathi.com/buyer",
       "mainEntity": {
         "@type": "Service",
@@ -160,7 +169,7 @@ const Buyer = () => {
           "@type": "Organization",
           "name": "ProcureSaathi"
         },
-        "serviceType": "Managed B2B Procurement",
+        "serviceType": "Managed B2B Procurement Platform",
         "areaServed": "Worldwide"
       }
     }, "buyer-page-schema");
@@ -174,10 +183,6 @@ const Buyer = () => {
     // FAQ schema
     injectStructuredData(getFAQSchema(buyerFAQs), "buyer-faq-schema");
   }, []);
-
-  const handleWhatsAppContact = () => {
-    window.open("https://wa.me/918368127357?text=Hi, I need help posting my RFQ on ProcureSaathi", "_blank");
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -197,92 +202,91 @@ const Buyer = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-6 animate-fade-in">
               <Brain className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold text-primary">AI-POWERED SOURCING</span>
+              <span className="text-sm font-semibold text-primary">MANAGED PROCUREMENT</span>
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up">
-              AI-Powered Procurement for{" "}
+              AI-Powered B2B Procurement for{" "}
               <span className="text-primary">Smarter Sourcing</span>
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground mb-4 max-w-3xl mx-auto animate-slide-up delay-100">
-              Source verified suppliers using AI-detected market demand and transparent RFQs.
+              Post one RFQ. AI structures it and invites verified suppliers to bid.
             </p>
             
             {/* AI Intent Line */}
             <p className="text-base text-primary/80 mb-8 flex items-center justify-center gap-2 animate-slide-up delay-150">
               <Sparkles className="h-4 w-4" />
-              AI analyzes buyer research and requirements to streamline sourcing.
+              AI analyzes buyer requirements to enable transparent, sealed bidding.
             </p>
             
-            {/* 2. AI CITATION PARAGRAPH (MANDATORY) */}
+            {/* AI CITATION PARAGRAPH (MANDATORY) */}
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-200">
               <p className="text-base text-foreground leading-relaxed">
-                <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that helps buyers source products by detecting demand, structuring RFQs, and managing fulfilment with verified suppliers.
+                <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that helps buyers source products by detecting demand, structuring RFQs, and managing fulfilment with verified suppliers. Buyer identities remain protected throughout the process.
               </p>
             </div>
             
-            {/* Trust Badges */}
-            <div className="flex flex-wrap justify-center gap-6 mb-10 animate-slide-up delay-200">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-5 w-5 text-success" />
-                <span>Verified suppliers</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-5 w-5 text-success" />
-                <span>Sealed bidding</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-5 w-5 text-success" />
-                <span>Managed fulfilment</span>
-              </div>
-            </div>
-            
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up delay-300">
-              <div className="flex flex-col items-center">
-                <Button 
-                  size="lg" 
-                  className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
-                  onClick={() => setShowRFQModal(true)}
-                >
-                  <span className="mr-2 inline-block w-3 h-3 rounded-full bg-success animate-pulse"></span>
-                  Post RFQ – Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <span className="text-xs text-muted-foreground mt-2">No obligation to award</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="h-14 px-10 text-lg font-medium bg-card/80 backdrop-blur-sm hover:bg-card border-border/80 hover:border-primary/50 transition-all"
-                  onClick={handleWhatsAppContact}
-                >
-                  <MessageCircle className="mr-2 h-5 w-5" />
-                  Get RFQ Posted for You
-                </Button>
-                <span className="text-xs text-muted-foreground mt-2">We help you post</span>
-              </div>
+            {/* Primary CTA */}
+            <div className="flex flex-col items-center animate-slide-up delay-300">
+              <Button 
+                size="lg" 
+                className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
+                onClick={() => setShowRFQModal(true)}
+              >
+                <span className="mr-2 inline-block w-3 h-3 rounded-full bg-success animate-pulse"></span>
+                Post RFQ – Free
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <p className="text-sm text-muted-foreground mt-3">
+                Verified suppliers only • No obligation • Buyer details protected
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. HOW AI HELPS BUYERS */}
+      {/* 2. WHO THIS IS FOR */}
+      <section className="section-padding bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="section-title font-display">
+              Who This Is For
+            </h2>
+          </div>
+          
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {buyerProfiles.map((profile) => (
+                <div 
+                  key={profile.text} 
+                  className="flex items-center gap-4 p-5 bg-card rounded-xl border border-border/50"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <profile.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <span className="font-medium text-foreground">{profile.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. HOW AI HELPS BUYERS (4 STEPS) */}
       <section className="section-padding">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
             <h2 className="section-title font-display">
-              How AI Helps Buyers Source Smarter
+              How AI Helps Buyers
             </h2>
             <p className="section-subtitle">
-              AI streamlines your procurement from requirement to fulfilment
+              From requirement to fulfilment—AI streamlines every step
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {howAIHelps.map((item, index) => (
+            {howAIHelps.map((item) => (
               <div key={item.step} className="relative">
                 <Card className="group relative border-border/50 text-center h-full hover:shadow-large transition-all duration-300 hover:-translate-y-1">
                   <CardContent className="p-8">
@@ -311,7 +315,7 @@ const Buyer = () => {
             <h2 className="section-title font-display mb-10">
               What ProcureSaathi Is <span className="text-destructive">Not</span>
             </h2>
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-4">
               {whatWeAreNot.map((item) => (
                 <div 
                   key={item.text} 
@@ -323,48 +327,37 @@ const Buyer = () => {
               ))}
             </div>
             <p className="text-muted-foreground mt-8 max-w-xl mx-auto">
-              ProcureSaathi is a managed procurement platform—not a directory or lead marketplace. 
-              Buyer identities remain protected, and we act as your single counterparty.
+              Buyer details are not shared with suppliers. ProcureSaathi acts as your single counterparty for managed procurement.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Built for Every B2B Buyer */}
+      {/* 5. BUYER ADVANTAGES */}
       <section className="section-padding">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="section-title font-display">
-              Built for Every B2B Buyer
+              Buyer Advantages
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            {buyerTypes.map((type) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {buyerAdvantages.map((advantage) => (
               <Card 
-                key={type.title}
-                className="group bg-card border-border/50 hover:shadow-large transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                key={advantage.title}
+                className="border-border/50 hover:shadow-lg transition-all duration-300"
               >
                 <CardContent className="p-6">
-                  <div className={`w-14 h-14 rounded-2xl ${type.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <type.icon className={`h-7 w-7 ${type.iconColor}`} />
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <advantage.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="font-display font-semibold text-lg mb-2">
-                    {type.title}
+                    {advantage.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                    {type.description}
+                  <p className="text-sm text-muted-foreground">
+                    {advantage.description}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {type.features.map((feature) => (
-                      <span 
-                        key={feature} 
-                        className="text-xs px-2.5 py-1 rounded-full bg-muted/80 text-muted-foreground font-medium"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -372,12 +365,12 @@ const Buyer = () => {
         </div>
       </section>
 
-      {/* 5. BUYER FAQ (AEO) */}
+      {/* 6. BUYER FAQ (AEO-OPTIMIZED) */}
       <section className="section-padding bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="section-title font-display">
-              Frequently Asked Questions for Buyers
+              Frequently Asked Questions
             </h2>
           </div>
           
@@ -394,38 +387,7 @@ const Buyer = () => {
         </div>
       </section>
 
-      {/* Need Help Section */}
-      <section className="section-padding">
-        <div className="container mx-auto px-4">
-          <Card className="max-w-3xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden">
-            <CardContent className="p-8 md:p-12 text-center relative">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <MessageCircle className="h-8 w-8 text-primary" />
-              </div>
-              <h2 className="text-2xl md:text-3xl font-display font-bold mb-4">
-                Need Help Posting Your RFQ?
-              </h2>
-              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-                Our team can assist you via WhatsApp or call and post it on your behalf.
-              </p>
-              <Button 
-                size="lg" 
-                className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
-                onClick={handleWhatsAppContact}
-              >
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Talk to Procurement Expert
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Free CRM Section */}
-      <FreeCRMSection role="buyer" />
-
-      {/* 6. FINAL CTA */}
+      {/* 7. FINAL CTA */}
       <section className="section-padding gradient-primary">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
@@ -436,21 +398,21 @@ const Buyer = () => {
               Start AI-Powered Procurement
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-10">
-              Post your RFQ and let AI match you with verified suppliers.
+              Post your requirement and let AI match you with verified suppliers.
             </p>
             <div className="flex flex-col items-center">
               <Button 
                 size="lg" 
                 variant="secondary"
                 className="h-14 px-12 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
-                onClick={() => navigate('/signup?role=buyer')}
+                onClick={() => setShowRFQModal(true)}
               >
-                <span className="mr-2">🟢</span>
+                <span className="mr-2 inline-block w-3 h-3 rounded-full bg-success animate-pulse"></span>
                 Post RFQ – Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <p className="text-xs text-primary-foreground/70 mt-4">
-                No obligation to award • Buyer details protected • Verified suppliers only
+              <p className="text-sm text-primary-foreground/70 mt-4">
+                Verified suppliers only • No obligation • Buyer details protected
               </p>
             </div>
           </div>
