@@ -1,11 +1,11 @@
-import { CheckCircle } from 'lucide-react';
+import { Shield, FileCheck, Sparkles, Package } from 'lucide-react';
 
 export const HeroTrustBadges = () => {
   const badges = [
-    { text: 'GST Verified', color: 'text-success' },
-    { text: 'FIEO Certified', color: 'text-primary' },
-    { text: 'AI-Powered Matching', color: 'text-primary' },
-    { text: 'Verified Suppliers', color: 'text-warning' },
+    { text: 'Verified Suppliers', icon: Shield },
+    { text: 'GST & Compliance Ready', icon: FileCheck },
+    { text: 'AI Demand Intelligence', icon: Sparkles },
+    { text: 'Managed Fulfilment', icon: Package },
   ];
 
   return (
@@ -13,9 +13,9 @@ export const HeroTrustBadges = () => {
       {badges.map((badge) => (
         <div 
           key={badge.text}
-          className="flex items-center gap-1.5 sm:gap-2"
+          className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full bg-card/50 border border-border/50"
         >
-          <div className={`w-2 h-2 rounded-full bg-success animate-pulse`} />
+          <badge.icon className="w-3.5 h-3.5 text-primary" />
           <span className="text-xs sm:text-sm text-muted-foreground font-medium">
             {badge.text}
           </span>

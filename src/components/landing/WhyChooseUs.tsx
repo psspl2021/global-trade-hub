@@ -13,28 +13,28 @@ import { useNavigate } from "react-router-dom";
 const benefits = [
   {
     icon: TrendingDown,
-    title: "Reduce Costs by 15-30%",
-    description: "Competitive sealed bidding ensures you always get the best market rates from verified suppliers.",
+    title: "Competitive Pricing",
+    description: "Sealed bidding ensures you receive competitive rates from verified suppliers.",
   },
   {
     icon: Shield,
     title: "Verified Partners Only",
-    description: "All suppliers, buyers, and logistics partners go through our verification process for trust and reliability.",
+    description: "All suppliers, buyers, and logistics partners are verified for trust and reliability.",
   },
   {
     icon: Users,
     title: "Pan-India Network",
-    description: "Access thousands of suppliers and buyers across all major Indian cities and industrial hubs.",
+    description: "Access suppliers and buyers across all major Indian cities and industrial hubs.",
   },
   {
     icon: Truck,
     title: "Integrated Logistics",
-    description: "Book verified trucks and warehouses directly. Track shipments in real-time from pickup to delivery.",
+    description: "Book verified trucks and warehouses directly with real-time tracking.",
   },
   {
     icon: Clock,
     title: "Save Time",
-    description: "Post requirements once, receive multiple competitive bids. No more endless calls and negotiations.",
+    description: "Post requirements once, receive competitive bids. No endless calls or negotiations.",
   },
 ];
 
@@ -58,7 +58,7 @@ export const WhyChooseUs = () => {
             Why Choose ProcureSaathi?
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-            India's most trusted B2B sourcing platform for modern procurement needs.
+            AI-powered B2B sourcing platform for modern procurement needs.
           </p>
         </div>
 
