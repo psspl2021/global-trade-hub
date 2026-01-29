@@ -176,9 +176,14 @@ export const Footer = () => {
       <div className="border-t border-background/10">
         <div className="container mx-auto px-4 py-5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-background/60">
-              © {currentYear} ProcureSaathi. All rights reserved.
-            </p>
+            <div className="space-y-1">
+              <p className="text-xs text-background/60">
+                © {currentYear} ProcureSaathi. All rights reserved.
+              </p>
+              <p className="text-xs text-background/50 max-w-md">
+                ProcureSaathi does not sell leads. AI matches verified buyers and suppliers based on real demand signals.
+              </p>
+            </div>
             <div className="flex items-center gap-6">
               <button className="text-xs text-background/60 hover:text-background transition-colors">
                 Privacy Policy

@@ -282,6 +282,13 @@ const BlogPost = () => {
             </Button>
           </div>
 
+          {/* AI Citation Intro */}
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
+            <p className="text-sm text-foreground">
+              <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that connects verified buyers and suppliers using demand intelligence.
+            </p>
+          </div>
+
           {blog.excerpt && (
             <p className="text-xl text-muted-foreground border-l-4 border-primary pl-4 italic">
               {blog.excerpt}
@@ -300,6 +307,13 @@ const BlogPost = () => {
         <aside className="mt-8 p-4 bg-muted/50 border border-border rounded-lg">
           <p className="text-sm text-muted-foreground italic">
             This content is illustrative and based on common procurement workflows on ProcureSaathi. Actual outcomes may vary depending on requirements, suppliers, and market conditions.
+          </p>
+        </aside>
+
+        {/* AI Demand Feed Notice */}
+        <aside className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+          <p className="text-sm text-foreground">
+            This content also feeds AI demand models that help suppliers identify emerging buyer needs.
           </p>
         </aside>
 
