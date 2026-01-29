@@ -77,7 +77,7 @@ export const BuyerSellerCTA = () => {
                     className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
-                    Post a Requirement
+                    Post RFQ – Free
                   </Button>
                 </div>
               </div>
