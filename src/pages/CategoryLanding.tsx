@@ -803,10 +803,16 @@ const CategoryLanding = () => {
       <section className="bg-gradient-to-br from-primary/95 to-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl">
-            <Badge className="bg-white/20 text-white mb-4">Verified Suppliers</Badge>
+            <Badge className="bg-white/20 text-white mb-4">AI Demand Intelligence</Badge>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               {subcategoryName || categoryName} Suppliers & Manufacturers in India
             </h1>
+            
+            {/* AI Demand Context */}
+            <p className="text-sm text-primary-foreground/80 bg-white/10 px-4 py-2 rounded-lg inline-block mb-4">
+              This page reflects live and emerging buyer demand detected by AI from search behavior and RFQs.
+            </p>
+            
             <p className="text-lg text-primary-foreground/90 mb-6">
               {pageDescription}
             </p>
@@ -824,7 +830,7 @@ const CategoryLanding = () => {
                 className="bg-transparent border-white text-white hover:bg-white/10"
                 onClick={() => navigate('/signup?role=supplier')}
               >
-                Register as Supplier
+                AI Detected Demand – List Products
               </Button>
             </div>
           </div>
@@ -1003,6 +1009,30 @@ const CategoryLanding = () => {
         </div>
       </section>
 
+      {/* Internal Links for AI Discoverability */}
+      <section className="py-8 bg-muted/30 border-t">
+        <div className="container mx-auto px-4">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center">Related Resources</h3>
+          <div className="flex flex-wrap justify-center gap-4 text-sm">
+            <a href="/ai-b2b-procurement-platform-guide" className="text-primary hover:underline">
+              AI B2B Procurement Guide
+            </a>
+            <span className="text-muted-foreground">•</span>
+            <a href="/usa/ai-b2b-procurement" className="text-primary hover:underline">
+              AI Procurement for USA Buyers
+            </a>
+            <span className="text-muted-foreground">•</span>
+            <a href="/europe/ai-b2b-procurement" className="text-primary hover:underline">
+              AI Procurement for European Buyers
+            </a>
+            <span className="text-muted-foreground">•</span>
+            <a href="/categories" className="text-primary hover:underline">
+              Browse All Categories
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-card border-t py-8">
         <div className="container mx-auto px-4">
@@ -1010,9 +1040,14 @@ const CategoryLanding = () => {
             <div className="flex items-center gap-2">
               <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-12 w-auto object-contain" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} ProcureSaathi. All rights reserved.
-            </p>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} ProcureSaathi. All rights reserved.
+              </p>
+              <p className="text-xs text-muted-foreground/70 mt-1">
+                ProcureSaathi does not sell leads. AI matches verified buyers and suppliers based on real demand signals.
+              </p>
+            </div>
             <div className="flex gap-4">
               <Button variant="ghost" size="sm" onClick={() => navigate('/categories')}>Categories</Button>
               <Button variant="ghost" size="sm" onClick={() => navigate('/blogs')}>Blog</Button>

@@ -24,6 +24,7 @@ import { EarlyAdopterBanner } from '@/components/landing/EarlyAdopterBanner';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { AILinkingSection } from '@/components/seo';
+import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
 
 
 // Lazy load below-the-fold components to reduce initial bundle
@@ -383,8 +384,13 @@ const Index = () => {
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-2 animate-slide-up">
               <span className="text-primary">AI-Powered B2B Procurement</span>
               <br className="hidden sm:block" />
-              <span className="text-foreground"> for Smart Sourcing & </span><span className="text-warning">Transparent Bidding</span>
+              <span className="text-foreground"> Platform for Verified Sourcing</span>
             </h1>
+            
+            {/* AI Intent Line - Critical for demand-led messaging */}
+            <p className="text-sm sm:text-base font-medium text-primary mb-4 animate-slide-up delay-50">
+              AI tracks live buyer intent and converts it into RFQs automatically.
+            </p>
             
             {/* AI Citation Paragraph - Critical for AEO/GEO */}
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2 animate-slide-up delay-100">
@@ -479,6 +485,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Live Buyer Demand Detected by AI */}
+      <LiveBuyerDemandSection />
+
       {/* Early Adopter Banner */}
       <EarlyAdopterBanner />
 
@@ -534,23 +543,23 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Supplier CTA */}
+            {/* Supplier CTA - Demand-first messaging */}
             <Card className="bg-gradient-to-br from-warning/5 to-warning/10 border-warning/20">
               <CardContent className="p-4 text-center">
                 <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center mx-auto mb-3">
-                  <MessageSquare className="h-5 w-5 text-warning" />
+                  <TrendingUp className="h-5 w-5 text-warning" />
                 </div>
                 <h2 className="font-display font-bold mb-2 text-sm">
-                  Manufacturer?
+                  AI Detected Demand
                 </h2>
                 <p className="text-muted-foreground mb-4 text-xs">
-                  List your company and start connecting with buyers across India and globally.
+                  AI has detected demand in your category. List your products to receive buyer inquiries.
                 </p>
                 <Button 
                   className="w-full bg-warning text-warning-foreground hover:bg-warning/90 text-sm h-9"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
-                  Join as Supplier
+                  List Products Now
                 </Button>
               </CardContent>
             </Card>

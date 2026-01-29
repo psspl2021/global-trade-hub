@@ -253,6 +253,10 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
               {config.h1}
             </h1>
 
+            <p className="text-sm text-muted-foreground bg-primary/10 px-4 py-2 rounded-lg inline-block mb-4">
+              This page reflects live and emerging buyer demand detected by AI from search behavior and RFQs.
+            </p>
+
             <p className="text-xl text-muted-foreground mb-4 max-w-3xl mx-auto">
               {config.subheading}
             </p>
@@ -432,13 +436,36 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
         </div>
       </section>
 
+      {/* Internal Links for AI Discoverability */}
+      <section className="py-8 bg-card border-t">
+        <div className="container mx-auto px-4 text-center">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4">Related Resources</h3>
+          <div className="flex flex-wrap justify-center gap-4 text-sm">
+            <a href="/ai-b2b-procurement-platform-guide" className="text-primary hover:underline">
+              AI B2B Procurement Guide
+            </a>
+            <span className="text-muted-foreground">•</span>
+            <a href={`/${countryCode === 'india' ? 'usa' : countryCode}/ai-b2b-procurement`} className="text-primary hover:underline">
+              {countryCode === 'india' ? 'AI Procurement for USA Buyers' : `AI Procurement for ${countryInfo.name}`}
+            </a>
+            <span className="text-muted-foreground">•</span>
+            <a href="/categories" className="text-primary hover:underline">
+              Browse All Categories
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Footer Note */}
       <section className="py-8 bg-muted/50 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p className="max-w-3xl mx-auto">
+          <p className="max-w-3xl mx-auto mb-2">
             <strong>Important:</strong> ProcureSaathi manages sourcing & fulfilment end-to-end. 
             You receive a single price and single contract. No supplier list. No contact reveal. 
             Verified fulfilment from our pre-qualified partner network.
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            ProcureSaathi does not sell leads. AI matches verified buyers and suppliers based on real demand signals.
           </p>
         </div>
       </section>
