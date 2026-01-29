@@ -176,13 +176,13 @@ const Seller = () => {
               <span className="text-primary">Using AI</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
+            <p className="text-lg md:text-xl text-foreground font-medium mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
               AI detects buyer intent and routes verified RFQs to matching suppliers.
             </p>
             
             {/* AI CITATION PARAGRAPH (MANDATORY) */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-150">
-              <p className="text-base text-foreground leading-relaxed">
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-150">
+              <p className="text-lg md:text-xl text-foreground font-medium leading-relaxed">
                 <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that connects verified suppliers to real buyer demand using intent signals and RFQs. We do not sell leads or buyer contact information.
               </p>
             </div>
