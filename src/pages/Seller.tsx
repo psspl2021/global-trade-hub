@@ -3,7 +3,6 @@ import { useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
-import { FreeCRMSection } from "@/components/landing/FreeCRMSection";
 import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getFAQSchema } from "@/hooks/useSEO";
 import { AILinkingSection } from "@/components/seo";
@@ -14,50 +13,48 @@ import {
   ArrowRight, 
   FileText,
   Sparkles,
-  Truck,
   Shield,
-  BarChart3,
   CheckCircle2,
-  Zap,
   Brain,
   Search,
   Users,
   Handshake,
   Eye,
-  XCircle,
-  ShieldCheck
+  ShieldCheck,
+  Ban,
+  Scale
 } from "lucide-react";
 
-// How Demand Flows to Suppliers
+// How Demand Flows to Suppliers (4 Steps)
 const demandFlow = [
   {
     step: 1,
-    title: "Buyers Research Sourcing",
-    description: "Buyers browse categories, search products, or submit RFQ requirements.",
+    title: "Buyers Research / Submit Requirements",
+    description: "Buyers explore categories, search products, or submit RFQ requirements on the platform.",
     icon: Search,
     iconBg: "bg-primary/10",
     iconColor: "text-primary",
   },
   {
     step: 2,
-    title: "AI Detects Intent",
-    description: "AI analyzes research patterns and structures buyer requirements into actionable RFQs.",
+    title: "AI Detects Intent & Structures RFQs",
+    description: "AI analyzes buyer behavior and structures actionable RFQs from research signals.",
     icon: Brain,
     iconBg: "bg-amber-100",
     iconColor: "text-amber-600",
   },
   {
     step: 3,
-    title: "Suppliers Are Matched",
-    description: "Verified suppliers in matching categories receive RFQ notifications based on capacity.",
+    title: "Matching Suppliers Are Notified",
+    description: "Verified suppliers in relevant categories receive RFQ notifications based on capacity.",
     icon: Users,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
   },
   {
     step: 4,
-    title: "RFQs & Fulfilment Follow",
-    description: "Suppliers bid competitively, and winning bids proceed to managed fulfilment.",
+    title: "Sealed Bidding + Managed Fulfilment",
+    description: "Suppliers bid competitively in sealed format. Winning bids proceed to managed delivery.",
     icon: Handshake,
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
@@ -67,67 +64,48 @@ const demandFlow = [
 // What Suppliers Get
 const supplierBenefits = [
   { 
-    title: "Visibility into Real Demand", 
-    description: "See what buyers are actively searching for in your category.",
+    title: "Visibility into Real Buyer Demand", 
+    description: "See active RFQs and buyer requirements in your product categories.",
     icon: Eye 
   },
   { 
     title: "No Cold Outreach", 
-    description: "Buyers come to you through AI-matched RFQs.",
-    icon: Users 
+    description: "Buyers come to you through AI-matched RFQs. No chasing contacts.",
+    icon: Ban 
   },
   { 
     title: "No Lead Buying", 
-    description: "We don't sell contacts—suppliers bid on verified requirements.",
+    description: "We don't sell buyer data. You bid on verified requirements, not contact lists.",
     icon: ShieldCheck 
   },
   { 
-    title: "Verified Buyer Ecosystem", 
+    title: "Verified Buyers Only", 
     description: "All buyers are verified before their RFQs reach suppliers.",
     icon: CheckCircle2 
   },
-];
-
-// Features
-const features = [
-  {
-    title: "AI-Powered Matching",
-    description: "AI matches your products to relevant buyer requirements based on category and capacity.",
-    icon: Sparkles,
-  },
-  {
-    title: "Sealed Bidding",
-    description: "Submit competitive bids without seeing competitor pricing—fair and transparent.",
-    icon: FileText,
-  },
-  {
-    title: "Logistics Support",
-    description: "Integrated logistics partners to help you deliver domestically and internationally.",
-    icon: Truck,
-  },
-  {
-    title: "Analytics Dashboard",
-    description: "Track your bids, conversions, and performance with detailed insights.",
-    icon: BarChart3,
+  { 
+    title: "Fair Sealed Bidding", 
+    description: "Compete on merit—sealed bids ensure fair, transparent pricing.",
+    icon: Scale 
   },
 ];
 
-// Supplier FAQ for AEO
+// Supplier FAQ for AEO - Exact questions from requirements
 const supplierFAQs = [
   {
-    question: "Does ProcureSaathi sell leads to suppliers?",
-    answer: "No, ProcureSaathi does not sell leads or buyer contact information. Suppliers are matched to verified buyer requirements through AI-detected demand signals. You bid on RFQs—we don't sell you contact lists."
+    question: "Does ProcureSaathi sell leads?",
+    answer: "No. ProcureSaathi does not sell leads or buyer contact information. Suppliers are matched to verified buyer requirements through AI-detected demand signals. You bid on RFQs—we don't sell you contact lists."
   },
   {
-    question: "How does AI detect buyer demand?",
+    question: "How does AI detect demand?",
     answer: "AI analyzes buyer research patterns, category browsing, and submitted RFQs to identify genuine procurement intent. This ensures suppliers receive relevant opportunities from buyers actively seeking their products."
   },
   {
     question: "Is supplier onboarding free?",
-    answer: "Yes, supplier registration and onboarding is completely free. You can list products and browse buyer requirements at no cost. A small service fee applies only when you successfully close a deal."
+    answer: "Yes. Supplier registration, onboarding, and product listing are completely free. You can browse buyer requirements at no cost. A small service fee applies only when you successfully close a deal."
   },
   {
-    question: "Who sees my company information?",
+    question: "Who sees my company details?",
     answer: "Buyer and supplier identities are protected during the bidding process. ProcureSaathi acts as the counterparty. Your company details are revealed only after a deal is awarded and both parties proceed to fulfilment."
   }
 ];
@@ -137,9 +115,9 @@ const Seller = () => {
 
   useSEO({
     title: "Connect to Real Buyer Demand Using AI | ProcureSaathi Supplier Portal",
-    description: "ProcureSaathi helps suppliers grow by matching them to AI-detected buyer demand — without selling leads. List products and receive verified RFQs.",
+    description: "AI detects buyer intent and routes verified RFQs to matching suppliers. No lead selling. Demand-first onboarding for verified suppliers.",
     canonical: "https://procuresaathi.com/seller",
-    keywords: "B2B supplier portal, AI buyer matching, verified RFQs, no lead selling, export platform India, demand-first onboarding"
+    keywords: "B2B supplier portal, AI buyer matching, verified RFQs, no lead selling, demand-first onboarding, sealed bidding"
   });
 
   useEffect(() => {
@@ -148,7 +126,7 @@ const Seller = () => {
       "@context": "https://schema.org",
       "@type": "WebPage",
       "name": "Connect to Real Buyer Demand Using AI - ProcureSaathi Supplier Portal",
-      "description": "ProcureSaathi helps suppliers grow by matching them to AI-detected buyer demand — without selling leads.",
+      "description": "AI detects buyer intent and routes verified RFQs to matching suppliers. No lead selling. Demand-first onboarding.",
       "url": "https://procuresaathi.com/seller",
       "mainEntity": {
         "@type": "Service",
@@ -190,7 +168,7 @@ const Seller = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-warning/20 bg-warning/5 backdrop-blur-sm mb-6 animate-fade-in">
               <Brain className="h-4 w-4 text-warning" />
-              <span className="text-sm font-semibold text-warning">AI-POWERED DEMAND MATCHING</span>
+              <span className="text-sm font-semibold text-warning">DEMAND-FIRST ONBOARDING</span>
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up">
@@ -199,18 +177,18 @@ const Seller = () => {
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
-              ProcureSaathi helps suppliers grow by matching them to AI-detected buyer demand — without selling leads.
+              AI detects buyer intent and routes verified RFQs to matching suppliers.
             </p>
             
-            {/* 2. AI CITATION PARAGRAPH (MANDATORY) */}
+            {/* AI CITATION PARAGRAPH (MANDATORY) */}
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-150">
               <p className="text-base text-foreground leading-relaxed">
-                <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that connects verified suppliers to real buyer demand using intent signals and RFQs.
+                <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that connects verified suppliers to real buyer demand using intent signals and RFQs. We do not sell leads or buyer contact information.
               </p>
             </div>
             
-            {/* Primary CTA */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up delay-200">
+            {/* Primary CTA Only */}
+            <div className="flex flex-col items-center animate-slide-up delay-200">
               <Button 
                 size="lg" 
                 className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-warning text-warning-foreground hover:bg-warning/90"
@@ -220,25 +198,21 @@ const Seller = () => {
                 AI Detected Demand – List Products
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button 
-                variant="link" 
-                className="text-primary text-lg font-medium"
-                onClick={() => navigate('/login')}
-              >
-                Already a Supplier? Sign In
-              </Button>
+              <p className="text-sm text-muted-foreground mt-3">
+                Verified RFQs • No lead selling • Demand-first onboarding
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. HOW DEMAND FLOWS TO SUPPLIERS */}
+      {/* 2. HOW DEMAND FLOWS TO SUPPLIERS (4 STEPS) */}
       <section className="section-padding">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
             <h2 className="section-title font-display">How Demand Flows to Suppliers</h2>
             <p className="section-subtitle">
-              AI detects buyer intent and routes verified RFQs to matching suppliers
+              Demand-first, not listing-first. AI routes real buyer intent to you.
             </p>
           </div>
           
@@ -263,17 +237,14 @@ const Seller = () => {
         </div>
       </section>
 
-      {/* 4. WHAT SUPPLIERS GET */}
+      {/* 3. WHAT SUPPLIERS GET */}
       <section className="section-padding bg-gradient-to-br from-warning/5 via-warning/10 to-warning/5">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="section-title font-display">What Suppliers Get</h2>
-            <p className="section-subtitle">
-              Demand-first onboarding with zero lead selling
-            </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {supplierBenefits.map((benefit) => (
               <Card 
                 key={benefit.title} 
@@ -292,7 +263,7 @@ const Seller = () => {
         </div>
       </section>
 
-      {/* 5. CLEAR TRUST BLOCK */}
+      {/* 4. TRUST BLOCK (VERY CLEAR) */}
       <section className="section-padding bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -300,52 +271,34 @@ const Seller = () => {
               <Shield className="h-8 w-8 text-success" />
             </div>
             <h2 className="section-title font-display mb-6">
-              Our Trust Commitment to Suppliers
+              Our Trust Commitment
             </h2>
             <div className="bg-card border-2 border-success/30 rounded-xl p-8">
-              <p className="text-lg text-foreground leading-relaxed mb-6">
-                <strong>ProcureSaathi does not sell buyer data or leads.</strong>
+              <p className="text-xl font-semibold text-foreground mb-6">
+                ProcureSaathi does not sell buyer data or leads.
               </p>
-              <p className="text-muted-foreground">
-                We match suppliers to verified buyer requirements through AI-detected demand signals. 
-                Buyer identities remain protected until a deal is awarded. You bid on real opportunities—not contact lists.
-              </p>
+              <div className="space-y-4 text-muted-foreground text-left max-w-xl mx-auto">
+                <p>
+                  <strong>AI Matching:</strong> We match suppliers to verified buyer requirements through AI-detected demand signals—not by selling contact lists.
+                </p>
+                <p>
+                  <strong>Protected Identities:</strong> Buyer identities remain protected during bidding. Details are revealed only after a deal is awarded.
+                </p>
+                <p>
+                  <strong>Pay Only on Success:</strong> Supplier onboarding is free. A small service fee applies only when you successfully close a deal.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* 5. SUPPLIER FAQ (AEO-OPTIMIZED) */}
       <section className="section-padding">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="section-title font-display">
-              Tools to Help You <span className="text-primary">Succeed</span>
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {features.map((feature) => (
-              <Card key={feature.title} className="group border-border/50 hover:shadow-large transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-display font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 6. SUPPLIER FAQ (AEO) */}
-      <section className="section-padding bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="section-title font-display">
-              Frequently Asked Questions for Suppliers
+              Frequently Asked Questions
             </h2>
           </div>
           
@@ -362,23 +315,20 @@ const Seller = () => {
         </div>
       </section>
 
-      {/* Free CRM Section */}
-      <FreeCRMSection role="supplier" />
-
-      {/* 7. FINAL CTA */}
+      {/* 6. FINAL CTA */}
       <section className="section-padding gradient-primary">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="w-16 h-16 rounded-2xl bg-primary-foreground/10 flex items-center justify-center mx-auto mb-6">
-              <Zap className="h-8 w-8 text-primary-foreground" aria-hidden="true" />
+              <Sparkles className="h-8 w-8 text-primary-foreground" aria-hidden="true" />
             </div>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-primary-foreground mb-4">
-              Ready to Grow with AI-Matched Demand?
+              Start Receiving Verified RFQs
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-10">
-              List your products and let AI connect you to verified buyer requirements.
+              List your products and let AI connect you to real buyer demand.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col items-center">
               <Button 
                 size="lg" 
                 variant="secondary"
@@ -389,14 +339,9 @@ const Seller = () => {
                 AI Detected Demand – List Products
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="h-14 px-10 text-lg font-medium bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary transition-all"
-                onClick={() => navigate('/login')}
-              >
-                Sign In
-              </Button>
+              <p className="text-sm text-primary-foreground/70 mt-4">
+                Verified RFQs • No lead selling • Demand-first onboarding
+              </p>
             </div>
           </div>
         </div>
@@ -408,7 +353,7 @@ const Seller = () => {
         links={[
           { title: "Supplier Discovery Guide", url: "/find-verified-b2b-suppliers", description: "How buyers find you", emoji: "🔍" },
           { title: "Export-Import Guide", url: "/export-import-sourcing-guide", description: "International trade", emoji: "🌍" },
-          { title: "Industry Procurement", url: "/procurement-for-steel-manufacturers", description: "Steel industry focus", emoji: "🏭" }
+          { title: "AI Procurement Guide", url: "/ai-b2b-procurement-platform-guide", description: "Platform overview", emoji: "🤖" }
         ]}
       />
 
@@ -422,7 +367,7 @@ const Seller = () => {
           ← Back to Home
         </Button>
       </section>
-      
+
       {/* Lead Generation */}
       <StickySignupBanner />
       <Suspense fallback={null}>
