@@ -6,16 +6,15 @@ import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import { AEOFAQSection, AILinkingSection } from "@/components/seo";
+import { ExportImportCertifications } from "@/components/landing/ExportImportCertifications";
 import { 
   ArrowRight, 
   Globe, 
   FileText, 
   Ship, 
   BadgeCheck,
-  CheckCircle2,
   Sparkles,
   Package,
-  Shield,
   Landmark
 } from "lucide-react";
 
@@ -58,14 +57,6 @@ const exportImportSteps = [
   },
 ];
 
-const exportCertifications = [
-  "CE Marking (European Union)",
-  "FDA Registration (USA)",
-  "ISO Certifications",
-  "BIS Standards (India)",
-  "FSSAI (Food Products)",
-  "REACH Compliance (EU)",
-];
 
 const ExportImportSourcingGuide = () => {
   const navigate = useNavigate();
@@ -189,28 +180,8 @@ const ExportImportSourcingGuide = () => {
         </div>
       </section>
 
-      {/* Certifications */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-display font-bold mb-4">
-              Key Export Certifications
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              ProcureSaathi verifies supplier certifications to ensure compliance with international trade requirements.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-            {exportCertifications.map((cert, index) => (
-              <div key={index} className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border/50">
-                <Shield className="h-5 w-5 text-success flex-shrink-0" />
-                <span className="font-medium">{cert}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Export-Import Certifications Section - Restored with clickable links */}
+      <ExportImportCertifications />
 
       <AEOFAQSection schemaId="export-guide-aeo-faq" />
       <AILinkingSection links={[
