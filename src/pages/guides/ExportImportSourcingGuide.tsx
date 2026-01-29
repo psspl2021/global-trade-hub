@@ -7,7 +7,8 @@ import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import { AEOFAQSection, AILinkingSection } from "@/components/seo";
 import { ExportImportCertifications } from "@/components/landing/ExportImportCertifications";
-import { 
+import { ExportCertificationsDirectory } from "@/components/export/ExportCertificationsDirectory";
+import {
   ArrowRight, 
   Globe, 
   FileText, 
@@ -180,8 +181,11 @@ const ExportImportSourcingGuide = () => {
         </div>
       </section>
 
-      {/* Export-Import Certifications Section - Restored with clickable links */}
+      {/* Export-Import Certifications Section - Government compliance links */}
       <ExportImportCertifications />
+
+      {/* Export Certifications Directory - SEO Discovery Hub */}
+      <ExportCertificationsDirectory />
 
       <AEOFAQSection schemaId="export-guide-aeo-faq" />
       <AILinkingSection links={[
