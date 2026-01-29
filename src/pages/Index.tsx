@@ -25,6 +25,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { AILinkingSection } from '@/components/seo';
 import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
+import { Footer } from '@/components/landing/Footer';
 
 
 // Lazy load below-the-fold components to reduce initial bundle
@@ -376,9 +377,10 @@ const Index = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
-            {/* Badge */}
+            {/* AI Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-fade-in">
-              <span className="text-primary text-sm font-medium">🇮🇳 India's #1 B2B Platform</span>
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-primary text-sm font-medium">AI-Powered Procurement</span>
             </div>
             
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-2 animate-slide-up">
@@ -559,7 +561,7 @@ const Index = () => {
                   className="w-full bg-warning text-warning-foreground hover:bg-warning/90 text-sm h-9"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
-                  List Products Now
+                  AI Detected Demand – List Products
                 </Button>
               </CardContent>
             </Card>
@@ -1018,103 +1020,8 @@ const Index = () => {
       <StickySignupBanner />
 
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 bg-card py-8 sm:py-10">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 mb-8">
-            {/* Company Info */}
-            <div className="col-span-2 md:col-span-1">
-              <h4 className="font-display font-bold text-sm mb-4 text-foreground">PROCURESAATHI</h4>
-              <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
-                Metro Pillar Number 564, 14/3 Mathura Road, Sector-31, Haryana - 121003
-              </p>
-              <p className="text-sm text-muted-foreground font-mono">GSTIN: 06AAMCP4662L1ZW</p>
-            </div>
-            
-            {/* Quick Links */}
-            <div>
-              <h4 className="font-display font-semibold text-sm mb-4">Quick Links</h4>
-              <div className="flex flex-col gap-2.5">
-                <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  How It Works
-                </button>
-                <button onClick={() => navigate('/categories')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  Categories
-                </button>
-                <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  FAQ
-                </button>
-                <button onClick={() => navigate('/contact')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  Contact Us
-                </button>
-              </div>
-            </div>
-
-            {/* For Business */}
-            <div>
-              <h4 className="font-display font-semibold text-sm mb-4">For Business</h4>
-              <div className="flex flex-col gap-2.5">
-                <button onClick={() => navigate('/signup?role=buyer')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  Join as Buyer
-                </button>
-                <button onClick={() => navigate('/signup?role=supplier')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  Join as Supplier
-                </button>
-                <button onClick={() => navigate('/signup?role=logistics_partner')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  Logistics Partner
-                </button>
-                <button onClick={() => navigate('/book-truck')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  Book a Truck
-                </button>
-                <button onClick={() => navigate('/blogs')} className="text-sm text-muted-foreground hover:text-primary text-left transition-colors">
-                  Blogs
-                </button>
-              </div>
-            </div>
-
-            {/* International Markets */}
-            <div>
-              <h4 className="font-display font-semibold text-sm mb-4">International Markets</h4>
-              <div className="flex flex-col gap-2.5">
-                <a href="/source/usa" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
-                  <span>🇺🇸</span> Source from India to USA
-                </a>
-                <a href="/source/uae" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
-                  <span>🇦🇪</span> India to UAE Trade
-                </a>
-                <a href="/source/uk" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
-                  <span>🇬🇧</span> Indian Suppliers for UK
-                </a>
-                <a href="/source/germany" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
-                  <span>🇩🇪</span> India to Germany Trade
-                </a>
-                <a href="/source/australia" className="text-sm text-muted-foreground hover:text-primary text-left flex items-center gap-2 transition-colors">
-                  <span>🇦🇺</span> Source from India to Australia
-                </a>
-              </div>
-            </div>
-            
-            {/* Newsletter */}
-            <div>
-              <h4 className="font-display font-semibold text-sm mb-4">Stay Updated</h4>
-              <p className="text-sm text-muted-foreground mb-4">
-                Get weekly B2B sourcing tips & market insights
-              </p>
-              <NewsletterSignup source="footer" />
-              <a href="mailto:sales@procuresaathi.com" className="text-sm text-primary hover:underline block mt-4 font-medium">
-                sales@procuresaathi.com
-              </a>
-            </div>
-          </div>
-          
-          <div className="border-t border-border/50 pt-8 text-center space-y-2">
-            <p className="text-sm text-muted-foreground">&copy; 2024 ProcureSaathi Solutions Pvt Ltd. All rights reserved.</p>
-            <p className="text-xs text-muted-foreground/80 max-w-md mx-auto">
-              ProcureSaathi does not sell leads. AI matches verified buyers and suppliers based on real demand signals.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer - Use shared component */}
+      <Footer />
       {/* Live Stock Dialog - Only loaded when needed */}
       {showLiveStock && (
         <Suspense fallback={null}>

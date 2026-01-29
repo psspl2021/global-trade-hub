@@ -27,7 +27,7 @@ const footerLinks = {
   suppliers: [
     { label: "Become a Seller", path: "/seller" },
     { label: "Supplier Portal", path: "/login" },
-    { label: "List Products", path: "/signup?role=supplier" },
+    { label: "AI Detected Demand – List Products", path: "/signup?role=supplier" },
     { label: "Logistics Partner", path: "/signup?role=logistics_partner" },
   ],
   resources: [
