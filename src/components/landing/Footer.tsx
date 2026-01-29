@@ -163,7 +163,7 @@ export const Footer = () => {
               <Button 
                 variant="outline"
                 onClick={() => navigate('/contact')}
-                className="border-background/30 text-background hover:bg-background/10 hover:text-background"
+                className="border-background/30 bg-background text-foreground hover:bg-background/90"
               >
                 Contact Sales
               </Button>

@@ -99,10 +99,10 @@ export const BuyerSellerCTA = () => {
                   <Button 
                     variant="outline"
                     onClick={() => navigate('/signup?role=supplier')}
-                    className="border-warning text-warning hover:bg-warning hover:text-warning-foreground"
+                    className="border-warning text-warning hover:bg-warning hover:text-warning-foreground text-sm whitespace-normal h-auto py-2"
                   >
-                    <Store className="h-4 w-4 mr-2" />
-                    Become a Seller
+                    <Store className="h-4 w-4 mr-2 flex-shrink-0" />
+                    AI Detected Demand – List Products
                   </Button>
                 </div>
               </div>
