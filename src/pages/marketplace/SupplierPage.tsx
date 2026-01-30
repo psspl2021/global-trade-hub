@@ -14,6 +14,7 @@ import { EarlyPartnerOffer } from '@/components/landing/EarlyPartnerOffer';
 import { AICitationParagraph } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
+import { AIDemandTrendTimeline } from '@/components/ai/AIDemandTrendTimeline';
 import { getSupplierPageConfig } from '@/data/marketplacePages';
 import { usePartnerCounts } from '@/hooks/usePartnerCounts';
 
@@ -113,6 +114,14 @@ export default function SupplierPage() {
           variant="compact"
           className="mx-4 md:mx-auto max-w-4xl my-8"
         />
+        
+        {/* AI Demand Trend Timeline - Supplier Pages Only */}
+        <div className="mx-4 md:mx-auto max-w-4xl mb-8">
+          <AIDemandTrendTimeline 
+            categorySlug={config.categorySlug}
+            productName={config.productName}
+          />
+        </div>
 
         {/* Demand Signals Section */}
         <section className="py-16 bg-background">

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { countries } from '@/data/countries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -143,6 +144,8 @@ export function CreateRequirementForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
   const [customerName, setCustomerName] = useState('');
+  const [destinationCountry, setDestinationCountry] = useState('');
+  const [destinationState, setDestinationState] = useState('');
   const [userBusinessType, setUserBusinessType] = useState<string | null>(null);
   const { role } = useUserRole(userId);
 
@@ -284,6 +287,9 @@ export function CreateRequirementForm({
         certifications_required: data.certifications_required || null,
         payment_terms: data.payment_terms || null,
         customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
+        // Destination for AI matching (country code + state)
+        destination_country: destinationCountry || null,
+        destination_state: destinationState.trim() || null,
         // Attribution tracking - links RFQ to source
         source: source || 'direct',
         source_run_id: sourceRunId || null,
@@ -344,6 +350,8 @@ export function CreateRequirementForm({
       reset();
       setItems([{ ...defaultItem }]);
       setCustomerName('');
+      setDestinationCountry('');
+      setDestinationState('');
     }
     onOpenChange(isOpen);
   };
@@ -529,8 +537,42 @@ export function CreateRequirementForm({
             </div>
           </div>
 
+          {/* Destination Country & State - For RFQ matching */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Destination Country</Label>
+              <Select 
+                value={destinationCountry} 
+                onValueChange={setDestinationCountry}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {countries.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                For international matching
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Destination State/Region</Label>
+              <Input
+                placeholder="e.g., California, Maharashtra"
+                value={destinationState}
+                onChange={(e) => setDestinationState(e.target.value)}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="delivery_location">Delivery Location *</Label>
+            <Label htmlFor="delivery_location">Delivery Address *</Label>
             <Input
               id="delivery_location"
               placeholder="City, State, Country"
