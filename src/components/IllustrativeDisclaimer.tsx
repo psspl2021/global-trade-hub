@@ -2,13 +2,21 @@ import { Info } from "lucide-react";
 
 interface IllustrativeDisclaimerProps {
   className?: string;
-  variant?: "default" | "compact" | "blog";
+  variant?: "default" | "compact" | "blog" | "xs";
 }
 
 export const IllustrativeDisclaimer = ({ 
   className = "", 
   variant = "default" 
 }: IllustrativeDisclaimerProps) => {
+  if (variant === "xs") {
+    return (
+      <p className={`text-[10px] text-muted-foreground/70 italic ${className}`}>
+        Illustrative signals derived from platform activity patterns.
+      </p>
+    );
+  }
+
   if (variant === "compact") {
     return (
       <p className={`text-sm text-muted-foreground italic ${className}`}>
