@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getFAQSchema } from "@/hooks/useSEO";
 import { AILinkingSection } from "@/components/seo";
+import { EarlyPartnerOffer } from "@/components/landing/EarlyPartnerOffer";
 import heroBgSeller from "@/assets/hero-bg-seller.jpg";
 
 const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
@@ -112,6 +113,10 @@ const supplierFAQs = [
 
 const Seller = () => {
   const navigate = useNavigate();
+  
+  // Temp defaults for counters - can be replaced with API later
+  const [liveSupplierCount] = useState(23);
+  const [liveLogisticsCount] = useState(7);
 
   useSEO({
     title: "Connect to Real Buyer Demand Using AI | ProcureSaathi Supplier Portal",
@@ -205,6 +210,18 @@ const Seller = () => {
           </div>
         </div>
       </section>
+
+      {/* EARLY PARTNER OFFER - After Hero, Before Demand Flow */}
+      <Suspense fallback={null}>
+        <EarlyPartnerOffer
+          showCountdown={true}
+          showNumbers={true}
+          supplierCount={liveSupplierCount ?? 0}
+          logisticsCount={liveLogisticsCount ?? 0}
+          ctaLabel="Join as Supplier"
+          onCTAClick={() => navigate('/signup?role=supplier')}
+        />
+      </Suspense>
 
       {/* 2. HOW DEMAND FLOWS TO SUPPLIERS (4 STEPS) */}
       <section className="section-padding">

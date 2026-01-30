@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ import { SupplierCategorySelector } from '@/components/signup/SupplierCategorySe
 import { EmailNotificationConsent } from '@/components/signup/EmailNotificationConsent';
 import { getTaxConfigForCountry, getCountryFromContext, clearCountryContext } from '@/data/countryTaxConfig';
 import { getCountryByCode } from '@/data/supportedCountries';
+import { EarlyPartnerOffer } from '@/components/landing/EarlyPartnerOffer';
 
 type FormErrors = {
   email?: string;
@@ -75,6 +76,10 @@ const Signup = () => {
   
   // Email notification consent
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
+
+  // Temp defaults for Early Partner counters - can be replaced with API later
+  const [liveSupplierCount] = useState(23);
+  const [liveLogisticsCount] = useState(7);
 
   // Referrer selection mode: 'priyanka' | 'other' | ''
   const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other' | ''>('')
@@ -393,6 +398,25 @@ const Signup = () => {
         <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
           <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 sm:h-32 w-auto object-contain" />
         </Link>
+
+        {/* Early Partner Offer - Supplier flow only */}
+        {formData.role === 'supplier' && (
+          <Suspense fallback={null}>
+            <div className="mb-6">
+              <EarlyPartnerOffer
+                showCountdown={true}
+                showNumbers={true}
+                supplierCount={liveSupplierCount ?? 0}
+                logisticsCount={liveLogisticsCount ?? 0}
+                ctaLabel="Complete Signup Below"
+                onCTAClick={() => {
+                  // Scroll to form
+                  document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
+            </div>
+          </Suspense>
+        )}
 
         <Card className="shadow-xl">
           <CardHeader>
