@@ -6,7 +6,6 @@ import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from "@/hooks/useSEO";
 import { AEOFAQSection, AILinkingSection } from "@/components/seo";
-import { ExportImportCertifications } from "@/components/landing/ExportImportCertifications";
 import { ExportCertificationsDirectory } from "@/components/export/ExportCertificationsDirectory";
 import {
   ArrowRight, 
@@ -181,13 +180,13 @@ const ExportImportSourcingGuide = () => {
         </div>
       </section>
 
-      {/* Export-Import Certifications Section - Government compliance links */}
-      <ExportImportCertifications />
-
-      {/* Export Certifications Directory - SEO Discovery Hub */}
+      {/* Export Certifications Directory – SEO Discovery Hub */}
       <ExportCertificationsDirectory />
 
+      {/* Export FAQs for AEO */}
       <AEOFAQSection schemaId="export-guide-aeo-faq" />
+
+      {/* Internal AI Links */}
       <AILinkingSection links={[
         { title: "USA Procurement", url: "/usa/ai-b2b-procurement", description: "Source from India to USA", emoji: "🇺🇸" },
         { title: "Europe Procurement", url: "/europe/ai-b2b-procurement", description: "Source from India to EU", emoji: "🇪🇺" }
