@@ -13,6 +13,7 @@ import { Footer } from '@/components/landing/Footer';
 import { EarlyPartnerOffer } from '@/components/landing/EarlyPartnerOffer';
 import { AICitationParagraph } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
+import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { getSupplierPageConfig } from '@/data/marketplacePages';
 import { usePartnerCounts } from '@/hooks/usePartnerCounts';
 
@@ -104,6 +105,14 @@ export default function SupplierPage() {
             onCTAClick={() => navigate('/signup?role=supplier')}
           />
         </Suspense>
+
+        {/* AI Global Demand Signals */}
+        <AIGlobalDemandSignals 
+          productName={config.productName} 
+          categorySlug={config.categorySlug}
+          variant="compact"
+          className="mx-4 md:mx-auto max-w-4xl my-8"
+        />
 
         {/* Demand Signals Section */}
         <section className="py-16 bg-background">
