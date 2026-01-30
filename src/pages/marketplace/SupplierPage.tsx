@@ -11,12 +11,13 @@ import {
 import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
 import { EarlyPartnerOffer } from '@/components/landing/EarlyPartnerOffer';
-import { AICitationParagraph } from '@/components/seo';
+import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { AIDemandTrendTimeline } from '@/components/ai/AIDemandTrendTimeline';
 import { getSupplierPageConfig } from '@/data/marketplacePages';
 import { usePartnerCounts } from '@/hooks/usePartnerCounts';
+import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 
 export default function SupplierPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -38,27 +39,40 @@ export default function SupplierPage() {
     );
   }
 
+  // Global SEO enhancement
+  const globalSEO = useGlobalSEO({
+    title: config.metaTitle,
+    description: config.metaDescription,
+    productName: config.productName,
+    canonical: `https://procuresaathi.com/${config.slug}`
+  });
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": config.metaTitle,
-    "description": config.metaDescription,
+    "name": globalSEO.enhancedTitle,
+    "description": globalSEO.enhancedDescription,
     "mainEntity": {
       "@type": "Organization",
       "name": "ProcureSaathi",
-      "description": `Platform for ${config.productName} suppliers to connect with verified buyers`
+      "description": `Platform for ${config.productName} suppliers to connect with verified buyers worldwide`
     }
   };
+
+  const serviceSchema = getGlobalServiceSchema(config.productName, globalSEO.countryContext);
 
   return (
     <>
       <Helmet>
-        <title>{config.metaTitle}</title>
-        <meta name="description" content={config.metaDescription} />
-        <meta property="og:title" content={config.metaTitle} />
-        <meta property="og:description" content={config.metaDescription} />
-        <link rel="canonical" href={`https://procuresaathi.lovable.app/${config.slug}`} />
+        <title>{globalSEO.enhancedTitle}</title>
+        <meta name="description" content={globalSEO.enhancedDescription} />
+        <meta name="geo.region" content={globalSEO.geoMeta.region} />
+        <meta name="geo.placename" content={globalSEO.geoMeta.placename} />
+        <meta property="og:title" content={globalSEO.enhancedTitle} />
+        <meta property="og:description" content={globalSEO.enhancedDescription} />
+        <link rel="canonical" href={`https://procuresaathi.com/${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
       </Helmet>
 
       <PageHeader />
@@ -113,6 +127,14 @@ export default function SupplierPage() {
           categorySlug={config.categorySlug}
           variant="compact"
           className="mx-4 md:mx-auto max-w-4xl my-8"
+        />
+
+        {/* Global Demand Visibility - Country-aware content */}
+        <GlobalDemandVisibility 
+          productName={config.productName}
+          categorySlug={config.categorySlug}
+          variant="inline"
+          className="container mx-auto px-4 mb-4"
         />
         
         {/* AI Demand Trend Timeline - Supplier Pages Only */}

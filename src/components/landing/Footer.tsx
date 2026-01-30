@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import procureSaathiLogo from "@/assets/procuresaathi-logo.png";
+import { TrustSignalsGlobal } from "@/components/seo/TrustSignalsGlobal";
 import { 
   Mail, 
   Phone, 
@@ -8,7 +9,8 @@ import {
   Linkedin,
   Twitter,
   Facebook,
-  ArrowRight
+  ArrowRight,
+  Globe
 } from "lucide-react";
 
 const footerLinks = {
@@ -44,6 +46,14 @@ export const Footer = () => {
 
   return (
     <footer className="bg-foreground text-background">
+      {/* Global Trust Signals Banner */}
+      <div className="bg-background/5 border-b border-background/10 py-3">
+        <div className="container mx-auto px-4 flex flex-wrap items-center justify-center gap-2 text-sm text-background/80">
+          <Globe className="h-4 w-4 text-primary" />
+          <span>Serving B2B buyers and suppliers across <strong>195 countries</strong></span>
+        </div>
+      </div>
+
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
