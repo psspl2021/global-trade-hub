@@ -211,7 +211,7 @@ export default function BuyPage() {
         <section className="py-12 bg-background">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap justify-center gap-4 text-sm">
-              <Link to={`/category/${config.categorySlug}`} className="text-primary hover:underline">
+              <Link to={`/categories/${config.categorySlug}`} className="text-primary hover:underline">
                 {config.categoryName} →
               </Link>
               <Link to={`/${config.supplierPageSlug}`} className="text-primary hover:underline">
