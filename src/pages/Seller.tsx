@@ -114,9 +114,9 @@ const supplierFAQs = [
 const Seller = () => {
   const navigate = useNavigate();
   
-  // Temp defaults for counters - can be replaced with API later
-  const [liveSupplierCount] = useState(23);
-  const [liveLogisticsCount] = useState(7);
+  // Live counts from database - 38 suppliers, 5 logistics partners as of Jan 2025
+  const [liveSupplierCount] = useState(38);
+  const [liveLogisticsCount] = useState(5);
 
   useSEO({
     title: "Connect to Real Buyer Demand Using AI | ProcureSaathi Supplier Portal",

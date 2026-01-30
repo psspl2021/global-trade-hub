@@ -77,9 +77,9 @@ const Signup = () => {
   // Email notification consent
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
 
-  // Temp defaults for Early Partner counters - can be replaced with API later
-  const [liveSupplierCount] = useState(23);
-  const [liveLogisticsCount] = useState(7);
+  // Live counts from database - 38 suppliers, 5 logistics partners as of Jan 2025
+  const [liveSupplierCount] = useState(38);
+  const [liveLogisticsCount] = useState(5);
 
   // Referrer selection mode: 'priyanka' | 'other' | ''
   const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other' | ''>('')
