@@ -20,6 +20,7 @@ import { EmailNotificationConsent } from '@/components/signup/EmailNotificationC
 import { getTaxConfigForCountry, getCountryFromContext, clearCountryContext } from '@/data/countryTaxConfig';
 import { getCountryByCode } from '@/data/supportedCountries';
 import { EarlyPartnerOffer } from '@/components/landing/EarlyPartnerOffer';
+import { usePartnerCounts } from '@/hooks/usePartnerCounts';
 
 type FormErrors = {
   email?: string;
@@ -77,9 +78,8 @@ const Signup = () => {
   // Email notification consent
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
 
-  // Live counts from database - 38 suppliers, 5 logistics partners as of Jan 2025
-  const [liveSupplierCount] = useState(38);
-  const [liveLogisticsCount] = useState(5);
+  // Live counts from database
+  const { supplierCount, logisticsCount, isLoading: countsLoading } = usePartnerCounts();
 
   // Referrer selection mode: 'priyanka' | 'other' | ''
   const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other' | ''>('')
@@ -406,8 +406,8 @@ const Signup = () => {
               <EarlyPartnerOffer
                 showCountdown={true}
                 showNumbers={true}
-                supplierCount={liveSupplierCount ?? 0}
-                logisticsCount={liveLogisticsCount ?? 0}
+                supplierCount={countsLoading ? 38 : supplierCount}
+                logisticsCount={countsLoading ? 5 : logisticsCount}
                 ctaLabel="Complete Signup Below"
                 onCTAClick={() => {
                   // Scroll to form

@@ -37,6 +37,11 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 
+// Marketplace Pages (Auto-generated SEO pages)
+const BuyPage = lazy(() => import("./pages/marketplace/BuyPage"));
+const SupplierPage = lazy(() => import("./pages/marketplace/SupplierPage"));
+const CategoryHub = lazy(() => import("./pages/marketplace/CategoryHub"));
+
 // AEO/GEO How-To & Guide Pages
 const HowToPostRFQ = lazy(() => import("./pages/guides/HowToPostRFQ"));
 const FindVerifiedSuppliers = lazy(() => import("./pages/guides/FindVerifiedSuppliers"));
@@ -120,11 +125,16 @@ const App = () => (
                 <Route path="/affiliate" element={<AffiliatePortal />} />
                 <Route path="/affiliate-signup" element={<AffiliateSignup />} />
                 <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
+                
+                {/* B2B Marketplace Pages (Auto-generated SEO) */}
+                <Route path="/buy-:slug" element={<BuyPage />} />
+                <Route path="/:slug-suppliers" element={<SupplierPage />} />
+                <Route path="/categories/:slug" element={<CategoryHub />} />
+                
                 {/* Country-specific signal pages for geo-intelligence */}
                 {/* Phase 1: Middle East + Africa */}
                 <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
                 {/* Phase 2: USA, UK, Europe, Singapore - supported via same dynamic route */}
-                
                 {/* AEO/GEO How-To & Guide Pages */}
                 <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />
                 <Route path="/find-verified-b2b-suppliers" element={<FindVerifiedSuppliers />} />
