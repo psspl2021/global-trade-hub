@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
 import { AICitationParagraph } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
+import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { getCategoryHubConfig, nameToSlug } from '@/data/marketplacePages';
 
 export default function CategoryHub() {
@@ -95,6 +96,14 @@ export default function CategoryHub() {
             </div>
           </div>
         </section>
+
+        {/* AI Global Demand Signals */}
+        <AIGlobalDemandSignals 
+          productName={config.categoryName} 
+          categorySlug={config.slug}
+          variant="compact"
+          className="mx-4 md:mx-auto max-w-4xl my-8"
+        />
 
         {/* Products Grid - BUY Pages */}
         <section className="py-16 bg-background">

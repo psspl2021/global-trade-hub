@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
 import { AICitationParagraph } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
+import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { getBuyPageConfig, nameToSlug } from '@/data/marketplacePages';
 
 export default function BuyPage() {
@@ -96,6 +97,13 @@ export default function BuyPage() {
             </div>
           </div>
         </section>
+
+        {/* AI Global Demand Signals */}
+        <AIGlobalDemandSignals 
+          productName={config.productName} 
+          categorySlug={config.categorySlug}
+          variant="default"
+        />
 
         {/* Why ProcureSaathi Section */}
         <section className="py-16 bg-background">
