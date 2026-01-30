@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, lazy, Suspense, useState } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/landing/PageHeader";
@@ -7,6 +7,7 @@ import { StickySignupBanner } from "@/components/StickySignupBanner";
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getFAQSchema } from "@/hooks/useSEO";
 import { AILinkingSection } from "@/components/seo";
 import { EarlyPartnerOffer } from "@/components/landing/EarlyPartnerOffer";
+import { usePartnerCounts } from "@/hooks/usePartnerCounts";
 import heroBgSeller from "@/assets/hero-bg-seller.jpg";
 
 const ExitIntentPopup = lazy(() => import('@/components/landing/ExitIntentPopup').then(m => ({ default: m.ExitIntentPopup })));
@@ -114,9 +115,8 @@ const supplierFAQs = [
 const Seller = () => {
   const navigate = useNavigate();
   
-  // Live counts from database - 38 suppliers, 5 logistics partners as of Jan 2025
-  const [liveSupplierCount] = useState(38);
-  const [liveLogisticsCount] = useState(5);
+  // Live counts from database
+  const { supplierCount, logisticsCount, isLoading } = usePartnerCounts();
 
   useSEO({
     title: "Connect to Real Buyer Demand Using AI | ProcureSaathi Supplier Portal",
@@ -216,8 +216,8 @@ const Seller = () => {
         <EarlyPartnerOffer
           showCountdown={true}
           showNumbers={true}
-          supplierCount={liveSupplierCount ?? 0}
-          logisticsCount={liveLogisticsCount ?? 0}
+          supplierCount={isLoading ? 38 : supplierCount}
+          logisticsCount={isLoading ? 5 : logisticsCount}
           ctaLabel="Join as Supplier"
           onCTAClick={() => navigate('/signup?role=supplier')}
         />

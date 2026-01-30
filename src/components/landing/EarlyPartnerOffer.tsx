@@ -1,4 +1,4 @@
-import { Star, Users, Truck, Clock, Zap } from "lucide-react";
+import { Star, Users, Clock, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
