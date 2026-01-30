@@ -1,29 +1,24 @@
 import { useEffect } from 'react';
 import { injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
 
-// All supported countries with their language codes
-const SUPPORTED_COUNTRIES = [
-  { code: 'en', country: 'default', url: 'https://procuresaathi.com' },
-  { code: 'en-US', country: 'us', url: 'https://procuresaathi.com/source/usa' },
-  { code: 'en-GB', country: 'uk', url: 'https://procuresaathi.com/source/uk' },
-  { code: 'en-AU', country: 'au', url: 'https://procuresaathi.com/source/australia' },
-  { code: 'en-CA', country: 'ca', url: 'https://procuresaathi.com/source/canada' },
-  { code: 'en-AE', country: 'ae', url: 'https://procuresaathi.com/source/uae' },
-  { code: 'de-DE', country: 'de', url: 'https://procuresaathi.com/source/germany' },
-  { code: 'fr-FR', country: 'fr', url: 'https://procuresaathi.com/source/france' },
-  { code: 'es-ES', country: 'es', url: 'https://procuresaathi.com/source/spain' },
-  { code: 'nl-NL', country: 'nl', url: 'https://procuresaathi.com/source/netherlands' },
-  { code: 'it-IT', country: 'it', url: 'https://procuresaathi.com/source/italy' },
-  { code: 'ja-JP', country: 'jp', url: 'https://procuresaathi.com/source/japan' },
-  { code: 'zh-CN', country: 'cn', url: 'https://procuresaathi.com/source/china' },
-  { code: 'ru-RU', country: 'ru', url: 'https://procuresaathi.com/source/russia' },
-  { code: 'ar-SA', country: 'sa', url: 'https://procuresaathi.com/source/saudi-arabia' },
-  { code: 'en-SG', country: 'sg', url: 'https://procuresaathi.com/source/singapore' },
-  { code: 'en-ZA', country: 'za', url: 'https://procuresaathi.com/source/south-africa' },
-  { code: 'en-NG', country: 'ng', url: 'https://procuresaathi.com/source/nigeria' },
-  { code: 'en-KE', country: 'ke', url: 'https://procuresaathi.com/source/kenya' },
-  { code: 'pt-BR', country: 'br', url: 'https://procuresaathi.com/source/brazil' },
-  { code: 'en-IN', country: 'in', url: 'https://procuresaathi.com' },
+// Language-only hreflang tags (all point to same URL)
+// This tells search engines the content is available globally without URL duplication
+const LANGUAGE_HREFLANG = [
+  { code: 'x-default', url: 'https://procuresaathi.com' },
+  { code: 'en', url: 'https://procuresaathi.com' },
+  { code: 'en-IN', url: 'https://procuresaathi.com' },
+  { code: 'en-US', url: 'https://procuresaathi.com' },
+  { code: 'en-GB', url: 'https://procuresaathi.com' },
+  { code: 'en-AE', url: 'https://procuresaathi.com' },
+  { code: 'hi', url: 'https://procuresaathi.com' },
+  { code: 'ar', url: 'https://procuresaathi.com' },
+  { code: 'de', url: 'https://procuresaathi.com' },
+  { code: 'fr', url: 'https://procuresaathi.com' },
+  { code: 'es', url: 'https://procuresaathi.com' },
+  { code: 'zh', url: 'https://procuresaathi.com' },
+  { code: 'ja', url: 'https://procuresaathi.com' },
+  { code: 'pt', url: 'https://procuresaathi.com' },
+  { code: 'ru', url: 'https://procuresaathi.com' },
 ];
 
 // Global website schema for AEO/GEO optimization
@@ -189,8 +184,8 @@ export const GlobalSEO = () => {
     injectStructuredData(getB2BMarketplaceSchema(), 'global-marketplace-schema');
     injectStructuredData(getSourcingServiceSchema(), 'global-service-schema');
 
-    // Add global hreflang tags
-    SUPPORTED_COUNTRIES.forEach(({ code, url }) => {
+    // Add language-only hreflang tags (all point to same URL for SEO safety)
+    LANGUAGE_HREFLANG.forEach(({ code, url }) => {
       const existingLink = document.querySelector(`link[hreflang="${code}"]`);
       if (!existingLink) {
         const link = document.createElement('link');
@@ -200,16 +195,6 @@ export const GlobalSEO = () => {
         document.head.appendChild(link);
       }
     });
-
-    // Add x-default hreflang
-    const xDefaultLink = document.querySelector('link[hreflang="x-default"]');
-    if (!xDefaultLink) {
-      const link = document.createElement('link');
-      link.rel = 'alternate';
-      link.hreflang = 'x-default';
-      link.href = 'https://procuresaathi.com';
-      document.head.appendChild(link);
-    }
 
     // Add additional global meta tags
     const addMetaTag = (name: string, content: string) => {

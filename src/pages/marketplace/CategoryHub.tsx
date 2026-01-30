@@ -9,10 +9,11 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
-import { AICitationParagraph } from '@/components/seo';
+import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { getCategoryHubConfig, nameToSlug } from '@/data/marketplacePages';
+import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 
 export default function CategoryHub() {
   const { slug } = useParams<{ slug: string }>();
@@ -31,31 +32,44 @@ export default function CategoryHub() {
     );
   }
 
+  // Global SEO enhancement
+  const globalSEO = useGlobalSEO({
+    title: config.metaTitle,
+    description: config.metaDescription,
+    categoryName: config.categoryName,
+    canonical: `https://procuresaathi.com/categories/${config.slug}`
+  });
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": config.categoryName,
-    "description": config.metaDescription,
+    "description": globalSEO.enhancedDescription,
     "mainEntity": {
       "@type": "ItemList",
       "itemListElement": config.subcategories.slice(0, 10).map((sub, i) => ({
         "@type": "ListItem",
         "position": i + 1,
         "name": sub,
-        "url": `https://procuresaathi.lovable.app/buy-${nameToSlug(sub)}`
+        "url": `https://procuresaathi.com/buy-${nameToSlug(sub)}`
       }))
     }
   };
 
+  const serviceSchema = getGlobalServiceSchema(config.categoryName, globalSEO.countryContext);
+
   return (
     <>
       <Helmet>
-        <title>{config.metaTitle}</title>
-        <meta name="description" content={config.metaDescription} />
-        <meta property="og:title" content={config.metaTitle} />
-        <meta property="og:description" content={config.metaDescription} />
-        <link rel="canonical" href={`https://procuresaathi.lovable.app/categories/${config.slug}`} />
+        <title>{globalSEO.enhancedTitle}</title>
+        <meta name="description" content={globalSEO.enhancedDescription} />
+        <meta name="geo.region" content={globalSEO.geoMeta.region} />
+        <meta name="geo.placename" content={globalSEO.geoMeta.placename} />
+        <meta property="og:title" content={globalSEO.enhancedTitle} />
+        <meta property="og:description" content={globalSEO.enhancedDescription} />
+        <link rel="canonical" href={`https://procuresaathi.com/categories/${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
       </Helmet>
 
       <PageHeader />
@@ -103,6 +117,14 @@ export default function CategoryHub() {
           categorySlug={config.slug}
           variant="compact"
           className="mx-4 md:mx-auto max-w-4xl my-8"
+        />
+
+        {/* Global Demand Visibility - Country-aware content */}
+        <GlobalDemandVisibility 
+          productName={config.categoryName}
+          categorySlug={config.slug}
+          variant="inline"
+          className="container mx-auto px-4 mb-8"
         />
 
         {/* Products Grid - BUY Pages */}

@@ -9,10 +9,11 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
-import { AICitationParagraph } from '@/components/seo';
+import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { getBuyPageConfig, nameToSlug } from '@/data/marketplacePages';
+import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 
 export default function BuyPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -31,11 +32,20 @@ export default function BuyPage() {
     );
   }
 
+  // Global SEO enhancement with country context
+  const globalSEO = useGlobalSEO({
+    title: config.metaTitle,
+    description: config.metaDescription,
+    productName: config.productName,
+    categoryName: config.categoryName,
+    canonical: `https://procuresaathi.com/buy-${config.slug}`
+  });
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": config.productName,
-    "description": config.metaDescription,
+    "description": globalSEO.enhancedDescription,
     "category": config.categoryName,
     "brand": {
       "@type": "Brand",
@@ -52,15 +62,21 @@ export default function BuyPage() {
     }
   };
 
+  // Global service schema for international reach
+  const serviceSchema = getGlobalServiceSchema(config.productName, globalSEO.countryContext);
+
   return (
     <>
       <Helmet>
-        <title>{config.metaTitle}</title>
-        <meta name="description" content={config.metaDescription} />
-        <meta property="og:title" content={config.metaTitle} />
-        <meta property="og:description" content={config.metaDescription} />
-        <link rel="canonical" href={`https://procuresaathi.lovable.app/buy-${config.slug}`} />
+        <title>{globalSEO.enhancedTitle}</title>
+        <meta name="description" content={globalSEO.enhancedDescription} />
+        <meta name="geo.region" content={globalSEO.geoMeta.region} />
+        <meta name="geo.placename" content={globalSEO.geoMeta.placename} />
+        <meta property="og:title" content={globalSEO.enhancedTitle} />
+        <meta property="og:description" content={globalSEO.enhancedDescription} />
+        <link rel="canonical" href={`https://procuresaathi.com/buy-${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
       </Helmet>
 
       <PageHeader />
@@ -97,6 +113,13 @@ export default function BuyPage() {
             </div>
           </div>
         </section>
+
+        {/* Global Demand Visibility - Country-aware content block */}
+        <GlobalDemandVisibility 
+          productName={config.productName}
+          categorySlug={config.categorySlug}
+          variant="section"
+        />
 
         {/* AI Global Demand Signals */}
         <AIGlobalDemandSignals 
