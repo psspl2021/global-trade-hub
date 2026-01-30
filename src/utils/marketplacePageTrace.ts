@@ -15,6 +15,7 @@ import {
   getAllSupplierPageSlugs,
   getAllCategoryHubSlugs,
 } from '@/data/marketplacePages';
+import { getDemandGridStats } from '@/lib/demandGridGenerator';
 
 export interface MarketplacePageMap {
   total: number;
@@ -65,12 +66,19 @@ export const getMarketplacePageMap = (): MarketplacePageMap => {
 export const logMarketplacePages = (): void => {
   if (import.meta.env.DEV) {
     const pageMap = getMarketplacePageMap();
+    const gridStats = getDemandGridStats();
 
     console.group('📦 Marketplace Pages – SOURCE OF TRUTH');
-    console.log('BUY Pages:', pageMap.buyPages.count, pageMap.buyPages.slugs);
-    console.log('SUPPLIER Pages:', pageMap.supplierPages.count, pageMap.supplierPages.slugs);
+    console.log('BUY Pages:', pageMap.buyPages.count, pageMap.buyPages.slugs.slice(0, 5), '...');
+    console.log('SUPPLIER Pages:', pageMap.supplierPages.count, pageMap.supplierPages.slugs.slice(0, 5), '...');
     console.log('CATEGORY Pages:', pageMap.categoryPages.count, pageMap.categoryPages.slugs);
-    console.log('TOTAL Pages:', pageMap.total);
+    console.log('TOTAL SEO Pages:', pageMap.total);
+    console.log('---');
+    console.log('🌍 Demand Grid Coverage:');
+    console.log('  Countries:', gridStats.totalCountries);
+    console.log('  Categories:', gridStats.totalCategories);
+    console.log('  Products:', gridStats.totalProducts);
+    console.log('  Grid Rows:', gridStats.totalGridRows.toLocaleString());
     console.groupEnd();
   }
 };

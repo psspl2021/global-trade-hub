@@ -3,11 +3,15 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { logMarketplacePages } from "@/utils/marketplacePageTrace";
+import { logDemandGridStats } from "@/lib/demandGridGenerator";
 
 console.log("main.tsx: Starting application initialization");
 
 // DEV-only: Log marketplace page audit on startup
 logMarketplacePages();
+
+// DEV-only: Log demand grid stats on startup
+logDemandGridStats();
 
 // Global error handlers for debugging
 window.addEventListener("error", (event) => {
