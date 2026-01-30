@@ -42,35 +42,19 @@ export const EarlyPartnerOffer = ({
               </p>
             </div>
 
-            {/* Live Counters - Only show when showNumbers is true */}
+            {/* Live Counter - Only show when showNumbers is true */}
             {showNumbers && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                <div className="flex items-center justify-center gap-3 bg-muted/50 rounded-lg p-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-2xl font-bold text-foreground">
-                      {supplierCount}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Suppliers onboarded
-                    </p>
-                  </div>
+              <div className="flex items-center justify-center gap-3 bg-muted/50 rounded-lg p-4 mb-8 max-w-xs mx-auto">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
                 </div>
-
-                <div className="flex items-center justify-center gap-3 bg-muted/50 rounded-lg p-4">
-                  <div className="h-12 w-12 rounded-full bg-accent/20 flex items-center justify-center">
-                    <Truck className="h-6 w-6 text-accent-foreground" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-2xl font-bold text-foreground">
-                      {logisticsCount}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Logistics partners connected
-                    </p>
-                  </div>
+                <div className="text-left">
+                  <p className="text-2xl font-bold text-foreground">
+                    {supplierCount + logisticsCount}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Partners onboarded
+                  </p>
                 </div>
               </div>
             )}
