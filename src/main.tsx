@@ -2,8 +2,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { logMarketplacePages } from "@/utils/marketplacePageTrace";
 
 console.log("main.tsx: Starting application initialization");
+
+// DEV-only: Log marketplace page audit on startup
+logMarketplacePages();
 
 // Global error handlers for debugging
 window.addEventListener("error", (event) => {
