@@ -104,6 +104,8 @@ import {
   type DIMetrics,
   type ScoreFactors
 } from "@/lib/demandIntelligence";
+import { countries } from "@/data/countries";
+import { DemandGrid } from "./DemandGrid";
 
 // ============================================================
 // TYPES
@@ -195,7 +197,7 @@ export function DemandIntelligenceEngine() {
   // Scan parameters
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState("india");
+  const [selectedCountry, setSelectedCountry] = useState("in"); // India ISO code
   const [availableSubcategories, setAvailableSubcategories] = useState<string[]>([]);
   
   // Filters
@@ -203,13 +205,8 @@ export function DemandIntelligenceEngine() {
   const [decisionFilter, setDecisionFilter] = useState<string>("pending");
   
   const categories = getMappedCategories();
-  const countries = [
-    { value: "india", label: "India" },
-    { value: "uae", label: "UAE" },
-    { value: "usa", label: "USA" },
-    { value: "germany", label: "Germany" },
-    { value: "saudi-arabia", label: "Saudi Arabia" },
-  ];
+  // Use ALL countries from countries.ts
+  const countryOptions = countries.map(c => ({ value: c.code.toLowerCase(), label: c.name }));
 
   // ============================================================
   // DATA FETCHING
@@ -1006,10 +1003,14 @@ export function DemandIntelligenceEngine() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="inbox" className="flex items-center gap-1">
             <Target className="w-4 h-4" />
             Signal Inbox
+          </TabsTrigger>
+          <TabsTrigger value="grid" className="flex items-center gap-1">
+            <Globe className="w-4 h-4" />
+            Demand Grid
           </TabsTrigger>
           <TabsTrigger value="margin" className="flex items-center gap-1">
             <DollarSign className="w-4 h-4" />
@@ -1028,6 +1029,13 @@ export function DemandIntelligenceEngine() {
             Settings
           </TabsTrigger>
         </TabsList>
+
+        {/* ============================================================ */}
+        {/* DEMAND GRID TAB (NEW - Auto-Generated from Taxonomy) */}
+        {/* ============================================================ */}
+        <TabsContent value="grid">
+          <DemandGrid />
+        </TabsContent>
 
         {/* ============================================================ */}
         {/* SIGNAL INBOX TAB */}
@@ -1469,8 +1477,8 @@ export function DemandIntelligenceEngine() {
                     <SelectTrigger>
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((c) => (
+                    <SelectContent className="max-h-[300px]">
+                      {countryOptions.map((c) => (
                         <SelectItem key={c.value} value={c.value}>
                           {c.label}
                         </SelectItem>
