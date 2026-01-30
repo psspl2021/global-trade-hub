@@ -4053,6 +4053,8 @@ export type Database = {
           deadline: string
           delivery_location: string
           description: string
+          destination_country: string | null
+          destination_state: string | null
           effective_state: string | null
           fast_track: boolean | null
           id: string
@@ -4093,6 +4095,8 @@ export type Database = {
           deadline: string
           delivery_location: string
           description: string
+          destination_country?: string | null
+          destination_state?: string | null
           effective_state?: string | null
           fast_track?: boolean | null
           id?: string
@@ -4133,6 +4137,8 @@ export type Database = {
           deadline?: string
           delivery_location?: string
           description?: string
+          destination_country?: string | null
+          destination_state?: string | null
           effective_state?: string | null
           fast_track?: boolean | null
           id?: string
