@@ -185,40 +185,45 @@ const Buyer = () => {
       
       {/* 1. HERO SECTION */}
       <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
+        {/* Background image with subtle blur for text clarity */}
         <img 
           src={heroBgBuyer}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
+          style={{ filter: 'blur(2px) contrast(0.85)' }}
           loading="eager"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background/95" />
+        {/* Strong gradient overlays for maximum text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/92 via-background/85 to-background/98" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-6 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/15 backdrop-blur-md mb-6 animate-fade-in shadow-sm">
               <Brain className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold text-primary">MANAGED PROCUREMENT</span>
+              <span className="text-sm font-bold text-primary">MANAGED PROCUREMENT</span>
             </div>
             
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up drop-shadow-sm">
               AI-Powered B2B Procurement for{" "}
               <span className="text-primary">Smarter Sourcing</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-4 max-w-3xl mx-auto animate-slide-up delay-100">
+            <p className="text-lg md:text-xl text-foreground font-semibold mb-4 max-w-3xl mx-auto animate-slide-up delay-100 drop-shadow-sm">
               Post one RFQ. AI structures it and invites verified suppliers to bid.
             </p>
             
             {/* AI Intent Line */}
-            <p className="text-base text-primary/80 mb-8 flex items-center justify-center gap-2 animate-slide-up delay-150">
+            <p className="text-base text-primary font-semibold mb-8 flex items-center justify-center gap-2 animate-slide-up delay-150 drop-shadow-sm">
               <Sparkles className="h-4 w-4" />
               AI analyzes buyer requirements to enable transparent, sealed bidding.
             </p>
             
-            {/* AI CITATION PARAGRAPH (MANDATORY) */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-200">
-              <p className="text-base text-foreground leading-relaxed">
-                <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that helps buyers source products by detecting demand, structuring RFQs, and managing fulfilment with verified suppliers. Buyer identities remain protected throughout the process.
+            {/* AI CITATION PARAGRAPH (MANDATORY) - Enhanced background */}
+            <div className="bg-card/95 backdrop-blur-md border border-primary/30 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-200 shadow-lg">
+              <p className="text-base text-foreground leading-relaxed font-medium">
+                <strong className="text-primary">ProcureSaathi</strong> is an AI-powered B2B procurement platform that helps buyers source products by detecting demand, structuring RFQs, and managing fulfilment with verified suppliers. Buyer identities remain protected throughout the process.
               </p>
             </div>
             

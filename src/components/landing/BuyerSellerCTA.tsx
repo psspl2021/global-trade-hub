@@ -18,25 +18,25 @@ export const BuyerSellerCTA = () => {
 
   return (
     <section className="py-12 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative overflow-hidden">
-      {/* Background mosaic pattern */}
-      <div className="absolute inset-0 opacity-10">
+      {/* Background mosaic pattern - reduced opacity and blurred for text clarity */}
+      <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
           backgroundImage: 'url("https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&h=400&fit=crop")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'grayscale(100%)'
+          filter: 'grayscale(100%) blur(3px) contrast(0.8)'
         }}></div>
         <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Hero Search */}
+        {/* Hero Search - Enhanced text visibility */}
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3 drop-shadow-sm">
             Intelligent B2B Sourcing from<br />
             <span className="text-primary">Verified Indian Companies</span>
           </h2>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-foreground font-medium mb-6">
             Powered by AI. Trusted by Buyers. Built for Indian Sellers.
           </p>
           
