@@ -34,12 +34,14 @@ Disallow: /api/
 Disallow: /reset-password
 Disallow: /*.json$
 
-# Allow critical assets
+# Allow critical assets and AASA files
 Allow: /sitemap.xml
 Allow: /robots.txt
 Allow: /favicon.png
 Allow: /procuresaathi-logo.png
 Allow: /og-early-adopter.png
+Allow: /apple-app-site-association
+Allow: /.well-known/apple-app-site-association
 
 # Sitemaps
 Sitemap: https://procuresaathi.com/sitemap.xml
