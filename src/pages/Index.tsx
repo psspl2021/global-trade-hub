@@ -142,15 +142,16 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card/95 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-soft">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+      <header className="bg-card/98 backdrop-blur-md border-b border-border/60 sticky top-0 z-50 shadow-md">
+        <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
+          {/* Logo container with enhanced visibility */}
+          <div className="flex items-center p-1.5 -ml-1.5 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform hover:scale-105"
-              width={80}
-              height={80}
+              className="h-11 sm:h-12 md:h-14 w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-sm contrast-[1.05]"
+              width={100}
+              height={56}
               loading="eager"
             />
           </div>
@@ -167,10 +168,10 @@ const Index = () => {
           </nav>
           
           <div className="flex items-center gap-2 sm:gap-3">
-            <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/login')}>
+            <Button variant="ghost" size="sm" className="font-medium h-9" onClick={() => navigate('/login')}>
               Login
             </Button>
-            <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" onClick={() => navigate('/signup')}>
+            <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 h-9 px-5" onClick={() => navigate('/signup')}>
               Join Now
             </Button>
             

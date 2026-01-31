@@ -28,18 +28,19 @@ export const PageHeader = () => {
   };
 
   return (
-    <header className="bg-card/95 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-soft">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+    <header className="bg-card/98 backdrop-blur-md border-b border-border/60 sticky top-0 z-50 shadow-md">
+      <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
+        {/* Logo container with enhanced visibility */}
         <div 
-          className="flex items-center gap-2 cursor-pointer group"
+          className="flex items-center cursor-pointer group p-1.5 -ml-1.5 rounded-lg hover:bg-primary/5 transition-colors"
           onClick={() => navigate('/')}
         >
           <img 
             src={procureSaathiLogo} 
             alt="ProcureSaathi Logo" 
-            className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105"
-            width={80}
-            height={80}
+            className="h-11 sm:h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-[1.02] drop-shadow-sm contrast-[1.05]"
+            width={100}
+            height={56}
             loading="eager"
           />
         </div>
@@ -67,14 +68,14 @@ export const PageHeader = () => {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="font-medium hidden sm:inline-flex" 
+            className="font-medium hidden sm:inline-flex h-9" 
             onClick={() => navigate('/login')}
           >
             Login
           </Button>
           <Button 
             size="sm" 
-            className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" 
+            className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 h-9 px-5" 
             onClick={() => navigate('/signup')}
           >
             Join Now
