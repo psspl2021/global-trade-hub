@@ -106,6 +106,7 @@ import {
 } from "@/lib/demandIntelligence";
 import { countries } from "@/data/countries";
 import { DemandGrid } from "./DemandGrid";
+import { SmartDemandGrid } from "./SmartDemandGrid";
 
 // ============================================================
 // TYPES
@@ -1003,14 +1004,18 @@ export function DemandIntelligenceEngine() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="inbox" className="flex items-center gap-1">
             <Target className="w-4 h-4" />
             Signal Inbox
           </TabsTrigger>
           <TabsTrigger value="grid" className="flex items-center gap-1">
+            <Brain className="w-4 h-4" />
+            Smart Grid
+          </TabsTrigger>
+          <TabsTrigger value="taxonomy-grid" className="flex items-center gap-1">
             <Globe className="w-4 h-4" />
-            Demand Grid
+            Taxonomy Grid
           </TabsTrigger>
           <TabsTrigger value="margin" className="flex items-center gap-1">
             <DollarSign className="w-4 h-4" />
@@ -1034,6 +1039,11 @@ export function DemandIntelligenceEngine() {
         {/* DEMAND GRID TAB (NEW - Auto-Generated from Taxonomy) */}
         {/* ============================================================ */}
         <TabsContent value="grid">
+          <SmartDemandGrid />
+        </TabsContent>
+        
+        {/* TAXONOMY GRID (Original) */}
+        <TabsContent value="taxonomy-grid">
           <DemandGrid />
         </TabsContent>
 

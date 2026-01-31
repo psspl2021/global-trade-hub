@@ -11,6 +11,7 @@ import GlobalSEO from "@/components/GlobalSEO";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { VisitorTracker } from "@/components/VisitorTracker";
 import { SEMTracker } from "@/components/SEMTracker";
+import { LanguagePrompt } from "@/components/landing/LanguagePrompt";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -99,6 +100,7 @@ const App = () => (
           <BrowserRouter>
             <VisitorTracker />
             <SEMTracker />
+            <LanguagePrompt />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Index />} />

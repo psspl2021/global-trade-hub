@@ -3,3 +3,4 @@ export { AEOFAQSection } from './AEOFAQSection';
 export { AILinkingSection } from './AILinkingSection';
 export { GlobalDemandVisibility } from './GlobalDemandVisibility';
 export { TrustSignalsGlobal } from './TrustSignalsGlobal';
+export { SEODemandSensor } from './SEODemandSensor';

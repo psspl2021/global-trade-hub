@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { logMarketplacePages } from "@/utils/marketplacePageTrace";
 import { logDemandGridStats } from "@/lib/demandGridGenerator";
+import { logDemandCaptureStats } from "@/lib/demandSignalCapture";
 
 console.log("main.tsx: Starting application initialization");
 
@@ -12,6 +13,9 @@ logMarketplacePages();
 
 // DEV-only: Log demand grid stats on startup
 logDemandGridStats();
+
+// DEV-only: Log demand signal capture stats
+logDemandCaptureStats();
 
 // Global error handlers for debugging
 window.addEventListener("error", (event) => {
