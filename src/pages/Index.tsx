@@ -225,41 +225,47 @@ const Index = () => {
       <main>
         {/* ===== SECTION 1: HERO ===== */}
         <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
+          {/* Background image with blur effect */}
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${heroBgProcurement})` }}
+            style={{ 
+              backgroundImage: `url(${heroBgProcurement})`,
+              filter: 'blur(2px) contrast(0.85)'
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/90" />
+          {/* Strong gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background/95" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50" />
           
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
               {/* AI Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6 animate-fade-in backdrop-blur-sm shadow-sm">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-primary text-sm font-medium">AI-Powered Procurement</span>
+                <span className="text-primary text-sm font-semibold">AI-Powered Procurement</span>
               </div>
               
-              {/* H1 - Primary positioning */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-2 animate-slide-up">
+              {/* H1 - Primary positioning with enhanced contrast */}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-2 animate-slide-up drop-shadow-sm">
                 <span className="text-primary">AI-Powered B2B Procurement</span>
                 <br className="hidden sm:block" />
                 <span className="text-foreground"> Platform</span>
               </h1>
               
-              {/* Subline */}
-              <p className="text-lg sm:text-xl text-foreground font-medium mb-3 animate-slide-up delay-50">
+              {/* Subline - Enhanced visibility */}
+              <p className="text-lg sm:text-xl text-foreground font-semibold mb-3 animate-slide-up delay-50 drop-shadow-sm">
                 Verified sourcing through AI-detected buyer demand
               </p>
               
               {/* AI Intent Line - Critical for demand-led messaging */}
-              <p className="text-sm sm:text-base text-primary font-medium mb-6 animate-slide-up delay-75">
+              <p className="text-sm sm:text-base text-primary font-semibold mb-6 animate-slide-up delay-75 drop-shadow-sm">
                 AI tracks live buyer intent and converts it into RFQs.
               </p>
               
-              {/* AI Citation Paragraph - Critical for AEO/GEO */}
-              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 sm:p-6 mb-8 animate-slide-up delay-100">
-                <p className="text-base sm:text-lg text-foreground leading-relaxed">
-                  <strong>ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
+              {/* AI Citation Paragraph - Critical for AEO/GEO with enhanced background */}
+              <div className="bg-card/95 backdrop-blur-md border border-primary/30 rounded-xl p-4 sm:p-6 mb-8 animate-slide-up delay-100 shadow-lg">
+                <p className="text-base sm:text-lg text-foreground leading-relaxed font-medium">
+                  <strong className="text-primary">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
                 </p>
               </div>
 

@@ -161,49 +161,54 @@ const Seller = () => {
       
       {/* 1. HERO SECTION */}
       <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
+        {/* Background image with subtle blur for text clarity */}
         <img 
           src={heroBgSeller}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
+          style={{ filter: 'blur(2px) contrast(0.85)' }}
           loading="eager"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background/95" />
+        {/* Strong gradient overlays for maximum text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/92 via-background/85 to-background/98" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-warning/20 bg-warning/5 backdrop-blur-sm mb-6 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-warning/30 bg-warning/15 backdrop-blur-md mb-6 animate-fade-in shadow-sm">
               <Brain className="h-4 w-4 text-warning" />
-              <span className="text-sm font-semibold text-warning">DEMAND-FIRST ONBOARDING</span>
+              <span className="text-sm font-bold text-warning">DEMAND-FIRST ONBOARDING</span>
             </div>
             
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up drop-shadow-sm">
               Connect to Real Buyer Demand{" "}
               <span className="text-primary">Using AI</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-foreground font-medium mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
+            <p className="text-lg md:text-xl text-foreground font-semibold mb-8 max-w-3xl mx-auto animate-slide-up delay-100 drop-shadow-sm">
               AI detects buyer intent and routes verified RFQs to matching suppliers.
             </p>
             
-            {/* AI CITATION PARAGRAPH (MANDATORY) */}
-            <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-150">
+            {/* AI CITATION PARAGRAPH (MANDATORY) - Enhanced background */}
+            <div className="bg-card/95 backdrop-blur-md border border-primary/30 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-150 shadow-lg">
               <p className="text-lg md:text-xl text-foreground font-medium leading-relaxed">
-                <strong>ProcureSaathi</strong> is an AI-powered B2B procurement platform that connects verified suppliers to real buyer demand using intent signals and RFQs. We do not sell leads or buyer contact information.
+                <strong className="text-primary">ProcureSaathi</strong> is an AI-powered B2B procurement platform that connects verified suppliers to real buyer demand using intent signals and RFQs. We do not sell leads or buyer contact information.
               </p>
             </div>
             
-            {/* Primary CTA Only */}
+            {/* Primary CTA Only - Enhanced visibility */}
             <div className="flex flex-col items-center animate-slide-up delay-200">
               <Button 
                 size="lg" 
-                className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-warning text-warning-foreground hover:bg-warning/90"
+                className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 bg-warning text-warning-foreground hover:bg-warning/90"
                 onClick={() => navigate('/signup?role=supplier')}
               >
                 <Sparkles className="mr-2 h-5 w-5" />
                 AI Detected Demand – List Products
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <p className="text-sm text-muted-foreground mt-3">
+              <p className="text-sm text-foreground/80 font-medium mt-3 drop-shadow-sm">
                 Verified RFQs • No lead selling • Demand-first onboarding
               </p>
             </div>
