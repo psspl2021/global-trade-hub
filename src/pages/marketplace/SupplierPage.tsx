@@ -11,13 +11,14 @@ import {
 import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
 import { EarlyPartnerOffer } from '@/components/landing/EarlyPartnerOffer';
-import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal } from '@/components/seo';
+import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal, SEODemandSensor } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { AIDemandTrendTimeline } from '@/components/ai/AIDemandTrendTimeline';
 import { getSupplierPageConfig } from '@/data/marketplacePages';
 import { usePartnerCounts } from '@/hooks/usePartnerCounts';
 import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
+import { useDemandCapture } from '@/hooks/useDemandCapture';
 
 export default function SupplierPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -76,6 +77,14 @@ export default function SupplierPage() {
       </Helmet>
 
       <PageHeader />
+
+      {/* SEO Demand Sensor - AI learns from this page visit */}
+      <SEODemandSensor 
+        pageType="supplier"
+        categorySlug={config.categorySlug || productSlug}
+        subcategorySlug={productSlug}
+        productSlug={productSlug}
+      />
 
       <main className="min-h-screen bg-background">
         {/* Hero Section */}

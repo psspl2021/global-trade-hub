@@ -9,11 +9,12 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
-import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal } from '@/components/seo';
+import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal, SEODemandSensor } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { getCategoryHubConfig, nameToSlug } from '@/data/marketplacePages';
 import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
+import { useDemandCapture } from '@/hooks/useDemandCapture';
 
 export default function CategoryHub() {
   const { slug } = useParams<{ slug: string }>();
@@ -73,6 +74,12 @@ export default function CategoryHub() {
       </Helmet>
 
       <PageHeader />
+
+      {/* SEO Demand Sensor - AI learns from this page visit */}
+      <SEODemandSensor 
+        pageType="hub"
+        categorySlug={config.slug}
+      />
 
       <main className="min-h-screen bg-background">
         {/* Hero Section */}

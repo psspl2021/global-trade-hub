@@ -9,15 +9,17 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { Footer } from '@/components/landing/Footer';
-import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal } from '@/components/seo';
+import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal, SEODemandSensor } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { getBuyPageConfig, nameToSlug } from '@/data/marketplacePages';
 import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
+import { useDemandCapture } from '@/hooks/useDemandCapture';
 
 export default function BuyPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { captureRFQClick } = useDemandCapture();
   
   const config = slug ? getBuyPageConfig(slug) : undefined;
   
@@ -31,6 +33,12 @@ export default function BuyPage() {
       </div>
     );
   }
+  
+  // Handle RFQ button click with demand capture
+  const handleRFQClick = () => {
+    captureRFQClick(config.categorySlug, config.slug, 'product');
+    navigate('/post-rfq');
+  };
 
   // Global SEO enhancement with country context
   const globalSEO = useGlobalSEO({
@@ -81,6 +89,14 @@ export default function BuyPage() {
 
       <PageHeader />
 
+      {/* SEO Demand Sensor - AI learns from this page visit */}
+      <SEODemandSensor 
+        pageType="product"
+        categorySlug={config.categorySlug}
+        subcategorySlug={config.slug}
+        productSlug={config.slug}
+      />
+
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="py-16 md:py-24 bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -102,7 +118,7 @@ export default function BuyPage() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" onClick={() => navigate('/post-rfq')} className="gap-2">
+                <Button size="lg" onClick={handleRFQClick} className="gap-2">
                   <FileText className="h-5 w-5" />
                   Post RFQ – Get Quotes
                 </Button>
