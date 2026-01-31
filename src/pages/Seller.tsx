@@ -159,56 +159,59 @@ const Seller = () => {
     <div className="min-h-screen bg-background">
       <PageHeader />
       
-      {/* 1. HERO SECTION */}
-      <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
-        {/* Background image with subtle blur for text clarity */}
+      {/* 1. HERO SECTION - Premium glassmorphism design */}
+      <section className="relative py-20 md:py-28 lg:py-32 overflow-hidden">
+        {/* Background image - visible and premium, warehouse/industrial imagery */}
         <img 
           src={heroBgSeller}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'blur(2px) contrast(0.85)' }}
+          style={{ filter: 'contrast(0.95) brightness(0.85)' }}
           loading="eager"
           fetchPriority="high"
         />
-        {/* Strong gradient overlays for maximum text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/92 via-background/85 to-background/98" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
+        {/* Subtle gradient overlay (50-65%) - allows image colors to show */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/50 to-background/65" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/25 via-transparent to-background/25" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-warning/30 bg-warning/15 backdrop-blur-md mb-6 animate-fade-in shadow-sm">
-              <Brain className="h-4 w-4 text-warning" />
-              <span className="text-sm font-bold text-warning">DEMAND-FIRST ONBOARDING</span>
+            {/* Badge - glassmorphism style */}
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/10 backdrop-blur-md border border-white/20 mb-8 animate-fade-in shadow-lg">
+              <Brain className="h-4 w-4 text-warning drop-shadow-md" />
+              <span className="text-sm font-bold text-warning drop-shadow-sm">DEMAND-FIRST ONBOARDING</span>
             </div>
             
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-6 animate-slide-up drop-shadow-sm">
+            {/* H1 - Bold, high contrast, sits directly on overlay */}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold mb-6 animate-slide-up">
               Connect to Real Buyer Demand{" "}
-              <span className="text-primary">Using AI</span>
+              <span className="text-primary drop-shadow-lg">Using AI</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-foreground font-semibold mb-8 max-w-3xl mx-auto animate-slide-up delay-100 drop-shadow-sm">
+            {/* Subline - directly on overlay, no box */}
+            <p className="text-xl md:text-2xl text-foreground font-bold mb-10 max-w-3xl mx-auto animate-slide-up delay-100 drop-shadow-md">
               AI detects buyer intent and routes verified RFQs to matching suppliers.
             </p>
             
-            {/* AI CITATION PARAGRAPH (MANDATORY) - Enhanced background */}
-            <div className="bg-card/95 backdrop-blur-md border border-primary/30 rounded-xl p-6 mb-10 max-w-3xl mx-auto animate-slide-up delay-150 shadow-lg">
-              <p className="text-lg md:text-xl text-foreground font-medium leading-relaxed">
+            {/* AI CITATION PARAGRAPH - Glassmorphism style, NOT white box */}
+            <div className="bg-background/10 backdrop-blur-lg border border-white/15 rounded-2xl p-6 md:p-8 mb-12 max-w-3xl mx-auto animate-slide-up delay-150 shadow-xl">
+              <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed drop-shadow-sm">
                 <strong className="text-primary">ProcureSaathi</strong> is an AI-powered B2B procurement platform that connects verified suppliers to real buyer demand using intent signals and RFQs. We do not sell leads or buyer contact information.
               </p>
             </div>
             
-            {/* Primary CTA Only - Enhanced visibility */}
+            {/* Primary CTA - Enhanced visibility */}
             <div className="flex flex-col items-center animate-slide-up delay-200">
               <Button 
                 size="lg" 
-                className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 bg-warning text-warning-foreground hover:bg-warning/90"
+                className="h-14 md:h-16 px-10 md:px-14 text-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 bg-warning text-warning-foreground hover:bg-warning/90"
                 onClick={() => navigate('/signup?role=supplier')}
               >
                 <Sparkles className="mr-2 h-5 w-5" />
                 AI Detected Demand – List Products
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <p className="text-sm text-foreground/80 font-medium mt-3 drop-shadow-sm">
+              <p className="text-sm text-foreground/80 font-bold mt-4 drop-shadow-sm">
                 Verified RFQs • No lead selling • Demand-first onboarding
               </p>
             </div>

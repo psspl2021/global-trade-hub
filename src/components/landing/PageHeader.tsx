@@ -29,18 +29,18 @@ export const PageHeader = () => {
 
   return (
     <header className="bg-card/98 backdrop-blur-md border-b border-border/60 sticky top-0 z-50 shadow-md">
-      <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
-        {/* Logo container with enhanced visibility */}
+      <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+        {/* Logo container - INCREASED SIZE by 25-35% */}
         <div 
-          className="flex items-center cursor-pointer group p-1.5 -ml-1.5 rounded-lg hover:bg-primary/5 transition-colors"
+          className="flex items-center cursor-pointer group p-1 -ml-1 rounded-lg hover:bg-primary/5 transition-colors"
           onClick={() => navigate('/')}
         >
           <img 
             src={procureSaathiLogo} 
             alt="ProcureSaathi Logo" 
-            className="h-11 sm:h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-[1.02] drop-shadow-sm contrast-[1.05] mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
-            width={100}
-            height={56}
+            className="h-14 sm:h-16 md:h-[72px] w-auto object-contain transition-transform group-hover:scale-[1.02] drop-shadow-md contrast-[1.1] mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
+            width={140}
+            height={72}
             loading="eager"
           />
         </div>

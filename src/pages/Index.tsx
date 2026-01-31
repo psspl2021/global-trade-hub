@@ -143,15 +143,15 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card/98 backdrop-blur-md border-b border-border/60 sticky top-0 z-50 shadow-md">
-        <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
-          {/* Logo container with enhanced visibility */}
-          <div className="flex items-center p-1.5 -ml-1.5 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+          {/* Logo container with enhanced visibility - INCREASED SIZE */}
+          <div className="flex items-center p-1 -ml-1 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-11 sm:h-12 md:h-14 w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-sm contrast-[1.05] mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
-              width={100}
-              height={56}
+              className="h-14 sm:h-16 md:h-[72px] w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-md contrast-[1.1] mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
+              width={140}
+              height={72}
               loading="eager"
             />
           </div>
@@ -225,53 +225,53 @@ const Index = () => {
 
       <main>
         {/* ===== SECTION 1: HERO ===== */}
-        <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
-          {/* Background image with blur effect */}
+        <section className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
+          {/* Background image - visible and premium */}
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ 
               backgroundImage: `url(${heroBgProcurement})`,
-              filter: 'blur(2px) contrast(0.85)'
+              filter: 'contrast(0.95) brightness(0.9)'
             }}
           />
-          {/* Strong gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background/95" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50" />
+          {/* Subtle gradient overlay (50-60% opacity) - allows image to show through */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/50 to-background/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30" />
           
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              {/* AI Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6 animate-fade-in backdrop-blur-sm shadow-sm">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-primary text-sm font-semibold">AI-Powered Procurement</span>
+              {/* AI Badge - glassmorphism style */}
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/10 backdrop-blur-md border border-white/20 mb-8 animate-fade-in shadow-lg">
+                <Sparkles className="h-4 w-4 text-primary drop-shadow-md" />
+                <span className="text-primary text-sm font-bold drop-shadow-sm">AI-Powered Procurement</span>
               </div>
               
-              {/* H1 - Primary positioning with enhanced contrast */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-2 animate-slide-up drop-shadow-sm">
-                <span className="text-primary">AI-Powered B2B Procurement</span>
+              {/* H1 - Bold, high contrast, directly on overlay */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold mb-6 leading-tight px-2 animate-slide-up">
+                <span className="text-primary drop-shadow-lg">AI-Powered B2B Procurement</span>
                 <br className="hidden sm:block" />
-                <span className="text-foreground"> Platform</span>
+                <span className="text-foreground drop-shadow-md"> Platform</span>
               </h1>
               
-              {/* Subline - Enhanced visibility */}
-              <p className="text-lg sm:text-xl text-foreground font-semibold mb-3 animate-slide-up delay-50 drop-shadow-sm">
+              {/* Subline - directly on overlay, no box */}
+              <p className="text-xl sm:text-2xl text-foreground font-bold mb-4 animate-slide-up delay-50 drop-shadow-md">
                 Verified sourcing through AI-detected buyer demand
               </p>
               
-              {/* AI Intent Line - Critical for demand-led messaging */}
-              <p className="text-sm sm:text-base text-primary font-semibold mb-6 animate-slide-up delay-75 drop-shadow-sm">
+              {/* AI Intent Line */}
+              <p className="text-base sm:text-lg text-primary font-bold mb-10 animate-slide-up delay-75 drop-shadow-md">
                 AI tracks live buyer intent and converts it into RFQs.
               </p>
               
-              {/* AI Citation Paragraph - Critical for AEO/GEO with enhanced background */}
-              <div className="bg-card/95 backdrop-blur-md border border-primary/30 rounded-xl p-4 sm:p-6 mb-8 animate-slide-up delay-100 shadow-lg">
-                <p className="text-base sm:text-lg text-foreground leading-relaxed font-medium">
+              {/* AI Citation Paragraph - Glassmorphism style, subtle not white box */}
+              <div className="bg-background/10 backdrop-blur-lg border border-white/15 rounded-2xl p-5 sm:p-7 mb-10 animate-slide-up delay-100 shadow-xl max-w-3xl mx-auto">
+                <p className="text-base sm:text-lg text-foreground leading-relaxed font-semibold drop-shadow-sm">
                   <strong className="text-primary">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
                 </p>
               </div>
 
               {/* ===== SECTION 2: HERO TRUST BADGES (NON-NUMERIC) ===== */}
-              <div className="mb-8 animate-slide-up delay-150">
+              <div className="mb-10 animate-slide-up delay-150">
                 <HeroTrustBadges />
               </div>
 
@@ -279,7 +279,7 @@ const Index = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 px-2 animate-slide-up delay-200">
                 <Button 
                   size="lg" 
-                  className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-12 font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 gradient-primary"
+                  className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-12 font-bold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 gradient-primary"
                   onClick={() => navigate('/post-rfq')}
                 >
                   <FileText className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
@@ -288,7 +288,7 @@ const Index = () => {
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="h-14 sm:h-16 text-base sm:text-lg px-6 sm:px-10 font-medium bg-card/80 backdrop-blur-sm hover:bg-warning/10 border-warning/50 hover:border-warning text-warning-foreground transition-all"
+                  className="h-14 sm:h-16 text-base sm:text-lg px-6 sm:px-10 font-bold bg-background/20 backdrop-blur-md hover:bg-warning/20 border-warning/60 hover:border-warning text-warning transition-all shadow-lg"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
                   <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-warning" />
@@ -296,7 +296,7 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="mt-4 animate-slide-up delay-250">
+              <div className="mt-6 animate-slide-up delay-250">
                 <DemoRequestForm />
               </div>
             </div>
