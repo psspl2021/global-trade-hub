@@ -4,3 +4,4 @@ export { AILinkingSection } from './AILinkingSection';
 export { GlobalDemandVisibility } from './GlobalDemandVisibility';
 export { TrustSignalsGlobal } from './TrustSignalsGlobal';
 export { SEODemandSensor } from './SEODemandSensor';
+export { SEOStaticRenderer } from './SEOStaticRenderer';

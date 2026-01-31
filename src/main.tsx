@@ -27,6 +27,16 @@ if (import.meta.env.DEV) {
   
   // Log demand signal capture stats
   logDemandCaptureStats();
+  
+  // Expose audit functions globally for debugging
+  (window as any).logMarketplacePages = logMarketplacePages;
+  (window as any).logDemandGridStats = logDemandGridStats;
+  (window as any).logDemandCaptureStats = logDemandCaptureStats;
+  
+  console.log("🔧 DEV: Audit functions exposed globally:");
+  console.log("   - logMarketplacePages()");
+  console.log("   - logDemandGridStats()");
+  console.log("   - logDemandCaptureStats()");
 }
 
 // Global error handlers for debugging
