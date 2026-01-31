@@ -14,6 +14,7 @@ import { SEMTracker } from "@/components/SEMTracker";
 import { LanguagePrompt } from "@/components/landing/LanguagePrompt";
 import { isBot } from "@/utils/isBot";
 import { SEOStaticRenderer } from "@/components/seo/SEOStaticRenderer";
+import { isMarketplacePath } from "@/pages/marketplace/UniversalSEORoute";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -40,10 +41,11 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 
-// Marketplace Pages (Auto-generated SEO pages)
-const BuyPage = lazy(() => import("./pages/marketplace/BuyPage"));
-const SupplierPage = lazy(() => import("./pages/marketplace/SupplierPage"));
-const CategoryHub = lazy(() => import("./pages/marketplace/CategoryHub"));
+// Marketplace Pages - Universal SEO Route Handler
+const MarketplaceBuyPage = lazy(() => import("./pages/marketplace/BuyPage"));
+const MarketplaceSupplierPage = lazy(() => import("./pages/marketplace/SupplierPage"));
+const MarketplaceCategoryHub = lazy(() => import("./pages/marketplace/CategoryHub"));
+const UniversalSlugResolver = lazy(() => import("./pages/marketplace/UniversalSlugResolver"));
 
 // AEO/GEO How-To & Guide Pages
 const HowToPostRFQ = lazy(() => import("./pages/guides/HowToPostRFQ"));
@@ -140,15 +142,14 @@ const BotAwareRouter = () => {
         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
         <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
         
-        {/* B2B Marketplace Pages (Auto-generated SEO) */}
-        <Route path="/buy-:slug" element={<BuyPage />} />
-        <Route path="/:slug-suppliers" element={<SupplierPage />} />
-        <Route path="/categories/:slug" element={<CategoryHub />} />
+        {/* B2B Marketplace Pages - BUY pages handled via catch-all below */}
+        
+        {/* CATEGORY HUB pages: /categories/{category-slug} */}
+        <Route path="/categories/:slug" element={<MarketplaceCategoryHub />} />
         
         {/* Country-specific signal pages for geo-intelligence */}
-        {/* Phase 1: Middle East + Africa */}
         <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
-        {/* Phase 2: USA, UK, Europe, Singapore - supported via same dynamic route */}
+        
         {/* AEO/GEO How-To & Guide Pages */}
         <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />
         <Route path="/find-verified-b2b-suppliers" element={<FindVerifiedSuppliers />} />
@@ -187,6 +188,10 @@ const BotAwareRouter = () => {
         <Route path="/singapore/ai-b2b-procurement" element={<GeoSingapore />} />
         
         <Route path="/auth" element={<Navigate to="/login" replace />} />
+        
+        {/* Universal catch-all for marketplace pages */}
+        <Route path="/:slug" element={<UniversalSlugResolver />} />
+        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
