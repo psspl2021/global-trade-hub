@@ -8,14 +8,26 @@ import { logDemandCaptureStats } from "@/lib/demandSignalCapture";
 
 console.log("main.tsx: Starting application initialization");
 
-// DEV-only: Log marketplace page audit on startup
-logMarketplacePages();
-
-// DEV-only: Log demand grid stats on startup
-logDemandGridStats();
-
-// DEV-only: Log demand signal capture stats
-logDemandCaptureStats();
+// DEV-only: Log AI Demand Intelligence System stats on startup
+if (import.meta.env.DEV) {
+  console.group("🧠 AI DEMAND INTELLIGENCE SYSTEM");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("📡 SEO pages act as demand sensors");
+  console.log("🔒 Country detection is READ-ONLY (locked)");
+  console.log("📊 Signal states: Detected → Confirmed → Active");
+  console.log("🎯 Lane recommendations auto-generated from signals");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.groupEnd();
+  
+  // Log marketplace page audit
+  logMarketplacePages();
+  
+  // Log demand grid stats
+  logDemandGridStats();
+  
+  // Log demand signal capture stats
+  logDemandCaptureStats();
+}
 
 // Global error handlers for debugging
 window.addEventListener("error", (event) => {

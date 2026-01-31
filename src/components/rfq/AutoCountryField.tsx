@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * AUTO COUNTRY FIELD
+ * AUTO COUNTRY FIELD (READ-ONLY)
  * ============================================================
  * 
  * Read-only country field for RFQ forms.
@@ -10,11 +10,24 @@
  * 1) SEO detection (from page visit)
  * 2) Demand Grid row (if from grid)
  * 3) Fallback: GLOBAL
+ * 
+ * RULE: User CANNOT modify country
  */
 
 import { Badge } from '@/components/ui/badge';
-import { Lock, MapPin, Globe } from 'lucide-react';
+import { Lock, MapPin, Globe, Info } from 'lucide-react';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
+import { useEffect, useState } from 'react';
+
+interface SEOContext {
+  pageType: string;
+  categorySlug: string;
+  subcategorySlug?: string;
+  productSlug?: string;
+  countryCode: string;
+  countryName: string;
+  timestamp: string;
+}
 
 interface AutoCountryFieldProps {
   /** Override country from external source (e.g., demand grid row) */
@@ -24,6 +37,8 @@ interface AutoCountryFieldProps {
   compact?: boolean;
   /** Custom label */
   label?: string;
+  /** Callback with detected country code for form submission */
+  onCountryDetected?: (countryCode: string, countryName: string) => void;
 }
 
 export function AutoCountryField({
@@ -31,13 +46,34 @@ export function AutoCountryField({
   forcedCountryCode,
   compact = false,
   label = 'Destination Country',
+  onCountryDetected,
 }: AutoCountryFieldProps) {
-  const { countryName, countryCode, isGeoDetected } = useDemandCapture();
+  const { countryName: geoCountryName, countryCode: geoCountryCode, isGeoDetected } = useDemandCapture();
+  const [seoContext, setSeoContext] = useState<SEOContext | null>(null);
   
-  // Use forced country if provided, otherwise use detected
-  const displayCountry = forcedCountry || countryName || 'Worldwide';
-  const displayCode = forcedCountryCode || countryCode || 'GLOBAL';
+  // Load SEO context from sessionStorage (set by SEODemandSensor)
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('ps_seo_context');
+      if (stored) {
+        setSeoContext(JSON.parse(stored));
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, []);
+  
+  // Priority: forced > SEO context > geo detection > GLOBAL
+  const displayCountry = forcedCountry || seoContext?.countryName || geoCountryName || 'Worldwide';
+  const displayCode = forcedCountryCode || seoContext?.countryCode || geoCountryCode || 'GLOBAL';
   const isGlobal = displayCode === 'GLOBAL' || !displayCode;
+  
+  // Notify parent when country is detected
+  useEffect(() => {
+    if (isGeoDetected && onCountryDetected && displayCode) {
+      onCountryDetected(displayCode, displayCountry);
+    }
+  }, [isGeoDetected, displayCode, displayCountry, onCountryDetected]);
   
   if (compact) {
     return (
@@ -82,11 +118,55 @@ export function AutoCountryField({
         <Lock className="w-4 h-4 text-muted-foreground" />
       </div>
       
-      <p className="text-xs text-muted-foreground">
-        Country is auto-detected for accurate demand intelligence.
-      </p>
+      <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+        <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+        <span>
+          Country is auto-detected for accurate demand intelligence. 
+          This ensures your RFQ reaches the right suppliers.
+        </span>
+      </div>
     </div>
   );
+}
+
+/**
+ * Get SEO context from session storage
+ * Use this in form submission to link RFQ to source page
+ */
+export function getSEOContext(): SEOContext | null {
+  try {
+    const stored = sessionStorage.getItem('ps_seo_context');
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Get auto-detected country for RFQ form
+ * Priority: SEO context > geo detection > GLOBAL
+ */
+export function getAutoDetectedCountry(): { code: string; name: string } {
+  const seoContext = getSEOContext();
+  
+  if (seoContext?.countryCode && seoContext.countryCode !== 'GLOBAL') {
+    return { code: seoContext.countryCode, name: seoContext.countryName };
+  }
+  
+  // Try geo data from session storage
+  try {
+    const geoData = sessionStorage.getItem('ps_geo_data');
+    if (geoData) {
+      const parsed = JSON.parse(geoData);
+      if (parsed.countryCode && parsed.countryCode !== 'GLOBAL') {
+        return { code: parsed.countryCode, name: parsed.countryName };
+      }
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  
+  return { code: 'GLOBAL', name: 'Worldwide' };
 }
 
 export default AutoCountryField;

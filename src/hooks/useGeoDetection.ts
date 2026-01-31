@@ -95,16 +95,30 @@ const LANGUAGE_MAP: Record<string, string> = {
  * - Does NOT create new URLs
  * - Returns neutral/global for bots
  * - SSR-safe with fallbacks
+ * - Stores detection in sessionStorage for RFQ form auto-fill
  */
 export function useGeoDetection(): GeoData {
-  const [geoData, setGeoData] = useState<GeoData>({
-    countryCode: '',
-    countryName: '',
-    region: 'Global Markets',
-    nearbyRegions: ['South Asia', 'Middle East', 'Africa'],
-    tradingPartners: ['Asia', 'Middle East', 'Africa'],
-    languageHint: 'en',
-    isDetected: false
+  const [geoData, setGeoData] = useState<GeoData>(() => {
+    // Try to restore from session storage for immediate hydration
+    if (typeof sessionStorage !== 'undefined') {
+      const cached = sessionStorage.getItem('ps_geo_data');
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+    return {
+      countryCode: '',
+      countryName: '',
+      region: 'Global Markets',
+      nearbyRegions: ['South Asia', 'Middle East', 'Africa'],
+      tradingPartners: ['Asia', 'Middle East', 'Africa'],
+      languageHint: 'en',
+      isDetected: false
+    };
   });
 
   useEffect(() => {
@@ -161,7 +175,7 @@ export function useGeoDetection(): GeoData {
     const tradingPartners = getTradingPartners(region);
     const languageHint = LANGUAGE_MAP[countryCode]?.split('-')[0] || detectLanguage();
 
-    setGeoData({
+    const detectedData: GeoData = {
       countryCode,
       countryName: country?.name || 'Your Region',
       region,
@@ -169,7 +183,16 @@ export function useGeoDetection(): GeoData {
       tradingPartners,
       languageHint,
       isDetected: true
-    });
+    };
+    
+    setGeoData(detectedData);
+    
+    // Store in sessionStorage for RFQ form auto-fill (country is READ-ONLY)
+    try {
+      sessionStorage.setItem('ps_geo_data', JSON.stringify(detectedData));
+    } catch {
+      // Ignore storage errors
+    }
   }, []);
 
   return geoData;

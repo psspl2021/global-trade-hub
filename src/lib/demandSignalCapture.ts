@@ -406,3 +406,51 @@ export function logDemandCaptureStats(): void {
     console.groupEnd();
   }
 }
+
+/**
+ * Get aggregate signal stats for a time period
+ * Used for Monthly AI Demand Timeline
+ */
+export function aggregateSignalsByMonth(signals: DemandSignalEvent[]): Map<string, number> {
+  const monthlyAggregates = new Map<string, number>();
+  
+  signals.forEach(signal => {
+    const date = new Date(signal.timestamp);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    
+    monthlyAggregates.set(monthKey, (monthlyAggregates.get(monthKey) || 0) + 1);
+  });
+  
+  return monthlyAggregates;
+}
+
+/**
+ * Compare two months and return trend direction
+ */
+export function getMonthlyTrend(
+  currentMonth: string,
+  previousMonth: string,
+  monthlyData: Map<string, number>
+): TrendDirection {
+  const currentCount = monthlyData.get(currentMonth) || 0;
+  const previousCount = monthlyData.get(previousMonth) || 0;
+  
+  return calculateTrendDirection(currentCount, previousCount);
+}
+
+/**
+ * Get current month key in YYYY-MM format
+ */
+export function getCurrentMonthKey(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/**
+ * Get previous month key in YYYY-MM format
+ */
+export function getPreviousMonthKey(): string {
+  const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
