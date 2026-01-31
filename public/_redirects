@@ -1,0 +1,14 @@
+# Netlify SPA redirects for SEO pages
+# All routes should fall back to index.html for client-side routing
+
+# Static files should not be redirected
+/apple-app-site-association    /apple-app-site-association    200
+/.well-known/*                 /.well-known/:splat             200
+/robots.txt                    /robots.txt                     200
+/sitemap.xml                   /sitemap.xml                    200
+/favicon.png                   /favicon.png                    200
+/images/*                      /images/:splat                  200
+/assets/*                      /assets/:splat                  200
+
+# SPA fallback for all other routes
+/*    /index.html   200

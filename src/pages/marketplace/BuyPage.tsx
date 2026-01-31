@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,10 +17,12 @@ import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
 
 export default function BuyPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { captureRFQClick } = useDemandCapture();
   
+  // Extract slug from pathname: /buy-steel-pipes -> steel-pipes
+  const slug = location.pathname.replace(/^\/buy-/, '');
   const config = slug ? getBuyPageConfig(slug) : undefined;
   
   if (!config) {
@@ -28,6 +30,7 @@ export default function BuyPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+          <p className="text-muted-foreground mb-4">Looking for: {slug}</p>
           <Button onClick={() => navigate('/categories')}>Browse Categories</Button>
         </div>
       </div>

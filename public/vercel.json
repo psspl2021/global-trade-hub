@@ -1,0 +1,19 @@
+{
+  "rewrites": [
+    { "source": "/((?!apple-app-site-association|.well-known|robots.txt|sitemap.xml|favicon.png|images|assets).*)", "destination": "/" }
+  ],
+  "headers": [
+    {
+      "source": "/apple-app-site-association",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json" }
+      ]
+    },
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json" }
+      ]
+    }
+  ]
+}

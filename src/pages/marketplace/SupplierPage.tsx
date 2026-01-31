@@ -21,19 +21,36 @@ import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
 
 export default function SupplierPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: rawSlug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { supplierCount, logisticsCount, isLoading } = usePartnerCounts();
   
-  // Slug format: {product-slug}-suppliers
-  const productSlug = slug?.replace(/-suppliers$/, '') || '';
-  const config = slug ? getSupplierPageConfig(slug) : undefined;
+  // The slug could be:
+  // - Full format: "steel-plates-heavy-suppliers" (from /:slug route)
+  // - Just the suppliers part if matched differently
+  const fullSlug = rawSlug || '';
   
-  if (!config) {
+  // Extract product slug by removing -suppliers suffix
+  const productSlug = fullSlug.endsWith('-suppliers') 
+    ? fullSlug.replace(/-suppliers$/, '') 
+    : fullSlug;
+  
+  // Try to get config - first with full slug, then with -suppliers appended
+  let config = getSupplierPageConfig(fullSlug);
+  if (!config && !fullSlug.endsWith('-suppliers')) {
+    config = getSupplierPageConfig(`${fullSlug}-suppliers`);
+  }
+  
+  // Check if this is actually a supplier page (ends with -suppliers)
+  const isSupplierPage = fullSlug.endsWith('-suppliers');
+  
+  if (!config || !isSupplierPage) {
+    // This might be a different route, let it fall through to 404
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
+          <p className="text-muted-foreground mb-4">Looking for: {fullSlug}</p>
           <Button onClick={() => navigate('/seller')}>Become a Supplier</Button>
         </div>
       </div>
