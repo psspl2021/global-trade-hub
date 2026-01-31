@@ -149,7 +149,7 @@ const Index = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-11 sm:h-12 md:h-14 w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-sm contrast-[1.05]"
+              className="h-11 sm:h-12 md:h-14 w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-sm contrast-[1.05] mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
               width={100}
               height={56}
               loading="eager"
