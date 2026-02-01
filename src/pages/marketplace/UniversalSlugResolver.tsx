@@ -35,6 +35,7 @@ export interface ResolvedSlug {
 /**
  * Resolve a URL slug to the correct page type
  * Checks the actual registry to ensure the page exists
+ * Falls back to rendering pages even for unknown slugs that match SEO patterns
  */
 export function resolveSlug(slug: string): ResolvedSlug {
   if (!slug) {
@@ -46,17 +47,16 @@ export function resolveSlug(slug: string): ResolvedSlug {
     const productSlug = slug.replace(/^buy-/, '');
     
     // Check if this slug exists in the registry
-    // The registry now includes both category-level (pharmaceuticals-drugs)
-    // and subcategory-level (generic-medicines) slugs
     const config = getBuyPageConfig(productSlug);
     if (config) {
       return { type: 'buy', slug: productSlug, productSlug };
     }
     
-    // Slug not found in registry - could be a new/unknown slug
-    // Still render as buy page with fallback handling inside BuyPage
-    console.warn(`[UniversalSlugResolver] BUY page slug not in registry: ${productSlug}`);
-    return { type: 'notfound', slug };
+    // FALLBACK: Even if not in registry, render as buy page
+    // This handles sitemap URLs that may not be in registry yet
+    // The BuyPage component will handle displaying appropriate content
+    console.warn(`[UniversalSlugResolver] BUY page slug not in registry, using fallback: ${productSlug}`);
+    return { type: 'buy', slug: productSlug, productSlug };
   }
   
   // Check if it's a SUPPLIER page: ends with "-suppliers"
@@ -68,9 +68,10 @@ export function resolveSlug(slug: string): ResolvedSlug {
       return { type: 'supplier', slug, productSlug };
     }
     
-    // Slug not found in registry
-    console.warn(`[UniversalSlugResolver] SUPPLIER page slug not in registry: ${slug}`);
-    return { type: 'notfound', slug };
+    // FALLBACK: Even if not in registry, render as supplier page
+    console.warn(`[UniversalSlugResolver] SUPPLIER page slug not in registry, using fallback: ${slug}`);
+    const productSlug = slug.replace(/-suppliers$/, '');
+    return { type: 'supplier', slug, productSlug };
   }
   
   // Not a marketplace page pattern
