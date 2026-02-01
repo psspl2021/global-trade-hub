@@ -22,15 +22,27 @@ export default function BuyPage() {
   const { captureRFQClick } = useDemandCapture();
   
   // Extract slug from pathname: /buy-steel-pipes -> steel-pipes
-  const slug = location.pathname.replace(/^\/buy-/, '');
+  // Also handle trailing slashes and clean the path
+  const cleanPath = location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
+  const slug = cleanPath.startsWith('buy-') ? cleanPath.replace(/^buy-/, '') : '';
+  
+  // Debug logging in development
+  if (import.meta.env.DEV) {
+    console.log('[BuyPage] pathname:', location.pathname, '| cleanPath:', cleanPath, '| slug:', slug);
+  }
+  
   const config = slug ? getBuyPageConfig(slug) : undefined;
+  
+  if (import.meta.env.DEV && !config) {
+    console.warn('[BuyPage] No config found for slug:', slug);
+  }
   
   if (!config) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <p className="text-muted-foreground mb-4">Looking for: {slug}</p>
+          <p className="text-muted-foreground mb-4">Looking for: {slug || cleanPath}</p>
           <Button onClick={() => navigate('/categories')}>Browse Categories</Button>
         </div>
       </div>
