@@ -287,12 +287,11 @@ const Index = () => {
                 </Button>
                 <Button 
                   size="lg" 
-                  variant="outline"
-                  className="h-14 sm:h-16 text-base sm:text-lg px-6 sm:px-10 font-bold bg-background/20 backdrop-blur-md hover:bg-warning/20 border-warning/60 hover:border-warning text-warning transition-all shadow-lg"
+                  className="h-14 sm:h-16 text-base sm:text-lg px-6 sm:px-10 font-bold bg-warning text-warning-foreground hover:bg-warning/90 border-2 border-warning transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-warning" />
-                  <span className="text-warning">AI Detected Demand – List Products</span>
+                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                  AI Detected Demand – List Products
                 </Button>
               </div>
               
