@@ -11,7 +11,7 @@ import {
 import { PostRFQModal } from '@/components/PostRFQModal';
 import { CountryEnrichedSignalPageConfig } from '@/data/signalPages';
 import { supportedCountries } from '@/data/supportedCountries';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { saveCountryContext } from '@/data/countryTaxConfig';
 
@@ -228,7 +228,7 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
           <img 
             src={procureSaathiLogo} 
             alt="ProcureSaathi" 
-            className="h-10 cursor-pointer" 
+            className="h-14 md:h-16 cursor-pointer" 
             onClick={() => navigate('/')}
           />
           <Button onClick={handleOpenRFQModal} className="gap-2">

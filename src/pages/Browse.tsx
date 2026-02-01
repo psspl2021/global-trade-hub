@@ -23,7 +23,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Search, Package, Building2, Radio, Lock, Eye, EyeOff, Sparkles, Filter, ChevronDown, X } from 'lucide-react';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { getCategoryByName, categoriesData } from '@/data/categories';
 import { AIVerifiedStockSection } from '@/components/AIVerifiedStockSection';
@@ -296,7 +296,7 @@ const Browse = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-20 w-auto object-contain"
+              className="h-24 md:h-28 w-auto object-contain"
             />
           </div>
           <nav className="hidden md:flex items-center gap-6">

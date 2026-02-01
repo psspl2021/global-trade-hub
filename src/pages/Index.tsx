@@ -9,7 +9,7 @@ import {
   Truck, Menu, Sparkles, TrendingUp, Globe, Layers
 } from 'lucide-react';
 const BrowseLogisticsPublic = lazy(() => import('@/components/logistics/BrowseLogisticsPublic'));
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import heroBgProcurement from '@/assets/hero-bg-procurement.jpg';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -149,9 +149,9 @@ const Index = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-14 sm:h-16 md:h-[72px] w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-md contrast-[1.1] mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
-              width={140}
-              height={72}
+              className="h-[72px] sm:h-20 md:h-24 w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-md"
+              width={180}
+              height={96}
               loading="eager"
             />
           </div>

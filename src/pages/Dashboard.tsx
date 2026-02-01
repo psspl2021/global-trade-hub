@@ -51,7 +51,7 @@ import { TransporterMyBids } from '@/components/logistics/TransporterMyBids';
 import { ActiveShipments } from '@/components/logistics/ActiveShipments';
 import { ActiveRoutePlanning } from '@/components/logistics/ActiveRoutePlanning';
 import { CustomerShipmentTracking } from '@/components/logistics/CustomerShipmentTracking';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
 import { AIRFQGenerator } from '@/components/AIRFQGenerator';
@@ -215,9 +215,9 @@ const Dashboard = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-10 sm:h-16 w-auto object-contain cursor-pointer"
-              width={64}
-              height={64}
+              className="h-14 sm:h-20 w-auto object-contain cursor-pointer"
+              width={80}
+              height={80}
               loading="eager"
             />
           </Link>
