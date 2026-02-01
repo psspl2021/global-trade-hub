@@ -419,20 +419,31 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
       <section className="py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Procure?
+            Ready to Grow Your {config.signalMapping.subcategory} Business?
           </h2>
           <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
-            Submit your requirement. Receive a single consolidated quote from ProcureSaathi.
+            Join ProcureSaathi's verified network and start receiving buyer inquiries today.
           </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            onClick={handleOpenRFQModal}
-            className="gap-2 text-lg px-10 py-6"
-          >
-            {CTA_TEXT}
-            <ArrowRight className="h-5 w-5" />
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={() => navigate('/signup?role=supplier')}
+              className="gap-2 text-lg px-10 py-6"
+            >
+              Join as Supplier
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={handleOpenRFQModal}
+              className="gap-2 text-lg px-10 py-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              Looking to Buy?
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </section>
 

@@ -162,18 +162,26 @@ export const Footer = () => {
               <h3 className="font-semibold text-lg mb-1">Ready to transform your procurement?</h3>
               <p className="text-sm text-background/70">Join thousands of businesses on ProcureSaathi.</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3 justify-center">
               <Button 
-                onClick={() => navigate('/signup?role=buyer')}
+                onClick={() => navigate('/post-rfq')}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                Partner with Us
+                Looking to Buy?
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={() => navigate('/signup?role=supplier')}
+                variant="outline"
+                className="border-background/30 bg-background text-foreground hover:bg-background/90"
+              >
+                Join as Supplier
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button 
                 variant="outline"
                 onClick={() => navigate('/contact')}
-                className="border-background/30 bg-background text-foreground hover:bg-background/90"
+                className="border-background/30 bg-transparent text-background hover:bg-background/10"
               >
                 Contact Sales
               </Button>

@@ -353,7 +353,7 @@ const Seller = () => {
             <p className="text-lg text-primary-foreground/80 mb-10">
               List your products and let AI connect you to real buyer demand.
             </p>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 size="lg" 
                 variant="secondary"
@@ -361,13 +361,22 @@ const Seller = () => {
                 onClick={() => navigate('/signup?role=supplier')}
               >
                 <Sparkles className="mr-2 h-5 w-5" />
-                AI Detected Demand – List Products
+                Join as Supplier
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <p className="text-sm text-primary-foreground/70 mt-4">
-                Verified RFQs • No lead selling • Demand-first onboarding
-              </p>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="h-14 px-10 text-lg font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                onClick={() => navigate('/post-rfq')}
+              >
+                Looking to Buy?
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
+            <p className="text-sm text-primary-foreground/70 mt-6">
+              Verified RFQs • No lead selling • Demand-first onboarding
+            </p>
           </div>
         </div>
       </section>
