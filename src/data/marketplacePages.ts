@@ -365,6 +365,11 @@ export const generatePageRegistry = (): PageRegistry => {
     const categoryBuyConfig = generateCategoryBuyPageConfig(category.name, category.subcategories);
     const categorySupplierConfig = generateCategorySupplierPageConfig(category.name, category.subcategories);
     
+    // Debug: Log category-level slugs being generated
+    if (import.meta.env.DEV) {
+      console.log('[Registry] Category BUY slug:', categoryBuyConfig.slug, '| SUPPLIER slug:', categorySupplierConfig.slug);
+    }
+    
     buyPages.set(categoryBuyConfig.slug, categoryBuyConfig);
     supplierPages.set(categorySupplierConfig.slug, categorySupplierConfig);
     
@@ -386,6 +391,11 @@ export const generatePageRegistry = (): PageRegistry => {
       .map(p => p.slug);
     config.relatedProducts = sameCategoryProducts;
   });
+  
+  // Log total counts in development
+  if (import.meta.env.DEV) {
+    console.log('[Registry] Generated pages - BUY:', buyPages.size, '| SUPPLIER:', supplierPages.size, '| CATEGORY:', categoryHubs.size);
+  }
   
   return { buyPages, supplierPages, categoryHubs };
 };

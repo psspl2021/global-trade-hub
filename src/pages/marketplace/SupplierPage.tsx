@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,24 +21,29 @@ import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
 
 export default function SupplierPage() {
-  const { slug: rawSlug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { supplierCount, logisticsCount, isLoading } = usePartnerCounts();
+  const { captureRFQClick } = useDemandCapture();
   
-  // The slug could be:
-  // - Full format: "steel-plates-heavy-suppliers" (from /:slug route)
-  // - Just the suppliers part if matched differently
-  const fullSlug = rawSlug || '';
+  // Extract slug from pathname: /flavors-fragrances-suppliers -> flavors-fragrances-suppliers
+  const fullSlug = location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
+  
+  // Debug logging in development
+  if (import.meta.env.DEV) {
+    console.log('[SupplierPage] pathname:', location.pathname, '| fullSlug:', fullSlug);
+  }
   
   // Extract product slug by removing -suppliers suffix
   const productSlug = fullSlug.endsWith('-suppliers') 
     ? fullSlug.replace(/-suppliers$/, '') 
     : fullSlug;
   
-  // Try to get config - first with full slug, then with -suppliers appended
-  let config = getSupplierPageConfig(fullSlug);
-  if (!config && !fullSlug.endsWith('-suppliers')) {
-    config = getSupplierPageConfig(`${fullSlug}-suppliers`);
+  // Get config from registry
+  const config = getSupplierPageConfig(fullSlug);
+  
+  if (import.meta.env.DEV && !config) {
+    console.warn('[SupplierPage] No config found for slug:', fullSlug);
   }
   
   // Check if this is actually a supplier page (ends with -suppliers)
