@@ -12,15 +12,45 @@ import { Footer } from '@/components/landing/Footer';
 import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal, SEODemandSensor } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
-import { getCategoryHubConfig, nameToSlug } from '@/data/marketplacePages';
+import { getCategoryHubConfig, nameToSlug, CategoryHubConfig } from '@/data/marketplacePages';
 import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
+
+/**
+ * Generate a fallback config for slugs not in registry
+ * This ensures sitemap URLs always render content
+ */
+const generateFallbackConfig = (slug: string): CategoryHubConfig => {
+  // Convert slug back to display name: "textiles-fabrics" → "Textiles Fabrics"
+  const displayName = slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  
+  return {
+    slug,
+    categoryName: displayName,
+    metaTitle: `${displayName} Suppliers India | B2B Sourcing | ProcureSaathi`,
+    metaDescription: `Find verified ${displayName.toLowerCase()} suppliers. Browse products, post RFQs, get competitive quotes.`,
+    h1: `${displayName} – B2B Sourcing & Procurement`,
+    overview: `ProcureSaathi connects buyers with verified ${displayName.toLowerCase()} suppliers across India. Browse products, post your requirements, and receive competitive quotes.`,
+    subcategories: [], // Empty for fallback
+    buyPageSlugs: [],
+    supplierPageSlugs: []
+  };
+};
 
 export default function CategoryHub() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   
-  const config = slug ? getCategoryHubConfig(slug) : undefined;
+  // Get config from registry, fallback to generated config
+  const registryConfig = slug ? getCategoryHubConfig(slug) : undefined;
+  const config = registryConfig || (slug ? generateFallbackConfig(slug) : null);
+  
+  if (import.meta.env.DEV && !registryConfig && slug) {
+    console.warn('[CategoryHub] Using fallback config for slug:', slug);
+  }
   
   if (!config) {
     return (
@@ -242,7 +272,7 @@ export default function CategoryHub() {
                 size="lg" 
                 variant="outline" 
                 className="bg-white text-primary border-white hover:bg-white/90"
-                onClick={() => navigate('/browse')}
+                onClick={() => navigate('/browseproducts')}
               >
                 Browse Suppliers
               </Button>

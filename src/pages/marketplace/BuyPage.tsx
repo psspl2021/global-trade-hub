@@ -12,9 +12,35 @@ import { Footer } from '@/components/landing/Footer';
 import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal, SEODemandSensor } from '@/components/seo';
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
-import { getBuyPageConfig, nameToSlug } from '@/data/marketplacePages';
+import { getBuyPageConfig, nameToSlug, BuyPageConfig } from '@/data/marketplacePages';
 import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
+
+/**
+ * Generate a fallback config for slugs not in registry
+ * This ensures sitemap URLs always render content
+ */
+const generateFallbackConfig = (slug: string): BuyPageConfig => {
+  // Convert slug back to display name: "pharmaceuticals-drugs" → "Pharmaceuticals Drugs"
+  const displayName = slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  
+  return {
+    slug,
+    productName: displayName,
+    categorySlug: slug,
+    categoryName: displayName,
+    metaTitle: `Buy ${displayName} in Bulk | Verified Suppliers India | ProcureSaathi`,
+    metaDescription: `Source ${displayName.toLowerCase()} from verified suppliers. Competitive pricing, quality assurance, managed procurement.`,
+    h1: `Buy ${displayName} in Bulk from Verified Suppliers`,
+    industries: ['Manufacturing', 'Trading & Distribution', 'Industrial Projects', 'Export & Import', 'Retail & Wholesale'],
+    useCases: [`Bulk ${displayName.toLowerCase()} procurement`, 'Project-based sourcing', 'Regular supply contracts', 'Quality-certified materials'],
+    relatedProducts: [],
+    supplierPageSlug: `${slug}-suppliers`
+  };
+};
 
 export default function BuyPage() {
   const location = useLocation();
@@ -31,13 +57,16 @@ export default function BuyPage() {
     console.log('[BuyPage] pathname:', location.pathname, '| cleanPath:', cleanPath, '| slug:', slug);
   }
   
-  const config = slug ? getBuyPageConfig(slug) : undefined;
+  // Try to get config from registry, fallback to generated config
+  const registryConfig = slug ? getBuyPageConfig(slug) : undefined;
+  const config = registryConfig || (slug ? generateFallbackConfig(slug) : null);
   
-  if (import.meta.env.DEV && !config) {
-    console.warn('[BuyPage] No config found for slug:', slug);
+  if (import.meta.env.DEV && !registryConfig) {
+    console.warn('[BuyPage] Using fallback config for slug:', slug);
   }
   
-  if (!config) {
+  // Only show 404 if there's no slug at all
+  if (!config || !slug) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

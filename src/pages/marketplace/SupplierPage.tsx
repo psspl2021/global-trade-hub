@@ -15,10 +15,50 @@ import { AICitationParagraph, GlobalDemandVisibility, TrustSignalsGlobal, SEODem
 import { IllustrativeDisclaimer } from '@/components/IllustrativeDisclaimer';
 import { AIGlobalDemandSignals } from '@/components/ai/AIGlobalDemandSignals';
 import { AIDemandTrendTimeline } from '@/components/ai/AIDemandTrendTimeline';
-import { getSupplierPageConfig } from '@/data/marketplacePages';
+import { getSupplierPageConfig, SupplierPageConfig } from '@/data/marketplacePages';
 import { usePartnerCounts } from '@/hooks/usePartnerCounts';
 import { useGlobalSEO, getGlobalServiceSchema } from '@/hooks/useGlobalSEO';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
+
+/**
+ * Generate a fallback config for slugs not in registry
+ * This ensures sitemap URLs always render content
+ */
+const generateFallbackConfig = (fullSlug: string): SupplierPageConfig => {
+  const productSlug = fullSlug.endsWith('-suppliers') 
+    ? fullSlug.replace(/-suppliers$/, '') 
+    : fullSlug;
+  
+  // Convert slug back to display name: "pharmaceuticals-drugs" → "Pharmaceuticals Drugs"
+  const displayName = productSlug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  
+  return {
+    slug: fullSlug,
+    productName: displayName,
+    categorySlug: productSlug,
+    categoryName: displayName,
+    metaTitle: `Become a ${displayName} Supplier | List Products Free | ProcureSaathi`,
+    metaDescription: `Join as a verified ${displayName.toLowerCase()} supplier. Access AI-detected buyer demand, receive RFQs, grow your B2B sales.`,
+    h1: `Become a ${displayName} Supplier`,
+    benefits: [
+      'Access to verified buyer demand',
+      'AI-powered RFQ matching',
+      'Priority listing with Premium',
+      'Managed trade – no cold calls'
+    ],
+    demandSignals: [
+      `Active buyer inquiries for ${displayName.toLowerCase()}`,
+      'Regular bulk procurement requests',
+      'Project-based demand signals',
+      'Export opportunities'
+    ],
+    signupCTA: '/signup?role=supplier',
+    buyPageSlug: `buy-${productSlug}`
+  };
+};
 
 export default function SupplierPage() {
   const location = useLocation();
@@ -39,15 +79,16 @@ export default function SupplierPage() {
     ? fullSlug.replace(/-suppliers$/, '') 
     : fullSlug;
   
-  // Get config from registry
-  const config = getSupplierPageConfig(fullSlug);
-  
-  if (import.meta.env.DEV && !config) {
-    console.warn('[SupplierPage] No config found for slug:', fullSlug);
-  }
-  
   // Check if this is actually a supplier page (ends with -suppliers)
   const isSupplierPage = fullSlug.endsWith('-suppliers');
+  
+  // Get config from registry, fallback to generated config
+  const registryConfig = getSupplierPageConfig(fullSlug);
+  const config = registryConfig || (isSupplierPage ? generateFallbackConfig(fullSlug) : null);
+  
+  if (import.meta.env.DEV && !registryConfig && isSupplierPage) {
+    console.warn('[SupplierPage] Using fallback config for slug:', fullSlug);
+  }
   
   if (!config || !isSupplierPage) {
     // This might be a different route, let it fall through to 404

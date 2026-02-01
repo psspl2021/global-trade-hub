@@ -43,7 +43,8 @@ export interface ResolvedRoute {
 
 /**
  * Resolves a URL path to the correct page type and slug
- * Now properly checks registry for both category and subcategory level pages
+ * Now properly handles both registry and fallback pages
+ * KEY: All sitemap patterns render, even without registry entry
  */
 export function resolveMarketplaceRoute(pathname: string): ResolvedRoute {
   // Clean the pathname
@@ -56,63 +57,48 @@ export function resolveMarketplaceRoute(pathname: string): ResolvedRoute {
     if (config) {
       return { type: 'category', slug: categorySlug };
     }
+    // Fallback - still render category hub even without config
+    return { type: 'category', slug: categorySlug };
   }
   
   // Handle /buy-{slug} routes
-  // The registry now includes BOTH category-level (buy-pharmaceuticals-drugs)
-  // AND subcategory-level (buy-generic-medicines) pages
+  // Always render BUY pages for any buy- pattern (fallback handles missing configs)
   if (cleanPath.startsWith('buy-')) {
     const productSlug = cleanPath.replace('buy-', '');
-    const config = getBuyPageConfig(productSlug);
-    if (config) {
-      return { type: 'buy', slug: productSlug, productSlug };
-    }
-    // Even if not found, still try to render as buy page for fallback handling
-    console.warn(`[UniversalSEORoute] BUY page slug not in registry: ${productSlug}`);
+    return { type: 'buy', slug: productSlug, productSlug };
   }
   
   // Handle /{slug}-suppliers routes
-  // The registry now includes BOTH category-level (pharmaceuticals-drugs-suppliers)
-  // AND subcategory-level (generic-medicines-suppliers) pages
+  // Always render SUPPLIER pages for any -suppliers pattern
   if (cleanPath.endsWith('-suppliers')) {
-    const fullSlug = cleanPath; // e.g., "pharmaceuticals-drugs-suppliers"
+    const fullSlug = cleanPath;
     const productSlug = cleanPath.replace(/-suppliers$/, '');
-    const config = getSupplierPageConfig(fullSlug);
-    if (config) {
-      return { type: 'supplier', slug: fullSlug, productSlug };
-    }
-    // Even if not found, still try to render as supplier page for fallback handling
-    console.warn(`[UniversalSEORoute] SUPPLIER page slug not in registry: ${fullSlug}`);
+    return { type: 'supplier', slug: fullSlug, productSlug };
   }
   
   return { type: 'notfound', slug: cleanPath };
 }
 
 /**
- * Check if a path matches any marketplace route
- * Now properly checks registry for both category and subcategory level pages
+ * Check if a path matches any marketplace route pattern
+ * Returns true for any valid SEO page pattern (not just registry matches)
  */
 export function isMarketplacePath(pathname: string): boolean {
   const cleanPath = pathname.replace(/^\/+|\/+$/g, '');
   
-  // Check buy pages - now includes category-level and subcategory-level
+  // Check buy pages pattern
   if (cleanPath.startsWith('buy-')) {
-    const slug = cleanPath.replace('buy-', '');
-    const config = getBuyPageConfig(slug);
-    return config !== undefined;
+    return true;
   }
   
-  // Check supplier pages - now includes category-level and subcategory-level
+  // Check supplier pages pattern
   if (cleanPath.endsWith('-suppliers')) {
-    const config = getSupplierPageConfig(cleanPath);
-    return config !== undefined;
+    return true;
   }
   
   // Check category hubs
   if (cleanPath.startsWith('categories/')) {
-    const slug = cleanPath.replace('categories/', '');
-    const config = getCategoryHubConfig(slug);
-    return config !== undefined;
+    return true;
   }
   
   return false;

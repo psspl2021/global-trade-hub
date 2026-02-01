@@ -13,13 +13,23 @@ import { categoriesData } from './categories';
 
 // ============= SLUG UTILITIES =============
 
+/**
+ * Convert a category/product name to URL slug
+ * CRITICAL: Must match sitemap.xml slugs exactly
+ * 
+ * Examples:
+ * - "Pharmaceuticals & Drugs" → "pharmaceuticals-drugs"
+ * - "Environment & Recycling" → "environment-recycling"
+ * - "Metals - Ferrous (Steel, Iron)" → "metals-ferrous-steel-iron"
+ */
 export const nameToSlug = (name: string): string => {
   return name
     .toLowerCase()
-    .replace(/[&,()]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/&/g, '-')           // Replace & with dash
+    .replace(/[,()]/g, '')        // Remove commas and parentheses
+    .replace(/\s+/g, '-')         // Replace spaces with dashes
+    .replace(/-+/g, '-')          // Collapse multiple dashes to single
+    .replace(/^-|-$/g, '');       // Remove leading/trailing dashes
 };
 
 export const slugToName = (slug: string): string => {
@@ -347,8 +357,38 @@ export const generateCategorySupplierPageConfig = (
 };
 
 /**
+ * SITEMAP COMPATIBILITY LAYER
+ * Maps sitemap-indexed slugs to valid page configs
+ * These handle URLs that are in sitemap.xml but don't exactly match categories.ts names
+ */
+const SITEMAP_ALIASES: Record<string, { displayName: string; fallbackCategory: string; subcategories: string[] }> = {
+  // Sitemap slug → display info for fallback rendering
+  'textiles-fabrics': {
+    displayName: 'Textiles & Fabrics',
+    fallbackCategory: 'Textiles & Leather',
+    subcategories: ['Fabrics', 'Yarns & Threads', 'Home Textiles', 'Technical Textiles']
+  },
+  'rubber-products': {
+    displayName: 'Rubber Products',
+    fallbackCategory: 'Plastic & Rubber',
+    subcategories: ['Rubber Products', 'Industrial Rubber', 'Foam Products']
+  },
+  'cosmetics-personal-care': {
+    displayName: 'Cosmetics & Personal Care',
+    fallbackCategory: 'Pharmaceuticals & Drugs',
+    subcategories: ['OTC Products', 'Health Supplements', 'Wellness Products']
+  },
+  'machinery-equipment': {
+    displayName: 'Machinery & Equipment',
+    fallbackCategory: 'Industrial Supplies',
+    subcategories: ['Industrial Tools', 'Material Handling', 'Pumps & Valves']
+  }
+};
+
+/**
  * Generate all pages from categories.ts taxonomy
  * Now includes BOTH category-level AND subcategory-level pages
+ * Also includes sitemap compatibility aliases
  */
 export const generatePageRegistry = (): PageRegistry => {
   const buyPages = new Map<string, BuyPageConfig>();
@@ -381,6 +421,69 @@ export const generatePageRegistry = (): PageRegistry => {
       buyPages.set(buyConfig.slug, buyConfig);
       supplierPages.set(supplierConfig.slug, supplierConfig);
     });
+  });
+  
+  // Add SITEMAP ALIAS pages (URLs indexed by Google but not matching exact category names)
+  Object.entries(SITEMAP_ALIASES).forEach(([aliasSlug, aliasConfig]) => {
+    // Only add if not already present
+    if (!buyPages.has(aliasSlug)) {
+      const buyConfig: BuyPageConfig = {
+        slug: aliasSlug,
+        productName: aliasConfig.displayName,
+        categorySlug: aliasSlug,
+        categoryName: aliasConfig.displayName,
+        metaTitle: `Buy ${aliasConfig.displayName} in Bulk | Verified Suppliers India | ProcureSaathi`,
+        metaDescription: `Source ${aliasConfig.displayName.toLowerCase()} from verified suppliers. Competitive pricing, quality assurance, managed procurement.`,
+        h1: `Buy ${aliasConfig.displayName} in Bulk from Verified Suppliers`,
+        industries: ['Manufacturing', 'Trading & Distribution', 'Industrial Projects', 'Export & Import'],
+        useCases: [`Bulk ${aliasConfig.displayName.toLowerCase()} procurement`, 'Project-based sourcing', 'Regular supply contracts'],
+        relatedProducts: aliasConfig.subcategories.slice(0, 5).map(s => nameToSlug(s)),
+        supplierPageSlug: `${aliasSlug}-suppliers`
+      };
+      buyPages.set(aliasSlug, buyConfig);
+      
+      if (import.meta.env.DEV) {
+        console.log('[Registry] Added ALIAS BUY slug:', aliasSlug);
+      }
+    }
+    
+    const supplierSlug = `${aliasSlug}-suppliers`;
+    if (!supplierPages.has(supplierSlug)) {
+      const supplierConfig: SupplierPageConfig = {
+        slug: supplierSlug,
+        productName: aliasConfig.displayName,
+        categorySlug: aliasSlug,
+        categoryName: aliasConfig.displayName,
+        metaTitle: `Become a ${aliasConfig.displayName} Supplier | List Products Free | ProcureSaathi`,
+        metaDescription: `Join as a verified ${aliasConfig.displayName.toLowerCase()} supplier. Access AI-detected buyer demand, receive RFQs.`,
+        h1: `Become a ${aliasConfig.displayName} Supplier`,
+        benefits: ['Access to verified buyer demand', 'AI-powered RFQ matching', 'Priority listing with Premium'],
+        demandSignals: [`Active buyer inquiries for ${aliasConfig.displayName.toLowerCase()}`, 'Regular bulk procurement requests'],
+        signupCTA: '/signup?role=supplier',
+        buyPageSlug: `buy-${aliasSlug}`
+      };
+      supplierPages.set(supplierSlug, supplierConfig);
+      
+      if (import.meta.env.DEV) {
+        console.log('[Registry] Added ALIAS SUPPLIER slug:', supplierSlug);
+      }
+    }
+    
+    // Add category hub alias
+    if (!categoryHubs.has(aliasSlug)) {
+      const hubConfig: CategoryHubConfig = {
+        slug: aliasSlug,
+        categoryName: aliasConfig.displayName,
+        metaTitle: `${aliasConfig.displayName} Suppliers India | B2B Sourcing | ProcureSaathi`,
+        metaDescription: `Find verified ${aliasConfig.displayName.toLowerCase()} suppliers. Browse products, post RFQs, get competitive quotes.`,
+        h1: `${aliasConfig.displayName} – B2B Sourcing & Procurement`,
+        overview: `ProcureSaathi connects buyers with verified ${aliasConfig.displayName.toLowerCase()} suppliers across India.`,
+        subcategories: aliasConfig.subcategories,
+        buyPageSlugs: aliasConfig.subcategories.map(sub => `buy-${nameToSlug(sub)}`),
+        supplierPageSlugs: aliasConfig.subcategories.map(sub => `${nameToSlug(sub)}-suppliers`)
+      };
+      categoryHubs.set(aliasSlug, hubConfig);
+    }
   });
   
   // Populate related products (max 5 from same category)
