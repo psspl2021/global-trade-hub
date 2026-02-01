@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, Loader2, Lock, Clock, MessageSquare, Mail, Globe, ArrowLeft, ShoppingBag, Building2, Truck, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Loader2, Lock, Clock, MessageSquare, Mail, Globe, ArrowLeft, ShoppingBag, Building2, Truck, CheckCircle, Users, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
@@ -57,9 +57,18 @@ const Signup = () => {
     const roleParam = searchParams.get('role');
     if (roleParam === 'supplier') return 'supplier';
     if (roleParam === 'logistics_partner') return 'logistics_partner';
+    if (roleParam === 'affiliate') return 'affiliate';
     return 'buyer';
   };
+  const getInitialTab = () => {
+    const roleParam = searchParams.get('role');
+    if (roleParam === 'supplier') return 'suppliers';
+    if (roleParam === 'logistics_partner') return 'logistics';
+    if (roleParam === 'affiliate') return 'affiliate';
+    return 'buyers';
+  };
   const initialRole = getInitialRole();
+  const initialTab = getInitialTab();
   const referralCodeFromUrl = searchParams.get('ref') || '';
   const [referralCode, setReferralCode] = useState(referralCodeFromUrl);
   const [loading, setLoading] = useState(false);
@@ -69,7 +78,7 @@ const Signup = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>(initialRole === 'buyer' ? 'buyers' : 'suppliers');
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
   
   const { supplierCount, logisticsCount, isLoading: countsLoading } = usePartnerCounts();
 
@@ -81,7 +90,7 @@ const Signup = () => {
     phone: '',
     location: '',
     gstin: '',
-    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner',
+    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner' | 'affiliate',
     referredByName: 'Priyanka',
     referredByPhone: '+918368127357',
     buyerType: '' as '' | 'end_buyer' | 'distributor' | 'dealer',
@@ -109,6 +118,11 @@ const Signup = () => {
       description: 'Join ProcureSaathi as a logistics partner. Connect with shippers and grow your freight business.',
       canonical: 'https://procuresaathi.com/signup?role=logistics_partner',
     },
+    affiliate: {
+      title: 'Partner with Us - Affiliate | ProcureSaathi',
+      description: 'Earn by referring businesses to ProcureSaathi. Join our affiliate program and start earning commissions.',
+      canonical: 'https://procuresaathi.com/signup?role=affiliate',
+    },
   }), []);
 
   useSEO(seoConfig[formData.role]);
@@ -124,8 +138,12 @@ const Signup = () => {
     setActiveTab(value);
     if (value === 'buyers') {
       setFormData({ ...formData, role: 'buyer' });
-    } else {
+    } else if (value === 'suppliers') {
       setFormData({ ...formData, role: 'supplier' });
+    } else if (value === 'logistics') {
+      setFormData({ ...formData, role: 'logistics_partner' });
+    } else if (value === 'affiliate') {
+      setFormData({ ...formData, role: 'affiliate' });
     }
   };
 
@@ -140,8 +158,8 @@ const Signup = () => {
       return;
     }
 
-    // Validate email notification consent for suppliers and logistics partners
-    if ((formData.role === 'supplier' || formData.role === 'logistics_partner') && !emailNotificationConsent) {
+    // Validate email notification consent for suppliers, logistics partners, and affiliates
+    if ((formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'affiliate') && !emailNotificationConsent) {
       setErrors({ emailNotificationConsent: 'You must agree to receive email notifications to complete signup' });
       return;
     }
@@ -310,14 +328,22 @@ const Signup = () => {
           <div className="lg:col-span-2">
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-              <TabsList className="grid w-full grid-cols-2 h-12">
-                <TabsTrigger value="buyers" className="gap-2 text-sm">
+              <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+                <TabsTrigger value="buyers" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
                   <ShoppingBag className="h-4 w-4" />
-                  For Buyers
+                  <span>Buyers</span>
                 </TabsTrigger>
-                <TabsTrigger value="suppliers" className="gap-2 text-sm">
+                <TabsTrigger value="suppliers" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Building2 className="h-4 w-4" />
-                  For Suppliers
+                  <span>Suppliers</span>
+                </TabsTrigger>
+                <TabsTrigger value="logistics" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                  <Truck className="h-4 w-4" />
+                  <span>Logistics</span>
+                </TabsTrigger>
+                <TabsTrigger value="affiliate" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                  <Gift className="h-4 w-4" />
+                  <span>Affiliate</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -327,18 +353,21 @@ const Signup = () => {
                 {/* Title based on role */}
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold mb-2">
-                    {formData.role === 'buyer' ? 'Request a Demo' : 'Join as a Partner'}
+                    {formData.role === 'buyer' && 'Request a Demo'}
+                    {formData.role === 'supplier' && 'Join as a Supplier Partner'}
+                    {formData.role === 'logistics_partner' && 'Join as a Logistics Partner'}
+                    {formData.role === 'affiliate' && 'Join as an Affiliate Partner'}
                   </h2>
                   <p className="text-muted-foreground text-sm">
-                    {formData.role === 'buyer' 
-                      ? 'See how ProcureSaathi can transform your procurement decisions.'
-                      : 'Start receiving AI-detected buyer demand and grow your business.'
-                    }
+                    {formData.role === 'buyer' && 'See how ProcureSaathi can transform your procurement decisions.'}
+                    {formData.role === 'supplier' && 'Start receiving AI-detected buyer demand and grow your business.'}
+                    {formData.role === 'logistics_partner' && 'Freight & Transportation services — connect with shippers nationwide.'}
+                    {formData.role === 'affiliate' && 'Want to earn by referring? Earn commissions by bringing businesses to ProcureSaathi.'}
                   </p>
                 </div>
 
-                {/* Early Partner Offer for Suppliers */}
-                {formData.role === 'supplier' && (
+                {/* Early Partner Offer for Suppliers and Logistics */}
+                {(formData.role === 'supplier' || formData.role === 'logistics_partner') && (
                   <Suspense fallback={null}>
                     <div className="mb-6">
                       <EarlyPartnerOffer
@@ -355,34 +384,35 @@ const Signup = () => {
                   </Suspense>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Role Selection (for switching between supplier/logistics) */}
-                  {activeTab === 'suppliers' && (
-                    <div className="space-y-3">
-                      <Label>Partner Type</Label>
-                      <RadioGroup
-                        value={formData.role}
-                        onValueChange={(value) => setFormData({ ...formData, role: value as 'supplier' | 'logistics_partner' })}
-                        className="grid grid-cols-2 gap-3"
-                      >
-                        <div className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-colors ${formData.role === 'supplier' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
-                          <RadioGroupItem value="supplier" id="supplier" />
-                          <Label htmlFor="supplier" className="font-normal cursor-pointer flex items-center gap-2">
-                            <Building2 className="h-4 w-4" />
-                            Supplier
-                          </Label>
-                        </div>
-                        <div className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-colors ${formData.role === 'logistics_partner' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
-                          <RadioGroupItem value="logistics_partner" id="logistics_partner" />
-                          <Label htmlFor="logistics_partner" className="font-normal cursor-pointer flex items-center gap-2">
-                            <Truck className="h-4 w-4" />
-                            Logistics
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                  )}
+                {/* Affiliate Benefits Card */}
+                {formData.role === 'affiliate' && (
+                  <div className="mb-6 p-4 rounded-lg border border-primary/20 bg-primary/5">
+                    <h3 className="font-semibold text-primary mb-3 flex items-center gap-2">
+                      <Gift className="h-5 w-5" />
+                      Affiliate Benefits
+                    </h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Earn commission on every successful referral</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Track your referrals and earnings in real-time</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Monthly payouts with transparent reporting</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Dedicated affiliate support team</span>
+                      </li>
+                    </ul>
+                  </div>
+                )}
 
+                <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Buyer Type - Only for buyers */}
                   {formData.role === 'buyer' && (
                     <div className="space-y-2">
@@ -547,12 +577,12 @@ const Signup = () => {
                   </div>
 
                   {/* Email Consent for Partners */}
-                  {(formData.role === 'supplier' || formData.role === 'logistics_partner') && (
+                  {(formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'affiliate') && (
                     <EmailNotificationConsent
                       checked={emailNotificationConsent}
                       onChange={setEmailNotificationConsent}
                       error={errors.emailNotificationConsent}
-                      role={formData.role}
+                      role={formData.role === 'affiliate' ? 'supplier' : formData.role}
                     />
                   )}
 
@@ -612,8 +642,12 @@ const Signup = () => {
                       </>
                     ) : loading ? (
                       'Creating account...'
+                    ) : formData.role === 'buyer' ? (
+                      'Request Demo'
+                    ) : formData.role === 'affiliate' ? (
+                      'Join Affiliate Program'
                     ) : (
-                      formData.role === 'buyer' ? 'Request Demo' : 'Create Partner Account'
+                      'Create Partner Account'
                     )}
                   </Button>
                 </form>
