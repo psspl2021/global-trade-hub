@@ -276,7 +276,79 @@ export interface PageRegistry {
 }
 
 /**
+ * Generate BUY page config for a CATEGORY (not subcategory)
+ * This handles URLs like /buy-pharmaceuticals-drugs
+ */
+export const generateCategoryBuyPageConfig = (
+  categoryName: string,
+  subcategories: string[]
+): BuyPageConfig => {
+  const categorySlug = nameToSlug(categoryName);
+  
+  return {
+    slug: categorySlug,
+    productName: categoryName,
+    categorySlug,
+    categoryName,
+    
+    metaTitle: `Buy ${categoryName} in Bulk | Verified Suppliers India | ProcureSaathi`,
+    metaDescription: `Source ${categoryName.toLowerCase()} from verified suppliers. Browse ${subcategories.length}+ product types, competitive pricing, quality assurance.`,
+    h1: `Buy ${categoryName} in Bulk from Verified Suppliers`,
+    
+    industries: getIndustriesForCategory(categorySlug),
+    useCases: [
+      `Bulk ${categoryName.toLowerCase()} procurement`,
+      'Project-based sourcing',
+      'Regular supply contracts',
+      'Quality-certified materials'
+    ],
+    
+    relatedProducts: subcategories.slice(0, 5).map(sub => nameToSlug(sub)),
+    supplierPageSlug: `${categorySlug}-suppliers`
+  };
+};
+
+/**
+ * Generate SUPPLIER page config for a CATEGORY (not subcategory)
+ * This handles URLs like /pharmaceuticals-drugs-suppliers
+ */
+export const generateCategorySupplierPageConfig = (
+  categoryName: string,
+  subcategories: string[]
+): SupplierPageConfig => {
+  const categorySlug = nameToSlug(categoryName);
+  
+  return {
+    slug: `${categorySlug}-suppliers`,
+    productName: categoryName,
+    categorySlug,
+    categoryName,
+    
+    metaTitle: `Become a ${categoryName} Supplier | List Products Free | ProcureSaathi`,
+    metaDescription: `Join as a verified ${categoryName.toLowerCase()} supplier. Access AI-detected buyer demand across ${subcategories.length}+ product types.`,
+    h1: `Become a ${categoryName} Supplier`,
+    
+    benefits: [
+      'Access to verified buyer demand',
+      'AI-powered RFQ matching',
+      'Priority listing with Premium',
+      'Managed trade – no cold calls'
+    ],
+    demandSignals: [
+      `Active buyer inquiries for ${categoryName.toLowerCase()}`,
+      'Regular bulk procurement requests',
+      'Project-based demand signals',
+      'Export opportunities'
+    ],
+    
+    signupCTA: '/signup?role=supplier',
+    buyPageSlug: `buy-${categorySlug}`
+  };
+};
+
+/**
  * Generate all pages from categories.ts taxonomy
+ * Now includes BOTH category-level AND subcategory-level pages
  */
 export const generatePageRegistry = (): PageRegistry => {
   const buyPages = new Map<string, BuyPageConfig>();
@@ -287,6 +359,14 @@ export const generatePageRegistry = (): PageRegistry => {
     // Generate category hub
     const hubConfig = generateCategoryHubConfig(category.name, category.subcategories);
     categoryHubs.set(hubConfig.slug, hubConfig);
+    
+    // Generate CATEGORY-LEVEL BUY and SUPPLIER pages
+    // These are the main SEO pages like /buy-pharmaceuticals-drugs
+    const categoryBuyConfig = generateCategoryBuyPageConfig(category.name, category.subcategories);
+    const categorySupplierConfig = generateCategorySupplierPageConfig(category.name, category.subcategories);
+    
+    buyPages.set(categoryBuyConfig.slug, categoryBuyConfig);
+    supplierPages.set(categorySupplierConfig.slug, categorySupplierConfig);
     
     // Generate BUY and SUPPLIER pages for each subcategory
     category.subcategories.forEach(subcategory => {
@@ -344,4 +424,24 @@ export const getAllSupplierPageSlugs = (): string[] => {
 
 export const getAllCategoryHubSlugs = (): string[] => {
   return Array.from(getPageRegistry().categoryHubs.keys());
+};
+
+/**
+ * Check if a slug is a valid marketplace slug
+ * Used for fallback rendering
+ */
+export const isValidMarketplaceSlug = (slug: string): boolean => {
+  // Check buy pages
+  if (slug.startsWith('buy-')) {
+    const productSlug = slug.replace(/^buy-/, '');
+    return getBuyPageConfig(productSlug) !== undefined;
+  }
+  
+  // Check supplier pages
+  if (slug.endsWith('-suppliers')) {
+    return getSupplierPageConfig(slug) !== undefined;
+  }
+  
+  // Check category hubs
+  return getCategoryHubConfig(slug) !== undefined;
 };
