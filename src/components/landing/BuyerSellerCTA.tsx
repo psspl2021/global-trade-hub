@@ -59,26 +59,34 @@ export const BuyerSellerCTA = () => {
 
         {/* Dual CTA Cards */}
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {/* For Buyers */}
-          <Card className="bg-primary/5 border-primary/20 hover:shadow-lg transition-shadow">
+          {/* For Buyers - PROMINENT */}
+          <Card className="bg-primary border-primary shadow-lg hover:shadow-xl transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-primary/10">
-                  <ShoppingCart className="h-8 w-8 text-primary" />
+                <div className="p-3 rounded-xl bg-primary-foreground/20">
+                  <ShoppingCart className="h-8 w-8 text-primary-foreground" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-2">For Buyers</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
+                  <h3 className="text-xl font-bold mb-2 text-primary-foreground">Looking to Buy?</h3>
+                  <p className="text-primary-foreground/80 text-sm mb-4">
                     Search Products, Post AI-generated RFQs and Connect with top Indian Sellers
                   </p>
-                  <Button 
-                    variant="outline"
-                    onClick={() => navigate('/post-rfq')}
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Post RFQ – Free
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      onClick={() => navigate('/post-rfq')}
+                      className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Post RFQ – Free
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => navigate('/browse')}
+                      className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                    >
+                      Browse Suppliers
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -92,14 +100,13 @@ export const BuyerSellerCTA = () => {
                   <Store className="h-8 w-8 text-warning" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-2">For Sellers</h3>
+                  <h3 className="text-xl font-bold mb-2 text-foreground">For Sellers</h3>
                   <p className="text-muted-foreground text-sm mb-4">
                     Use AI to create your catalog, respond to RFQs, and grow your reach globally
                   </p>
                   <Button 
-                    variant="outline"
                     onClick={() => navigate('/signup?role=supplier')}
-                    className="border-warning text-warning hover:bg-warning hover:text-warning-foreground text-sm whitespace-normal h-auto py-2"
+                    className="bg-warning text-warning-foreground hover:bg-warning/90 font-semibold text-sm whitespace-normal h-auto py-2"
                   >
                     <Store className="h-4 w-4 mr-2 flex-shrink-0" />
                     AI Detected Demand – List Products
