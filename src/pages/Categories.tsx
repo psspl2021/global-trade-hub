@@ -88,7 +88,7 @@ const Categories = () => {
             className="text-lg px-10 h-14 font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
             onClick={() => navigate('/signup')}
           >
-            Join Now - It's Free
+            Partner with Us - It's Free
           </Button>
         </div>
       </section>
@@ -230,7 +230,7 @@ const Categories = () => {
             </p>
             <div className="flex gap-3">
               <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/login')}>Login</Button>
-              <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/signup')}>Sign Up</Button>
+              <Button variant="ghost" size="sm" className="font-medium" onClick={() => navigate('/signup')}>Partner with Us</Button>
             </div>
           </div>
         </div>

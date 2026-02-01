@@ -78,7 +78,7 @@ export const PageHeader = () => {
             className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 h-9 px-5" 
             onClick={() => navigate('/signup')}
           >
-            Join Now
+            Partner with Us
           </Button>
 
           {/* Mobile Menu */}

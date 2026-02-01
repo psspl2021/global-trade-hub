@@ -116,7 +116,7 @@ export const WhyChooseUs = () => {
               onClick={() => navigate('/signup')}
               className="gap-2"
             >
-              Get Started Free <ArrowRight className="w-4 h-4" />
+              Partner with Us <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </div>

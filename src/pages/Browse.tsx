@@ -305,7 +305,7 @@ const Browse = () => {
           </nav>
           <div className="flex items-center gap-4">
             <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
-            <Button onClick={() => navigate('/signup')}>Join Now</Button>
+            <Button onClick={() => navigate('/signup')}>Partner with Us</Button>
           </div>
         </div>
       </header>
