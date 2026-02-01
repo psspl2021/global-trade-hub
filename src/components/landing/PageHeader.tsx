@@ -65,6 +65,15 @@ export const PageHeader = () => {
         </nav>
         
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Looking to Buy? - Prominent CTA */}
+          <Button 
+            size="sm" 
+            variant="outline"
+            className="font-semibold hidden md:inline-flex h-9 px-4 border-2 border-primary bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-all" 
+            onClick={() => navigate('/post-rfq')}
+          >
+            Looking to Buy?
+          </Button>
           <Button 
             variant="ghost" 
             size="sm" 
@@ -114,12 +123,21 @@ export const PageHeader = () => {
                 ))}
 
                 <div className="border-t border-border/50 pt-5 mt-4 space-y-3">
+                  {/* Mobile: Looking to Buy? */}
                   <Button 
-                    className="w-full font-semibold" 
-                    onClick={() => handleNavigation('/signup?role=buyer')}
+                    className="w-full font-semibold bg-primary text-primary-foreground" 
+                    onClick={() => handleNavigation('/post-rfq')}
                   >
-                    Join as Buyer
+                    Looking to Buy?
                   </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full font-semibold border-2 border-primary text-primary" 
+                    onClick={() => handleNavigation('/browse')}
+                  >
+                    Browse Suppliers
+                  </Button>
+                  <div className="border-t border-border/30 my-2" />
                   <Button 
                     variant="outline" 
                     className="w-full" 
