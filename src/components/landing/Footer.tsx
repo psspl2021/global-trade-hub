@@ -167,7 +167,7 @@ export const Footer = () => {
                 onClick={() => navigate('/signup?role=buyer')}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                Get Started Free
+                Partner with Us
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button 

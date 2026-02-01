@@ -4,16 +4,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Loader2, Lock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertTriangle, Loader2, Lock, Clock, MessageSquare, Mail, Globe, ArrowLeft, ShoppingBag, Building2, Truck, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
-import authBg from '@/assets/auth-bg.jpg';
 import { useSEO } from '@/hooks/useSEO';
 import { SupplierCategorySelector } from '@/components/signup/SupplierCategorySelector';
 import { EmailNotificationConsent } from '@/components/signup/EmailNotificationConsent';
@@ -45,15 +45,11 @@ const Signup = () => {
   
   // Detect country context from URL or referrer
   const detectedCountry = useMemo(() => {
-    // First check URL param
     const countryParam = searchParams.get('country');
     if (countryParam) return countryParam.toLowerCase();
-    
-    // Then check localStorage/referrer
     return getCountryFromContext() || 'india';
   }, [searchParams]);
   
-  // Get tax config based on detected country
   const taxConfig = useMemo(() => getTaxConfigForCountry(detectedCountry), [detectedCountry]);
   const countryInfo = useMemo(() => getCountryByCode(detectedCountry), [detectedCountry]);
   
@@ -70,19 +66,12 @@ const Signup = () => {
   const [checkingPassword, setCheckingPassword] = useState(false);
   const [breachWarning, setBreachWarning] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
-
-  // Supplier category/subcategory selection
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  
-  // Email notification consent
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
-
-  // Live counts from database
+  const [activeTab, setActiveTab] = useState<string>(initialRole === 'buyer' ? 'buyers' : 'suppliers');
+  
   const { supplierCount, logisticsCount, isLoading: countsLoading } = usePartnerCounts();
-
-  // Referrer selection mode: 'priyanka' | 'other' | ''
-  const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other' | ''>('')
 
   const [formData, setFormData] = useState({
     email: '',
@@ -90,136 +79,55 @@ const Signup = () => {
     companyName: '',
     contactPerson: '',
     phone: '',
-    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner',
-    referredByName: '',
-    referredByPhone: '',
-    logisticsPartnerType: '' as 'agent' | 'fleet_owner' | '',
-    buyerType: '' as 'end_buyer' | 'distributor' | 'dealer' | '',
-    yardLocation: '',
     location: '',
     gstin: '',
+    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner',
+    referredByName: 'Priyanka',
+    referredByPhone: '+918368127357',
+    buyerType: '' as '' | 'end_buyer' | 'distributor' | 'dealer',
+    logisticsPartnerType: '' as '' | 'agent' | 'fleet_owner',
+    yardLocation: '',
+    buyerIndustry: '',
   });
 
-  // Dynamic SEO based on role
-  const getSEOConfig = () => {
-    if (formData.role === 'supplier') {
-      return {
-        title: "Supplier Registration | List Products & Get Buyer Leads | ProcureSaathi",
-        description: "Register as a verified supplier on India's top B2B marketplace. Get premium visibility, direct buyer connections, and grow your business. Free registration, unlimited product listings!",
-        keywords: "supplier registration India, B2B supplier platform, sell products online B2B, wholesale supplier registration, industrial supplier marketplace, verified supplier network"
-      };
-    }
-    if (formData.role === 'logistics_partner') {
-      return {
-        title: "Logistics Partner Registration | Fleet Owner & Agent Signup | ProcureSaathi",
-        description: "Join India's fastest-growing logistics network. Register as fleet owner or transport agent. Get freight bookings, track shipments, and grow your transport business.",
-        keywords: "logistics partner registration, fleet owner signup, transport agent India, freight booking platform, truck booking service"
-      };
-    }
-    return {
-      title: "Buyer Registration | Source Products from Verified Suppliers | ProcureSaathi",
-      description: "Register as a buyer on India's trusted B2B procurement platform. Access verified suppliers, compare quotes, and streamline your procurement process.",
-      keywords: "buyer registration India, B2B procurement platform, industrial buyer signup, wholesale buying platform"
-    };
-  };
+  const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other'>('priyanka');
 
-  const seoConfig = getSEOConfig();
-  useSEO({
-    title: seoConfig.title,
-    description: seoConfig.description,
-    canonical: `https://procuresaathi.com/signup${formData.role !== 'buyer' ? `?role=${formData.role}` : ''}`,
-    keywords: seoConfig.keywords
-  });
+  // SEO based on role
+  const seoConfig = useMemo(() => ({
+    buyer: {
+      title: 'Partner with Us - Buyers | ProcureSaathi',
+      description: 'Join ProcureSaathi as a buyer. Post RFQs, compare verified supplier bids, and streamline your B2B procurement.',
+      canonical: 'https://procuresaathi.com/signup?role=buyer',
+    },
+    supplier: {
+      title: 'Partner with Us - Suppliers | ProcureSaathi',
+      description: 'Join ProcureSaathi as a verified supplier. Access AI-detected buyer demand and grow your B2B business.',
+      canonical: 'https://procuresaathi.com/signup?role=supplier',
+    },
+    logistics_partner: {
+      title: 'Partner with Us - Logistics | ProcureSaathi',
+      description: 'Join ProcureSaathi as a logistics partner. Connect with shippers and grow your freight business.',
+      canonical: 'https://procuresaathi.com/signup?role=logistics_partner',
+    },
+  }), []);
 
-  // Inject structured data for supplier signup
-  useEffect(() => {
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": seoConfig.title,
-      "description": seoConfig.description,
-      "url": `https://procuresaathi.com/signup${formData.role !== 'buyer' ? `?role=${formData.role}` : ''}`,
-      "mainEntity": {
-        "@type": "SoftwareApplication",
-        "name": "ProcureSaathi B2B Platform",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "INR",
-          "description": "Free supplier registration with premium visibility"
-        }
-      }
-    };
-
-    const faqData = formData.role === 'supplier' ? {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How do I register as a supplier on ProcureSaathi?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Simply fill in your company details, add your yard/warehouse location, and complete the registration. You can start listing products immediately after signup."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is supplier registration free?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes, supplier registration is completely free. You get unlimited product listings and access to buyer requirements at no cost."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How can I increase my visibility as a supplier?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Add complete product catalogs with detailed specifications, maintain accurate stock levels, respond quickly to buyer inquiries, and keep your profile updated for maximum visibility."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What products can I sell on ProcureSaathi?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "ProcureSaathi supports industrial materials including metals, chemicals, polymers, construction materials, and more. Check our categories page for the complete list."
-          }
-        }
-      ]
-    } : null;
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'signup-structured-data';
-    script.textContent = JSON.stringify(structuredData);
-    document.head.appendChild(script);
-
-    let faqScript: HTMLScriptElement | null = null;
-    if (faqData) {
-      faqScript = document.createElement('script');
-      faqScript.type = 'application/ld+json';
-      faqScript.id = 'signup-faq-data';
-      faqScript.textContent = JSON.stringify(faqData);
-      document.head.appendChild(faqScript);
-    }
-
-    return () => {
-      const existingScript = document.getElementById('signup-structured-data');
-      if (existingScript) existingScript.remove();
-      const existingFaq = document.getElementById('signup-faq-data');
-      if (existingFaq) existingFaq.remove();
-    };
-  }, [formData.role, seoConfig]);
+  useSEO(seoConfig[formData.role]);
 
   useEffect(() => {
     if (user) {
       navigate('/dashboard');
     }
   }, [user, navigate]);
+
+  // Handle tab change to update role
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === 'buyers') {
+      setFormData({ ...formData, role: 'buyer' });
+    } else {
+      setFormData({ ...formData, role: 'supplier' });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,529 +185,527 @@ const Signup = () => {
       }
     }
 
-    // ============================================
-    // SELF-REFERRAL PREVENTION (UI-Level Check)
-    // ============================================
-    // Check if the referrer phone matches user's phone (normalized comparison)
-    if (formData.referredByPhone && formData.phone) {
-      const normalizedUserPhone = formData.phone.replace(/[\s+\-]/g, '');
-      const normalizedReferrerPhone = formData.referredByPhone.replace(/[\s+\-]/g, '');
-      
-      if (normalizedUserPhone === normalizedReferrerPhone) {
-        setErrors({ 
-          referredByPhone: 'You cannot select yourself or a related account as a referrer. Self-referrals are not allowed.' 
-        });
-        toast.error('Self-referral detected: Your phone number matches the referrer\'s phone number.');
-        return;
-      }
+    // Validate referrer fields
+    if (!formData.referredByName.trim()) {
+      setErrors({ referredByName: 'Referrer name is required' });
+      return;
+    }
+    if (!formData.referredByPhone.trim()) {
+      setErrors({ referredByPhone: 'Referrer phone is required' });
+      return;
     }
 
-    const result = signupSchema.safeParse(formData);
+    // Validate using Zod schema
+    const result = signupSchema.safeParse({
+      email: formData.email,
+      password: formData.password,
+      companyName: formData.companyName,
+      contactPerson: formData.contactPerson,
+      phone: formData.phone,
+    });
+
     if (!result.success) {
       const fieldErrors: FormErrors = {};
-      result.error.errors.forEach((err) => {
+      result.error.errors.forEach(err => {
         const field = err.path[0] as keyof FormErrors;
-        if (!fieldErrors[field]) {
-          fieldErrors[field] = err.message;
-        }
+        fieldErrors[field] = err.message;
       });
       setErrors(fieldErrors);
       return;
     }
 
-    // Check for duplicate phone number
-    setLoading(true);
-    const { supabase } = await import('@/integrations/supabase/client');
-    const { data: existingPhone } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', result.data.phone)
-      .maybeSingle();
-    
-    if (existingPhone) {
-      setLoading(false);
-      setErrors({ phone: 'This phone number is already registered' });
-      return;
-    }
-
-    // Check for duplicate email
-    const { data: existingEmail } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', result.data.email)
-      .maybeSingle();
-    
-    if (existingEmail) {
-      setLoading(false);
-      setErrors({ email: 'This email is already registered' });
-      return;
-    }
-    setLoading(false);
-
-    // Check password against known breaches
+    // Check password breach before signing up
     setCheckingPassword(true);
-    const breachResult = await checkPasswordBreach(result.data.password);
+    try {
+      const breachResult = await checkPasswordBreach(formData.password);
+      if (breachResult.isBreached && breachResult.breachCount) {
+        setBreachWarning(
+          `⚠️ This password has been exposed in ${formatBreachCount(breachResult.breachCount)} data breaches. Please choose a more secure password for your account safety.`
+        );
+        setCheckingPassword(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Password breach check failed:', error);
+    }
     setCheckingPassword(false);
 
-    if (breachResult.isBreached) {
-      setBreachWarning(
-        `This password has been exposed in ${formatBreachCount(breachResult.breachCount)} data breaches. Please choose a different password.`
-      );
-      setErrors({ password: 'This password has been compromised in a data breach' });
-      return;
-    }
-
     setLoading(true);
-    const { error } = await signUp(result.data.email, result.data.password, {
-      company_name: result.data.companyName,
-      contact_person: result.data.contactPerson,
-      phone: result.data.phone,
-      role: result.data.role,
-      referred_by_name: result.data.referredByName,
-      referred_by_phone: result.data.referredByPhone,
+    const { error } = await signUp(formData.email, formData.password, {
+      company_name: formData.companyName,
+      contact_person: formData.contactPerson,
+      phone: formData.phone,
+      location: formData.location,
+      gstin: formData.gstin,
+      role: formData.role,
+      referral_code: referralCode,
+      referred_by_name: formData.referredByName,
+      referred_by_phone: formData.referredByPhone,
+      buyer_type: formData.role === 'buyer' ? formData.buyerType : null,
       logistics_partner_type: formData.role === 'logistics_partner' ? formData.logisticsPartnerType : null,
-      business_type: formData.role === 'buyer' ? formData.buyerType : null,
-      address: formData.role === 'supplier' ? formData.yardLocation : result.data.location,
-      gstin: result.data.gstin,
-      // Supplier-specific fields
-      supplier_categories: formData.role === 'supplier' ? selectedCategories : null,
-      supplier_notification_subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
-      email_notifications_enabled: (formData.role === 'supplier' || formData.role === 'logistics_partner') ? emailNotificationConsent : true,
-    }, referralCode || null);
-    
-    // Update referral record if signup was successful and referral code was used
-    if (!error && referralCode) {
-      const { supabase } = await import('@/integrations/supabase/client');
-      await supabase
-        .from('referrals')
-        .update({ 
-          status: 'signed_up',
-          signed_up_at: new Date().toISOString()
-        })
-        .eq('referral_code', referralCode)
-        .is('referred_id', null);
-    }
-    
+      yard_location: formData.role === 'supplier' ? formData.yardLocation : null,
+      buyer_industry: formData.role === 'buyer' ? formData.buyerIndustry : null,
+      categories: formData.role === 'supplier' ? selectedCategories : null,
+      subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
+      email_notification_consent: emailNotificationConsent,
+      country: detectedCountry,
+    });
+
     setLoading(false);
     
-    // Redirect to login page after successful signup
     if (!error) {
-      // Clear country context after successful signup
       clearCountryContext();
       navigate('/login');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative">
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${authBg})` }} />
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
-      <div className="w-full max-w-md relative z-10">
-        <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
-          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-28 sm:h-40 w-auto object-contain" />
-        </Link>
+    <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <img 
+              src={procureSaathiLogo} 
+              alt="ProcureSaathi Logo" 
+              className="h-14 sm:h-16 w-auto object-contain"
+            />
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back to Home</span>
+            </Link>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
+              Login
+            </Button>
+          </div>
+        </div>
+      </header>
 
-        {/* Early Partner Offer - Supplier flow only */}
-        {formData.role === 'supplier' && (
-          <Suspense fallback={null}>
-            <div className="mb-6">
-              <EarlyPartnerOffer
-                showCountdown={true}
-                showNumbers={true}
-                supplierCount={countsLoading ? 38 : supplierCount}
-                logisticsCount={countsLoading ? 5 : logisticsCount}
-                ctaLabel="Complete Signup Below"
-                onCTAClick={() => {
-                  // Scroll to form
-                  document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              />
-            </div>
-          </Suspense>
-        )}
+      {/* Hero Section */}
+      <section className="relative py-12 md:py-16 overflow-hidden border-b bg-gradient-to-b from-primary/5 to-transparent">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+            <Link to="/" className="hover:text-foreground">Home</Link>
+            <span>/</span>
+            <span className="text-foreground">Partner with Us</span>
+          </nav>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-4">
+            <span className="text-sm font-semibold text-primary">🤝 Let's work together</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-4">
+            Partner with Us
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Whether you're looking to optimize your procurement or partner with us as a supplier — we're here to help.
+          </p>
+        </div>
+      </section>
 
-        <Card className="shadow-xl">
-          <CardHeader>
-            <CardTitle>Create Your Account</CardTitle>
-            <CardDescription>
-              {countryInfo ? `Join ${countryInfo.name}'s trusted B2B procurement marketplace` : "Join India's trusted B2B procurement marketplace"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Trust line for signup flow */}
-            <div className="mb-4 p-3 rounded-lg bg-muted/50 border text-sm text-muted-foreground flex items-center gap-2">
-              <Lock className="h-4 w-4 text-primary shrink-0" />
-              We need your contact details to share verified supplier quotes and manage fulfillment.
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>I am a</Label>
-                <RadioGroup
-                  value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value as 'buyer' | 'supplier' | 'logistics_partner' })}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="buyer" id="buyer" />
-                    <Label htmlFor="buyer" className="font-normal cursor-pointer">
-                      Buyer - Looking to procure products
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="supplier" id="supplier" />
-                    <Label htmlFor="supplier" className="font-normal cursor-pointer">
-                      Supplier - Providing products
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="logistics_partner" id="logistics_partner" />
-                    <Label htmlFor="logistics_partner" className="font-normal cursor-pointer">
-                      Logistics Partner - Freight & Transportation services
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {/* Form Column */}
+          <div className="lg:col-span-2">
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
+              <TabsList className="grid w-full grid-cols-2 h-12">
+                <TabsTrigger value="buyers" className="gap-2 text-sm">
+                  <ShoppingBag className="h-4 w-4" />
+                  For Buyers
+                </TabsTrigger>
+                <TabsTrigger value="suppliers" className="gap-2 text-sm">
+                  <Building2 className="h-4 w-4" />
+                  For Suppliers
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-              {/* Buyer Type - Only visible for buyers */}
-              {formData.role === 'buyer' && (
-                <div className="space-y-2">
-                  <Label>Buyer Type *</Label>
-                  <Select
-                    value={formData.buyerType}
-                    onValueChange={(value) => setFormData({ ...formData, buyerType: value as 'end_buyer' | 'distributor' | 'dealer' })}
-                  >
-                    <SelectTrigger className="min-h-[44px]">
-                      <SelectValue placeholder="Select buyer type" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={4} className="max-h-[40vh]">
-                      <SelectItem value="end_buyer" className="py-3">End Buyer - Direct consumer of products</SelectItem>
-                      <SelectItem value="distributor" className="py-3">Distributor - Distribute to multiple buyers</SelectItem>
-                      <SelectItem value="dealer" className="py-3">Dealer - Trade/resell to customers</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    {formData.buyerType === 'distributor' || formData.buyerType === 'dealer'
-                      ? 'You can specify customer name when posting requirements'
-                      : 'Select your buyer type to continue'}
-                  </p>
-                </div>
-              )}
-
-              {formData.role === 'logistics_partner' && (
-                <div className="space-y-2">
-                  <Label>Partner Type *</Label>
-                  <Select
-                    value={formData.logisticsPartnerType}
-                    onValueChange={(value) => setFormData({ ...formData, logisticsPartnerType: value as 'agent' | 'fleet_owner' })}
-                  >
-                    <SelectTrigger 
-                      className={`min-h-[44px] ${errors.logisticsPartnerType ? 'border-destructive' : ''}`}
-                    >
-                      <SelectValue placeholder="Tap to select partner type" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={4} className="max-h-[40vh]">
-                      <SelectItem value="agent" className="py-3">Agent - I connect transporters with customers</SelectItem>
-                      <SelectItem value="fleet_owner" className="py-3">Fleet Owner - I own and operate vehicles</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.logisticsPartnerType && (
-                    <p className="text-sm text-destructive">{errors.logisticsPartnerType}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    {formData.logisticsPartnerType === 'fleet_owner' 
-                      ? 'You will need to upload RC, Aadhar, PAN and Notary agreement for verification'
-                      : formData.logisticsPartnerType === 'agent'
-                      ? 'You will need to upload Aadhar, PAN and Notary agreement for verification'
-                      : 'Select your partner type to see verification requirements'
+            <Card className="shadow-lg border-border/50">
+              <CardContent className="p-6 md:p-8">
+                {/* Title based on role */}
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold mb-2">
+                    {formData.role === 'buyer' ? 'Request a Demo' : 'Join as a Partner'}
+                  </h2>
+                  <p className="text-muted-foreground text-sm">
+                    {formData.role === 'buyer' 
+                      ? 'See how ProcureSaathi can transform your procurement decisions.'
+                      : 'Start receiving AI-detected buyer demand and grow your business.'
                     }
                   </p>
                 </div>
-              )}
 
-              {/* Supplier Category Selection - Moved to prominent position */}
-              {formData.role === 'supplier' && (
-                <SupplierCategorySelector
-                  selectedCategories={selectedCategories}
-                  selectedSubcategories={selectedSubcategories}
-                  onCategoriesChange={setSelectedCategories}
-                  onSubcategoriesChange={setSelectedSubcategories}
-                  error={errors.categories}
-                />
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="company">Company Name *</Label>
-                <Input
-                  id="company"
-                  placeholder="Your Company Pvt Ltd"
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className={`min-h-[44px] ${errors.companyName ? 'border-destructive' : ''}`}
-                />
-                {errors.companyName && (
-                  <p className="text-sm text-destructive">{errors.companyName}</p>
+                {/* Early Partner Offer for Suppliers */}
+                {formData.role === 'supplier' && (
+                  <Suspense fallback={null}>
+                    <div className="mb-6">
+                      <EarlyPartnerOffer
+                        showCountdown={true}
+                        showNumbers={true}
+                        supplierCount={countsLoading ? 38 : supplierCount}
+                        logisticsCount={countsLoading ? 5 : logisticsCount}
+                        ctaLabel="Complete Form Below"
+                        onCTAClick={() => {
+                          document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                      />
+                    </div>
+                  </Suspense>
                 )}
-              </div>
 
-              {formData.role === 'supplier' && (
-                <div className="space-y-2">
-                  <Label htmlFor="yardLocation">Yard/Warehouse Location *</Label>
-                  <Input
-                    id="yardLocation"
-                    placeholder="Enter your yard/warehouse location"
-                    value={formData.yardLocation}
-                    onChange={(e) => setFormData({ ...formData, yardLocation: e.target.value })}
-                    className={`min-h-[44px] ${errors.yardLocation ? 'border-destructive' : ''}`}
-                  />
-                  {errors.yardLocation && (
-                    <p className="text-sm text-destructive">{errors.yardLocation}</p>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* Role Selection (for switching between supplier/logistics) */}
+                  {activeTab === 'suppliers' && (
+                    <div className="space-y-3">
+                      <Label>Partner Type</Label>
+                      <RadioGroup
+                        value={formData.role}
+                        onValueChange={(value) => setFormData({ ...formData, role: value as 'supplier' | 'logistics_partner' })}
+                        className="grid grid-cols-2 gap-3"
+                      >
+                        <div className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-colors ${formData.role === 'supplier' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
+                          <RadioGroupItem value="supplier" id="supplier" />
+                          <Label htmlFor="supplier" className="font-normal cursor-pointer flex items-center gap-2">
+                            <Building2 className="h-4 w-4" />
+                            Supplier
+                          </Label>
+                        </div>
+                        <div className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-colors ${formData.role === 'logistics_partner' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
+                          <RadioGroupItem value="logistics_partner" id="logistics_partner" />
+                          <Label htmlFor="logistics_partner" className="font-normal cursor-pointer flex items-center gap-2">
+                            <Truck className="h-4 w-4" />
+                            Logistics
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Full address of your yard/warehouse where products are stored
-                  </p>
-                </div>
-              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="contact">Contact Person *</Label>
-                <Input
-                  id="contact"
-                  placeholder="John Doe"
-                  value={formData.contactPerson}
-                  onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                  className={`min-h-[44px] ${errors.contactPerson ? 'border-destructive' : ''}`}
-                />
-                {errors.contactPerson && (
-                  <p className="text-sm text-destructive">{errors.contactPerson}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+919876543210"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className={`min-h-[44px] ${errors.phone ? 'border-destructive' : ''}`}
-                />
-                {errors.phone && (
-                  <p className="text-sm text-destructive">{errors.phone}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Location (City, State) *</Label>
-                <Input
-                  id="location"
-                  placeholder="Mumbai, Maharashtra"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className={`min-h-[44px] ${errors.location ? 'border-destructive' : ''}`}
-                />
-                {errors.location && (
-                  <p className="text-sm text-destructive">{errors.location}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="gstin">
-                  {taxConfig.label} {(taxConfig.isRequired && formData.role !== 'logistics_partner') && '*'}
-                  {(formData.role === 'logistics_partner' || !taxConfig.isRequired) && <span className="text-muted-foreground font-normal">(Optional)</span>}
-                </Label>
-                <Input
-                  id="gstin"
-                  placeholder={taxConfig.placeholder}
-                  value={formData.gstin}
-                  onChange={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
-                  className={`min-h-[44px] ${errors.gstin ? 'border-destructive' : ''}`}
-                  maxLength={taxConfig.maxLength}
-                />
-                {errors.gstin && (
-                  <p className="text-sm text-destructive">{errors.gstin}</p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  {taxConfig.helperText}
-                  {formData.role === 'logistics_partner' && ' - not required for logistics partners'}
-                  {taxConfig.vatRate && detectedCountry !== 'india' && (
-                    <span className="ml-1 text-primary font-medium">({taxConfig.vatRate})</span>
+                  {/* Buyer Type - Only for buyers */}
+                  {formData.role === 'buyer' && (
+                    <div className="space-y-2">
+                      <Label>Buyer Type *</Label>
+                      <Select
+                        value={formData.buyerType}
+                        onValueChange={(value) => setFormData({ ...formData, buyerType: value as 'end_buyer' | 'distributor' | 'dealer' })}
+                      >
+                        <SelectTrigger className="min-h-[44px]">
+                          <SelectValue placeholder="Select buyer type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="end_buyer">End Buyer - Direct consumer</SelectItem>
+                          <SelectItem value="distributor">Distributor</SelectItem>
+                          <SelectItem value="dealer">Dealer / Reseller</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   )}
-                </p>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={`min-h-[44px] ${errors.email ? 'border-destructive' : ''}`}
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
-                )}
-              </div>
+                  {/* Logistics Partner Type */}
+                  {formData.role === 'logistics_partner' && (
+                    <div className="space-y-2">
+                      <Label>Partner Type *</Label>
+                      <Select
+                        value={formData.logisticsPartnerType}
+                        onValueChange={(value) => setFormData({ ...formData, logisticsPartnerType: value as 'agent' | 'fleet_owner' })}
+                      >
+                        <SelectTrigger className={`min-h-[44px] ${errors.logisticsPartnerType ? 'border-destructive' : ''}`}>
+                          <SelectValue placeholder="Select partner type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="agent">Agent - I connect transporters</SelectItem>
+                          <SelectItem value="fleet_owner">Fleet Owner - I own vehicles</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {errors.logisticsPartnerType && <p className="text-sm text-destructive">{errors.logisticsPartnerType}</p>}
+                    </div>
+                  )}
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Min 8 chars, uppercase, lowercase, number"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`min-h-[44px] ${errors.password ? 'border-destructive' : ''}`}
-                />
-                {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
-                )}
-              </div>
+                  {/* Supplier Categories */}
+                  {formData.role === 'supplier' && (
+                    <SupplierCategorySelector
+                      selectedCategories={selectedCategories}
+                      selectedSubcategories={selectedSubcategories}
+                      onCategoriesChange={setSelectedCategories}
+                      onSubcategoriesChange={setSelectedSubcategories}
+                      error={errors.categories}
+                    />
+                  )}
 
-              {/* Supplier Category Selection - Removed from here, moved above */}
+                  {/* Two-column layout for name fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPerson">Contact Person *</Label>
+                      <Input
+                        id="contactPerson"
+                        placeholder="John Doe"
+                        value={formData.contactPerson}
+                        onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                        className={`min-h-[44px] ${errors.contactPerson ? 'border-destructive' : ''}`}
+                      />
+                      {errors.contactPerson && <p className="text-sm text-destructive">{errors.contactPerson}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company">Company Name *</Label>
+                      <Input
+                        id="company"
+                        placeholder="Acme Industries"
+                        value={formData.companyName}
+                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        className={`min-h-[44px] ${errors.companyName ? 'border-destructive' : ''}`}
+                      />
+                      {errors.companyName && <p className="text-sm text-destructive">{errors.companyName}</p>}
+                    </div>
+                  </div>
 
-              {/* Email Notification Consent for Suppliers and Logistics Partners */}
-              {(formData.role === 'supplier' || formData.role === 'logistics_partner') && (
-                <EmailNotificationConsent
-                  checked={emailNotificationConsent}
-                  onChange={setEmailNotificationConsent}
-                  error={errors.emailNotificationConsent}
-                  role={formData.role}
-                />
-              )}
+                  {/* Email and Phone */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Work Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@company.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className={`min-h-[44px] ${errors.email ? 'border-destructive' : ''}`}
+                      />
+                      {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number *</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+91 98765 43210"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className={`min-h-[44px] ${errors.phone ? 'border-destructive' : ''}`}
+                      />
+                      {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
+                    </div>
+                  </div>
 
-              {/* Referral Code Input */}
-              <div className="space-y-2">
-                <Label htmlFor="referralCode">Referral Code (Optional)</Label>
-                <Input
-                  id="referralCode"
-                  placeholder="e.g. PS-9EB6D491"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                  className="min-h-[44px] font-mono"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Enter a referral code if someone referred you to ProcureSaathi
-                </p>
-              </div>
+                  {/* Location and Tax ID */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location (City, State) *</Label>
+                      <Input
+                        id="location"
+                        placeholder="Mumbai, Maharashtra"
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        className={`min-h-[44px] ${errors.location ? 'border-destructive' : ''}`}
+                      />
+                      {errors.location && <p className="text-sm text-destructive">{errors.location}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="gstin">
+                        {taxConfig.label} {(taxConfig.isRequired && formData.role !== 'logistics_partner') ? '*' : '(Optional)'}
+                      </Label>
+                      <Input
+                        id="gstin"
+                        placeholder={taxConfig.placeholder}
+                        value={formData.gstin}
+                        onChange={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
+                        className={`min-h-[44px] ${errors.gstin ? 'border-destructive' : ''}`}
+                        maxLength={taxConfig.maxLength}
+                      />
+                      {errors.gstin && <p className="text-sm text-destructive">{errors.gstin}</p>}
+                    </div>
+                  </div>
 
-              <div className="border-t pt-4 mt-4">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Referred By *</p>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Referrers earn 20% of our platform fee (0.1% of order value) on your successful orders
-                </p>
-                <div className="p-2 rounded bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 mb-3">
-                  <p className="text-xs text-amber-700 dark:text-amber-300">
-                    ⚠️ <strong>Important:</strong> Self-referrals (using your own name/family/related business) are strictly prohibited 
-                    and will result in commission forfeiture.
-                  </p>
-                </div>
-                <div className="space-y-3">
+                  {/* Yard Location for Suppliers */}
+                  {formData.role === 'supplier' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="yardLocation">Yard/Warehouse Location *</Label>
+                      <Input
+                        id="yardLocation"
+                        placeholder="Full address of your warehouse"
+                        value={formData.yardLocation}
+                        onChange={(e) => setFormData({ ...formData, yardLocation: e.target.value })}
+                        className={`min-h-[44px] ${errors.yardLocation ? 'border-destructive' : ''}`}
+                      />
+                      {errors.yardLocation && <p className="text-sm text-destructive">{errors.yardLocation}</p>}
+                    </div>
+                  )}
+
+                  {/* Password */}
                   <div className="space-y-2">
-                    <Label>Select Referrer *</Label>
+                    <Label htmlFor="password">Password *</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Min 8 chars, uppercase, lowercase, number"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className={`min-h-[44px] ${errors.password ? 'border-destructive' : ''}`}
+                    />
+                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                  </div>
+
+                  {/* Email Consent for Partners */}
+                  {(formData.role === 'supplier' || formData.role === 'logistics_partner') && (
+                    <EmailNotificationConsent
+                      checked={emailNotificationConsent}
+                      onChange={setEmailNotificationConsent}
+                      error={errors.emailNotificationConsent}
+                      role={formData.role}
+                    />
+                  )}
+
+                  {/* Referral Section - Collapsible */}
+                  <div className="border rounded-lg p-4 bg-muted/30">
+                    <p className="text-sm font-medium mb-3">Referred By</p>
                     <Select
                       value={referrerSelection}
                       onValueChange={(value: 'priyanka' | 'other') => {
                         setReferrerSelection(value);
                         if (value === 'priyanka') {
                           setFormData({ ...formData, referredByName: 'Priyanka', referredByPhone: '+918368127357' });
-                          setErrors({ ...errors, referredByName: undefined, referredByPhone: undefined });
-                        } else if (value === 'other') {
+                        } else {
                           setFormData({ ...formData, referredByName: '', referredByPhone: '' });
                         }
                       }}
                     >
-                      <SelectTrigger 
-                        className={`min-h-[44px] ${errors.referredByName && !formData.referredByName ? 'border-destructive' : ''}`}
-                      >
-                        <SelectValue placeholder="Tap to select who referred you" />
+                      <SelectTrigger className="min-h-[44px]">
+                        <SelectValue placeholder="Select referrer" />
                       </SelectTrigger>
-                      <SelectContent 
-                        position="popper" 
-                        sideOffset={4}
-                        className="max-h-[40vh]"
-                      >
-                        <SelectItem value="priyanka" className="py-3">Priyanka (+918368127357)</SelectItem>
-                        <SelectItem value="other" className="py-3">Other (Add manually)</SelectItem>
+                      <SelectContent>
+                        <SelectItem value="priyanka">Priyanka (+91 8368127357)</SelectItem>
+                        <SelectItem value="other">Other (Add manually)</SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors.referredByName && referrerSelection === 'other' && !formData.referredByName && (
-                      <p className="text-sm text-destructive">Please enter referrer details</p>
-                    )}
-                  </div>
-                  
-                  {referrerSelection === 'other' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="referredByName">Name *</Label>
+                    
+                    {referrerSelection === 'other' && (
+                      <div className="grid grid-cols-2 gap-3 mt-3">
                         <Input
-                          id="referredByName"
-                          placeholder="Referrer's name"
+                          placeholder="Name"
                           value={formData.referredByName}
                           onChange={(e) => setFormData({ ...formData, referredByName: e.target.value })}
-                          className={`min-h-[44px] ${errors.referredByName ? 'border-destructive' : ''}`}
+                          className={errors.referredByName ? 'border-destructive' : ''}
                         />
-                        {errors.referredByName && (
-                          <p className="text-sm text-destructive">{errors.referredByName}</p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="referredByPhone">Phone *</Label>
                         <Input
-                          id="referredByPhone"
-                          type="tel"
-                          placeholder="+919876543210"
+                          placeholder="Phone"
                           value={formData.referredByPhone}
                           onChange={(e) => setFormData({ ...formData, referredByPhone: e.target.value })}
-                          className={`min-h-[44px] ${errors.referredByPhone ? 'border-destructive' : ''}`}
+                          className={errors.referredByPhone ? 'border-destructive' : ''}
                         />
-                        {errors.referredByPhone && (
-                          <p className="text-sm text-destructive">{errors.referredByPhone}</p>
-                        )}
                       </div>
-                    </div>
+                    )}
+                  </div>
+
+                  {breachWarning && (
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>{breachWarning}</AlertDescription>
+                    </Alert>
                   )}
+
+                  <Button type="submit" className="w-full min-h-[48px] text-base font-semibold" disabled={loading || checkingPassword}>
+                    {checkingPassword ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Checking password security...
+                      </>
+                    ) : loading ? (
+                      'Creating account...'
+                    ) : (
+                      formData.role === 'buyer' ? 'Request Demo' : 'Create Partner Account'
+                    )}
+                  </Button>
+                </form>
+
+                <p className="text-center text-sm text-muted-foreground mt-6">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-primary hover:underline font-medium">
+                    Sign In
+                  </Link>
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar Column */}
+          <div className="space-y-6">
+            {/* What to Expect */}
+            <Card className="border-border/50">
+              <CardContent className="p-6">
+                <h3 className="font-semibold mb-4">What to expect</h3>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Clock className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Quick Response</p>
+                      <p className="text-xs text-muted-foreground">We'll get back within 1-2 business days</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Personalized Onboarding</p>
+                      <p className="text-xs text-muted-foreground">See how ProcureSaathi fits your needs</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Verified Network</p>
+                      <p className="text-xs text-muted-foreground">Access verified buyers and suppliers</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {breachWarning && (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>{breachWarning}</AlertDescription>
-                </Alert>
-              )}
+            {/* Enterprise Inquiry */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-primary mb-2">Enterprise Inquiry?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  For enterprise partnerships and large-scale deployments, reach out directly.
+                </p>
+                <a 
+                  href="mailto:sales@procuresaathi.com" 
+                  className="flex items-center gap-2 text-primary font-medium text-sm hover:underline"
+                >
+                  <Mail className="h-4 w-4" />
+                  sales@procuresaathi.com
+                </a>
+              </CardContent>
+            </Card>
 
-              <Button type="submit" className="w-full min-h-[48px] text-base" disabled={loading || checkingPassword}>
-                {checkingPassword ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Checking password security...
-                  </>
-                ) : loading ? (
-                  'Creating account...'
-                ) : (
-                  'Create Account'
-                )}
-              </Button>
-            </form>
+            {/* Global Operations */}
+            <Card className="border-border/50">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Globe className="h-5 w-5 text-muted-foreground" />
+                  <h3 className="font-semibold">Global Operations</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Serving B2B buyers and suppliers across 195 countries
+                </p>
+              </CardContent>
+            </Card>
 
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline font-medium">
-                Sign In
-              </Link>
-            </p>
-
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              Want to earn by referring?{' '}
-              <Link to="/affiliate-signup" className="text-primary hover:underline font-medium">
-                Join as Affiliate Partner
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+            {/* Trust Badge */}
+            <div className="flex items-center gap-2 p-4 rounded-lg bg-muted/50 border">
+              <Lock className="h-4 w-4 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">
+                Your data is secure. We never share your information without consent.
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
