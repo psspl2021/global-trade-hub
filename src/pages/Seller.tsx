@@ -367,7 +367,7 @@ const Seller = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="h-14 px-10 text-lg font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                className="h-14 px-10 text-lg font-semibold bg-white text-primary border-white hover:bg-white/90"
                 onClick={() => navigate('/post-rfq')}
               >
                 Looking to Buy?

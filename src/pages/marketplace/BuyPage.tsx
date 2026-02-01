@@ -249,7 +249,7 @@ export default function BuyPage() {
                 <ArrowRight className="h-5 w-5" />
               </Button>
               <Link to={`/${config.supplierPageSlug}`}>
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                <Button size="lg" variant="outline" className="bg-white text-primary border-white hover:bg-white/90">
                   Become a Supplier
                 </Button>
               </Link>

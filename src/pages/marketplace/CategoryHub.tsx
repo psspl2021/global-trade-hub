@@ -241,8 +241,8 @@ export default function CategoryHub() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-                onClick={() => navigate('/browseproducts')}
+                className="bg-white text-primary border-white hover:bg-white/90"
+                onClick={() => navigate('/browse')}
               >
                 Browse Suppliers
               </Button>

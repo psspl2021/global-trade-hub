@@ -261,7 +261,7 @@ export default function SupplierPage() {
                 <ArrowRight className="h-5 w-5" />
               </Button>
               <Link to={`/buy-${productSlug}`}>
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                <Button size="lg" variant="outline" className="bg-white text-primary border-white hover:bg-white/90">
                   Looking to Buy?
                 </Button>
               </Link>

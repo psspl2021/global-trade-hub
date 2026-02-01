@@ -438,7 +438,7 @@ export function SignalPageLayout({ config, countryCode }: SignalPageLayoutProps)
               size="lg" 
               variant="outline"
               onClick={handleOpenRFQModal}
-              className="gap-2 text-lg px-10 py-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+              className="gap-2 text-lg px-10 py-6 bg-white text-primary border-white hover:bg-white/90"
             >
               Looking to Buy?
               <ArrowRight className="h-5 w-5" />

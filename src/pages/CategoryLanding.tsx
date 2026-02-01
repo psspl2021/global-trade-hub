@@ -827,7 +827,7 @@ const CategoryLanding = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="bg-transparent border-white text-white hover:bg-white/10"
+                className="bg-white text-primary border-white hover:bg-white/90"
                 onClick={() => navigate('/signup?role=supplier')}
               >
                 AI Detected Demand – List Products
@@ -984,10 +984,10 @@ const CategoryLanding = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="bg-transparent border-white text-white hover:bg-white/10"
+              className="bg-white text-primary border-white hover:bg-white/90"
               onClick={() => navigate(`/browse?category=${encodeURIComponent(categoryName)}`)}
             >
-              View Suppliers
+              Browse Suppliers
             </Button>
           </div>
         </div>
