@@ -7,7 +7,7 @@ import {
   ChevronRight, CheckCircle, Users, Package, Shield, 
   ArrowRight, Phone, Mail, Star, TrendingUp 
 } from 'lucide-react';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { categoriesData } from '@/data/categories';
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getProductSchema } from '@/hooks/useSEO';
 import { supabase } from '@/integrations/supabase/client';
@@ -741,9 +741,9 @@ const CategoryLanding = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi - B2B Marketplace" 
-              className="h-16 w-auto object-contain"
-              width={64}
-              height={64}
+              className="h-20 md:h-24 w-auto object-contain"
+              width={96}
+              height={96}
             />
           </div>
           <nav className="hidden md:flex items-center gap-6">
@@ -1038,7 +1038,7 @@ const CategoryLanding = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-12 w-auto object-contain" />
+              <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-16 md:h-20 w-auto object-contain" />
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground">

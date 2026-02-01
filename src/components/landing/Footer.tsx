@@ -63,7 +63,7 @@ export const Footer = () => {
               <img 
                 src={procureSaathiLogo} 
                 alt="ProcureSaathi Logo" 
-                className="h-16 w-auto object-contain brightness-0 invert opacity-90"
+                className="h-20 md:h-24 w-auto object-contain brightness-0 invert opacity-90"
               />
             </div>
             <p className="text-background/70 text-sm leading-relaxed mb-6 max-w-xs">

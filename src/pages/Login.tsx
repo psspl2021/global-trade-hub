@@ -161,7 +161,7 @@ const Login = () => {
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
         <div className="w-full max-w-md relative z-10">
           <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
-            <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 sm:h-32 w-auto object-contain" />
+            <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-28 sm:h-40 w-auto object-contain" />
           </Link>
           <TOTPVerification onSuccess={handleTOTPSuccess} onCancel={handleTOTPCancel} />
         </div>
@@ -175,7 +175,7 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary via-primary/90 to-primary/80">
         <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: `url(${authBg})` }} />
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-primary-foreground">
-          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-24 w-auto object-contain mb-8 brightness-0 invert" />
+          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-32 w-auto object-contain mb-8 brightness-0 invert" />
           <h2 className="text-3xl font-display font-bold text-center mb-4">Welcome Back to ProcureSaathi</h2>
           <p className="text-center text-primary-foreground/80 max-w-md text-lg">
             India's trusted B2B procurement platform. Access verified suppliers, manage RFQs, and grow your business.
@@ -202,7 +202,7 @@ const Login = () => {
         <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-md">
           <Link to="/" className="flex items-center justify-center mb-8 lg:hidden hover:opacity-80 transition-opacity">
-            <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-16 w-auto object-contain" />
+            <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 md:h-24 w-auto object-contain" />
           </Link>
 
           <Card className="shadow-xl border-border/50">

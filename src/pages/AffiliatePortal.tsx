@@ -9,7 +9,7 @@ import { Loader2, LogOut, Settings, AlertTriangle } from 'lucide-react';
 import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
 import { ReferrerKYCUpload } from '@/components/affiliate/ReferrerKYCUpload';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
 const AffiliatePortal = () => {
   const navigate = useNavigate();
@@ -57,9 +57,9 @@ const AffiliatePortal = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-10 sm:h-16 w-auto object-contain cursor-pointer"
-              width={64}
-              height={64}
+              className="h-14 sm:h-20 w-auto object-contain cursor-pointer"
+              width={80}
+              height={80}
               loading="eager"
             />
           </Link>

@@ -168,9 +168,9 @@ const Blogs = () => {
               <img 
                 src={logo} 
                 alt="ProcureSaathi - B2B Procurement Platform" 
-                className="h-16 md:h-20 hover:opacity-80 transition-opacity hover:scale-105" 
-                width="80"
-                height="80"
+                className="h-20 md:h-28 hover:opacity-80 transition-opacity hover:scale-105" 
+                width="112"
+                height="112"
               />
             </Link>
           </nav>

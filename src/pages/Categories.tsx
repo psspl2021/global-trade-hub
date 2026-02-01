@@ -9,7 +9,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Search, ChevronRight } from 'lucide-react';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { categoriesData, searchCategories } from '@/data/categories';
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getCategorySchema } from '@/hooks/useSEO';
 import { nameToSlug } from './CategoryLanding';

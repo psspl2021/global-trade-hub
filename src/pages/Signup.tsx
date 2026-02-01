@@ -396,7 +396,7 @@ const Signup = () => {
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
       <div className="w-full max-w-md relative z-10">
         <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
-          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-20 sm:h-32 w-auto object-contain" />
+          <img src={procureSaathiLogo} alt="ProcureSaathi Logo" className="h-28 sm:h-40 w-auto object-contain" />
         </Link>
 
         {/* Early Partner Offer - Supplier flow only */}

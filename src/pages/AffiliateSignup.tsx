@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Users, IndianRupee, TrendingUp, ArrowLeft, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
 const AffiliateSignup = () => {
   const navigate = useNavigate();
@@ -207,7 +207,7 @@ const AffiliateSignup = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-12 w-auto object-contain"
+              className="h-16 sm:h-20 w-auto object-contain"
             />
           </Link>
           <Link to="/">

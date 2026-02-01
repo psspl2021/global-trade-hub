@@ -38,9 +38,9 @@ export const PageHeader = () => {
           <img 
             src={procureSaathiLogo} 
             alt="ProcureSaathi Logo" 
-            className="h-14 sm:h-16 md:h-[72px] w-auto object-contain transition-transform group-hover:scale-[1.02] drop-shadow-md"
-            width={140}
-            height={72}
+            className="h-[72px] sm:h-20 md:h-24 w-auto object-contain transition-transform group-hover:scale-[1.02] drop-shadow-md"
+            width={180}
+            height={96}
             loading="eager"
           />
         </div>

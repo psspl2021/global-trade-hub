@@ -11,7 +11,7 @@ import {
   Package, Fuel, CheckCircle, Route, FileText, Calendar
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { indianLocations } from '@/data/indianLocations';
 import { format } from 'date-fns';
 
@@ -273,7 +273,7 @@ const BookTruck = () => {
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-12 w-auto object-contain cursor-pointer"
+              className="h-16 md:h-20 w-auto object-contain cursor-pointer"
               onClick={() => navigate('/')}
             />
           </div>

@@ -11,7 +11,7 @@ import {
   ArrowLeft, FileText, Clock, Building2
 } from 'lucide-react';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
-import procureSaathiLogo from '@/assets/procuresaathi-logo.jpg';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { useAuth } from '@/hooks/useAuth';
 
 interface RFQItem {
