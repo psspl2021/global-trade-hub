@@ -43,6 +43,7 @@ export interface ResolvedRoute {
 
 /**
  * Resolves a URL path to the correct page type and slug
+ * Now properly checks registry for both category and subcategory level pages
  */
 export function resolveMarketplaceRoute(pathname: string): ResolvedRoute {
   // Clean the pathname
@@ -58,22 +59,30 @@ export function resolveMarketplaceRoute(pathname: string): ResolvedRoute {
   }
   
   // Handle /buy-{slug} routes
+  // The registry now includes BOTH category-level (buy-pharmaceuticals-drugs)
+  // AND subcategory-level (buy-generic-medicines) pages
   if (cleanPath.startsWith('buy-')) {
     const productSlug = cleanPath.replace('buy-', '');
     const config = getBuyPageConfig(productSlug);
     if (config) {
       return { type: 'buy', slug: productSlug, productSlug };
     }
+    // Even if not found, still try to render as buy page for fallback handling
+    console.warn(`[UniversalSEORoute] BUY page slug not in registry: ${productSlug}`);
   }
   
   // Handle /{slug}-suppliers routes
+  // The registry now includes BOTH category-level (pharmaceuticals-drugs-suppliers)
+  // AND subcategory-level (generic-medicines-suppliers) pages
   if (cleanPath.endsWith('-suppliers')) {
-    const fullSlug = cleanPath; // e.g., "steel-plates-heavy-suppliers"
+    const fullSlug = cleanPath; // e.g., "pharmaceuticals-drugs-suppliers"
     const productSlug = cleanPath.replace(/-suppliers$/, '');
     const config = getSupplierPageConfig(fullSlug);
     if (config) {
       return { type: 'supplier', slug: fullSlug, productSlug };
     }
+    // Even if not found, still try to render as supplier page for fallback handling
+    console.warn(`[UniversalSEORoute] SUPPLIER page slug not in registry: ${fullSlug}`);
   }
   
   return { type: 'notfound', slug: cleanPath };
@@ -81,25 +90,29 @@ export function resolveMarketplaceRoute(pathname: string): ResolvedRoute {
 
 /**
  * Check if a path matches any marketplace route
+ * Now properly checks registry for both category and subcategory level pages
  */
 export function isMarketplacePath(pathname: string): boolean {
   const cleanPath = pathname.replace(/^\/+|\/+$/g, '');
   
-  // Check buy pages
+  // Check buy pages - now includes category-level and subcategory-level
   if (cleanPath.startsWith('buy-')) {
     const slug = cleanPath.replace('buy-', '');
-    return getAllBuyPageSlugs().includes(slug);
+    const config = getBuyPageConfig(slug);
+    return config !== undefined;
   }
   
-  // Check supplier pages
+  // Check supplier pages - now includes category-level and subcategory-level
   if (cleanPath.endsWith('-suppliers')) {
-    return getAllSupplierPageSlugs().includes(cleanPath);
+    const config = getSupplierPageConfig(cleanPath);
+    return config !== undefined;
   }
   
   // Check category hubs
   if (cleanPath.startsWith('categories/')) {
     const slug = cleanPath.replace('categories/', '');
-    return getAllCategoryHubSlugs().includes(slug);
+    const config = getCategoryHubConfig(slug);
+    return config !== undefined;
   }
   
   return false;
