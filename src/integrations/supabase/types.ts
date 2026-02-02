@@ -1540,6 +1540,60 @@ export type Database = {
           },
         ]
       }
+      demand_alerts: {
+        Row: {
+          actioned_at: string | null
+          actioned_by: string | null
+          alert_type: string
+          category: string
+          countries_affected: string[] | null
+          country: string
+          created_at: string
+          expires_at: string
+          id: string
+          intent_score: number
+          is_actioned: boolean
+          is_read: boolean
+          rfq_count: number
+          suggested_action: string
+          time_window_hours: number
+        }
+        Insert: {
+          actioned_at?: string | null
+          actioned_by?: string | null
+          alert_type: string
+          category: string
+          countries_affected?: string[] | null
+          country: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          intent_score?: number
+          is_actioned?: boolean
+          is_read?: boolean
+          rfq_count?: number
+          suggested_action: string
+          time_window_hours?: number
+        }
+        Update: {
+          actioned_at?: string | null
+          actioned_by?: string | null
+          alert_type?: string
+          category?: string
+          countries_affected?: string[] | null
+          country?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          intent_score?: number
+          is_actioned?: boolean
+          is_read?: boolean
+          rfq_count?: number
+          suggested_action?: string
+          time_window_hours?: number
+        }
+        Relationships: []
+      }
       demand_discovery_keywords: {
         Row: {
           category: string
@@ -1859,6 +1913,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      demand_lane_locks: {
+        Row: {
+          category: string
+          country: string
+          created_at: string
+          expires_at: string
+          id: string
+          intent_threshold: number
+          is_active: boolean
+          locked_at: string
+          locked_by: string | null
+          max_suppliers: number
+        }
+        Insert: {
+          category: string
+          country: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          intent_threshold?: number
+          is_active?: boolean
+          locked_at?: string
+          locked_by?: string | null
+          max_suppliers?: number
+        }
+        Update: {
+          category?: string
+          country?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          intent_threshold?: number
+          is_active?: boolean
+          locked_at?: string
+          locked_by?: string | null
+          max_suppliers?: number
+        }
+        Relationships: []
       }
       demo_requests: {
         Row: {
@@ -2335,6 +2428,44 @@ export type Database = {
             columns: ["signal_id"]
             isOneToOne: false
             referencedRelation: "demand_intelligence_signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lane_supplier_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          is_active: boolean
+          lane_lock_id: string
+          priority_rank: number
+          supplier_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          is_active?: boolean
+          lane_lock_id: string
+          priority_rank?: number
+          supplier_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          is_active?: boolean
+          lane_lock_id?: string
+          priority_rank?: number
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lane_supplier_assignments_lane_lock_id_fkey"
+            columns: ["lane_lock_id"]
+            isOneToOne: false
+            referencedRelation: "demand_lane_locks"
             referencedColumns: ["id"]
           },
         ]
@@ -4923,6 +5054,48 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_demand_access: {
+        Row: {
+          access_tier: string
+          activated_at: string
+          categories_locked: string[] | null
+          created_at: string
+          early_access_hours: number
+          expires_at: string | null
+          id: string
+          max_rfq_alerts_per_day: number
+          min_intent_visible: number
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_tier?: string
+          activated_at?: string
+          categories_locked?: string[] | null
+          created_at?: string
+          early_access_hours?: number
+          expires_at?: string | null
+          id?: string
+          max_rfq_alerts_per_day?: number
+          min_intent_visible?: number
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_tier?: string
+          activated_at?: string
+          categories_locked?: string[] | null
+          created_at?: string
+          early_access_hours?: number
+          expires_at?: string | null
+          id?: string
+          max_rfq_alerts_per_day?: number
+          min_intent_visible?: number
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       supplier_email_logs: {
         Row: {
           bounce_reason: string | null
@@ -6610,6 +6783,7 @@ export type Database = {
         Returns: number
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
+      check_and_create_demand_alerts: { Args: never; Returns: number }
       check_and_increment_email_quota: {
         Args: { p_supplier_id: string }
         Returns: {
@@ -6829,6 +7003,18 @@ export type Database = {
           is_verified: boolean
           supplier_country: string
           supplier_id: string
+        }[]
+      }
+      get_supplier_visible_demand: {
+        Args: { p_supplier_id: string }
+        Returns: {
+          available_slots: number
+          category: string
+          country: string
+          intent: number
+          is_locked: boolean
+          rfqs: number
+          state: string
         }[]
       }
       has_business_relationship: {

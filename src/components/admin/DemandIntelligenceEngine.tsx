@@ -83,7 +83,9 @@ import {
   DollarSign,
   Percent,
   Building2,
-  Globe
+  Globe,
+  Bell,
+  Lock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -107,6 +109,8 @@ import {
 import { countries } from "@/data/countries";
 import { DemandGrid } from "./DemandGrid";
 import { SmartDemandGrid } from "./SmartDemandGrid";
+import { DemandAlertsPanel } from "./DemandAlertsPanel";
+import { DemandLaneManagement } from "./DemandLaneManagement";
 
 // ============================================================
 // TYPES
@@ -1013,6 +1017,14 @@ export function DemandIntelligenceEngine() {
             <Brain className="w-4 h-4" />
             Smart Grid
           </TabsTrigger>
+          <TabsTrigger value="alerts" className="flex items-center gap-1">
+            <Bell className="w-4 h-4" />
+            AI Alerts
+          </TabsTrigger>
+          <TabsTrigger value="lanes" className="flex items-center gap-1">
+            <Lock className="w-4 h-4" />
+            Lane Locks
+          </TabsTrigger>
           <TabsTrigger value="taxonomy-grid" className="flex items-center gap-1">
             <Globe className="w-4 h-4" />
             Taxonomy Grid
@@ -1040,6 +1052,16 @@ export function DemandIntelligenceEngine() {
         {/* ============================================================ */}
         <TabsContent value="grid">
           <SmartDemandGrid />
+        </TabsContent>
+        
+        {/* AI ALERTS TAB */}
+        <TabsContent value="alerts">
+          <DemandAlertsPanel />
+        </TabsContent>
+        
+        {/* LANE MANAGEMENT TAB */}
+        <TabsContent value="lanes">
+          <DemandLaneManagement />
         </TabsContent>
         
         {/* TAXONOMY GRID (Original) */}
