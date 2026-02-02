@@ -2636,6 +2636,70 @@ Suppliers operate as verified fulfilment partners.`,
 // SIGNAL PAGE RESOLVER (handles aliases → canonical)
 // =======================================================
 
+/**
+ * Convert a slug to a readable category name
+ * textile-fabrics → Textile Fabrics
+ */
+export function slugToReadableName(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Generate a fallback config for any procurement slug not in the registry
+ * This ensures zero 404s for /procurement/* routes
+ */
+export function generateFallbackSignalPageConfig(slug: string): SignalPageConfig {
+  const categoryName = slugToReadableName(slug);
+  
+  return {
+    slug,
+    h1: `${categoryName} Procurement`,
+    subheading: `Managed sourcing, pricing, and fulfilment for ${categoryName.toLowerCase()} — handled entirely by ProcureSaathi.`,
+    bodyText: `ProcureSaathi acts as a single procurement counterparty for ${categoryName.toLowerCase()} requirements.
+
+We manage sourcing, supplier allocation, logistics, quality control, and delivery timelines internally.
+
+Buyers do not interact with suppliers.
+Suppliers operate as verified fulfilment partners.`,
+    useCases: [
+      `Bulk ${categoryName.toLowerCase()} procurement`,
+      'Industrial & commercial applications',
+      'Project-based requirements',
+      'Export & import sourcing'
+    ],
+    whatBuyerGets: [
+      'Single consolidated price',
+      'Verified fulfilment partners',
+      'Managed logistics',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: [],
+    metaTitle: `${categoryName} Procurement Services | ProcureSaathi`,
+    metaDescription: `AI-powered B2B procurement for ${categoryName.toLowerCase()} with verified suppliers, RFQs, and managed sourcing. Single contract fulfilment.`,
+    intentKeywords: [
+      `${slug} procurement`,
+      `${slug} suppliers`,
+      `buy ${slug}`,
+      `${slug} sourcing India`
+    ],
+    signalMapping: {
+      category: slug.split('-')[0] || 'general',
+      subcategory: slug,
+      industry: 'general',
+      buyer_type: 'industrial',
+      estimated_value_band: 'medium',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 50,
+    successfulDealsCount: 100,
+    typicalDealRange: { min: 1000000, max: 50000000 },
+    deliveryTimeline: '10-30 days'
+  };
+}
+
 export function getSignalPageBySlug(slug: string): SignalPageConfig | undefined {
   const normalized = slug.toLowerCase().trim();
 
@@ -2666,6 +2730,24 @@ export function getSignalPageBySlug(slug: string): SignalPageConfig | undefined 
   }
 
   return page;
+}
+
+/**
+ * Get a signal page config - FALLBACK SAFE
+ * Always returns a valid config, never undefined
+ * This ensures zero 404s for /procurement/* routes
+ */
+export function getSignalPageBySlugSafe(slug: string): SignalPageConfig {
+  const normalized = slug.toLowerCase().trim();
+  const config = getSignalPageBySlug(normalized);
+  
+  // If not found in registry, generate a fallback config
+  if (!config) {
+    console.log(`[SignalPages] Generating fallback config for: ${normalized}`);
+    return generateFallbackSignalPageConfig(normalized);
+  }
+  
+  return config;
 }
 
 // =======================================================
