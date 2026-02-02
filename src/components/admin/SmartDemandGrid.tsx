@@ -484,8 +484,8 @@ export function SmartDemandGrid() {
                       </TableCell>
                       <TableCell className="text-center">
                         <span className={`font-bold ${
-                          row.aggregated_intent >= 7 ? 'text-green-600' :
-                          row.aggregated_intent >= 4 ? 'text-amber-600' :
+                          (row.aggregated_intent ?? 0) >= 7 ? 'text-green-600' :
+                          (row.aggregated_intent ?? 0) >= 4 ? 'text-amber-600' :
                           'text-muted-foreground'
                         }`}>
                           {row.aggregated_intent}
