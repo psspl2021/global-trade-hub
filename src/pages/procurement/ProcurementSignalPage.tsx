@@ -1,7 +1,13 @@
 import { useParams, Navigate } from 'react-router-dom';
-import { getSignalPageBySlugWithCountry, getSignalPageBySlug } from '@/data/signalPages';
+import { 
+  getSignalPageBySlugWithCountry, 
+  getSignalPageBySlug, 
+  getSignalPageBySlugSafe,
+  generateFallbackSignalPageConfig 
+} from '@/data/signalPages';
 import { SignalPageLayout } from '@/components/procurement/SignalPageLayout';
-import { isCountrySupported, DEFAULT_COUNTRY } from '@/data/supportedCountries';
+import { isCountrySupported, DEFAULT_COUNTRY, getCountryByCode } from '@/data/supportedCountries';
+import type { CountryEnrichedSignalPageConfig } from '@/data/signalPages';
 
 export default function ProcurementSignalPage() {
   const { slug, country } = useParams<{ slug: string; country?: string }>();
@@ -13,13 +19,8 @@ export default function ProcurementSignalPage() {
   // First get base config to check for canonical redirects
   const baseConfig = getSignalPageBySlug(slug);
 
-  if (!baseConfig) {
-    console.warn(`[SignalPage] Unknown slug: ${slug}`);
-    return <Navigate to="/404" replace />;
-  }
-
   // Handle canonical redirects - if this is an alias slug, redirect to canonical
-  if (baseConfig.canonicalSlug && baseConfig.canonicalSlug !== slug) {
+  if (baseConfig?.canonicalSlug && baseConfig.canonicalSlug !== slug) {
     const countryPrefix = country ? `/${country}` : '';
     return <Navigate to={`${countryPrefix}/procurement/${baseConfig.canonicalSlug}`} replace />;
   }
@@ -31,12 +32,33 @@ export default function ProcurementSignalPage() {
     return <Navigate to={`/procurement/${slug}`} replace />;
   }
 
-  // Get country-enriched config
-  const enrichedConfig = getSignalPageBySlugWithCountry(slug, countryCode);
+  // Get country-enriched config - FALLBACK SAFE (never returns undefined)
+  let enrichedConfig = getSignalPageBySlugWithCountry(slug, countryCode);
 
+  // If registry lookup failed, generate fallback config with country enrichment
   if (!enrichedConfig) {
-    console.warn(`[SignalPage] Failed to enrich config for slug: ${slug}`);
-    return <Navigate to="/404" replace />;
+    const fallbackConfig = getSignalPageBySlugSafe(slug);
+    const countryInfo = countryCode 
+      ? getCountryByCode(countryCode) || DEFAULT_COUNTRY
+      : DEFAULT_COUNTRY;
+    
+    const isIndia = countryInfo.code === 'india';
+    
+    enrichedConfig = {
+      ...fallbackConfig,
+      countryInfo,
+      countryMetaTitle: isIndia 
+        ? fallbackConfig.metaTitle 
+        : `${fallbackConfig.metaTitle} | ${countryInfo.seoLabel}`,
+      countryMetaDescription: isIndia 
+        ? fallbackConfig.metaDescription 
+        : `${fallbackConfig.metaDescription} Now delivering to ${countryInfo.seoLabel}.`,
+      logisticsLine: isIndia 
+        ? countryInfo.logisticsHint 
+        : `Delivery supported across ${countryInfo.seoLabel} via ProcureSaathi's managed export desk.`
+    } as CountryEnrichedSignalPageConfig;
+    
+    console.log(`[SignalPage] Using fallback config for: ${slug}`);
   }
 
   return (
