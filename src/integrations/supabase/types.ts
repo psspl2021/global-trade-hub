@@ -6722,6 +6722,16 @@ export type Database = {
         Args: { p_supplier_id: string }
         Returns: number
       }
+      get_demand_intelligence_grid: {
+        Args: { p_days_back?: number }
+        Returns: {
+          category: string
+          country: string
+          intent: number
+          rfqs: number
+          state: string
+        }[]
+      }
       get_effective_logistics_state: {
         Args: {
           r: Database["public"]["Tables"]["logistics_requirements"]["Row"]
