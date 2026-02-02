@@ -790,6 +790,57 @@ export const categoriesData: CategoryData[] = [
       'Drainage Systems',
     ]
   },
+  // ============================================================
+  // PHASE-3 CATEGORIES (Non-overlapping with metals/infra)
+  // ============================================================
+  {
+    name: 'Industrial Consumables',
+    icon: Cog,
+    subcategories: [
+      'Industrial Lubricants & Oils',
+      'Bearings, Seals & Gaskets',
+      'Welding Consumables',
+      'Adhesives & Sealants',
+      'Safety Equipment & PPE',
+      'Cutting Tools & Abrasives',
+      'Industrial Tapes',
+      'Cleaning Chemicals',
+      'Greases & Compounds',
+      'Hydraulic Fluids',
+    ]
+  },
+  {
+    name: 'Export-Driven Machinery',
+    icon: Factory,
+    subcategories: [
+      'Packaging Machinery',
+      'Plastic Processing Machinery',
+      'Printing & Labeling Equipment',
+      'Textile Processing Machinery',
+      'Cold Storage & Refrigeration Systems',
+      'Food Processing Machinery',
+      'Pharmaceutical Machinery',
+      'Filling & Sealing Machines',
+      'Injection Molding Machines',
+      'Extrusion Machinery',
+    ]
+  },
+  {
+    name: 'Compliance & Automation',
+    icon: Shield,
+    subcategories: [
+      'Fire Safety Systems',
+      'Environmental Monitoring Equipment',
+      'Industrial Automation & Sensors',
+      'Laboratory Testing Equipment',
+      'Quality Inspection Machines',
+      'PLC & SCADA Systems',
+      'Gas Detection Systems',
+      'Emission Monitoring',
+      'Calibration Instruments',
+      'Process Control Equipment',
+    ]
+  },
 ];
 
 export const getAllCategoryNames = (): string[] => {

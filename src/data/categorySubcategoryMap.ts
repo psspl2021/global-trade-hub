@@ -739,6 +739,115 @@ export const categorySubcategoryMap: Record<string, SubcategoryIndustryMap> = {
         'retail chains'
       ])
     }
+  },
+
+  // ============================================================
+  // PHASE-3 CATEGORY MAPPINGS (Non-overlapping industries)
+  // ============================================================
+  
+  industrial_consumables: {
+    subcategories: {
+      'industrial lubricants oils': rule([
+        'manufacturing plants',
+        'automotive workshops',
+        'heavy machinery operators',
+        'fleet operators'
+      ]),
+      'bearings seals gaskets': rule([
+        'machinery manufacturing',
+        'industrial maintenance',
+        'automotive components',
+        'pumps valves manufacturers'
+      ]),
+      'welding consumables': rule([
+        'fabrication units',
+        'shipbuilding',
+        'construction contractors',
+        'structural steel fabricators'
+      ]),
+      'adhesives sealants': rule([
+        'packaging industry',
+        'automotive assembly',
+        'construction contractors',
+        'electronics manufacturing'
+      ]),
+      'safety equipment ppe': rule([
+        'manufacturing plants',
+        'construction sites',
+        'mining operations',
+        'chemical plants'
+      ])
+    }
+  },
+
+  export_driven_machinery: {
+    subcategories: {
+      'packaging machinery': rule([
+        'fmcg manufacturers',
+        'pharma packaging',
+        'food processing plants',
+        'export houses'
+      ]),
+      'plastic processing machinery': rule([
+        'plastic manufacturers',
+        'packaging industry',
+        'automotive components',
+        'consumer goods manufacturers'
+      ]),
+      'printing labeling equipment': rule([
+        'packaging industry',
+        'pharma labels',
+        'fmcg brands',
+        'commercial printing'
+      ]),
+      'textile processing machinery': rule([
+        'textile mills',
+        'garment exporters',
+        'spinning mills',
+        'weaving units'
+      ]),
+      'cold storage refrigeration systems': rule([
+        'food processing plants',
+        'pharma storage',
+        'cold chain logistics',
+        'dairy processing'
+      ])
+    }
+  },
+
+  compliance_automation: {
+    subcategories: {
+      'fire safety systems': rule([
+        'commercial buildings',
+        'industrial plants',
+        'warehouses',
+        'data centers'
+      ]),
+      'environmental monitoring equipment': rule([
+        'manufacturing plants',
+        'power plants',
+        'cement plants',
+        'pollution control boards'
+      ]),
+      'industrial automation sensors': rule([
+        'process industries',
+        'manufacturing automation',
+        'smart factories',
+        'industrial iot'
+      ]),
+      'laboratory testing equipment': rule([
+        'pharma r&d',
+        'quality labs',
+        'research institutions',
+        'food testing labs'
+      ]),
+      'quality inspection machines': rule([
+        'manufacturing qc',
+        'automotive quality',
+        'pharma compliance',
+        'export inspection'
+      ])
+    }
   }
 };
 
