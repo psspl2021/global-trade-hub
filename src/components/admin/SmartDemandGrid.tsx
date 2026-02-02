@@ -106,63 +106,60 @@ export function SmartDemandGrid() {
   // Top categories for insights
   const topCategories = useMemo(() => getTopCategoriesByDetection(5), []);
 
-  // Fetch AGGREGATED signals using SUM(intent_score * 10)
+  // Fetch AGGREGATED signals using SUM(intent_score * 10) via new RPC
   const fetchRealSignals = useCallback(async () => {
     setLoading(true);
     
     try {
-      // Use the new aggregation function for proper SUM(intent_score * 10)
-      const { data: aggregatedSignals, error } = await supabase
-        .rpc('get_aggregated_demand_signals', {
-          p_country: countryFilter !== 'all' ? countryFilter : null,
-          p_category: categoryFilter !== 'all' ? categoryFilter : null,
-          p_subcategory: subcategoryFilter !== 'all' ? subcategoryFilter : null,
+      // Use the proper aggregation function: get_demand_intelligence_grid
+      const { data, error } = await supabase
+        .rpc('get_demand_intelligence_grid', {
           p_days_back: 7
         });
       
       if (error) {
-        console.error('[SmartDemandGrid] Error fetching aggregated signals:', error);
+        console.error('[SmartDemandGrid] Error fetching grid:', error);
         setGridRows([]);
+        setLoading(false);
         return;
       }
       
-      // Transform aggregated results to grid rows
-      let rows: SmartGridRow[] = (aggregatedSignals || []).map((signal: any) => {
-        const key = `${signal.country}-${signal.category}-${signal.subcategory || 'general'}`;
+      // Transform aggregated results to grid rows - NO client-side math
+      let rows: SmartGridRow[] = (data || []).map((row: any) => {
+        const key = `${row.country}-${row.category}`;
         
-        // Determine state from aggregated intent score and best_state
-        let state: SmartGridRow['state'] = 'Detected';
-        if (signal.best_state === 'active' || signal.best_state === 'rfq_submitted') state = 'Active';
-        else if (signal.best_state === 'confirmed') state = 'Confirmed';
-        else if (signal.intent >= 7) state = 'Active'; // High intent = Active
-        else if (signal.intent >= 4) state = 'Confirmed'; // Medium intent = Confirmed
+        // State derived directly from intent score
+        let state: SmartGridRow['state'] = 
+          row.intent >= 7 ? 'Active' :
+          row.intent >= 4 ? 'Confirmed' :
+          'Detected';
         
-        // Determine lane recommendation from aggregated intent
-        let lane_status: SmartGridRow['lane_status'] = 'No Lane';
-        if (signal.best_state === 'active') lane_status = 'Lane Active';
-        else if (signal.intent >= 7 || signal.rfqs > 0) lane_status = 'Activate Lane';
-        else if (signal.intent >= 4) lane_status = 'Consider Activation';
+        // Lane status from intent + rfqs
+        let lane_status: SmartGridRow['lane_status'] = 
+          row.intent >= 7 || row.rfqs > 0 ? 'Activate Lane' :
+          row.intent >= 4 ? 'Consider Activation' :
+          'No Lane';
         
-        const country = allCountries.find(c => c.code === signal.country);
-        const category = allCategories.find(c => c.slug === signal.category);
+        const country = allCountries.find(c => c.code === row.country);
+        const category = allCategories.find(c => c.slug === row.category);
         
         return {
           id: key,
-          category_slug: signal.category || '',
-          category_name: category?.name || signal.category || '',
-          subcategory_slug: signal.subcategory || 'general',
-          subcategory_name: signal.subcategory || 'General',
-          country_code: signal.country || 'GLOBAL',
-          country_name: country?.name || signal.country || 'Global',
+          category_slug: row.category || '',
+          category_name: category?.name || row.category || '',
+          subcategory_slug: 'general',
+          subcategory_name: row.category || 'General',
+          country_code: row.country || 'GLOBAL',
+          country_name: country?.name || row.country || 'Global',
           state,
           trend: 'stable' as TrendDirection,
           lane_status,
-          signal_count: Number(signal.signal_count) || 1,
-          last_signal_at: signal.last_signal_at || null,
+          signal_count: 1,
+          last_signal_at: null,
           source: 'real_signal' as const,
-          // Store aggregated intent for display
-          aggregated_intent: signal.intent || 0,
-          rfq_count: signal.rfqs || 0,
+          // Intent score directly from DB aggregation - NOT 0 fallback
+          aggregated_intent: row.intent,
+          rfq_count: row.rfqs,
         };
       });
       
@@ -181,11 +178,20 @@ export function SmartDemandGrid() {
         rows = rows.filter(row => row.state === stateFilter);
       }
       
-      // Already sorted by intent DESC from the SQL function
+      // Apply country filter (additional client filter if needed)
+      if (countryFilter !== 'all') {
+        rows = rows.filter(row => row.country_code === countryFilter);
+      }
+      
+      // Apply category filter
+      if (categoryFilter !== 'all') {
+        rows = rows.filter(row => row.category_slug === categoryFilter);
+      }
+      
       setGridRows(rows.slice(0, 200));
       
-      // Calculate total signals from aggregation
-      const totalSignals = rows.reduce((sum, r) => sum + r.signal_count, 0);
+      // Calculate total signals
+      const totalSignals = rows.length;
       setRealSignalCount(totalSignals);
       
     } catch (error) {
@@ -193,7 +199,7 @@ export function SmartDemandGrid() {
     } finally {
       setLoading(false);
     }
-  }, [countryFilter, categoryFilter, subcategoryFilter, stateFilter, searchQuery, allCountries, allCategories]);
+  }, [countryFilter, categoryFilter, stateFilter, searchQuery, allCountries, allCategories]);
 
   // Fetch stats on mount
   useEffect(() => {
@@ -478,11 +484,11 @@ export function SmartDemandGrid() {
                       </TableCell>
                       <TableCell className="text-center">
                         <span className={`font-bold ${
-                          (row.aggregated_intent || 0) >= 7 ? 'text-green-600' :
-                          (row.aggregated_intent || 0) >= 4 ? 'text-amber-600' :
+                          row.aggregated_intent >= 7 ? 'text-green-600' :
+                          row.aggregated_intent >= 4 ? 'text-amber-600' :
                           'text-muted-foreground'
                         }`}>
-                          {row.aggregated_intent || 0}
+                          {row.aggregated_intent}
                         </span>
                       </TableCell>
                       <TableCell className="text-center">
