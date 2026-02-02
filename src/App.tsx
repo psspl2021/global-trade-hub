@@ -11,6 +11,7 @@ import GlobalSEO from "@/components/GlobalSEO";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { VisitorTracker } from "@/components/VisitorTracker";
 import { SEMTracker } from "@/components/SEMTracker";
+import { GlobalDemandTracker } from "@/components/GlobalDemandTracker";
 import { LanguagePrompt } from "@/components/landing/LanguagePrompt";
 import { isBot } from "@/utils/isBot";
 import { SEOStaticRenderer } from "@/components/seo/SEOStaticRenderer";
@@ -209,6 +210,7 @@ const App = () => (
           <GlobalSEOTools />
           <GlobalSEO />
           <BrowserRouter>
+            <GlobalDemandTracker />
             <VisitorTracker />
             <SEMTracker />
             <LanguagePrompt />
