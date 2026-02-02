@@ -6665,6 +6665,24 @@ export type Database = {
         Returns: string
       }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
+      get_aggregated_demand_signals: {
+        Args: {
+          p_category?: string
+          p_country?: string
+          p_days_back?: number
+          p_subcategory?: string
+        }
+        Returns: {
+          best_state: string
+          category: string
+          country: string
+          intent: number
+          last_signal_at: string
+          rfqs: number
+          signal_count: number
+          subcategory: string
+        }[]
+      }
       get_bids_for_buyer: {
         Args: { p_requirement_id: string }
         Returns: {

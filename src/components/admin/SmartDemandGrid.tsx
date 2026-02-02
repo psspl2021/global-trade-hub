@@ -74,6 +74,9 @@ interface SmartGridRow {
   signal_count: number;
   last_signal_at: string | null;
   source: 'taxonomy' | 'real_signal';
+  // Aggregated intent score: SUM(intent_score * 10)
+  aggregated_intent?: number;
+  rfq_count?: number;
 }
 
 // ============= COMPONENT =============
@@ -103,89 +106,65 @@ export function SmartDemandGrid() {
   // Top categories for insights
   const topCategories = useMemo(() => getTopCategoriesByDetection(5), []);
 
-  // Fetch real signals from database
+  // Fetch AGGREGATED signals using SUM(intent_score * 10)
   const fetchRealSignals = useCallback(async () => {
     setLoading(true);
     
     try {
-      // Query demand_intelligence_signals for real user behavior
-      let query = supabase
-        .from('demand_intelligence_signals')
-        .select('*')
-        .order('discovered_at', { ascending: false })
-        .limit(500);
-      
-      // Apply filters
-      if (countryFilter !== 'all') {
-        query = query.eq('country', countryFilter);
-      }
-      if (categoryFilter !== 'all') {
-        query = query.eq('category', categoryFilter);
-      }
-      if (subcategoryFilter !== 'all') {
-        query = query.eq('subcategory', subcategoryFilter);
-      }
-      
-      const { data: signals, error } = await query;
+      // Use the new aggregation function for proper SUM(intent_score * 10)
+      const { data: aggregatedSignals, error } = await supabase
+        .rpc('get_aggregated_demand_signals', {
+          p_country: countryFilter !== 'all' ? countryFilter : null,
+          p_category: categoryFilter !== 'all' ? categoryFilter : null,
+          p_subcategory: subcategoryFilter !== 'all' ? subcategoryFilter : null,
+          p_days_back: 7
+        });
       
       if (error) {
-        console.error('[SmartDemandGrid] Error fetching signals:', error);
+        console.error('[SmartDemandGrid] Error fetching aggregated signals:', error);
         setGridRows([]);
         return;
       }
       
-      // Aggregate signals by country + category + subcategory
-      const aggregated = new Map<string, SmartGridRow>();
-      
-      (signals || []).forEach(signal => {
+      // Transform aggregated results to grid rows
+      let rows: SmartGridRow[] = (aggregatedSignals || []).map((signal: any) => {
         const key = `${signal.country}-${signal.category}-${signal.subcategory || 'general'}`;
         
-        const existing = aggregated.get(key);
-        
-        // Determine state from signal classification
+        // Determine state from aggregated intent score and best_state
         let state: SmartGridRow['state'] = 'Detected';
-        if (signal.classification === 'buy') state = 'Active';
-        else if (signal.lane_state === 'confirmed') state = 'Confirmed';
+        if (signal.best_state === 'active' || signal.best_state === 'rfq_submitted') state = 'Active';
+        else if (signal.best_state === 'confirmed') state = 'Confirmed';
+        else if (signal.intent >= 7) state = 'Active'; // High intent = Active
+        else if (signal.intent >= 4) state = 'Confirmed'; // Medium intent = Confirmed
         
-        // Determine lane recommendation
+        // Determine lane recommendation from aggregated intent
         let lane_status: SmartGridRow['lane_status'] = 'No Lane';
-        if (signal.lane_state === 'active') lane_status = 'Lane Active';
-        else if (signal.intent_score && signal.intent_score >= 0.7) lane_status = 'Activate Lane';
-        else if (signal.intent_score && signal.intent_score >= 0.4) lane_status = 'Consider Activation';
+        if (signal.best_state === 'active') lane_status = 'Lane Active';
+        else if (signal.intent >= 7 || signal.rfqs > 0) lane_status = 'Activate Lane';
+        else if (signal.intent >= 4) lane_status = 'Consider Activation';
         
         const country = allCountries.find(c => c.code === signal.country);
         const category = allCategories.find(c => c.slug === signal.category);
         
-        if (existing) {
-          // Update with strongest state
-          const stateOrder = { 'No Signal': 0, 'Detected': 1, 'Confirmed': 2, 'Active': 3 };
-          if (stateOrder[state] > stateOrder[existing.state]) {
-            existing.state = state;
-          }
-          existing.signal_count++;
-          if (signal.discovered_at && (!existing.last_signal_at || signal.discovered_at > existing.last_signal_at)) {
-            existing.last_signal_at = signal.discovered_at;
-          }
-        } else {
-          aggregated.set(key, {
-            id: key,
-            category_slug: signal.category || '',
-            category_name: category?.name || signal.category || '',
-            subcategory_slug: signal.subcategory || 'general',
-            subcategory_name: signal.subcategory || signal.product_description || 'General',
-            country_code: signal.country || 'GLOBAL',
-            country_name: country?.name || signal.country || 'Global',
-            state,
-            trend: 'stable',
-            lane_status,
-            signal_count: 1,
-            last_signal_at: signal.discovered_at || null,
-            source: 'real_signal',
-          });
-        }
+        return {
+          id: key,
+          category_slug: signal.category || '',
+          category_name: category?.name || signal.category || '',
+          subcategory_slug: signal.subcategory || 'general',
+          subcategory_name: signal.subcategory || 'General',
+          country_code: signal.country || 'GLOBAL',
+          country_name: country?.name || signal.country || 'Global',
+          state,
+          trend: 'stable' as TrendDirection,
+          lane_status,
+          signal_count: Number(signal.signal_count) || 1,
+          last_signal_at: signal.last_signal_at || null,
+          source: 'real_signal' as const,
+          // Store aggregated intent for display
+          aggregated_intent: signal.intent || 0,
+          rfq_count: signal.rfqs || 0,
+        };
       });
-      
-      let rows = Array.from(aggregated.values());
       
       // Apply search filter
       if (searchQuery.trim()) {
@@ -202,11 +181,12 @@ export function SmartDemandGrid() {
         rows = rows.filter(row => row.state === stateFilter);
       }
       
-      // Sort by signal count (most active first)
-      rows.sort((a, b) => b.signal_count - a.signal_count);
-      
+      // Already sorted by intent DESC from the SQL function
       setGridRows(rows.slice(0, 200));
-      setRealSignalCount(signals?.length || 0);
+      
+      // Calculate total signals from aggregation
+      const totalSignals = rows.reduce((sum, r) => sum + r.signal_count, 0);
+      setRealSignalCount(totalSignals);
       
     } catch (error) {
       console.error('[SmartDemandGrid] Error:', error);
@@ -469,8 +449,9 @@ export function SmartDemandGrid() {
                     <TableHead className="w-[180px]">Country</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Product</TableHead>
+                    <TableHead className="text-center">Intent</TableHead>
+                    <TableHead className="text-center">RFQs</TableHead>
                     <TableHead className="text-center">State</TableHead>
-                    <TableHead className="text-center">Trend</TableHead>
                     <TableHead className="text-center">Lane Status</TableHead>
                     <TableHead className="w-[100px]">Action</TableHead>
                   </TableRow>
@@ -496,10 +477,23 @@ export function SmartDemandGrid() {
                         <span className="font-medium">{row.subcategory_name}</span>
                       </TableCell>
                       <TableCell className="text-center">
-                        {getStateBadge(row.state)}
+                        <span className={`font-bold ${
+                          (row.aggregated_intent || 0) >= 7 ? 'text-green-600' :
+                          (row.aggregated_intent || 0) >= 4 ? 'text-amber-600' :
+                          'text-muted-foreground'
+                        }`}>
+                          {row.aggregated_intent || 0}
+                        </span>
                       </TableCell>
                       <TableCell className="text-center">
-                        {getTrendBadge(row.trend)}
+                        {(row.rfq_count || 0) > 0 ? (
+                          <Badge className="bg-green-600 text-white">{row.rfq_count}</Badge>
+                        ) : (
+                          <span className="text-muted-foreground">0</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {getStateBadge(row.state)}
                       </TableCell>
                       <TableCell className="text-center">
                         {getLaneStatusBadge(row.lane_status)}
