@@ -7044,6 +7044,10 @@ export type Database = {
             Returns: string
           }
         | { Args: { bid_id: string; req_id: string }; Returns: string }
+      activate_lane_from_signal: {
+        Args: { p_admin_id?: string; p_category: string; p_country: string }
+        Returns: Json
+      }
       activate_logistics_lane_from_award: {
         Args: { bid_id: string; req_id: string }
         Returns: string
@@ -7267,12 +7271,14 @@ export type Database = {
         Returns: number
       }
       get_demand_intelligence_grid: {
-        Args: { p_days_back?: number }
+        Args: { p_category?: string; p_country?: string; p_days_back?: number }
         Returns: {
           category: string
           country: string
+          has_activation_signal: boolean
           intent: number
           rfqs: number
+          source: string
           state: string
         }[]
       }

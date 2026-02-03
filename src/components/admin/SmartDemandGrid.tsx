@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import { 
   Globe, 
   Filter, 
@@ -37,7 +38,8 @@ import {
   ArrowRight,
   ArrowDown,
   CheckCircle,
-  Activity
+  Activity,
+  UserCheck
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -73,10 +75,12 @@ interface SmartGridRow {
   // Metadata (not exposed publicly)
   signal_count: number;
   last_signal_at: string | null;
-  source: 'taxonomy' | 'real_signal';
+  source: 'taxonomy' | 'real_signal' | 'seo_rfq' | 'activation';
   // Aggregated intent score: SUM(intent_score * 10)
   aggregated_intent?: number;
   rfq_count?: number;
+  // Buyer activation flag
+  has_activation_signal?: boolean;
 }
 
 // ============= COMPONENT =============
@@ -106,12 +110,34 @@ export function SmartDemandGrid() {
   // Top categories for insights
   const topCategories = useMemo(() => getTopCategoriesByDetection(5), []);
 
-  // Fetch AGGREGATED signals using SUM(intent_score * 10) via new RPC
+  // Activate lane via new RPC
+  const activateLane = useCallback(async (country: string, category: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('activate_lane_from_signal', {
+          p_country: country,
+          p_category: category
+        });
+      
+      if (error) {
+        console.error('[SmartDemandGrid] Lane activation error:', error);
+        return false;
+      }
+      
+      console.log('[SmartDemandGrid] Lane activated:', data);
+      return true;
+    } catch (err) {
+      console.error('[SmartDemandGrid] Lane activation failed:', err);
+      return false;
+    }
+  }, []);
+
+  // Fetch AGGREGATED signals using unified RPC (demand_intelligence + buyer_activation)
   const fetchRealSignals = useCallback(async () => {
     setLoading(true);
     
     try {
-      // Use the proper aggregation function: get_demand_intelligence_grid
+      // Use the unified aggregation function with buyer activation signals
       const { data, error } = await supabase
         .rpc('get_demand_intelligence_grid', {
           p_days_back: 7
@@ -128,15 +154,16 @@ export function SmartDemandGrid() {
       let rows: SmartGridRow[] = (data || []).map((row: any) => {
         const key = `${row.country}-${row.category}`;
         
-        // State derived directly from intent score
+        // State: buyer activation signals always = Active
         let state: SmartGridRow['state'] = 
+          row.has_activation_signal ? 'Active' :
           row.intent >= 7 ? 'Active' :
           row.intent >= 4 ? 'Confirmed' :
           'Detected';
         
-        // Lane status from intent + rfqs
+        // Lane status: buyer activation = Activate Lane
         let lane_status: SmartGridRow['lane_status'] = 
-          row.intent >= 7 || row.rfqs > 0 ? 'Activate Lane' :
+          row.has_activation_signal || row.intent >= 7 || row.rfqs > 0 ? 'Activate Lane' :
           row.intent >= 4 ? 'Consider Activation' :
           'No Lane';
         
@@ -156,10 +183,11 @@ export function SmartDemandGrid() {
           lane_status,
           signal_count: 1,
           last_signal_at: null,
-          source: 'real_signal' as const,
-          // Intent score directly from DB aggregation - NOT 0 fallback
+          source: row.source || 'real_signal',
+          // Intent score directly from DB aggregation
           aggregated_intent: row.intent,
           rfq_count: row.rfqs,
+          has_activation_signal: row.has_activation_signal,
         };
       });
       
@@ -219,7 +247,10 @@ export function SmartDemandGrid() {
   }, [categoryFilter]);
 
   // Format functions
-  const getStateBadge = (state: SmartGridRow['state']) => {
+  const getStateBadge = (state: SmartGridRow['state'], hasActivation?: boolean) => {
+    if (hasActivation) {
+      return <Badge className="bg-purple-600 text-white"><Zap className="w-3 h-3 mr-1" />Buyer Activated</Badge>;
+    }
     switch (state) {
       case 'Active':
         return <Badge className="bg-green-600 text-white"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
@@ -242,6 +273,30 @@ export function SmartDemandGrid() {
         return <Badge className="bg-yellow-500 text-black">Consider</Badge>;
       default:
         return <Badge variant="outline" className="text-gray-500">No Lane</Badge>;
+    }
+  };
+
+  const getSourceBadge = (source: string) => {
+    switch (source) {
+      case 'activation':
+        return <Badge variant="outline" className="border-purple-300 text-purple-600 text-xs">Buyer Intent</Badge>;
+      case 'seo_rfq':
+        return <Badge variant="outline" className="border-blue-300 text-blue-600 text-xs">SEO/RFQ</Badge>;
+      default:
+        return <Badge variant="outline" className="text-xs">Signal</Badge>;
+    }
+  };
+  
+  // Handle lane activation with feedback
+  const handleActivateLane = async (row: SmartGridRow) => {
+    toast.loading(`Activating lane ${row.country_code} × ${row.category_slug}...`, { id: 'lane-activate' });
+    const success = await activateLane(row.country_code, row.category_slug);
+    if (success) {
+      toast.success(`Lane ${row.country_name} × ${row.category_name} activated!`, { id: 'lane-activate' });
+      // Refresh grid
+      fetchRealSignals();
+    } else {
+      toast.error('Failed to activate lane', { id: 'lane-activate' });
     }
   };
 
@@ -304,7 +359,7 @@ export function SmartDemandGrid() {
       </div>
 
       {/* AI INSIGHTS PANEL */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
           <div className="flex items-center gap-3">
             <Globe className="w-8 h-8 text-blue-600" />
@@ -325,12 +380,25 @@ export function SmartDemandGrid() {
           </div>
         </Card>
         
+        {/* NEW: Buyer Activation Signals */}
         <Card className="p-4 bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200">
           <div className="flex items-center gap-3">
-            <Package className="w-8 h-8 text-purple-600" />
+            <UserCheck className="w-8 h-8 text-purple-600" />
             <div>
-              <p className="text-2xl font-bold text-purple-700">{gridRows.filter(r => r.state === 'Confirmed' || r.state === 'Active').length}</p>
-              <p className="text-xs text-purple-600/70 uppercase tracking-wide">Confirmed Demand</p>
+              <p className="text-2xl font-bold text-purple-700">
+                {gridRows.filter(r => r.has_activation_signal).length}
+              </p>
+              <p className="text-xs text-purple-600/70 uppercase tracking-wide">Buyer Activated</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4 bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-200">
+          <div className="flex items-center gap-3">
+            <Package className="w-8 h-8 text-indigo-600" />
+            <div>
+              <p className="text-2xl font-bold text-indigo-700">{gridRows.filter(r => r.state === 'Confirmed' || r.state === 'Active').length}</p>
+              <p className="text-xs text-indigo-600/70 uppercase tracking-wide">Confirmed Demand</p>
             </div>
           </div>
         </Card>
@@ -347,17 +415,14 @@ export function SmartDemandGrid() {
       </div>
 
       {/* AI INSIGHT */}
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100">
+      <Card className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-100">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+          <Info className="w-5 h-5 text-purple-600 mt-0.5" />
           <div>
-            <p className="font-medium text-sm text-blue-900">AI Learning Status</p>
-            <p className="text-sm text-blue-700 mt-1">
-              This grid learns from real user behavior. 
-              <strong> SEO visits → "Detected"</strong>, 
-              <strong> RFQ interest → "Confirmed"</strong>, 
-              <strong> RFQ submissions → "Active"</strong>.
-              Lane recommendations are generated automatically based on signal patterns.
+            <p className="font-medium text-sm text-purple-900">Unified Demand Intelligence</p>
+            <p className="text-sm text-purple-700 mt-1">
+              This grid combines <strong>SEO signals</strong>, <strong>RFQ activity</strong>, and <strong>Buyer Activation signals</strong> (draft abandonment, repeat drafts).
+              Rows with <Badge className="bg-purple-600 text-white text-xs mx-1 py-0">Buyer Activated</Badge> indicate high-intent buyers who started but didn't complete RFQs—prioritize these for lane activation!
             </p>
           </div>
         </div>
@@ -454,7 +519,7 @@ export function SmartDemandGrid() {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-[180px]">Country</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Product</TableHead>
+                    <TableHead>Source</TableHead>
                     <TableHead className="text-center">Intent</TableHead>
                     <TableHead className="text-center">RFQs</TableHead>
                     <TableHead className="text-center">State</TableHead>
@@ -464,7 +529,10 @@ export function SmartDemandGrid() {
                 </TableHeader>
                 <TableBody>
                   {gridRows.map((row) => (
-                    <TableRow key={row.id} className="hover:bg-muted/30">
+                    <TableRow 
+                      key={row.id} 
+                      className={`hover:bg-muted/30 ${row.has_activation_signal ? 'bg-purple-50/50' : ''}`}
+                    >
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <MapPin className="w-3 h-3 text-muted-foreground" />
@@ -480,10 +548,11 @@ export function SmartDemandGrid() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium">{row.subcategory_name}</span>
+                        {getSourceBadge(row.source)}
                       </TableCell>
                       <TableCell className="text-center font-bold">
                         <span className={
+                          row.has_activation_signal ? 'text-purple-600' :
                           row.aggregated_intent >= 7 ? 'text-green-600' :
                           row.aggregated_intent >= 4 ? 'text-amber-600' :
                           'text-muted-foreground'
@@ -499,20 +568,21 @@ export function SmartDemandGrid() {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        {getStateBadge(row.state)}
+                        {getStateBadge(row.state, row.has_activation_signal)}
                       </TableCell>
                       <TableCell className="text-center">
                         {getLaneStatusBadge(row.lane_status)}
                       </TableCell>
                       <TableCell>
                         <Button 
-                          variant="outline" 
+                          variant={row.has_activation_signal ? "default" : "outline"}
                           size="sm"
-                          className="text-xs"
+                          className={`text-xs ${row.has_activation_signal ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
                           disabled={row.lane_status === 'Lane Active' || row.lane_status === 'No Lane'}
+                          onClick={() => handleActivateLane(row)}
                         >
                           <Zap className="w-3 h-3 mr-1" />
-                          Activate
+                          {row.has_activation_signal ? 'Act Now' : 'Activate'}
                         </Button>
                       </TableCell>
                     </TableRow>
