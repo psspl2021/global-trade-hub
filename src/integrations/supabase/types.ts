@@ -771,6 +771,44 @@ export type Database = {
         }
         Relationships: []
       }
+      auction_bids: {
+        Row: {
+          auction_id: string
+          bid_amount: number
+          bid_status: string | null
+          bid_tier: string | null
+          created_at: string
+          id: string
+          supplier_id: string
+        }
+        Insert: {
+          auction_id: string
+          bid_amount: number
+          bid_status?: string | null
+          bid_tier?: string | null
+          created_at?: string
+          id?: string
+          supplier_id: string
+        }
+        Update: {
+          auction_id?: string
+          bid_amount?: number
+          bid_status?: string | null
+          bid_tier?: string | null
+          created_at?: string
+          id?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_bids_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "lane_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       award_audit_logs: {
         Row: {
           action: string
@@ -1225,6 +1263,66 @@ export type Database = {
           unit?: string
           unit_price?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      buyer_nudges: {
+        Row: {
+          category: string | null
+          converted_at: string | null
+          country: string | null
+          created_at: string
+          delivered_at: string | null
+          delivery_channel: string | null
+          expires_at: string | null
+          id: string
+          is_converted: boolean | null
+          is_delivered: boolean | null
+          nudge_content: Json | null
+          nudge_type: string
+          page_url: string | null
+          session_id: string | null
+          time_on_page_seconds: number | null
+          trigger_reason: string
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          converted_at?: string | null
+          country?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_channel?: string | null
+          expires_at?: string | null
+          id?: string
+          is_converted?: boolean | null
+          is_delivered?: boolean | null
+          nudge_content?: Json | null
+          nudge_type: string
+          page_url?: string | null
+          session_id?: string | null
+          time_on_page_seconds?: number | null
+          trigger_reason: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          converted_at?: string | null
+          country?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_channel?: string | null
+          expires_at?: string | null
+          id?: string
+          is_converted?: boolean | null
+          is_delivered?: boolean | null
+          nudge_content?: Json | null
+          nudge_type?: string
+          page_url?: string | null
+          session_id?: string | null
+          time_on_page_seconds?: number | null
+          trigger_reason?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2022,6 +2120,39 @@ export type Database = {
         }
         Relationships: []
       }
+      early_access_windows: {
+        Row: {
+          category: string
+          country: string | null
+          created_at: string
+          exclusive_tier: string | null
+          freeze_end_at: string
+          freeze_start_at: string
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          category: string
+          country?: string | null
+          created_at?: string
+          exclusive_tier?: string | null
+          freeze_end_at?: string
+          freeze_start_at?: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          category?: string
+          country?: string | null
+          created_at?: string
+          exclusive_tier?: string | null
+          freeze_end_at?: string
+          freeze_start_at?: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Relationships: []
+      }
       email_subscription_payments: {
         Row: {
           amount: number
@@ -2067,6 +2198,54 @@ export type Database = {
           payment_session_id?: string | null
           status?: string
           supplier_id?: string
+        }
+        Relationships: []
+      }
+      export_demand_lanes: {
+        Row: {
+          category: string
+          country_from: string
+          country_to: string
+          created_at: string
+          cross_border_score: number | null
+          export_intent_score: number | null
+          first_detected_at: string
+          id: string
+          lane_status: string | null
+          last_activity_at: string
+          rfq_count: number | null
+          suggested_suppliers: string[] | null
+          supplier_strength_score: number | null
+        }
+        Insert: {
+          category: string
+          country_from: string
+          country_to: string
+          created_at?: string
+          cross_border_score?: number | null
+          export_intent_score?: number | null
+          first_detected_at?: string
+          id?: string
+          lane_status?: string | null
+          last_activity_at?: string
+          rfq_count?: number | null
+          suggested_suppliers?: string[] | null
+          supplier_strength_score?: number | null
+        }
+        Update: {
+          category?: string
+          country_from?: string
+          country_to?: string
+          created_at?: string
+          cross_border_score?: number | null
+          export_intent_score?: number | null
+          first_detected_at?: string
+          id?: string
+          lane_status?: string | null
+          last_activity_at?: string
+          rfq_count?: number | null
+          suggested_suppliers?: string[] | null
+          supplier_strength_score?: number | null
         }
         Relationships: []
       }
@@ -2314,6 +2493,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lane_auctions: {
+        Row: {
+          auction_end_at: string
+          auction_start_at: string
+          auction_status: string | null
+          category: string
+          country: string
+          created_at: string
+          id: string
+          intent_threshold: number | null
+          max_slots: number | null
+          updated_at: string
+          winning_suppliers: string[] | null
+        }
+        Insert: {
+          auction_end_at?: string
+          auction_start_at?: string
+          auction_status?: string | null
+          category: string
+          country: string
+          created_at?: string
+          id?: string
+          intent_threshold?: number | null
+          max_slots?: number | null
+          updated_at?: string
+          winning_suppliers?: string[] | null
+        }
+        Update: {
+          auction_end_at?: string
+          auction_start_at?: string
+          auction_status?: string | null
+          category?: string
+          country?: string
+          created_at?: string
+          id?: string
+          intent_threshold?: number | null
+          max_slots?: number | null
+          updated_at?: string
+          winning_suppliers?: string[] | null
+        }
+        Relationships: []
       }
       lane_capacity_events: {
         Row: {
@@ -6784,6 +7005,7 @@ export type Database = {
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       check_and_create_demand_alerts: { Args: never; Returns: number }
+      check_and_create_forecast_alerts: { Args: never; Returns: number }
       check_and_increment_email_quota: {
         Args: { p_supplier_id: string }
         Returns: {
@@ -6824,9 +7046,40 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_buyer_nudge: {
+        Args: {
+          p_category?: string
+          p_country?: string
+          p_nudge_type: string
+          p_page_url?: string
+          p_session_id: string
+          p_time_on_page?: number
+          p_trigger_reason: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       create_partial_lane: {
         Args: { bid_id: string; coverage_percent?: number; req_id: string }
         Returns: string
+      }
+      detect_export_buyers: {
+        Args: {
+          p_country_from?: string
+          p_country_to?: string
+          p_threshold?: number
+        }
+        Returns: {
+          buyer_intent_score: number
+          category: string
+          country_from: string
+          country_to: string
+          cross_border_score: number
+          lane_status: string
+          rfq_count: number
+          suggested_suppliers: string[]
+          supplier_strength_score: number
+        }[]
       }
       ensure_requirement_item_exists: {
         Args: {
@@ -6906,6 +7159,10 @@ export type Database = {
           state: string
         }[]
       }
+      get_dynamic_intent_threshold: {
+        Args: { p_category: string; p_country?: string }
+        Returns: number
+      }
       get_effective_logistics_state: {
         Args: {
           r: Database["public"]["Tables"]["logistics_requirements"]["Row"]
@@ -6925,6 +7182,20 @@ export type Database = {
           monthly_limit: number
           monthly_sent: number
           subscription_expires_at: string
+        }[]
+      }
+      get_forecast_demand: {
+        Args: { p_category?: string; p_country?: string; p_days?: number }
+        Returns: {
+          category: string
+          confidence_score: number
+          country: string
+          forecast_date: string
+          projected_intent: number
+          projected_rfqs: number
+          trend_30d: number
+          trend_7d: number
+          velocity_score: number
         }[]
       }
       get_logistics_details_internal: {

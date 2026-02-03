@@ -29,7 +29,7 @@ import { toast } from 'sonner';
 
 interface DemandAlert {
   id: string;
-  alert_type: 'intent_threshold' | 'rfq_spike' | 'cross_country_spike';
+  alert_type: 'intent_threshold' | 'rfq_spike' | 'cross_country_spike' | 'forecast_spike' | 'export_demand' | 'velocity_jump';
   category: string;
   country: string;
   intent_score: number;
@@ -42,7 +42,7 @@ interface DemandAlert {
   created_at: string;
 }
 
-const alertTypeConfig = {
+const alertTypeConfig: Record<string, { icon: typeof TrendingUp; color: string; bgColor: string; label: string }> = {
   intent_threshold: {
     icon: TrendingUp,
     color: 'text-green-600',
@@ -60,6 +60,24 @@ const alertTypeConfig = {
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
     label: 'Multi-Country',
+  },
+  forecast_spike: {
+    icon: TrendingUp,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50',
+    label: 'Forecast Spike',
+  },
+  export_demand: {
+    icon: Globe2,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-50',
+    label: 'Export Demand',
+  },
+  velocity_jump: {
+    icon: Zap,
+    color: 'text-rose-600',
+    bgColor: 'bg-rose-50',
+    label: 'Velocity Jump',
   },
 };
 
