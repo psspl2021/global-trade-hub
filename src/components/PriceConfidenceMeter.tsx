@@ -81,16 +81,17 @@ const getCompetitionMessage = (mode: "bidding" | "auto_assign") => {
 const generateStructuredData = (data: PriceConfidenceData) => {
   const ratingValue = CONFIDENCE_TO_RATING[data.confidence_label];
   
+  // Use Service schema instead of Product for rating context (GSC compliance - no Product on non-product pages)
   return {
     "@context": "https://schema.org",
     "@type": "AggregateRating",
     "itemReviewed": {
-      "@type": "Product",
-      "name": data.productName || "B2B Procurement Item",
-      "category": data.productCategory || "Industrial Supplies",
-      "brand": {
-        "@type": "Brand",
-        "name": "Procuresaathi Verified"
+      "@type": "Service",
+      "name": data.productName || "B2B Procurement Service",
+      "serviceType": data.productCategory || "Industrial Procurement",
+      "provider": {
+        "@type": "Organization",
+        "name": "ProcureSaathi"
       },
       "description": `AI-verified pricing with ${data.confidence_label.toLowerCase()} confidence score of ${data.price_confidence_score}/100`
     },

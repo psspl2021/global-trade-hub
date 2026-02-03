@@ -211,50 +211,20 @@ const Browse = () => {
   const displayTitle = subcategoryParam || categoryParam || 'All Products';
   const mainCategories = categoriesData.slice(0, 15); // Show first 15 categories
 
-  // JSON-LD Structured Data for Global SEO
+  // JSON-LD Structured Data for Global SEO - ItemList only (no Product schema on category pages)
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": displayTitle,
     "description": seoDescription,
     "url": canonicalUrl,
+    "itemListOrder": "https://schema.org/ItemListOrderAscending",
     "numberOfItems": filteredProducts.length,
     "itemListElement": filteredProducts.slice(0, 10).map((product, index) => ({
       "@type": "ListItem",
       "position": index + 1,
-      "item": {
-        "@type": "Product",
-        "name": product.name,
-        "description": product.description || `${product.name} from verified Indian supplier`,
-        "category": product.category,
-        "offers": {
-          "@type": "Offer",
-          "availability": product.stock_quantity && product.stock_quantity > 0 
-            ? "https://schema.org/InStock" 
-            : "https://schema.org/OutOfStock",
-          "priceCurrency": "INR",
-          "priceSpecification": {
-            "@type": "PriceSpecification",
-            "priceCurrency": "INR",
-            "eligibleQuantity": {
-              "@type": "QuantitativeValue",
-              "value": product.moq || 1,
-              "unitText": product.stock_unit || "units"
-            }
-          },
-          "seller": {
-            "@type": "Organization",
-            "name": "Verified Indian Supplier via ProcureSaathi"
-          },
-          "shippingDetails": {
-            "@type": "OfferShippingDetails",
-            "shippingDestination": {
-              "@type": "DefinedRegion",
-              "addressCountry": ["IN", "US", "GB", "AE", "SG", "DE", "AU", "CA", "NL", "FR"]
-            }
-          }
-        }
-      }
+      "name": product.name,
+      "url": `https://www.procuresaathi.com/browseproducts?product=${encodeURIComponent(product.id)}`
     }))
   };
 
