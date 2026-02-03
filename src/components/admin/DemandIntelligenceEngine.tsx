@@ -111,6 +111,10 @@ import { DemandGrid } from "./DemandGrid";
 import { SmartDemandGrid } from "./SmartDemandGrid";
 import { DemandAlertsPanel } from "./DemandAlertsPanel";
 import { DemandLaneManagement } from "./DemandLaneManagement";
+import { DemandForecastPanel } from "./DemandForecastPanel";
+import { ExportBuyerDetectionPanel } from "./ExportBuyerDetectionPanel";
+import { BuyerActivationPanel } from "./BuyerActivationPanel";
+import { LaneAuctionPanel } from "./LaneAuctionPanel";
 
 // ============================================================
 // TYPES
@@ -1008,50 +1012,61 @@ export function DemandIntelligenceEngine() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="inbox" className="flex items-center gap-1">
-            <Target className="w-4 h-4" />
-            Signal Inbox
+        <TabsList className="flex flex-wrap gap-1 h-auto p-1">
+          <TabsTrigger value="inbox" className="flex items-center gap-1 text-xs">
+            <Target className="w-3 h-3" />
+            Inbox
           </TabsTrigger>
-          <TabsTrigger value="grid" className="flex items-center gap-1">
-            <Brain className="w-4 h-4" />
-            Smart Grid
+          <TabsTrigger value="grid" className="flex items-center gap-1 text-xs">
+            <Brain className="w-3 h-3" />
+            Grid
           </TabsTrigger>
-          <TabsTrigger value="alerts" className="flex items-center gap-1">
-            <Bell className="w-4 h-4" />
-            AI Alerts
+          <TabsTrigger value="forecast" className="flex items-center gap-1 text-xs">
+            <TrendingUp className="w-3 h-3" />
+            Forecast
           </TabsTrigger>
-          <TabsTrigger value="lanes" className="flex items-center gap-1">
-            <Lock className="w-4 h-4" />
-            Lane Locks
+          <TabsTrigger value="alerts" className="flex items-center gap-1 text-xs">
+            <Bell className="w-3 h-3" />
+            Alerts
           </TabsTrigger>
-          <TabsTrigger value="taxonomy-grid" className="flex items-center gap-1">
-            <Globe className="w-4 h-4" />
-            Taxonomy Grid
+          <TabsTrigger value="export" className="flex items-center gap-1 text-xs">
+            <Globe className="w-3 h-3" />
+            Export
           </TabsTrigger>
-          <TabsTrigger value="margin" className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4" />
-            Margin Control
+          <TabsTrigger value="activation" className="flex items-center gap-1 text-xs">
+            <Users className="w-3 h-3" />
+            Activation
           </TabsTrigger>
-          <TabsTrigger value="scan" className="flex items-center gap-1">
-            <Play className="w-4 h-4" />
-            Run Scan
+          <TabsTrigger value="auctions" className="flex items-center gap-1 text-xs">
+            <Gauge className="w-3 h-3" />
+            Auctions
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-1">
-            <BarChart3 className="w-4 h-4" />
-            Analytics
+          <TabsTrigger value="lanes" className="flex items-center gap-1 text-xs">
+            <Lock className="w-3 h-3" />
+            Lanes
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-1">
-            <Settings className="w-4 h-4" />
+          <TabsTrigger value="margin" className="flex items-center gap-1 text-xs">
+            <DollarSign className="w-3 h-3" />
+            Margin
+          </TabsTrigger>
+          <TabsTrigger value="scan" className="flex items-center gap-1 text-xs">
+            <Play className="w-3 h-3" />
+            Scan
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-1 text-xs">
+            <Settings className="w-3 h-3" />
             Settings
           </TabsTrigger>
         </TabsList>
 
-        {/* ============================================================ */}
-        {/* DEMAND GRID TAB (NEW - Auto-Generated from Taxonomy) */}
-        {/* ============================================================ */}
+        {/* SMART DEMAND GRID */}
         <TabsContent value="grid">
           <SmartDemandGrid />
+        </TabsContent>
+        
+        {/* AI DEMAND FORECAST (Phase-4) */}
+        <TabsContent value="forecast">
+          <DemandForecastPanel />
         </TabsContent>
         
         {/* AI ALERTS TAB */}
@@ -1059,14 +1074,24 @@ export function DemandIntelligenceEngine() {
           <DemandAlertsPanel />
         </TabsContent>
         
+        {/* EXPORT BUYER DETECTION (Phase-4) */}
+        <TabsContent value="export">
+          <ExportBuyerDetectionPanel />
+        </TabsContent>
+        
+        {/* BUYER ACTIVATION ENGINE (Phase-4) */}
+        <TabsContent value="activation">
+          <BuyerActivationPanel />
+        </TabsContent>
+        
+        {/* LANE AUCTIONS (Phase-4) */}
+        <TabsContent value="auctions">
+          <LaneAuctionPanel />
+        </TabsContent>
+        
         {/* LANE MANAGEMENT TAB */}
         <TabsContent value="lanes">
           <DemandLaneManagement />
-        </TabsContent>
-        
-        {/* TAXONOMY GRID (Original) */}
-        <TabsContent value="taxonomy-grid">
-          <DemandGrid />
         </TabsContent>
 
         {/* ============================================================ */}
