@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import {
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { useAuth } from '@/hooks/useAuth';
+import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
 
 interface RFQItem {
   item_name: string;
@@ -38,6 +39,23 @@ const PostRFQ = () => {
   const [description, setDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedRFQ, setGeneratedRFQ] = useState<GeneratedRFQ | null>(null);
+
+  // RFQ Draft tracking - save draft when user abandons form
+  const { markInteraction, markSubmitted } = useRFQDraftTracking({
+    userId: user?.id || null,
+    categorySlug: generatedRFQ?.category || undefined,
+    pageUrl: '/post-rfq',
+    formData: {
+      description,
+      generatedRFQ,
+    },
+    idleTimeoutMs: 45000, // 45 seconds idle timeout
+  });
+
+  // Handler to track form interactions
+  const handleFormInteraction = useCallback(() => {
+    markInteraction();
+  }, [markInteraction]);
 
   useSEO({
     title: 'AI RFQ Generator - Free Request for Quotation Tool | ProcureSaathi',
@@ -152,6 +170,9 @@ const PostRFQ = () => {
   };
 
   const handleProceed = () => {
+    // Mark as submitted since user is proceeding to complete the RFQ
+    markSubmitted();
+    
     if (!user) {
       // Store RFQ in sessionStorage and redirect to signup
       sessionStorage.setItem('pendingRFQ', JSON.stringify(generatedRFQ));
@@ -235,7 +256,11 @@ const PostRFQ = () => {
 
 Example: I need 5000 kg of food-grade stainless steel containers for a dairy plant in Maharashtra. Looking for BIS certified products with 2mm thickness, 50L capacity each."
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                handleFormInteraction();
+              }}
+              onFocus={handleFormInteraction}
               rows={6}
               className="resize-none text-base"
             />
