@@ -1209,6 +1209,63 @@ export type Database = {
         }
         Relationships: []
       }
+      buyer_activation_signals: {
+        Row: {
+          category_slug: string | null
+          confidence_score: number | null
+          created_at: string | null
+          id: string
+          trigger_reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category_slug?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          trigger_reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category_slug?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          trigger_reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      buyer_activity_logs: {
+        Row: {
+          category_slug: string | null
+          created_at: string | null
+          event_type: string | null
+          id: string
+          page_path: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category_slug?: string | null
+          created_at?: string | null
+          event_type?: string | null
+          id?: string
+          page_path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category_slug?: string | null
+          created_at?: string | null
+          event_type?: string | null
+          id?: string
+          page_path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       buyer_inventory: {
         Row: {
           buyer_id: string
@@ -4549,6 +4606,30 @@ export type Database = {
           },
         ]
       }
+      rfq_drafts: {
+        Row: {
+          category_slug: string | null
+          created_at: string | null
+          id: string
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category_slug?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category_slug?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       seo_content_suggestions: {
         Row: {
           created_at: string
@@ -6063,6 +6144,30 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          id: string
+          last_seen_at: string | null
+          session_id: string | null
+          started_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          last_seen_at?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          last_seen_at?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
