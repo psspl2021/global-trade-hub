@@ -9,6 +9,76 @@ interface RFQDraftTrackingOptions {
   idleTimeoutMs?: number; // Default 45 seconds
 }
 
+/**
+ * Extracts category slug from various sources with priority:
+ * 1. Explicitly passed categorySlug prop
+ * 2. URL path (e.g., /buy/chemicals/acids → chemicals)
+ * 3. Form data category field
+ * 4. First item's category in items array
+ */
+const extractCategorySlug = (
+  categorySlug?: string,
+  pageUrl?: string,
+  formData?: Record<string, unknown>
+): string | null => {
+  // Priority 1: Explicit category slug
+  if (categorySlug) {
+    return categorySlug;
+  }
+
+  // Priority 2: Extract from URL path (/buy/{category}/{subcategory} or /source/{country}/{category})
+  const url = pageUrl || window.location.pathname;
+  const buyMatch = url.match(/\/buy\/([^/]+)/);
+  if (buyMatch) {
+    return buyMatch[1];
+  }
+  const sourceMatch = url.match(/\/source\/[^/]+\/([^/]+)/);
+  if (sourceMatch) {
+    return sourceMatch[1];
+  }
+  const procurementMatch = url.match(/\/procurement\/([^/]+)/);
+  if (procurementMatch) {
+    return procurementMatch[1];
+  }
+
+  // Priority 3: From form data
+  if (formData) {
+    // Direct category field
+    if (typeof formData.category === 'string' && formData.category) {
+      return slugify(formData.category);
+    }
+    // From generatedRFQ object (PostRFQ page)
+    if (formData.generatedRFQ && typeof formData.generatedRFQ === 'object') {
+      const rfq = formData.generatedRFQ as { category?: string };
+      if (rfq.category) {
+        return slugify(rfq.category);
+      }
+    }
+    // From items array (CreateRequirementForm)
+    if (Array.isArray(formData.items) && formData.items.length > 0) {
+      const firstItem = formData.items[0] as { category?: string };
+      if (firstItem?.category) {
+        return slugify(firstItem.category);
+      }
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Convert category name to slug format
+ * e.g., "Metals - Ferrous (Steel, Iron)" → "metals-ferrous"
+ */
+const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Remove duplicate hyphens
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+};
+
 // Generate a session ID once per browser session
 const getSessionId = (): string => {
   const key = 'rfq_session_id';
@@ -44,9 +114,10 @@ export function useRFQDraftTracking({
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const sessionId = useRef(getSessionId());
   
-  // Store latest form data for saving
+  // Store latest form data for saving - category is extracted dynamically at save time
   const latestFormData = useRef<Record<string, unknown>>({});
   const latestCategorySlug = useRef<string | undefined>(categorySlug);
+  const latestPageUrl = useRef<string | undefined>(pageUrl);
 
   // Update refs when props change
   useEffect(() => {
@@ -56,7 +127,19 @@ export function useRFQDraftTracking({
     if (categorySlug) {
       latestCategorySlug.current = categorySlug;
     }
-  }, [formData, categorySlug]);
+    if (pageUrl) {
+      latestPageUrl.current = pageUrl;
+    }
+  }, [formData, categorySlug, pageUrl]);
+
+  // Dynamically extract category slug at save time (uses latest form data)
+  const getEffectiveCategorySlug = useCallback((): string | null => {
+    return extractCategorySlug(
+      latestCategorySlug.current,
+      latestPageUrl.current,
+      latestFormData.current
+    );
+  }, []);
 
   // Save draft to Supabase
   const saveDraft = useCallback(async () => {
@@ -69,10 +152,13 @@ export function useRFQDraftTracking({
     draftSaved.current = true;
 
     try {
+      // Extract category dynamically from all available sources
+      const effectiveCategory = getEffectiveCategorySlug();
+      
       const draftPayload = {
         user_id: userId || null,
         session_id: sessionId.current,
-        category_slug: latestCategorySlug.current || null,
+        category_slug: effectiveCategory,
         status: 'draft',
         page_url: pageUrl || window.location.pathname,
         form_data: latestFormData.current as Record<string, unknown>,
@@ -91,7 +177,7 @@ export function useRFQDraftTracking({
       console.error('Error saving RFQ draft:', err);
       draftSaved.current = false;
     }
-  }, [userId, pageUrl]);
+  }, [userId, pageUrl, getEffectiveCategorySlug]);
 
   // Clear idle timer
   const clearIdleTimer = useCallback(() => {
@@ -148,10 +234,17 @@ export function useRFQDraftTracking({
     const handleBeforeUnload = () => {
       // Use sendBeacon for reliable delivery on page unload
       if (hasInteracted.current && !isSubmitted.current && !draftSaved.current) {
+        // Extract category dynamically from all available sources
+        const effectiveCategory = extractCategorySlug(
+          latestCategorySlug.current,
+          latestPageUrl.current,
+          latestFormData.current
+        );
+        
         const payload = {
           user_id: userId || null,
           session_id: sessionId.current,
-          category_slug: latestCategorySlug.current || null,
+          category_slug: effectiveCategory,
           status: 'draft',
           page_url: pageUrl || window.location.pathname,
           form_data: latestFormData.current,
