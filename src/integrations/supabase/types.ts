@@ -1215,6 +1215,7 @@ export type Database = {
           confidence_score: number | null
           created_at: string | null
           id: string
+          session_id: string | null
           trigger_reason: string | null
           user_id: string | null
         }
@@ -1223,6 +1224,7 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string | null
           id?: string
+          session_id?: string | null
           trigger_reason?: string | null
           user_id?: string | null
         }
@@ -1231,6 +1233,7 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string | null
           id?: string
+          session_id?: string | null
           trigger_reason?: string | null
           user_id?: string | null
         }
