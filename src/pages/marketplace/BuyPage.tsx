@@ -93,24 +93,22 @@ export default function BuyPage() {
     canonical: `https://procuresaathi.com/buy-${config.slug}`
   });
 
+  // Service schema for category pages - NO Product schema on listing pages (GSC compliance)
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    "name": config.productName,
+    "@type": "Service",
+    "name": `${config.productName} Procurement Services`,
     "description": globalSEO.enhancedDescription,
+    "serviceType": "B2B Procurement",
     "category": config.categoryName,
-    "brand": {
-      "@type": "Brand",
-      "name": "ProcureSaathi"
+    "provider": {
+      "@type": "Organization",
+      "name": "ProcureSaathi",
+      "url": "https://procuresaathi.com"
     },
-    "offers": {
-      "@type": "AggregateOffer",
-      "priceCurrency": "INR",
-      "availability": "https://schema.org/InStock",
-      "seller": {
-        "@type": "Organization",
-        "name": "ProcureSaathi"
-      }
+    "areaServed": {
+      "@type": "Place",
+      "name": "Worldwide"
     }
   };
 

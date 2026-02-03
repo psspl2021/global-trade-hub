@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { categoriesData } from '@/data/categories';
-import { useSEO, injectStructuredData, getBreadcrumbSchema, getProductSchema } from '@/hooks/useSEO';
+import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import { supabase } from '@/integrations/supabase/client';
 
 // Convert slug to category name
@@ -691,12 +691,23 @@ const CategoryLanding = () => {
     }
     injectStructuredData(getBreadcrumbSchema(breadcrumbs), 'breadcrumb-schema');
 
-    // Product schema
-    injectStructuredData(getProductSchema({
-      name: subcategoryName || categoryName,
-      description: pageDescription,
-      category: categoryName,
-    }), 'product-schema');
+    // ItemList schema for category pages (NO Product schema on listing pages - GSC compliance)
+    const categorySubcategories = category?.subcategories || [];
+    const itemListSchema = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": subcategoryName || categoryName,
+      "description": pageDescription,
+      "itemListOrder": "https://schema.org/ItemListOrderAscending",
+      "numberOfItems": categorySubcategories.length,
+      "itemListElement": categorySubcategories.slice(0, 10).map((sub, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": sub,
+        "url": `https://procuresaathi.com/category/${categorySlug}/${nameToSlug(sub)}`
+      }))
+    };
+    injectStructuredData(itemListSchema, 'category-itemlist-schema');
 
     // FAQ schema with unique ID per category
     if (content.faqs.length > 0) {
