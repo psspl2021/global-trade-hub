@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
 
 interface RequirementItem {
   item_name: string;
@@ -168,6 +169,26 @@ export function CreateRequirementForm({
   // Check if user can add customer name (admin, dealer, or distributor)
   const canAddCustomerName = role === 'admin' || userBusinessType === 'dealer' || userBusinessType === 'distributor';
 
+  // RFQ Draft tracking - save draft when user abandons form
+  const { markInteraction, markSubmitted } = useRFQDraftTracking({
+    userId: userId || null,
+    categorySlug: items[0]?.category || undefined,
+    pageUrl: '/dashboard/create-requirement',
+    formData: {
+      title: '',
+      items: items,
+      customerName,
+      destinationCountry,
+      destinationState,
+    },
+    idleTimeoutMs: 45000, // 45 seconds idle timeout
+  });
+
+  // Handler to track form interactions
+  const handleFormInteraction = useCallback(() => {
+    markInteraction();
+  }, [markInteraction]);
+
   const {
     register,
     handleSubmit,
@@ -214,6 +235,8 @@ export function CreateRequirementForm({
     const newItems = [...items];
     newItems[index] = { ...newItems[index], [field]: value };
     setItems(newItems);
+    // Track interaction when item is updated
+    handleFormInteraction();
   };
 
   const validateItems = (): boolean => {
@@ -325,6 +348,9 @@ export function CreateRequirementForm({
 
       if (itemsError) throw itemsError;
 
+      // Mark form as submitted to prevent draft save
+      markSubmitted();
+
       toast.success('Requirement posted successfully!');
       reset();
       setItems([{ ...defaultItem }]);
@@ -368,13 +394,14 @@ export function CreateRequirementForm({
           <DialogTitle>Create New Requirement</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" onChange={handleFormInteraction}>
           <div className="space-y-2">
             <Label htmlFor="title">Requirement Title *</Label>
             <Input
               id="title"
               placeholder="e.g., Industrial Ball Bearings for Manufacturing"
               {...register('title')}
+              onFocus={handleFormInteraction}
             />
             {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>

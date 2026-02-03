@@ -4610,21 +4610,30 @@ export type Database = {
         Row: {
           category_slug: string | null
           created_at: string | null
+          form_data: Json | null
           id: string
+          page_url: string | null
+          session_id: string | null
           status: string | null
           user_id: string | null
         }
         Insert: {
           category_slug?: string | null
           created_at?: string | null
+          form_data?: Json | null
           id?: string
+          page_url?: string | null
+          session_id?: string | null
           status?: string | null
           user_id?: string | null
         }
         Update: {
           category_slug?: string | null
           created_at?: string | null
+          form_data?: Json | null
           id?: string
+          page_url?: string | null
+          session_id?: string | null
           status?: string | null
           user_id?: string | null
         }
