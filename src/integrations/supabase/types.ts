@@ -7275,11 +7275,11 @@ export type Database = {
         Returns: {
           category: string
           country: string
-          has_activation_signal: boolean
+          has_activation: boolean
           intent: number
+          lane_state: string
           rfqs: number
           source: string
-          state: string
         }[]
       }
       get_dynamic_intent_threshold: {
