@@ -26,8 +26,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
 import { useQueryClient } from '@tanstack/react-query';
-import { CountrySelector } from '@/components/rfq/CountrySelector';
-import { getDefaultCountry } from '@/data/countryMaster';
+import { RFQDestinationSelector, type RFQType } from '@/components/rfq/RFQDestinationSelector';
+import { parseCountryString } from '@/config/countryConfig';
 
 interface RequirementItem {
   item_name: string;
@@ -148,11 +148,11 @@ export function CreateRequirementForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
   const [customerName, setCustomerName] = useState('');
-  const [destinationCountry, setDestinationCountry] = useState(getDefaultCountry().code); // Default to India
-  const [destinationCountries, setDestinationCountries] = useState<string[]>([]); // For multi-country export
+  // New unified destination handling
+  const [rfqType, setRfqType] = useState<RFQType>('domestic');
+  const [destinationCountryValue, setDestinationCountryValue] = useState('IN'); // Comma-separated string
   const [destinationState, setDestinationState] = useState('');
   const [userBusinessType, setUserBusinessType] = useState<string | null>(null);
-  const [selectedTradeType, setSelectedTradeType] = useState<string>('');
   const { role } = useUserRole(userId);
 
   // Fetch user's business_type
@@ -183,7 +183,7 @@ export function CreateRequirementForm({
       title: '',
       items: items,
       customerName,
-      destinationCountry,
+      destinationCountry: destinationCountryValue,
       destinationState,
     },
     idleTimeoutMs: 45000, // 45 seconds idle timeout
@@ -315,8 +315,8 @@ export function CreateRequirementForm({
         certifications_required: data.certifications_required || null,
         payment_terms: data.payment_terms || null,
         customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
-        // Destination for AI matching (country code + state)
-        destination_country: destinationCountry || null,
+        // Destination for AI matching - stored as comma-separated string
+        destination_country: destinationCountryValue || null,
         destination_state: destinationState.trim() || null,
         // Attribution tracking - links RFQ to source
         source: source || 'direct',
@@ -385,10 +385,9 @@ export function CreateRequirementForm({
       reset();
       setItems([{ ...defaultItem }]);
       setCustomerName('');
-      setDestinationCountry(getDefaultCountry().code);
-      setDestinationCountries([]);
+      setRfqType('domestic');
+      setDestinationCountryValue('IN');
       setDestinationState('');
-      setSelectedTradeType('');
     }
     onOpenChange(isOpen);
   };
@@ -547,30 +546,30 @@ export function CreateRequirementForm({
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Trade Type *</Label>
-              <Select onValueChange={(value) => {
-                setValue('trade_type', value as 'import' | 'export' | 'domestic_india');
-                setSelectedTradeType(value);
-                // Reset country selection based on trade type
-                if (value === 'domestic_india') {
-                  setDestinationCountry('IN');
-                  setDestinationCountries([]);
-                }
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select trade type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {tradeTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.trade_type && <p className="text-sm text-destructive">{errors.trade_type.message}</p>}
-            </div>
+          {/* RFQ Type & Destination - Unified selector */}
+          <RFQDestinationSelector
+            value={destinationCountryValue}
+            onChange={(val) => {
+              setDestinationCountryValue(val);
+              // Auto-set trade_type based on RFQ type
+              const codes = parseCountryString(val);
+              if (codes.length === 1 && codes[0] === 'IN') {
+                setValue('trade_type', 'domestic_india');
+              } else if (codes.length > 0) {
+                setValue('trade_type', 'export');
+              }
+            }}
+            rfqType={rfqType}
+            onRFQTypeChange={(type) => {
+              setRfqType(type);
+              // Sync trade_type with RFQ type selection
+              if (type === 'domestic') {
+                setValue('trade_type', 'domestic_india');
+              }
+            }}
+          />
 
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="deadline">Deadline *</Label>
               <Input
@@ -580,38 +579,6 @@ export function CreateRequirementForm({
                 {...register('deadline')}
               />
               {errors.deadline && <p className="text-sm text-destructive">{errors.deadline.message}</p>}
-            </div>
-          </div>
-
-          {/* Destination Country & State - For RFQ matching */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Destination Country</Label>
-              {selectedTradeType === 'export' ? (
-                <CountrySelector
-                  mode="multi"
-                  value={destinationCountries}
-                  onValueChange={setDestinationCountries}
-                  placeholder="Select target countries"
-                  maxSelections={10}
-                />
-              ) : (
-                <CountrySelector
-                  mode="single"
-                  value={destinationCountry}
-                  onValueChange={setDestinationCountry}
-                  placeholder="Select country"
-                  disabled={selectedTradeType === 'domestic_india'}
-                />
-              )}
-              <p className="text-xs text-muted-foreground">
-                {selectedTradeType === 'export' 
-                  ? 'Select multiple target export countries' 
-                  : selectedTradeType === 'domestic_india'
-                    ? 'Domestic orders are for India only'
-                    : 'For international matching'
-                }
-              </p>
             </div>
 
             <div className="space-y-2">
