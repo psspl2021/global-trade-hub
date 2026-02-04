@@ -69,7 +69,7 @@ interface SmartGridRow {
   country_code: string;
   country_name: string;
   // Learning-derived states
-  state: 'No Signal' | 'Detected' | 'Confirmed' | 'Active';
+  state: 'No Signal' | 'Detected' | 'Confirmed' | 'Active' | 'Activated';
   trend: TrendDirection;
   lane_status: 'No Lane' | 'Consider Activation' | 'Activate Lane' | 'Lane Active';
   // Metadata (not exposed publicly)
@@ -81,6 +81,8 @@ interface SmartGridRow {
   rfq_count?: number;
   // Buyer activation flag
   has_activation_signal?: boolean;
+  // Lane state from DB (detected, pending, activated, fulfilling, closed, lost)
+  db_lane_state?: string;
 }
 
 // ============= COMPONENT =============
@@ -153,19 +155,33 @@ export function SmartDemandGrid() {
       // Transform aggregated results to grid rows - NO client-side math
       let rows: SmartGridRow[] = (data || []).map((row: any) => {
         const key = `${row.country}-${row.category}`;
+        const dbLaneState = row.lane_state || 'detected';
         
-        // State: buyer activation signals always = Active
-        let state: SmartGridRow['state'] = 
-          row.has_activation_signal ? 'Active' :
-          row.intent >= 7 ? 'Active' :
-          row.intent >= 4 ? 'Confirmed' :
-          'Detected';
+        // State: determine from DB lane_state first, then fallback to intent
+        let state: SmartGridRow['state'];
+        if (dbLaneState === 'activated' || dbLaneState === 'fulfilling') {
+          state = 'Activated';
+        } else if (row.has_activation) {
+          state = 'Active';
+        } else if (row.intent >= 7) {
+          state = 'Active';
+        } else if (row.intent >= 4) {
+          state = 'Confirmed';
+        } else {
+          state = 'Detected';
+        }
         
-        // Lane status: buyer activation = Activate Lane
-        let lane_status: SmartGridRow['lane_status'] = 
-          row.has_activation_signal || row.intent >= 7 || row.rfqs > 0 ? 'Activate Lane' :
-          row.intent >= 4 ? 'Consider Activation' :
-          'No Lane';
+        // Lane status: based on DB lane_state
+        let lane_status: SmartGridRow['lane_status'];
+        if (dbLaneState === 'activated' || dbLaneState === 'fulfilling' || dbLaneState === 'closed') {
+          lane_status = 'Lane Active';
+        } else if (row.has_activation || row.intent >= 7 || row.rfqs > 0) {
+          lane_status = 'Activate Lane';
+        } else if (row.intent >= 4) {
+          lane_status = 'Consider Activation';
+        } else {
+          lane_status = 'No Lane';
+        }
         
         const country = allCountries.find(c => c.code === row.country);
         const category = allCategories.find(c => c.slug === row.category);
@@ -187,7 +203,8 @@ export function SmartDemandGrid() {
           // Intent score directly from DB aggregation
           aggregated_intent: row.intent,
           rfq_count: row.rfqs,
-          has_activation_signal: row.has_activation_signal,
+          has_activation_signal: row.has_activation,
+          db_lane_state: dbLaneState,
         };
       });
       
@@ -247,12 +264,17 @@ export function SmartDemandGrid() {
   }, [categoryFilter]);
 
   // Format functions
-  const getStateBadge = (state: SmartGridRow['state'], hasActivation?: boolean) => {
+  const getStateBadge = (state: SmartGridRow['state'], hasActivation?: boolean, dbLaneState?: string) => {
+    // Show activated state for lanes that have been activated
+    if (dbLaneState === 'activated' || dbLaneState === 'fulfilling') {
+      return <Badge className="bg-green-600 text-white"><CheckCircle className="w-3 h-3 mr-1" />Lane Activated</Badge>;
+    }
     if (hasActivation) {
       return <Badge className="bg-purple-600 text-white"><Zap className="w-3 h-3 mr-1" />Buyer Activated</Badge>;
     }
     switch (state) {
       case 'Active':
+      case 'Activated':
         return <Badge className="bg-green-600 text-white"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
       case 'Confirmed':
         return <Badge className="bg-blue-600 text-white"><Activity className="w-3 h-3 mr-1" />Confirmed</Badge>;
@@ -568,21 +590,21 @@ export function SmartDemandGrid() {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        {getStateBadge(row.state, row.has_activation_signal)}
+                        {getStateBadge(row.state, row.has_activation_signal, row.db_lane_state)}
                       </TableCell>
                       <TableCell className="text-center">
                         {getLaneStatusBadge(row.lane_status)}
                       </TableCell>
                       <TableCell>
                         <Button 
-                          variant={row.has_activation_signal ? "default" : "outline"}
+                          variant={row.db_lane_state === 'activated' ? "secondary" : row.has_activation_signal ? "default" : "outline"}
                           size="sm"
-                          className={`text-xs ${row.has_activation_signal ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
-                          disabled={row.lane_status === 'Lane Active' || row.lane_status === 'No Lane'}
+                          className={`text-xs ${row.has_activation_signal && row.db_lane_state !== 'activated' ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                          disabled={row.lane_status === 'Lane Active' || row.lane_status === 'No Lane' || row.db_lane_state === 'activated'}
                           onClick={() => handleActivateLane(row)}
                         >
                           <Zap className="w-3 h-3 mr-1" />
-                          {row.has_activation_signal ? 'Act Now' : 'Activate'}
+                          {row.db_lane_state === 'activated' ? 'Activated ✓' : row.has_activation_signal ? 'Act Now' : 'Activate'}
                         </Button>
                       </TableCell>
                     </TableRow>
