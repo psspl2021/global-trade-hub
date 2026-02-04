@@ -26,6 +26,7 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface RequirementItem {
   item_name: string;
@@ -142,6 +143,7 @@ export function CreateRequirementForm({
   sourceRunId,
   signalPageId
 }: CreateRequirementFormProps) {
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
   const [customerName, setCustomerName] = useState('');
@@ -350,6 +352,10 @@ export function CreateRequirementForm({
 
       // Mark form as submitted to prevent draft save
       markSubmitted();
+
+      // Invalidate demand intelligence queries to refresh dashboard and homepage
+      queryClient.invalidateQueries({ queryKey: ['live-demand-signals'] });
+      queryClient.invalidateQueries({ queryKey: ['demand-intelligence-grid'] });
 
       toast.success('Requirement posted successfully!');
       reset();
