@@ -15,9 +15,10 @@
  */
 
 import { Badge } from '@/components/ui/badge';
-import { Lock, MapPin, Globe, Info } from 'lucide-react';
+import { Lock, Info } from 'lucide-react';
 import { useDemandCapture } from '@/hooks/useDemandCapture';
 import { useEffect, useState } from 'react';
+import { getCountryFlag, getCountryName, isValidCountryCode } from '@/data/countryMaster';
 
 interface SEOContext {
   pageType: string;
@@ -79,9 +80,9 @@ export function AutoCountryField({
     return (
       <div className="flex items-center gap-2">
         {isGlobal ? (
-          <Globe className="w-4 h-4 text-muted-foreground" />
+          <span className="text-lg">{getCountryFlag('GLOBAL')}</span>
         ) : (
-          <MapPin className="w-4 h-4 text-primary" />
+          <span className="text-lg">{getCountryFlag(displayCode)}</span>
         )}
         <span className="text-sm font-medium">{displayCountry}</span>
         <Lock className="w-3 h-3 text-muted-foreground" />
@@ -100,15 +101,11 @@ export function AutoCountryField({
       </label>
       
       <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-md border border-border">
-        {isGlobal ? (
-          <Globe className="w-5 h-5 text-muted-foreground" />
-        ) : (
-          <MapPin className="w-5 h-5 text-primary" />
-        )}
+        <span className="text-2xl">{isGlobal ? getCountryFlag('GLOBAL') : getCountryFlag(displayCode)}</span>
         
         <div className="flex-1">
           <p className="font-medium text-foreground">{displayCountry}</p>
-          {!isGlobal && (
+          {!isGlobal && isValidCountryCode(displayCode) && (
             <p className="text-xs text-muted-foreground">
               Detected from your location ({displayCode})
             </p>
@@ -145,12 +142,13 @@ export function getSEOContext(): SEOContext | null {
 /**
  * Get auto-detected country for RFQ form
  * Priority: SEO context > geo detection > GLOBAL
+ * Uses countryMaster for validation
  */
 export function getAutoDetectedCountry(): { code: string; name: string } {
   const seoContext = getSEOContext();
   
-  if (seoContext?.countryCode && seoContext.countryCode !== 'GLOBAL') {
-    return { code: seoContext.countryCode, name: seoContext.countryName };
+  if (seoContext?.countryCode && seoContext.countryCode !== 'GLOBAL' && isValidCountryCode(seoContext.countryCode)) {
+    return { code: seoContext.countryCode, name: getCountryName(seoContext.countryCode) };
   }
   
   // Try geo data from session storage
@@ -158,8 +156,8 @@ export function getAutoDetectedCountry(): { code: string; name: string } {
     const geoData = sessionStorage.getItem('ps_geo_data');
     if (geoData) {
       const parsed = JSON.parse(geoData);
-      if (parsed.countryCode && parsed.countryCode !== 'GLOBAL') {
-        return { code: parsed.countryCode, name: parsed.countryName };
+      if (parsed.countryCode && parsed.countryCode !== 'GLOBAL' && isValidCountryCode(parsed.countryCode)) {
+        return { code: parsed.countryCode, name: getCountryName(parsed.countryCode) };
       }
     }
   } catch {

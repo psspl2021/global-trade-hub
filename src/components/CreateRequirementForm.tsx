@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { supabase } from '@/integrations/supabase/client';
-import { countries } from '@/data/countries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,6 +26,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
 import { useQueryClient } from '@tanstack/react-query';
+import { CountrySelector } from '@/components/rfq/CountrySelector';
+import { getDefaultCountry } from '@/data/countryMaster';
 
 interface RequirementItem {
   item_name: string;
@@ -147,9 +148,11 @@ export function CreateRequirementForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [items, setItems] = useState<RequirementItem[]>([{ ...defaultItem }]);
   const [customerName, setCustomerName] = useState('');
-  const [destinationCountry, setDestinationCountry] = useState('');
+  const [destinationCountry, setDestinationCountry] = useState(getDefaultCountry().code); // Default to India
+  const [destinationCountries, setDestinationCountries] = useState<string[]>([]); // For multi-country export
   const [destinationState, setDestinationState] = useState('');
   const [userBusinessType, setUserBusinessType] = useState<string | null>(null);
+  const [selectedTradeType, setSelectedTradeType] = useState<string>('');
   const { role } = useUserRole(userId);
 
   // Fetch user's business_type
@@ -382,8 +385,10 @@ export function CreateRequirementForm({
       reset();
       setItems([{ ...defaultItem }]);
       setCustomerName('');
-      setDestinationCountry('');
+      setDestinationCountry(getDefaultCountry().code);
+      setDestinationCountries([]);
       setDestinationState('');
+      setSelectedTradeType('');
     }
     onOpenChange(isOpen);
   };
@@ -545,7 +550,15 @@ export function CreateRequirementForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Trade Type *</Label>
-              <Select onValueChange={(value) => setValue('trade_type', value as 'import' | 'export' | 'domestic_india')}>
+              <Select onValueChange={(value) => {
+                setValue('trade_type', value as 'import' | 'export' | 'domestic_india');
+                setSelectedTradeType(value);
+                // Reset country selection based on trade type
+                if (value === 'domestic_india') {
+                  setDestinationCountry('IN');
+                  setDestinationCountries([]);
+                }
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select trade type" />
                 </SelectTrigger>
@@ -574,23 +587,30 @@ export function CreateRequirementForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Destination Country</Label>
-              <Select 
-                value={destinationCountry} 
-                onValueChange={setDestinationCountry}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.code}>
-                      {country.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {selectedTradeType === 'export' ? (
+                <CountrySelector
+                  mode="multi"
+                  value={destinationCountries}
+                  onValueChange={setDestinationCountries}
+                  placeholder="Select target countries"
+                  maxSelections={10}
+                />
+              ) : (
+                <CountrySelector
+                  mode="single"
+                  value={destinationCountry}
+                  onValueChange={setDestinationCountry}
+                  placeholder="Select country"
+                  disabled={selectedTradeType === 'domestic_india'}
+                />
+              )}
               <p className="text-xs text-muted-foreground">
-                For international matching
+                {selectedTradeType === 'export' 
+                  ? 'Select multiple target export countries' 
+                  : selectedTradeType === 'domestic_india'
+                    ? 'Domestic orders are for India only'
+                    : 'For international matching'
+                }
               </p>
             </div>
 

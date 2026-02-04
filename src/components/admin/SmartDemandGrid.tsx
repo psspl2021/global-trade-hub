@@ -85,14 +85,19 @@ interface SmartGridRow {
   db_lane_state?: string;
 }
 
+// ============= IMPORTS FOR REGION SUPPORT =============
+import { getAllRegions, getRegionName, type Region } from '@/data/countryMaster';
+
 // ============= COMPONENT =============
 
 export function SmartDemandGrid() {
   // Filters
+  const [regionFilter, setRegionFilter] = useState<string>("all"); // NEW: Region filter
   const [countryFilter, setCountryFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [stateFilter, setStateFilter] = useState<string>("all");
+  const [tradeTypeFilter, setTradeTypeFilter] = useState<string>("all"); // NEW: Trade type filter
   const [searchQuery, setSearchQuery] = useState("");
   
   // Data
@@ -104,10 +109,17 @@ export function SmartDemandGrid() {
   // Dropdown options
   const allCountries = useMemo(() => getAllCountriesForGrid(), []);
   const allCategories = useMemo(() => getAllCategoriesForGrid(), []);
+  const allRegions = useMemo(() => getAllRegions(), []);
   const subcategories = useMemo(() => 
     categoryFilter !== 'all' ? getSubcategoriesForCategory(categoryFilter) : [],
     [categoryFilter]
   );
+  
+  // Filter countries by selected region
+  const filteredCountries = useMemo(() => {
+    if (regionFilter === 'all') return allCountries;
+    return allCountries.filter(c => c.region === regionFilter);
+  }, [allCountries, regionFilter]);
   
   // Top categories for insights
   const topCategories = useMemo(() => getTopCategoriesByDetection(5), []);
@@ -223,6 +235,12 @@ export function SmartDemandGrid() {
         rows = rows.filter(row => row.state === stateFilter);
       }
       
+      // Apply region filter (NEW)
+      if (regionFilter !== 'all') {
+        const countriesInRegion = filteredCountries.map(c => c.code);
+        rows = rows.filter(row => countriesInRegion.includes(row.country_code));
+      }
+      
       // Apply country filter (additional client filter if needed)
       if (countryFilter !== 'all') {
         rows = rows.filter(row => row.country_code === countryFilter);
@@ -231,6 +249,14 @@ export function SmartDemandGrid() {
       // Apply category filter
       if (categoryFilter !== 'all') {
         rows = rows.filter(row => row.category_slug === categoryFilter);
+      }
+      
+      // Apply trade type filter (NEW)
+      // Domestic = IN only, Export = non-IN
+      if (tradeTypeFilter === 'domestic') {
+        rows = rows.filter(row => row.country_code === 'IN');
+      } else if (tradeTypeFilter === 'export') {
+        rows = rows.filter(row => row.country_code !== 'IN');
       }
       
       setGridRows(rows.slice(0, 200));
@@ -244,8 +270,14 @@ export function SmartDemandGrid() {
     } finally {
       setLoading(false);
     }
-  }, [countryFilter, categoryFilter, stateFilter, searchQuery, allCountries, allCategories]);
+  }, [regionFilter, countryFilter, categoryFilter, stateFilter, tradeTypeFilter, searchQuery, allCountries, allCategories, filteredCountries]);
 
+  // Reset country when region changes
+  useEffect(() => {
+    if (regionFilter !== 'all') {
+      setCountryFilter('all');
+    }
+  }, [regionFilter]);
   // Fetch stats on mount
   useEffect(() => {
     const statsData = getDemandGridStats();
@@ -458,18 +490,45 @@ export function SmartDemandGrid() {
             <span className="text-sm font-medium">Filters:</span>
           </div>
           
+          {/* Region Filter (NEW) */}
+          <Select value={regionFilter} onValueChange={setRegionFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All Regions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">🌍 All Regions</SelectItem>
+              {allRegions.map(region => (
+                <SelectItem key={region} value={region}>
+                  {getRegionName(region)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
           {/* Country Filter */}
           <Select value={countryFilter} onValueChange={setCountryFilter}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="All Countries" />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
-              <SelectItem value="all">🌍 All Countries ({allCountries.length})</SelectItem>
-              {allCountries.map(country => (
+              <SelectItem value="all">🌍 All Countries ({filteredCountries.length})</SelectItem>
+              {filteredCountries.map(country => (
                 <SelectItem key={country.code} value={country.code}>
-                  {country.name}
+                  {country.flag} {country.name}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          
+          {/* Trade Type Filter (NEW) */}
+          <Select value={tradeTypeFilter} onValueChange={setTradeTypeFilter}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="All Trade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Trade</SelectItem>
+              <SelectItem value="domestic">🇮🇳 Domestic</SelectItem>
+              <SelectItem value="export">🚢 Export</SelectItem>
             </SelectContent>
           </Select>
           
@@ -515,7 +574,9 @@ export function SmartDemandGrid() {
         
         <div className="mt-3 text-sm text-muted-foreground">
           Showing {gridRows.length} rows with real demand signals
-          {countryFilter !== 'all' && ` • Country: ${allCountries.find(c => c.code === countryFilter)?.name || countryFilter}`}
+          {regionFilter !== 'all' && ` • Region: ${getRegionName(regionFilter as Region)}`}
+          {countryFilter !== 'all' && ` • Country: ${filteredCountries.find(c => c.code === countryFilter)?.name || countryFilter}`}
+          {tradeTypeFilter !== 'all' && ` • Trade: ${tradeTypeFilter === 'domestic' ? 'Domestic' : 'Export'}`}
           {categoryFilter !== 'all' && ` • Category: ${allCategories.find(c => c.slug === categoryFilter)?.name || categoryFilter}`}
         </div>
       </Card>

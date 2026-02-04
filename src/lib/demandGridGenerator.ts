@@ -4,13 +4,14 @@
  * ============================================================
  * 
  * SINGLE SOURCE OF TRUTH for auto-generated demand rows.
- * Uses existing SEO taxonomy (categories.ts + countries.ts)
+ * Uses centralized countryMaster for global coverage.
  * NO new URLs created - purely for internal demand intelligence.
  * 
  * Architecture:
  * - Taxonomy-driven (categories + subcategories)
- * - Country coverage (ALL countries from countries.ts)
+ * - Country coverage (ALL countries from countryMaster - 50+ countries)
  * - GEO-SAFE language (no fake stats, no revenue claims)
+ * - NO hardcoded country filters
  * 
  * Usage:
  *   import { generateDemandGrid, logDemandGridStats } from '@/lib/demandGridGenerator';
@@ -19,7 +20,7 @@
  */
 
 import { categoriesData } from '@/data/categories';
-import { countries } from '@/data/countries';
+import { countryMaster, getCountryFlag, type CountryConfig } from '@/data/countryMaster';
 import { nameToSlug } from '@/data/marketplacePages';
 
 // ============= TYPES =============
@@ -75,8 +76,9 @@ const generateRowId = (countryCode: string, subcategorySlug: string): string => 
 export const generateDemandGrid = (): DemandGridRow[] => {
   const rows: DemandGridRow[] = [];
   
-  // Iterate: ALL countries × ALL categories × ALL subcategories
-  countries.forEach(country => {
+  // Iterate: ALL countries from countryMaster × ALL categories × ALL subcategories
+  // NO hardcoded filters - all 50+ countries participate
+  countryMaster.forEach(country => {
     categoriesData.forEach(category => {
       const categorySlug = nameToSlug(category.name);
       
@@ -144,9 +146,10 @@ export const getFilteredDemandGrid = (
 
 /**
  * Calculate demand grid statistics without generating all rows.
+ * Uses countryMaster for accurate global coverage stats.
  */
 export const getDemandGridStats = (): DemandGridStats => {
-  const totalCountries = countries.length;
+  const totalCountries = countryMaster.length; // Now 50+ countries
   const totalCategories = categoriesData.length;
   
   // Count all subcategories (products)
@@ -169,10 +172,11 @@ export const getDemandGridStats = (): DemandGridStats => {
 };
 
 /**
- * Get all countries for dropdown (from countries.ts)
+ * Get all countries for dropdown (from countryMaster)
+ * Returns ALL 50+ countries - no hardcoded filters
  */
-export const getAllCountriesForGrid = (): Array<{ code: string; name: string }> => {
-  return countries.map(c => ({ code: c.code, name: c.name }));
+export const getAllCountriesForGrid = (): Array<{ code: string; name: string; flag: string; region: string }> => {
+  return countryMaster.map(c => ({ code: c.code, name: c.name, flag: c.flag, region: c.region }));
 };
 
 /**
@@ -218,7 +222,7 @@ export const getTopCountriesByDetection = (limit: number = 5): Array<{
   const stats = getDemandGridStats();
   const productsPerCountry = stats.totalSubcategories;
   
-  return countries.slice(0, limit).map(c => ({
+  return countryMaster.slice(0, limit).map(c => ({
     country: c.name,
     countryCode: c.code,
     detectedCount: productsPerCountry,
@@ -283,7 +287,7 @@ export const logDemandGridStats = (): void => {
     console.log('GRID ROWS:', stats.totalGridRows.toLocaleString());
     console.log('SOURCE:', stats.source);
     console.log('---');
-    console.log('Sample countries:', countries.slice(0, 10).map(c => c.name).join(', '), '...');
+    console.log('Sample countries:', countryMaster.slice(0, 10).map(c => c.name).join(', '), '...');
     console.log('Sample categories:', categoriesData.slice(0, 5).map(c => c.name).join(', '), '...');
     console.groupEnd();
   }
