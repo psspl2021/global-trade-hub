@@ -258,29 +258,6 @@ export function SmartDemandGrid() {
     fetchRealSignals();
   }, [fetchRealSignals]);
   
-  // Subscribe to realtime updates for auto-refresh
-  useEffect(() => {
-    const channel = supabase
-      .channel('demand-grid-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'demand_intelligence_signals',
-        },
-        () => {
-          // Refetch grid on any change to demand signals
-          fetchRealSignals();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [fetchRealSignals]);
-  
   // Reset subcategory when category changes
   useEffect(() => {
     setSubcategoryFilter("all");
