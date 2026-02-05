@@ -1,8 +1,14 @@
 /**
- * Trust Score Card Component
+ * Trust Score Card Component (BUYER VIEW)
  * 
  * Displays comprehensive trust metrics for suppliers.
  * Part of ProcureSaathi's Trust Infrastructure system.
+ * 
+ * =======================================================
+ * ANONYMITY RULE: supplierName should ALWAYS be the 
+ * anonymous display name (e.g., "ProcureSaathi Verified Partner")
+ * Real supplier names are NEVER passed to this component in buyer views.
+ * =======================================================
  */
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +47,9 @@ interface TrustScoreCardProps {
 }
 
 export function TrustScoreCard({
-  supplierName = 'Supplier',
+  // IMPORTANT: In buyer views, this should ALWAYS be the anonymous display name
+  // e.g., "ProcureSaathi Verified Partner (ID: PS-XXX)"
+  supplierName = 'ProcureSaathi Verified Partner',
   overallScore = 85,
   operationalRisk = 88,
   financialRisk = 82,
