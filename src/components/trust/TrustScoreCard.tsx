@@ -5,6 +5,11 @@
  * CRITICAL ANONYMITY RULE:
  * supplierName MUST always be the anonymous display name.
  * Real supplier names are NEVER passed to this component in buyer views.
+ * 
+ * TWO-WAY ANONYMITY:
+ * - This component is for BUYER views only
+ * - For SUPPLIER views, use AnonymousBuyerCard instead
+ * - Admin views have separate components with full identity access
  */
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
