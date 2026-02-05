@@ -76,10 +76,10 @@ export function DemandLaneManagement() {
       // Fetch assignments for each lane
       const lanesWithAssignments = await Promise.all(
         (lanesData || []).map(async (lane: any) => {
-          const { data: assignments } = await supabase
-            .from('lane_supplier_assignments')
+          const { data: assignments } = await (supabase
+            .from('lane_supplier_assignments') as any)
             .select('*')
-            .eq('lane_lock_id', lane.id)
+            .eq('lane_id', lane.id)
             .eq('is_active', true)
             .order('priority_rank');
 
@@ -125,15 +125,15 @@ export function DemandLaneManagement() {
     }
   }, [newLane, fetchLanes]);
 
-  const toggleLaneActive = useCallback(async (laneId: string, currentActive: boolean) => {
+  const toggleLaneActive = useCallback(async (laneId: string, currentLocked: boolean) => {
     try {
       const { error } = await supabase
         .from('demand_lane_locks')
-        .update({ is_active: !currentActive })
+        .update({ is_locked: !currentLocked, locked_at: !currentLocked ? new Date().toISOString() : null })
         .eq('id', laneId);
 
       if (error) throw error;
-      toast.success(currentActive ? 'Lane unlocked' : 'Lane locked');
+      toast.success(currentLocked ? 'Lane unlocked' : 'Lane locked');
       fetchLanes();
     } catch (err) {
       console.error('[DemandLaneManagement] Toggle error:', err);

@@ -1704,7 +1704,6 @@ export type Database = {
           actioned_by: string | null
           alert_type: string
           category: string
-          countries_affected: string[] | null
           country: string
           created_at: string
           expires_at: string
@@ -1713,15 +1712,13 @@ export type Database = {
           is_actioned: boolean
           is_read: boolean
           rfq_count: number
-          suggested_action: string
-          time_window_hours: number
+          suggested_action: string | null
         }
         Insert: {
           actioned_at?: string | null
           actioned_by?: string | null
           alert_type: string
           category: string
-          countries_affected?: string[] | null
           country: string
           created_at?: string
           expires_at?: string
@@ -1730,15 +1727,13 @@ export type Database = {
           is_actioned?: boolean
           is_read?: boolean
           rfq_count?: number
-          suggested_action: string
-          time_window_hours?: number
+          suggested_action?: string | null
         }
         Update: {
           actioned_at?: string | null
           actioned_by?: string | null
           alert_type?: string
           category?: string
-          countries_affected?: string[] | null
           country?: string
           created_at?: string
           expires_at?: string
@@ -1747,8 +1742,7 @@ export type Database = {
           is_actioned?: boolean
           is_read?: boolean
           rfq_count?: number
-          suggested_action?: string
-          time_window_hours?: number
+          suggested_action?: string | null
         }
         Relationships: []
       }
@@ -2077,37 +2071,37 @@ export type Database = {
           category: string
           country: string
           created_at: string
-          expires_at: string
           id: string
-          intent_threshold: number
-          is_active: boolean
-          locked_at: string
+          is_locked: boolean
+          locked_at: string | null
           locked_by: string | null
           max_suppliers: number
+          min_intent_required: number
+          updated_at: string
         }
         Insert: {
           category: string
           country: string
           created_at?: string
-          expires_at?: string
           id?: string
-          intent_threshold?: number
-          is_active?: boolean
-          locked_at?: string
+          is_locked?: boolean
+          locked_at?: string | null
           locked_by?: string | null
           max_suppliers?: number
+          min_intent_required?: number
+          updated_at?: string
         }
         Update: {
           category?: string
           country?: string
           created_at?: string
-          expires_at?: string
           id?: string
-          intent_threshold?: number
-          is_active?: boolean
-          locked_at?: string
+          is_locked?: boolean
+          locked_at?: string | null
           locked_by?: string | null
           max_suppliers?: number
+          min_intent_required?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2717,34 +2711,37 @@ export type Database = {
         Row: {
           assigned_at: string
           assigned_by: string | null
+          expires_at: string | null
           id: string
           is_active: boolean
-          lane_lock_id: string
+          lane_id: string
           priority_rank: number
           supplier_id: string
         }
         Insert: {
           assigned_at?: string
           assigned_by?: string | null
+          expires_at?: string | null
           id?: string
           is_active?: boolean
-          lane_lock_id: string
+          lane_id: string
           priority_rank?: number
           supplier_id: string
         }
         Update: {
           assigned_at?: string
           assigned_by?: string | null
+          expires_at?: string | null
           id?: string
           is_active?: boolean
-          lane_lock_id?: string
+          lane_id?: string
           priority_rank?: number
           supplier_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "lane_supplier_assignments_lane_lock_id_fkey"
-            columns: ["lane_lock_id"]
+            foreignKeyName: "lane_supplier_assignments_lane_id_fkey"
+            columns: ["lane_id"]
             isOneToOne: false
             referencedRelation: "demand_lane_locks"
             referencedColumns: ["id"]
@@ -5308,6 +5305,33 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_categories: {
+        Row: {
+          category_name: string | null
+          category_slug: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          user_id: string
+        }
+        Insert: {
+          category_name?: string | null
+          category_slug: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          user_id: string
+        }
+        Update: {
+          category_name?: string | null
+          category_slug?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       supplier_category_performance: {
         Row: {
           avg_price_per_unit: number | null
@@ -5393,12 +5417,11 @@ export type Database = {
         Row: {
           access_tier: string
           activated_at: string
-          categories_locked: string[] | null
           created_at: string
           early_access_hours: number
           expires_at: string | null
           id: string
-          max_rfq_alerts_per_day: number
+          max_alerts_per_day: number
           min_intent_visible: number
           supplier_id: string
           updated_at: string
@@ -5406,12 +5429,11 @@ export type Database = {
         Insert: {
           access_tier?: string
           activated_at?: string
-          categories_locked?: string[] | null
           created_at?: string
           early_access_hours?: number
           expires_at?: string | null
           id?: string
-          max_rfq_alerts_per_day?: number
+          max_alerts_per_day?: number
           min_intent_visible?: number
           supplier_id: string
           updated_at?: string
@@ -5419,12 +5441,11 @@ export type Database = {
         Update: {
           access_tier?: string
           activated_at?: string
-          categories_locked?: string[] | null
           created_at?: string
           early_access_hours?: number
           expires_at?: string | null
           id?: string
-          max_rfq_alerts_per_day?: number
+          max_alerts_per_day?: number
           min_intent_visible?: number
           supplier_id?: string
           updated_at?: string
@@ -7207,10 +7228,12 @@ export type Database = {
             Returns: string
           }
         | { Args: { bid_id: string; req_id: string }; Returns: string }
-      activate_lane_from_signal: {
-        Args: { p_admin_id?: string; p_category: string; p_country: string }
-        Returns: Json
-      }
+      activate_lane_from_signal:
+        | { Args: { p_category: string; p_country: string }; Returns: Json }
+        | {
+            Args: { p_admin_id?: string; p_category: string; p_country: string }
+            Returns: Json
+          }
       activate_logistics_lane_from_award: {
         Args: { bid_id: string; req_id: string }
         Returns: string
@@ -7433,6 +7456,22 @@ export type Database = {
         Args: { p_supplier_id: string }
         Returns: number
       }
+      get_demand_alerts: {
+        Args: { p_limit?: number; p_user_id: string }
+        Returns: {
+          alert_type: string
+          category: string
+          country: string
+          created_at: string
+          expires_at: string
+          id: string
+          intent_score: number
+          is_actioned: boolean
+          is_read: boolean
+          rfq_count: number
+          suggested_action: string
+        }[]
+      }
       get_demand_intelligence_grid: {
         Args: { p_category?: string; p_country?: string; p_days_back?: number }
         Returns: {
@@ -7562,18 +7601,32 @@ export type Database = {
           supplier_id: string
         }[]
       }
-      get_supplier_visible_demand: {
-        Args: { p_supplier_id: string }
-        Returns: {
-          available_slots: number
-          category: string
-          country: string
-          intent: number
-          is_locked: boolean
-          rfqs: number
-          state: string
-        }[]
-      }
+      get_supplier_visible_demand:
+        | {
+            Args: { p_supplier_id: string }
+            Returns: {
+              available_slots: number
+              category: string
+              country: string
+              intent: number
+              is_locked: boolean
+              rfqs: number
+              state: string
+            }[]
+          }
+        | {
+            Args: { p_days_back?: number; p_supplier_id: string }
+            Returns: {
+              access_reason: string
+              can_access: boolean
+              category: string
+              country: string
+              intent: number
+              is_locked: boolean
+              rfqs: number
+              source: string
+            }[]
+          }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean

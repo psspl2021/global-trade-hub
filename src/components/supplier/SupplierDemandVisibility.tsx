@@ -29,15 +29,16 @@ interface SupplierDemandRow {
   country: string;
   intent: number;
   rfqs: number;
-  state: string;
+  source: string;
   is_locked: boolean;
-  available_slots: number;
+  can_access: boolean;
+  access_reason: string;
 }
 
 interface SupplierAccessInfo {
   access_tier: 'free' | 'premium' | 'exclusive';
   min_intent_visible: number;
-  max_rfq_alerts_per_day: number;
+  max_alerts_per_day: number;
   early_access_hours: number;
 }
 
@@ -65,7 +66,7 @@ export function SupplierDemandVisibility({ supplierId }: Props) {
         setAccessInfo({
           access_tier: 'free',
           min_intent_visible: 0,
-          max_rfq_alerts_per_day: 3,
+          max_alerts_per_day: 3,
           early_access_hours: 0,
         });
       }
@@ -111,7 +112,7 @@ export function SupplierDemandVisibility({ supplierId }: Props) {
   }
 
   const tier = accessInfo?.access_tier || 'free';
-  const hiddenCount = demandData.filter(d => d.state === 'Hidden').length;
+  const hiddenCount = demandData.filter(d => !d.can_access).length;
 
   return (
     <Card>
@@ -165,18 +166,18 @@ export function SupplierDemandVisibility({ supplierId }: Props) {
               <div
                 key={idx}
                 className={`p-3 rounded-lg border ${
-                  row.state === 'Hidden' 
+                  !row.can_access 
                     ? 'bg-muted/30 opacity-75' 
-                    : row.state === 'Active'
+                    : row.intent >= 70
                     ? 'bg-green-50 border-green-200'
-                    : row.state === 'Confirmed'
+                    : row.intent >= 40
                     ? 'bg-amber-50 border-amber-200'
                     : 'bg-background'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {row.state === 'Hidden' ? (
+                    {!row.can_access ? (
                       <EyeOff className="h-4 w-4 text-muted-foreground" />
                     ) : (
                       <Eye className="h-4 w-4 text-green-600" />
@@ -190,12 +191,12 @@ export function SupplierDemandVisibility({ supplierId }: Props) {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    {row.state !== 'Hidden' && (
+                    {row.can_access && (
                       <>
                         <div className="text-right">
                           <div className={`text-lg font-bold ${
-                            row.intent >= 7 ? 'text-green-600' :
-                            row.intent >= 4 ? 'text-amber-600' :
+                            row.intent >= 70 ? 'text-green-600' :
+                            row.intent >= 40 ? 'text-amber-600' :
                             'text-muted-foreground'
                           }`}>
                             {row.intent}
@@ -220,17 +221,17 @@ export function SupplierDemandVisibility({ supplierId }: Props) {
                     {row.is_locked && (
                       <Badge variant="secondary" className="flex items-center gap-1">
                         <Lock className="h-3 w-3" />
-                        {row.available_slots} slots
+                        Locked
                       </Badge>
                     )}
 
                     <Badge variant={
-                      row.state === 'Active' ? 'default' :
-                      row.state === 'Confirmed' ? 'secondary' :
-                      row.state === 'Hidden' ? 'outline' :
+                      row.can_access && row.intent >= 70 ? 'default' :
+                      row.can_access && row.intent >= 40 ? 'secondary' :
+                      !row.can_access ? 'outline' :
                       'outline'
                     }>
-                      {row.state}
+                      {row.can_access ? (row.intent >= 70 ? 'Active' : row.intent >= 40 ? 'Confirmed' : 'Detected') : 'Hidden'}
                     </Badge>
                   </div>
                 </div>

@@ -37,8 +37,8 @@ export async function getQualifiedSuppliers(params: {
   
   try {
     // 1. Check if lane is locked
-    const { data: laneLock } = await supabase
-      .from('demand_lane_locks')
+    const { data: laneLock } = await (supabase
+      .from('demand_lane_locks') as any)
       .select(`
         id,
         max_suppliers,
@@ -50,7 +50,7 @@ export async function getQualifiedSuppliers(params: {
       `)
       .eq('category', category)
       .eq('country', country)
-      .eq('is_active', true)
+      .eq('is_locked', true)
       .single();
 
     // If lane is locked, return only assigned suppliers
@@ -191,19 +191,19 @@ export async function canSupplierAccessRFQ(params: {
     }
 
     // Check if lane is locked and supplier is not assigned
-    const { data: laneLock } = await supabase
-      .from('demand_lane_locks')
+    const { data: laneLock } = await (supabase
+      .from('demand_lane_locks') as any)
       .select('id')
       .eq('category', rfqCategory)
       .eq('country', rfqCountry)
-      .eq('is_active', true)
+      .eq('is_locked', true)
       .single();
 
     if (laneLock) {
-      const { data: assignment } = await supabase
-        .from('lane_supplier_assignments')
+      const { data: assignment } = await (supabase
+        .from('lane_supplier_assignments') as any)
         .select('id')
-        .eq('lane_lock_id', laneLock.id)
+        .eq('lane_id', laneLock.id)
         .eq('supplier_id', supplierId)
         .eq('is_active', true)
         .single();
