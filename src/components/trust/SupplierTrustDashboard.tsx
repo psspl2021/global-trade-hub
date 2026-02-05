@@ -8,6 +8,16 @@
  * - Buyer sees only: ProcureSaathi Verified Partner (ID: PS-XXX)
  * - Seller of Record = ProcureSaathi
  * - Admin / Supplier views use separate components
+ * 
+ * TWO-WAY ANONYMITY MODEL:
+ * ========================
+ * | Role     | Sees Real Supplier? | Sees Real Buyer? |
+ * |----------|---------------------|------------------|
+ * | Buyer    | ❌ Never            | N/A              |
+ * | Supplier | N/A                 | ❌ Never         |
+ * | Admin    | ✅ Yes              | ✅ Yes           |
+ * 
+ * Contract chain: Buyer ↔ ProcureSaathi ↔ Supplier
  */
 
 import { useState } from 'react';
