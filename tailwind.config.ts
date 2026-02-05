@@ -146,6 +146,21 @@ export default {
           from: { backgroundPosition: "200% 0" },
           to: { backgroundPosition: "-200% 0" },
         },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-4px)" },
+        },
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
+        "ping-slow": {
+          "75%, 100%": { transform: "scale(1.5)", opacity: "0" },
+        },
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(-2deg)" },
+          "50%": { transform: "rotate(2deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -158,6 +173,10 @@ export default {
         "float": "float 4s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2.5s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "spin-slow": "spin-slow 3s linear infinite",
+        "ping-slow": "ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+        "wiggle": "wiggle 0.3s ease-in-out",
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.22, 1, 0.36, 1)',
