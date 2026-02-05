@@ -34,12 +34,13 @@ interface DemandAlert {
   country: string;
   intent_score: number;
   rfq_count: number;
-  time_window_hours: number;
-  suggested_action: string;
-  countries_affected: string[] | null;
+  time_window_hours?: number;
+  suggested_action: string | null;
+  countries_affected?: string[] | null;
   is_read: boolean;
   is_actioned: boolean;
   created_at: string;
+  expires_at?: string;
 }
 
 const alertTypeConfig: Record<string, { icon: typeof TrendingUp; color: string; bgColor: string; label: string }> = {
