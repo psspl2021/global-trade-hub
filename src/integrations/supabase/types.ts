@@ -4114,6 +4114,13 @@ export type Database = {
             referencedRelation: "referrals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "referral_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       referrals: {
@@ -4207,6 +4214,13 @@ export type Database = {
             foreignKeyName: "referrals_referred_id_fkey"
             columns: ["referred_id"]
             isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
             referencedRelation: "safe_supplier_profiles"
             referencedColumns: ["id"]
           },
@@ -4215,6 +4229,13 @@ export type Database = {
             columns: ["referrer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -6923,6 +6944,148 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_safe: {
+        Row: {
+          business_type: string | null
+          buyer_industry: string | null
+          city: string | null
+          company_name: string | null
+          contact_person: string | null
+          country: string | null
+          created_at: string | null
+          id: string | null
+          is_test_account: boolean | null
+          is_verified_supplier: boolean | null
+          logistics_partner_type:
+            | Database["public"]["Enums"]["logistics_partner_type"]
+            | null
+          state: string | null
+          supplier_categories: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          business_type?: string | null
+          buyer_industry?: string | null
+          city?: string | null
+          company_name?: string | null
+          contact_person?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_test_account?: boolean | null
+          is_verified_supplier?: boolean | null
+          logistics_partner_type?:
+            | Database["public"]["Enums"]["logistics_partner_type"]
+            | null
+          state?: string | null
+          supplier_categories?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          business_type?: string | null
+          buyer_industry?: string | null
+          city?: string | null
+          company_name?: string | null
+          contact_person?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_test_account?: boolean | null
+          is_verified_supplier?: boolean | null
+          logistics_partner_type?:
+            | Database["public"]["Enums"]["logistics_partner_type"]
+            | null
+          state?: string | null
+          supplier_categories?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      referrals_safe: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          is_self_referral: boolean | null
+          referral_code: string | null
+          referred_email: string | null
+          referred_id: string | null
+          referrer_id: string | null
+          reward_credited: boolean | null
+          rewarded_at: string | null
+          signed_up_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          is_self_referral?: boolean | null
+          referral_code?: string | null
+          referred_email?: string | null
+          referred_id?: string | null
+          referrer_id?: string | null
+          reward_credited?: boolean | null
+          rewarded_at?: string | null
+          signed_up_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          is_self_referral?: boolean | null
+          referral_code?: string | null
+          referred_email?: string | null
+          referred_id?: string | null
+          referrer_id?: string | null
+          reward_credited?: boolean | null
+          rewarded_at?: string | null
+          signed_up_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "safe_supplier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "safe_supplier_profiles"
             referencedColumns: ["id"]
           },
         ]
