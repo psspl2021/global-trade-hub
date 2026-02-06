@@ -4232,6 +4232,8 @@ export type Database = {
             | null
           approved_at: string | null
           approved_by: string | null
+          cfo_confirmation_text: string | null
+          cfo_ethics_confirmed: boolean | null
           created_at: string
           created_by: string
           currency: string
@@ -4254,6 +4256,8 @@ export type Database = {
             | null
           approved_at?: string | null
           approved_by?: string | null
+          cfo_confirmation_text?: string | null
+          cfo_ethics_confirmed?: boolean | null
           created_at?: string
           created_by: string
           currency?: string
@@ -4276,6 +4280,8 @@ export type Database = {
             | null
           approved_at?: string | null
           approved_by?: string | null
+          cfo_confirmation_text?: string | null
+          cfo_ethics_confirmed?: boolean | null
           created_at?: string
           created_by?: string
           currency?: string
@@ -4351,6 +4357,66 @@ export type Database = {
           status?: string | null
           total_savings_generated?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      purchaser_rewards_access_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          resource_id: string | null
+          resource_type: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          resource_id?: string | null
+          resource_type: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          resource_id?: string | null
+          resource_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      purchaser_rewards_settings: {
+        Row: {
+          compliance_tier: string | null
+          created_at: string
+          id: string
+          paused_at: string | null
+          paused_by: string | null
+          paused_reason: string | null
+          rewards_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          compliance_tier?: string | null
+          created_at?: string
+          id?: string
+          paused_at?: string | null
+          paused_by?: string | null
+          paused_reason?: string | null
+          rewards_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          compliance_tier?: string | null
+          created_at?: string
+          id?: string
+          paused_at?: string | null
+          paused_by?: string | null
+          paused_reason?: string | null
+          rewards_enabled?: boolean
+          updated_at?: string
         }
         Relationships: []
       }
@@ -7811,6 +7877,17 @@ export type Database = {
           remaining_monthly: number
         }[]
       }
+      check_governance_access: {
+        Args: { p_user_id: string }
+        Returns: {
+          can_edit_incentives: boolean
+          can_toggle_rewards: boolean
+          can_view_management_dashboard: boolean
+          can_view_purchaser_dashboard: boolean
+          is_read_only: boolean
+          primary_role: string
+        }[]
+      }
       check_self_referral: {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: Json
@@ -7940,6 +8017,10 @@ export type Database = {
           id: string
           state: string
         }[]
+      }
+      get_default_landing_route: {
+        Args: { p_user_id: string }
+        Returns: string
       }
       get_delivery_success_rate: {
         Args: { p_supplier_id: string }

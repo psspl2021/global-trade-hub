@@ -6,9 +6,10 @@
  * INTERNAL PROCUREMENT GOVERNANCE OS
  * NOT a marketplace feature.
  * 
- * ACCESS CONTROL:
- * - ONLY visible to: Purchasers, Management (CFO/CEO), HR, Compliance
- * - NEVER visible to: Suppliers, External buyers, RFQ counterparties
+ * ACCESS CONTROL (HARD GATE):
+ * - ONLY visible to: Purchasers, Buyers, Management (CFO/CEO), HR, Compliance
+ * - NEVER visible to: Suppliers, External guests, Marketplace users
+ * - Purchasers have READ-ONLY access
  * 
  * FINANCIAL STRUCTURE:
  * - Rewards funded by BUYER ORGANISATION's internal budget
@@ -26,7 +27,8 @@ import {
   Award, 
   FileText, 
   Shield,
-  Sparkles
+  Sparkles,
+  Lock
 } from 'lucide-react';
 import { SavingsTracker } from './SavingsTracker';
 import { PerformanceScore } from './PerformanceScore';
@@ -36,25 +38,47 @@ import { LegalDisclaimer } from './LegalDisclaimer';
 import { GovernanceBanner } from './GovernanceBanner';
 import { AccessDenied } from './AccessDenied';
 import { useRewardsGovernance } from '@/hooks/useRewardsGovernance';
+import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 
 export function PurchaserDashboard() {
   const [activeTab, setActiveTab] = useState('savings');
   const { 
     rewardsEnabled, 
     pausedReason, 
-    isLoading, 
+    isLoading: rewardsLoading, 
     hasAccess,
     logAccess 
   } = useRewardsGovernance();
+  
+  // Governance access control
+  const { 
+    canViewPurchaserDashboard, 
+    isReadOnly, 
+    primaryRole,
+    isLoading: accessLoading,
+    isAccessDenied 
+  } = useGovernanceAccess();
 
   // Log access when dashboard is viewed
   useEffect(() => {
     logAccess('view_dashboard', 'purchaser_dashboard');
   }, [logAccess]);
 
-  // Access control: Show denied screen for unauthorized users
-  if (!isLoading && !hasAccess) {
+  const isLoading = rewardsLoading || accessLoading;
+
+  // Access control: Show denied screen for unauthorized users (suppliers, external guests)
+  if (!isLoading && (isAccessDenied || !canViewPurchaserDashboard)) {
     return <AccessDenied />;
+  }
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-muted-foreground">
+          Loading dashboard...
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -77,10 +101,18 @@ export function PurchaserDashboard() {
             </p>
           </div>
         </div>
-        <Badge className="bg-emerald-600 text-white">
-          <Shield className="w-3 h-3 mr-1" />
-          Internal Governance
-        </Badge>
+        <div className="flex items-center gap-2">
+          {isReadOnly && (
+            <Badge variant="outline" className="border-amber-300 text-amber-700">
+              <Lock className="w-3 h-3 mr-1" />
+              Read-Only
+            </Badge>
+          )}
+          <Badge className="bg-emerald-600 text-white">
+            <Shield className="w-3 h-3 mr-1" />
+            Internal Governance
+          </Badge>
+        </div>
       </div>
 
       {/* Enterprise Pitch + Legal Disclaimer */}

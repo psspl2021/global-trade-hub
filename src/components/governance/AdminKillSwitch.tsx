@@ -1,15 +1,14 @@
 /**
  * ============================================================
- * ADMIN REWARDS CONTROL (ADMIN PANEL)
+ * ADMIN KILL SWITCH (PS_ADMIN ONLY)
  * ============================================================
  * 
- * Admin kill switch for purchaser rewards system.
+ * Global boolean: rewards_enabled
+ * When false:
+ * - Hide all incentive currency values
+ * - Show: "Rewards paused by admin. Savings tracking remains active."
  * 
- * When rewards_enabled = false:
- * - Hide reward amounts across all dashboards
- * - Freeze reward calculations
- * - Show "Rewards temporarily paused by admin" banner
- * - Savings & performance tracking CONTINUE
+ * ACCESS: ps_admin ONLY
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -25,33 +24,30 @@ import {
   Power, 
   AlertTriangle,
   CheckCircle2,
-  Clock,
-  Building2,
-  TrendingUp,
-  Lock
+  Lock,
+  TrendingUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 import { AccessDenied } from '@/components/purchaser/AccessDenied';
-import { GovernanceLegalArmor } from '@/components/governance/GovernanceLegalArmor';
+import { GovernanceLegalArmor } from './GovernanceLegalArmor';
 
 interface RewardsSettings {
   id: string;
   rewards_enabled: boolean;
   paused_reason: string | null;
-  paused_by: string | null;
   paused_at: string | null;
   compliance_tier: string;
 }
 
-export function AdminRewardsControl() {
+export function AdminKillSwitch() {
   const [settings, setSettings] = useState<RewardsSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [pauseReason, setPauseReason] = useState('');
   
   // Access control - only ps_admin can toggle
-  const { canToggleRewards, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
+  const { canToggleRewards, primaryRole, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -64,7 +60,7 @@ export function AdminRewardsControl() {
       if (error) throw error;
       setSettings(data as unknown as RewardsSettings);
     } catch (err) {
-      console.error('[AdminRewardsControl] Error:', err);
+      console.error('[AdminKillSwitch] Error:', err);
     } finally {
       setLoading(false);
     }
@@ -105,7 +101,7 @@ export function AdminRewardsControl() {
       toast.success(enabled ? 'Rewards enabled' : 'Rewards paused');
       setPauseReason('');
     } catch (err) {
-      console.error('[AdminRewardsControl] Toggle error:', err);
+      console.error('[AdminKillSwitch] Toggle error:', err);
       toast.error('Failed to update settings');
     } finally {
       setSaving(false);
@@ -125,18 +121,26 @@ export function AdminRewardsControl() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+      <Card className="bg-gradient-to-r from-slate-50 to-gray-50 border-slate-200">
         <CardContent className="py-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-primary">
-              <Shield className="w-6 h-6 text-primary-foreground" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-slate-600">
+                <Power className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  Admin Kill Switch
+                </h2>
+                <p className="text-sm text-slate-600">
+                  Global rewards control (PS Admin Only)
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold">Purchaser Rewards Governance</h2>
-              <p className="text-sm text-muted-foreground">
-                Admin control for internal procurement incentive system
-              </p>
-            </div>
+            <Badge className="bg-slate-600 text-white">
+              <Lock className="w-3 h-3 mr-1" />
+              PS_ADMIN
+            </Badge>
           </div>
         </CardContent>
       </Card>
@@ -149,7 +153,7 @@ export function AdminRewardsControl() {
             Rewards Kill Switch
           </CardTitle>
           <CardDescription>
-            Toggle to pause or enable reward calculations and visibility
+            Toggle to pause or enable reward visibility across all dashboards
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -166,8 +170,8 @@ export function AdminRewardsControl() {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {settings?.rewards_enabled 
-                    ? 'Purchasers can see reward pools and titles'
-                    : 'Reward amounts hidden, calculations frozen'}
+                    ? 'All incentive amounts visible to purchasers'
+                    : 'Incentive values hidden, savings tracking active'}
                 </p>
               </div>
             </div>
@@ -178,7 +182,7 @@ export function AdminRewardsControl() {
             />
           </div>
 
-          {/* Pause Reason */}
+          {/* Pause Reason Display */}
           {!settings?.rewards_enabled && (
             <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
               <div className="flex items-start gap-3">
@@ -208,7 +212,7 @@ export function AdminRewardsControl() {
                 placeholder="e.g., Quarterly review in progress"
               />
               <p className="text-xs text-muted-foreground">
-                This message will be shown to purchasers when rewards are paused
+                This message will be shown to users when rewards are paused
               </p>
             </div>
           )}
@@ -257,34 +261,11 @@ export function AdminRewardsControl() {
         </CardContent>
       </Card>
 
-      {/* Financial Structure Reminder */}
-      <Card className="bg-muted/30 border-dashed">
-        <CardContent className="py-4">
-          <div className="flex items-start gap-3">
-            <Building2 className="w-5 h-5 text-muted-foreground mt-0.5" />
-            <div>
-              <p className="text-sm font-medium">Financial Structure Reminder</p>
-              <ul className="text-xs text-muted-foreground mt-1 space-y-1">
-                <li>• Rewards are funded by the BUYER ORGANISATION's budget</li>
-                <li>• ProcureSaathi only measures, verifies, and reports savings</li>
-                <li>• Rewards are NEVER deducted from ProcureSaathi fees</li>
-                <li>• Rewards are NEVER linked to supplier payments</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Enterprise Pitch */}
-      <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-        <CardContent className="py-4">
-          <p className="text-sm font-medium text-primary text-center">
-            "We convert procurement ethics into measurable performance."
-          </p>
-        </CardContent>
-      </Card>
+      {/* Legal Armor */}
+      <GovernanceLegalArmor variant="footer" />
+      <GovernanceLegalArmor variant="positioning" />
     </div>
   );
 }
 
-export default AdminRewardsControl;
+export default AdminKillSwitch;

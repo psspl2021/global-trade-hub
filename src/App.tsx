@@ -76,6 +76,10 @@ const CaseStudyGlobalPulsesSpices = lazy(() => import("./pages/case-studies/Case
 const CaseStudyMiddleEastFood = lazy(() => import("./pages/case-studies/CaseStudyMiddleEastFood"));
 const CustomerStories = lazy(() => import("./pages/CustomerStories"));
 
+// Governance & Management Pages
+const ManagementDashboardPage = lazy(() => import("./pages/ManagementDashboard"));
+const PurchaserDashboardPage = lazy(() => import("./pages/PurchaserDashboard"));
+const AdminAuditPage = lazy(() => import("./pages/AdminAudit"));
 // GEO Landing Pages
 const GeoUSA = lazy(() => import("./pages/geo/GeoUSA"));
 const GeoUK = lazy(() => import("./pages/geo/GeoUK"));
@@ -144,6 +148,11 @@ const BotAwareRouter = () => {
         <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
         
         {/* B2B Marketplace Pages - BUY pages handled via catch-all below */}
+        
+        {/* Governance & Management Routes */}
+        <Route path="/management-dashboard" element={<ManagementDashboardPage />} />
+        <Route path="/purchaser-dashboard" element={<PurchaserDashboardPage />} />
+        <Route path="/admin/audit" element={<AdminAuditPage />} />
         
         {/* CATEGORY HUB pages: /categories/{category-slug} */}
         <Route path="/categories/:slug" element={<MarketplaceCategoryHub />} />

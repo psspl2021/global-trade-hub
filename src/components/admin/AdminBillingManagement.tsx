@@ -32,10 +32,15 @@ import {
   Clock,
   CheckCircle2,
   DollarSign,
-  Calendar
+  Calendar,
+  Lock,
+  Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EnterpriseBillingConfig } from '@/hooks/useEnterpriseBilling';
+import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
+import { AccessDenied } from '@/components/purchaser/AccessDenied';
+import { GovernanceLegalArmor } from '@/components/governance/GovernanceLegalArmor';
 
 const formatCurrency = (amount: number) => {
   if (amount >= 10000000) {
@@ -49,6 +54,9 @@ const formatCurrency = (amount: number) => {
 export function AdminBillingManagement() {
   const [configs, setConfigs] = useState<EnterpriseBillingConfig[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Access control - only management can view billing
+  const { canViewManagementDashboard, canEditIncentives, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
 
   const fetchConfigs = useCallback(async () => {
     try {
@@ -90,7 +98,12 @@ export function AdminBillingManagement() {
     return new Date() <= new Date(config.onboarding_end_date);
   };
 
-  if (loading) {
+  // Access control: Show denied screen for unauthorized users
+  if (!accessLoading && (isAccessDenied || !canViewManagementDashboard)) {
+    return <AccessDenied />;
+  }
+
+  if (loading || accessLoading) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
