@@ -36,3 +36,6 @@ export { IncentiveHistory } from './IncentiveHistory';
 export { IncentiveDisclaimer } from './IncentiveDisclaimer';
 export { CFOIncentiveManagement } from './CFOIncentiveManagement';
 export { AdminIncentiveAudit } from './AdminIncentiveAudit';
+
+// Re-export governance components
+export { ManagementDashboard, SavingsSourceOfTruth, GovernanceLegalArmor, AdminKillSwitch } from '@/components/governance';

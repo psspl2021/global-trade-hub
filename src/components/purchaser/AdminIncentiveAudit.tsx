@@ -33,6 +33,8 @@ import {
 } from 'lucide-react';
 import { IncentiveDeclaration } from '@/hooks/usePurchaserIncentives';
 import { IncentiveDisclaimer } from './IncentiveDisclaimer';
+import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
+import { AccessDenied } from './AccessDenied';
 
 const formatCurrency = (amount: number, currency: string = 'INR') => {
   if (currency === 'INR') {
@@ -49,6 +51,9 @@ const formatCurrency = (amount: number, currency: string = 'INR') => {
 export function AdminIncentiveAudit() {
   const [declarations, setDeclarations] = useState<IncentiveDeclaration[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Access control - only ps_admin can view audit
+  const { canToggleRewards, primaryRole, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
 
   const fetchDeclarations = useCallback(async () => {
     try {
@@ -70,6 +75,11 @@ export function AdminIncentiveAudit() {
     fetchDeclarations();
   }, [fetchDeclarations]);
 
+  // Access control: Only ps_admin can access audit
+  if (!accessLoading && (isAccessDenied || !canToggleRewards)) {
+    return <AccessDenied />;
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
@@ -85,7 +95,7 @@ export function AdminIncentiveAudit() {
     }
   };
 
-  if (loading) {
+  if (loading || accessLoading) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">

@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
@@ -52,12 +53,19 @@ import {
   Percent,
   Calendar,
   RefreshCw,
-  Building2
+  Building2,
+  AlertTriangle,
+  Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { IncentiveDeclaration } from '@/hooks/usePurchaserIncentives';
 import { IncentiveDisclaimer } from './IncentiveDisclaimer';
+import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
+import { AccessDenied } from './AccessDenied';
 import { cn } from '@/lib/utils';
+
+// CFO CONFIRMATION TEXT (LOCKED)
+const CFO_ETHICS_CONFIRMATION = "I confirm this incentive is funded from internal corporate budgets and complies with our HR/Ethics policy.";
 
 const formatCurrency = (amount: number, currency: string = 'INR') => {
   if (currency === 'INR') {
@@ -76,6 +84,10 @@ export function CFOIncentiveManagement() {
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [ethicsConfirmed, setEthicsConfirmed] = useState(false);
+  
+  // Access control - MUST be before any early returns
+  const { canEditIncentives, isReadOnly, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
   
   const [newDeclaration, setNewDeclaration] = useState({
     purchaser_id: '',
@@ -115,6 +127,11 @@ export function CFOIncentiveManagement() {
     fetchDeclarations();
   }, [fetchDeclarations]);
 
+  // Access control: Show denied screen for unauthorized users
+  if (!accessLoading && isAccessDenied) {
+    return <AccessDenied />;
+  }
+
   const createDeclaration = async () => {
     if (!currentUser) {
       toast.error('You must be logged in');
@@ -127,11 +144,19 @@ export function CFOIncentiveManagement() {
       return;
     }
 
+    // MANDATORY: CFO must confirm ethics policy
+    if (!ethicsConfirmed) {
+      toast.error('You must confirm the ethics policy before declaring incentive');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('purchaser_incentive_declarations' as any)
         .insert({
           enterprise_id: currentUser, // Simplified - in real app would be actual enterprise
+          cfo_ethics_confirmed: true,
+          cfo_confirmation_text: CFO_ETHICS_CONFIRMATION,
           purchaser_id: newDeclaration.purchaser_id,
           period_start: newDeclaration.period_start,
           period_end: newDeclaration.period_end,
@@ -156,6 +181,7 @@ export function CFOIncentiveManagement() {
         currency: 'INR',
         notes: '',
       });
+      setEthicsConfirmed(false);
       fetchDeclarations();
     } catch (err: any) {
       console.error('[CFOIncentiveManagement] Create error:', err);
@@ -321,12 +347,44 @@ export function CFOIncentiveManagement() {
                         placeholder="Optional notes"
                       />
                     </div>
+
+                    {/* MANDATORY CFO ETHICS CONFIRMATION */}
+                    <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-amber-800">Ethics Confirmation Required</p>
+                          <p className="text-xs text-amber-700 mt-1">
+                            As per governance policy, you must confirm compliance before declaring incentive.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Checkbox 
+                          id="ethics-confirm"
+                          checked={ethicsConfirmed}
+                          onCheckedChange={(checked) => setEthicsConfirmed(checked === true)}
+                          className="mt-1"
+                        />
+                        <Label 
+                          htmlFor="ethics-confirm" 
+                          className="text-sm text-amber-800 cursor-pointer leading-relaxed"
+                        >
+                          {CFO_ETHICS_CONFIRMATION}
+                        </Label>
+                      </div>
+                    </div>
                   </div>
                   <DialogFooter className="mt-4">
                     <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={createDeclaration} className="bg-amber-600 hover:bg-amber-700">
+                    <Button 
+                      onClick={createDeclaration} 
+                      disabled={!ethicsConfirmed || !canEditIncentives}
+                      className="bg-amber-600 hover:bg-amber-700 disabled:opacity-50"
+                    >
+                      <Lock className="w-4 h-4 mr-1" />
                       Declare Incentive
                     </Button>
                   </DialogFooter>
