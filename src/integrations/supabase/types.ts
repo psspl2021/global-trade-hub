@@ -4225,6 +4225,75 @@ export type Database = {
         }
         Relationships: []
       }
+      purchaser_incentive_declarations: {
+        Row: {
+          approval_role:
+            | Database["public"]["Enums"]["incentive_approval_role"]
+            | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string
+          currency: string
+          enterprise_id: string
+          id: string
+          incentive_amount: number
+          incentive_percentage: number
+          incentive_status: Database["public"]["Enums"]["incentive_status"]
+          notes: string | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          purchaser_id: string
+          total_savings_basis: number | null
+          updated_at: string
+        }
+        Insert: {
+          approval_role?:
+            | Database["public"]["Enums"]["incentive_approval_role"]
+            | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by: string
+          currency?: string
+          enterprise_id: string
+          id?: string
+          incentive_amount?: number
+          incentive_percentage?: number
+          incentive_status?: Database["public"]["Enums"]["incentive_status"]
+          notes?: string | null
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          purchaser_id: string
+          total_savings_basis?: number | null
+          updated_at?: string
+        }
+        Update: {
+          approval_role?:
+            | Database["public"]["Enums"]["incentive_approval_role"]
+            | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          currency?: string
+          enterprise_id?: string
+          id?: string
+          incentive_amount?: number
+          incentive_percentage?: number
+          incentive_status?: Database["public"]["Enums"]["incentive_status"]
+          notes?: string | null
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          purchaser_id?: string
+          total_savings_basis?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       purchaser_rewards: {
         Row: {
           approved_at: string | null
@@ -7986,6 +8055,10 @@ export type Database = {
         Args: { po: Database["public"]["Tables"]["purchase_orders"]["Row"] }
         Returns: number
       }
+      get_purchaser_incentive_summary: {
+        Args: { p_purchaser_id: string }
+        Returns: Json
+      }
       get_revealed_supplier_contact: {
         Args: { p_requirement_id: string; p_supplier_id: string }
         Returns: {
@@ -8190,6 +8263,8 @@ export type Database = {
         | "debit_note"
         | "credit_note"
       fuel_type: "diesel" | "petrol" | "cng" | "electric" | "hybrid"
+      incentive_approval_role: "cfo" | "ceo" | "admin" | "hr"
+      incentive_status: "declared" | "approved" | "paid" | "cancelled"
       logistics_bid_status: "pending" | "accepted" | "rejected"
       logistics_partner_type: "agent" | "fleet_owner"
       logistics_requirement_status:
@@ -8376,6 +8451,8 @@ export const Constants = {
         "credit_note",
       ],
       fuel_type: ["diesel", "petrol", "cng", "electric", "hybrid"],
+      incentive_approval_role: ["cfo", "ceo", "admin", "hr"],
+      incentive_status: ["declared", "approved", "paid", "cancelled"],
       logistics_bid_status: ["pending", "accepted", "rejected"],
       logistics_partner_type: ["agent", "fleet_owner"],
       logistics_requirement_status: [

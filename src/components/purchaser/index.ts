@@ -29,3 +29,10 @@ export { CareerAssets } from './CareerAssets';
 export { LegalDisclaimer } from './LegalDisclaimer';
 export { GovernanceBanner } from './GovernanceBanner';
 export { AccessDenied } from './AccessDenied';
+
+// Buyer-Funded Incentive System
+export { PurchaserIncentiveCard } from './PurchaserIncentiveCard';
+export { IncentiveHistory } from './IncentiveHistory';
+export { IncentiveDisclaimer } from './IncentiveDisclaimer';
+export { CFOIncentiveManagement } from './CFOIncentiveManagement';
+export { AdminIncentiveAudit } from './AdminIncentiveAudit';
