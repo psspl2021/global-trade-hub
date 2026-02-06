@@ -3,12 +3,14 @@
  * PERFORMANCE SCORE (PURCHASER VIEW)
  * ============================================================
  * 
+ * INTERNAL GOVERNANCE METRIC
+ * 
  * Efficiency score based on:
- * - Total savings generated
- * - RFQ turnaround time
- * - Price variance reduction
- * - Process compliance
- * - Zero-deviation audit score
+ * - Total savings generated (35% weight)
+ * - RFQ turnaround time (20% weight)
+ * - Price variance reduction (15% weight)
+ * - Process compliance (15% weight)
+ * - Zero-deviation audit score (15% weight)
  */
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,6 +26,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { LegalDisclaimer } from './LegalDisclaimer';
 
 interface ScoreMetric {
   name: string;
@@ -196,6 +199,9 @@ export function PerformanceScore() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Legal Disclaimer */}
+      <LegalDisclaimer />
     </div>
   );
 }

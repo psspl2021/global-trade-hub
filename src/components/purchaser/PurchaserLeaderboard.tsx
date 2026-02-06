@@ -3,13 +3,15 @@
  * PURCHASER LEADERBOARD (CORPORATE VIEW)
  * ============================================================
  * 
+ * INTERNAL ONLY - NOT visible to suppliers or external parties.
+ * 
  * Ego engine for ethical procurement:
  * - "Top Cost Optimizer – QX"
  * - "Most Efficient Buyer"
  * - "Zero Deviation Procurement Champion"
  * 
  * Visible to: Management, HR, Internal dashboards
- * NOT visible to: Suppliers
+ * NOT visible to: Suppliers, External buyers, Marketplace
  */
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,9 +24,11 @@ import {
   Crown, 
   Star,
   TrendingUp,
-  Award
+  Award,
+  Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { LegalDisclaimer } from './LegalDisclaimer';
 
 interface LeaderboardEntry {
   rank: number;
@@ -35,6 +39,10 @@ interface LeaderboardEntry {
   totalSavings: number;
   title?: string;
   badges: string[];
+}
+
+interface PurchaserLeaderboardProps {
+  rewardsEnabled?: boolean;
 }
 
 const leaderboardData: LeaderboardEntry[] = [
@@ -122,20 +130,26 @@ const getRankStyle = (rank: number) => {
   }
 };
 
-export function PurchaserLeaderboard() {
+export function PurchaserLeaderboard({ rewardsEnabled = true }: PurchaserLeaderboardProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Access Notice */}
       <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
         <CardContent className="py-6">
-          <div className="flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-amber-500" />
-            <div>
-              <h2 className="text-xl font-bold">Corporate Leaderboard</h2>
-              <p className="text-sm text-muted-foreground">
-                Q1 2026 • Visible to Management & HR
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Trophy className="w-8 h-8 text-amber-500" />
+              <div>
+                <h2 className="text-xl font-bold">Corporate Leaderboard</h2>
+                <p className="text-sm text-muted-foreground">
+                  Q1 2026 • Visible to Management & HR Only
+                </p>
+              </div>
             </div>
+            <Badge variant="outline" className="border-primary/30">
+              <Lock className="w-3 h-3 mr-1" />
+              Internal Only
+            </Badge>
           </div>
         </CardContent>
       </Card>
@@ -210,7 +224,7 @@ export function PurchaserLeaderboard() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{entry.name}</span>
-                        {entry.title && (
+                        {entry.title && rewardsEnabled && (
                           <Badge className="bg-primary text-primary-foreground">
                             {entry.title}
                           </Badge>
@@ -219,7 +233,7 @@ export function PurchaserLeaderboard() {
                       <p className="text-sm text-muted-foreground">
                         {entry.department}
                       </p>
-                      {entry.badges.length > 0 && (
+                      {entry.badges.length > 0 && rewardsEnabled && (
                         <div className="flex gap-1 mt-1">
                           {entry.badges.map((badge) => (
                             <Badge key={badge} variant="outline" className="text-xs">
@@ -245,15 +259,8 @@ export function PurchaserLeaderboard() {
         </CardContent>
       </Card>
 
-      {/* Note */}
-      <Card className="bg-muted/30">
-        <CardContent className="py-4">
-          <p className="text-xs text-muted-foreground text-center">
-            Rankings are based on AI-verified metrics. All incentives are white-money, 
-            management-approved, and never linked to supplier payments.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Legal Disclaimer */}
+      <LegalDisclaimer />
     </div>
   );
 }

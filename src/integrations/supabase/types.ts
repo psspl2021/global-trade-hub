@@ -7611,6 +7611,10 @@ export type Database = {
         Args: { p_base_commission: number; p_gmv: number; p_user_id: string }
         Returns: number
       }
+      can_access_purchaser_rewards: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       check_and_create_demand_alerts: { Args: never; Returns: number }
       check_and_create_forecast_alerts: { Args: never; Returns: number }

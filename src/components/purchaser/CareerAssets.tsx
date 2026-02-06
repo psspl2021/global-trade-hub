@@ -3,6 +3,8 @@
  * CAREER ASSETS (PURCHASER VIEW)
  * ============================================================
  * 
+ * INTERNAL DOCUMENTS - NOT shared with suppliers
+ * 
  * Auto-generated professional documents:
  * - Procurement Performance Certificate
  * - Savings Impact Report
@@ -28,6 +30,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { LegalDisclaimer } from './LegalDisclaimer';
 
 interface CareerAsset {
   id: string;
@@ -241,15 +244,8 @@ export function CareerAssets() {
         </CardContent>
       </Card>
 
-      {/* Note */}
-      <Card className="bg-muted/30">
-        <CardContent className="py-4">
-          <p className="text-xs text-muted-foreground text-center">
-            All documents are AI-generated from verified procurement data. 
-            No private supplier or buyer information is included.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Legal Disclaimer */}
+      <LegalDisclaimer />
     </div>
   );
 }
