@@ -209,6 +209,172 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_inventory_predictions: {
+        Row: {
+          calculation_model: string | null
+          category: string
+          created_at: string
+          demand_velocity: string | null
+          id: string
+          last_calculated_at: string | null
+          prediction_confidence: number | null
+          price_trend_signal: string | null
+          reorder_recommendation_qty: number | null
+          stockout_risk_days: number | null
+          subcategory: string | null
+          updated_at: string
+        }
+        Insert: {
+          calculation_model?: string | null
+          category: string
+          created_at?: string
+          demand_velocity?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          prediction_confidence?: number | null
+          price_trend_signal?: string | null
+          reorder_recommendation_qty?: number | null
+          stockout_risk_days?: number | null
+          subcategory?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calculation_model?: string | null
+          category?: string
+          created_at?: string
+          demand_velocity?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          prediction_confidence?: number | null
+          price_trend_signal?: string | null
+          reorder_recommendation_qty?: number | null
+          stockout_risk_days?: number | null
+          subcategory?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_l1_selections: {
+        Row: {
+          ai_confidence: number
+          ai_rank: number
+          ai_reasoning: string
+          buyer_accepted: boolean | null
+          created_at: string
+          delivery_reliability_score: number | null
+          escalated_to_admin: boolean | null
+          escalation_reason: string | null
+          id: string
+          internal_supplier_id: string | null
+          is_l1: boolean | null
+          lane_locked: boolean | null
+          past_performance_score: number | null
+          price_competitiveness_score: number | null
+          ps_partner_id: string
+          requirement_id: string
+          risk_score: number | null
+          trust_score: number
+          updated_at: string
+        }
+        Insert: {
+          ai_confidence?: number
+          ai_rank?: number
+          ai_reasoning?: string
+          buyer_accepted?: boolean | null
+          created_at?: string
+          delivery_reliability_score?: number | null
+          escalated_to_admin?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          internal_supplier_id?: string | null
+          is_l1?: boolean | null
+          lane_locked?: boolean | null
+          past_performance_score?: number | null
+          price_competitiveness_score?: number | null
+          ps_partner_id: string
+          requirement_id: string
+          risk_score?: number | null
+          trust_score?: number
+          updated_at?: string
+        }
+        Update: {
+          ai_confidence?: number
+          ai_rank?: number
+          ai_reasoning?: string
+          buyer_accepted?: boolean | null
+          created_at?: string
+          delivery_reliability_score?: number | null
+          escalated_to_admin?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          internal_supplier_id?: string | null
+          is_l1?: boolean | null
+          lane_locked?: boolean | null
+          past_performance_score?: number | null
+          price_competitiveness_score?: number | null
+          ps_partner_id?: string
+          requirement_id?: string
+          risk_score?: number | null
+          trust_score?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_l1_selections_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_lane_locks: {
+        Row: {
+          created_at: string
+          id: string
+          intent_score: number
+          is_active: boolean | null
+          lock_reason: string | null
+          locked_at: string
+          locked_ps_partner_ids: string[]
+          released_at: string | null
+          released_reason: string | null
+          requirement_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intent_score: number
+          is_active?: boolean | null
+          lock_reason?: string | null
+          locked_at?: string
+          locked_ps_partner_ids?: string[]
+          released_at?: string | null
+          released_reason?: string | null
+          requirement_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intent_score?: number
+          is_active?: boolean | null
+          lock_reason?: string | null
+          locked_at?: string
+          locked_ps_partner_ids?: string[]
+          released_at?: string | null
+          released_reason?: string | null
+          requirement_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_lane_locks_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_sales_conversions: {
         Row: {
           conversion_type: string
@@ -1692,6 +1858,68 @@ export type Database = {
           {
             foreignKeyName: "contracts_requirement_id_fkey"
             columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      control_tower_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string | null
+          id: string
+          impact_value: number | null
+          is_read: boolean | null
+          is_resolved: boolean | null
+          related_category: string | null
+          related_requirement_id: string | null
+          related_subcategory: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          risk_value: number | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          impact_value?: number | null
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          related_category?: string | null
+          related_requirement_id?: string | null
+          related_subcategory?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_value?: number | null
+          severity: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          impact_value?: number | null
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          related_category?: string | null
+          related_requirement_id?: string | null
+          related_subcategory?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_value?: number | null
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "control_tower_alerts_related_requirement_id_fkey"
+            columns: ["related_requirement_id"]
             isOneToOne: false
             referencedRelation: "requirements"
             referencedColumns: ["id"]
@@ -7235,6 +7463,71 @@ export type Database = {
           },
         ]
       }
+      buyer_ai_selections: {
+        Row: {
+          ai_confidence: number | null
+          ai_rank: number | null
+          ai_reasoning: string | null
+          buyer_accepted: boolean | null
+          created_at: string | null
+          delivery_reliability_score: number | null
+          escalated_to_admin: boolean | null
+          id: string | null
+          is_l1: boolean | null
+          lane_locked: boolean | null
+          past_performance_score: number | null
+          price_competitiveness_score: number | null
+          ps_partner_id: string | null
+          requirement_id: string | null
+          risk_score: number | null
+          trust_score: number | null
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_rank?: number | null
+          ai_reasoning?: string | null
+          buyer_accepted?: boolean | null
+          created_at?: string | null
+          delivery_reliability_score?: number | null
+          escalated_to_admin?: boolean | null
+          id?: string | null
+          is_l1?: boolean | null
+          lane_locked?: boolean | null
+          past_performance_score?: number | null
+          price_competitiveness_score?: number | null
+          ps_partner_id?: string | null
+          requirement_id?: string | null
+          risk_score?: number | null
+          trust_score?: number | null
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_rank?: number | null
+          ai_reasoning?: string | null
+          buyer_accepted?: boolean | null
+          created_at?: string | null
+          delivery_reliability_score?: number | null
+          escalated_to_admin?: boolean | null
+          id?: string | null
+          is_l1?: boolean | null
+          lane_locked?: boolean | null
+          past_performance_score?: number | null
+          price_competitiveness_score?: number | null
+          ps_partner_id?: string | null
+          requirement_id?: string | null
+          risk_score?: number | null
+          trust_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_l1_selections_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buyer_bid_items_view: {
         Row: {
           bid_id: string | null
@@ -7340,6 +7633,17 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
         ]
+      }
+      control_tower_executive_metrics: {
+        Row: {
+          live_high_risk_rfqs: number | null
+          platform_roi_ratio: number | null
+          revenue_protected: number | null
+          total_ai_verified_savings: number | null
+          total_platform_fee: number | null
+          total_platform_volume: number | null
+        }
+        Relationships: []
       }
       demand_intelligence_dashboard: {
         Row: {
@@ -7964,6 +8268,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_ps_partner_id: { Args: { supplier_id: string }; Returns: string }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_aggregated_demand_signals: {
         Args: {
@@ -8241,6 +8546,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_enterprise_onboarding: {
         Args: { p_enterprise_id: string }
+        Returns: boolean
+      }
+      is_lane_locked_for_supplier: {
+        Args: { p_requirement_id: string; p_supplier_id: string }
         Returns: boolean
       }
       lock_logistics_awarding: { Args: { req_id: string }; Returns: undefined }

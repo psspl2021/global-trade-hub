@@ -32,6 +32,7 @@ export type GovernanceRole =
 interface GovernanceAccess {
   canViewPurchaserDashboard: boolean;
   canViewManagementDashboard: boolean;
+  canViewControlTower: boolean;
   canEditIncentives: boolean;
   canToggleRewards: boolean;
   isReadOnly: boolean;
@@ -48,6 +49,7 @@ interface UseGovernanceAccessReturn extends GovernanceAccess {
 const DEFAULT_ACCESS: GovernanceAccess = {
   canViewPurchaserDashboard: false,
   canViewManagementDashboard: false,
+  canViewControlTower: false,
   canEditIncentives: false,
   canToggleRewards: false,
   isReadOnly: true,
@@ -78,13 +80,19 @@ export function useGovernanceAccess(): UseGovernanceAccessReturn {
 
       if (data && data.length > 0) {
         const row = data[0];
+        const role = (row.primary_role as GovernanceRole) || 'unknown';
+        
+        // Control Tower access: cfo, ceo, manager, ps_admin, admin
+        const canAccessControlTower = ['cfo', 'ceo', 'manager', 'ps_admin', 'admin'].includes(role);
+        
         setAccess({
           canViewPurchaserDashboard: row.can_view_purchaser_dashboard ?? false,
           canViewManagementDashboard: row.can_view_management_dashboard ?? false,
+          canViewControlTower: canAccessControlTower,
           canEditIncentives: row.can_edit_incentives ?? false,
           canToggleRewards: row.can_toggle_rewards ?? false,
           isReadOnly: row.is_read_only ?? true,
-          primaryRole: (row.primary_role as GovernanceRole) || 'unknown',
+          primaryRole: role,
         });
 
         // Set default landing route based on role

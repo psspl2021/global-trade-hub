@@ -80,6 +80,7 @@ const CustomerStories = lazy(() => import("./pages/CustomerStories"));
 const ManagementDashboardPage = lazy(() => import("./pages/ManagementDashboard"));
 const PurchaserDashboardPage = lazy(() => import("./pages/PurchaserDashboard"));
 const AdminAuditPage = lazy(() => import("./pages/AdminAudit"));
+const ControlTowerPage = lazy(() => import("./pages/ControlTower"));
 // GEO Landing Pages
 const GeoUSA = lazy(() => import("./pages/geo/GeoUSA"));
 const GeoUK = lazy(() => import("./pages/geo/GeoUK"));
@@ -153,6 +154,7 @@ const BotAwareRouter = () => {
         <Route path="/management-dashboard" element={<ManagementDashboardPage />} />
         <Route path="/purchaser-dashboard" element={<PurchaserDashboardPage />} />
         <Route path="/admin/audit" element={<AdminAuditPage />} />
+        <Route path="/control-tower" element={<ControlTowerPage />} />
         
         {/* CATEGORY HUB pages: /categories/{category-slug} */}
         <Route path="/categories/:slug" element={<MarketplaceCategoryHub />} />
