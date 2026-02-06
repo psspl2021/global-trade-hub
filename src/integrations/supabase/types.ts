@@ -2255,6 +2255,113 @@ export type Database = {
         }
         Relationships: []
       }
+      enterprise_billing_config: {
+        Row: {
+          billing_active: boolean
+          billing_cycle: string
+          created_at: string
+          domestic_fee_percent: number
+          enterprise_id: string
+          enterprise_name: string | null
+          id: string
+          import_export_fee_percent: number
+          onboarding_end_date: string
+          onboarding_start_date: string
+          total_transacted_value: number | null
+          total_verified_savings: number | null
+          updated_at: string
+        }
+        Insert: {
+          billing_active?: boolean
+          billing_cycle?: string
+          created_at?: string
+          domestic_fee_percent?: number
+          enterprise_id: string
+          enterprise_name?: string | null
+          id?: string
+          import_export_fee_percent?: number
+          onboarding_end_date?: string
+          onboarding_start_date?: string
+          total_transacted_value?: number | null
+          total_verified_savings?: number | null
+          updated_at?: string
+        }
+        Update: {
+          billing_active?: boolean
+          billing_cycle?: string
+          created_at?: string
+          domestic_fee_percent?: number
+          enterprise_id?: string
+          enterprise_name?: string | null
+          id?: string
+          import_export_fee_percent?: number
+          onboarding_end_date?: string
+          onboarding_start_date?: string
+          total_transacted_value?: number | null
+          total_verified_savings?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      enterprise_billing_history: {
+        Row: {
+          created_at: string
+          domestic_fee: number | null
+          domestic_volume: number | null
+          enterprise_id: string
+          id: string
+          import_export_fee: number | null
+          import_export_volume: number | null
+          invoice_generated_at: string | null
+          invoice_status: string | null
+          is_onboarding_quarter: boolean | null
+          paid_at: string | null
+          quarter_end: string
+          quarter_start: string
+          total_fee: number | null
+        }
+        Insert: {
+          created_at?: string
+          domestic_fee?: number | null
+          domestic_volume?: number | null
+          enterprise_id: string
+          id?: string
+          import_export_fee?: number | null
+          import_export_volume?: number | null
+          invoice_generated_at?: string | null
+          invoice_status?: string | null
+          is_onboarding_quarter?: boolean | null
+          paid_at?: string | null
+          quarter_end: string
+          quarter_start: string
+          total_fee?: number | null
+        }
+        Update: {
+          created_at?: string
+          domestic_fee?: number | null
+          domestic_volume?: number | null
+          enterprise_id?: string
+          id?: string
+          import_export_fee?: number | null
+          import_export_volume?: number | null
+          invoice_generated_at?: string | null
+          invoice_status?: string | null
+          is_onboarding_quarter?: boolean | null
+          paid_at?: string | null
+          quarter_end?: string
+          quarter_start?: string
+          total_fee?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_billing_history_enterprise_id_fkey"
+            columns: ["enterprise_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_billing_config"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       export_demand_lanes: {
         Row: {
           category: string
@@ -7579,6 +7686,14 @@ export type Database = {
         Args: { p_supplier_id: string }
         Returns: number
       }
+      calculate_enterprise_platform_fee: {
+        Args: {
+          p_enterprise_id: string
+          p_quarter_end: string
+          p_quarter_start: string
+        }
+        Returns: Json
+      }
       calculate_price_confidence:
         | {
             Args: {
@@ -7970,6 +8085,10 @@ export type Database = {
         Returns: string
       }
       is_admin: { Args: never; Returns: boolean }
+      is_enterprise_onboarding: {
+        Args: { p_enterprise_id: string }
+        Returns: boolean
+      }
       lock_logistics_awarding: { Args: { req_id: string }; Returns: undefined }
       lock_requirement_awarding: {
         Args: { req_id: string }
