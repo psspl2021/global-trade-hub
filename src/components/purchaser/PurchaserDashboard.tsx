@@ -1,0 +1,108 @@
+/**
+ * ============================================================
+ * PURCHASER GAMIFICATION & INCENTIVE DASHBOARD
+ * ============================================================
+ * 
+ * AI-powered performance tracking that converts procurement 
+ * efficiency into legal, white-money rewards.
+ * 
+ * CORE PRINCIPLE:
+ * ProcureSaathi AI = Digital Witness
+ * - Tracks purchaser actions
+ * - Quantifies real cost savings
+ * - Rewards ethical, high-performance procurement
+ * - Makes kickbacks structurally impossible
+ */
+
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  TrendingUp, 
+  Trophy, 
+  Award, 
+  FileText, 
+  Shield,
+  Sparkles
+} from 'lucide-react';
+import { SavingsTracker } from './SavingsTracker';
+import { PerformanceScore } from './PerformanceScore';
+import { PurchaserLeaderboard } from './PurchaserLeaderboard';
+import { CareerAssets } from './CareerAssets';
+
+export function PurchaserDashboard() {
+  const [activeTab, setActiveTab] = useState('savings');
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
+            <Sparkles className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Performance Center</h1>
+            <p className="text-sm text-muted-foreground">
+              AI-verified savings → Legal rewards
+            </p>
+          </div>
+        </div>
+        <Badge className="bg-emerald-600 text-white">
+          <Shield className="w-3 h-3 mr-1" />
+          Compliant Rewards
+        </Badge>
+      </div>
+
+      {/* System Message */}
+      <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+        <CardContent className="py-4">
+          <p className="text-sm text-emerald-800 font-medium">
+            "ProcureSaathi converts procurement efficiency into legal rewards — not hidden commissions."
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Main Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
+          <TabsTrigger value="savings" className="gap-2">
+            <TrendingUp className="w-4 h-4" />
+            <span className="hidden sm:inline">Savings</span>
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="gap-2">
+            <Trophy className="w-4 h-4" />
+            <span className="hidden sm:inline">Performance</span>
+          </TabsTrigger>
+          <TabsTrigger value="leaderboard" className="gap-2">
+            <Award className="w-4 h-4" />
+            <span className="hidden sm:inline">Leaderboard</span>
+          </TabsTrigger>
+          <TabsTrigger value="career" className="gap-2">
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">Career</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="savings" className="space-y-6">
+          <SavingsTracker />
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-6">
+          <PerformanceScore />
+        </TabsContent>
+
+        <TabsContent value="leaderboard" className="space-y-6">
+          <PurchaserLeaderboard />
+        </TabsContent>
+
+        <TabsContent value="career" className="space-y-6">
+          <CareerAssets />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export default PurchaserDashboard;
