@@ -3986,6 +3986,297 @@ export type Database = {
           },
         ]
       }
+      purchaser_achievements: {
+        Row: {
+          achievement_type: string
+          awarded_at: string | null
+          badge_level: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          period: string | null
+          purchaser_id: string
+          title: string
+          visible_to_hr: boolean | null
+          visible_to_management: boolean | null
+          year: number | null
+        }
+        Insert: {
+          achievement_type: string
+          awarded_at?: string | null
+          badge_level?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          period?: string | null
+          purchaser_id: string
+          title: string
+          visible_to_hr?: boolean | null
+          visible_to_management?: boolean | null
+          year?: number | null
+        }
+        Update: {
+          achievement_type?: string
+          awarded_at?: string | null
+          badge_level?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          period?: string | null
+          purchaser_id?: string
+          title?: string
+          visible_to_hr?: boolean | null
+          visible_to_management?: boolean | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      purchaser_career_assets: {
+        Row: {
+          asset_type: string
+          created_at: string | null
+          document_data: Json
+          generated_at: string | null
+          id: string
+          pdf_url: string | null
+          period_end: string | null
+          period_start: string | null
+          purchaser_id: string
+          title: string
+          valid_until: string | null
+        }
+        Insert: {
+          asset_type: string
+          created_at?: string | null
+          document_data: Json
+          generated_at?: string | null
+          id?: string
+          pdf_url?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          purchaser_id: string
+          title: string
+          valid_until?: string | null
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string | null
+          document_data?: Json
+          generated_at?: string | null
+          id?: string
+          pdf_url?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          purchaser_id?: string
+          title?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      purchaser_compliance_log: {
+        Row: {
+          action_details: Json | null
+          action_type: string
+          ai_confidence_score: number | null
+          compliance_status: string | null
+          created_at: string | null
+          flag_reason: string | null
+          id: string
+          purchaser_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          rfq_id: string | null
+          supplier_id: string | null
+        }
+        Insert: {
+          action_details?: Json | null
+          action_type: string
+          ai_confidence_score?: number | null
+          compliance_status?: string | null
+          created_at?: string | null
+          flag_reason?: string | null
+          id?: string
+          purchaser_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rfq_id?: string | null
+          supplier_id?: string | null
+        }
+        Update: {
+          action_details?: Json | null
+          action_type?: string
+          ai_confidence_score?: number | null
+          compliance_status?: string | null
+          created_at?: string | null
+          flag_reason?: string | null
+          id?: string
+          purchaser_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rfq_id?: string | null
+          supplier_id?: string | null
+        }
+        Relationships: []
+      }
+      purchaser_rewards: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          cfo_approval_required: boolean | null
+          cfo_approved: boolean | null
+          created_at: string | null
+          disbursed_at: string | null
+          id: string
+          period_end: string
+          period_start: string
+          purchaser_id: string
+          rejection_reason: string | null
+          reward_amount: number | null
+          reward_percentage: number | null
+          reward_type: string
+          status: string | null
+          total_savings_generated: number
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          cfo_approval_required?: boolean | null
+          cfo_approved?: boolean | null
+          created_at?: string | null
+          disbursed_at?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          purchaser_id: string
+          rejection_reason?: string | null
+          reward_amount?: number | null
+          reward_percentage?: number | null
+          reward_type: string
+          status?: string | null
+          total_savings_generated: number
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          cfo_approval_required?: boolean | null
+          cfo_approved?: boolean | null
+          created_at?: string | null
+          disbursed_at?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          purchaser_id?: string
+          rejection_reason?: string | null
+          reward_amount?: number | null
+          reward_percentage?: number | null
+          reward_type?: string
+          status?: string | null
+          total_savings_generated?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      purchaser_savings: {
+        Row: {
+          baseline_price: number
+          created_at: string | null
+          currency: string | null
+          final_price: number
+          id: string
+          net_savings: number | null
+          purchaser_id: string
+          rfq_id: string
+          savings_percentage: number | null
+          updated_at: string | null
+          verification_timestamp: string | null
+          verified_by_ai: boolean | null
+        }
+        Insert: {
+          baseline_price: number
+          created_at?: string | null
+          currency?: string | null
+          final_price: number
+          id?: string
+          net_savings?: number | null
+          purchaser_id: string
+          rfq_id: string
+          savings_percentage?: number | null
+          updated_at?: string | null
+          verification_timestamp?: string | null
+          verified_by_ai?: boolean | null
+        }
+        Update: {
+          baseline_price?: number
+          created_at?: string | null
+          currency?: string | null
+          final_price?: number
+          id?: string
+          net_savings?: number | null
+          purchaser_id?: string
+          rfq_id?: string
+          savings_percentage?: number | null
+          updated_at?: string | null
+          verification_timestamp?: string | null
+          verified_by_ai?: boolean | null
+        }
+        Relationships: []
+      }
+      purchaser_scores: {
+        Row: {
+          audit_score: number | null
+          avg_turnaround_hours: number | null
+          compliance_score: number | null
+          created_at: string | null
+          id: string
+          overall_efficiency_score: number | null
+          period_end: string
+          period_start: string
+          period_type: string
+          price_variance_score: number | null
+          purchaser_id: string
+          rank_in_org: number | null
+          rfq_count: number | null
+          total_savings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          audit_score?: number | null
+          avg_turnaround_hours?: number | null
+          compliance_score?: number | null
+          created_at?: string | null
+          id?: string
+          overall_efficiency_score?: number | null
+          period_end: string
+          period_start: string
+          period_type: string
+          price_variance_score?: number | null
+          purchaser_id: string
+          rank_in_org?: number | null
+          rfq_count?: number | null
+          total_savings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          audit_score?: number | null
+          avg_turnaround_hours?: number | null
+          compliance_score?: number | null
+          created_at?: string | null
+          id?: string
+          overall_efficiency_score?: number | null
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          price_variance_score?: number | null
+          purchaser_id?: string
+          rank_in_org?: number | null
+          rfq_count?: number | null
+          total_savings?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       referral_commissions: {
         Row: {
           bid_amount: number
@@ -7306,6 +7597,16 @@ export type Database = {
             }
             Returns: Json
           }
+      calculate_purchaser_efficiency_score: {
+        Args: {
+          p_audit: number
+          p_compliance: number
+          p_savings: number
+          p_turnaround: number
+          p_variance: number
+        }
+        Returns: number
+      }
       calculate_tiered_commission: {
         Args: { p_base_commission: number; p_gmv: number; p_user_id: string }
         Returns: number
