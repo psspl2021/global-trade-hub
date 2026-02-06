@@ -8248,6 +8248,12 @@ export type Database = {
         | "admin"
         | "logistics_partner"
         | "affiliate"
+        | "purchaser"
+        | "manager"
+        | "cfo"
+        | "ceo"
+        | "external_guest"
+        | "ps_admin"
       bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
       document_status:
         | "draft"
@@ -8433,6 +8439,12 @@ export const Constants = {
         "admin",
         "logistics_partner",
         "affiliate",
+        "purchaser",
+        "manager",
+        "cfo",
+        "ceo",
+        "external_guest",
+        "ps_admin",
       ],
       bid_status: ["pending", "accepted", "rejected", "withdrawn"],
       document_status: [
