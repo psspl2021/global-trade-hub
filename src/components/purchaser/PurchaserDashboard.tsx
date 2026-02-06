@@ -3,20 +3,22 @@
  * PURCHASER GAMIFICATION & INCENTIVE DASHBOARD
  * ============================================================
  * 
- * AI-powered performance tracking that converts procurement 
- * efficiency into legal, white-money rewards.
+ * INTERNAL PROCUREMENT GOVERNANCE OS
+ * NOT a marketplace feature.
  * 
- * CORE PRINCIPLE:
- * ProcureSaathi AI = Digital Witness
- * - Tracks purchaser actions
- * - Quantifies real cost savings
- * - Rewards ethical, high-performance procurement
- * - Makes kickbacks structurally impossible
+ * ACCESS CONTROL:
+ * - ONLY visible to: Purchasers, Management (CFO/CEO), HR, Compliance
+ * - NEVER visible to: Suppliers, External buyers, RFQ counterparties
+ * 
+ * FINANCIAL STRUCTURE:
+ * - Rewards funded by BUYER ORGANISATION's internal budget
+ * - ProcureSaathi only MEASURES, VERIFIES, and REPORTS savings
+ * - NEVER deduct from ProcureSaathi fees or link to supplier payments
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   TrendingUp, 
@@ -30,12 +32,38 @@ import { SavingsTracker } from './SavingsTracker';
 import { PerformanceScore } from './PerformanceScore';
 import { PurchaserLeaderboard } from './PurchaserLeaderboard';
 import { CareerAssets } from './CareerAssets';
+import { LegalDisclaimer } from './LegalDisclaimer';
+import { GovernanceBanner } from './GovernanceBanner';
+import { AccessDenied } from './AccessDenied';
+import { useRewardsGovernance } from '@/hooks/useRewardsGovernance';
 
 export function PurchaserDashboard() {
   const [activeTab, setActiveTab] = useState('savings');
+  const { 
+    rewardsEnabled, 
+    pausedReason, 
+    isLoading, 
+    hasAccess,
+    logAccess 
+  } = useRewardsGovernance();
+
+  // Log access when dashboard is viewed
+  useEffect(() => {
+    logAccess('view_dashboard', 'purchaser_dashboard');
+  }, [logAccess]);
+
+  // Access control: Show denied screen for unauthorized users
+  if (!isLoading && !hasAccess) {
+    return <AccessDenied />;
+  }
 
   return (
     <div className="space-y-6">
+      {/* Governance Banner - Shows when rewards paused */}
+      {!rewardsEnabled && (
+        <GovernanceBanner pausedReason={pausedReason} />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -45,21 +73,27 @@ export function PurchaserDashboard() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Performance Center</h1>
             <p className="text-sm text-muted-foreground">
-              AI-verified savings → Legal rewards
+              AI-verified savings → Management-approved rewards
             </p>
           </div>
         </div>
         <Badge className="bg-emerald-600 text-white">
           <Shield className="w-3 h-3 mr-1" />
-          Compliant Rewards
+          Internal Governance
         </Badge>
       </div>
+
+      {/* Enterprise Pitch + Legal Disclaimer */}
+      <LegalDisclaimer variant="enterprise" />
 
       {/* System Message */}
       <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
         <CardContent className="py-4">
           <p className="text-sm text-emerald-800 font-medium">
             "ProcureSaathi converts procurement efficiency into legal rewards — not hidden commissions."
+          </p>
+          <p className="text-xs text-emerald-600 mt-1">
+            Your organisation funds rewards. ProcureSaathi provides auditable proof.
           </p>
         </CardContent>
       </Card>
@@ -86,7 +120,7 @@ export function PurchaserDashboard() {
         </TabsList>
 
         <TabsContent value="savings" className="space-y-6">
-          <SavingsTracker />
+          <SavingsTracker rewardsEnabled={rewardsEnabled} />
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">
@@ -94,13 +128,16 @@ export function PurchaserDashboard() {
         </TabsContent>
 
         <TabsContent value="leaderboard" className="space-y-6">
-          <PurchaserLeaderboard />
+          <PurchaserLeaderboard rewardsEnabled={rewardsEnabled} />
         </TabsContent>
 
         <TabsContent value="career" className="space-y-6">
           <CareerAssets />
         </TabsContent>
       </Tabs>
+
+      {/* Footer Legal Disclaimer */}
+      <LegalDisclaimer variant="compact" />
     </div>
   );
 }
