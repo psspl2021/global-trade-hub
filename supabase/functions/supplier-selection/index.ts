@@ -96,13 +96,22 @@ serve(async (req) => {
       console.error("Error logging selection:", logError);
     }
 
-    // Return anonymized result for buyer
+    // Return ANONYMIZED result for buyer - NEVER expose supplier_id
+    // Generate ps_partner_id hash from supplier_id
+    const psPartnerId = `PS-${result.selectedSupplier.supplierId.substring(0, 8).toUpperCase()}`;
+    
     const buyerResponse = {
       success: true,
       finalPrice: result.selectedSupplier.totalLandedCost,
       estimatedDeliveryDays: await getEstimatedDeliveryDays(supabase, result.selectedSupplier.supplierId, requirement.product_category),
-      supplierLabel: "ProcureSaathi Verified Supplier",
-      selectionId: result.selectedSupplier.bidId || result.selectedSupplier.supplierId
+      // CRITICAL: NEVER expose supplier identity to buyer
+      supplierLabel: "ProcureSaathi Verified Partner",
+      psPartnerId: psPartnerId, // Anonymized ID only
+      selectionId: result.selectedSupplier.bidId || crypto.randomUUID(),
+      // AI decision metadata (read-only for buyer)
+      aiConfidence: result.selectedSupplier.compositeScore || 0,
+      deliveryReliability: result.selectedSupplier.deliverySuccessProbability,
+      isLaneLocked: result.mode === 'bidding' && !result.fallbackTriggered
     };
 
     return new Response(
