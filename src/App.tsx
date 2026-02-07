@@ -124,7 +124,6 @@ const BotAwareRouter = () => {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -148,18 +147,23 @@ const BotAwareRouter = () => {
         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
         <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
         
-        {/* B2B Marketplace Pages - BUY pages handled via catch-all below */}
+        {/* Role-Based Dashboard Routes - STRICT SEPARATION */}
+        {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}
+        <Route path="/dashboard" element={<Dashboard />} />
         
-        {/* Role-Based Governance Dashboard Routes */}
-        <Route path="/dashboard" element={<PurchaserExecutionDashboard />} />
+        {/* Management Dashboard: buyer_cfo, buyer_ceo, buyer_manager, cfo, ceo, manager */}
         <Route path="/management" element={<ManagementExecutiveDashboard />} />
+        
+        {/* Admin Audit Dashboard: ps_admin, admin */}
         <Route path="/admin" element={<AdminAuditDashboard />} />
+        
+        {/* Control Tower: management + admin only */}
+        <Route path="/control-tower" element={<ControlTowerPage />} />
         
         {/* Legacy routes - redirect to new structure */}
         <Route path="/management-dashboard" element={<Navigate to="/management" replace />} />
         <Route path="/purchaser-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
-        <Route path="/control-tower" element={<ControlTowerPage />} />
         
         {/* CATEGORY HUB pages: /categories/{category-slug} */}
         <Route path="/categories/:slug" element={<MarketplaceCategoryHub />} />

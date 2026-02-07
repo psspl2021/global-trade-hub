@@ -67,8 +67,8 @@ export default function PurchaserExecutionDashboard() {
     }
     
     if (!accessLoading && primaryRole) {
-      // Management roles → /management
-      if (['cfo', 'ceo', 'manager'].includes(primaryRole)) {
+      // Management roles (including buyer variants) → /management
+      if (['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager'].includes(primaryRole)) {
         navigate('/management');
         return;
       }
@@ -93,8 +93,8 @@ export default function PurchaserExecutionDashboard() {
     );
   }
 
-  // Only allow purchaser and buyer roles
-  if (!['purchaser', 'buyer'].includes(primaryRole)) {
+  // Only allow purchaser and buyer roles (including buyer_purchaser)
+  if (!['purchaser', 'buyer_purchaser', 'buyer'].includes(primaryRole)) {
     return <AccessDenied variant="404" />;
   }
 

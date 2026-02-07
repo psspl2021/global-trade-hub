@@ -20,13 +20,19 @@ import { useAuth } from '@/hooks/useAuth';
 
 export type GovernanceRole = 
   | 'purchaser' 
+  | 'buyer_purchaser'
   | 'manager' 
+  | 'buyer_manager'
   | 'cfo' 
+  | 'buyer_cfo'
   | 'ceo' 
+  | 'buyer_ceo'
   | 'ps_admin' 
   | 'admin'
   | 'buyer'
   | 'supplier' 
+  | 'logistics_partner'
+  | 'affiliate'
   | 'external_guest' 
   | 'unknown';
 
@@ -83,8 +89,8 @@ export function useGovernanceAccess(): UseGovernanceAccessReturn {
         const row = data[0];
         const role = (row.primary_role as GovernanceRole) || 'unknown';
         
-        // Control Tower access: cfo, ceo, manager, ps_admin, admin
-        const canAccessControlTower = ['cfo', 'ceo', 'manager', 'ps_admin', 'admin'].includes(role);
+        // Control Tower access: cfo, ceo, manager (including buyer variants), ps_admin, admin
+        const canAccessControlTower = ['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager', 'ps_admin', 'admin'].includes(role);
         
         setAccess({
           canViewPurchaserDashboard: row.can_view_purchaser_dashboard ?? false,
@@ -97,10 +103,13 @@ export function useGovernanceAccess(): UseGovernanceAccessReturn {
         });
 
         // Set default landing route based on role
-        if (['cfo', 'ceo', 'manager'].includes(row.primary_role)) {
+        // Management roles (CFO/CEO/Manager including buyer variants) → /management
+        if (['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager'].includes(row.primary_role)) {
           setDefaultLandingRoute('/management');
-        } else if (['purchaser', 'buyer'].includes(row.primary_role)) {
+        // Purchaser/Buyer roles → /dashboard
+        } else if (['purchaser', 'buyer_purchaser', 'buyer'].includes(row.primary_role)) {
           setDefaultLandingRoute('/dashboard');
+        // Admin roles → /admin
         } else if (row.primary_role === 'ps_admin' || row.primary_role === 'admin') {
           setDefaultLandingRoute('/admin');
         } else {
