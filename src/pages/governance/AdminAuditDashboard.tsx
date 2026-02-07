@@ -113,93 +113,150 @@ export default function AdminAuditDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [userName, setUserName] = useState('Admin');
 
-  // Fetch stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!user) return;
+  // Fetch stats function (extracted for reuse by refresh button)
+  const fetchStats = async () => {
+    if (!user) return;
+    setStatsLoading(true);
+    
+    try {
+      // Fetch user name from profiles
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('company_name, contact_person')
+        .eq('id', user.id)
+        .single();
       
-      try {
-        // Fetch user name from profiles
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('company_name, contact_person')
-          .eq('id', user.id)
-          .single();
+      if (profileData) {
+        setUserName(profileData.contact_person || profileData.company_name || 'Admin');
+      }
+
+      // Fetch users count
+      const { count: usersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      // Fetch requirements count
+      const reqResult = await supabase
+        .from('requirements')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'active');
+      const reqCount = reqResult.count;
+
+      // Fetch pending invoices
+      const invoicesResult = await (supabase
+        .from('platform_invoices') as any)
+        .select('total_amount')
+        .eq('payment_status', 'pending');
+      const invoicesData = invoicesResult.data || [];
+      const pendingAmount = invoicesData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
+
+      // Fetch total collected
+      const collectedResult = await (supabase
+        .from('platform_invoices') as any)
+        .select('total_amount')
+        .eq('payment_status', 'paid');
+      const collectedData = collectedResult.data || [];
+      const totalCollected = collectedData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
+
+      // Fetch vehicles pending verification
+      const vehiclesResult = await (supabase
+        .from('vehicles') as any)
+        .select('id', { count: 'exact', head: true })
+        .eq('is_verified', false);
+      const vehiclesCount = vehiclesResult.count || 0;
+
+      // Fetch partner docs pending
+      const docsResult = await (supabase
+        .from('partner_documents') as any)
+        .select('id', { count: 'exact', head: true })
+        .eq('verification_status', 'pending');
+      const docsCount = docsResult.count || 0;
+
+      setStats({
+        totalUsers: usersCount || 0,
+        totalRequirements: reqCount || 0,
+        pendingInvoices: invoicesData?.length || 0,
+        pendingInvoiceAmount: pendingAmount,
+        totalCollected,
+        vehiclesPending: vehiclesCount || 0,
+        partnerDocsPending: docsCount || 0
+      });
+
+      // Fetch REAL visitor analytics from page_visits table
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const { data: visitData } = await supabase
+        .from('page_visits')
+        .select('visitor_id, device_type, source, country')
+        .gte('created_at', sevenDaysAgo.toISOString());
+      
+      if (visitData && visitData.length > 0) {
+        // Calculate unique visitors
+        const uniqueVisitors = new Set(visitData.map(v => v.visitor_id)).size;
+        const totalPageViews = visitData.length;
         
-        if (profileData) {
-          setUserName(profileData.contact_person || profileData.company_name || 'Admin');
-        }
-
-        // Fetch users count
-        const { count: usersCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
-        
-        // Fetch requirements count
-        const reqResult = await supabase
-          .from('requirements')
-          .select('id', { count: 'exact', head: true })
-          .eq('status', 'active');
-        const reqCount = reqResult.count;
-
-        // Fetch pending invoices
-        const invoicesResult = await (supabase
-          .from('platform_invoices') as any)
-          .select('total_amount')
-          .eq('payment_status', 'pending');
-        const invoicesData = invoicesResult.data || [];
-        const pendingAmount = invoicesData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
-
-        // Fetch total collected
-        const collectedResult = await (supabase
-          .from('platform_invoices') as any)
-          .select('total_amount')
-          .eq('payment_status', 'paid');
-        const collectedData = collectedResult.data || [];
-        const totalCollected = collectedData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
-
-        // Fetch vehicles pending verification
-        const vehiclesResult = await (supabase
-          .from('vehicles') as any)
-          .select('id', { count: 'exact', head: true })
-          .eq('is_verified', false);
-        const vehiclesCount = vehiclesResult.count || 0;
-
-        // Fetch partner docs pending
-        const docsResult = await (supabase
-          .from('partner_documents') as any)
-          .select('id', { count: 'exact', head: true })
-          .eq('verification_status', 'pending');
-        const docsCount = docsResult.count || 0;
-
-        setStats({
-          totalUsers: usersCount || 0,
-          totalRequirements: reqCount || 0,
-          pendingInvoices: invoicesData?.length || 0,
-          pendingInvoiceAmount: pendingAmount,
-          totalCollected,
-          vehiclesPending: vehiclesCount || 0,
-          partnerDocsPending: docsCount || 0
+        // Device breakdown
+        const deviceCounts = { desktop: 0, mobile: 0, tablet: 0 };
+        visitData.forEach(v => {
+          if (v.device_type === 'desktop') deviceCounts.desktop++;
+          else if (v.device_type === 'mobile') deviceCounts.mobile++;
+          else if (v.device_type === 'tablet') deviceCounts.tablet++;
         });
-
-        // Set visitor stats with placeholder data (real analytics would come from a dedicated system)
+        const desktopPct = Math.round((deviceCounts.desktop / visitData.length) * 100);
+        const mobilePct = Math.round((deviceCounts.mobile / visitData.length) * 100);
+        
+        // Source breakdown
+        const sourceCounts: Record<string, number> = {};
+        visitData.forEach(v => {
+          const src = v.source || 'Direct';
+          sourceCounts[src] = (sourceCounts[src] || 0) + 1;
+        });
+        const topSourceEntry = Object.entries(sourceCounts).sort((a, b) => b[1] - a[1])[0];
+        const topSourcePct = topSourceEntry ? Math.round((topSourceEntry[1] / visitData.length) * 100) : 0;
+        
+        // Country breakdown
+        const countryCounts: Record<string, number> = {};
+        visitData.forEach(v => {
+          const country = v.country || 'Unknown';
+          countryCounts[country] = (countryCounts[country] || 0) + 1;
+        });
+        const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 2);
+        const countryStr = sortedCountries.map(([name, count]) => 
+          `${name} (${Math.round((count / visitData.length) * 100)}%)`
+        ).join(', ');
+        
         setVisitorStats({
-          totalVisitors: 302,
-          pageViews: 1546,
-          desktopPercent: 75,
-          mobilePercent: 24,
-          pagesPerVisit: 5.1,
-          topCountries: 'India (62%), United States (25%)',
-          topSource: 'Direct (62%)',
+          totalVisitors: uniqueVisitors,
+          pageViews: totalPageViews,
+          desktopPercent: desktopPct,
+          mobilePercent: mobilePct,
+          pagesPerVisit: uniqueVisitors > 0 ? parseFloat((totalPageViews / uniqueVisitors).toFixed(1)) : 0,
+          topCountries: countryStr || 'No data',
+          topSource: topSourceEntry ? `${topSourceEntry[0]} (${topSourcePct}%)` : 'No data',
           lastUpdated: new Date().toLocaleTimeString()
         });
-      } catch (error) {
-        console.error('Error fetching admin stats:', error);
-      } finally {
-        setStatsLoading(false);
+      } else {
+        setVisitorStats({
+          totalVisitors: 0,
+          pageViews: 0,
+          desktopPercent: 0,
+          mobilePercent: 0,
+          pagesPerVisit: 0,
+          topCountries: 'No data',
+          topSource: 'No data',
+          lastUpdated: new Date().toLocaleTimeString()
+        });
       }
-    };
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
+  // Initial fetch on mount
+  useEffect(() => {
     fetchStats();
   }, [user]);
 
@@ -347,8 +404,8 @@ export default function AdminAuditDashboard() {
               <CardTitle className="flex items-center gap-2 text-base">
                 <BarChart3 className="h-4 w-4 text-slate-600" />
                 Visitor Analytics
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setStatsLoading(true)}>
-                  <RefreshCw className="h-3 w-3" />
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={fetchStats} disabled={statsLoading}>
+                  <RefreshCw className={`h-3 w-3 ${statsLoading ? 'animate-spin' : ''}`} />
                 </Button>
               </CardTitle>
               <Badge variant="outline" className="text-xs">Last 7 days</Badge>
