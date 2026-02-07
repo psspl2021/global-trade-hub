@@ -1,3 +1,20 @@
+/**
+ * ============================================================
+ * OPERATIONAL DASHBOARD (/dashboard)
+ * ============================================================
+ * 
+ * ROLES: buyer, buyer_purchaser, purchaser, supplier, logistics_partner
+ * 
+ * STRICT EXECUTION MODE:
+ * - NO admin components
+ * - NO control tower
+ * - NO governance/revenue/ROI metrics
+ * - ONLY execution features (RFQ, quotes, inventory, logistics)
+ * 
+ * Admin roles are redirected to /admin
+ * Management roles are redirected to /management
+ */
+
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,25 +39,6 @@ import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
 import { SupplierMyBids } from '@/components/SupplierMyBids';
 import { LiveSupplierStock } from '@/components/LiveSupplierStock';
 import { PlatformInvoices } from '@/components/PlatformInvoices';
-import { AdminDashboardCards } from '@/components/admin/AdminDashboardCards';
-import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
-import { VehicleVerification } from '@/components/admin/VehicleVerification';
-import { PartnerDocumentVerification } from '@/components/admin/PartnerDocumentVerification';
-import { AdminDataExport } from '@/components/admin/AdminDataExport';
-import { AdminUsersList } from '@/components/admin/AdminUsersList';
-import { AdminRequirementsList } from '@/components/admin/AdminRequirementsList';
-import { AdminBidsList } from '@/components/admin/AdminBidsList';
-import { AdminLogisticsList } from '@/components/admin/AdminLogisticsList';
-import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
-import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
-import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
-import AdminBlogManager from '@/components/admin/AdminBlogManager';
-import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
-import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
-import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
-import { AdminControlTower } from '@/components/admin/AdminControlTower';
-import { AISalesDashboard } from '@/components/admin/AISalesDashboard';
-import { AdminDemandHeatmap } from '@/components/admin/AdminDemandHeatmap';
 import { FleetManagement } from '@/components/logistics/FleetManagement';
 import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
 import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
@@ -77,24 +75,7 @@ const Dashboard = () => {
   const [showCRM, setShowCRM] = useState(false);
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showPlatformInvoices, setShowPlatformInvoices] = useState(false);
-  const [showAdminInvoices, setShowAdminInvoices] = useState(false);
-  const [showVehicleVerification, setShowVehicleVerification] = useState(false);
-  const [showDataExport, setShowDataExport] = useState(false);
-  const [showAdminUsersList, setShowAdminUsersList] = useState(false);
-  const [showAdminRequirementsList, setShowAdminRequirementsList] = useState(false);
-  const [showAdminBidsList, setShowAdminBidsList] = useState(false);
-  const [showAdminLogisticsList, setShowAdminLogisticsList] = useState(false);
-  const [showLeadsDashboard, setShowLeadsDashboard] = useState(false);
-  const [showPremiumBidsManager, setShowPremiumBidsManager] = useState(false);
-  const [showReferralStats, setShowReferralStats] = useState(false);
-  const [showBlogManager, setShowBlogManager] = useState(false);
-  const [showEmailTracking, setShowEmailTracking] = useState(false);
-  const [showL1Analysis, setShowL1Analysis] = useState(false);
-  const [showSupplierSelection, setShowSupplierSelection] = useState(false);
-  const [showControlTower, setShowControlTower] = useState(false);
-  const [showAISalesEngine, setShowAISalesEngine] = useState(false);
-  const [showDemandHeatmap, setShowDemandHeatmap] = useState(false);
-  const [showPartnerDocVerification, setShowPartnerDocVerification] = useState(false);
+  // Admin state variables removed - admin roles redirect to /admin
   const [showFleetManagement, setShowFleetManagement] = useState(false);
   const [showWarehouseManagement, setShowWarehouseManagement] = useState(false);
   const [showLogisticsOnboarding, setShowLogisticsOnboarding] = useState(false);
@@ -263,138 +244,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {role === 'admin' && (
-          <>
-            <AdminDashboardCards 
-              onOpenInvoiceManagement={() => setShowAdminInvoices(true)} 
-              onOpenVehicleVerification={() => setShowVehicleVerification(true)}
-              onOpenDataExport={() => setShowDataExport(true)}
-              onOpenUsersList={() => setShowAdminUsersList(true)}
-              onOpenRequirementsList={() => setShowAdminRequirementsList(true)}
-              onOpenBidsList={() => setShowAdminBidsList(true)}
-              onOpenLogisticsList={() => setShowAdminLogisticsList(true)}
-              onOpenLeadsDashboard={() => setShowLeadsDashboard(true)}
-              onOpenPremiumBidsManager={() => setShowPremiumBidsManager(true)}
-              onOpenReferralStats={() => setShowReferralStats(true)}
-              onOpenBlogManager={() => setShowBlogManager(true)}
-              onOpenPartnerDocumentVerification={() => setShowPartnerDocVerification(true)}
-              onOpenL1Analysis={() => setShowL1Analysis(true)}
-              onOpenEmailTracking={() => setShowEmailTracking(true)}
-              onOpenSupplierSelection={() => setShowSupplierSelection(true)}
-              onOpenControlTower={() => setShowControlTower(true)}
-              onOpenAISalesEngine={() => setShowAISalesEngine(true)}
-              onOpenDemandHeatmap={() => setShowDemandHeatmap(true)}
-            />
-            <AdminInvoiceManagement open={showAdminInvoices} onOpenChange={setShowAdminInvoices} />
-            {user && (
-              <VehicleVerification 
-                open={showVehicleVerification} 
-                onOpenChange={setShowVehicleVerification}
-                adminId={user.id}
-              />
-            )}
-            <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
-            <AdminUsersList open={showAdminUsersList} onOpenChange={setShowAdminUsersList} />
-            <AdminRequirementsList open={showAdminRequirementsList} onOpenChange={setShowAdminRequirementsList} />
-            <AdminBidsList open={showAdminBidsList} onOpenChange={setShowAdminBidsList} />
-            <AdminLogisticsList open={showAdminLogisticsList} onOpenChange={setShowAdminLogisticsList} />
-            {showLeadsDashboard && (
-              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Leads Dashboard</h2>
-                      <Button variant="outline" onClick={() => setShowLeadsDashboard(false)}>Close</Button>
-                    </div>
-                    <LeadsDashboard />
-                  </div>
-                </div>
-              </div>
-            )}
-            <AdminReferralStats open={showReferralStats} onOpenChange={setShowReferralStats} />
-            {user && (
-              <PremiumBidsManager 
-                open={showPremiumBidsManager}
-                onOpenChange={setShowPremiumBidsManager}
-                adminId={user.id}
-              />
-            )}
-            {showBlogManager && (
-              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Blog Management</h2>
-                      <Button variant="outline" onClick={() => setShowBlogManager(false)}>Close</Button>
-                    </div>
-                    <AdminBlogManager />
-                  </div>
-                </div>
-              </div>
-            )}
-            <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
-            <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
-            {showControlTower && (
-              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Admin Control Tower</h2>
-                      <Button variant="outline" onClick={() => setShowControlTower(false)}>Close</Button>
-                    </div>
-                    <AdminControlTower />
-                  </div>
-                </div>
-              </div>
-            )}
-            {showAISalesEngine && (
-              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">AI Sales Engine</h2>
-                      <Button variant="outline" onClick={() => setShowAISalesEngine(false)}>Close</Button>
-                    </div>
-                    <AISalesDashboard />
-                  </div>
-                </div>
-              </div>
-            )}
-            {showDemandHeatmap && (
-              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Global Demand Heatmap</h2>
-                      <Button variant="outline" onClick={() => setShowDemandHeatmap(false)}>Close</Button>
-                    </div>
-                    <AdminDemandHeatmap />
-                  </div>
-                </div>
-              </div>
-            )}
-            {showEmailTracking && (
-              <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-                <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg overflow-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Email Tracking & Subscriptions</h2>
-                      <Button variant="outline" onClick={() => setShowEmailTracking(false)}>Close</Button>
-                    </div>
-                    <AdminEmailTracking />
-                  </div>
-                </div>
-              </div>
-            )}
-            {user && (
-              <PartnerDocumentVerification
-                open={showPartnerDocVerification}
-                onOpenChange={setShowPartnerDocVerification}
-                adminId={user.id}
-              />
-            )}
-          </>
-        )}
+        {/* Admin section removed - admin roles redirect to /admin route */}
 
         {/* Buyer roles: buyer, buyer_purchaser, purchaser - OPERATIONAL DASHBOARD */}
         {(role === 'buyer' || role === 'buyer_purchaser' || role === 'purchaser') && (
