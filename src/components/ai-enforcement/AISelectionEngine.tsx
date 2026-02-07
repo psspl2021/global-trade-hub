@@ -385,13 +385,28 @@ export function AISelectionEngine({
         </Card>
       )}
 
-      {/* Legal Notice */}
+      {/* MANDATORY Legal Notice - AI Immutability Disclaimer */}
       <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border">
         <Shield className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <p className="text-xs text-muted-foreground">
-          AI rankings are data-driven and final. Buyer cannot manually override supplier selection. 
+          <strong>AI Governance Notice:</strong> AI rankings are data-driven, immutable, and final. 
+          Buyer cannot manually override, reorder, or reshuffle supplier selection. 
           Escalation triggers admin review but does not guarantee reversal.
+          All decisions are logged for audit compliance.
         </p>
+      </div>
+
+      {/* Additional AI Decision Disclaimer */}
+      <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
+        <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-xs font-medium text-blue-800">AI-Driven Procurement Governance</p>
+          <p className="text-xs text-blue-700 mt-1">
+            ProcureSaathi operates as a neutral governance layer. All supplier selections are 
+            AI-verified based on price, delivery reliability, quality history, and risk factors. 
+            This ensures transparent, auditable, and non-manipulable procurement decisions.
+          </p>
+        </div>
       </div>
 
       {/* Escalation Dialog */}

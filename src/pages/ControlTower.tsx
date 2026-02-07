@@ -15,14 +15,14 @@ import { Footer } from '@/components/landing/Footer';
 
 export function ControlTowerPage() {
   const { 
-    canViewManagementDashboard, 
+    canViewControlTower, 
     primaryRole, 
     isLoading, 
     isAccessDenied 
   } = useGovernanceAccess();
 
-  // RULE 9: Show 404 for supplier/external_guest
-  if (!isLoading && (isAccessDenied || !canViewManagementDashboard)) {
+  // RULE 9: Show HARD 404 for supplier/external_guest - NO UI LEAKAGE
+  if (!isLoading && (isAccessDenied || !canViewControlTower)) {
     return (
       <main className="min-h-screen pt-20 pb-16 px-4">
         <div className="container mx-auto max-w-7xl">

@@ -141,14 +141,28 @@ export function AnonymizedSupplierQuoteCard({
           </Button>
         )}
 
-        {/* Footer disclaimer */}
+        {/* Footer disclaimer - MANDATORY */}
         <p className="text-xs text-center text-muted-foreground">
           Your order is managed end-to-end by ProcureSaathi
         </p>
+        
+        {/* AI Governance Notice */}
+        <div className="text-xs text-center text-muted-foreground border-t pt-2 mt-2">
+          <span className="flex items-center justify-center gap-1">
+            🔐 AI-verified partner • Supplier identity protected • Platform-managed fulfillment
+          </span>
+        </div>
       </CardContent>
     </Card>
   );
 }
+
+/**
+ * SECURITY NOTICE:
+ * This component NEVER receives or displays supplier_id.
+ * All data is anonymized at the database level.
+ * ps_partner_id is a hash that cannot be reverse-engineered.
+ */
 
 // Re-export with original name for backward compatibility
 export { AnonymizedSupplierQuoteCard as default };
