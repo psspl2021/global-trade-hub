@@ -9,6 +9,7 @@ export type UserRole =
   | 'buyer_purchaser'
   | 'buyer_cfo'
   | 'buyer_ceo'
+  | 'buyer_hr'
   | 'buyer_manager'
   | 'supplier' 
   | 'admin' 

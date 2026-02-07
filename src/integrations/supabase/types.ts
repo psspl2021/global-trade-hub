@@ -1435,6 +1435,86 @@ export type Database = {
         }
         Relationships: []
       }
+      buyer_companies: {
+        Row: {
+          address: string | null
+          city: string | null
+          company_name: string
+          country: string | null
+          created_at: string | null
+          gstin: string | null
+          id: string
+          industry: string | null
+          state: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          company_name: string
+          country?: string | null
+          created_at?: string | null
+          gstin?: string | null
+          id?: string
+          industry?: string | null
+          state?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          company_name?: string
+          country?: string | null
+          created_at?: string | null
+          gstin?: string | null
+          id?: string
+          industry?: string | null
+          state?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      buyer_company_members: {
+        Row: {
+          assigned_categories: string[] | null
+          company_id: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_categories?: string[] | null
+          company_id: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_categories?: string[] | null
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buyer_inventory: {
         Row: {
           buyer_id: string
@@ -8324,6 +8404,17 @@ export type Database = {
         }[]
       }
       get_buyer_dashboard_type: { Args: { _user_id: string }; Returns: string }
+      get_company_purchasers: {
+        Args: { _user_id: string }
+        Returns: {
+          assigned_categories: string[]
+          display_name: string
+          is_current_user: boolean
+          member_id: string
+          role: string
+          user_id: string
+        }[]
+      }
       get_default_landing_route: {
         Args: { p_user_id: string }
         Returns: string
@@ -8651,6 +8742,7 @@ export type Database = {
         | "buyer_cfo"
         | "buyer_ceo"
         | "buyer_manager"
+        | "buyer_hr"
       bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
       document_status:
         | "draft"
@@ -8846,6 +8938,7 @@ export const Constants = {
         "buyer_cfo",
         "buyer_ceo",
         "buyer_manager",
+        "buyer_hr",
       ],
       bid_status: ["pending", "accepted", "rejected", "withdrawn"],
       document_status: [

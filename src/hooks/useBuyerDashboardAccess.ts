@@ -18,7 +18,8 @@ export type BuyerDashboardType = 'purchaser' | 'management' | 'none';
 export type BuyerRole = 
   | 'buyer_purchaser' 
   | 'buyer_cfo' 
-  | 'buyer_ceo' 
+  | 'buyer_ceo'
+  | 'buyer_hr' 
   | 'buyer_manager'
   | 'purchaser'
   | 'buyer'
@@ -28,7 +29,7 @@ export type BuyerRole =
   | null;
 
 // Management roles get analytics dashboard
-const MANAGEMENT_ROLES = ['buyer_cfo', 'buyer_ceo', 'buyer_manager', 'cfo', 'ceo', 'manager'];
+const MANAGEMENT_ROLES = ['buyer_cfo', 'buyer_ceo', 'buyer_hr', 'buyer_manager', 'cfo', 'ceo', 'manager'];
 
 // Purchaser roles get execution dashboard
 const PURCHASER_ROLES = ['buyer_purchaser', 'purchaser', 'buyer'];

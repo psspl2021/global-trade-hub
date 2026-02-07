@@ -13,6 +13,9 @@
  * 
  * Admin roles are redirected to /admin
  * Management roles are redirected to /management
+ * 
+ * NEW: Purchaser context selector for multi-purchaser companies
+ * NEW: Management view selector for CFO/CEO/HR oversight
  */
 
 import { useEffect, useState } from 'react';
@@ -21,6 +24,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useSEO } from '@/hooks/useSEO';
 import { usePartnerVerification } from '@/hooks/usePartnerVerification';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,6 +65,7 @@ import { SupplierAIPerformanceCard } from '@/components/SupplierAIPerformanceCar
 import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard';
 import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
+import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -194,44 +199,55 @@ const Dashboard = () => {
     );
   }
 
+  // Check if this is a buyer role that should see the new header with dropdowns
+  const isBuyerRole = role === 'buyer' || role === 'buyer_purchaser' || role === 'purchaser';
+
   return (
     <div className="min-h-screen bg-background">
       {/* Profile Completion Modal - blocks until mandatory fields are filled */}
       <ProfileCompletionModal userId={user?.id} onComplete={() => setProfileComplete(true)} />
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img 
-              src={procureSaathiLogo} 
-              alt="ProcureSaathi Logo" 
-              className="h-14 sm:h-20 w-auto object-contain cursor-pointer"
-              width={80}
-              height={80}
-              loading="eager"
-            />
-          </Link>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <NotificationBell />
-            <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => setShowProfileSettings(true)}>
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="hidden sm:flex" onClick={async () => {
-              await signOut();
-              navigate('/');
-            }}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-            <Button variant="outline" size="icon" className="h-8 w-8 sm:hidden" onClick={async () => {
-              await signOut();
-              navigate('/');
-            }}>
-              <LogOut className="h-4 w-4" />
-            </Button>
+      
+      {/* Buyer Dashboard Header with Context Selectors */}
+      {isBuyerRole && (
+        <BuyerDashboardHeader onOpenSettings={() => setShowProfileSettings(true)} />
+      )}
+      
+      {/* Standard Header for non-buyer roles */}
+      {!isBuyerRole && (
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2">
+              <img 
+                src={procureSaathiLogo} 
+                alt="ProcureSaathi Logo" 
+                className="h-14 sm:h-20 w-auto object-contain cursor-pointer"
+                width={80}
+                height={80}
+                loading="eager"
+              />
+            </Link>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <NotificationBell />
+              <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => setShowProfileSettings(true)}>
+                <Settings className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="hidden sm:flex" onClick={async () => {
+                await signOut();
+                navigate('/');
+              }}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+              <Button variant="outline" size="icon" className="h-8 w-8 sm:hidden" onClick={async () => {
+                await signOut();
+                navigate('/');
+              }}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-4 sm:py-8">

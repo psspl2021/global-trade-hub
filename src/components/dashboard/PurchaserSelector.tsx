@@ -1,0 +1,135 @@
+/**
+ * ============================================================
+ * PURCHASER SELECTOR DROPDOWN
+ * ============================================================
+ * 
+ * Allows selection of a purchaser within the same buyer company.
+ * Shows purchaser name and assigned categories.
+ * 
+ * Visible to: All buyer roles
+ * Editable by: Management (can switch between purchasers)
+ * Default: Current logged-in purchaser for buyer_purchaser role
+ */
+
+import { useMemo } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { User, Package } from 'lucide-react';
+import { CompanyPurchaser } from '@/hooks/useBuyerCompanyContext';
+
+interface PurchaserSelectorProps {
+  purchasers: CompanyPurchaser[];
+  selectedPurchaserId: string | null;
+  onSelect: (purchaserId: string) => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+export function PurchaserSelector({
+  purchasers,
+  selectedPurchaserId,
+  onSelect,
+  disabled = false,
+  className = '',
+}: PurchaserSelectorProps) {
+  // Format purchaser display with category badges
+  const formatPurchaserLabel = (purchaser: CompanyPurchaser) => {
+    const categories = purchaser.assigned_categories || [];
+    const categoryText = categories.length > 0 
+      ? `(${categories.slice(0, 2).join(', ')}${categories.length > 2 ? '...' : ''})`
+      : '';
+    return `${purchaser.display_name} ${categoryText}`.trim();
+  };
+
+  // Selected purchaser for display
+  const selectedPurchaser = useMemo(() => 
+    purchasers.find(p => p.user_id === selectedPurchaserId),
+    [purchasers, selectedPurchaserId]
+  );
+
+  if (purchasers.length === 0) {
+    return null;
+  }
+
+  // If only one purchaser (self), show static display
+  if (purchasers.length === 1) {
+    return (
+      <div className={`flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg ${className}`}>
+        <User className="h-4 w-4 text-muted-foreground" />
+        <span className="text-sm font-medium">{purchasers[0].display_name}</span>
+        {purchasers[0].assigned_categories?.length > 0 && (
+          <div className="flex gap-1">
+            {purchasers[0].assigned_categories.slice(0, 2).map((cat) => (
+              <Badge key={cat} variant="secondary" className="text-xs">
+                {cat}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`flex flex-col gap-1 ${className}`}>
+      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        Select Purchaser
+      </label>
+      <Select
+        value={selectedPurchaserId || undefined}
+        onValueChange={onSelect}
+        disabled={disabled}
+      >
+        <SelectTrigger className="w-full sm:w-[280px] bg-background border-border">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-primary" />
+            <SelectValue placeholder="Select Purchaser">
+              {selectedPurchaser && (
+                <span className="truncate">
+                  {selectedPurchaser.display_name}
+                  {selectedPurchaser.is_current_user && ' (You)'}
+                </span>
+              )}
+            </SelectValue>
+          </div>
+        </SelectTrigger>
+        <SelectContent className="bg-background border-border z-50">
+          {purchasers.map((purchaser) => (
+            <SelectItem 
+              key={purchaser.user_id} 
+              value={purchaser.user_id}
+              className="cursor-pointer"
+            >
+              <div className="flex items-center gap-2 py-1">
+                <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-medium">
+                    {purchaser.display_name}
+                    {purchaser.is_current_user && (
+                      <span className="text-primary ml-1">(You)</span>
+                    )}
+                  </span>
+                  {purchaser.assigned_categories?.length > 0 && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Package className="h-3 w-3" />
+                      {purchaser.assigned_categories.slice(0, 3).join(', ')}
+                      {purchaser.assigned_categories.length > 3 && '...'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+export default PurchaserSelector;
