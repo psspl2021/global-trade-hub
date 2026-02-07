@@ -24,6 +24,7 @@ export type GovernanceRole =
   | 'cfo' 
   | 'ceo' 
   | 'ps_admin' 
+  | 'admin'
   | 'buyer'
   | 'supplier' 
   | 'external_guest' 
@@ -97,11 +98,11 @@ export function useGovernanceAccess(): UseGovernanceAccessReturn {
 
         // Set default landing route based on role
         if (['cfo', 'ceo', 'manager'].includes(row.primary_role)) {
-          setDefaultLandingRoute('/management-dashboard');
+          setDefaultLandingRoute('/management');
         } else if (['purchaser', 'buyer'].includes(row.primary_role)) {
-          setDefaultLandingRoute('/purchaser-dashboard');
-        } else if (row.primary_role === 'ps_admin') {
-          setDefaultLandingRoute('/admin/audit');
+          setDefaultLandingRoute('/dashboard');
+        } else if (row.primary_role === 'ps_admin' || row.primary_role === 'admin') {
+          setDefaultLandingRoute('/admin');
         } else {
           setDefaultLandingRoute('/');
         }
