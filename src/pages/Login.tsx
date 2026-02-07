@@ -59,7 +59,8 @@ const Login = () => {
       if (totpData?.is_enabled) {
         setShowTOTPVerification(true);
       } else {
-        navigate('/dashboard');
+        // Get user role and redirect to appropriate dashboard
+        await redirectBasedOnRole();
       }
     } catch {
       navigate('/dashboard');
@@ -68,9 +69,52 @@ const Login = () => {
     }
   };
 
-  const handleTOTPSuccess = () => {
+  const redirectBasedOnRole = async () => {
+    if (!user) {
+      navigate('/dashboard');
+      return;
+    }
+
+    try {
+      // Get user's primary role
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      if (roleData && roleData.length > 0) {
+        const roles = roleData.map(r => r.role as string);
+        
+        // Check for management roles (highest priority)
+        const managementRoles = ['ceo', 'buyer_ceo', 'cfo', 'buyer_cfo', 'manager', 'buyer_manager'];
+        if (roles.some(r => managementRoles.includes(r))) {
+          navigate('/management');
+          return;
+        }
+        
+        // Check for admin roles
+        if (roles.includes('ps_admin') || roles.includes('admin')) {
+          navigate('/admin');
+          return;
+        }
+        
+        // Check for affiliate
+        if (roles.includes('affiliate')) {
+          navigate('/affiliate');
+          return;
+        }
+      }
+      
+      // Default to /dashboard for purchaser/buyer/supplier/logistics_partner
+      navigate('/dashboard');
+    } catch {
+      navigate('/dashboard');
+    }
+  };
+
+  const handleTOTPSuccess = async () => {
     setShowTOTPVerification(false);
-    navigate('/dashboard');
+    await redirectBasedOnRole();
   };
 
   const handleTOTPCancel = async () => {

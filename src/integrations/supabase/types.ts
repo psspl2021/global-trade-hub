@@ -8323,6 +8323,7 @@ export type Database = {
           state: string
         }[]
       }
+      get_buyer_dashboard_type: { Args: { _user_id: string }; Returns: string }
       get_default_landing_route: {
         Args: { p_user_id: string }
         Returns: string
@@ -8544,6 +8545,8 @@ export type Database = {
         Returns: string
       }
       is_admin: { Args: never; Returns: boolean }
+      is_buyer_management: { Args: { _user_id: string }; Returns: boolean }
+      is_buyer_purchaser: { Args: { _user_id: string }; Returns: boolean }
       is_enterprise_onboarding: {
         Args: { p_enterprise_id: string }
         Returns: boolean

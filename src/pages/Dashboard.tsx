@@ -194,6 +194,15 @@ const Dashboard = () => {
     if (!authLoading && !roleLoading && role === 'affiliate') {
       navigate('/affiliate');
     }
+    // ROLE-BASED DASHBOARD SEPARATION:
+    // Redirect management roles (buyer_cfo, buyer_ceo, buyer_manager, cfo, ceo, manager) to /management
+    if (!authLoading && !roleLoading && ['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager'].includes(role || '')) {
+      navigate('/management');
+    }
+    // Redirect admin roles to /admin
+    if (!authLoading && !roleLoading && (role === 'ps_admin' || role === 'admin')) {
+      navigate('/admin');
+    }
   }, [user, authLoading, roleLoading, role, navigate]);
 
   if (authLoading || roleLoading) {
@@ -387,8 +396,15 @@ const Dashboard = () => {
           </>
         )}
 
-        {role === 'buyer' && (
+        {/* Buyer roles: buyer, buyer_purchaser, purchaser - OPERATIONAL DASHBOARD */}
+        {(role === 'buyer' || role === 'buyer_purchaser' || role === 'purchaser') && (
           <div className="space-y-4 sm:space-y-6">
+            {/* Governance Banner */}
+            <div className="bg-sky-600 text-white py-2 px-4 rounded-lg">
+              <p className="text-sm text-center font-medium">
+                This is an execution dashboard. Savings are tracked by AI. Incentives are declared by management.
+              </p>
+            </div>
             {/* AI-Powered RFQ Generator - Hero Section */}
             <AIRFQGenerator 
               onRFQGenerated={(rfq) => {

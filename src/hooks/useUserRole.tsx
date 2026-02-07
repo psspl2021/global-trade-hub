@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Extended user roles including governance roles
+ * Extended user roles including governance roles and buyer sub-roles
  */
 export type UserRole = 
   | 'buyer' 
+  | 'buyer_purchaser'
+  | 'buyer_cfo'
+  | 'buyer_ceo'
+  | 'buyer_manager'
   | 'supplier' 
   | 'admin' 
   | 'logistics_partner' 
@@ -21,11 +25,15 @@ export type UserRole =
 // Priority order: governance roles have highest priority
 const ROLE_PRIORITY: UserRole[] = [
   'ceo',
+  'buyer_ceo',
   'cfo', 
+  'buyer_cfo',
   'manager',
+  'buyer_manager',
   'ps_admin',
   'admin', 
   'purchaser',
+  'buyer_purchaser',
   'buyer',
   'logistics_partner', 
   'supplier', 
@@ -89,11 +97,13 @@ export const useUserRole = (userId: string | undefined) => {
   }, [userId]);
 
   // Helper functions for governance checks
-  const isManagement = role === 'cfo' || role === 'ceo' || role === 'manager';
+  const isManagement = ['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager'].includes(role || '');
   const isAdmin = role === 'admin' || role === 'ps_admin';
-  const isPurchaser = role === 'purchaser' || role === 'buyer';
+  const isPurchaser = ['purchaser', 'buyer_purchaser', 'buyer'].includes(role || '');
   const isSupplier = role === 'supplier';
   const isRestricted = role === 'supplier' || role === 'external_guest';
+  const isBuyerManagement = ['buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(role || '');
+  const isBuyerPurchaser = ['buyer_purchaser', 'purchaser', 'buyer'].includes(role || '');
 
   return { 
     role, 
@@ -103,6 +113,8 @@ export const useUserRole = (userId: string | undefined) => {
     isAdmin,
     isPurchaser,
     isSupplier,
-    isRestricted
+    isRestricted,
+    isBuyerManagement,
+    isBuyerPurchaser
   };
 };
