@@ -77,9 +77,9 @@ const CaseStudyMiddleEastFood = lazy(() => import("./pages/case-studies/CaseStud
 const CustomerStories = lazy(() => import("./pages/CustomerStories"));
 
 // Governance & Management Pages
-const ManagementDashboardPage = lazy(() => import("./pages/ManagementDashboard"));
-const PurchaserDashboardPage = lazy(() => import("./pages/PurchaserDashboard"));
-const AdminAuditPage = lazy(() => import("./pages/AdminAudit"));
+const PurchaserExecutionDashboard = lazy(() => import("./pages/governance/PurchaserExecutionDashboard"));
+const ManagementExecutiveDashboard = lazy(() => import("./pages/governance/ManagementExecutiveDashboard"));
+const AdminAuditDashboard = lazy(() => import("./pages/governance/AdminAuditDashboard"));
 const ControlTowerPage = lazy(() => import("./pages/ControlTower"));
 // GEO Landing Pages
 const GeoUSA = lazy(() => import("./pages/geo/GeoUSA"));
@@ -150,10 +150,15 @@ const BotAwareRouter = () => {
         
         {/* B2B Marketplace Pages - BUY pages handled via catch-all below */}
         
-        {/* Governance & Management Routes */}
-        <Route path="/management-dashboard" element={<ManagementDashboardPage />} />
-        <Route path="/purchaser-dashboard" element={<PurchaserDashboardPage />} />
-        <Route path="/admin/audit" element={<AdminAuditPage />} />
+        {/* Role-Based Governance Dashboard Routes */}
+        <Route path="/dashboard" element={<PurchaserExecutionDashboard />} />
+        <Route path="/management" element={<ManagementExecutiveDashboard />} />
+        <Route path="/admin" element={<AdminAuditDashboard />} />
+        
+        {/* Legacy routes - redirect to new structure */}
+        <Route path="/management-dashboard" element={<Navigate to="/management" replace />} />
+        <Route path="/purchaser-dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
         <Route path="/control-tower" element={<ControlTowerPage />} />
         
         {/* CATEGORY HUB pages: /categories/{category-slug} */}
