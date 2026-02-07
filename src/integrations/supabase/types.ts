@@ -8644,6 +8644,10 @@ export type Database = {
         | "ceo"
         | "external_guest"
         | "ps_admin"
+        | "buyer_purchaser"
+        | "buyer_cfo"
+        | "buyer_ceo"
+        | "buyer_manager"
       bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
       document_status:
         | "draft"
@@ -8835,6 +8839,10 @@ export const Constants = {
         "ceo",
         "external_guest",
         "ps_admin",
+        "buyer_purchaser",
+        "buyer_cfo",
+        "buyer_ceo",
+        "buyer_manager",
       ],
       bid_status: ["pending", "accepted", "rejected", "withdrawn"],
       document_status: [
