@@ -18,6 +18,7 @@ import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Shield, 
   LogOut, 
@@ -38,8 +39,12 @@ import {
   IndianRupee,
   Car,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Globe,
+  Monitor,
+  Smartphone
 } from 'lucide-react';
+import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
 import { ControlTowerExecutive } from '@/components/ai-enforcement/ControlTowerExecutive';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -90,6 +95,9 @@ export default function AdminAuditDashboard() {
   const [showVehicles, setShowVehicles] = useState(false);
   const [showPartnerDocs, setShowPartnerDocs] = useState(false);
   const [showPremiumBids, setShowPremiumBids] = useState(false);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [selectedDays, setSelectedDays] = useState(7);
+  const [fullAnalytics, setFullAnalytics] = useState<any>(null);
   
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -105,15 +113,17 @@ export default function AdminAuditDashboard() {
     pageViews: 0,
     desktopPercent: 0,
     mobilePercent: 0,
+    tabletPercent: 0,
     pagesPerVisit: 0,
-    topCountries: '',
-    topSource: '',
+    avgTimeSeconds: 0,
+    topCountries: [] as Array<{ country: string; countryCode: string; visitors: number; percentage: number }>,
+    topSources: [] as Array<{ source: string; count: number; percentage: number }>,
     lastUpdated: ''
   });
   const [statsLoading, setStatsLoading] = useState(true);
   const [userName, setUserName] = useState('Admin');
 
-  // Fetch stats function (extracted for reuse by refresh button)
+  // Fetch analytics from edge function
   const fetchStats = async () => {
     if (!user) return;
     setStatsLoading(true);
@@ -182,58 +192,34 @@ export default function AdminAuditDashboard() {
         partnerDocsPending: docsCount || 0
       });
 
-      // Fetch REAL visitor analytics from page_visits table
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      const { data: visitData } = await supabase
-        .from('page_visits')
-        .select('visitor_id, device_type, source, country')
-        .gte('created_at', sevenDaysAgo.toISOString());
-      
-      if (visitData && visitData.length > 0) {
-        // Calculate unique visitors
-        const uniqueVisitors = new Set(visitData.map(v => v.visitor_id)).size;
-        const totalPageViews = visitData.length;
+      // Fetch REAL visitor analytics using edge function for complete data
+      const { data: analyticsData, error: analyticsError } = await supabase.functions.invoke('get-analytics', {
+        body: { days: selectedDays }
+      });
+
+      if (!analyticsError && analyticsData) {
+        setFullAnalytics(analyticsData);
         
-        // Device breakdown
-        const deviceCounts = { desktop: 0, mobile: 0, tablet: 0 };
-        visitData.forEach(v => {
-          if (v.device_type === 'desktop') deviceCounts.desktop++;
-          else if (v.device_type === 'mobile') deviceCounts.mobile++;
-          else if (v.device_type === 'tablet') deviceCounts.tablet++;
-        });
-        const desktopPct = Math.round((deviceCounts.desktop / visitData.length) * 100);
-        const mobilePct = Math.round((deviceCounts.mobile / visitData.length) * 100);
+        // Format top countries string for card display
+        const topCountryStr = analyticsData.countryBreakdown?.slice(0, 2)
+          .map((c: any) => `${c.country} (${c.percentage}%)`)
+          .join(', ') || 'No data';
         
-        // Source breakdown
-        const sourceCounts: Record<string, number> = {};
-        visitData.forEach(v => {
-          const src = v.source || 'Direct';
-          sourceCounts[src] = (sourceCounts[src] || 0) + 1;
-        });
-        const topSourceEntry = Object.entries(sourceCounts).sort((a, b) => b[1] - a[1])[0];
-        const topSourcePct = topSourceEntry ? Math.round((topSourceEntry[1] / visitData.length) * 100) : 0;
-        
-        // Country breakdown
-        const countryCounts: Record<string, number> = {};
-        visitData.forEach(v => {
-          const country = v.country || 'Unknown';
-          countryCounts[country] = (countryCounts[country] || 0) + 1;
-        });
-        const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 2);
-        const countryStr = sortedCountries.map(([name, count]) => 
-          `${name} (${Math.round((count / visitData.length) * 100)}%)`
-        ).join(', ');
+        // Format top source string for card display
+        const topSourceStr = analyticsData.topSources?.length > 0
+          ? `${analyticsData.topSources[0].source} (${analyticsData.topSources[0].percentage}%)`
+          : 'No data';
         
         setVisitorStats({
-          totalVisitors: uniqueVisitors,
-          pageViews: totalPageViews,
-          desktopPercent: desktopPct,
-          mobilePercent: mobilePct,
-          pagesPerVisit: uniqueVisitors > 0 ? parseFloat((totalPageViews / uniqueVisitors).toFixed(1)) : 0,
-          topCountries: countryStr || 'No data',
-          topSource: topSourceEntry ? `${topSourceEntry[0]} (${topSourcePct}%)` : 'No data',
+          totalVisitors: analyticsData.totalVisitors || 0,
+          pageViews: analyticsData.totalPageviews || 0,
+          desktopPercent: analyticsData.deviceBreakdown?.desktop || 0,
+          mobilePercent: analyticsData.deviceBreakdown?.mobile || 0,
+          tabletPercent: analyticsData.deviceBreakdown?.tablet || 0,
+          pagesPerVisit: analyticsData.pageviewsPerVisit || 0,
+          avgTimeSeconds: analyticsData.avgTimeSpentSeconds || 0,
+          topCountries: analyticsData.countryBreakdown || [],
+          topSources: analyticsData.topSources || [],
           lastUpdated: new Date().toLocaleTimeString()
         });
       } else {
@@ -242,9 +228,11 @@ export default function AdminAuditDashboard() {
           pageViews: 0,
           desktopPercent: 0,
           mobilePercent: 0,
+          tabletPercent: 0,
           pagesPerVisit: 0,
-          topCountries: 'No data',
-          topSource: 'No data',
+          avgTimeSeconds: 0,
+          topCountries: [],
+          topSources: [],
           lastUpdated: new Date().toLocaleTimeString()
         });
       }
@@ -255,10 +243,28 @@ export default function AdminAuditDashboard() {
     }
   };
 
+  // Refetch when selectedDays changes
+  useEffect(() => {
+    if (user) fetchStats();
+  }, [selectedDays]);
+
   // Initial fetch on mount
   useEffect(() => {
     fetchStats();
   }, [user]);
+
+  // Debug log for role access
+  useEffect(() => {
+    if (!accessLoading) {
+      console.log('[AdminAuditDashboard] Access check:', {
+        primaryRole,
+        isAccessDenied,
+        authLoading,
+        accessLoading,
+        userId: user?.id
+      });
+    }
+  }, [primaryRole, isAccessDenied, authLoading, accessLoading, user?.id]);
 
   // Role-based redirects
   useEffect(() => {
@@ -290,13 +296,25 @@ export default function AdminAuditDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <p className="ml-2 text-muted-foreground">Verifying access...</p>
       </div>
     );
   }
 
-  // Only allow ps_admin and admin roles
-  if (!['ps_admin', 'admin'].includes(primaryRole)) {
+  // Only allow ps_admin and admin roles - also check for undefined/empty to avoid false 404s
+  if (primaryRole && !['ps_admin', 'admin'].includes(primaryRole)) {
+    console.warn('[AdminAuditDashboard] Access denied for role:', primaryRole);
     return <AccessDenied variant="404" />;
+  }
+  
+  // If role is still unknown after loading, show loading state instead of 404
+  if (!primaryRole || primaryRole === 'unknown') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <p className="ml-2 text-muted-foreground">Loading role...</p>
+      </div>
+    );
   }
 
   const renderView = () => {
@@ -398,47 +416,76 @@ export default function AdminAuditDashboard() {
       {/* Second Row - Analytics & Verification */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Visitor Analytics */}
-        <Card className="bg-card border">
+        <Card className="bg-card border md:col-span-2 lg:col-span-1">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base">
-                <BarChart3 className="h-4 w-4 text-slate-600" />
+                <BarChart3 className="h-4 w-4 text-indigo-600" />
                 Visitor Analytics
                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={fetchStats} disabled={statsLoading}>
                   <RefreshCw className={`h-3 w-3 ${statsLoading ? 'animate-spin' : ''}`} />
                 </Button>
               </CardTitle>
-              <Badge variant="outline" className="text-xs">Last 7 days</Badge>
+              <Select value={String(selectedDays)} onValueChange={(val) => setSelectedDays(Number(val))}>
+                <SelectTrigger className="w-[110px] h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">Last 7 days</SelectItem>
+                  <SelectItem value="15">Last 15 days</SelectItem>
+                  <SelectItem value="30">Last 30 days</SelectItem>
+                  <SelectItem value="90">Last 90 days</SelectItem>
+                  <SelectItem value="365">Last 365 days</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <p className="text-xs text-muted-foreground">Updated: {visitorStats.lastUpdated}</p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-2xl font-bold text-primary">{visitorStats.totalVisitors}</p>
-                <p className="text-xs text-muted-foreground">Total Visitors</p>
+            {statsLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-primary">{visitorStats.pageViews}</p>
-                <p className="text-xs text-muted-foreground">Page Views</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span>🖥️ {visitorStats.desktopPercent}%</span>
-              <span>📱 {visitorStats.mobilePercent}%</span>
-              <span>{visitorStats.pagesPerVisit} pages/visit</span>
-            </div>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>🌍 Top: {visitorStats.topCountries}</p>
-              <p>Top source: {visitorStats.topSource}</p>
-            </div>
-            <Button 
-              variant="outline" 
-              className="w-full"
-            >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              View Detailed Analytics
-            </Button>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-2xl font-bold text-indigo-600">{visitorStats.totalVisitors.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Total Visitors</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-indigo-600">{visitorStats.pageViews.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Page Views</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Monitor className="h-3 w-3" />
+                    {visitorStats.desktopPercent}%
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Smartphone className="h-3 w-3" />
+                    {visitorStats.mobilePercent}%
+                  </span>
+                  <span>{visitorStats.pagesPerVisit} pages/visit</span>
+                </div>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p className="flex items-center gap-1">
+                    <Globe className="h-3 w-3" />
+                    Top: {visitorStats.topCountries.slice(0, 2).map(c => `${c.country} (${c.percentage}%)`).join(', ') || 'No data'}
+                  </p>
+                  <p>Top source: {visitorStats.topSources[0]?.source || 'No data'} ({visitorStats.topSources[0]?.percentage || 0}%)</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowAnalyticsModal(true)}
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  View Detailed Analytics
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -853,6 +900,14 @@ export default function AdminAuditDashboard() {
       <main className="container mx-auto px-4 py-6">
         {renderView()}
       </main>
+
+      {/* Visitor Analytics Modal */}
+      <VisitorAnalyticsModal
+        open={showAnalyticsModal}
+        onOpenChange={setShowAnalyticsModal}
+        analytics={fullAnalytics}
+        selectedDays={selectedDays}
+      />
     </div>
   );
 }
