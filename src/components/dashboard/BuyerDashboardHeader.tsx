@@ -16,11 +16,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
-import { LogOut, Settings, Eye } from 'lucide-react';
+import { LogOut, Settings, Eye, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
 interface BuyerDashboardHeaderProps {
@@ -39,6 +40,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
     canViewManagement,
     isManagementMode,
     isLoading,
+    error,
   } = useBuyerCompanyContext();
 
   return (
@@ -92,9 +94,19 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
           </div>
         </div>
 
+        {/* Company Setup Warning */}
+        {error && (
+          <Alert variant="default" className="mb-3 border-amber-200 bg-amber-50 dark:bg-amber-950/30">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-700 dark:text-amber-400">
+              {error} — Your company context is being set up. Some features may be limited.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Context Selectors Row */}
         <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-6 pt-2 border-t border-border/50">
-          {/* Purchaser Selector - Always visible for buyer roles */}
+          {/* Purchaser Selector - Always visible for buyer roles when there are purchasers */}
           {!isLoading && purchasers.length > 0 && (
             <PurchaserSelector
               purchasers={purchasers}
@@ -102,6 +114,14 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               onSelect={setSelectedPurchaserId}
               disabled={false}
             />
+          )}
+
+          {/* Loading state for purchasers */}
+          {isLoading && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg animate-pulse">
+              <div className="h-4 w-4 rounded-full bg-muted-foreground/20" />
+              <div className="h-4 w-24 rounded bg-muted-foreground/20" />
+            </div>
           )}
 
           {/* Management View Selector - Only for management roles */}

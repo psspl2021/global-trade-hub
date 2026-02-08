@@ -19,6 +19,7 @@ export type UserRole =
   | 'manager'
   | 'cfo'
   | 'ceo'
+  | 'hr'
   | 'external_guest'
   | 'ps_admin'
   | null;
@@ -29,6 +30,8 @@ const ROLE_PRIORITY: UserRole[] = [
   'buyer_ceo',
   'cfo', 
   'buyer_cfo',
+  'hr',
+  'buyer_hr',
   'manager',
   'buyer_manager',
   'ps_admin',
