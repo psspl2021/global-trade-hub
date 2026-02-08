@@ -81,7 +81,7 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
                   <Users className="h-4 w-4 text-indigo-600" />
                   <span className="text-xs text-muted-foreground">Total Visitors</span>
                 </div>
-                <div className="text-2xl font-bold text-indigo-600 mt-1">{analytics.totalVisitors}</div>
+                <div className="text-2xl font-bold text-indigo-600 mt-1">{analytics.totalVisitors.toLocaleString()}</div>
               </CardContent>
             </Card>
             <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
@@ -90,7 +90,7 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
                   <Eye className="h-4 w-4 text-blue-600" />
                   <span className="text-xs text-muted-foreground">Page Views</span>
                 </div>
-                <div className="text-2xl font-bold text-blue-600 mt-1">{analytics.totalPageviews}</div>
+                <div className="text-2xl font-bold text-blue-600 mt-1">{analytics.totalPageviews.toLocaleString()}</div>
               </CardContent>
             </Card>
             <Card className="bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800">
@@ -180,8 +180,8 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {analytics.countryBreakdown && analytics.countryBreakdown.length > 0 ? (
-                  <div className="space-y-3">
+              {analytics.countryBreakdown && analytics.countryBreakdown.length > 0 ? (
+                  <div className="space-y-3 max-h-[250px] overflow-y-auto">
                     {analytics.countryBreakdown.map((country, index) => (
                       <div key={index} className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
@@ -190,7 +190,7 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
                             <span>{country.country}</span>
                           </span>
                           <span className="text-muted-foreground">
-                            {country.visitors} ({country.percentage}%)
+                            {country.visitors.toLocaleString()} ({country.percentage}%)
                           </span>
                         </div>
                         <Progress value={country.percentage} className="h-2" />
@@ -252,14 +252,14 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
                 <CardTitle className="text-base">Top Pages</CardTitle>
               </CardHeader>
               <CardContent>
-                {analytics.topPages.length > 0 ? (
-                  <div className="space-y-2">
-                    {analytics.topPages.slice(0, 5).map((page, index) => (
+              {analytics.topPages.length > 0 ? (
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                    {analytics.topPages.map((page, index) => (
                       <div key={index} className="flex items-center justify-between text-sm">
                         <span className="truncate max-w-[200px]" title={page.page}>
                           {page.page || '/'}
                         </span>
-                        <span className="text-muted-foreground">{page.views} views</span>
+                        <span className="text-muted-foreground">{page.views.toLocaleString()} views</span>
                       </div>
                     ))}
                   </div>
@@ -275,13 +275,15 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
                 <CardTitle className="text-base">Traffic Sources</CardTitle>
               </CardHeader>
               <CardContent>
-                {analytics.topSources.length > 0 ? (
-                  <div className="space-y-3">
-                    {analytics.topSources.slice(0, 5).map((source, index) => (
+              {analytics.topSources.length > 0 ? (
+                  <div className="space-y-3 max-h-[250px] overflow-y-auto">
+                    {analytics.topSources.map((source, index) => (
                       <div key={index} className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
                           <span>{source.source}</span>
-                          <span className="text-muted-foreground">{source.percentage}%</span>
+                          <span className="text-muted-foreground">
+                            {source.count.toLocaleString()} ({source.percentage}%)
+                          </span>
                         </div>
                         <Progress value={source.percentage} className="h-2" />
                       </div>

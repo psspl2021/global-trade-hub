@@ -21,6 +21,8 @@ interface VisitorAnalytics {
   totalVisitors: number;
   totalPageviews: number;
   pageviewsPerVisit: number;
+  avgTimeSpentSeconds?: number;
+  avgTimePerPage?: Array<{ page: string; avgSeconds: number; visits: number }>;
   topPages: Array<{ page: string; views: number }>;
   topSources: Array<{ source: string; count: number; percentage: number }>;
   deviceBreakdown: { desktop: number; mobile: number; tablet: number };
@@ -302,12 +304,12 @@ export function AdminDashboardCards({
           ) : analytics ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-3xl font-bold text-indigo-600">{analytics.totalVisitors}</div>
+              <div>
+                  <div className="text-3xl font-bold text-indigo-600">{analytics.totalVisitors.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">Total Visitors</p>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-indigo-600">{analytics.totalPageviews}</div>
+                  <div className="text-3xl font-bold text-indigo-600">{analytics.totalPageviews.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">Page Views</p>
                 </div>
               </div>
