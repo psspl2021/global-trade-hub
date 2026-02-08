@@ -132,34 +132,14 @@ export function ManagementViewSelector({
     onSelect(null);
   };
 
-  // If isLocked is true (non-management role), show disabled state
-  if (isLocked) {
-    return (
-      <div className={`flex flex-col gap-1 ${className}`}>
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
-          <Lock className="h-3 w-3" />
-          Management View
-        </label>
-        <div className="flex items-center gap-2">
-          <div className="w-full sm:w-[280px] h-10 px-3 py-2 bg-muted/50 border border-border rounded-md flex items-center gap-2 cursor-not-allowed opacity-60">
-            <Lock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              🔒 Management View (Authorization Required)
-            </span>
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground mt-1">
-          Only CFO, CEO, HR, and Manager roles can access analytics views.
-        </p>
-      </div>
-    );
-  }
+  // Always show the selector - remove locked state display
+  // Non-management roles can still see the dropdown but won't be able to verify
 
   return (
     <>
       <div className={`flex flex-col gap-1 ${className}`}>
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
-          <Lock className="h-3 w-3" />
+          <ShieldCheck className="h-3 w-3" />
           Management View
         </label>
         <div className="flex items-center gap-2">
