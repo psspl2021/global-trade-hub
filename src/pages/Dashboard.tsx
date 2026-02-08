@@ -200,7 +200,13 @@ const Dashboard = () => {
   }
 
   // Check if this is a buyer role that should see the new header with dropdowns
-  const isBuyerRole = role === 'buyer' || role === 'buyer_purchaser' || role === 'purchaser';
+  // Includes all buyer roles and management roles that can access buyer dashboard
+  const BUYER_DASHBOARD_ROLES = [
+    'buyer', 'buyer_purchaser', 'purchaser',
+    'buyer_cfo', 'buyer_ceo', 'buyer_hr', 'buyer_manager',
+    'cfo', 'ceo', 'hr', 'manager'
+  ];
+  const isBuyerRole = role ? BUYER_DASHBOARD_ROLES.includes(role) : false;
 
   return (
     <div className="min-h-screen bg-background">
@@ -262,8 +268,8 @@ const Dashboard = () => {
 
         {/* Admin section removed - admin roles redirect to /admin route */}
 
-        {/* Buyer roles: buyer, buyer_purchaser, purchaser - OPERATIONAL DASHBOARD */}
-        {(role === 'buyer' || role === 'buyer_purchaser' || role === 'purchaser') && (
+        {/* Buyer roles: buyer, buyer_purchaser, purchaser + management roles - OPERATIONAL DASHBOARD */}
+        {isBuyerRole && (
           <div className="space-y-4 sm:space-y-6">
             {/* Governance Banner */}
             <div className="bg-sky-600 text-white py-2 px-4 rounded-lg">
