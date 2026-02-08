@@ -8338,6 +8338,7 @@ export type Database = {
           supplier_strength_score: number
         }[]
       }
+      ensure_buyer_company: { Args: { _user_id: string }; Returns: Json }
       ensure_requirement_item_exists: {
         Args: {
           p_category: string

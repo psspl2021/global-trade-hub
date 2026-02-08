@@ -57,24 +57,8 @@ export function PurchaserSelector({
     return null;
   }
 
-  // If only one purchaser (self), show static display
-  if (purchasers.length === 1) {
-    return (
-      <div className={`flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg ${className}`}>
-        <User className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{purchasers[0].display_name}</span>
-        {purchasers[0].assigned_categories?.length > 0 && (
-          <div className="flex gap-1">
-            {purchasers[0].assigned_categories.slice(0, 2).map((cat) => (
-              <Badge key={cat} variant="secondary" className="text-xs">
-                {cat}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
+  // Always show dropdown even for single purchaser (enterprise UX requirement)
+  // This ensures visibility and consistent UI across all buyer configurations
 
   return (
     <div className={`flex flex-col gap-1 ${className}`}>

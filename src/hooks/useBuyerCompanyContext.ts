@@ -58,9 +58,9 @@ interface BuyerCompanyContext {
 const MANAGEMENT_ROLES: UserRole[] = ['buyer_cfo', 'buyer_ceo', 'buyer_manager', 'cfo', 'ceo', 'manager'];
 
 // HR role also sees management view
-const HR_ROLES: UserRole[] = ['buyer_hr'];
+const HR_ROLES: UserRole[] = ['buyer_hr', 'hr'];
 
-// Purchaser roles that can only see purchaser dropdown
+// Purchaser/Buyer roles that can see purchaser dropdown
 const PURCHASER_ROLES: UserRole[] = ['buyer_purchaser', 'purchaser', 'buyer'];
 
 const STORAGE_KEY_PURCHASER = 'ps_selected_purchaser';
@@ -105,6 +105,29 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     }
   }, []);
 
+  // Ensure buyer company exists (auto-provision if needed)
+  const ensureBuyerCompany = useCallback(async () => {
+    if (!user?.id) return false;
+    
+    try {
+      const { data, error } = await supabase.rpc(
+        'ensure_buyer_company' as any,
+        { _user_id: user.id }
+      );
+      
+      if (error) {
+        console.warn('[useBuyerCompanyContext] ensure_buyer_company error:', error);
+        return false;
+      }
+      
+      console.log('[useBuyerCompanyContext] Company ensured:', data);
+      return data?.success || false;
+    } catch (err) {
+      console.warn('[useBuyerCompanyContext] ensure_buyer_company failed:', err);
+      return false;
+    }
+  }, [user?.id]);
+
   // Fetch company purchasers
   const fetchPurchasers = useCallback(async () => {
     if (!user?.id) {
@@ -113,9 +136,26 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       return;
     }
 
+    // Check if user is a buyer role (includes 'buyer' base role)
+    const roleStr = role?.toString() || '';
+    const isBuyerRole = roleStr && (
+      roleStr === 'buyer' ||
+      roleStr.startsWith('buyer') || 
+      ['purchaser', 'cfo', 'ceo', 'manager', 'hr'].includes(roleStr)
+    );
+
+    if (!isBuyerRole) {
+      setPurchasers([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
+
+      // First, ensure buyer company exists (auto-provision)
+      await ensureBuyerCompany();
 
       // Call the RPC function to get purchasers in same company
       const { data, error: rpcError } = await supabase.rpc(
@@ -126,6 +166,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       if (rpcError) {
         // If no company setup yet, fall back to showing just current user
         console.warn('[useBuyerCompanyContext] RPC error, using fallback:', rpcError);
+        setError('Company setup pending');
         
         // Fetch current user's profile as fallback
         const { data: profile } = await supabase
@@ -149,6 +190,29 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       }
 
       const purchaserList = (data || []) as CompanyPurchaser[];
+      
+      // If no purchasers found, create fallback with current user
+      if (purchaserList.length === 0) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('contact_person, company_name')
+          .eq('id', user.id)
+          .single();
+        
+        const fallbackPurchaser: CompanyPurchaser = {
+          member_id: user.id,
+          user_id: user.id,
+          display_name: profile?.contact_person || profile?.company_name || 'You',
+          role: role || 'buyer',
+          assigned_categories: [],
+          is_current_user: true
+        };
+        
+        setPurchasers([fallbackPurchaser]);
+        setSelectedPurchaserIdState(user.id);
+        return;
+      }
+
       setPurchasers(purchaserList);
 
       // Restore saved selection or default to current user
@@ -172,7 +236,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, role]);
+  }, [user?.id, role, ensureBuyerCompany]);
 
   // Initial fetch
   useEffect(() => {
