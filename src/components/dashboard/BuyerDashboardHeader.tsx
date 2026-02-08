@@ -5,20 +5,26 @@
  * 
  * Unified header component for buyer dashboard that includes:
  * - Purchaser selection dropdown (visible to all buyer roles)
- * - Management view dropdown (visible to CFO/CEO/HR/Manager only)
+ * - Management view dropdown (LOCKED by default, requires verification)
  * - User info and sign out
  * 
  * Role behavior:
  * - buyer_purchaser: Only sees Purchaser dropdown, can only view own data
- * - buyer_cfo/ceo/hr/manager: Sees BOTH dropdowns, can switch context
+ * - buyer_cfo/ceo/hr/manager: Sees BOTH dropdowns, management view is LOCKED
+ * 
+ * Security:
+ * - Management views require PIN or password verification
+ * - Verification expires after 15 minutes or on logout
+ * - All verification state is in-memory only (no localStorage)
  */
 
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
-import { LogOut, Settings, Eye, AlertTriangle } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
+import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -42,6 +48,9 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
     isLoading,
     error,
   } = useBuyerCompanyContext();
+  
+  const { isRoleVerified } = useRoleSecurity();
+  const isCurrentViewVerified = managementView ? isRoleVerified(managementView) : false;
 
   return (
     <header className="border-b bg-card">
@@ -132,12 +141,12 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
             />
           )}
 
-          {/* Management Mode Indicator */}
-          {isManagementMode && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-              <Eye className="h-4 w-4 text-amber-600" />
-              <span className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                Read-Only Analytics Mode
+          {/* Secure Management Mode Indicator */}
+          {isManagementMode && isCurrentViewVerified && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                Secure Management Mode Enabled – Read-Only Analytics
               </span>
             </div>
           )}
