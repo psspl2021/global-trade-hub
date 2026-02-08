@@ -36,6 +36,8 @@ interface ManagementViewSelectorProps {
   selectedView: ManagementViewType;
   onSelect: (view: ManagementViewType) => void;
   className?: string;
+  /** If true, the entire selector is disabled (for non-authorized roles) */
+  isLocked?: boolean;
 }
 
 const MANAGEMENT_VIEWS = [
@@ -69,6 +71,7 @@ export function ManagementViewSelector({
   selectedView,
   onSelect,
   className = '',
+  isLocked = false,
 }: ManagementViewSelectorProps) {
   const { isRoleVerified, requiresVerification, clearVerification } = useRoleSecurity();
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
@@ -129,6 +132,29 @@ export function ManagementViewSelector({
     onSelect(null);
   };
 
+  // If isLocked is true (non-management role), show disabled state
+  if (isLocked) {
+    return (
+      <div className={`flex flex-col gap-1 ${className}`}>
+        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+          <Lock className="h-3 w-3" />
+          Management View
+        </label>
+        <div className="flex items-center gap-2">
+          <div className="w-full sm:w-[280px] h-10 px-3 py-2 bg-muted/50 border border-border rounded-md flex items-center gap-2 cursor-not-allowed opacity-60">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              🔒 Management View (Authorization Required)
+            </span>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          Only CFO, CEO, HR, and Manager roles can access analytics views.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className={`flex flex-col gap-1 ${className}`}>
@@ -144,7 +170,7 @@ export function ManagementViewSelector({
             <SelectTrigger className="w-full sm:w-[280px] bg-background border-border">
               <div className="flex items-center gap-2">
                 {selectedView && isCurrentViewVerified ? (
-                  <ShieldCheck className="h-4 w-4 text-green-500" />
+                  <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 ) : (
                   <Lock className="h-4 w-4 text-amber-500" />
                 )}
@@ -153,7 +179,7 @@ export function ManagementViewSelector({
                     <span className="truncate flex items-center gap-2">
                       {selectedOption.label}
                       {isCurrentViewVerified && (
-                        <Badge variant="outline" className="text-xs py-0 px-1 text-green-600 border-green-200">
+                        <Badge variant="outline" className="text-xs py-0 px-1 text-emerald-600 border-emerald-200">
                           Verified
                         </Badge>
                       )}

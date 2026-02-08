@@ -133,13 +133,12 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
             </div>
           )}
 
-          {/* Management View Selector - Only for management roles */}
-          {canViewManagement && (
-            <ManagementViewSelector
-              selectedView={managementView}
-              onSelect={setManagementView}
-            />
-          )}
+          {/* Management View Selector - Visible to ALL buyer roles, but LOCKED for non-management */}
+          <ManagementViewSelector
+            selectedView={managementView}
+            onSelect={setManagementView}
+            isLocked={!canViewManagement}
+          />
 
           {/* Secure Management Mode Indicator */}
           {isManagementMode && isCurrentViewVerified && (
