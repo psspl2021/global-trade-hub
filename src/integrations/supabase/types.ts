@@ -1732,6 +1732,36 @@ export type Database = {
           },
         ]
       }
+      buyer_role_security: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_verified_at: string | null
+          role: string
+          role_pin_hash: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_verified_at?: string | null
+          role: string
+          role_pin_hash: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_verified_at?: string | null
+          role?: string
+          role_pin_hash?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       buyer_stock_movements: {
         Row: {
           buyer_id: string
@@ -5501,6 +5531,39 @@ export type Database = {
         }
         Relationships: []
       }
+      role_verification_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          target_role: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          target_role: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          target_role?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       seo_content_suggestions: {
         Row: {
           created_at: string
@@ -8610,6 +8673,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_role_pin: {
+        Args: { _role: string; _user_id: string }
+        Returns: boolean
+      }
       increment_intent_score: {
         Args: { delta: number; page_id: string }
         Returns: undefined
@@ -8667,6 +8734,10 @@ export type Database = {
         }
         Returns: string
       }
+      log_role_switch: {
+        Args: { _metadata?: Json; _target_role: string; _user_id: string }
+        Returns: string
+      }
       promote_next_affiliate: { Args: never; Returns: undefined }
       promote_next_waitlisted_affiliate: { Args: never; Returns: undefined }
       promote_signal_on_visit: {
@@ -8711,6 +8782,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      set_role_pin: {
+        Args: { _pin: string; _role: string; _user_id: string }
+        Returns: Json
+      }
       unlock_logistics_awarding: {
         Args: { req_id: string }
         Returns: undefined
@@ -8723,6 +8798,10 @@ export type Database = {
       validate_referral_eligibility: {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: boolean
+      }
+      verify_role_pin: {
+        Args: { _pin: string; _role: string; _user_id: string }
+        Returns: Json
       }
       verify_totp_securely: { Args: { p_code: string }; Returns: boolean }
     }
