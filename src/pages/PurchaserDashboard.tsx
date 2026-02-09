@@ -15,17 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 export default function PurchaserDashboardPage() {
   const { canViewPurchaserDashboard, isLoading, isAccessDenied } = useGovernanceAccess();
 
-  // RULE 9: Show HARD 404 for supplier/external_guest - NO UI LEAKAGE
-  if (!isLoading && (isAccessDenied || !canViewPurchaserDashboard)) {
-    return (
-      <main className="min-h-screen pt-20 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <AccessDenied variant="404" />
-        </div>
-      </main>
-    );
-  }
-
+  // STEP 1: Loading guard — never render 404 until role is resolved
   if (isLoading) {
     return (
       <main className="min-h-screen pt-20 pb-16 px-4">
@@ -35,6 +25,17 @@ export default function PurchaserDashboardPage() {
               Loading...
             </CardContent>
           </Card>
+        </div>
+      </main>
+    );
+  }
+
+  // STEP 2: Only after loading, check access
+  if (isAccessDenied || !canViewPurchaserDashboard) {
+    return (
+      <main className="min-h-screen pt-20 pb-16 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <AccessDenied variant="404" />
         </div>
       </main>
     );

@@ -23,17 +23,7 @@ export default function AdminAuditPage() {
   const [activeTab, setActiveTab] = useState('killswitch');
   const { canToggleRewards, isLoading, isAccessDenied } = useGovernanceAccess();
 
-  // Access control
-  if (!isLoading && (isAccessDenied || !canToggleRewards)) {
-    return (
-      <div className="min-h-screen bg-muted/30">
-        <div className="container max-w-4xl mx-auto py-8 px-4 md:px-6">
-          <AccessDenied />
-        </div>
-      </div>
-    );
-  }
-
+  // STEP 1: Loading guard — never render 404 until role is fully resolved
   if (isLoading) {
     return (
       <div className="min-h-screen bg-muted/30">
@@ -43,6 +33,17 @@ export default function AdminAuditPage() {
               Loading admin panel...
             </CardContent>
           </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // STEP 2: Only after loading, check access
+  if (isAccessDenied || !canToggleRewards) {
+    return (
+      <div className="min-h-screen bg-muted/30">
+        <div className="container max-w-4xl mx-auto py-8 px-4 md:px-6">
+          <AccessDenied />
         </div>
       </div>
     );

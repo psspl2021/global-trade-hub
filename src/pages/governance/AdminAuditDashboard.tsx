@@ -287,12 +287,8 @@ export default function AdminAuditDashboard() {
     }
   }, [authLoading, accessLoading, user, primaryRole, navigate]);
 
-  // HARD 404 for supplier/external_guest
-  if (!accessLoading && isAccessDenied) {
-    return <AccessDenied variant="404" />;
-  }
-
-  if (authLoading || accessLoading) {
+  // STEP 1: Show loading until BOTH auth AND role are fully resolved
+  if (authLoading || accessLoading || !primaryRole || primaryRole === 'unknown') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -301,20 +297,10 @@ export default function AdminAuditDashboard() {
     );
   }
 
-  // Only allow ps_admin and admin roles - also check for undefined/empty to avoid false 404s
-  if (primaryRole && !['ps_admin', 'admin'].includes(primaryRole)) {
+  // STEP 2: Only AFTER role is resolved, check access
+  if (isAccessDenied || !['ps_admin', 'admin'].includes(primaryRole)) {
     console.warn('[AdminAuditDashboard] Access denied for role:', primaryRole);
     return <AccessDenied variant="404" />;
-  }
-  
-  // If role is still unknown after loading, show loading state instead of 404
-  if (!primaryRole || primaryRole === 'unknown') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="ml-2 text-muted-foreground">Loading role...</p>
-      </div>
-    );
   }
 
   const renderView = () => {
