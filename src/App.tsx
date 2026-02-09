@@ -1,4 +1,5 @@
 import { Suspense, lazy, useMemo } from "react";
+import { useSEOHead } from "@/hooks/useSEOHead";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -101,6 +102,9 @@ const queryClient = new QueryClient();
 const BotAwareRouter = () => {
   const location = useLocation();
   const isBotUser = useMemo(() => isBot(), []);
+  
+  // Global SEO head management (canonical, robots, OG)
+  useSEOHead();
   
   // Serve static content to bots for SEO pages
   if (isBotUser) {
