@@ -1,4 +1,4 @@
-# ProcureSaathi - B2B Sourcing Platform
+# ProcureSaathi - AI-Powered B2B Procurement Platform
 # https://procuresaathi.com
 
 User-agent: Googlebot
@@ -28,18 +28,32 @@ User-agent: *
 Allow: /
 Crawl-delay: 2
 
-# Disallow internal/admin routes
+# Disallow internal/admin/auth routes
+Disallow: /admin
+Disallow: /admin/
 Disallow: /dashboard
-Disallow: /api/
+Disallow: /dashboard/
+Disallow: /supplier
+Disallow: /supplier/
+Disallow: /login
+Disallow: /signup
 Disallow: /reset-password
+Disallow: /management
+Disallow: /management/
+Disallow: /control-tower
+Disallow: /api/
 Disallow: /*.json$
 
-# Allow critical assets and AASA files
+# Allow critical assets and files
 Allow: /sitemap.xml
 Allow: /robots.txt
+Allow: /favicon.ico
 Allow: /favicon.png
+Allow: /favicon-32x32.png
+Allow: /apple-touch-icon.png
 Allow: /procuresaathi-logo.png
 Allow: /og-early-adopter.png
+Allow: /og-procuresaathi.png
 Allow: /apple-app-site-association
 Allow: /.well-known/apple-app-site-association
 

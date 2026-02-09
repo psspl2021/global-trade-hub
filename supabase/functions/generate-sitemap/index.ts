@@ -22,8 +22,21 @@ const staticPages = [
   { url: '/browse', priority: 0.8, changefreq: 'daily' },
   { url: '/book-truck', priority: 0.8, changefreq: 'weekly' },
   { url: '/blogs', priority: 0.8, changefreq: 'daily' },
-  { url: '/login', priority: 0.5, changefreq: 'monthly' },
-  { url: '/signup', priority: 0.6, changefreq: 'monthly' },
+  { url: '/buyer', priority: 0.9, changefreq: 'weekly' },
+  { url: '/seller', priority: 0.9, changefreq: 'weekly' },
+  { url: '/post-rfq', priority: 0.9, changefreq: 'weekly' },
+  { url: '/private-label', priority: 0.8, changefreq: 'weekly' },
+  { url: '/contact', priority: 0.7, changefreq: 'monthly' },
+  { url: '/ai-b2b-procurement-platform-guide', priority: 0.95, changefreq: 'weekly' },
+  { url: '/how-to-post-rfq-online', priority: 0.85, changefreq: 'monthly' },
+  { url: '/find-verified-b2b-suppliers', priority: 0.85, changefreq: 'monthly' },
+  { url: '/enterprise-procurement-guide', priority: 0.85, changefreq: 'monthly' },
+  { url: '/export-import-sourcing-guide', priority: 0.85, changefreq: 'monthly' },
+  { url: '/best-b2b-procurement-platforms-india', priority: 0.85, changefreq: 'monthly' },
+  { url: '/ai-procurement-vs-traditional-rfq', priority: 0.85, changefreq: 'monthly' },
+  { url: '/managed-procurement-vs-b2b-marketplace', priority: 0.85, changefreq: 'monthly' },
+  { url: '/founder', priority: 0.75, changefreq: 'monthly' },
+  { url: '/customer-stories', priority: 0.8, changefreq: 'weekly' },
 ];
 
 // International landing pages - 50+ countries for global SEO
@@ -260,10 +273,40 @@ async function fetchBlogPosts(): Promise<BlogPost[]> {
   }
 }
 
+// Fetch dynamic signal page slugs from admin_signal_pages table
+async function fetchDynamicSignalPages(): Promise<{ slug: string; updated_at: string }[]> {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data, error } = await supabase
+      .from('admin_signal_pages')
+      .select('slug, updated_at')
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('[generate-sitemap] Error fetching signal pages:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('[generate-sitemap] Error in fetchDynamicSignalPages:', error);
+    return [];
+  }
+}
+
 async function generateSitemap(): Promise<string> {
   const today = new Date().toISOString().split('T')[0];
-  const blogPosts = await fetchBlogPosts();
+  const [blogPosts, dynamicSignalPages] = await Promise.all([
+    fetchBlogPosts(),
+    fetchDynamicSignalPages(),
+  ]);
   
+  // Build a set of already-included signal slugs to avoid duplicates
+  const staticSignalSlugs = new Set(procurementSignalPages.map(s => s.slug));
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -383,6 +426,22 @@ async function generateSitemap(): Promise<string> {
   </url>
 `;
     }
+  }
+
+  // Dynamic signal pages from DB (not already in static list)
+  for (const dbPage of dynamicSignalPages) {
+    // Skip if slug contains country prefix (e.g. "uae/steel") or is already static
+    const cleanSlug = dbPage.slug.includes('/') ? dbPage.slug.split('/').pop()! : dbPage.slug;
+    if (staticSignalSlugs.has(cleanSlug) || staticSignalSlugs.has(dbPage.slug)) continue;
+    
+    const lastmod = dbPage.updated_at ? new Date(dbPage.updated_at).toISOString().split('T')[0] : today;
+    xml += `  <url>
+    <loc>${baseUrl}/procurement/${cleanSlug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
   }
 
   xml += '</urlset>';
