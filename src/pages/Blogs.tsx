@@ -284,8 +284,11 @@ const BlogCard = ({ blog, featured = false }: { blog: Blog; featured?: boolean }
                 height="200"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                <span className="text-4xl font-bold text-primary/30" aria-hidden="true">{blog.title[0]}</span>
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5">
+                <div className="text-center px-4">
+                  <span className="text-3xl" aria-hidden="true">📝</span>
+                  <p className="text-xs text-primary/50 mt-1 line-clamp-1">{blog.category}</p>
+                </div>
               </div>
             )}
             <Badge className="absolute top-3 left-3" variant="secondary">

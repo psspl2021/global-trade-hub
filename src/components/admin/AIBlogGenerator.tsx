@@ -1,6 +1,6 @@
 /**
- * AI Blog Generator — Admin Tool (Upgraded)
- * Uses Lovable AI to generate research-backed, image-rich, SEO-optimized procurement blogs
+ * AI Blog Generator — SEO Research Engine
+ * Generates unique, research-backed, image-rich procurement blogs
  */
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Loader2, Save, Eye, FileText, Image, Search, AlertTriangle } from 'lucide-react';
+import { Sparkles, Loader2, Save, Eye, FileText, Image, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const CATEGORIES = [
@@ -39,14 +39,18 @@ interface GeneratedBlog {
   seo_keywords?: string;
   cover_image?: string;
   inline_images?: string[];
+  intent?: string;
 }
 
 const LOADING_MESSAGES = [
   'AI researching market data…',
-  'Analyzing pricing trends…',
-  'Reviewing compliance requirements…',
+  'Analyzing pricing trends & benchmarks…',
+  'Reviewing compliance & regulatory landscape…',
+  'Evaluating supplier risk factors…',
   'Structuring buyer-intent content…',
-  'Generating SEO-optimized blog…',
+  'Injecting contextual images…',
+  'Optimizing SEO metadata…',
+  'Generating research-backed blog…',
 ];
 
 export function AIBlogGenerator() {
@@ -55,10 +59,10 @@ export function AIBlogGenerator() {
   const [loadingMsg, setLoadingMsg] = useState('');
   const [generated, setGenerated] = useState<GeneratedBlog | null>(null);
   const [saving, setSaving] = useState(false);
-  const [lastGenKey, setLastGenKey] = useState('');
+  const [generatedKeys, setGeneratedKeys] = useState<Set<string>>(new Set());
 
   const getGenKey = useCallback(() => {
-    return `${form.category}|${form.country}|${form.trade_type}|${form.custom_topic}`;
+    return `${form.category}|${form.country}|${form.trade_type}|${form.custom_topic}`.toLowerCase();
   }, [form]);
 
   const handleGenerate = async () => {
@@ -68,30 +72,33 @@ export function AIBlogGenerator() {
     }
 
     const genKey = getGenKey();
-    if (genKey === lastGenKey && generated) {
-      toast.warning('Same parameters — change category, country, or trade type for a unique blog');
+    if (generatedKeys.has(genKey)) {
+      toast.warning('Blog already generated for these exact parameters. Change category, country, trade type, or add a custom topic.');
       return;
     }
 
     setGenerating(true);
     setGenerated(null);
 
-    // Rotate loading messages
     let msgIdx = 0;
     setLoadingMsg(LOADING_MESSAGES[0]);
     const interval = setInterval(() => {
       msgIdx = (msgIdx + 1) % LOADING_MESSAGES.length;
       setLoadingMsg(LOADING_MESSAGES[msgIdx]);
-    }, 3000);
+    }, 2500);
 
     try {
+      const payload = {
+        category: form.category,
+        country: form.country,
+        trade_type: form.trade_type,
+        custom_topic: form.custom_topic || '',
+      };
+
+      console.log('Sending to generate-blog:', payload);
+
       const { data, error } = await supabase.functions.invoke('generate-blog', {
-        body: {
-          category: form.category,
-          country: form.country,
-          trade_type: form.trade_type,
-          custom_topic: form.custom_topic || null,
-        }
+        body: payload,
       });
 
       if (error) throw error;
@@ -99,8 +106,8 @@ export function AIBlogGenerator() {
 
       if (data?.blog) {
         setGenerated(data.blog);
-        setLastGenKey(genKey);
-        toast.success('Blog generated with AI research! Review and publish.');
+        setGeneratedKeys(prev => new Set(prev).add(genKey));
+        toast.success('Blog generated! Review content and images before publishing.');
       }
     } catch (err: any) {
       console.error('Blog gen error:', err);
@@ -117,7 +124,6 @@ export function AIBlogGenerator() {
     setSaving(true);
 
     try {
-      // Check for duplicate slug
       const { data: existing } = await supabase
         .from('blogs')
         .select('id')
@@ -125,10 +131,16 @@ export function AIBlogGenerator() {
         .maybeSingle();
 
       if (existing) {
-        toast.error('A blog with this slug already exists. Try a different topic or modify the title.');
+        toast.error('A blog with this slug already exists. Modify the title or topic.');
         setSaving(false);
         return;
       }
+
+      // Determine category label
+      const categoryLabel = form.trade_type === 'Export' ? 'Export Guide' :
+                            form.trade_type === 'Import' ? 'Import Guide' :
+                            form.category.includes('Steel') ? 'Industry News' :
+                            form.category.includes('Chemical') ? 'Procurement Tips' : 'Buyer Guide';
 
       const { error } = await supabase.from('blogs').insert({
         title: generated.title,
@@ -136,10 +148,7 @@ export function AIBlogGenerator() {
         excerpt: generated.excerpt,
         content: generated.content,
         cover_image: generated.cover_image || null,
-        category: form.category.includes('Steel') ? 'Industry News' :
-                  form.category.includes('Chemical') ? 'Procurement Tips' :
-                  form.trade_type === 'Export' ? 'Export Guide' :
-                  form.trade_type === 'Import' ? 'Import Guide' : 'Buyer Guide',
+        category: categoryLabel,
         author_name: 'ProcureSaathi AI',
         is_published: publish,
         published_at: publish ? new Date().toISOString() : null,
@@ -148,7 +157,6 @@ export function AIBlogGenerator() {
       if (error) throw error;
       toast.success(publish ? 'Blog published successfully!' : 'Blog saved as draft');
       setGenerated(null);
-      setLastGenKey('');
       setForm(p => ({ ...p, custom_topic: '' }));
     } catch (err: any) {
       toast.error(err.message || 'Failed to save');
@@ -164,10 +172,10 @@ export function AIBlogGenerator() {
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" />
             AI Blog Generator
-            <Badge variant="secondary" className="text-xs">AI-Powered Research</Badge>
+            <Badge variant="secondary" className="text-xs">SEO Research Engine</Badge>
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Generates unique, research-backed procurement blogs with images, SEO metadata, and buyer-intent CTAs.
+            Generates unique, research-backed blogs with images, pricing tables, and buyer/supplier-intent CTAs. Each category × country × trade type produces different content.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -195,19 +203,31 @@ export function AIBlogGenerator() {
             </div>
           </div>
 
+          {/* Intent indicator */}
+          <div className="flex items-center gap-2 text-sm">
+            <Badge variant={form.trade_type === 'Export' ? 'default' : 'secondary'} className="text-xs">
+              {form.trade_type === 'Export' ? '🏭 Supplier Intent' : '🛒 Buyer Intent'}
+            </Badge>
+            <span className="text-muted-foreground">
+              {form.trade_type === 'Domestic' && '→ Pricing, compliance, GST, regional suppliers'}
+              {form.trade_type === 'Import' && '→ Duties, HS codes, landed cost, forex'}
+              {form.trade_type === 'Export' && '→ Demand trends, DGFT, documentation, FOB/CIF'}
+            </span>
+          </div>
+
           <div className="space-y-1">
-            <Label>Custom Topic (optional — overrides default angle)</Label>
+            <Label>Custom Topic (optional)</Label>
             <Input
               value={form.custom_topic}
               onChange={e => setForm(p => ({ ...p, custom_topic: e.target.value }))}
-              placeholder="e.g. MS Plate price per ton in India 2026, DGFT export incentives for chemicals"
+              placeholder="e.g. MS Plate price trends Q2 2026, DGFT export incentives for chemicals"
             />
           </div>
 
           <div className="flex items-center gap-3">
             <Button onClick={handleGenerate} disabled={generating || !form.category} className="gap-2">
               {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              {generating ? 'Generating…' : 'Generate Blog with AI'}
+              {generating ? 'Researching…' : 'Generate Blog with AI'}
             </Button>
             {form.category && form.country && (
               <span className="text-xs text-muted-foreground">
@@ -231,10 +251,15 @@ export function AIBlogGenerator() {
             <CardTitle className="flex items-center gap-2 text-lg">
               <FileText className="h-5 w-5" />
               Generated Blog Preview
+              {generated.intent && (
+                <Badge variant="outline" className="text-xs ml-2">
+                  {generated.intent === 'supplier' ? '🏭 Supplier' : '🛒 Buyer'} Intent
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Cover Image Preview */}
+            {/* Cover Image */}
             {generated.cover_image && (
               <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground flex items-center gap-1">
@@ -255,14 +280,18 @@ export function AIBlogGenerator() {
                 <div>
                   <span className="text-xs text-muted-foreground">Meta Title: </span>
                   <span className="text-sm font-medium text-primary">{generated.meta_title}</span>
-                  <span className="text-xs text-muted-foreground ml-1">({generated.meta_title.length} chars)</span>
+                  <span className={`text-xs ml-1 ${generated.meta_title.length <= 60 ? 'text-green-600' : 'text-red-500'}`}>
+                    ({generated.meta_title.length}/60)
+                  </span>
                 </div>
               )}
               {generated.meta_description && (
                 <div>
-                  <span className="text-xs text-muted-foreground">Meta Description: </span>
+                  <span className="text-xs text-muted-foreground">Meta Desc: </span>
                   <span className="text-sm">{generated.meta_description}</span>
-                  <span className="text-xs text-muted-foreground ml-1">({generated.meta_description.length} chars)</span>
+                  <span className={`text-xs ml-1 ${generated.meta_description.length <= 160 ? 'text-green-600' : 'text-red-500'}`}>
+                    ({generated.meta_description.length}/160)
+                  </span>
                 </div>
               )}
               {generated.seo_keywords && (
@@ -287,20 +316,32 @@ export function AIBlogGenerator() {
               <p className="text-sm">{generated.excerpt}</p>
             </div>
 
-            {/* Inline Images Count */}
-            {generated.inline_images && generated.inline_images.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Image className="h-4 w-4" />
-                {generated.inline_images.length} contextual images embedded in content
-              </div>
-            )}
+            {/* Quality checks */}
+            <div className="flex flex-wrap gap-3 text-xs">
+              {generated.inline_images && generated.inline_images.length > 0 && (
+                <span className="flex items-center gap-1 text-green-600">
+                  <CheckCircle2 className="h-3 w-3" /> {generated.inline_images.length} inline images
+                </span>
+              )}
+              {generated.cover_image && (
+                <span className="flex items-center gap-1 text-green-600">
+                  <CheckCircle2 className="h-3 w-3" /> Cover image
+                </span>
+              )}
+              <span className="flex items-center gap-1 text-green-600">
+                <CheckCircle2 className="h-3 w-3" />
+                ~{Math.round(generated.content.replace(/<[^>]*>/g, '').split(/\s+/).length)} words
+              </span>
+            </div>
 
             <div>
               <Label className="text-xs text-muted-foreground">Content Preview</Label>
               <div
-                className="prose prose-sm max-w-none mt-2 border rounded-lg p-4 max-h-[500px] overflow-y-auto bg-muted/20
-                  prose-img:rounded-lg prose-img:shadow-md prose-figure:my-4
-                  prose-table:border prose-th:bg-muted prose-th:p-2 prose-td:p-2 prose-td:border"
+                className="prose prose-sm max-w-none mt-2 border rounded-lg p-4 max-h-[500px] overflow-y-auto bg-background
+                  [&_figure.blog-image]:my-6 [&_figure.blog-image_img]:rounded-lg [&_figure.blog-image_img]:w-full [&_figure.blog-image_img]:h-auto
+                  [&_table]:w-full [&_table]:border-collapse [&_th]:bg-muted [&_th]:p-2 [&_th]:border [&_td]:p-2 [&_td]:border
+                  [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3
+                  [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2"
                 dangerouslySetInnerHTML={{ __html: generated.content }}
               />
             </div>
@@ -317,7 +358,7 @@ export function AIBlogGenerator() {
 
             <div className="flex items-start gap-2 text-xs text-muted-foreground bg-accent/50 border border-accent rounded-lg p-3">
               <AlertTriangle className="h-4 w-4 text-accent-foreground mt-0.5 shrink-0" />
-              <p>Review content before publishing. AI-generated blogs should be fact-checked for accuracy. All pricing references are illustrative ranges.</p>
+              <p>Review content before publishing. All pricing references are illustrative ranges, not guarantees.</p>
             </div>
           </CardContent>
         </Card>
