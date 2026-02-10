@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -732,14 +732,14 @@ const CategoryLanding = () => {
     };
   }, [categorySlug, subcategorySlug, categoryName, subcategoryName, content.faqs, pageDescription]);
 
+  // Soft-404: category slug doesn't match any known category
   if (!category && categorySlug) {
+    // Lazy-import NotFound to avoid circular deps
+    const NotFound = lazy(() => import('@/pages/NotFound'));
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Category Not Found</h1>
-          <Button onClick={() => navigate('/categories')}>Browse Categories</Button>
-        </div>
-      </div>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+        <NotFound />
+      </Suspense>
     );
   }
 
