@@ -5498,6 +5498,39 @@ export type Database = {
           },
         ]
       }
+      rfq_conversion_events: {
+        Row: {
+          category_slug: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          page_url: string | null
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          category_slug?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          page_url?: string | null
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          category_slug?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page_url?: string | null
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       rfq_drafts: {
         Row: {
           category_slug: string | null
