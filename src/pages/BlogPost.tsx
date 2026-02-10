@@ -298,8 +298,16 @@ const BlogPost = () => {
 
         {/* Blog Content - Process and sanitize */}
         <section 
-          className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processContent(blog.content)) }}
+          className="prose prose-lg max-w-none dark:prose-invert
+            prose-headings:font-bold prose-headings:text-foreground
+            prose-p:text-muted-foreground prose-p:leading-relaxed
+            prose-li:text-muted-foreground prose-strong:text-foreground prose-a:text-primary
+            [&_figure.blog-image]:my-8 [&_figure.blog-image_img]:rounded-lg [&_figure.blog-image_img]:w-full [&_figure.blog-image_img]:h-auto [&_figure.blog-image_img]:max-w-full
+            [&_figure.blog-inline-image]:my-8 [&_figure.blog-inline-image_img]:rounded-lg [&_figure.blog-inline-image_img]:w-full [&_figure.blog-inline-image_img]:h-auto
+            [&_figcaption]:text-sm [&_figcaption]:text-center [&_figcaption]:text-muted-foreground [&_figcaption]:mt-2
+            [&_table]:w-full [&_table]:border-collapse [&_th]:bg-muted [&_th]:p-2 [&_th]:border [&_th]:text-left [&_td]:p-2 [&_td]:border
+            [&>*:empty]:hidden"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processContent(blog.content), { ADD_TAGS: ['figure', 'figcaption'], ADD_ATTR: ['loading', 'style'] }) }}
           aria-label="Blog content"
         />
 
