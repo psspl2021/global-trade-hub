@@ -5,11 +5,13 @@
 # 301 Redirect www to non-www for all routes
 https://www.procuresaathi.com/*  https://procuresaathi.com/:splat  301!
 
+# Dynamic sitemap from edge function
+/sitemap.xml  https://hsybhjjtxdwtpfvcmoqk.supabase.co/functions/v1/generate-sitemap  200!
+
 # Static files should not be redirected
 /apple-app-site-association    /apple-app-site-association    200
 /.well-known/*                 /.well-known/:splat             200
 /robots.txt                    /robots.txt                     200
-/sitemap.xml                   /sitemap.xml                    200
 /favicon.png                   /favicon.png                    200
 /images/*                      /images/:splat                  200
 /assets/*                      /assets/:splat                  200
