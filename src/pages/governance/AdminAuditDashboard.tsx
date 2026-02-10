@@ -64,6 +64,9 @@ import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
 import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
 import { AISalesDashboard } from '@/components/admin/AISalesDashboard';
 import { AdminDemandHeatmap } from '@/components/admin/AdminDemandHeatmap';
+import { SalesControlBoard } from '@/components/admin/SalesControlBoard';
+import { BenchmarkManager } from '@/components/admin/BenchmarkManager';
+import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
@@ -74,7 +77,10 @@ type AdminView =
   | 'demand-heatmap'
   | 'leads'
   | 'blogs'
-  | 'email-tracking';
+  | 'email-tracking'
+  | 'sales-board'
+  | 'benchmarks'
+  | 'ai-blog-gen';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
@@ -317,6 +323,12 @@ export default function AdminAuditDashboard() {
         return <AdminBlogManager />;
       case 'email-tracking':
         return <AdminEmailTracking />;
+      case 'sales-board':
+        return <SalesControlBoard />;
+      case 'benchmarks':
+        return <BenchmarkManager />;
+      case 'ai-blog-gen':
+        return <AIBlogGenerator />;
       default:
         return renderDashboard();
     }
@@ -330,7 +342,78 @@ export default function AdminAuditDashboard() {
         <p className="text-muted-foreground">ProcureSaathi Solutions Pvt Ltd • ADMIN</p>
       </div>
 
-      {/* Top Row - Primary Actions */}
+      {/* TOP ROW — Sales-Critical Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Sales Control Board */}
+        <Card className="bg-red-950 text-white border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="h-4 w-4" />
+              Sales Control Board
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-red-200">
+              HOT / WARM / COLD RFQ pipeline with sales actions
+            </p>
+            <Button 
+              className="w-full bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => setCurrentView('sales-board')}
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Open Sales Board
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Price Benchmarks */}
+        <Card className="bg-card border">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <IndianRupee className="h-4 w-4 text-emerald-500" />
+              Price Benchmarks
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Set market benchmarks for savings visualization
+            </p>
+            <Button 
+              variant="outline"
+              className="w-full"
+              onClick={() => setCurrentView('benchmarks')}
+            >
+              <IndianRupee className="h-4 w-4 mr-2" />
+              Manage Benchmarks
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* AI Blog Generator */}
+        <Card className="bg-card border">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <PenTool className="h-4 w-4 text-violet-500" />
+              AI Blog Generator
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Auto-generate buyer-intent SEO blogs
+            </p>
+            <Button 
+              variant="outline"
+              className="w-full"
+              onClick={() => setCurrentView('ai-blog-gen')}
+            >
+              <PenTool className="h-4 w-4 mr-2" />
+              Generate Blog
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Second Row - Primary Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Control Tower */}
         <Card className="bg-slate-800 text-white border-0">

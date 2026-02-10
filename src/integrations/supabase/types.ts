@@ -1845,6 +1845,54 @@ export type Database = {
         }
         Relationships: []
       }
+      category_price_benchmarks: {
+        Row: {
+          benchmark_price: number
+          category: string
+          created_at: string
+          currency: string
+          effective_from: string
+          effective_to: string | null
+          id: string
+          notes: string | null
+          region: string
+          set_by: string | null
+          subcategory: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          benchmark_price: number
+          category: string
+          created_at?: string
+          currency?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          notes?: string | null
+          region?: string
+          set_by?: string | null
+          subcategory?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          benchmark_price?: number
+          category?: string
+          created_at?: string
+          currency?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          notes?: string | null
+          region?: string
+          set_by?: string | null
+          subcategory?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contract_audit_logs: {
         Row: {
           action: string
@@ -5564,6 +5612,71 @@ export type Database = {
         }
         Relationships: []
       }
+      rfq_lead_scores: {
+        Row: {
+          ai_reason_summary: string | null
+          budget_confidence: string | null
+          buyer_company: string | null
+          buyer_location: string | null
+          category_fit: string | null
+          category_slug: string | null
+          confidence_score: number
+          created_at: string
+          estimated_deal_value: number | null
+          id: string
+          intent_strength: string | null
+          lead_score: string
+          requirement_id: string | null
+          session_id: string | null
+          trade_type: string | null
+          urgency: string | null
+        }
+        Insert: {
+          ai_reason_summary?: string | null
+          budget_confidence?: string | null
+          buyer_company?: string | null
+          buyer_location?: string | null
+          category_fit?: string | null
+          category_slug?: string | null
+          confidence_score?: number
+          created_at?: string
+          estimated_deal_value?: number | null
+          id?: string
+          intent_strength?: string | null
+          lead_score: string
+          requirement_id?: string | null
+          session_id?: string | null
+          trade_type?: string | null
+          urgency?: string | null
+        }
+        Update: {
+          ai_reason_summary?: string | null
+          budget_confidence?: string | null
+          buyer_company?: string | null
+          buyer_location?: string | null
+          category_fit?: string | null
+          category_slug?: string | null
+          confidence_score?: number
+          created_at?: string
+          estimated_deal_value?: number | null
+          id?: string
+          intent_strength?: string | null
+          lead_score?: string
+          requirement_id?: string | null
+          session_id?: string | null
+          trade_type?: string | null
+          urgency?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_lead_scores_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_verification_logs: {
         Row: {
           action: string
@@ -5596,6 +5709,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      sales_actions: {
+        Row: {
+          action_type: string
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          lead_score_id: string
+          loss_reason: string | null
+          notes: string | null
+        }
+        Insert: {
+          action_type: string
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lead_score_id: string
+          loss_reason?: string | null
+          notes?: string | null
+        }
+        Update: {
+          action_type?: string
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lead_score_id?: string
+          loss_reason?: string | null
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_actions_lead_score_id_fkey"
+            columns: ["lead_score_id"]
+            isOneToOne: false
+            referencedRelation: "rfq_lead_scores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seo_content_suggestions: {
         Row: {
