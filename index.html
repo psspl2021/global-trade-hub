@@ -19,8 +19,8 @@
     <meta property="og:site_name" content="ProcureSaathi" />
     <meta property="og:title" content="ProcureSaathi | AI-Powered B2B Procurement Platform" />
     <meta property="og:description" content="AI-powered B2B procurement and sourcing platform for verified buyers and suppliers." />
-    <meta property="og:url" content="https://www.procuresaathi.com/" />
-    <meta property="og:image" content="https://www.procuresaathi.com/apple-touch-icon.png" />
+    <meta property="og:url" content="https://procuresaathi.com/" />
+    <meta property="og:image" content="https://procuresaathi.com/apple-touch-icon.png" />
     <meta property="og:image:width" content="512" />
     <meta property="og:image:height" content="512" />
 
@@ -28,7 +28,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="ProcureSaathi | AI-Powered B2B Procurement Platform" />
     <meta name="twitter:description" content="AI-powered B2B procurement and sourcing platform." />
-    <meta name="twitter:image" content="https://www.procuresaathi.com/apple-touch-icon.png" />
+    <meta name="twitter:image" content="https://procuresaathi.com/apple-touch-icon.png" />
 
     <!-- FAVICONS -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -39,10 +39,150 @@
 
     <!-- ROBOTS -->
     <meta name="robots" content="index, follow, max-image-preview:large" />
+
+    <!-- JSON-LD: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ProcureSaathi",
+      "url": "https://procuresaathi.com",
+      "logo": "https://procuresaathi.com/apple-touch-icon.png",
+      "description": "AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement.",
+      "sameAs": []
+    }
+    </script>
+
+    <!-- JSON-LD: SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ProcureSaathi",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "AI-powered B2B procurement platform for posting RFQs, comparing supplier quotes, and managing procurement workflows.",
+      "url": "https://procuresaathi.com",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+        "description": "Free to post RFQs"
+      }
+    }
+    </script>
   </head>
 
   <body>
-    <div id="root"></div>
+    <!--
+      Static SEO content inside #root.
+      React's createRoot().render() replaces this on hydration.
+      Googlebot and crawlers see this content WITHOUT executing JavaScript.
+    -->
+    <div id="root">
+      <header style="border-bottom:1px solid #e5e7eb;padding:16px 24px;">
+        <a href="/" style="font-size:20px;font-weight:700;color:#1F3A8A;text-decoration:none;">ProcureSaathi</a>
+        <nav style="display:inline;margin-left:32px;">
+          <a href="/buyer" style="margin-right:16px;color:#374151;text-decoration:none;">For Buyers</a>
+          <a href="/seller" style="margin-right:16px;color:#374151;text-decoration:none;">For Suppliers</a>
+          <a href="/categories" style="margin-right:16px;color:#374151;text-decoration:none;">Categories</a>
+          <a href="/post-rfq" style="margin-right:16px;color:#374151;text-decoration:none;">Post RFQ</a>
+          <a href="/blogs" style="margin-right:16px;color:#374151;text-decoration:none;">Blog</a>
+          <a href="/contact" style="color:#374151;text-decoration:none;">Contact</a>
+        </nav>
+      </header>
+
+      <main style="max-width:1200px;margin:0 auto;padding:48px 24px;">
+        <h1 style="font-size:32px;font-weight:700;color:#111827;">AI-Powered B2B Procurement Platform</h1>
+        
+        <p style="font-size:18px;color:#4B5563;margin-top:16px;line-height:1.7;">
+          ProcureSaathi is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, 
+          compare verified supplier bids, and manage domestic and global procurement with transparency, 
+          quality control, and supplier verification.
+        </p>
+
+        <section style="margin-top:40px;">
+          <h2 style="font-size:24px;font-weight:600;color:#111827;">How It Works</h2>
+          <ol style="margin-top:16px;color:#4B5563;line-height:2;">
+            <li>Post your procurement requirement (RFQ) — free for all buyers</li>
+            <li>AI matches your RFQ with verified suppliers across India and global markets</li>
+            <li>Compare competitive quotes with full transparency on pricing</li>
+            <li>Close deals with quality-verified suppliers and tracked delivery</li>
+          </ol>
+        </section>
+
+        <section style="margin-top:40px;">
+          <h2 style="font-size:24px;font-weight:600;color:#111827;">Popular Procurement Categories</h2>
+          <ul style="margin-top:16px;columns:2;color:#4B5563;line-height:2;">
+            <li><a href="/category/metals-ferrous-steel-iron" style="color:#1F3A8A;">Metals &amp; Steel</a></li>
+            <li><a href="/category/chemicals-raw-materials" style="color:#1F3A8A;">Chemicals &amp; Raw Materials</a></li>
+            <li><a href="/category/building-construction" style="color:#1F3A8A;">Building &amp; Construction</a></li>
+            <li><a href="/category/machinery-equipment" style="color:#1F3A8A;">Machinery &amp; Equipment</a></li>
+            <li><a href="/category/electrical-equipment-supplies" style="color:#1F3A8A;">Electrical Equipment</a></li>
+            <li><a href="/category/food-beverages" style="color:#1F3A8A;">Food &amp; Beverages</a></li>
+            <li><a href="/category/textiles-fabrics" style="color:#1F3A8A;">Textiles &amp; Fabrics</a></li>
+            <li><a href="/category/pharmaceuticals-drugs" style="color:#1F3A8A;">Pharmaceuticals</a></li>
+            <li><a href="/category/packaging-materials" style="color:#1F3A8A;">Packaging Materials</a></li>
+            <li><a href="/category/energy-power" style="color:#1F3A8A;">Energy &amp; Power</a></li>
+          </ul>
+        </section>
+
+        <section style="margin-top:40px;">
+          <h2 style="font-size:24px;font-weight:600;color:#111827;">For Buyers</h2>
+          <p style="color:#4B5563;line-height:1.7;">
+            Post RFQs for free. Receive competitive quotes from verified suppliers within 24-48 hours.
+            AI-powered demand intelligence matches your requirements with the best suppliers across 
+            domestic and export-import markets.
+          </p>
+          <a href="/post-rfq" style="display:inline-block;margin-top:12px;padding:10px 24px;background:#1F3A8A;color:#fff;border-radius:6px;text-decoration:none;">Post RFQ – Free</a>
+        </section>
+
+        <section style="margin-top:40px;">
+          <h2 style="font-size:24px;font-weight:600;color:#111827;">For Suppliers</h2>
+          <p style="color:#4B5563;line-height:1.7;">
+            Get matched with verified buyers through AI demand detection. 
+            List your products, receive RFQ opportunities, and grow your B2B sales 
+            with ProcureSaathi's transparent procurement platform.
+          </p>
+          <a href="/seller" style="display:inline-block;margin-top:12px;padding:10px 24px;background:#1F3A8A;color:#fff;border-radius:6px;text-decoration:none;">Join as Supplier</a>
+        </section>
+
+        <section style="margin-top:40px;">
+          <h2 style="font-size:24px;font-weight:600;color:#111827;">Guides &amp; Resources</h2>
+          <ul style="margin-top:16px;color:#4B5563;line-height:2;">
+            <li><a href="/ai-b2b-procurement-platform-guide" style="color:#1F3A8A;">AI B2B Procurement Platform Guide</a></li>
+            <li><a href="/how-to-post-rfq-online" style="color:#1F3A8A;">How to Post RFQ Online</a></li>
+            <li><a href="/find-verified-b2b-suppliers" style="color:#1F3A8A;">Find Verified B2B Suppliers</a></li>
+            <li><a href="/enterprise-procurement-guide" style="color:#1F3A8A;">Enterprise Procurement Guide</a></li>
+            <li><a href="/export-import-sourcing-guide" style="color:#1F3A8A;">Export-Import Sourcing Guide</a></li>
+          </ul>
+        </section>
+      </main>
+
+      <footer style="border-top:1px solid #e5e7eb;padding:24px;text-align:center;color:#6B7280;font-size:14px;">
+        <p>&copy; 2025 ProcureSaathi. AI-Powered B2B Procurement Platform.</p>
+        <p style="margin-top:8px;font-size:12px;">
+          ProcureSaathi does not sell leads. AI matches verified buyers and suppliers based on real demand signals.
+        </p>
+        <nav style="margin-top:12px;">
+          <a href="/buyer" style="margin-right:12px;color:#1F3A8A;text-decoration:none;">Buyers</a>
+          <a href="/seller" style="margin-right:12px;color:#1F3A8A;text-decoration:none;">Suppliers</a>
+          <a href="/categories" style="margin-right:12px;color:#1F3A8A;text-decoration:none;">Categories</a>
+          <a href="/blogs" style="margin-right:12px;color:#1F3A8A;text-decoration:none;">Blog</a>
+          <a href="/contact" style="color:#1F3A8A;text-decoration:none;">Contact</a>
+        </nav>
+      </footer>
+    </div>
+
+    <noscript>
+      <div style="max-width:800px;margin:40px auto;padding:24px;font-family:sans-serif;">
+        <h1>ProcureSaathi – AI-Powered B2B Procurement Platform</h1>
+        <p>ProcureSaathi is an AI-powered B2B procurement and sourcing platform. 
+           Post RFQs, compare verified supplier bids, and manage procurement across domestic and global markets.</p>
+        <p><a href="/post-rfq">Post RFQ – Free</a> | <a href="/categories">Browse Categories</a> | <a href="/contact">Contact Us</a></p>
+      </div>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

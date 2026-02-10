@@ -24,6 +24,12 @@ Allow: /
 User-agent: Slackbot
 Allow: /
 
+User-agent: AdsBot-Google
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
 User-agent: *
 Allow: /
 Crawl-delay: 2
@@ -41,6 +47,7 @@ Disallow: /reset-password
 Disallow: /management
 Disallow: /management/
 Disallow: /control-tower
+Disallow: /control-tower/
 Disallow: /api/
 Disallow: /*.json$
 
