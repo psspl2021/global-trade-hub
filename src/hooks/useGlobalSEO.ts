@@ -25,10 +25,6 @@ interface GlobalSEOResult {
  * Global SEO Enhancement Hook
  * 
  * Dynamically enhances meta tags with country context WITHOUT changing URLs.
- * - Title: Appends country context dynamically
- * - Description: Includes "available for buyers in {country}"
- * - hreflang: Language-only targeting (same URL)
- * - Googlebot sees neutral/global content
  */
 export function useGlobalSEO({
   title,
@@ -40,7 +36,6 @@ export function useGlobalSEO({
   const geoData = useGeoDetection();
 
   const result = useMemo(() => {
-    // For bots/crawlers - return neutral content
     if (!geoData.isDetected || geoData.countryCode === 'GLOBAL') {
       return {
         enhancedTitle: title,
@@ -55,16 +50,13 @@ export function useGlobalSEO({
       };
     }
 
-    // For users - enhance with country context
     const countryContext = geoData.countryName;
     const regionContext = geoData.region;
 
-    // Dynamic title enhancement (no keyword stuffing)
     const enhancedTitle = productName 
       ? `${title} | ${regionContext}`
       : title;
 
-    // Dynamic description enhancement
     const enhancedDescription = productName
       ? `${description} Available for buyers in ${countryContext} with verified suppliers and managed procurement.`
       : `${description} Serving buyers in ${countryContext} and ${geoData.nearbyRegions[0]}.`;
@@ -82,14 +74,10 @@ export function useGlobalSEO({
     };
   }, [geoData, title, description, productName, categoryName, canonical]);
 
-  // Inject dynamic meta tags
   useEffect(() => {
     if (!geoData.isDetected) return;
-
-    // Only update meta for real users, not bots
     if (geoData.countryCode === 'GLOBAL') return;
 
-    // Update geo meta tags dynamically
     const updateMeta = (name: string, content: string) => {
       let meta = document.querySelector(`meta[name="${name}"]`);
       if (!meta) {
@@ -108,13 +96,8 @@ export function useGlobalSEO({
   return result;
 }
 
-/**
- * Generate language-only hreflang tags (same URL, different language)
- * This tells search engines the content is available in multiple languages
- * WITHOUT creating country-specific URLs.
- */
 function getLanguageHreflangTags(baseUrl: string): { lang: string; url: string }[] {
-  const url = baseUrl || 'https://procuresaathi.com';
+  const url = baseUrl || 'https://www.procuresaathi.com';
   
   return [
     { lang: 'x-default', url },
@@ -125,13 +108,9 @@ function getLanguageHreflangTags(baseUrl: string): { lang: string; url: string }
     { lang: 'en-AE', url },
     { lang: 'ar', url },
     { lang: 'hi', url },
-    // All point to same URL - language rendering varies
   ];
 }
 
-/**
- * Get structured data with geographic scope
- */
 export function getGlobalServiceSchema(productName: string, countryName?: string) {
   return {
     "@context": "https://schema.org",
@@ -144,7 +123,7 @@ export function getGlobalServiceSchema(productName: string, countryName?: string
     "provider": {
       "@type": "Organization",
       "name": "ProcureSaathi",
-      "url": "https://procuresaathi.com"
+      "url": "https://www.procuresaathi.com"
     },
     "areaServed": {
       "@type": "GeoCircle",
@@ -157,7 +136,7 @@ export function getGlobalServiceSchema(productName: string, countryName?: string
     },
     "availableChannel": {
       "@type": "ServiceChannel",
-      "serviceUrl": "https://procuresaathi.com/post-rfq",
+      "serviceUrl": "https://www.procuresaathi.com/post-rfq",
       "availableLanguage": ["English", "Hindi"]
     }
   };

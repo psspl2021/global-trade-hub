@@ -6,8 +6,8 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.procuresaathi.com" }],
-      "destination": "https://procuresaathi.com/:path*",
+      "has": [{ "type": "host", "value": "procuresaathi.com" }],
+      "destination": "https://www.procuresaathi.com/:path*",
       "permanent": true
     }
   ],

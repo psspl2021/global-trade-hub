@@ -4,21 +4,21 @@ import { injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
 // Language-only hreflang tags (all point to same URL)
 // This tells search engines the content is available globally without URL duplication
 const LANGUAGE_HREFLANG = [
-  { code: 'x-default', url: 'https://procuresaathi.com' },
-  { code: 'en', url: 'https://procuresaathi.com' },
-  { code: 'en-IN', url: 'https://procuresaathi.com' },
-  { code: 'en-US', url: 'https://procuresaathi.com' },
-  { code: 'en-GB', url: 'https://procuresaathi.com' },
-  { code: 'en-AE', url: 'https://procuresaathi.com' },
-  { code: 'hi', url: 'https://procuresaathi.com' },
-  { code: 'ar', url: 'https://procuresaathi.com' },
-  { code: 'de', url: 'https://procuresaathi.com' },
-  { code: 'fr', url: 'https://procuresaathi.com' },
-  { code: 'es', url: 'https://procuresaathi.com' },
-  { code: 'zh', url: 'https://procuresaathi.com' },
-  { code: 'ja', url: 'https://procuresaathi.com' },
-  { code: 'pt', url: 'https://procuresaathi.com' },
-  { code: 'ru', url: 'https://procuresaathi.com' },
+  { code: 'x-default', url: 'https://www.procuresaathi.com' },
+  { code: 'en', url: 'https://www.procuresaathi.com' },
+  { code: 'en-IN', url: 'https://www.procuresaathi.com' },
+  { code: 'en-US', url: 'https://www.procuresaathi.com' },
+  { code: 'en-GB', url: 'https://www.procuresaathi.com' },
+  { code: 'en-AE', url: 'https://www.procuresaathi.com' },
+  { code: 'hi', url: 'https://www.procuresaathi.com' },
+  { code: 'ar', url: 'https://www.procuresaathi.com' },
+  { code: 'de', url: 'https://www.procuresaathi.com' },
+  { code: 'fr', url: 'https://www.procuresaathi.com' },
+  { code: 'es', url: 'https://www.procuresaathi.com' },
+  { code: 'zh', url: 'https://www.procuresaathi.com' },
+  { code: 'ja', url: 'https://www.procuresaathi.com' },
+  { code: 'pt', url: 'https://www.procuresaathi.com' },
+  { code: 'ru', url: 'https://www.procuresaathi.com' },
 ];
 
 // Global website schema for AEO/GEO optimization
@@ -27,13 +27,13 @@ const getWebsiteSchema = () => ({
   "@type": "WebSite",
   "name": "ProcureSaathi",
   "alternateName": ["Procure Saathi", "ProcureSaathi Global", "AI B2B Procurement Platform"],
-  "url": "https://procuresaathi.com",
+  "url": "https://www.procuresaathi.com",
   "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing platform helping buyers and suppliers connect across domestic and export–import markets in India.",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://procuresaathi.com/browse?q={search_term_string}"
+      "urlTemplate": "https://www.procuresaathi.com/browse?q={search_term_string}"
     },
     "query-input": "required name=search_term_string"
   },
@@ -43,7 +43,7 @@ const getWebsiteSchema = () => ({
     "name": "ProcureSaathi",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://procuresaathi.com/procuresaathi-logo.png"
+      "url": "https://www.procuresaathi.com/procuresaathi-logo.png"
     }
   },
   "audience": {
@@ -61,12 +61,12 @@ const getWebsiteSchema = () => ({
 const getB2BMarketplaceSchema = () => ({
   "@context": "https://schema.org",
   "@type": "OnlineBusiness",
-  "@id": "https://procuresaathi.com/#business",
+  "@id": "https://www.procuresaathi.com/#business",
   "name": "ProcureSaathi - AI-Powered B2B Procurement Platform",
   "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing platform based in India. It helps buyers post requirements using AI RFQs, enables transparent bidding among verified suppliers, supports domestic and export–import trade, and provides free CRM, business leads, and logistics support to MSMEs, manufacturers, traders, and enterprises.",
-  "url": "https://procuresaathi.com",
-  "logo": "https://procuresaathi.com/procuresaathi-logo.png",
-  "image": "https://procuresaathi.com/og-early-adopter.png",
+  "url": "https://www.procuresaathi.com",
+  "logo": "https://www.procuresaathi.com/procuresaathi-logo.png",
+  "image": "https://www.procuresaathi.com/og-early-adopter.png",
   "telephone": "+91-8368127357",
   "email": "sales@procuresaathi.com",
   "foundingDate": "2021",
@@ -143,12 +143,12 @@ const getSourcingServiceSchema = () => ({
   "provider": {
     "@type": "Organization",
     "name": "ProcureSaathi",
-    "url": "https://procuresaathi.com"
+    "url": "https://www.procuresaathi.com"
   },
   "areaServed": "Worldwide",
   "availableChannel": {
     "@type": "ServiceChannel",
-    "serviceUrl": "https://procuresaathi.com/post-rfq",
+    "serviceUrl": "https://www.procuresaathi.com/post-rfq",
     "servicePhone": "+91-8368127357"
   },
   "offers": {
@@ -169,7 +169,7 @@ const getSourcingServiceSchema = () => ({
       {"@type": "Offer", "name": "Logistics Support"}
     ]
   },
-  "termsOfService": "https://procuresaathi.com/terms",
+  "termsOfService": "https://www.procuresaathi.com/terms",
   "serviceOutput": {
     "@type": "Thing",
     "name": "Competitive supplier quotations via transparent bidding"
@@ -221,15 +221,8 @@ export const GlobalSEO = () => {
     addMetaTag('HandheldFriendly', 'true');
     addMetaTag('MobileOptimized', '320');
     addMetaTag('format-detection', 'telephone=yes');
-    
-    // Note: Add verification codes via index.html or environment variables when available
-    // addMetaTag('google-site-verification', 'YOUR_CODE');
-    // addMetaTag('msvalidate.01', 'YOUR_CODE');
 
-    // Cleanup on unmount
-    return () => {
-      // Schemas and hreflang tags persist across navigation for SEO benefit
-    };
+    return () => {};
   }, []);
 
   return null;

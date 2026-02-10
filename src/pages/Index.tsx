@@ -58,9 +58,9 @@ const Index = () => {
   useSEO({
     title: "ProcureSaathi | AI-Powered B2B Procurement Platform for Smart Sourcing",
     description: "ProcureSaathi is an AI-powered B2B procurement and sourcing platform that helps businesses post RFQs, compare verified supplier bids, and manage domestic and export–import sourcing with transparency and quality assurance.",
-    canonical: "https://procuresaathi.com/",
+    canonical: "https://www.procuresaathi.com/",
     keywords: "B2B procurement platform India, AI RFQ software, digital sourcing platform, online bidding platform for businesses, supplier discovery platform, transparent bidding, verified suppliers, domestic sourcing, export import sourcing",
-    ogImage: "https://procuresaathi.com/og-early-adopter.png",
+    ogImage: "https://www.procuresaathi.com/og-early-adopter.png",
     ogType: "website",
     twitterCard: "summary_large_image"
   });

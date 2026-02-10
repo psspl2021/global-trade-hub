@@ -68,7 +68,7 @@ export default function CategoryHub() {
     title: config.metaTitle,
     description: config.metaDescription,
     categoryName: config.categoryName,
-    canonical: `https://procuresaathi.com/categories/${config.slug}`
+    canonical: `https://www.procuresaathi.com/category/${config.slug}`
   });
 
   const structuredData = {
@@ -82,7 +82,7 @@ export default function CategoryHub() {
         "@type": "ListItem",
         "position": i + 1,
         "name": sub,
-        "url": `https://procuresaathi.com/buy-${nameToSlug(sub)}`
+        "url": `https://www.procuresaathi.com/buy-${nameToSlug(sub)}`
       }))
     }
   };
@@ -98,7 +98,7 @@ export default function CategoryHub() {
         <meta name="geo.placename" content={globalSEO.geoMeta.placename} />
         <meta property="og:title" content={globalSEO.enhancedTitle} />
         <meta property="og:description" content={globalSEO.enhancedDescription} />
-        <link rel="canonical" href={`https://procuresaathi.com/categories/${config.slug}`} />
+        <link rel="canonical" href={`https://www.procuresaathi.com/category/${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
       </Helmet>

@@ -9,7 +9,7 @@ interface SocialShareButtonsProps {
 }
 
 export const SocialShareButtons = ({ 
-  url = "https://procuresaathi.com",
+  url = "https://www.procuresaathi.com",
   title = "First 100 Partners Get 1 Year FREE Premium!",
   description = "Join ProcureSaathi - India's #1 B2B Platform. Get FREE CRM, Tax Invoice Generator & Unlimited Bids. Limited spots remaining!"
 }: SocialShareButtonsProps) => {

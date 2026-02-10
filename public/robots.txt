@@ -1,5 +1,5 @@
 # ProcureSaathi - AI-Powered B2B Procurement Platform
-# https://procuresaathi.com
+# https://www.procuresaathi.com
 
 User-agent: Googlebot
 Allow: /
@@ -65,7 +65,7 @@ Allow: /apple-app-site-association
 Allow: /.well-known/apple-app-site-association
 
 # Sitemaps
-Sitemap: https://procuresaathi.com/sitemap.xml
+Sitemap: https://www.procuresaathi.com/sitemap.xml
 
 # Host
-Host: https://procuresaathi.com
+Host: https://www.procuresaathi.com

@@ -1,9 +1,8 @@
-# Netlify SPA redirects for SEO pages
-# All routes should fall back to index.html for client-side routing
-# Canonical URL: https://procuresaathi.com (non-www)
+# ProcureSaathi SPA redirects
+# Canonical URL: https://www.procuresaathi.com (www)
 
-# 301 Redirect www to non-www for all routes
-https://www.procuresaathi.com/*  https://procuresaathi.com/:splat  301!
+# 301 Redirect non-www to www for all routes
+https://procuresaathi.com/*  https://www.procuresaathi.com/:splat  301!
 
 # Dynamic sitemap from edge function
 /sitemap.xml  https://hsybhjjtxdwtpfvcmoqk.supabase.co/functions/v1/generate-sitemap  200!

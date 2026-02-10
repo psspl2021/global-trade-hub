@@ -48,7 +48,7 @@ const FounderPage = () => {
     title: "About the Founders | ProcureSaathi Leadership Team",
     description: "Meet the founders of ProcureSaathi, an AI-powered B2B procurement platform. Learn about our mission to transform B2B sourcing in India and globally.",
     keywords: "ProcureSaathi founders, Priyanka Kanwar, B2B procurement leadership, ProcureSaathi team",
-    canonical: "https://procuresaathi.com/founder",
+    canonical: "https://www.procuresaathi.com/founder",
   });
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const FounderPage = () => {
       "worksFor": {
         "@type": "Organization",
         "name": "ProcureSaathi",
-        "url": "https://procuresaathi.com"
+        "url": "https://www.procuresaathi.com"
       },
       "description": "Co-founder of ProcureSaathi, an AI-powered B2B procurement and sourcing platform helping buyers and suppliers connect across domestic and export–import markets in India."
     }, "founder-person-schema");
@@ -82,9 +82,9 @@ const FounderPage = () => {
     }, "founder-about-schema");
 
     injectStructuredData(getBreadcrumbSchema([
-      { name: "Home", url: "https://procuresaathi.com" },
-      { name: "About", url: "https://procuresaathi.com/about" },
-      { name: "Founders", url: "https://procuresaathi.com/founder" },
+      { name: "Home", url: "https://www.procuresaathi.com" },
+      { name: "About", url: "https://www.procuresaathi.com/about" },
+      { name: "Founders", url: "https://www.procuresaathi.com/founder" },
     ]), "founder-breadcrumb");
   }, []);
 
