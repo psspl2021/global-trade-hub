@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.purchase-orders]
 verify_jwt = false
+
+[functions.prerender]
+verify_jwt = false
