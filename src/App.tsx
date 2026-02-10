@@ -17,6 +17,7 @@ import { LanguagePrompt } from "@/components/landing/LanguagePrompt";
 import { isBot } from "@/utils/isBot";
 import { SEOStaticRenderer } from "@/components/seo/SEOStaticRenderer";
 import { isMarketplacePath } from "@/pages/marketplace/UniversalSEORoute";
+import { StickyRFQCTA } from "@/components/conversion/StickyRFQCTA";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -239,6 +240,7 @@ const App = () => (
             <SEMTracker />
             <LanguagePrompt />
             <BotAwareRouter />
+            <StickyRFQCTA />
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
