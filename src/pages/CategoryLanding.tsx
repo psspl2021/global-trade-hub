@@ -572,7 +572,7 @@ const CategoryLanding = () => {
   useSEO({
     title: pageTitle,
     description: pageDescription,
-    canonical: `https://procuresaathi.com/category/${categorySlug}${subcategorySlug ? `/${subcategorySlug}` : ''}`,
+    canonical: `https://www.procuresaathi.com/category/${categorySlug}${subcategorySlug ? `/${subcategorySlug}` : ''}`,
     keywords: content.keywords.join(', ')
   });
 
@@ -679,14 +679,14 @@ const CategoryLanding = () => {
     
     // Breadcrumb schema
     const breadcrumbs = [
-      { name: "Home", url: "https://procuresaathi.com/" },
-      { name: "Categories", url: "https://procuresaathi.com/categories" },
-      { name: categoryName, url: `https://procuresaathi.com/category/${categorySlug}` },
+      { name: "Home", url: "https://www.procuresaathi.com/" },
+      { name: "Categories", url: "https://www.procuresaathi.com/categories" },
+      { name: categoryName, url: `https://www.procuresaathi.com/category/${categorySlug}` },
     ];
     if (subcategoryName) {
       breadcrumbs.push({ 
         name: subcategoryName, 
-        url: `https://procuresaathi.com/category/${categorySlug}/${subcategorySlug}` 
+        url: `https://www.procuresaathi.com/category/${categorySlug}/${subcategorySlug}` 
       });
     }
     injectStructuredData(getBreadcrumbSchema(breadcrumbs), 'breadcrumb-schema');
@@ -704,7 +704,7 @@ const CategoryLanding = () => {
         "@type": "ListItem",
         "position": index + 1,
         "name": sub,
-        "url": `https://procuresaathi.com/category/${categorySlug}/${nameToSlug(sub)}`
+        "url": `https://www.procuresaathi.com/category/${categorySlug}/${nameToSlug(sub)}`
       }))
     };
     injectStructuredData(itemListSchema, 'category-itemlist-schema');

@@ -91,15 +91,15 @@ const BookTruck = () => {
   useSEO({
     title: 'Book Trucks & Warehouses India | ProcureSaathi Logistics',
     description: 'Find verified logistics partners for transportation and warehousing across India. Get instant quotes from verified truck owners and warehouse operators. Book now!',
-    canonical: 'https://procuresaathi.com/book-truck',
+    canonical: 'https://www.procuresaathi.com/book-truck',
     keywords: 'truck booking India, warehouse rental, logistics partners, freight transport, cargo services, truck hire, warehouse space, logistics marketplace'
   });
 
   // Inject structured data for SEO
   useEffect(() => {
     injectStructuredData(getBreadcrumbSchema([
-      { name: 'Home', url: 'https://procuresaathi.com' },
-      { name: 'Book Truck & Warehouse', url: 'https://procuresaathi.com/book-truck' }
+      { name: 'Home', url: 'https://www.procuresaathi.com' },
+      { name: 'Book Truck & Warehouse', url: 'https://www.procuresaathi.com/book-truck' }
     ]), 'booktruck-breadcrumb-schema');
 
     injectStructuredData({

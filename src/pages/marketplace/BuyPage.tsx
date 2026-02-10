@@ -90,7 +90,7 @@ export default function BuyPage() {
     description: config.metaDescription,
     productName: config.productName,
     categoryName: config.categoryName,
-    canonical: `https://procuresaathi.com/buy-${config.slug}`
+    canonical: `https://www.procuresaathi.com/buy-${config.slug}`
   });
 
   // Service schema for category pages - NO Product schema on listing pages (GSC compliance)
@@ -104,7 +104,7 @@ export default function BuyPage() {
     "provider": {
       "@type": "Organization",
       "name": "ProcureSaathi",
-      "url": "https://procuresaathi.com"
+      "url": "https://www.procuresaathi.com"
     },
     "areaServed": {
       "@type": "Place",
@@ -124,7 +124,7 @@ export default function BuyPage() {
         <meta name="geo.placename" content={globalSEO.geoMeta.placename} />
         <meta property="og:title" content={globalSEO.enhancedTitle} />
         <meta property="og:description" content={globalSEO.enhancedDescription} />
-        <link rel="canonical" href={`https://procuresaathi.com/buy-${config.slug}`} />
+        <link rel="canonical" href={`https://www.procuresaathi.com/buy-${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
       </Helmet>

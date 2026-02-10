@@ -24,15 +24,15 @@ const Categories = () => {
   useSEO({
     title: "B2B Product Categories | Verified Suppliers India",
     description: "Browse 40+ B2B categories: Steel, Machinery, Textiles, Chemicals & more. Connect with 5000+ verified Indian suppliers and manufacturers. Get competitive quotes free!",
-    canonical: "https://procuresaathi.com/categories",
+    canonical: "https://www.procuresaathi.com/categories",
     keywords: "B2B suppliers India, industrial suppliers, steel manufacturers, machinery suppliers, textile exporters, chemical suppliers, wholesale products India, manufacturing categories, verified suppliers, Indian exporters"
   });
 
   // Inject Breadcrumb and Category schemas
   useEffect(() => {
     injectStructuredData(getBreadcrumbSchema([
-      { name: "Home", url: "https://procuresaathi.com/" },
-      { name: "Product Categories", url: "https://procuresaathi.com/categories" }
+      { name: "Home", url: "https://www.procuresaathi.com/" },
+      { name: "Product Categories", url: "https://www.procuresaathi.com/categories" }
     ]), 'breadcrumb-schema');
 
     // Inject category collection schema
@@ -40,7 +40,7 @@ const Categories = () => {
       name: "B2B Product Categories",
       description: "Browse 40+ product categories with verified suppliers across India. Find manufacturers, wholesalers, and exporters for all industrial and consumer goods.",
       subcategories: categoriesData.map(c => c.name),
-      url: "https://procuresaathi.com/categories"
+      url: "https://www.procuresaathi.com/categories"
     }), 'category-schema');
   }, []);
 

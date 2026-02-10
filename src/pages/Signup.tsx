@@ -106,22 +106,22 @@ const Signup = () => {
     buyer: {
       title: 'Partner with Us - Buyers | ProcureSaathi',
       description: 'Join ProcureSaathi as a buyer. Post RFQs, compare verified supplier bids, and streamline your B2B procurement.',
-      canonical: 'https://procuresaathi.com/signup?role=buyer',
+      canonical: 'https://www.procuresaathi.com/signup?role=buyer',
     },
     supplier: {
       title: 'Partner with Us - Suppliers | ProcureSaathi',
       description: 'Join ProcureSaathi as a verified supplier. Access AI-detected buyer demand and grow your B2B business.',
-      canonical: 'https://procuresaathi.com/signup?role=supplier',
+      canonical: 'https://www.procuresaathi.com/signup?role=supplier',
     },
     logistics_partner: {
       title: 'Partner with Us - Logistics | ProcureSaathi',
       description: 'Join ProcureSaathi as a logistics partner. Connect with shippers and grow your freight business.',
-      canonical: 'https://procuresaathi.com/signup?role=logistics_partner',
+      canonical: 'https://www.procuresaathi.com/signup?role=logistics_partner',
     },
     affiliate: {
       title: 'Partner with Us - Affiliate | ProcureSaathi',
       description: 'Earn by referring businesses to ProcureSaathi. Join our affiliate program and start earning commissions.',
-      canonical: 'https://procuresaathi.com/signup?role=affiliate',
+      canonical: 'https://www.procuresaathi.com/signup?role=affiliate',
     },
   }), []);
 

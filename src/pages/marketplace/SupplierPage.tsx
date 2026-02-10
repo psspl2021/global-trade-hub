@@ -105,7 +105,7 @@ export default function SupplierPage() {
     title: config.metaTitle,
     description: config.metaDescription,
     productName: config.productName,
-    canonical: `https://procuresaathi.com/${config.slug}`
+    canonical: `https://www.procuresaathi.com/${config.slug}`
   });
 
   const structuredData = {
@@ -131,7 +131,7 @@ export default function SupplierPage() {
         <meta name="geo.placename" content={globalSEO.geoMeta.placename} />
         <meta property="og:title" content={globalSEO.enhancedTitle} />
         <meta property="og:description" content={globalSEO.enhancedDescription} />
-        <link rel="canonical" href={`https://procuresaathi.com/${config.slug}`} />
+        <link rel="canonical" href={`https://www.procuresaathi.com/${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
       </Helmet>

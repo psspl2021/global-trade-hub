@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const CANONICAL_DOMAIN = 'https://procuresaathi.com';
+const CANONICAL_DOMAIN = 'https://www.procuresaathi.com';
 
 // Routes that should NOT be indexed
 const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier'];

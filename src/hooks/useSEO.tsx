@@ -9,7 +9,6 @@ interface SEOProps {
   ogType?: string;
   twitterCard?: 'summary' | 'summary_large_image';
   ogSiteName?: string;
-  // International SEO props
   hreflang?: { lang: string; url: string }[];
   geoRegion?: string;
   geoPlacename?: string;
@@ -53,7 +52,7 @@ export const useSEO = ({
   description, 
   canonical, 
   keywords,
-  ogImage = 'https://procuresaathi.com/og-early-adopter.png',
+  ogImage = 'https://www.procuresaathi.com/og-early-adopter.png',
   ogType = 'website',
   twitterCard = 'summary_large_image',
   ogSiteName = 'ProcureSaathi',
@@ -63,26 +62,21 @@ export const useSEO = ({
   targetCountry
 }: SEOProps) => {
   useEffect(() => {
-    // Update document title
     document.title = title;
 
-    // Update or create meta description
     if (description) {
       updateMetaTag('meta[name="description"]', 'description', description);
     }
 
-    // Update or create meta keywords with global B2B terms
     const globalKeywords = keywords 
       ? `${keywords}, B2B marketplace, procurement platform, sourcing, wholesale suppliers, global trade, import export, industrial suppliers, manufacturing`
       : 'B2B marketplace, procurement platform, sourcing India, wholesale suppliers, bulk buying, industrial suppliers, manufacturing suppliers, trade platform, import export, global B2B trade';
     updateMetaTag('meta[name="keywords"]', 'keywords', globalKeywords);
 
-    // Update or create canonical URL
     if (canonical) {
       updateLinkTag('canonical', canonical);
     }
 
-    // Geo targeting meta tags
     if (geoRegion) {
       updateMetaTag('meta[name="geo.region"]', 'geo.region', geoRegion);
     }
@@ -94,14 +88,13 @@ export const useSEO = ({
       updateMetaTag('meta[name="ICBM"]', 'ICBM', targetCountry);
     }
 
-    // Dynamic hreflang tags for specific pages
     if (hreflang && hreflang.length > 0) {
       hreflang.forEach(({ lang, url }) => {
         updateLinkTag('alternate', url, { hreflang: lang });
       });
     }
 
-    // Open Graph tags with international targeting
+    // Open Graph tags
     updateMetaTag('meta[property="og:title"]', 'og:title', title);
     updateMetaTag('meta[property="og:type"]', 'og:type', ogType);
     updateMetaTag('meta[property="og:site_name"]', 'og:site_name', ogSiteName);
@@ -146,14 +139,14 @@ export const injectStructuredData = (data: object, id: string) => {
   script.textContent = JSON.stringify(data);
 };
 
-// Global Organization schema with international reach - AEO/GEO optimized
+// Global Organization schema - AEO/GEO optimized
 export const getOrganizationSchema = () => ({
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "ProcureSaathi",
   "alternateName": ["Procure Saathi", "ProcureSaathi India", "ProcureSaathi Global", "AI B2B Procurement Platform"],
-  "url": "https://procuresaathi.com",
-  "logo": "https://procuresaathi.com/procuresaathi-logo.png",
+  "url": "https://www.procuresaathi.com",
+  "logo": "https://www.procuresaathi.com/procuresaathi-logo.png",
   "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing platform helping buyers and suppliers connect across domestic and export–import markets in India. Post AI RFQs, receive transparent bids, and source from verified suppliers.",
   "foundingDate": "2021",
   "slogan": "AI-Powered B2B Procurement for Smart Sourcing",
@@ -238,7 +231,7 @@ export const getProductSchema = (product: {
   "@type": "Product",
   "name": product.name,
   "description": product.description,
-  "image": product.image || "https://procuresaathi.com/procuresaathi-logo.png",
+  "image": product.image || "https://www.procuresaathi.com/procuresaathi-logo.png",
   "category": product.category,
   "offers": {
     "@type": "AggregateOffer",
@@ -254,7 +247,7 @@ export const getProductSchema = (product: {
   }
 });
 
-// Category page schema with international targeting
+// Category page schema
 export const getCategorySchema = (category: {
   name: string;
   description: string;
@@ -270,7 +263,7 @@ export const getCategorySchema = (category: {
   "isPartOf": {
     "@type": "WebSite",
     "name": "ProcureSaathi",
-    "url": "https://procuresaathi.com"
+    "url": "https://www.procuresaathi.com"
   },
   "mainEntity": {
     "@type": "ItemList",
@@ -285,14 +278,14 @@ export const getCategorySchema = (category: {
   }
 });
 
-// LocalBusiness schema helper (for injection via JS if needed)
+// LocalBusiness schema
 export const getLocalBusinessSchema = () => ({
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "ProcureSaathi",
   "description": "Global B2B sourcing and procurement platform connecting verified buyers and suppliers worldwide.",
-  "url": "https://procuresaathi.com",
-  "logo": "https://procuresaathi.com/procuresaathi-logo.png",
+  "url": "https://www.procuresaathi.com",
+  "logo": "https://www.procuresaathi.com/procuresaathi-logo.png",
   "telephone": "+91-8368127357",
   "email": "sales@procuresaathi.com",
   "address": {
@@ -322,14 +315,14 @@ export const getInternationalTradeSchema = (targetCountry?: string) => ({
   "provider": {
     "@type": "Organization",
     "name": "ProcureSaathi",
-    "url": "https://procuresaathi.com"
+    "url": "https://www.procuresaathi.com"
   },
   "areaServed": targetCountry 
     ? { "@type": "Country", "name": targetCountry }
     : { "@type": "GeoCircle", "geoRadius": "20000 km" },
   "availableChannel": {
     "@type": "ServiceChannel",
-    "serviceUrl": "https://procuresaathi.com",
+    "serviceUrl": "https://www.procuresaathi.com",
     "servicePhone": "+91-8368127357",
     "availableLanguage": ["English", "Hindi"]
   }
@@ -346,12 +339,12 @@ export const getCountryLandingSchema = (country: {
   "@type": "WebPage",
   "name": `Source Products from India to ${country.name} | ProcureSaathi`,
   "description": country.description,
-  "url": `https://procuresaathi.com/source/${country.code.toLowerCase()}`,
+  "url": `https://www.procuresaathi.com/source/${country.code.toLowerCase()}`,
   "inLanguage": "en",
   "isPartOf": {
     "@type": "WebSite",
     "name": "ProcureSaathi",
-    "url": "https://procuresaathi.com"
+    "url": "https://www.procuresaathi.com"
   },
   "about": {
     "@type": "Thing",

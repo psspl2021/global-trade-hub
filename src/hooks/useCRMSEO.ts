@@ -44,7 +44,7 @@ export const useCRMSEO = ({ pageType, companyName }: CRMSEOProps) => {
         'Pipeline Value Analytics',
         'Supplier Contact Management'
       ],
-      screenshot: 'https://procuresaathi.com/og-image.png',
+      screenshot: 'https://www.procuresaathi.com/og-image.png',
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '4.9',

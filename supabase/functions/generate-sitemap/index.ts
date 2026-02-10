@@ -263,7 +263,7 @@ const categories = [
   { name: 'GFRP & Composites', subcategories: ['GFRP Sheets', 'GFRP Pipes', 'GFRP Gratings', 'GFRP Profiles', 'GFRP Tanks', 'FRP Rebar', 'Carbon Fiber Products', 'Fiberglass Products', 'Composite Panels', 'SMC/DMC Products'] },
 ];
 
-const baseUrl = 'https://procuresaathi.com';
+const baseUrl = 'https://www.procuresaathi.com';
 
 interface BlogPost {
   slug: string;
