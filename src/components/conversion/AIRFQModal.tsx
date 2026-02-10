@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { trackConversionEvent } from '@/lib/conversionTracker';
+import { scoreAndPersist } from '@/lib/leadScorer';
 
 interface RFQItem {
   item_name: string;
@@ -87,6 +88,17 @@ export function AIRFQModal({ open, onOpenChange }: AIRFQModalProps) {
     trackConversionEvent('rfq_submit', { 
       category: generatedRFQ.category,
       trade_type: generatedRFQ.trade_type 
+    });
+
+    // Score the lead on submission
+    const sessionId = sessionStorage.getItem('ps_session_id') || crypto.randomUUID();
+    scoreAndPersist({
+      session_id: sessionId,
+      category: generatedRFQ.category,
+      trade_type: generatedRFQ.trade_type,
+      items: generatedRFQ.items,
+      description: generatedRFQ.description,
+      quality_standards: generatedRFQ.quality_standards,
     });
 
     sessionStorage.setItem('pendingRFQ', JSON.stringify(generatedRFQ));

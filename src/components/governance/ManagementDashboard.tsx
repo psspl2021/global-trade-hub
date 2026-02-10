@@ -31,6 +31,7 @@ import {
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 import { AccessDenied } from '@/components/purchaser/AccessDenied';
 import { SavingsSourceOfTruth } from './SavingsSourceOfTruth';
+import { SavingsVisualization } from './SavingsVisualization';
 import { CFOIncentiveManagement } from '@/components/purchaser/CFOIncentiveManagement';
 import { EnterpriseBillingDashboard } from '@/components/enterprise/EnterpriseBillingDashboard';
 import { GovernanceLegalArmor } from './GovernanceLegalArmor';
@@ -127,6 +128,7 @@ export function ManagementDashboard() {
         </TabsList>
 
         <TabsContent value="savings" className="space-y-6">
+          <SavingsVisualization />
           <SavingsSourceOfTruth />
         </TabsContent>
 
