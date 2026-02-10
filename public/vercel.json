@@ -1,6 +1,7 @@
 {
   "rewrites": [
-    { "source": "/((?!apple-app-site-association|.well-known|robots.txt|sitemap.xml|favicon.png|images|assets).*)", "destination": "/" }
+    { "source": "/sitemap.xml", "destination": "https://hsybhjjtxdwtpfvcmoqk.supabase.co/functions/v1/generate-sitemap" },
+    { "source": "/((?!apple-app-site-association|.well-known|robots.txt|favicon.png|images|assets).*)", "destination": "/" }
   ],
   "redirects": [
     {

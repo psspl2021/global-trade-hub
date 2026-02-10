@@ -19,7 +19,7 @@ const nameToSlug = (name: string) => {
 const staticPages = [
   { url: '/', priority: 1.0, changefreq: 'daily' },
   { url: '/categories', priority: 0.9, changefreq: 'weekly' },
-  { url: '/browse', priority: 0.8, changefreq: 'daily' },
+  { url: '/browseproducts', priority: 0.8, changefreq: 'daily' },
   { url: '/book-truck', priority: 0.8, changefreq: 'weekly' },
   { url: '/blogs', priority: 0.8, changefreq: 'daily' },
   { url: '/buyer', priority: 0.9, changefreq: 'weekly' },
@@ -27,16 +27,38 @@ const staticPages = [
   { url: '/post-rfq', priority: 0.9, changefreq: 'weekly' },
   { url: '/private-label', priority: 0.8, changefreq: 'weekly' },
   { url: '/contact', priority: 0.7, changefreq: 'monthly' },
+  { url: '/invoice-generator', priority: 0.7, changefreq: 'monthly' },
+  { url: '/affiliate', priority: 0.7, changefreq: 'monthly' },
+  { url: '/affiliate-signup', priority: 0.7, changefreq: 'weekly' },
+  // Pillar / Guide pages
   { url: '/ai-b2b-procurement-platform-guide', priority: 0.95, changefreq: 'weekly' },
   { url: '/how-to-post-rfq-online', priority: 0.85, changefreq: 'monthly' },
   { url: '/find-verified-b2b-suppliers', priority: 0.85, changefreq: 'monthly' },
   { url: '/enterprise-procurement-guide', priority: 0.85, changefreq: 'monthly' },
   { url: '/export-import-sourcing-guide', priority: 0.85, changefreq: 'monthly' },
+  // Comparison pages
   { url: '/best-b2b-procurement-platforms-india', priority: 0.85, changefreq: 'monthly' },
   { url: '/ai-procurement-vs-traditional-rfq', priority: 0.85, changefreq: 'monthly' },
   { url: '/managed-procurement-vs-b2b-marketplace', priority: 0.85, changefreq: 'monthly' },
+  // Industry use-case pages
+  { url: '/procurement-for-steel-manufacturers', priority: 0.8, changefreq: 'monthly' },
+  { url: '/procurement-for-chemical-buyers', priority: 0.8, changefreq: 'monthly' },
+  { url: '/procurement-for-construction-companies', priority: 0.8, changefreq: 'monthly' },
+  { url: '/ai-helps-msmes-enterprise-supply-chains', priority: 0.8, changefreq: 'monthly' },
+  // Founder & Case studies
   { url: '/founder', priority: 0.75, changefreq: 'monthly' },
   { url: '/customer-stories', priority: 0.8, changefreq: 'weekly' },
+  { url: '/case-study-procurement-cost-reduction', priority: 0.75, changefreq: 'monthly' },
+  { url: '/case-study-export-sourcing', priority: 0.75, changefreq: 'monthly' },
+  { url: '/case-study-global-steel-procurement', priority: 0.85, changefreq: 'monthly' },
+  { url: '/case-study-global-pulses-spices-sourcing', priority: 0.85, changefreq: 'monthly' },
+  { url: '/case-study-middle-east-pulses-spices-import', priority: 0.85, changefreq: 'monthly' },
+  // GEO landing pages
+  { url: '/usa/ai-b2b-procurement', priority: 0.9, changefreq: 'weekly' },
+  { url: '/uk/ai-b2b-procurement', priority: 0.9, changefreq: 'weekly' },
+  { url: '/europe/ai-b2b-procurement', priority: 0.9, changefreq: 'weekly' },
+  { url: '/germany/ai-b2b-procurement', priority: 0.9, changefreq: 'weekly' },
+  { url: '/singapore/ai-b2b-procurement', priority: 0.9, changefreq: 'weekly' },
 ];
 
 // International landing pages - 50+ countries for global SEO
