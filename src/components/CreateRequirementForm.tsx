@@ -276,8 +276,9 @@ export function CreateRequirementForm({
       const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
       const primaryCategory = items[0].category;
 
-      // Check for duplicate open/expired RFQs with same category and location
-      const { count: duplicateCount, error: dupError } = await supabase
+      // Check for duplicate open/expired RFQs with same category, location AND destination state
+      const destState = destinationState.trim() || null;
+      let duplicateQuery = supabase
         .from('requirements')
         .select('id', { count: 'exact', head: true })
         .eq('buyer_id', userId)
@@ -285,6 +286,15 @@ export function CreateRequirementForm({
         .eq('delivery_location', data.delivery_location)
         .in('status', ['active', 'expired'])
         .or('buyer_closure_status.is.null,buyer_closure_status.eq.open');
+
+      // Also match on destination_state so same category with different locations is allowed
+      if (destState) {
+        duplicateQuery = duplicateQuery.eq('destination_state', destState);
+      } else {
+        duplicateQuery = duplicateQuery.is('destination_state', null);
+      }
+
+      const { count: duplicateCount, error: dupError } = await duplicateQuery;
 
       if (dupError) {
         if (import.meta.env.DEV) console.error('Duplicate check error:', dupError);
