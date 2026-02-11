@@ -11,6 +11,8 @@ import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { categoriesData } from '@/data/categories';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import { supabase } from '@/integrations/supabase/client';
+import { getCategorySEOContent, getFallbackCategorySEOContent } from '@/data/categorySEOContent';
+import { Link } from 'react-router-dom';
 
 // Convert slug to category name
 const slugToName = (slug: string) => {
@@ -816,7 +818,7 @@ const CategoryLanding = () => {
           <div className="max-w-3xl">
             <Badge className="bg-white/20 text-white mb-4">AI Demand Intelligence</Badge>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              {subcategoryName || categoryName} Suppliers & Manufacturers in India
+              {subcategoryName ? `${subcategoryName} Suppliers & Manufacturers in India` : `${categoryName} for Industrial & Infrastructure Procurement`}
             </h1>
             
             {/* AI Demand Context */}
@@ -848,29 +850,73 @@ const CategoryLanding = () => {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-card border-b py-6">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-primary">500+</div>
-              <div className="text-sm text-muted-foreground">Verified Suppliers</div>
+      {/* SEO Content Section */}
+      {(() => {
+        const seoContent = getCategorySEOContent(categoryName) || getFallbackCategorySEOContent(categoryName);
+        return (
+          <section className="py-12 bg-card border-b">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <article className="prose prose-lg max-w-none">
+                <p className="text-muted-foreground leading-relaxed text-base mb-8">
+                  {seoContent.intro}
+                </p>
+
+                <h2 className="text-xl md:text-2xl font-bold mt-10 mb-4">{seoContent.typesH2}</h2>
+                <ul className="space-y-3 list-disc pl-5">
+                  {seoContent.typesContent.map((item, idx) => (
+                    <li key={idx} className="text-muted-foreground text-sm leading-relaxed">{item}</li>
+                  ))}
+                </ul>
+
+                <h2 className="text-xl md:text-2xl font-bold mt-10 mb-4">{seoContent.applicationsH2}</h2>
+                <p className="text-muted-foreground leading-relaxed text-sm mb-6">
+                  {seoContent.applicationsContent}
+                </p>
+
+                <h2 className="text-xl md:text-2xl font-bold mt-10 mb-4">{seoContent.sourcingH2}</h2>
+                <p className="text-muted-foreground leading-relaxed text-sm mb-8">
+                  {seoContent.sourcingContent}
+                </p>
+
+                {/* Internal Links */}
+                <div className="mt-10 pt-8 border-t border-border/50">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3">Browse Products</h3>
+                      <ul className="space-y-2">
+                        {seoContent.buyLinks.map((link) => (
+                          <li key={link.slug}>
+                            <Link to={`/${link.slug}`} className="text-sm text-primary hover:underline">
+                              {link.label} →
+                            </Link>
+                          </li>
+                        ))}
+                        <li>
+                          <Link to="/post-rfq" className="text-sm text-primary font-medium hover:underline">
+                            Post your requirement on ProcureSaathi →
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3">Related Categories</h3>
+                      <ul className="space-y-2">
+                        {seoContent.relatedCategories.map((cat) => (
+                          <li key={cat.slug}>
+                            <Link to={`/category/${cat.slug}`} className="text-sm text-primary hover:underline">
+                              {cat.label} →
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </article>
             </div>
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-primary">10,000+</div>
-              <div className="text-sm text-muted-foreground">Products Listed</div>
-            </div>
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-primary">₹100 Cr+</div>
-              <div className="text-sm text-muted-foreground">Trade Value</div>
-            </div>
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-primary">4.8/5</div>
-              <div className="text-sm text-muted-foreground">Buyer Satisfaction</div>
-            </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
       {/* Subcategories Grid */}
       {category && !subcategorySlug && (

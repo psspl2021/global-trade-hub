@@ -19,7 +19,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { useRegionalSEO } from "@/hooks/useRegionalSEO";
 import { LanguageSelector } from "@/components/landing/LanguageSelector";
 import { translations, getDefaultLanguage, isRTL, Language } from "@/lib/i18n/translations";
-
+import { getSourceCountrySEOContent, getFallbackSourceSEOContent } from '@/data/sourceCountrySEOContent';
 
 const countryData: Record<string, {
   name: string;
@@ -958,6 +958,29 @@ export default function SourceCountry() {
           </div>
         </div>
       </section>
+
+      {/* SEO Content Section */}
+      {(() => {
+        const seoContent = getSourceCountrySEOContent(countryKey) || getFallbackSourceSEOContent(data.name);
+        return (
+          <section className="py-12 bg-card border-b">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <h2 className="text-xl md:text-2xl font-bold mb-4">{seoContent.heading}</h2>
+              <p className="text-muted-foreground leading-relaxed text-sm mb-6">{seoContent.content}</p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {seoContent.tradeCategories.map((cat) => (
+                  <Badge key={cat} variant="outline" className="text-xs">{cat}</Badge>
+                ))}
+              </div>
+              <div className="pt-4 border-t border-border/50">
+                <Link to="/post-rfq" className="text-sm text-primary font-medium hover:underline">
+                  Raise an RFQ on ProcureSaathi for {data.name} trade →
+                </Link>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Top Categories Section */}
       <section className="py-16 bg-muted/30">
