@@ -85,8 +85,6 @@ const getTradeTypeLabel = (tradeType: string | undefined) => {
 
 const Requirements = () => {
   const { user } = useAuth();
-  const { role } = useUserRole(user?.id);
-  const isBuyer = role === 'buyer';
   const [searchParams] = useSearchParams();
   const rfqId = searchParams.get('rfq');
   const { toast } = useToast();
@@ -400,7 +398,7 @@ const Requirements = () => {
                   isLoggedIn={!!user}
                   onShare={handleShare}
                   copiedId={copiedId}
-                  isBuyer={isBuyer}
+                  
                 />
               ))}
             </div>
@@ -429,10 +427,9 @@ interface RequirementCardProps {
   isLoggedIn: boolean;
   onShare: (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => void;
   copiedId: string | null;
-  isBuyer?: boolean;
 }
 
-const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId, isBuyer }: RequirementCardProps) => {
+const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: RequirementCardProps) => {
   const isAwarded = requirement.status === 'awarded';
   // Check expiry at end of day (11:59:59 PM) instead of midnight
   const deadlineEndOfDay = new Date(requirement.deadline);
@@ -448,32 +445,30 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId, isBuyer }
             <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
               {requirement.title}
             </CardTitle>
-            {!isBuyer && (
-              <div className="flex items-center gap-1 shrink-0">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'whatsapp')}>
-                      Share on WhatsApp
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'linkedin')}>
-                      Share on LinkedIn
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'copy')}>
-                      {copiedId === requirement.id ? (
-                        <><Check className="h-4 w-4 mr-2" /> Copied!</>
-                      ) : (
-                        <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
-                      )}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
+            <div className="flex items-center gap-1 shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'whatsapp')}>
+                    Share on WhatsApp
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'linkedin')}>
+                    Share on LinkedIn
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => onShare(e as any, requirement, 'copy')}>
+                    {copiedId === requirement.id ? (
+                      <><Check className="h-4 w-4 mr-2" /> Copied!</>
+                    ) : (
+                      <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <div className="flex gap-1 flex-wrap mt-1">
             <Badge variant={getStatusBadgeVariant(requirement.status)}>
