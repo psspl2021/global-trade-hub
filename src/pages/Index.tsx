@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +12,7 @@ const BrowseLogisticsPublic = lazy(() => import('@/components/logistics/BrowseLo
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import heroBgProcurement from '@/assets/hero-bg-procurement.jpg';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
 import { LazyFAQ } from '@/components/landing/LazyFAQ';
@@ -47,12 +48,51 @@ const SectionFallback = ({ minHeight = "400px" }: { minHeight?: string }) => (
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
   const [showLogisticsRequirements, setShowLogisticsRequirements] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+
+  // Redirect logged-in users to their appropriate dashboard
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    const redirectLoggedInUser = async () => {
+      setRedirecting(true);
+      try {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+
+        if (roleData && roleData.length > 0) {
+          const roles = roleData.map(r => r.role as string);
+          const managementRoles = ['ceo', 'buyer_ceo', 'cfo', 'buyer_cfo', 'manager', 'buyer_manager'];
+          
+          if (roles.some(r => managementRoles.includes(r))) {
+            navigate('/management', { replace: true });
+            return;
+          }
+          if (roles.includes('ps_admin') || roles.includes('admin')) {
+            navigate('/admin', { replace: true });
+            return;
+          }
+          if (roles.includes('affiliate')) {
+            navigate('/affiliate', { replace: true });
+            return;
+          }
+        }
+        navigate('/dashboard', { replace: true });
+      } catch {
+        navigate('/dashboard', { replace: true });
+      }
+    };
+
+    redirectLoggedInUser();
+  }, [user, authLoading, navigate]);
 
   // SEO setup - AEO/GEO optimized
   useSEO({
@@ -138,6 +178,15 @@ const Index = () => {
     navigate(path);
     setMobileMenuOpen(false);
   };
+
+  // Show loading spinner while auth resolves or redirecting logged-in user
+  if (authLoading || redirecting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
