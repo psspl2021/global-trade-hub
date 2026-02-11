@@ -18,6 +18,7 @@ import { isBot } from "@/utils/isBot";
 import { SEOStaticRenderer } from "@/components/seo/SEOStaticRenderer";
 import { isMarketplacePath } from "@/pages/marketplace/UniversalSEORoute";
 import { StickyRFQCTA } from "@/components/conversion/StickyRFQCTA";
+import LayoutGate from "@/components/LayoutGate";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -241,12 +242,14 @@ const App = () => (
           <GlobalSEOTools />
           <GlobalSEO />
           <BrowserRouter>
-            <GlobalDemandTracker />
-            <VisitorTracker />
-            <SEMTracker />
-            <LanguagePrompt />
-            <BotAwareRouter />
-            <StickyRFQCTA />
+            <LayoutGate>
+              <GlobalDemandTracker />
+              <VisitorTracker />
+              <SEMTracker />
+              <LanguagePrompt />
+              <BotAwareRouter />
+              <StickyRFQCTA />
+            </LayoutGate>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
