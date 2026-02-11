@@ -33,7 +33,7 @@ const getWebsiteSchema = () => ({
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://www.procuresaathi.com/browse?q={search_term_string}"
+      "urlTemplate": "https://www.procuresaathi.com/browseproducts"
     },
     "query-input": "required name=search_term_string"
   },
@@ -207,7 +207,7 @@ export const GlobalSEO = () => {
     };
 
     // Global SEO meta tags
-    addMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+    // NOTE: robots meta is managed by useSEOHead — do NOT add duplicate here
     addMetaTag('googlebot', 'index, follow, max-image-preview:large');
     addMetaTag('bingbot', 'index, follow');
     addMetaTag('revisit-after', '7 days');

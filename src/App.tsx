@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AIChatBox } from "@/components/AIChatBox";
 import { GlobalSEOTools } from "@/components/admin/GlobalSEOTools";
@@ -90,6 +90,12 @@ const GeoEurope = lazy(() => import("./pages/geo/GeoEurope"));
 const GeoGermany = lazy(() => import("./pages/geo/GeoGermany"));
 const GeoSingapore = lazy(() => import("./pages/geo/GeoSingapore"));
 
+// Redirect /categories/:slug → /category/:slug
+const CategoriesRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/category/${slug}`} replace />;
+};
+
 // Simple loading fallback
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
@@ -112,7 +118,7 @@ const BotAwareRouter = () => {
     const seoRoutes = [
       /^\/buy-/,
       /^\/.+-suppliers$/,
-      /^\/categories\//,
+      /^\/category\//,
       /^\/procurement\//,
       /^\/$/,
     ];
@@ -170,8 +176,8 @@ const BotAwareRouter = () => {
         <Route path="/purchaser-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
         
-        {/* CATEGORY HUB pages: /categories/{category-slug} */}
-        <Route path="/categories/:slug" element={<MarketplaceCategoryHub />} />
+        {/* /categories/{slug} → redirect to /category/{slug} (canonical normalization) */}
+        <Route path="/categories/:slug" element={<CategoriesRedirect />} />
         
         {/* Country-specific signal pages for geo-intelligence */}
         <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />

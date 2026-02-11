@@ -18,8 +18,6 @@ const nameToSlug = (name: string) => {
 // Static pages
 const staticPages = [
   { url: '/', priority: 1.0, changefreq: 'daily' },
-  { url: '/categories', priority: 0.9, changefreq: 'weekly' },
-  { url: '/browseproducts', priority: 0.8, changefreq: 'daily' },
   { url: '/book-truck', priority: 0.8, changefreq: 'weekly' },
   { url: '/blogs', priority: 0.8, changefreq: 'daily' },
   { url: '/buyer', priority: 0.9, changefreq: 'weekly' },

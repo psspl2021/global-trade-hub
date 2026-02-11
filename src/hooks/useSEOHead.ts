@@ -6,18 +6,35 @@ const CANONICAL_DOMAIN = 'https://www.procuresaathi.com';
 // Routes that should NOT be indexed
 const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier'];
 
+// Category name to slug mapping for /browse?category= → /category/{slug} canonical
+const categoryToSlug = (category: string): string => {
+  return category.toLowerCase()
+    .replace(/[&,()]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+};
+
 /**
  * Global SEO head manager.
- * - Enforces ONE canonical per page (non-www, no trailing slash)
- * - Removes duplicate canonical tags
- * - Sets robots meta (does NOT noindex www — lets canonical handle dedup)
+ * - Enforces ONE canonical per page (www, no trailing slash)
+ * - Handles query URLs: noindex + canonical to clean path
+ * - Normalizes /categories/{slug} → canonical /category/{slug}
+ * - Sets robots meta
  * - Sets og:url
  */
 export function useSEOHead(options?: { title?: string; description?: string; noindex?: boolean }) {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
-    const isNoindex = options?.noindex || NOINDEX_ROUTES.some(r => pathname.startsWith(r));
+    const searchParams = new URLSearchParams(search);
+    const hasQueryParams = search.length > 0;
+
+    // Determine if page should be noindexed
+    const isNoindexRoute = NOINDEX_ROUTES.some(r => pathname.startsWith(r));
+    const isQueryUrl = hasQueryParams;
+    const isBrowsePath = pathname === '/browse' || pathname === '/browseproducts';
+    const isNoindex = options?.noindex || isNoindexRoute || (isQueryUrl && isBrowsePath);
 
     // --- Robots meta ---
     let robotsMeta = document.querySelector('meta[name="robots"]') as HTMLMetaElement;
@@ -26,19 +43,32 @@ export function useSEOHead(options?: { title?: string; description?: string; noi
       robotsMeta.name = 'robots';
       document.head.appendChild(robotsMeta);
     }
-    robotsMeta.content = isNoindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+    robotsMeta.content = isNoindex ? 'noindex, follow' : 'index, follow, max-image-preview:large';
 
-    // --- Build canonical URL: always non-www, no trailing slash except root ---
-    const cleanPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
+    // --- Build canonical URL ---
+    let canonicalPath = pathname;
+
+    // Normalize /categories/{slug} → /category/{slug}
+    if (canonicalPath.startsWith('/categories/')) {
+      canonicalPath = canonicalPath.replace('/categories/', '/category/');
+    }
+
+    // For /browse?category=X or /browseproducts?category=X → canonical to /category/{slug}
+    if (isBrowsePath && searchParams.has('category')) {
+      const categoryName = searchParams.get('category') || '';
+      canonicalPath = `/category/${categoryToSlug(categoryName)}`;
+    } else if (isBrowsePath && hasQueryParams) {
+      // Any other query on browse → canonical to /browseproducts (clean)
+      canonicalPath = '/browseproducts';
+    }
+
+    // Clean: no trailing slash except root
+    const cleanPath = canonicalPath === '/' ? '/' : canonicalPath.replace(/\/+$/, '');
     const canonicalHref = `${CANONICAL_DOMAIN}${cleanPath}`;
 
     // --- Canonical: ensure exactly ONE ---
     const allCanonicals = document.querySelectorAll('link[rel="canonical"]');
     if (allCanonicals.length > 1) {
-      if (import.meta.env.DEV) {
-        console.warn(`[SEO] Found ${allCanonicals.length} canonical tags — removing extras`);
-      }
-      // Keep only the first, remove the rest
       for (let i = 1; i < allCanonicals.length; i++) {
         allCanonicals[i].remove();
       }
@@ -61,7 +91,7 @@ export function useSEOHead(options?: { title?: string; description?: string; noi
     }
     ogUrl.content = canonicalHref;
 
-  }, [pathname, options?.noindex]);
+  }, [pathname, search, options?.noindex]);
 }
 
 export default useSEOHead;
