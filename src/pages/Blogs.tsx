@@ -33,6 +33,8 @@ const CATEGORIES = [
   'Industry News',
   'Supplier Guide',
   'Buyer Guide',
+  'Export Guide',
+  'Import Guide',
   'Market Analysis',
   'Logistics',
   'Trade Compliance',

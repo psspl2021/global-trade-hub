@@ -222,7 +222,6 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
     const slug = `${slugBase}-${trade_type.toLowerCase()}-${country.toLowerCase().replace(/\s+/g, '-')}`;
 
     // Image system: use Unsplash source API with category-specific keywords
-    const catSlug = category.toLowerCase().replace(/[^a-z]+/g, '-');
     const imageQueries = getImageQueries(category, country, trade_type);
     
     const coverImageUrl = `https://images.unsplash.com/photo-${getReliablePhotoId(category)}?w=1200&h=600&fit=crop&auto=format&q=80`;
@@ -266,41 +265,23 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
 });
 
 function injectImagesIntoContent(html: string, imageUrls: string[], captions: string[]): string {
-  // Split content by <h2> sections
   const parts = html.split(/(<h2[^>]*>.*?<\/h2>)/gi);
   let imageIndex = 0;
-  let result = '';
 
   for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    result += part;
+    if (/<h2[^>]*>/i.test(parts[i]) && imageIndex < imageUrls.length && i + 1 < parts.length) {
+      const section = parts[i + 1];
+      // Skip sections containing tables
+      if (/<table/i.test(section)) continue;
 
-    // If this part is an <h2> tag and we have images left
-    if (/<h2[^>]*>/i.test(part) && imageIndex < imageUrls.length) {
-      // Look at the next part (the section content after h2)
-      if (i + 1 < parts.length) {
-        const sectionContent = parts[i + 1];
-
-        // Skip image injection if section contains a table
-        if (/<table/i.test(sectionContent)) {
-          continue;
-        }
-
-        // Find the end of the first </p> in the section
-        const firstPEnd = sectionContent.indexOf('</p>');
-        if (firstPEnd !== -1) {
-          const insertPos = firstPEnd + 4;
-          const imgHtml = `<figure class="blog-image" style="margin:2rem 0"><img src="${imageUrls[imageIndex]}" alt="${captions[imageIndex]} - ProcureSaathi" width="800" height="400" loading="lazy" style="width:100%;height:auto;border-radius:8px" /><figcaption style="text-align:center;font-size:0.875rem;color:#6b7280;margin-top:0.5rem">${captions[imageIndex]}</figcaption></figure>`;
-          parts[i + 1] = sectionContent.slice(0, insertPos) + imgHtml + sectionContent.slice(insertPos);
-          imageIndex++;
-        }
+      const firstPEnd = section.indexOf('</p>');
+      if (firstPEnd !== -1) {
+        const insertPos = firstPEnd + 4;
+        const imgHtml = `<figure class="blog-image" style="margin:2rem 0"><img src="${imageUrls[imageIndex]}" alt="${captions[imageIndex]} - ProcureSaathi" width="800" height="400" loading="lazy" style="width:100%;height:auto;border-radius:8px" /><figcaption style="text-align:center;font-size:0.875rem;color:#6b7280;margin-top:0.5rem">${captions[imageIndex]}</figcaption></figure>`;
+        parts[i + 1] = section.slice(0, insertPos) + imgHtml + section.slice(insertPos);
+        imageIndex++;
       }
     }
-  }
-
-  // If we didn't inject all parts yet (due to split), reassemble
-  if (result.length < html.length / 2) {
-    return parts.join('');
   }
 
   return parts.join('');
