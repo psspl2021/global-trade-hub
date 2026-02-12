@@ -359,7 +359,6 @@ const Signup = () => {
                 {/* Title based on role */}
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold mb-2">
-                    {formData.role === 'buyer' && 'Request a Demo'}
                     {formData.role === 'supplier' && 'Join as a Supplier Partner'}
                     {formData.role === 'logistics_partner' && 'Join as a Logistics Partner'}
                     {formData.role === 'affiliate' && 'Join as an Affiliate Partner'}
