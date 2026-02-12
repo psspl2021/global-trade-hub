@@ -223,6 +223,9 @@ const Signup = () => {
       phone: formData.phone,
       location: formData.location,
       gstin: formData.gstin,
+      role: formData.role,
+      referredByName: formData.referredByName,
+      referredByPhone: formData.referredByPhone,
     });
 
     if (!result.success) {
