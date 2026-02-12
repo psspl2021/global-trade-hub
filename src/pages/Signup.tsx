@@ -648,7 +648,7 @@ const Signup = () => {
                     ) : loading ? (
                       'Creating account...'
                     ) : formData.role === 'buyer' ? (
-                      'Request Demo'
+                      'Join Now'
                     ) : formData.role === 'affiliate' ? (
                       'Join Affiliate Program'
                     ) : (
