@@ -79,6 +79,8 @@
       Googlebot and crawlers see this content WITHOUT executing JavaScript.
     -->
     <div id="root">
+      <!-- SEO fallback content: hidden from visual users, visible to crawlers/noscript -->
+      <div id="seo-fallback" style="display:none;">
       <header style="border-bottom:1px solid #e5e7eb;padding:16px 24px;">
         <a href="/" style="font-size:20px;font-weight:700;color:#1F3A8A;text-decoration:none;">ProcureSaathi</a>
         <nav style="display:inline;margin-left:32px;">
@@ -171,6 +173,7 @@
           <a href="/contact" style="color:#1F3A8A;text-decoration:none;">Contact</a>
         </nav>
       </footer>
+      </div>
     </div>
 
     <noscript>
