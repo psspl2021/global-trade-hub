@@ -221,6 +221,8 @@ const Signup = () => {
       companyName: formData.companyName,
       contactPerson: formData.contactPerson,
       phone: formData.phone,
+      location: formData.location,
+      gstin: formData.gstin,
     });
 
     if (!result.success) {
