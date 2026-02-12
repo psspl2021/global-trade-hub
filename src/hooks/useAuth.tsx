@@ -48,12 +48,15 @@ export const useAuth = () => {
         let errorMessage = error.message;
         
         if (error.message.includes('Database error saving new user')) {
-          // This usually means a unique constraint violation on email or phone
           errorMessage = 'This email or phone number is already registered. Please use different credentials or try logging in.';
         } else if (error.message.includes('duplicate key') || error.message.includes('already registered')) {
           errorMessage = 'An account with this email already exists. Please try logging in instead.';
         } else if (error.message.includes('User already registered')) {
           errorMessage = 'This email is already registered. Please try logging in instead.';
+        } else if (error.message.includes('over_email_send_rate_limit') || error.message.includes('rate limit')) {
+          errorMessage = 'Too many signup attempts. Please wait a few minutes and try again.';
+        } else if (error.message.includes('email_not_confirmed') || error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and confirm your account before logging in.';
         }
         
         throw new Error(errorMessage);
@@ -74,7 +77,7 @@ export const useAuth = () => {
 
       toast({
         title: 'Registration successful',
-        description: 'You can now log in with your credentials.',
+        description: 'Please check your email to verify your account before logging in.',
       });
       return { error: null };
     } catch (error: any) {

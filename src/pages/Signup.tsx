@@ -151,6 +151,7 @@ const Signup = () => {
     e.preventDefault();
     setErrors({});
     setBreachWarning(null);
+    if (import.meta.env.DEV) console.log('Signup form submitted, role:', formData.role);
 
     // Validate logistics partner type if role is logistics_partner
     if (formData.role === 'logistics_partner' && !formData.logisticsPartnerType) {
