@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { useSEO } from '@/hooks/useSEO';
 import { SupplierCategorySelector } from '@/components/signup/SupplierCategorySelector';
+import { LocationSearchInput } from '@/components/signup/LocationSearchInput';
 import { EmailNotificationConsent } from '@/components/signup/EmailNotificationConsent';
 import { getTaxConfigForCountry, getCountryFromContext, clearCountryContext } from '@/data/countryTaxConfig';
 import { getCountryByCode } from '@/data/supportedCountries';
@@ -527,12 +528,10 @@ const Signup = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="location">Location (City, State) *</Label>
-                      <Input
-                        id="location"
-                        placeholder="Mumbai, Maharashtra"
+                      <LocationSearchInput
                         value={formData.location}
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        className={`min-h-[44px] ${errors.location ? 'border-destructive' : ''}`}
+                        onChange={(val) => setFormData({ ...formData, location: val })}
+                        error={errors.location}
                       />
                       {errors.location && <p className="text-sm text-destructive">{errors.location}</p>}
                     </div>
