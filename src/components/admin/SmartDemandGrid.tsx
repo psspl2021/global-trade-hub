@@ -124,22 +124,39 @@ export function SmartDemandGrid() {
   // Top categories for insights
   const topCategories = useMemo(() => getTopCategoriesByDetection(5), []);
 
-  // Activate lane via new RPC
+  // Activate lane via canonical RPC — finds matching signals and activates them
   const activateLane = useCallback(async (country: string, category: string) => {
     try {
-      const { data, error } = await supabase
-        .rpc('activate_lane_from_signal', {
-          p_country: country,
-          p_category: category
-        });
-      
-      if (error) {
-        console.error('[SmartDemandGrid] Lane activation error:', error);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('[SmartDemandGrid] No authenticated user');
         return false;
       }
-      
-      console.log('[SmartDemandGrid] Lane activated:', data);
-      return true;
+
+      // Find signals for this country+category that can be activated
+      const { data: signals, error: fetchError } = await supabase
+        .from('demand_intelligence_signals')
+        .select('id')
+        .eq('country', country.toUpperCase())
+        .eq('category', category)
+        .not('lane_state', 'in', '(activated,fulfilling,closed,lost)');
+
+      if (fetchError || !signals?.length) {
+        console.error('[SmartDemandGrid] No activatable signals found:', fetchError);
+        return false;
+      }
+
+      let activated = 0;
+      for (const signal of signals) {
+        const { data: result, error: rpcError } = await (supabase.rpc as any)('activate_demand_lane', {
+          p_signal_id: signal.id,
+          p_admin_id: user.id,
+        });
+        if (!rpcError && result?.success) activated++;
+      }
+
+      console.log(`[SmartDemandGrid] Activated ${activated}/${signals.length} signals`);
+      return activated > 0;
     } catch (err) {
       console.error('[SmartDemandGrid] Lane activation failed:', err);
       return false;
