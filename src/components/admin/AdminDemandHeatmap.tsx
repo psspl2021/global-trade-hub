@@ -1070,17 +1070,17 @@ export function AdminDemandHeatmap() {
                           : 'bg-card hover:bg-muted/50'
                       }`}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="font-medium flex items-center gap-2">
-                          {formatCategoryName(action.category)}
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="font-medium flex items-center gap-2 min-w-0 flex-1">
+                          <span className="truncate">{formatCategoryName(action.category)}</span>
                           {action.priority === 'revenue_high' && (
-                            <Badge className="bg-black text-yellow-400 text-xs flex items-center gap-1">
+                            <Badge className="bg-black text-yellow-400 text-xs flex items-center gap-1 shrink-0">
                               <Crown className="h-3 w-3" />
                               Enterprise
                             </Badge>
                           )}
                         </div>
-                        {getLaneStateBadge(action.lane_state)}
+                        <div className="shrink-0">{getLaneStateBadge(action.lane_state)}</div>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                         <span>{getCountryFlag(action.country)}</span>
