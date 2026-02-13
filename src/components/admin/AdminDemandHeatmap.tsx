@@ -870,9 +870,9 @@ export function AdminDemandHeatmap() {
               Capacity Utilization
             </div>
             <div className="text-3xl font-bold text-cyan-600">
-              {tiles.avgCapacityUtilization.toFixed(0)}%
+              {tiles.avgCapacityUtilization > 0 ? `${tiles.avgCapacityUtilization.toFixed(0)}%` : 'No Data'}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Avg across lanes</p>
+            <p className="text-xs text-muted-foreground mt-1">{tiles.avgCapacityUtilization > 0 ? 'Avg across lanes' : 'No capacity lanes configured'}</p>
           </CardContent>
         </Card>
 
@@ -909,9 +909,9 @@ export function AdminDemandHeatmap() {
               Avg Time to Monetise
             </div>
             <div className="text-3xl font-bold text-violet-600">
-              {tiles.avgTimeToActivation > 0 ? `${tiles.avgTimeToActivation.toFixed(1)}d` : '—'}
+              {tiles.avgTimeToActivation > 0 ? `${tiles.avgTimeToActivation.toFixed(1)}d` : 'Insufficient Data'}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Days to activation</p>
+            <p className="text-xs text-muted-foreground mt-1">{tiles.avgTimeToActivation > 0 ? 'Days to activation' : 'No lanes activated yet'}</p>
           </CardContent>
         </Card>
       </div>
