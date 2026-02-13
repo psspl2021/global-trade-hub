@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,8 +17,9 @@ Deno.serve(async (req) => {
     const country = body.country || 'India';
     const trade_type = body.trade_type || 'Domestic';
     const custom_topic = body.custom_topic || '';
+    const trending_context = body.trending_context || '';
 
-    console.log('generate-blog called with:', { category, country, trade_type, custom_topic });
+    console.log('generate-blog called with:', { category, country, trade_type, custom_topic, has_trending: !!trending_context });
 
     if (!category) {
       return new Response(JSON.stringify({ error: 'Category is required' }), {
@@ -31,7 +33,57 @@ Deno.serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
     const currentYear = new Date().getFullYear();
+    const today = new Date().toISOString().split('T')[0];
+
+    // === LIVE MARKET RESEARCH: Pull real demand signals for this category ===
+    let marketResearchContext = '';
+    try {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+      // Get demand signals for this category
+      const { data: catSignals } = await supabase
+        .from('demand_intelligence_signals')
+        .select('country, intent_score, classification, buyer_type, estimated_value, subcategory, industry')
+        .ilike('category', `%${category.split('&')[0].trim()}%`)
+        .gte('created_at', thirtyDaysAgo)
+        .order('intent_score', { ascending: false })
+        .limit(20);
+
+      // Get recent RFQs for this category
+      const { data: catRFQs } = await supabase
+        .from('requirements')
+        .select('destination, trade_type, product_category, created_at')
+        .ilike('product_category', `%${category.split('&')[0].trim()}%`)
+        .gte('created_at', thirtyDaysAgo)
+        .limit(15);
+
+      if ((catSignals && catSignals.length > 0) || (catRFQs && catRFQs.length > 0)) {
+        const signalCountries = [...new Set((catSignals || []).map(s => s.country).filter(Boolean))];
+        const avgIntent = catSignals?.length
+          ? (catSignals.reduce((sum, s) => sum + (s.intent_score || 0), 0) / catSignals.length).toFixed(1)
+          : 'N/A';
+        const maxValue = catSignals?.reduce((max, s) => Math.max(max, s.estimated_value || 0), 0) || 0;
+        const rfqCount = catRFQs?.length || 0;
+
+        marketResearchContext = `
+LIVE MARKET INTELLIGENCE (Real platform data as of ${today}):
+- ${catSignals?.length || 0} active demand signals detected for ${category}
+- Average buyer intent score: ${avgIntent}/10
+- Active demand from: ${signalCountries.join(', ') || 'Multiple regions'}
+- ${rfqCount} RFQs submitted in last 30 days
+${maxValue > 0 ? `- Estimated deal values up to $${(maxValue / 1000).toFixed(0)}K` : ''}
+- Signal classification breakdown: ${[...new Set((catSignals || []).map(s => s.classification).filter(Boolean))].join(', ') || 'Mixed'}
+
+USE THIS DATA to make the blog grounded in real market activity. Reference "growing buyer demand" or "active procurement activity" where the data supports it. Do NOT fabricate specific numbers beyond what's provided.`;
+      }
+    } catch (dbErr) {
+      console.error('Market research DB error (non-fatal):', dbErr);
+    }
 
     // Intent detection
     const isBuyerIntent = trade_type === 'Domestic' || trade_type === 'Import';
@@ -105,9 +157,13 @@ MANDATORY BLOG SECTIONS (in this order):
 
     const sections = isSupplierIntent ? supplierSections : buyerSections;
 
-    const systemPrompt = `You are an expert B2B procurement research analyst writing for ProcureSaathi, an AI-powered procurement platform.
+    const systemPrompt = `You are an expert B2B procurement research analyst writing for ProcureSaathi, an AI-powered procurement platform. Today is ${today}.
 
-ROLE: Simulate deep market research. Write as if you've analyzed Google Trends, industry reports, trade data, and regulatory databases.
+ROLE: You have access to REAL-TIME platform demand intelligence data. Use it to ground your analysis in actual market activity. Write as an analyst who has studied live buyer signals, RFQ patterns, and trade data.
+
+${marketResearchContext}
+
+${trending_context ? `TRENDING MARKET CONTEXT (from platform intelligence):\n${trending_context}\n` : ''}
 
 CONTENT RULES:
 - Write 1500-2000 words of SUBSTANTIVE content. No filler.
@@ -120,6 +176,7 @@ CONTENT RULES:
 - Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
 - NEVER use empty paragraphs, excessive <br> tags, or spacer divs.
 - Every <h2> section must have at least 2 substantive paragraphs.
+- When live demand data is available, weave it naturally: "Our AI has detected rising buyer activity in X from Y countries" or "Platform signals indicate growing procurement interest in Z."
 
 TITLE RULES:
 - NEVER use the format "X Procurement in Y: Sourcing Guide YEAR"
