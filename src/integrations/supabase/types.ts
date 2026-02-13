@@ -8399,12 +8399,6 @@ export type Database = {
             Returns: string
           }
         | { Args: { bid_id: string; req_id: string }; Returns: string }
-      activate_lane_from_signal:
-        | { Args: { p_category: string; p_country: string }; Returns: Json }
-        | {
-            Args: { p_admin_id?: string; p_category: string; p_country: string }
-            Returns: Json
-          }
       activate_logistics_lane_from_award: {
         Args: { bid_id: string; req_id: string }
         Returns: string
