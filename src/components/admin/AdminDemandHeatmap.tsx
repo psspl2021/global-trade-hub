@@ -162,11 +162,18 @@ export function AdminDemandHeatmap() {
   const fetchDashboard = useCallback(async () => {
     setRefreshing(true);
     try {
-      // Fetch all data in parallel
+      // 1. Recalculate intent scores server-side
+      const { data: recalcResult, error: recalcError } = await (supabase.rpc as any)('recalculate_intent_scores');
+      if (recalcError) console.warn('Intent recalc warning:', recalcError.message);
+      else if (import.meta.env.DEV) console.log(`[DemandDashboard] Recalculated ${recalcResult} intent scores`);
+
+      // 2. Fetch real metrics from DB function
+      const { data: metricsData, error: metricsError } = await (supabase.rpc as any)('get_demand_dashboard_metrics');
+
+      // 3. Fetch all raw data in parallel for the grid
       const [
         signalPagesRes,
         demandSignalsRes,
-        recentRFQsRes,
         capacityLanesRes
       ] = await Promise.all([
         supabase
@@ -175,11 +182,7 @@ export function AdminDemandHeatmap() {
           .eq('is_active', true),
         supabase
           .from('demand_intelligence_signals')
-          .select('country, category, estimated_value, decision_action, lane_state, created_at, first_signal_at, activated_at'),
-        supabase
-          .from('requirements')
-          .select('id')
-          .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+          .select('id, country, category, estimated_value, decision_action, lane_state, created_at, first_signal_at, activated_at, intent_score, signal_source, priority, confidence_score'),
         supabase
           .from('supplier_capacity_lanes')
           .select('*')
@@ -188,12 +191,10 @@ export function AdminDemandHeatmap() {
 
       if (signalPagesRes.error) throw signalPagesRes.error;
       if (demandSignalsRes.error) throw demandSignalsRes.error;
-      if (recentRFQsRes.error) throw recentRFQsRes.error;
       if (capacityLanesRes.error) throw capacityLanesRes.error;
 
       const signalPages = signalPagesRes.data || [];
       const demandSignals = demandSignalsRes.data || [];
-      const recentRFQs = recentRFQsRes.data || [];
       const capacityData = capacityLanesRes.data || [];
 
       setCapacityLanes(capacityData);
@@ -211,10 +212,9 @@ export function AdminDemandHeatmap() {
       
       demandSignals.forEach((signal: any) => {
         const key = `${(signal.country || 'IN').toUpperCase()}-${signal.category}`;
-        if (signal.decision_action === 'pending' || signal.lane_state === 'pending') {
+        if (signal.decision_action === 'pending' || signal.lane_state === 'pending' || signal.lane_state === 'detected') {
           pendingByCell.set(key, (pendingByCell.get(key) || 0) + 1);
         }
-        // Track most advanced lane state per cell
         const currentState = stateByCell.get(key);
         const signalState = (signal.lane_state || 'detected') as LaneState;
         const stateOrder: LaneState[] = ['detected', 'pending', 'activated', 'fulfilling', 'closed', 'lost'];
@@ -223,23 +223,52 @@ export function AdminDemandHeatmap() {
         }
       });
 
-      // Build heatmap
+      // Build heatmap from signals (primary) and signal pages (secondary)
       const heatmapMap = new Map<string, HeatmapCell>();
       
-      signalPages.forEach((page: any) => {
-        const key = `${(page.target_country || 'INDIA').toUpperCase()}-${page.category}`;
+      // Start with demand signals as primary source
+      demandSignals.forEach((signal: any) => {
+        const key = `${(signal.country || 'IN').toUpperCase()}-${signal.category}`;
         const existing = heatmapMap.get(key);
         
         if (existing) {
-          existing.intent_score += page.intent_score || 0;
+          existing.estimated_value += signal.estimated_value || 0;
+          existing.intent_score = Math.max(existing.intent_score, signal.intent_score || 0);
+          existing.rfqs_pending = pendingByCell.get(key) || 0;
+          if (signal.priority === 'revenue_high') existing.priority = 'revenue_high';
+        } else {
+          const laneState = stateByCell.get(key) || 'detected';
+          const category = signal.category || 'Unknown';
+          heatmapMap.set(key, {
+            country: (signal.country || 'IN').toUpperCase(),
+            category,
+            intent_score: signal.intent_score || 0,
+            rfqs_submitted: 0,
+            rfqs_pending: pendingByCell.get(key) || 0,
+            estimated_value: signal.estimated_value || 0,
+            priority_score: 0,
+            priority: signal.priority === 'revenue_high' || isEnterpriseCategory(category) ? 'revenue_high' : 'normal',
+            lane_state: laneState,
+            capacity_status: 'NO_CAPACITY',
+            available_capacity: 0,
+            deficit_value: 0,
+            utilization_pct: 0,
+          });
+        }
+      });
+
+      // Enrich with signal pages data
+      signalPages.forEach((page: any) => {
+        const key = `${(page.target_country || 'IN').toUpperCase()}-${page.category}`;
+        const existing = heatmapMap.get(key);
+        
+        if (existing) {
           existing.rfqs_submitted += page.rfqs_submitted || 0;
         } else {
-          const capacity = capacityMap.get(key);
           const laneState = stateByCell.get(key) || 'detected';
           const category = page.category || 'Unknown';
-          
           heatmapMap.set(key, {
-            country: (page.target_country || 'INDIA').toUpperCase(),
+            country: (page.target_country || 'IN').toUpperCase(),
             category,
             intent_score: page.intent_score || 0,
             rfqs_submitted: page.rfqs_submitted || 0,
@@ -256,42 +285,7 @@ export function AdminDemandHeatmap() {
         }
       });
 
-      // Add demand signal data
-      demandSignals.forEach((signal: any) => {
-        const key = `${(signal.country || 'IN').toUpperCase()}-${signal.category}`;
-        const existing = heatmapMap.get(key);
-        
-        if (existing) {
-          existing.estimated_value += signal.estimated_value || 0;
-          existing.rfqs_pending = pendingByCell.get(key) || 0;
-          existing.lane_state = stateByCell.get(key) || 'detected';
-          // Update priority if signal has priority set
-          if (signal.priority === 'revenue_high') {
-            existing.priority = 'revenue_high';
-          }
-        } else {
-          const laneState = stateByCell.get(key) || 'detected';
-          const category = signal.category || 'Unknown';
-          heatmapMap.set(key, {
-            country: (signal.country || 'IN').toUpperCase(),
-            category,
-            intent_score: 0,
-            rfqs_submitted: 0,
-            rfqs_pending: pendingByCell.get(key) || 0,
-            estimated_value: signal.estimated_value || 0,
-            priority_score: 0,
-            priority: signal.priority === 'revenue_high' || isEnterpriseCategory(category) ? 'revenue_high' : 'normal',
-            lane_state: laneState,
-            capacity_status: 'NO_CAPACITY',
-            available_capacity: 0,
-            deficit_value: 0,
-            utilization_pct: 0,
-          });
-        }
-      });
-
       // Enrich with capacity data and calculate priority score
-      // NEW FORMULA: Revenue-weighted with enterprise priority boost
       const heatmapData = Array.from(heatmapMap.values())
         .map(cell => {
           const key = `${cell.country}-${cell.category}`;
@@ -306,18 +300,12 @@ export function AdminDemandHeatmap() {
             } : null
           );
 
-          // Revenue-weighted priority score
-          // Value weight: 50%, Intent: 30%, RFQs: 20%
           const valueScore = (cell.estimated_value || 0) / 1_000_000;
           const intentScore = cell.intent_score || 0;
           const rfqScore = cell.rfqs_submitted || 0;
           
           let priorityScore = (valueScore * 0.5) + (intentScore * 0.3) + (rfqScore * 0.2);
-          
-          // Enterprise boost: +25% for revenue_high lanes
-          if (cell.priority === 'revenue_high') {
-            priorityScore *= 1.25;
-          }
+          if (cell.priority === 'revenue_high') priorityScore *= 1.25;
 
           return {
             ...cell,
@@ -332,86 +320,66 @@ export function AdminDemandHeatmap() {
 
       setHeatmap(heatmapData);
 
-      // Calculate KPI tiles
-      const pendingSignals = demandSignals.filter((s: any) => 
-        s.decision_action === 'pending' || s.lane_state === 'pending' || s.lane_state === 'detected'
-      );
-      const totalSignals = pendingSignals.length;
-      const totalRevenueAtRisk = pendingSignals.reduce((sum: number, s: any) => sum + (s.estimated_value || 0), 0);
+      // Use DB-computed metrics (primary) with client fallback
+      if (metricsData && !metricsError) {
+        setTiles({
+          totalSignals: metricsData.active_signals || 0,
+          totalRevenueAtRisk: Number(metricsData.revenue_at_risk) || 0,
+          topCountry: metricsData.top_country ? { label: metricsData.top_country, value: Number(metricsData.top_country_score) || 0 } : null,
+          topCategory: metricsData.top_category ? { label: metricsData.top_category, value: Number(metricsData.top_category_score) || 0 } : null,
+          rfqsLast7Days: metricsData.rfqs_7d || 0,
+          avgCapacityUtilization: Number(metricsData.capacity_utilization) || 0,
+          demandCapacityGap: Number(metricsData.demand_capacity_gap) || 0,
+          activeLanes: metricsData.active_lanes || 0,
+          avgTimeToActivation: Number(metricsData.avg_time_to_monetise) || 0,
+        });
+      } else {
+        // Fallback: client-side calculation
+        console.warn('Metrics RPC failed, using client fallback:', metricsError?.message);
+        const activeSignals = demandSignals.filter((s: any) => !['closed', 'lost'].includes(s.lane_state));
+        const revenueAtRisk = activeSignals
+          .filter((s: any) => ['detected', 'pending'].includes(s.lane_state))
+          .reduce((sum: number, s: any) => sum + (s.estimated_value || 0), 0);
+        
+        const countryIntents = new Map<string, number>();
+        heatmapData.forEach(cell => countryIntents.set(cell.country, (countryIntents.get(cell.country) || 0) + cell.intent_score));
+        let topCountry: { label: string; value: number } | null = null;
+        countryIntents.forEach((value, label) => { if (!topCountry || value > topCountry.value) topCountry = { label, value }; });
 
-      // Top country by intent
-      const countryIntents = new Map<string, number>();
-      heatmapData.forEach(cell => {
-        countryIntents.set(cell.country, (countryIntents.get(cell.country) || 0) + cell.intent_score);
-      });
-      let topCountry: { label: string; value: number } | null = null;
-      countryIntents.forEach((value, label) => {
-        if (!topCountry || value > topCountry.value) topCountry = { label, value };
-      });
+        const categoryIntents = new Map<string, number>();
+        heatmapData.forEach(cell => categoryIntents.set(cell.category, (categoryIntents.get(cell.category) || 0) + cell.intent_score));
+        let topCategory: { label: string; value: number } | null = null;
+        categoryIntents.forEach((value, label) => { if (!topCategory || value > topCategory.value) topCategory = { label, value }; });
 
-      // Top category by intent
-      const categoryIntents = new Map<string, number>();
-      heatmapData.forEach(cell => {
-        categoryIntents.set(cell.category, (categoryIntents.get(cell.category) || 0) + cell.intent_score);
-      });
-      let topCategory: { label: string; value: number } | null = null;
-      categoryIntents.forEach((value, label) => {
-        if (!topCategory || value > topCategory.value) topCategory = { label, value };
-      });
+        const activeLanesSet = new Set(
+          demandSignals
+            .filter((s: any) => s.lane_state === 'activated' || s.lane_state === 'fulfilling')
+            .map((s: any) => `${s.country}-${s.category}`)
+        );
 
-      // NEW: Capacity utilization
-      const avgCapacityUtilization = capacityData.length > 0
-        ? capacityData.reduce((sum, l) => 
-            sum + (Number(l.monthly_capacity_value) > 0 
-              ? (Number(l.allocated_capacity_value) / Number(l.monthly_capacity_value)) * 100 
-              : 0), 0) / capacityData.length
-        : 0;
+        const avgUtil = capacityData.length > 0
+          ? capacityData.reduce((sum, l) => sum + (Number(l.monthly_capacity_value) > 0 ? (Number(l.allocated_capacity_value) / Number(l.monthly_capacity_value)) * 100 : 0), 0) / capacityData.length
+          : 0;
 
-      // NEW: Demand-Capacity Gap
-      const demandCapacityGap = heatmapData
-        .filter(c => c.capacity_status === 'DEFICIT' || c.capacity_status === 'NO_CAPACITY')
-        .reduce((sum, c) => sum + c.deficit_value, 0);
+        setTiles({
+          totalSignals: activeSignals.length,
+          totalRevenueAtRisk: revenueAtRisk,
+          topCountry,
+          topCategory,
+          rfqsLast7Days: 0, // would need separate query
+          avgCapacityUtilization: avgUtil,
+          demandCapacityGap: heatmapData.filter(c => c.capacity_status !== 'OK').reduce((sum, c) => sum + c.deficit_value, 0),
+          activeLanes: activeLanesSet.size,
+          avgTimeToActivation: 0,
+        });
+      }
 
-      // NEW: Active Lanes count
-      const activeLanesSet = new Set(
-        demandSignals
-          .filter((s: any) => s.lane_state === 'activated' || s.lane_state === 'fulfilling')
-          .map((s: any) => `${s.country}-${s.category}`)
-      );
-
-      // NEW: Avg Time to Activation (in days)
-      const activationTimes = demandSignals
-        .filter((s: any) => s.activated_at && (s.first_signal_at || s.created_at))
-        .map((s: any) => {
-          const start = new Date(s.first_signal_at || s.created_at).getTime();
-          const end = new Date(s.activated_at).getTime();
-          return (end - start) / (1000 * 60 * 60 * 24); // days
-        })
-        .filter((d: number) => d >= 0 && d < 365); // filter outliers
-
-      const avgTimeToActivation = activationTimes.length > 0
-        ? activationTimes.reduce((a: number, b: number) => a + b, 0) / activationTimes.length
-        : 0;
-
-      setTiles({
-        totalSignals,
-        totalRevenueAtRisk,
-        topCountry,
-        topCategory,
-        rfqsLast7Days: recentRFQs.length,
-        avgCapacityUtilization,
-        demandCapacityGap,
-        activeLanes: activeLanesSet.size,
-        avgTimeToActivation,
-      });
-
-      // Generate urgent actions - ENTERPRISE FIRST
-      // Prioritize revenue_high lanes and high-value opportunities
+      // Generate urgent actions
       const urgentList: UrgentAction[] = heatmapData
         .filter(cell => 
           cell.priority === 'revenue_high' ||
           cell.priority_score > 25 ||
-          cell.intent_score > 30 || 
+          cell.intent_score > 5 || 
           cell.estimated_value > 5000000
         )
         .slice(0, 10)
@@ -421,7 +389,7 @@ export function AdminDemandHeatmap() {
             reason = '🏆 Enterprise Lane – High Value';
           } else if (cell.priority === 'revenue_high') {
             reason = '🏆 Enterprise Lane';
-          } else if (cell.intent_score > 50) {
+          } else if (cell.intent_score > 7) {
             reason = 'High intent detected';
           } else if (cell.estimated_value > 10000000) {
             reason = 'Large deal opportunity';
@@ -431,8 +399,6 @@ export function AdminDemandHeatmap() {
             reason = 'Active demand';
           }
 
-          const canAllocate = cell.lane_state === 'activated' && cell.capacity_status === 'OK';
-
           return {
             category: cell.category,
             country: cell.country,
@@ -441,7 +407,7 @@ export function AdminDemandHeatmap() {
             estimated_value: cell.estimated_value,
             reason,
             lane_state: cell.lane_state,
-            can_allocate: canAllocate,
+            can_allocate: cell.lane_state === 'activated' && cell.capacity_status === 'OK',
             priority: cell.priority,
           };
         });
@@ -521,80 +487,77 @@ export function AdminDemandHeatmap() {
     setShowSupplierModal(true);
   }
 
-  // Confirm lane activation
-  async function confirmActivateLane() {
-    if (!activatingLane) return;
-    
-    const { country, category } = activatingLane;
+  // Activate lane via RPC - finds matching signals and activates them
+  async function activateLaneByCountryCategory(country: string, category: string) {
     try {
-      const { error } = await supabase
-        .from('demand_intelligence_signals')
-        .update({
-          decision_action: 'activated',
-          lane_state: 'activated',
-          activated_at: new Date().toISOString(),
-        })
-        .eq('country', country.toLowerCase())
-        .in('lane_state', ['detected', 'pending']);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('You must be logged in to activate lanes');
+        return;
+      }
 
-      // Also try with original case
-      await supabase
+      // Find signals for this country+category that can be activated
+      const { data: signals, error: fetchError } = await supabase
         .from('demand_intelligence_signals')
-        .update({
-          decision_action: 'activated',
-          lane_state: 'activated',
-          activated_at: new Date().toISOString(),
-        })
-        .eq('country', country)
+        .select('id, lane_state, country, category')
+        .eq('country', country.toUpperCase())
         .eq('category', category)
-        .in('lane_state', ['detected', 'pending']);
+        .in('lane_state', ['detected', 'pending'])
+        .limit(10);
 
-      if (error) throw error;
-      
-      toast.success(`Lane ${country} × ${category} activated`);
-      setShowSupplierModal(false);
-      setActivatingLane(null);
-      fetchDashboard();
-      fetchPreTenderOpportunities();
-    } catch (error) {
+      if (fetchError) throw fetchError;
+
+      if (!signals || signals.length === 0) {
+        toast.error(`No activatable signals found for ${country} × ${category}. Signals may already be activated or in a terminal state.`);
+        return;
+      }
+
+      let successCount = 0;
+      let lastError = '';
+      for (const signal of signals) {
+        const { data: result, error: rpcError } = await (supabase.rpc as any)('activate_demand_lane', {
+          p_signal_id: signal.id,
+          p_admin_id: user.id,
+        });
+
+        if (rpcError) {
+          lastError = rpcError.message;
+          console.error(`[ActivateLane] RPC error for signal ${signal.id}:`, rpcError);
+          continue;
+        }
+
+        if (result && result.success) {
+          successCount++;
+        } else if (result) {
+          lastError = result.error || 'Unknown error';
+          console.warn(`[ActivateLane] Signal ${signal.id} failed:`, result.error, result.code);
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`Activated ${successCount} signal(s) for ${country} × ${category}`);
+        fetchDashboard();
+        fetchPreTenderOpportunities();
+      } else {
+        toast.error(`Failed to activate lane: ${lastError}`);
+      }
+    } catch (error: any) {
       console.error('Error activating lane:', error);
-      toast.error('Failed to activate lane');
+      toast.error(`Failed to activate lane: ${error.message || 'Unknown error'}`);
     }
   }
 
-  // Legacy lane activation (backward compatibility)
+  // Confirm lane activation from modal
+  async function confirmActivateLane() {
+    if (!activatingLane) return;
+    await activateLaneByCountryCategory(activatingLane.country, activatingLane.category);
+    setShowSupplierModal(false);
+    setActivatingLane(null);
+  }
+
+  // Direct lane activation (from urgent actions panel)
   async function activateLane(country: string, category: string) {
-    try {
-      const { error } = await supabase
-        .from('demand_intelligence_signals')
-        .update({
-          decision_action: 'activated',
-          lane_state: 'activated',
-          activated_at: new Date().toISOString(),
-        })
-        .eq('country', country.toLowerCase())
-        .in('lane_state', ['detected', 'pending']);
-
-      // Also try with original case
-      await supabase
-        .from('demand_intelligence_signals')
-        .update({
-          decision_action: 'activated',
-          lane_state: 'activated',
-          activated_at: new Date().toISOString(),
-        })
-        .eq('country', country)
-        .eq('category', category)
-        .in('lane_state', ['detected', 'pending']);
-
-      if (error) throw error;
-      
-      toast.success(`Lane ${country} × ${category} activated`);
-      fetchDashboard();
-    } catch (error) {
-      console.error('Error activating lane:', error);
-      toast.error('Failed to activate lane');
-    }
+    await activateLaneByCountryCategory(country, category);
   }
 
   // Capacity allocation action
@@ -623,25 +586,15 @@ export function AdminDemandHeatmap() {
 
       if (capacityError) throw capacityError;
 
-      // Update demand signals to fulfilling
+      // Update demand signals to fulfilling (country is now normalized to uppercase)
       const { error: signalError } = await supabase
         .from('demand_intelligence_signals')
         .update({
           lane_state: 'fulfilling',
           fulfilling_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
-        .eq('country', country.toLowerCase())
-        .eq('category', category)
-        .eq('lane_state', 'activated');
-
-      // Also try with original case
-      await supabase
-        .from('demand_intelligence_signals')
-        .update({
-          lane_state: 'fulfilling',
-          fulfilling_at: new Date().toISOString(),
-        })
-        .eq('country', country)
+        .eq('country', country.toUpperCase())
         .eq('category', category)
         .eq('lane_state', 'activated');
 
