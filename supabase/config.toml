@@ -80,3 +80,9 @@ verify_jwt = false
 
 [functions.prerender]
 verify_jwt = false
+
+[functions.fetch-trending-topics]
+verify_jwt = true
+
+[functions.generate-blog]
+verify_jwt = true

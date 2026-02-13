@@ -1,6 +1,7 @@
 /**
  * AI Blog Generator — SEO Research Engine
  * Generates unique, research-backed, image-rich procurement blogs
+ * Now powered by live demand intelligence + trending market data
  */
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Loader2, Save, Eye, FileText, Image, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Loader2, Save, Eye, FileText, Image, Search, AlertTriangle, CheckCircle2, TrendingUp, Flame, Globe, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 const CATEGORIES = [
@@ -42,7 +43,19 @@ interface GeneratedBlog {
   intent?: string;
 }
 
+interface TrendingTopic {
+  title: string;
+  category: string;
+  country: string;
+  trade_type: string;
+  reason: string;
+  topic_type: 'price' | 'policy' | 'hotspot';
+  heat_score: number;
+}
+
 const LOADING_MESSAGES = [
+  'Scanning live demand signals…',
+  'Analyzing trending market conditions…',
   'AI researching market data…',
   'Analyzing pricing trends & benchmarks…',
   'Reviewing compliance & regulatory landscape…',
@@ -53,6 +66,12 @@ const LOADING_MESSAGES = [
   'Generating research-backed blog…',
 ];
 
+const TOPIC_TYPE_CONFIG = {
+  price: { icon: TrendingUp, label: 'Price Movement', color: 'text-emerald-600' },
+  policy: { icon: Globe, label: 'Policy Change', color: 'text-blue-600' },
+  hotspot: { icon: Flame, label: 'Demand Hotspot', color: 'text-orange-600' },
+};
+
 export function AIBlogGenerator() {
   const [form, setForm] = useState({ category: '', country: 'India', trade_type: 'Domestic', custom_topic: '' });
   const [generating, setGenerating] = useState(false);
@@ -61,9 +80,44 @@ export function AIBlogGenerator() {
   const [saving, setSaving] = useState(false);
   const [generatedKeys, setGeneratedKeys] = useState<Set<string>>(new Set());
 
+  // Trending topics state
+  const [trendingTopics, setTrendingTopics] = useState<TrendingTopic[]>([]);
+  const [fetchingTrending, setFetchingTrending] = useState(false);
+  const [trendingMeta, setTrendingMeta] = useState<{ signal_count: number; rfq_count: number } | null>(null);
+  const [selectedTrending, setSelectedTrending] = useState<TrendingTopic | null>(null);
+
   const getGenKey = useCallback(() => {
     return `${form.category}|${form.country}|${form.trade_type}|${form.custom_topic}`.toLowerCase();
   }, [form]);
+
+  const fetchTrendingTopics = async () => {
+    setFetchingTrending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-trending-topics', { body: {} });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setTrendingTopics(data.topics || []);
+      setTrendingMeta({ signal_count: data.signal_count, rfq_count: data.rfq_count });
+      toast.success(`Found ${data.topics?.length || 0} trending topics from ${data.signal_count} demand signals`);
+    } catch (err: any) {
+      console.error('Trending topics error:', err);
+      toast.error(err.message || 'Failed to fetch trending topics');
+    } finally {
+      setFetchingTrending(false);
+    }
+  };
+
+  const selectTrendingTopic = (topic: TrendingTopic) => {
+    setSelectedTrending(topic);
+    setForm({
+      category: topic.category,
+      country: topic.country,
+      trade_type: topic.trade_type,
+      custom_topic: topic.title,
+    });
+    toast.info(`Topic loaded: "${topic.title}"`);
+  };
 
   const handleGenerate = async () => {
     if (!form.category) {
@@ -88,12 +142,17 @@ export function AIBlogGenerator() {
     }, 2500);
 
     try {
-      const payload = {
+      const payload: Record<string, string> = {
         category: form.category,
         country: form.country,
         trade_type: form.trade_type,
         custom_topic: form.custom_topic || '',
       };
+
+      // If generated from a trending topic, pass the reason as context
+      if (selectedTrending && form.custom_topic === selectedTrending.title) {
+        payload.trending_context = `This topic was identified as trending (heat score: ${selectedTrending.heat_score}/10, type: ${selectedTrending.topic_type}). Reason: ${selectedTrending.reason}`;
+      }
 
       console.log('Sending to generate-blog:', payload);
 
@@ -107,7 +166,7 @@ export function AIBlogGenerator() {
       if (data?.blog) {
         setGenerated(data.blog);
         setGeneratedKeys(prev => new Set(prev).add(genKey));
-        toast.success('Blog generated! Review content and images before publishing.');
+        toast.success('Blog generated with live market intelligence! Review before publishing.');
       }
     } catch (err: any) {
       console.error('Blog gen error:', err);
@@ -136,7 +195,6 @@ export function AIBlogGenerator() {
         return;
       }
 
-      // Determine category label
       const categoryLabel = form.trade_type === 'Export' ? 'Export Guide' :
                             form.trade_type === 'Import' ? 'Import Guide' :
                             form.category.includes('Steel') ? 'Industry News' :
@@ -157,6 +215,7 @@ export function AIBlogGenerator() {
       if (error) throw error;
       toast.success(publish ? 'Blog published successfully!' : 'Blog saved as draft');
       setGenerated(null);
+      setSelectedTrending(null);
       setForm(p => ({ ...p, custom_topic: '' }));
     } catch (err: any) {
       toast.error(err.message || 'Failed to save');
@@ -167,15 +226,85 @@ export function AIBlogGenerator() {
 
   return (
     <div className="space-y-6">
+      {/* Trending Topics Panel */}
+      <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-orange-500/5">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Flame className="h-5 w-5 text-orange-500" />
+            Trending Market Topics
+            <Badge variant="secondary" className="text-xs">Live Demand Intelligence</Badge>
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            AI analyzes your platform's demand signals + RFQ activity to suggest high-impact blog topics grounded in real market conditions.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={fetchTrendingTopics}
+              disabled={fetchingTrending}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              {fetchingTrending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+              {fetchingTrending ? 'Scanning signals…' : 'Fetch Trending Topics'}
+            </Button>
+            {trendingMeta && (
+              <span className="text-xs text-muted-foreground">
+                Based on {trendingMeta.signal_count} demand signals & {trendingMeta.rfq_count} RFQs (last 30 days)
+              </span>
+            )}
+          </div>
+
+          {trendingTopics.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[320px] overflow-y-auto">
+              {trendingTopics.map((topic, idx) => {
+                const typeConfig = TOPIC_TYPE_CONFIG[topic.topic_type] || TOPIC_TYPE_CONFIG.hotspot;
+                const TypeIcon = typeConfig.icon;
+                const isSelected = selectedTrending?.title === topic.title;
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => selectTrendingTopic(topic)}
+                    className={`text-left p-3 rounded-lg border transition-all hover:shadow-md ${
+                      isSelected
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary/30'
+                        : 'border-border bg-card hover:border-primary/30'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <TypeIcon className={`h-4 w-4 mt-0.5 shrink-0 ${typeConfig.color}`} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium leading-tight line-clamp-2">{topic.title}</p>
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          <Badge variant="outline" className="text-[10px] h-5">{topic.category}</Badge>
+                          <Badge variant="outline" className="text-[10px] h-5">{topic.country}</Badge>
+                          <Badge variant="outline" className="text-[10px] h-5">{topic.trade_type}</Badge>
+                          <span className="text-[10px] text-orange-600 font-semibold">🔥 {topic.heat_score}/10</span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2">{topic.reason}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Generator Form */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" />
             AI Blog Generator
-            <Badge variant="secondary" className="text-xs">SEO Research Engine</Badge>
+            <Badge variant="secondary" className="text-xs">SEO Research Engine + Live Data</Badge>
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Generates unique, research-backed blogs with images, pricing tables, and buyer/supplier-intent CTAs. Each category × country × trade type produces different content.
+            Generates unique, research-backed blogs powered by live demand intelligence, pricing tables, and buyer/supplier-intent CTAs.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -213,14 +342,24 @@ export function AIBlogGenerator() {
               {form.trade_type === 'Import' && '→ Duties, HS codes, landed cost, forex'}
               {form.trade_type === 'Export' && '→ Demand trends, DGFT, documentation, FOB/CIF'}
             </span>
+            {selectedTrending && (
+              <Badge variant="outline" className="text-xs text-orange-600 border-orange-300">
+                🔥 Trending Topic Selected
+              </Badge>
+            )}
           </div>
 
           <div className="space-y-1">
-            <Label>Custom Topic (optional)</Label>
+            <Label>Custom Topic / Trending Topic</Label>
             <Input
               value={form.custom_topic}
-              onChange={e => setForm(p => ({ ...p, custom_topic: e.target.value }))}
-              placeholder="e.g. MS Plate price trends Q2 2026, DGFT export incentives for chemicals"
+              onChange={e => {
+                setForm(p => ({ ...p, custom_topic: e.target.value }));
+                if (selectedTrending && e.target.value !== selectedTrending.title) {
+                  setSelectedTrending(null);
+                }
+              }}
+              placeholder="e.g. MS Plate price trends Q2 2026, or click a trending topic above"
             />
           </div>
 
