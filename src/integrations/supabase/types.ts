@@ -8377,6 +8377,10 @@ export type Database = {
         Args: { p_affiliate_id: string }
         Returns: string
       }
+      activate_demand_lane: {
+        Args: { p_admin_id: string; p_signal_id: string }
+        Returns: Json
+      }
       activate_lane_from_award:
         | {
             Args: {
@@ -8690,6 +8694,7 @@ export type Database = {
           suggested_action: string
         }[]
       }
+      get_demand_dashboard_metrics: { Args: never; Returns: Json }
       get_demand_intelligence_grid: {
         Args: { p_category?: string; p_country?: string; p_days_back?: number }
         Returns: {
@@ -8931,6 +8936,7 @@ export type Database = {
         Args: { p_country?: string; p_slug: string }
         Returns: undefined
       }
+      recalculate_intent_scores: { Args: never; Returns: number }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
       request_supplier_reveal: {
         Args: {
