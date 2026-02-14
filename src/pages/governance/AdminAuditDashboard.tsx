@@ -469,7 +469,7 @@ export default function AdminAuditDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Global demand intelligence across 6 countries × 30 categories
+              Global demand intelligence across 196 countries × 30 categories
             </p>
             <Button 
               className="w-full bg-rose-500 hover:bg-rose-600 text-white"

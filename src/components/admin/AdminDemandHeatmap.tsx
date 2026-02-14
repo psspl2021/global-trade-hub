@@ -18,7 +18,8 @@
  * ============================================================
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCountriesMaster } from '@/hooks/useCountriesMaster';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -150,6 +151,14 @@ export function AdminDemandHeatmap() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLaneState, setSelectedLaneState] = useState<string | null>(null);
   
+  // DB-driven country list for dropdown + header (all countries from countries_master)
+  const { countries: dbCountries, loading: countriesLoading, getFlag: getDbFlag, getCountryName: getDbCountryName } = useCountriesMaster();
+  
+  const allCountryOptions = useMemo(() => 
+    dbCountries.map(c => ({ code: c.iso_code, name: c.country_name })),
+    [dbCountries]
+  );
+
   // Pre-Tender Opportunities state
   const [preTenderOpportunities, setPreTenderOpportunities] = useState<PreTenderOpportunity[]>([]);
   const [showPreTender, setShowPreTender] = useState(false);
@@ -682,7 +691,7 @@ export function AdminDemandHeatmap() {
       return b.priority_score - a.priority_score;
     });
 
-  const uniqueCountries = [...new Set(heatmap.map(h => h.country))];
+  // Signal-derived lists for categories and states only
   const uniqueCategories = [...new Set(heatmap.map(h => h.category))];
   const uniqueStates = [...new Set(heatmap.map(h => h.lane_state))];
 
@@ -712,8 +721,8 @@ export function AdminDemandHeatmap() {
               label={heatmap.length > 0 ? 'AI Monitoring Live' : 'AI Monitoring'}
             />
           </h2>
-          <p className="text-muted-foreground text-sm">
-            Real-time demand intelligence across {uniqueCountries.length} countries × {uniqueCategories.length} categories
+           <p className="text-muted-foreground text-sm">
+            Real-time demand intelligence across {allCountryOptions.length} countries × {uniqueCategories.length} categories
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             Signals are generated from SEO pages, RFQs, and buyer intent across countries.
@@ -721,7 +730,7 @@ export function AdminDemandHeatmap() {
           {/* Coverage Badge */}
           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
             <Brain className="h-3 w-3" />
-            AI-powered analysis across 6 countries • 9 enterprise categories
+            AI-powered analysis across {allCountryOptions.length} countries • {uniqueCategories.length} enterprise categories
           </p>
         </div>
         <Button 
@@ -947,9 +956,9 @@ export function AdminDemandHeatmap() {
                   value={selectedCountry || ''}
                   onChange={e => setSelectedCountry(e.target.value || null)}
                 >
-                  <option value="">All Countries</option>
-                  {uniqueCountries.map(c => (
-                    <option key={c} value={c}>{getCountryFlag(c)} {c}</option>
+                  <option value="">All Countries ({allCountryOptions.length})</option>
+                  {allCountryOptions.map(c => (
+                    <option key={c.code} value={c.code}>{getDbFlag(c.code)} {c.name} ({c.code})</option>
                   ))}
                 </select>
                 <select 

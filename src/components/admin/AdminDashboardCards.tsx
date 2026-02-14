@@ -252,7 +252,7 @@ export function AdminDashboardCards({
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Global demand intelligence across 6 countries × 30 categories
+            Global demand intelligence across 196 countries × 30 categories
           </p>
           <Button 
             className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700" 
