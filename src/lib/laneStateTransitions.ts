@@ -276,8 +276,8 @@ export const LANE_STATE_CONFIG: Record<LaneState, {
   },
   activated: {
     label: 'Activated',
-    color: 'text-blue-600',
-    badgeVariant: 'default',
+    color: 'bg-blue-600 text-white border-blue-600',
+    badgeVariant: 'outline',
     description: 'Lane opened for supplier fulfilment',
   },
   fulfilling: {
