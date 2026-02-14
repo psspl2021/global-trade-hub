@@ -151,9 +151,9 @@ export function AdminDemandHeatmap() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLaneState, setSelectedLaneState] = useState<string | null>(null);
   
-  // DB-driven country list for dropdown + header (all countries from countries_master)
-  const { countries: dbCountries, loading: countriesLoading, getFlag: getDbFlag, getCountryName: getDbCountryName } = useCountriesMaster();
-  
+  // DB-driven country list — single hook call for dropdown + header
+  const { countries: dbCountries, getFlag: getDbFlag } = useCountriesMaster();
+
   const allCountryOptions = useMemo(() => 
     dbCountries.map(c => ({ code: c.iso_code, name: c.country_name })),
     [dbCountries]
