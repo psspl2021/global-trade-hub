@@ -889,7 +889,10 @@ export function AdminDemandHeatmap() {
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-green-500/5">
+        <Card 
+          className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-green-500/5 cursor-pointer hover:shadow-md transition-all"
+          onClick={() => document.getElementById('demand-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <Package className="h-4 w-4 text-emerald-500" />
@@ -902,7 +905,10 @@ export function AdminDemandHeatmap() {
           </CardContent>
         </Card>
 
-        <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-purple-500/5">
+        <Card 
+          className="border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-purple-500/5 cursor-pointer hover:shadow-md transition-all"
+          onClick={() => document.getElementById('demand-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <Timer className="h-4 w-4 text-violet-500" />
@@ -917,7 +923,7 @@ export function AdminDemandHeatmap() {
       </div>
 
       {/* Main Grid: Heatmap + Urgent Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div id="demand-grid-section" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Heatmap Table */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
@@ -1135,30 +1141,40 @@ export function AdminDemandHeatmap() {
       </div>
 
       {/* AI Intelligence Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div id="ai-intelligence-section" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* AI Insights Card */}
-        <AIInsightsCard
-          topCountry={tiles.topCountry}
-          topCategory={tiles.topCategory}
-          totalSignals={tiles.totalSignals}
-          totalRevenueAtRisk={tiles.totalRevenueAtRisk}
-          rfqsLast7Days={tiles.rfqsLast7Days}
-          avgCapacityUtilization={tiles.avgCapacityUtilization}
-          demandCapacityGap={tiles.demandCapacityGap}
-          activeLanes={tiles.activeLanes}
-          hasData={heatmap.length > 0 || tiles.totalSignals > 0 || tiles.rfqsLast7Days > 0}
-        />
+        <div 
+          className="cursor-pointer" 
+          onClick={() => document.getElementById('demand-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          <AIInsightsCard
+            topCountry={tiles.topCountry}
+            topCategory={tiles.topCategory}
+            totalSignals={tiles.totalSignals}
+            totalRevenueAtRisk={tiles.totalRevenueAtRisk}
+            rfqsLast7Days={tiles.rfqsLast7Days}
+            avgCapacityUtilization={tiles.avgCapacityUtilization}
+            demandCapacityGap={tiles.demandCapacityGap}
+            activeLanes={tiles.activeLanes}
+            hasData={heatmap.length > 0 || tiles.totalSignals > 0 || tiles.rfqsLast7Days > 0}
+          />
+        </div>
 
         {/* AI Recommended Actions Card */}
-        <AIRecommendedActionsCard
-          topCountry={tiles.topCountry}
-          topCategory={tiles.topCategory}
-          heatmapData={heatmap}
-          activeLanes={tiles.activeLanes}
-          demandCapacityGap={tiles.demandCapacityGap}
-          rfqsLast7Days={tiles.rfqsLast7Days}
-          onActivateLane={(country, category) => handleActivateLaneClick(country, category)}
-        />
+        <div 
+          className="cursor-pointer" 
+          onClick={() => document.getElementById('demand-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          <AIRecommendedActionsCard
+            topCountry={tiles.topCountry}
+            topCategory={tiles.topCategory}
+            heatmapData={heatmap}
+            activeLanes={tiles.activeLanes}
+            demandCapacityGap={tiles.demandCapacityGap}
+            rfqsLast7Days={tiles.rfqsLast7Days}
+            onActivateLane={(country, category) => handleActivateLaneClick(country, category)}
+          />
+        </div>
       </div>
 
       {/* Pre-Tender Opportunities Section */}
