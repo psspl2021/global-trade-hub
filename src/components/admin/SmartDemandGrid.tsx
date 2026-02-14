@@ -87,6 +87,7 @@ interface SmartGridRow {
 
 // ============= IMPORTS FOR REGION SUPPORT =============
 import { getAllRegions, getRegionName, type Region } from '@/data/countryMaster';
+import { useCountriesMaster } from '@/hooks/useCountriesMaster';
 
 // ============= COMPONENT =============
 
@@ -106,10 +107,19 @@ export function SmartDemandGrid() {
   const [loading, setLoading] = useState(false);
   const [realSignalCount, setRealSignalCount] = useState(0);
   
+  // DB-driven country list (no hardcoded arrays)
+  const { countries: dbCountries, loading: countriesLoading, getFlag } = useCountriesMaster();
+  
   // Dropdown options
-  const allCountries = useMemo(() => getAllCountriesForGrid(), []);
+  const allCountries = useMemo(() => 
+    dbCountries.map(c => ({ code: c.iso_code, name: c.country_name, flag: getFlag(c.iso_code), region: c.region || '' })),
+    [dbCountries, getFlag]
+  );
   const allCategories = useMemo(() => getAllCategoriesForGrid(), []);
-  const allRegions = useMemo(() => getAllRegions(), []);
+  const allRegions = useMemo(() => {
+    const dbRegions = [...new Set(dbCountries.map(c => c.region).filter(Boolean))] as string[];
+    return dbRegions.length > 0 ? dbRegions : getAllRegions();
+  }, [dbCountries]);
   const subcategories = useMemo(() => 
     categoryFilter !== 'all' ? getSubcategoriesForCategory(categoryFilter) : [],
     [categoryFilter]
@@ -516,7 +526,7 @@ export function SmartDemandGrid() {
               <SelectItem value="all">🌍 All Regions</SelectItem>
               {allRegions.map(region => (
                 <SelectItem key={region} value={region}>
-                  {getRegionName(region)}
+                  {getRegionName(region as Region)}
                 </SelectItem>
               ))}
             </SelectContent>

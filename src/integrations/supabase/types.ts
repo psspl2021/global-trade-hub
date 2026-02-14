@@ -2084,6 +2084,30 @@ export type Database = {
           },
         ]
       }
+      countries_master: {
+        Row: {
+          country_name: string
+          created_at: string | null
+          is_active: boolean | null
+          iso_code: string
+          region: string | null
+        }
+        Insert: {
+          country_name: string
+          created_at?: string | null
+          is_active?: boolean | null
+          iso_code: string
+          region?: string | null
+        }
+        Update: {
+          country_name?: string
+          created_at?: string | null
+          is_active?: boolean | null
+          iso_code?: string
+          region?: string | null
+        }
+        Relationships: []
+      }
       demand_alerts: {
         Row: {
           actioned_at: string | null
@@ -2268,6 +2292,7 @@ export type Database = {
           converted_at: string | null
           converted_to_rfq_id: string | null
           country: string | null
+          country_iso: string | null
           created_at: string | null
           decision_action: string | null
           decision_made_at: string | null
@@ -2325,6 +2350,7 @@ export type Database = {
           converted_at?: string | null
           converted_to_rfq_id?: string | null
           country?: string | null
+          country_iso?: string | null
           created_at?: string | null
           decision_action?: string | null
           decision_made_at?: string | null
@@ -2382,6 +2408,7 @@ export type Database = {
           converted_at?: string | null
           converted_to_rfq_id?: string | null
           country?: string | null
+          country_iso?: string | null
           created_at?: string | null
           decision_action?: string | null
           decision_made_at?: string | null
@@ -2449,6 +2476,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "admin_signal_pages"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_signals_country_iso"
+            columns: ["country_iso"]
+            isOneToOne: false
+            referencedRelation: "countries_master"
+            referencedColumns: ["iso_code"]
           },
         ]
       }
@@ -5781,6 +5815,50 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_demand_pages: {
+        Row: {
+          category: string
+          country_iso: string | null
+          created_at: string | null
+          id: string
+          intent_weight: number | null
+          is_active: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          slug: string
+        }
+        Insert: {
+          category: string
+          country_iso?: string | null
+          created_at?: string | null
+          id?: string
+          intent_weight?: number | null
+          is_active?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          slug: string
+        }
+        Update: {
+          category?: string
+          country_iso?: string | null
+          created_at?: string | null
+          id?: string
+          intent_weight?: number | null
+          is_active?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_demand_pages_country_iso_fkey"
+            columns: ["country_iso"]
+            isOneToOne: false
+            referencedRelation: "countries_master"
+            referencedColumns: ["iso_code"]
+          },
+        ]
+      }
       seo_keywords: {
         Row: {
           created_at: string
@@ -7202,6 +7280,54 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_corridors: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          destination_country: string
+          id: string
+          is_active: boolean | null
+          source_country: string
+          trade_intensity_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          destination_country: string
+          id?: string
+          is_active?: boolean | null
+          source_country: string
+          trade_intensity_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          destination_country?: string
+          id?: string
+          is_active?: boolean | null
+          source_country?: string
+          trade_intensity_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_corridors_destination_country_fkey"
+            columns: ["destination_country"]
+            isOneToOne: false
+            referencedRelation: "countries_master"
+            referencedColumns: ["iso_code"]
+          },
+          {
+            foreignKeyName: "trade_corridors_source_country_fkey"
+            columns: ["source_country"]
+            isOneToOne: false
+            referencedRelation: "countries_master"
+            referencedColumns: ["iso_code"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -8597,6 +8723,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_global_demand_pages: { Args: never; Returns: number }
       generate_ps_partner_id: { Args: { supplier_id: string }; Returns: string }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
       get_aggregated_demand_signals: {
@@ -8662,6 +8789,18 @@ export type Database = {
           member_id: string
           role: string
           user_id: string
+        }[]
+      }
+      get_country_intent_metrics: {
+        Args: never
+        Returns: {
+          active_lanes: number
+          country_iso: string
+          country_name: string
+          region: string
+          revenue_at_risk: number
+          signal_count: number
+          total_intent: number
         }[]
       }
       get_default_landing_route: {
