@@ -825,7 +825,10 @@ export function AdminDemandHeatmap() {
         </Card>
 
         {/* Revenue at Risk - NON-CLICKABLE (stays static for now) */}
-        <Card className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-emerald-500/5">
+        <Card 
+          className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-emerald-500/5 cursor-pointer hover:shadow-md transition-all"
+          onClick={() => document.getElementById('demand-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <IndianRupee className="h-4 w-4 text-green-500" />
@@ -863,7 +866,10 @@ export function AdminDemandHeatmap() {
 
       {/* NEW: Investor-Grade KPI Tiles */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-blue-500/5">
+        <Card 
+          className="border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 cursor-pointer hover:shadow-md transition-all"
+          onClick={() => document.getElementById('demand-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <Gauge className="h-4 w-4 text-cyan-500" />
@@ -876,7 +882,10 @@ export function AdminDemandHeatmap() {
           </CardContent>
         </Card>
 
-        <Card className="border-rose-500/30 bg-gradient-to-br from-rose-500/10 to-red-500/5">
+        <Card 
+          className="border-rose-500/30 bg-gradient-to-br from-rose-500/10 to-red-500/5 cursor-pointer hover:shadow-md transition-all"
+          onClick={() => document.getElementById('demand-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
               <AlertTriangle className="h-4 w-4 text-rose-500" />
