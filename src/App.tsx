@@ -84,6 +84,7 @@ const PurchaserExecutionDashboard = lazy(() => import("./pages/governance/Purcha
 const ManagementExecutiveDashboard = lazy(() => import("./pages/governance/ManagementExecutiveDashboard"));
 const AdminAuditDashboard = lazy(() => import("./pages/governance/AdminAuditDashboard"));
 const ControlTowerPage = lazy(() => import("./pages/ControlTower"));
+const EnterpriseControlCenterPage = lazy(() => import("./pages/EnterpriseControlCenter"));
 // GEO Landing Pages
 const GeoUSA = lazy(() => import("./pages/geo/GeoUSA"));
 const GeoUK = lazy(() => import("./pages/geo/GeoUK"));
@@ -171,6 +172,9 @@ const BotAwareRouter = () => {
         
         {/* Control Tower: management + admin only */}
         <Route path="/control-tower" element={<ControlTowerPage />} />
+        
+        {/* Enterprise Control Center: admin only */}
+        <Route path="/enterprise" element={<EnterpriseControlCenterPage />} />
         
         {/* Legacy routes - redirect to new structure */}
         <Route path="/management-dashboard" element={<Navigate to="/management" replace />} />
