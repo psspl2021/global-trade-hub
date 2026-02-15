@@ -1928,6 +1928,60 @@ export type Database = {
           },
         ]
       }
+      contract_summaries: {
+        Row: {
+          base_price: number | null
+          buyer_id: string | null
+          created_at: string | null
+          credit_days: number | null
+          finance_partner: string | null
+          id: string
+          platform_margin: number | null
+          signal_id: string | null
+          supplier_id: string | null
+          total_value: number | null
+        }
+        Insert: {
+          base_price?: number | null
+          buyer_id?: string | null
+          created_at?: string | null
+          credit_days?: number | null
+          finance_partner?: string | null
+          id?: string
+          platform_margin?: number | null
+          signal_id?: string | null
+          supplier_id?: string | null
+          total_value?: number | null
+        }
+        Update: {
+          base_price?: number | null
+          buyer_id?: string | null
+          created_at?: string | null
+          credit_days?: number | null
+          finance_partner?: string | null
+          id?: string
+          platform_margin?: number | null
+          signal_id?: string | null
+          supplier_id?: string | null
+          total_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_summaries_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_summaries_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "demand_intelligence_signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           bid_id: string
@@ -2827,6 +2881,42 @@ export type Database = {
           rfq_count?: number | null
           suggested_suppliers?: string[] | null
           supplier_strength_score?: number | null
+        }
+        Relationships: []
+      }
+      governance_rules: {
+        Row: {
+          buyer_id: string | null
+          category: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          margin_cap: number | null
+          max_credit_days: number | null
+          min_vendor_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          margin_cap?: number | null
+          max_credit_days?: number | null
+          min_vendor_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          margin_cap?: number | null
+          max_credit_days?: number | null
+          min_vendor_count?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -4302,11 +4392,13 @@ export type Database = {
           created_at: string
           email: string
           email_notifications_enabled: boolean | null
+          finance_approved: boolean | null
           gstin: string | null
           house_address: string | null
           id: string
           is_test_account: boolean
           is_verified_supplier: boolean | null
+          kyc_verified: boolean | null
           logistics_partner_type:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -4317,6 +4409,7 @@ export type Database = {
           state: string | null
           supplier_categories: string[] | null
           supplier_notification_subcategories: string[] | null
+          transaction_score: number | null
           updated_at: string
           yard_location: string | null
         }
@@ -4336,11 +4429,13 @@ export type Database = {
           created_at?: string
           email: string
           email_notifications_enabled?: boolean | null
+          finance_approved?: boolean | null
           gstin?: string | null
           house_address?: string | null
           id: string
           is_test_account?: boolean
           is_verified_supplier?: boolean | null
+          kyc_verified?: boolean | null
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -4351,6 +4446,7 @@ export type Database = {
           state?: string | null
           supplier_categories?: string[] | null
           supplier_notification_subcategories?: string[] | null
+          transaction_score?: number | null
           updated_at?: string
           yard_location?: string | null
         }
@@ -4370,11 +4466,13 @@ export type Database = {
           created_at?: string
           email?: string
           email_notifications_enabled?: boolean | null
+          finance_approved?: boolean | null
           gstin?: string | null
           house_address?: string | null
           id?: string
           is_test_account?: boolean
           is_verified_supplier?: boolean | null
+          kyc_verified?: boolean | null
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -4385,6 +4483,7 @@ export type Database = {
           state?: string | null
           supplier_categories?: string[] | null
           supplier_notification_subcategories?: string[] | null
+          transaction_score?: number | null
           updated_at?: string
           yard_location?: string | null
         }
@@ -8723,9 +8822,11 @@ export type Database = {
         }
         Returns: string
       }
+      export_lane_audit: { Args: { p_signal_id: string }; Returns: Json }
       generate_global_demand_pages: { Args: never; Returns: number }
       generate_ps_partner_id: { Args: { supplier_id: string }; Returns: string }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
+      get_admin_platform_metrics: { Args: { p_days?: number }; Returns: Json }
       get_aggregated_demand_signals: {
         Args: {
           p_category?: string
@@ -8780,6 +8881,10 @@ export type Database = {
         }[]
       }
       get_buyer_dashboard_type: { Args: { _user_id: string }; Returns: string }
+      get_buyer_spend_summary: {
+        Args: { p_buyer_id: string; p_days?: number }
+        Returns: Json
+      }
       get_company_purchasers: {
         Args: { _user_id: string }
         Returns: {
@@ -8951,6 +9056,10 @@ export type Database = {
           total_opened: number
           total_sent: number
         }[]
+      }
+      get_supplier_performance: {
+        Args: { p_supplier_id: string }
+        Returns: Json
       }
       get_supplier_shortlist: {
         Args: { p_category: string; p_country: string }
