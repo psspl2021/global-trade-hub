@@ -1932,6 +1932,7 @@ export type Database = {
         Row: {
           base_price: number | null
           buyer_id: string | null
+          category: string | null
           created_at: string | null
           credit_days: number | null
           finance_partner: string | null
@@ -1944,6 +1945,7 @@ export type Database = {
         Insert: {
           base_price?: number | null
           buyer_id?: string | null
+          category?: string | null
           created_at?: string | null
           credit_days?: number | null
           finance_partner?: string | null
@@ -1956,6 +1958,7 @@ export type Database = {
         Update: {
           base_price?: number | null
           buyer_id?: string | null
+          category?: string | null
           created_at?: string | null
           credit_days?: number | null
           finance_partner?: string | null
