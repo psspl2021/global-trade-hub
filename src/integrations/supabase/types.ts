@@ -1930,6 +1930,7 @@ export type Database = {
       }
       contract_summaries: {
         Row: {
+          approval_status: string | null
           base_price: number | null
           buyer_id: string | null
           category: string | null
@@ -1943,6 +1944,7 @@ export type Database = {
           total_value: number | null
         }
         Insert: {
+          approval_status?: string | null
           base_price?: number | null
           buyer_id?: string | null
           category?: string | null
@@ -1956,6 +1958,7 @@ export type Database = {
           total_value?: number | null
         }
         Update: {
+          approval_status?: string | null
           base_price?: number | null
           buyer_id?: string | null
           category?: string | null
