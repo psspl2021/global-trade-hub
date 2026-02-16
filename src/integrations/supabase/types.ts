@@ -8826,7 +8826,9 @@ export type Database = {
       generate_global_demand_pages: { Args: never; Returns: number }
       generate_ps_partner_id: { Args: { supplier_id: string }; Returns: string }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
-      get_admin_platform_metrics: { Args: { p_days?: number }; Returns: Json }
+      get_admin_platform_metrics:
+        | { Args: never; Returns: Json }
+        | { Args: { p_days?: number }; Returns: Json }
       get_aggregated_demand_signals: {
         Args: {
           p_category?: string
