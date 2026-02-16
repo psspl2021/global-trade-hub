@@ -2336,6 +2336,7 @@ export type Database = {
           awarded_supplier_id: string | null
           awarded_value: number | null
           best_supplier_match_score: number | null
+          buyer_id: string | null
           buyer_type: string | null
           capacity_lane_id: string | null
           capacity_utilization_at_award: number | null
@@ -2394,6 +2395,7 @@ export type Database = {
           awarded_supplier_id?: string | null
           awarded_value?: number | null
           best_supplier_match_score?: number | null
+          buyer_id?: string | null
           buyer_type?: string | null
           capacity_lane_id?: string | null
           capacity_utilization_at_award?: number | null
@@ -2452,6 +2454,7 @@ export type Database = {
           awarded_supplier_id?: string | null
           awarded_value?: number | null
           best_supplier_match_score?: number | null
+          buyer_id?: string | null
           buyer_type?: string | null
           capacity_lane_id?: string | null
           capacity_utilization_at_award?: number | null
