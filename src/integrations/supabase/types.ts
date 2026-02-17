@@ -975,6 +975,45 @@ export type Database = {
           },
         ]
       }
+      audit_ledger: {
+        Row: {
+          action: string
+          entity_id: string
+          entity_type: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          performed_at: string | null
+          performed_by: string | null
+          prev_hash: string | null
+          record_hash: string
+        }
+        Insert: {
+          action: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          performed_at?: string | null
+          performed_by?: string | null
+          prev_hash?: string | null
+          record_hash: string
+        }
+        Update: {
+          action?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          performed_at?: string | null
+          performed_by?: string | null
+          prev_hash?: string | null
+          record_hash?: string
+        }
+        Relationships: []
+      }
       award_audit_logs: {
         Row: {
           action: string
@@ -8832,6 +8871,17 @@ export type Database = {
         Returns: string
       }
       export_lane_audit: { Args: { p_signal_id: string }; Returns: Json }
+      generate_audit_hash: {
+        Args: {
+          p_action: string
+          p_entity_id: string
+          p_entity_type: string
+          p_new: Json
+          p_old: Json
+          p_performed_by: string
+        }
+        Returns: string
+      }
       generate_global_demand_pages: { Args: never; Returns: number }
       generate_ps_partner_id: { Args: { supplier_id: string }; Returns: string }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
