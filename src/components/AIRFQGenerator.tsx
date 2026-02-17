@@ -23,6 +23,7 @@ interface GeneratedRFQ {
   quality_standards?: string;
   certifications_required?: string;
   payment_terms?: string;
+  delivery_location?: string;
 }
 
 interface AIRFQGeneratorProps {

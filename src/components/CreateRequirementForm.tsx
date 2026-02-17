@@ -66,6 +66,7 @@ interface AIGeneratedRFQ {
   quality_standards?: string;
   certifications_required?: string;
   payment_terms?: string;
+  delivery_location?: string;
 }
 
 interface RFQSuccessData {
@@ -213,6 +214,7 @@ export function CreateRequirementForm({
       if (prefillData.quality_standards) setValue('quality_standards', prefillData.quality_standards);
       if (prefillData.certifications_required) setValue('certifications_required', prefillData.certifications_required);
       if (prefillData.payment_terms) setValue('payment_terms', prefillData.payment_terms);
+      if (prefillData.delivery_location) setValue('delivery_location', prefillData.delivery_location);
       
       // Map AI items to form items
       const mappedItems: RequirementItem[] = prefillData.items.map(item => ({

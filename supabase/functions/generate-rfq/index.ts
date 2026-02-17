@@ -130,9 +130,13 @@ Trade types: import, export, domestic_india`;
                   payment_terms: {
                     type: "string",
                     description: "Suggested payment terms"
+                  },
+                  delivery_location: {
+                    type: "string",
+                    description: "Delivery location extracted from user description (City, State, Country format). Extract any mentioned location, address, city, state, or PIN code."
                   }
                 },
-                required: ["title", "description", "category", "items", "trade_type"]
+                required: ["title", "description", "category", "items", "trade_type", "delivery_location"]
               }
             }
           }
