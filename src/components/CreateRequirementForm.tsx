@@ -214,7 +214,14 @@ export function CreateRequirementForm({
       if (prefillData.quality_standards) setValue('quality_standards', prefillData.quality_standards);
       if (prefillData.certifications_required) setValue('certifications_required', prefillData.certifications_required);
       if (prefillData.payment_terms) setValue('payment_terms', prefillData.payment_terms);
-      if (prefillData.delivery_location) setValue('delivery_location', prefillData.delivery_location);
+      if (prefillData.delivery_location) {
+        setValue('delivery_location', prefillData.delivery_location);
+        // Parse state from "City, State, Country" format
+        const locationParts = prefillData.delivery_location.split(',').map(p => p.trim());
+        if (locationParts.length >= 2) {
+          setDestinationState(locationParts[1]); // State is the second part
+        }
+      }
       
       // Map AI items to form items
       const mappedItems: RequirementItem[] = prefillData.items.map(item => ({
