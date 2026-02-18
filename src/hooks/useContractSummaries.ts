@@ -11,6 +11,11 @@ export interface ContractSummary {
   base_price: number | null;
   platform_margin: number | null;
   total_value: number | null;
+  category: string | null;
+  country: string | null;
+  approval_status: string | null;
+  margin_percent: number | null;
+  supplier_ai_score: number | null;
   created_at: string;
 }
 
