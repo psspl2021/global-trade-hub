@@ -17,7 +17,7 @@ const showcaseCategories = [
   {
     name: 'Metals - Ferrous (Steel, Iron)',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    description: 'Steel, iron, TMT bars, HT strands, sheets & structural metals',
+    description: 'Steel, iron, TMT bars, HT Strands/LRPC, sheets & structural metals',
     suppliers: '300+',
     moq: '1 MT',
     badges: ['GST Verified', 'Bulk Ready'],
