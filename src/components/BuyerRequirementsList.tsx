@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter, ChevronLeft, ChevronRight, XCircle, RotateCcw, Clock } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter, ChevronLeft, ChevronRight, XCircle, RotateCcw, Clock, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
@@ -619,6 +619,22 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                               Extend Deadline
                             </DropdownMenuItem>
                           )}
+
+                          {/* Share Requirement */}
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              const url = `${window.location.origin}/dashboard?req=${req.id}`;
+                              if (navigator.share) {
+                                navigator.share({ title: req.title, text: `Check out this requirement: ${req.title}`, url }).catch(() => {});
+                              } else {
+                                navigator.clipboard.writeText(url);
+                                toast.success('Requirement link copied to clipboard');
+                              }
+                            }}
+                          >
+                            <Share2 className="h-4 w-4 mr-2" />
+                            Share Requirement
+                          </DropdownMenuItem>
                           
                           {/* Close Permanently - available when expired_soft */}
                           {getEffectiveState(req) === 'expired_soft' && (
