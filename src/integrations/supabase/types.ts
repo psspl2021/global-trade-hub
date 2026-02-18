@@ -1973,12 +1973,15 @@ export type Database = {
           base_price: number | null
           buyer_id: string | null
           category: string | null
+          country: string | null
           created_at: string | null
           credit_days: number | null
           finance_partner: string | null
           id: string
+          margin_percent: number | null
           platform_margin: number | null
           signal_id: string | null
+          supplier_ai_score: number | null
           supplier_id: string | null
           total_value: number | null
         }
@@ -1987,12 +1990,15 @@ export type Database = {
           base_price?: number | null
           buyer_id?: string | null
           category?: string | null
+          country?: string | null
           created_at?: string | null
           credit_days?: number | null
           finance_partner?: string | null
           id?: string
+          margin_percent?: number | null
           platform_margin?: number | null
           signal_id?: string | null
+          supplier_ai_score?: number | null
           supplier_id?: string | null
           total_value?: number | null
         }
@@ -2001,12 +2007,15 @@ export type Database = {
           base_price?: number | null
           buyer_id?: string | null
           category?: string | null
+          country?: string | null
           created_at?: string | null
           credit_days?: number | null
           finance_partner?: string | null
           id?: string
+          margin_percent?: number | null
           platform_margin?: number | null
           signal_id?: string | null
+          supplier_ai_score?: number | null
           supplier_id?: string | null
           total_value?: number | null
         }
@@ -2419,6 +2428,8 @@ export type Database = {
           matching_suppliers_count: number | null
           overall_score: number | null
           parent_lane_id: string | null
+          predicted_price: number | null
+          price_deviation_percent: number | null
           priority: string | null
           product_description: string | null
           run_id: string | null
@@ -2478,6 +2489,8 @@ export type Database = {
           matching_suppliers_count?: number | null
           overall_score?: number | null
           parent_lane_id?: string | null
+          predicted_price?: number | null
+          price_deviation_percent?: number | null
           priority?: string | null
           product_description?: string | null
           run_id?: string | null
@@ -2537,6 +2550,8 @@ export type Database = {
           matching_suppliers_count?: number | null
           overall_score?: number | null
           parent_lane_id?: string | null
+          predicted_price?: number | null
+          price_deviation_percent?: number | null
           priority?: string | null
           product_description?: string | null
           run_id?: string | null
@@ -8734,6 +8749,14 @@ export type Database = {
         }
         Returns: Json
       }
+      calculate_intent_score: {
+        Args: { p_signal_id: string }
+        Returns: undefined
+      }
+      calculate_predicted_price: {
+        Args: { p_category: string; p_country: string }
+        Returns: number
+      }
       calculate_price_confidence:
         | {
             Args: {
@@ -8760,6 +8783,10 @@ export type Database = {
           p_turnaround: number
           p_variance: number
         }
+        Returns: number
+      }
+      calculate_supplier_score: {
+        Args: { p_supplier_id: string }
         Returns: number
       }
       calculate_tiered_commission: {
