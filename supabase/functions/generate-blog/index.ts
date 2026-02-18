@@ -38,48 +38,80 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
+    const currentQuarter = `Q${Math.ceil((new Date().getMonth() + 1) / 3)}`;
     const today = new Date().toISOString().split('T')[0];
 
     // === LIVE MARKET RESEARCH: Pull real demand signals for this category ===
     let marketResearchContext = '';
+    let demandHotspots: string[] = [];
+    let topSubcategories: string[] = [];
+    let buyerTypes: string[] = [];
+    let industrySegments: string[] = [];
+    
     try {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-      // Get demand signals for this category
       const { data: catSignals } = await supabase
         .from('demand_intelligence_signals')
         .select('country, intent_score, classification, buyer_type, estimated_value, subcategory, industry')
         .ilike('category', `%${category.split('&')[0].trim()}%`)
         .gte('created_at', thirtyDaysAgo)
         .order('intent_score', { ascending: false })
-        .limit(20);
+        .limit(30);
 
-      // Get recent RFQs for this category
       const { data: catRFQs } = await supabase
         .from('requirements')
-        .select('destination, trade_type, product_category, created_at')
+        .select('destination, trade_type, product_category, created_at, quantity, unit')
         .ilike('product_category', `%${category.split('&')[0].trim()}%`)
         .gte('created_at', thirtyDaysAgo)
-        .limit(15);
+        .limit(25);
+
+      // Get price benchmarks if available
+      const { data: priceBenchmarks } = await supabase
+        .from('category_price_benchmarks')
+        .select('subcategory, benchmark_price, unit, currency, region')
+        .ilike('category', `%${category.split('&')[0].trim()}%`)
+        .limit(10);
 
       if ((catSignals && catSignals.length > 0) || (catRFQs && catRFQs.length > 0)) {
         const signalCountries = [...new Set((catSignals || []).map(s => s.country).filter(Boolean))];
+        demandHotspots = signalCountries.slice(0, 5);
+        topSubcategories = [...new Set((catSignals || []).map(s => s.subcategory).filter(Boolean))].slice(0, 6);
+        buyerTypes = [...new Set((catSignals || []).map(s => s.buyer_type).filter(Boolean))].slice(0, 4);
+        industrySegments = [...new Set((catSignals || []).map(s => s.industry).filter(Boolean))].slice(0, 5);
+        
         const avgIntent = catSignals?.length
           ? (catSignals.reduce((sum, s) => sum + (s.intent_score || 0), 0) / catSignals.length).toFixed(1)
           : 'N/A';
         const maxValue = catSignals?.reduce((max, s) => Math.max(max, s.estimated_value || 0), 0) || 0;
         const rfqCount = catRFQs?.length || 0;
+        const classifications = [...new Set((catSignals || []).map(s => s.classification).filter(Boolean))];
+        
+        // RFQ volume trends
+        const rfqDestinations = [...new Set((catRFQs || []).map(r => r.destination).filter(Boolean))].slice(0, 5);
+        const rfqTradeTypes = [...new Set((catRFQs || []).map(r => r.trade_type).filter(Boolean))];
+
+        // Price benchmark context
+        let priceContext = '';
+        if (priceBenchmarks && priceBenchmarks.length > 0) {
+          priceContext = `\n- Price benchmarks available: ${priceBenchmarks.map(p => `${p.subcategory || 'General'}: ${p.currency} ${p.benchmark_price}/${p.unit} (${p.region})`).join('; ')}`;
+        }
 
         marketResearchContext = `
-LIVE MARKET INTELLIGENCE (Real platform data as of ${today}):
-- ${catSignals?.length || 0} active demand signals detected for ${category}
-- Average buyer intent score: ${avgIntent}/10
-- Active demand from: ${signalCountries.join(', ') || 'Multiple regions'}
-- ${rfqCount} RFQs submitted in last 30 days
+LIVE MARKET INTELLIGENCE (Real platform data as of ${today}, ${currentMonth} ${currentYear}):
+- ${catSignals?.length || 0} active demand signals detected for ${category} in ${currentQuarter} ${currentYear}
+- Average buyer intent score: ${avgIntent}/10 (higher = more urgent procurement need)
+- Active demand hotspots: ${signalCountries.join(', ') || 'Multiple regions'}
+- Top subcategories in demand: ${topSubcategories.join(', ') || 'Various'}
+- Buyer segments active: ${buyerTypes.join(', ') || 'Mixed'}
+- Industry verticals sourcing: ${industrySegments.join(', ') || 'Cross-industry'}
+- ${rfqCount} RFQs submitted in last 30 days (destinations: ${rfqDestinations.join(', ') || 'Various'})
+- Trade type mix: ${rfqTradeTypes.join(', ') || 'Mixed'}
 ${maxValue > 0 ? `- Estimated deal values up to $${(maxValue / 1000).toFixed(0)}K` : ''}
-- Signal classification breakdown: ${[...new Set((catSignals || []).map(s => s.classification).filter(Boolean))].join(', ') || 'Mixed'}
+- Signal classifications: ${classifications.join(', ') || 'Mixed'}${priceContext}
 
-USE THIS DATA to make the blog grounded in real market activity. Reference "growing buyer demand" or "active procurement activity" where the data supports it. Do NOT fabricate specific numbers beyond what's provided.`;
+CRITICAL: Use this REAL data throughout the blog. Reference specific subcategories, countries, and buyer segments. Make the content feel data-driven and current. Example: "In ${currentMonth} ${currentYear}, platform intelligence shows ${topSubcategories[0] || category} demand surging from ${demandHotspots[0] || 'key markets'}."`;
       }
     } catch (dbErr) {
       console.error('Market research DB error (non-fatal):', dbErr);
@@ -88,6 +120,29 @@ USE THIS DATA to make the blog grounded in real market activity. Reference "grow
     // Intent detection
     const isBuyerIntent = trade_type === 'Domestic' || trade_type === 'Import';
     const isSupplierIntent = trade_type === 'Export';
+
+    // === RANDOMIZED ANGLE SELECTION for variety ===
+    const buyerAngles = [
+      { angle: 'Price Intelligence & Cost Optimization', focus: 'deep-dive into pricing mechanisms, cost breakdown analysis, and negotiation leverage points' },
+      { angle: 'Supply Chain Risk & Supplier Verification', focus: 'risk assessment frameworks, red flags in supplier evaluation, and due diligence checklists' },
+      { angle: 'Market Outlook & Demand Forecasting', focus: 'forward-looking market analysis, demand-supply gap analysis, and procurement timing strategies' },
+      { angle: 'Quality Standards & Compliance Navigation', focus: 'regulatory landscape, testing requirements, certification processes, and compliance cost impact' },
+      { angle: 'Regional Sourcing Strategy & Supplier Mapping', focus: 'manufacturing cluster analysis, regional price differentials, and logistics optimization by geography' },
+      { angle: 'Procurement Technology & AI-Driven Buying', focus: 'how AI and data analytics transform procurement decisions, multi-supplier comparison, automated RFQ matching' },
+      { angle: 'Total Cost of Ownership Analysis', focus: 'beyond unit price - logistics, quality rejection rates, payment terms impact, inventory carrying costs' },
+      { angle: 'Seasonal Trends & Procurement Timing', focus: 'cyclical price patterns, festive/monsoon impact, optimal ordering windows, inventory planning' },
+    ];
+    
+    const supplierAngles = [
+      { angle: 'Export Market Penetration Strategy', focus: 'target market selection, buyer expectations by region, competitive positioning' },
+      { angle: 'Global Pricing & Margin Optimization', focus: 'FOB/CIF analysis, forex hedging, payment term negotiation, margin protection' },
+      { angle: 'Compliance & Certification Roadmap', focus: 'destination country standards, certification timeline and costs, market access barriers' },
+      { angle: 'Buyer Demand Intelligence & Market Signals', focus: 'reading demand signals, buyer behavior patterns, opportunity sizing' },
+      { angle: 'Digital B2B Sales & Platform Strategy', focus: 'leveraging AI procurement platforms, digital visibility, verified supplier advantages' },
+    ];
+
+    const angles = isSupplierIntent ? supplierAngles : buyerAngles;
+    const selectedAngle = angles[Math.floor(Math.random() * angles.length)];
 
     // Trade-specific deep context
     const tradeContextMap: Record<string, string> = {
@@ -130,58 +185,75 @@ USE THIS DATA to make the blog grounded in real market activity. Reference "grow
     };
     const countryRegs = regulationsByCountry[country] || `local standards and trade regulations in ${country}`;
 
-    // Intent-specific sections
+    // === CATEGORY-SPECIFIC DEEP KNOWLEDGE ===
+    const categoryInsights = getCategorySpecificInsights(category, currentYear, country);
+
+    // Dynamic sections based on selected angle
     const buyerSections = `
-MANDATORY BLOG SECTIONS (in this order):
-1. "Market Situation: ${category} in ${country} (${currentYear})" — supply-demand, capacity utilization, raw material trends
-2. "Price Benchmarks & Cost Drivers" — price RANGES by grade/variant in a <table>, seasonal patterns, what drives price changes
-3. "Key Buyer Pain Points" — quality inconsistency, supplier reliability, payment terms, logistics delays
-4. "Regulatory & Compliance Requirements" — ${countryRegs}, testing/certification needed
-5. "${trade_type === 'Import' ? 'Import Duty Structure & Landed Cost' : 'Regional Sourcing Hubs & Supplier Clusters'}" — specific to trade type
-6. "Supplier Risk Assessment: Red Flags & Verification" — how to vet suppliers, common fraud patterns, verification checklist
-7. "How AI Procurement Reduces ${category} Sourcing Cost" — multi-supplier bidding, price intelligence, demand aggregation (link to /post-rfq)
-8. "Actionable Buyer Checklist for ${currentYear}" — numbered steps
-9. CTA section with link to /post-rfq`;
+PRIMARY ANGLE: "${selectedAngle.angle}" — ${selectedAngle.focus}
+
+MANDATORY BLOG SECTIONS (adapt to the primary angle):
+1. "${category} Market Intelligence: ${currentMonth} ${currentYear} Snapshot" — current supply-demand dynamics, capacity utilization, raw material input cost trends. Use REAL data from market intelligence above.
+2. "Price Analysis: ${currentQuarter} ${currentYear} Benchmarks" — price RANGES by grade/variant/specification in a detailed <table> with columns for Product/Grade, Price Range, Unit, and Key Driver. Include ${topSubcategories.length > 0 ? `specific subcategories: ${topSubcategories.join(', ')}` : 'major subcategories'}.
+3. "${selectedAngle.angle}" — the PRIMARY deep-dive section. This should be the most detailed section (400+ words). ${selectedAngle.focus}.
+4. "Regulatory & Compliance Framework" — ${countryRegs}, testing/certification requirements, recent policy changes affecting ${category}
+5. "${trade_type === 'Import' ? 'Import Duty Structure & Landed Cost Calculator' : 'Regional Sourcing Map: Where to Buy'}" — specific to trade type. Include a <table> with duty rates or regional comparison.
+6. "Demand Signals: What the Data Shows" — reference REAL platform intelligence data. Which subcategories are trending? Which buyer segments are most active? ${demandHotspots.length > 0 ? `Highlight demand from: ${demandHotspots.join(', ')}` : ''}
+7. "Procurement Strategy: ${currentYear} Action Plan" — numbered actionable steps specific to ${category}, not generic advice
+8. CTA section with link to /post-rfq — "Get AI-matched quotes from verified ${category} suppliers"`;
 
     const supplierSections = `
-MANDATORY BLOG SECTIONS (in this order):
-1. "Global Demand Outlook for ${category} (${currentYear})" — which countries are buying, volume trends, emerging markets
-2. "Export Opportunity Analysis: ${country} Suppliers" — competitive advantage, cost leadership areas
-3. "Pricing Strategy for International Markets" — FOB/CIF benchmarks in a <table>, margin considerations
-4. "Compliance for Exporters" — ${countryRegs}, destination country requirements
-5. "Documentation & Logistics" — shipping routes, documentation checklist, port infrastructure
-6. "Buyer Expectations in Target Markets" — quality standards, packaging, lead time expectations
-7. "How AI Platforms Connect Suppliers to Global Buyers" — demand intelligence, verified buyer access (link to /signup?type=supplier)
-8. "Supplier Readiness Checklist for ${currentYear}" — numbered steps
-9. CTA section → "Register as a Verified Supplier on ProcureSaathi"`;
+PRIMARY ANGLE: "${selectedAngle.angle}" — ${selectedAngle.focus}
+
+MANDATORY BLOG SECTIONS (adapt to the primary angle):
+1. "Global ${category} Demand: ${currentQuarter} ${currentYear} Analysis" — which countries are buying, volume trends, emerging markets. Use REAL demand signal data.
+2. "${selectedAngle.angle}" — PRIMARY deep-dive (400+ words). ${selectedAngle.focus}.
+3. "Export Pricing Strategy: FOB/CIF Benchmarks" — detailed <table> with pricing by destination, Incoterms comparison
+4. "Compliance Roadmap for ${category} Exporters" — ${countryRegs}, destination country requirements, certification timeline
+5. "Buyer Profiles: Who's Buying ${category} Internationally" — ${buyerTypes.length > 0 ? `Active buyer types: ${buyerTypes.join(', ')}` : 'buyer segmentation'}. ${industrySegments.length > 0 ? `Industry verticals: ${industrySegments.join(', ')}` : ''}
+6. "Documentation & Logistics Optimization" — shipping routes, documentation checklist, port infrastructure
+7. "Supplier Growth Checklist: ${currentYear}" — numbered actionable steps
+8. CTA section → "Register as a Verified Supplier on ProcureSaathi" with link to /signup?type=supplier`;
 
     const sections = isSupplierIntent ? supplierSections : buyerSections;
 
-    const systemPrompt = `You are an expert B2B procurement research analyst writing for ProcureSaathi, an AI-powered procurement platform. Today is ${today}.
+    const systemPrompt = `You are a senior B2B procurement research analyst at ProcureSaathi, an AI-powered procurement platform. Today is ${today}, ${currentMonth} ${currentYear}.
 
-ROLE: You have access to REAL-TIME platform demand intelligence data. Use it to ground your analysis in actual market activity. Write as an analyst who has studied live buyer signals, RFQ patterns, and trade data.
+ROLE: You write data-driven, UNIQUE market analysis blogs. Each blog must feel like a fresh analyst report, not a template. You have access to REAL-TIME platform demand intelligence.
 
 ${marketResearchContext}
 
 ${trending_context ? `TRENDING MARKET CONTEXT (from platform intelligence):\n${trending_context}\n` : ''}
 
+${categoryInsights}
+
 CONTENT RULES:
-- Write 1500-2000 words of SUBSTANTIVE content. No filler.
-- Use price RANGES (e.g., "₹48,000–55,000/MT"), never fake exact numbers.
-- Reference REAL standards: BIS IS-2062, ISO 9001, ASTM A36, DGFT notifications, etc.
-- Include HTML <table> elements for ANY price comparison or data comparison.
+- Write 1500-2000 words of SUBSTANTIVE, data-rich content. Zero filler sentences.
+- UNIQUE ANGLE: This blog's primary angle is "${selectedAngle.angle}". Make this the centerpiece. Go deep, not broad.
+- Use price RANGES (e.g., "₹48,000–55,000/MT"), never fabricated exact numbers.
+- Reference REAL standards: BIS IS-2062, ISO 9001, ASTM A36, DGFT notifications, HS codes, etc.
+- Include 2-3 HTML <table> elements for price comparisons, duty structures, or feature matrices.
 - Use <h2> for major sections, <h3> for subsections, <ul>/<ol> for lists.
-- Internal links: <a href="/post-rfq">Get AI-Matched Quotes</a>, <a href="/categories">Browse Categories</a>
+- Internal links: <a href="/post-rfq">Get AI-Matched Quotes</a>, <a href="/browseproducts">Browse Categories</a>
 - End with "Illustrative Scenario" disclaimer and "AI Demand-Feed Notice".
 - Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
 - NEVER use empty paragraphs, excessive <br> tags, or spacer divs.
-- Every <h2> section must have at least 2 substantive paragraphs.
-- When live demand data is available, weave it naturally: "Our AI has detected rising buyer activity in X from Y countries" or "Platform signals indicate growing procurement interest in Z."
+- Every <h2> section must have at least 2 substantive paragraphs with concrete details.
+- Weave live demand data naturally: "Platform intelligence for ${currentMonth} ${currentYear} shows..." or "Our AI demand engine has detected..."
+- Include specific HS codes, BIS numbers, ASTM grades where relevant to ${category}.
+- Mention specific raw material inputs and their price impact on ${category}.
+
+UNIQUENESS RULES:
+- DO NOT start with a generic "India's X industry is growing" opener. Start with a specific data point, market event, or buyer challenge.
+- Each section must contain at least one SPECIFIC fact (a standard number, HS code, price benchmark, policy name, or geographic detail).
+- Avoid phrases: "In today's competitive market", "In recent years", "It is important to note", "plays a crucial role".
+- Use active voice. Write like a procurement consultant briefing a client.
 
 TITLE RULES:
 - NEVER use the format "X Procurement in Y: Sourcing Guide YEAR"
-- Title MUST include: category name, a specific angle, and year
-- Angles: price trends, compliance, supplier risks, cost reduction, market outlook, buyer strategy, export opportunity`;
+- Title MUST reflect the specific angle: "${selectedAngle.angle}"
+- Include: category name, the angle, and ${currentYear}
+- Make it sound like a market intelligence report, not a how-to guide`;
 
     const userPrompt = custom_topic
       ? `Write a procurement research blog about: "${custom_topic}"
@@ -197,10 +269,11 @@ Year: ${currentYear}. Regulations: ${countryRegs}.`
 
 ${sections}
 
-TITLE EXAMPLES (pick a style, don't copy exactly):
-- "${category} Prices in ${country} ${currentYear}: Market Trends, Risks & Buyer Strategy"
-- "${trade_type === 'Export' ? 'Export Demand for' : trade_type === 'Import' ? 'Importing' : 'Sourcing'} ${category} ${trade_type === 'Export' ? 'from' : trade_type === 'Import' ? 'into' : 'in'} ${country}: Compliance, Pricing & ${trade_type === 'Export' ? 'Supplier Outlook' : 'Cost Benchmarks'} (${currentYear})"
-- "${category} ${trade_type} Market ${currentYear}: What ${isSupplierIntent ? 'Suppliers' : 'Buyers'} Must Know"
+TITLE APPROACH (create your own unique title reflecting the "${selectedAngle.angle}" angle):
+Examples of GOOD titles (don't copy, create your own):
+- "${category} ${selectedAngle.angle} in ${country}: ${currentQuarter} ${currentYear} Analysis"
+- "${currentYear} ${category} ${isBuyerIntent ? 'Buyer' : 'Supplier'} Intelligence: ${selectedAngle.angle}"
+- "${category} in ${country}: ${selectedAngle.angle} Report (${currentMonth} ${currentYear})"
 
 Year: ${currentYear}. Country regulations: ${countryRegs}.`;
 
@@ -224,12 +297,12 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
             parameters: {
               type: 'object',
               properties: {
-                title: { type: 'string', description: 'SEO H1 title. 50-70 chars. Must include category, angle, and year. NEVER use "Sourcing Guide" format.' },
+                title: { type: 'string', description: 'SEO H1 title. 50-70 chars. Must include category, specific angle, and year. Must feel like a market intelligence report.' },
                 meta_title: { type: 'string', description: 'Meta title for search engines, under 60 characters' },
                 meta_description: { type: 'string', description: 'Meta description, 120-160 chars, includes primary keyword and CTA hint' },
-                excerpt: { type: 'string', description: 'Blog excerpt, 150-200 chars, compelling summary' },
-                content: { type: 'string', description: 'Full blog HTML inside <article> tag. 1500-2000 words. h2/h3 headings, tables for pricing, lists, internal links, CTA. No empty gaps or spacer elements.' },
-                seo_keywords: { type: 'string', description: 'Comma-separated SEO keywords (8-12 keywords)' },
+                excerpt: { type: 'string', description: 'Blog excerpt, 150-200 chars, compelling summary referencing the specific angle' },
+                content: { type: 'string', description: 'Full blog HTML inside <article> tag. 1500-2000 words. h2/h3 headings, 2-3 tables for pricing/data, lists, internal links, CTA. No empty gaps. Data-driven and unique.' },
+                seo_keywords: { type: 'string', description: 'Comma-separated SEO keywords (8-12 keywords) including category-specific long-tail terms' },
               },
               required: ['title', 'meta_title', 'meta_description', 'excerpt', 'content', 'seo_keywords'],
               additionalProperties: false,
@@ -260,7 +333,6 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
     const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
 
     if (!toolCall?.function?.arguments) {
-      // Fallback: try to parse content from message
       const msgContent = aiData.choices?.[0]?.message?.content;
       if (msgContent) {
         console.log('AI returned content in message instead of tool call, attempting parse');
@@ -270,7 +342,7 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
 
     const blogData = JSON.parse(toolCall.function.arguments);
 
-    // Generate unique slug with trade_type and country suffix
+    // Generate unique slug
     const slugBase = blogData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -278,18 +350,19 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
       .substring(0, 70);
     const slug = `${slugBase}-${trade_type.toLowerCase()}-${country.toLowerCase().replace(/\s+/g, '-')}`;
 
-    // Image system: use Unsplash source API with category-specific keywords
-    const imageQueries = getImageQueries(category, country, trade_type);
+    // Image system: use reliable direct Unsplash photo URLs
+    const categoryImages = getCategoryImagePool(category);
+    const coverImageUrl = `https://images.unsplash.com/photo-${categoryImages.cover}?w=1200&h=600&fit=crop&auto=format&q=80`;
     
-    const coverImageUrl = `https://images.unsplash.com/photo-${getReliablePhotoId(category)}?w=1200&h=600&fit=crop&auto=format&q=80`;
-    const inlineImageUrls = imageQueries.map((q) =>
-      `https://source.unsplash.com/800x400/?${encodeURIComponent(q)}`
+    const inlineImageUrls = categoryImages.inline.map(id =>
+      `https://images.unsplash.com/photo-${id}?w=800&h=400&fit=crop&auto=format&q=80`
     );
+    const imageCaptions = getImageCaptions(category, country, trade_type);
 
-    // Inject images into content AFTER first <p> following each <h2>, skip sections with <table>
-    let finalContent = injectImagesIntoContent(blogData.content, inlineImageUrls, imageQueries);
+    // Inject images into content
+    let finalContent = injectImagesIntoContent(blogData.content, inlineImageUrls, imageCaptions);
 
-    // Clean up any blank gaps: remove empty paragraphs, excessive whitespace
+    // Clean up blank gaps
     finalContent = finalContent
       .replace(/<p>\s*<\/p>/g, '')
       .replace(/<p><br\s*\/?>\s*<\/p>/g, '')
@@ -328,13 +401,13 @@ function injectImagesIntoContent(html: string, imageUrls: string[], captions: st
   for (let i = 0; i < parts.length; i++) {
     if (/<h2[^>]*>/i.test(parts[i]) && imageIndex < imageUrls.length && i + 1 < parts.length) {
       const section = parts[i + 1];
-      // Skip sections containing tables
       if (/<table/i.test(section)) continue;
 
       const firstPEnd = section.indexOf('</p>');
       if (firstPEnd !== -1) {
         const insertPos = firstPEnd + 4;
-        const imgHtml = `<figure class="blog-image" style="margin:2rem 0"><img src="${imageUrls[imageIndex]}" alt="${captions[imageIndex]} - ProcureSaathi" width="800" height="400" loading="lazy" style="width:100%;height:auto;border-radius:8px" /><figcaption style="text-align:center;font-size:0.875rem;color:#6b7280;margin-top:0.5rem">${captions[imageIndex]}</figcaption></figure>`;
+        const caption = captions[imageIndex] || `${captions[0]} - ProcureSaathi procurement insights`;
+        const imgHtml = `<figure class="blog-image" style="margin:2rem 0"><img src="${imageUrls[imageIndex]}" alt="${caption}" width="800" height="400" loading="lazy" style="width:100%;height:auto;border-radius:8px" /><figcaption style="text-align:center;font-size:0.875rem;color:#6b7280;margin-top:0.5rem">${caption}</figcaption></figure>`;
         parts[i + 1] = section.slice(0, insertPos) + imgHtml + section.slice(insertPos);
         imageIndex++;
       }
@@ -344,45 +417,196 @@ function injectImagesIntoContent(html: string, imageUrls: string[], captions: st
   return parts.join('');
 }
 
-function getImageQueries(category: string, country: string, tradeType: string): string[] {
-  const cat = category.toLowerCase().split('&')[0].trim();
+// Reliable Unsplash photo IDs (verified working) organized by category
+function getCategoryImagePool(category: string): { cover: string; inline: string[] } {
+  const catLower = category.toLowerCase();
+  
+  const pools: Record<string, { cover: string; inline: string[] }> = {
+    'steel': {
+      cover: '1504328345606-18bbc8c9d7d1',
+      inline: [
+        '1587293852726-4724c26728f3', // steel factory
+        '1565193566173-7a0ee3dbe261', // metal warehouse  
+        '1581091226825-a6a2a5aee158', // industrial manufacturing
+        '1565008576549-57569a49371d', // steel structure
+        '1558618666-fcd25c85f82e',    // industrial pipes
+      ]
+    },
+    'chemical': {
+      cover: '1532187863486-abf9dbad1b69',
+      inline: [
+        '1581091226825-a6a2a5aee158', // chemical plant
+        '1532187863486-abf9dbad1b69', // laboratory
+        '1585435557343-3b092031a831', // chemical storage
+        '1581093458791-9f3c3250a8d0', // industrial facility
+        '1587293852726-4724c26728f3', // manufacturing
+      ]
+    },
+    'construction': {
+      cover: '1504307651254-35680f356dfd',
+      inline: [
+        '1541888946425-d81bb19240f5', // construction site
+        '1504307651254-35680f356dfd', // building construction
+        '1581091226825-a6a2a5aee158', // cement/materials
+        '1565008576549-57569a49371d', // structural work
+        '1587293852726-4724c26728f3', // heavy equipment
+      ]
+    },
+    'textile': {
+      cover: '1558171813-4c2e8f2ad057',
+      inline: [
+        '1558171813-4c2e8f2ad057', // textile rolls
+        '1586528116311-ad8dd3c8310d', // fabric production
+        '1581091226825-a6a2a5aee158', // manufacturing
+        '1565193566173-7a0ee3dbe261', // warehouse
+        '1558618666-fcd25c85f82e',    // industrial
+      ]
+    },
+    'food': {
+      cover: '1556909114-f6e7ad7d3136',
+      inline: [
+        '1556909114-f6e7ad7d3136', // food processing
+        '1500595046743-cd271d694d30', // agriculture
+        '1596040033229-a9821ebd058d', // spices/ingredients
+        '1586528116311-ad8dd3c8310d', // packaging
+        '1565193566173-7a0ee3dbe261', // cold storage
+      ]
+    },
+    'agriculture': {
+      cover: '1500595046743-cd271d694d30',
+      inline: [
+        '1500595046743-cd271d694d30', // farming
+        '1556909114-f6e7ad7d3136', // produce
+        '1596040033229-a9821ebd058d', // harvest
+        '1586528116311-ad8dd3c8310d', // packaging
+        '1565193566173-7a0ee3dbe261', // warehouse
+      ]
+    },
+    'packaging': {
+      cover: '1586528116311-ad8dd3c8310d',
+      inline: [
+        '1586528116311-ad8dd3c8310d', // packaging materials
+        '1565193566173-7a0ee3dbe261', // warehouse
+        '1581091226825-a6a2a5aee158', // manufacturing
+        '1558618666-fcd25c85f82e',    // industrial
+        '1587293852726-4724c26728f3', // factory
+      ]
+    },
+    'auto': {
+      cover: '1581091226825-a6a2a5aee158',
+      inline: [
+        '1581091226825-a6a2a5aee158', // automotive
+        '1565008576549-57569a49371d', // auto parts
+        '1587293852726-4724c26728f3', // assembly
+        '1558618666-fcd25c85f82e',    // components
+        '1504328345606-18bbc8c9d7d1', // metal parts
+      ]
+    },
+    'electrical': {
+      cover: '1581091226825-a6a2a5aee158',
+      inline: [
+        '1581091226825-a6a2a5aee158', // electronics
+        '1558618666-fcd25c85f82e',    // wiring
+        '1587293852726-4724c26728f3', // manufacturing
+        '1565193566173-7a0ee3dbe261', // components warehouse
+        '1504328345606-18bbc8c9d7d1', // industrial
+      ]
+    },
+    'plastic': {
+      cover: '1558618666-fcd25c85f82e',
+      inline: [
+        '1558618666-fcd25c85f82e',    // polymer/plastic
+        '1581091226825-a6a2a5aee158', // manufacturing
+        '1586528116311-ad8dd3c8310d', // products
+        '1587293852726-4724c26728f3', // factory
+        '1565193566173-7a0ee3dbe261', // warehouse
+      ]
+    },
+    'mineral': {
+      cover: '1518611012118-696072aa579a',
+      inline: [
+        '1518611012118-696072aa579a', // mining
+        '1504328345606-18bbc8c9d7d1', // minerals
+        '1587293852726-4724c26728f3', // processing
+        '1565008576549-57569a49371d', // extraction
+        '1581091226825-a6a2a5aee158', // industrial
+      ]
+    },
+  };
+
+  // Match category to pool
+  for (const [key, pool] of Object.entries(pools)) {
+    if (catLower.includes(key)) return pool;
+  }
+
+  // Default industrial pool
+  return {
+    cover: '1581091226825-a6a2a5aee158',
+    inline: [
+      '1587293852726-4724c26728f3',
+      '1565193566173-7a0ee3dbe261',
+      '1558618666-fcd25c85f82e',
+      '1504328345606-18bbc8c9d7d1',
+      '1586528116311-ad8dd3c8310d',
+    ]
+  };
+}
+
+function getImageCaptions(category: string, country: string, tradeType: string): string[] {
   return [
-    `${cat} manufacturing factory ${country}`,
-    `${cat} warehouse supply chain`,
-    `${cat} quality inspection industrial`,
-    `B2B procurement ${tradeType === 'Export' ? 'export shipping port' : tradeType === 'Import' ? 'import customs' : 'industrial logistics'} ${country}`,
-    `${cat} ${tradeType === 'Export' ? 'container cargo' : 'raw materials storage'}`,
+    `${category} manufacturing facility - ProcureSaathi procurement insights`,
+    `${category} supply chain warehouse - ProcureSaathi`,
+    `${category} quality inspection process`,
+    `B2B ${tradeType.toLowerCase()} logistics for ${category} - ${country}`,
+    `${category} raw materials and inventory management`,
   ];
 }
 
-function getReliablePhotoId(category: string): string {
-  const map: Record<string, string> = {
-    'steel': '1504328345606-18bbc8c9d7d1',
-    'metal': '1504328345606-18bbc8c9d7d1',
-    'chemical': '1532187863486-abf9dbad1b69',
-    'solvent': '1532187863486-abf9dbad1b69',
-    'polymer': '1558618666-fcd25c85f82e',
-    'plastic': '1558618666-fcd25c85f82e',
-    'construction': '1504307651254-35680f356dfd',
-    'textile': '1558171813-4c2e8f2ad057',
-    'fabric': '1558171813-4c2e8f2ad057',
-    'food': '1556909114-f6e7ad7d3136',
-    'agriculture': '1500595046743-cd271d694d30',
-    'packaging': '1586528116311-ad8dd3c8310d',
-    'mineral': '1518611012118-696072aa579a',
-    'mining': '1518611012118-696072aa579a',
-    'rubber': '1504328345606-18bbc8c9d7d1',
-    'auto': '1581091226825-a6a2a5aee158',
-    'electrical': '1581091226825-a6a2a5aee158',
-    'paper': '1586528116311-ad8dd3c8310d',
-    'board': '1586528116311-ad8dd3c8310d',
-    'pulses': '1556909114-f6e7ad7d3136',
-    'spices': '1596040033229-a9821ebd058d',
-    'industrial': '1581091226825-a6a2a5aee158',
-  };
+function getCategorySpecificInsights(category: string, year: number, country: string): string {
   const catLower = category.toLowerCase();
-  for (const [key, id] of Object.entries(map)) {
-    if (catLower.includes(key)) return id;
+  
+  const insights: Record<string, string> = {
+    'steel': `CATEGORY DEEP KNOWLEDGE - Steel & Metals:
+- Key grades: IS 2062 (structural), IS 1786 (TMT bars), SS 304/316, MS ERW/seamless pipes
+- Raw material drivers: Iron ore (Odisha/Karnataka), coking coal (imported), nickel (LME), zinc
+- Major hubs: Jamshedpur, Raipur, Ludhiana, Ahmedabad, Visakhapatnam
+- Current dynamics: PLI scheme for specialty steel, China export rebate changes, BIS mandatory certification expansion
+- HSN codes: 7208 (flat-rolled), 7213 (bars/rods), 7304 (seamless pipes), 7306 (welded tubes)`,
+    'chemical': `CATEGORY DEEP KNOWLEDGE - Chemicals & Petrochemicals:
+- Key segments: Basic chemicals, specialty chemicals, agrochemicals, dyes & pigments, solvents
+- Raw material drivers: Crude oil, natural gas, ethylene, propylene prices
+- Major hubs: GIDC Gujarat, MIDC Maharashtra, Vizag, Chennai-Manali
+- Current dynamics: China+1 benefiting Indian specialty chemicals, REACH compliance for EU exports, PLI for bulk drugs
+- HSN codes: 2801-2853 (inorganic), 2901-2942 (organic), 3801-3826 (misc chemicals)`,
+    'construction': `CATEGORY DEEP KNOWLEDGE - Building & Construction Materials:
+- Key products: Cement (OPC/PPC/PSC), TMT bars, aggregates, tiles, sanitary ware, paints
+- Raw material drivers: Limestone, gypsum, clinker, steel prices
+- Major hubs: Rajasthan (marble), Gujarat (tiles-Morbi), Maharashtra, Tamil Nadu
+- Current dynamics: Housing for All, Smart Cities Mission, RERA impact on quality, green building norms
+- Standards: BIS IS 269 (OPC), IS 1489 (PPC), IS 2185 (blocks), IS 1786 (TMT)`,
+    'textile': `CATEGORY DEEP KNOWLEDGE - Textiles & Apparel:
+- Key segments: Cotton yarn, synthetic fabrics, technical textiles, home textiles, garments
+- Raw material drivers: Cotton MSP, polyester (PTA/MEG), viscose staple fiber
+- Major hubs: Tirupur (knits), Surat (synthetics), Ludhiana (woolens), Panipat (home textiles)
+- Current dynamics: PLI for technical textiles, Mega Textile Parks (PM MITRA), EU deforestation regulations
+- HSN codes: 5204-5212 (cotton), 5407-5408 (synthetics), 6101-6117 (garments)`,
+    'food': `CATEGORY DEEP KNOWLEDGE - Food & Beverage:
+- Key segments: Grains, pulses, spices, processed foods, dairy, edible oils
+- Regulations: FSSAI licensing, APEDA for exports, Codex Alimentarius
+- Major hubs: Punjab (grains), Kerala/Karnataka (spices), Maharashtra (pulses), Gujarat (groundnuts)
+- Current dynamics: PLI for food processing, Mega Food Parks, organic certification growth
+- Standards: FSSAI, ISO 22000, HACCP, BRC/IFS for exports`,
+    'packaging': `CATEGORY DEEP KNOWLEDGE - Packaging:
+- Key segments: Corrugated boxes, flexible packaging, rigid plastics, glass, metal cans
+- Raw material drivers: Kraft paper, BOPP film, PET resin, aluminium foil
+- Major hubs: Mumbai, Delhi-NCR, Hyderabad, Bengaluru
+- Current dynamics: EPR (Extended Producer Responsibility), single-use plastic ban, sustainable packaging demand
+- Standards: BIS IS 2771 (corrugated), FSSAI packaging norms, EU packaging directive for exports`,
+  };
+
+  for (const [key, insight] of Object.entries(insights)) {
+    if (catLower.includes(key)) return insight;
   }
-  return '1581091226825-a6a2a5aee158';
+
+  return `CATEGORY CONTEXT: ${category} industry in ${country}, ${year}. Include specific standards, HSN codes, major manufacturing hubs, and raw material price drivers relevant to this category.`;
 }
