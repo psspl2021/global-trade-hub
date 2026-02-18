@@ -983,7 +983,7 @@ export default function AdminAuditDashboard() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.href = 'https://www.procuresaathi.com'}
             >
               <Home className="h-4 w-4 mr-2" />
               Home

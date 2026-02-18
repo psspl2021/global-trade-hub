@@ -179,7 +179,7 @@ export default function ManagementExecutiveDashboard() {
               variant="outline" 
               size="sm"
               className="border-slate-600 text-slate-200 hover:bg-slate-700"
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.href = 'https://www.procuresaathi.com'}
             >
               <Home className="h-4 w-4 mr-2" />
               Home
