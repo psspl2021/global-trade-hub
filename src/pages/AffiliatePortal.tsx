@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, LogOut, Settings, AlertTriangle } from 'lucide-react';
+import { Loader2, LogOut, Settings, AlertTriangle, Home } from 'lucide-react';
 import { ReferralSection } from '@/components/ReferralSection';
 import { ProfileSettings } from '@/components/ProfileSettings';
 import { ReferrerKYCUpload } from '@/components/affiliate/ReferrerKYCUpload';
@@ -64,6 +64,13 @@ const AffiliatePortal = () => {
             />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => navigate('/')}>
+              <Home className="h-4 w-4 mr-2" />
+              Home
+            </Button>
+            <Button variant="outline" size="icon" className="h-8 w-8 sm:hidden" onClick={() => navigate('/')}>
+              <Home className="h-4 w-4" />
+            </Button>
             <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => setShowProfileSettings(true)}>
               <Settings className="h-4 w-4" />
             </Button>

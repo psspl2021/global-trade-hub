@@ -42,7 +42,8 @@ import {
   RefreshCw,
   Globe,
   Monitor,
-  Smartphone
+  Smartphone,
+  Home
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
@@ -979,6 +980,14 @@ export default function AdminAuditDashboard() {
               ADMIN
             </Badge>
             <NotificationBell />
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/')}
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Home
+            </Button>
             <Button 
               variant="outline" 
               size="sm"

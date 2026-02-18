@@ -21,7 +21,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
-import { LogOut, Settings, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, AlertTriangle, Home } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
@@ -69,6 +69,23 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             <NotificationBell />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hidden sm:flex" 
+              onClick={() => navigate('/')}
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Home
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-8 w-8 sm:hidden" 
+              onClick={() => navigate('/')}
+            >
+              <Home className="h-4 w-4" />
+            </Button>
             <Button 
               variant="outline" 
               size="icon" 
