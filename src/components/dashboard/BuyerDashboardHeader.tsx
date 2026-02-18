@@ -57,7 +57,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
       <div className="container mx-auto px-4 py-3 sm:py-4">
         {/* Top row: Logo and actions */}
         <div className="flex items-center justify-between mb-3">
-          <a href="https://www.procuresaathi.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
@@ -66,14 +66,14 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               height={80}
               loading="eager"
             />
-          </a>
+          </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             <NotificationBell />
             <Button 
               variant="outline" 
               size="sm" 
               className="hidden sm:flex" 
-              onClick={() => window.open('https://www.procuresaathi.com', '_blank')}
+              onClick={() => navigate('/')}
             >
               <Home className="h-4 w-4 mr-2" />
               Home
@@ -82,7 +82,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               variant="outline" 
               size="icon" 
               className="h-8 w-8 sm:hidden" 
-              onClick={() => window.open('https://www.procuresaathi.com', '_blank')}
+              onClick={() => navigate('/')}
             >
               <Home className="h-4 w-4" />
             </Button>
