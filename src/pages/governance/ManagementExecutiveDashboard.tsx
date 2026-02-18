@@ -42,7 +42,8 @@ import {
   BarChart3,
   Building2,
   Calculator,
-  Briefcase
+  Briefcase,
+  Home
 } from 'lucide-react';
 import { AccessDenied } from '@/components/purchaser';
 import { GovernanceLegalArmor } from '@/components/governance';
@@ -174,6 +175,15 @@ export default function ManagementExecutiveDashboard() {
               {primaryRole.toUpperCase()}
             </Badge>
             <NotificationBell />
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="border-slate-600 text-slate-200 hover:bg-slate-700"
+              onClick={() => navigate('/')}
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Home
+            </Button>
             <Button 
               variant="outline" 
               size="sm"

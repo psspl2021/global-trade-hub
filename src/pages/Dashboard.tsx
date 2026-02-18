@@ -29,7 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -234,6 +234,13 @@ const Dashboard = () => {
             </Link>
             <div className="flex items-center gap-1 sm:gap-2">
               <NotificationBell />
+              <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => navigate('/')}>
+                <Home className="h-4 w-4 mr-2" />
+                Home
+              </Button>
+              <Button variant="outline" size="icon" className="h-8 w-8 sm:hidden" onClick={() => navigate('/')}>
+                <Home className="h-4 w-4" />
+              </Button>
               <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => setShowProfileSettings(true)}>
                 <Settings className="h-4 w-4" />
               </Button>
