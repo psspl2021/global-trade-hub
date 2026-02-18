@@ -56,44 +56,6 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
 
-  // Redirect logged-in users to their appropriate dashboard
-  useEffect(() => {
-    if (authLoading || !user) return;
-
-    const redirectLoggedInUser = async () => {
-      setRedirecting(true);
-      try {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
-
-        if (roleData && roleData.length > 0) {
-          const roles = roleData.map(r => r.role as string);
-          const managementRoles = ['ceo', 'buyer_ceo', 'cfo', 'buyer_cfo', 'manager', 'buyer_manager'];
-          
-          if (roles.some(r => managementRoles.includes(r))) {
-            navigate('/management', { replace: true });
-            return;
-          }
-          if (roles.includes('ps_admin') || roles.includes('admin')) {
-            navigate('/admin', { replace: true });
-            return;
-          }
-          if (roles.includes('affiliate')) {
-            navigate('/affiliate', { replace: true });
-            return;
-          }
-        }
-        navigate('/dashboard', { replace: true });
-      } catch {
-        navigate('/dashboard', { replace: true });
-      }
-    };
-
-    redirectLoggedInUser();
-  }, [user, authLoading, navigate]);
-
   // SEO setup - AEO/GEO optimized
   useSEO({
     title: "ProcureSaathi | AI-Powered B2B Procurement Platform for Smart Sourcing",
