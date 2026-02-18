@@ -408,6 +408,10 @@ export const categoriesData: CategoryData[] = [
       'Tool Steel',
       'Scrap',
       'Iron Ore',
+      'HT Strands',
+      'LRPC (Low Relaxation Prestressed Concrete Strand)',
+      'PC Strand',
+      'Prestressing Steel',
     ]
   },
   {
