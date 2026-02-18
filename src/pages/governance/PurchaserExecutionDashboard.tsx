@@ -131,7 +131,7 @@ export default function PurchaserExecutionDashboard() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => window.location.href = '/'}
             >
               <Home className="h-4 w-4 mr-2" />
               Home

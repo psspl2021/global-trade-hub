@@ -73,7 +73,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               variant="outline" 
               size="sm" 
               className="hidden sm:flex" 
-              onClick={() => navigate('/')}
+              onClick={() => window.location.href = '/'}
             >
               <Home className="h-4 w-4 mr-2" />
               Home
@@ -82,7 +82,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               variant="outline" 
               size="icon" 
               className="h-8 w-8 sm:hidden" 
-              onClick={() => navigate('/')}
+              onClick={() => window.location.href = '/'}
             >
               <Home className="h-4 w-4" />
             </Button>
