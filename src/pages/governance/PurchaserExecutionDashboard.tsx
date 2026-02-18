@@ -131,7 +131,7 @@ export default function PurchaserExecutionDashboard() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => window.location.href = 'https://www.procuresaathi.com'}
+              onClick={() => window.open('https://www.procuresaathi.com', '_blank')}
             >
               <Home className="h-4 w-4 mr-2" />
               Home
