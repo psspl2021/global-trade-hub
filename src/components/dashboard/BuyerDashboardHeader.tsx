@@ -57,7 +57,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
       <div className="container mx-auto px-4 py-3 sm:py-4">
         {/* Top row: Logo and actions */}
         <div className="flex items-center justify-between mb-3">
-          <Link to="/" className="flex items-center gap-2">
+          <a href="https://www.procuresaathi.com" className="flex items-center gap-2">
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
@@ -66,7 +66,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               height={80}
               loading="eager"
             />
-          </Link>
+          </a>
           <div className="flex items-center gap-1 sm:gap-2">
             <NotificationBell />
             <Button 
