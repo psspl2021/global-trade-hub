@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -297,6 +298,12 @@ export function AISEOEngine() {
             <h3 className="text-xl font-bold">AI SEO Engine</h3>
             <p className="text-sm text-muted-foreground">Auto keyword discovery, page optimization & content generation</p>
           </div>
+          <Link
+            to="/admin/seo-monitor"
+            className="ml-3 px-3 py-1.5 text-xs rounded-md border bg-muted hover:bg-muted/70"
+          >
+            View Governance
+          </Link>
           {lastRun && getStatusBadge(lastRun.status)}
         </div>
 
