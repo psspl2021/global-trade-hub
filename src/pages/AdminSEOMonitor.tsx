@@ -12,6 +12,9 @@ interface CorridorRow {
   impressions: number | null;
   clicks: number | null;
   last_checked: string | null;
+  ctr: number | null;
+  ctr_status: string | null;
+  rewrite_required: boolean | null;
 }
 
 type MergedCorridor = {
@@ -22,6 +25,9 @@ type MergedCorridor = {
   impressions: number;
   clicks: number;
   last_checked: string | null;
+  ctr: number;
+  ctr_status: 'healthy' | 'warning' | 'critical';
+  rewrite_required: boolean;
 };
 
 export default function AdminSEOMonitor() {
@@ -33,7 +39,7 @@ export default function AdminSEOMonitor() {
       const { data } = await supabase
         .from('seo_demand_pages')
         .select('slug, gsc_status, impressions, clicks, last_checked')
-        .in('slug', PHASE_1_SLUGS);
+        .in('slug', PHASE_1_SLUGS) as { data: CorridorRow[] | null };
 
       const dbMap = new Map<string, CorridorRow>();
       (data || []).forEach(row => dbMap.set(row.slug, row));
@@ -41,6 +47,7 @@ export default function AdminSEOMonitor() {
       const merged: MergedCorridor[] = PHASE_1_CORRIDORS.map(c => {
         const db = dbMap.get(c.slug);
         const status = db?.gsc_status as 'pending' | 'indexed' | 'warning' | undefined;
+        const ctrStatus = db?.ctr_status as 'healthy' | 'warning' | 'critical' | undefined;
         return {
           slug: c.slug,
           country: c.country,
@@ -49,6 +56,9 @@ export default function AdminSEOMonitor() {
           impressions: db?.impressions ?? 0,
           clicks: db?.clicks ?? 0,
           last_checked: db?.last_checked ?? null,
+          ctr: db?.ctr ?? 0,
+          ctr_status: ctrStatus && ['healthy', 'warning', 'critical'].includes(ctrStatus) ? ctrStatus : 'healthy',
+          rewrite_required: db?.rewrite_required ?? false,
         };
       });
 
@@ -70,7 +80,8 @@ export default function AdminSEOMonitor() {
   const indexedCount = corridors.filter(c => c.gsc_status === 'indexed').length;
   const warningCount = corridors.filter(c => c.gsc_status === 'warning').length;
   const pendingCount = corridors.filter(c => c.gsc_status === 'pending').length;
-  const phase2Ready = canExpandToPhase2(indexedCount, warningCount);
+  const criticalCount = corridors.filter(c => c.ctr_status === 'critical').length;
+  const phase2Ready = canExpandToPhase2(indexedCount, warningCount, criticalCount);
 
   return (
     <main className="min-h-screen pt-20 pb-16 px-4">
@@ -135,7 +146,7 @@ export default function AdminSEOMonitor() {
                   <p className="font-medium text-sm">{corridor.category} – {corridor.country}</p>
                   <p className="text-xs text-muted-foreground font-mono">/demand/{corridor.slug}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Impressions: {corridor.impressions} • Clicks: {corridor.clicks}
+                    Impressions: {corridor.impressions} • Clicks: {corridor.clicks} • CTR: {corridor.ctr.toFixed(2)}%
                     {corridor.last_checked && ` • Checked: ${new Date(corridor.last_checked).toLocaleDateString()}`}
                   </p>
                 </div>
@@ -153,6 +164,16 @@ export default function AdminSEOMonitor() {
                   {corridor.gsc_status === 'warning' && (
                     <Badge variant="destructive" className="gap-1">
                       <AlertTriangle className="h-3 w-3" /> Warning
+                    </Badge>
+                  )}
+                  {corridor.ctr_status === 'warning' && (
+                    <Badge variant="destructive" className="gap-1 ml-1">
+                      Low CTR
+                    </Badge>
+                  )}
+                  {corridor.ctr_status === 'critical' && (
+                    <Badge variant="destructive" className="gap-1 ml-1">
+                      Critical CTR
                     </Badge>
                   )}
                 </div>
