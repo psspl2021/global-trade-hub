@@ -18,6 +18,7 @@ const nameToSlug = (name: string) => {
 // Static pages
 const staticPages = [
   { url: '/', priority: 1.0, changefreq: 'daily' },
+  { url: '/explore', priority: 0.9, changefreq: 'daily' },
   { url: '/book-truck', priority: 0.8, changefreq: 'weekly' },
   { url: '/blogs', priority: 0.8, changefreq: 'daily' },
   { url: '/buyer', priority: 0.9, changefreq: 'weekly' },
@@ -318,11 +319,59 @@ async function fetchDynamicSignalPages(): Promise<{ slug: string; updated_at: st
   }
 }
 
+// Fetch seo_demand_pages for /demand URLs
+async function fetchSeoDemandPages(): Promise<{ slug: string; intent_weight: number | null }[]> {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data, error } = await supabase
+      .from('seo_demand_pages')
+      .select('slug, intent_weight')
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('[generate-sitemap] Error fetching seo_demand_pages:', error);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.error('[generate-sitemap] Error in fetchSeoDemandPages:', error);
+    return [];
+  }
+}
+
+// Fetch countries for /explore directory pages
+async function fetchCountriesForExplore(): Promise<{ iso_code: string; region: string }[]> {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data, error } = await supabase
+      .from('countries_master')
+      .select('iso_code, region')
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('[generate-sitemap] Error fetching countries for explore:', error);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.error('[generate-sitemap] Error in fetchCountriesForExplore:', error);
+    return [];
+  }
+}
+
 async function generateSitemap(): Promise<string> {
   const today = new Date().toISOString().split('T')[0];
-  const [blogPosts, dynamicSignalPages] = await Promise.all([
+  const [blogPosts, dynamicSignalPages, seoDemandPages, exploreCountries] = await Promise.all([
     fetchBlogPosts(),
     fetchDynamicSignalPages(),
+    fetchSeoDemandPages(),
+    fetchCountriesForExplore(),
   ]);
   
   // Build a set of already-included signal slugs to avoid duplicates
@@ -462,6 +511,47 @@ async function generateSitemap(): Promise<string> {
     <priority>0.8</priority>
   </url>
 `;
+  }
+
+  // Explore directory pages - /explore/:region/:country
+  const regionSlugs = new Set<string>();
+  for (const c of exploreCountries) {
+    const regionSlug = (c.region || 'other').toLowerCase().replace(/\s+/g, '-');
+    regionSlugs.add(regionSlug);
+    xml += `  <url>
+    <loc>${baseUrl}/explore/${regionSlug}/${c.iso_code.toLowerCase()}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+  }
+
+  // SEO demand pages - /demand/:slug
+  for (const page of seoDemandPages) {
+    const priority = (page.intent_weight || 50) > 70 ? 1.0 : 0.6;
+    xml += `  <url>
+    <loc>${baseUrl}/demand/${page.slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>${priority}</priority>
+  </url>
+`;
+  }
+
+  // Also generate demand pages for each country-category combo from explore
+  // These are the dynamically routable /demand/:country-:category URLs
+  for (const c of exploreCountries) {
+    for (const cat of categories) {
+      const catSlug = nameToSlug(cat.name);
+      xml += `  <url>
+    <loc>${baseUrl}/demand/${c.iso_code.toLowerCase()}-${catSlug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+    }
   }
 
   xml += '</urlset>';

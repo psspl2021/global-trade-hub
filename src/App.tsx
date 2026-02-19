@@ -45,6 +45,11 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 
+// Hub & Spoke Directory Pages
+const ExplorePage = lazy(() => import("./pages/explore/ExplorePage"));
+const ExploreCountryPage = lazy(() => import("./pages/explore/ExploreCountryPage"));
+const DemandPage = lazy(() => import("./pages/explore/DemandPage"));
+
 // Marketplace Pages - Universal SEO Route Handler
 const MarketplaceBuyPage = lazy(() => import("./pages/marketplace/BuyPage"));
 const MarketplaceSupplierPage = lazy(() => import("./pages/marketplace/SupplierPage"));
@@ -159,6 +164,11 @@ const BotAwareRouter = () => {
         <Route path="/affiliate" element={<AffiliatePortal />} />
         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
         <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
+        
+        {/* Hub & Spoke Directory Routes */}
+        <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/explore/:region/:country" element={<ExploreCountryPage />} />
+        <Route path="/demand/:slug" element={<DemandPage />} />
         
         {/* Role-Based Dashboard Routes - STRICT SEPARATION */}
         {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}

@@ -2947,6 +2947,36 @@ export type Database = {
         }
         Relationships: []
       }
+      google_index_queue: {
+        Row: {
+          created_at: string | null
+          id: string
+          processed: boolean | null
+          processed_at: string | null
+          source_id: string | null
+          source_type: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          processed?: boolean | null
+          processed_at?: string | null
+          source_id?: string | null
+          source_type?: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          processed?: boolean | null
+          processed_at?: string | null
+          source_id?: string | null
+          source_type?: string
+          url?: string
+        }
+        Relationships: []
+      }
       governance_rules: {
         Row: {
           buyer_id: string | null
