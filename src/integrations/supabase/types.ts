@@ -6552,6 +6552,33 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_ai_profiles: {
+        Row: {
+          avg_margin: number | null
+          supplier_ai_score: number | null
+          supplier_id: string
+          total_volume: number | null
+          updated_at: string | null
+          win_rate: number | null
+        }
+        Insert: {
+          avg_margin?: number | null
+          supplier_ai_score?: number | null
+          supplier_id: string
+          total_volume?: number | null
+          updated_at?: string | null
+          win_rate?: number | null
+        }
+        Update: {
+          avg_margin?: number | null
+          supplier_ai_score?: number | null
+          supplier_id?: string
+          total_volume?: number | null
+          updated_at?: string | null
+          win_rate?: number | null
+        }
+        Relationships: []
+      }
       supplier_api_keys: {
         Row: {
           api_key_hash: string
