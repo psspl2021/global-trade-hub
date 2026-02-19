@@ -6010,33 +6010,45 @@ export type Database = {
       seo_demand_pages: {
         Row: {
           category: string
+          clicks: number | null
           country_iso: string | null
           created_at: string | null
+          gsc_status: string | null
           id: string
+          impressions: number | null
           intent_weight: number | null
           is_active: boolean | null
+          last_checked: string | null
           meta_description: string | null
           meta_title: string | null
           slug: string
         }
         Insert: {
           category: string
+          clicks?: number | null
           country_iso?: string | null
           created_at?: string | null
+          gsc_status?: string | null
           id?: string
+          impressions?: number | null
           intent_weight?: number | null
           is_active?: boolean | null
+          last_checked?: string | null
           meta_description?: string | null
           meta_title?: string | null
           slug: string
         }
         Update: {
           category?: string
+          clicks?: number | null
           country_iso?: string | null
           created_at?: string | null
+          gsc_status?: string | null
           id?: string
+          impressions?: number | null
           intent_weight?: number | null
           is_active?: boolean | null
+          last_checked?: string | null
           meta_description?: string | null
           meta_title?: string | null
           slug?: string
