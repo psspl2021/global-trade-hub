@@ -24,6 +24,7 @@ import { AILinkingSection } from '@/components/seo';
 import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { Footer } from '@/components/landing/Footer';
+import { GlobalProcurementCorridors } from '@/components/GlobalProcurementCorridors';
 
 // Lazy load below-the-fold components
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -649,7 +650,8 @@ const Index = () => {
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
 
-      {/* ===== SECTION 10: FOOTER ===== */}
+      {/* ===== SECTION 10: GLOBAL CORRIDORS + FOOTER ===== */}
+      <GlobalProcurementCorridors />
       <Footer />
 
       {/* Live Stock Dialog */}
