@@ -6150,6 +6150,30 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_rewrite_queue: {
+        Row: {
+          created_at: string | null
+          id: string
+          processed: boolean | null
+          reason: string | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          processed?: boolean | null
+          reason?: string | null
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          processed?: boolean | null
+          reason?: string | null
+          slug?: string
+        }
+        Relationships: []
+      }
       shipment_updates: {
         Row: {
           created_at: string
