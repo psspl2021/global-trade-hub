@@ -527,9 +527,35 @@ async function generateSitemap(): Promise<string> {
 `;
   }
 
-  // SEO demand pages - /demand/:slug
+  // Priority corridors — 10 strategic corridors at highest priority
+  const priorityCorridorSlugs = [
+    'in-metals-ferrous-steel-iron',
+    'sa-metals-ferrous-steel-iron',
+    'ae-polymers-resins',
+    'de-chemicals-raw-materials',
+    'us-machinery-equipment',
+    'gb-textiles-fabrics',
+    'qa-pipes-tubes',
+    'ng-food-beverages',
+    'sg-electronic-components',
+    'ke-pharmaceuticals-drugs',
+  ];
+  const prioritySet = new Set(priorityCorridorSlugs);
+
+  for (const slug of priorityCorridorSlugs) {
+    xml += `  <url>
+    <loc>${baseUrl}/demand/${slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+`;
+  }
+
+  // SEO demand pages - /demand/:slug (excluding priority corridors to avoid duplicates)
   for (const page of seoDemandPages) {
-    const priority = (page.intent_weight || 50) > 70 ? 1.0 : 0.6;
+    if (prioritySet.has(page.slug)) continue;
+    const priority = (page.intent_weight || 50) > 70 ? 0.9 : 0.6;
     xml += `  <url>
     <loc>${baseUrl}/demand/${page.slug}</loc>
     <lastmod>${today}</lastmod>
@@ -539,20 +565,8 @@ async function generateSitemap(): Promise<string> {
 `;
   }
 
-  // Also generate demand pages for each country-category combo from explore
-  // These are the dynamically routable /demand/:country-:category URLs
-  for (const c of exploreCountries) {
-    for (const cat of categories) {
-      const catSlug = nameToSlug(cat.name);
-      xml += `  <url>
-    <loc>${baseUrl}/demand/${c.iso_code.toLowerCase()}-${catSlug}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-`;
-    }
-  }
+  // NOTE: Mass 6,000+ country-category combos removed.
+  // Only priority corridors + DB-registered demand pages are indexed.
 
   xml += '</urlset>';
   return xml;
