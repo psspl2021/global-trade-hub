@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Verify cron secret
+  // 🔒 Secure with CRON_SECRET
   const authHeader = req.headers.get("authorization");
   const cronSecret = Deno.env.get("CRON_SECRET");
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -51,14 +51,24 @@ Deno.serve(async (req) => {
       .eq("slug", page.slug);
 
     if (rewrite_required) {
-      await supabase.from("seo_rewrite_queue").insert({
-        slug: page.slug,
-        reason: `CTR anomaly detected: ${ctr.toFixed(2)}% (${ctr_status})`,
-      });
+      const { data: existing } = await supabase
+        .from("seo_rewrite_queue")
+        .select("id")
+        .eq("slug", page.slug)
+        .eq("processed", false)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("seo_rewrite_queue").insert({
+          slug: page.slug,
+          reason: `CTR anomaly detected: ${ctr.toFixed(2)}% (${ctr_status})`,
+        });
+      }
     }
   }
 
-  return new Response(JSON.stringify({ success: true, message: "CTR monitoring complete." }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({ success: true, message: "CTR monitoring complete." }),
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
 });
