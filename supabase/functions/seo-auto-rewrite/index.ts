@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Verify cron secret
+  // 🔒 Secure with CRON_SECRET
   const authHeader = req.headers.get("authorization");
   const cronSecret = Deno.env.get("CRON_SECRET");
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -49,7 +49,8 @@ Deno.serve(async (req) => {
     processed++;
   }
 
-  return new Response(JSON.stringify({ success: true, processed }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({ success: true, processed }),
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
 });

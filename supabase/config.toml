@@ -86,3 +86,9 @@ verify_jwt = true
 
 [functions.generate-blog]
 verify_jwt = true
+
+[functions.seo-ctr-monitor]
+verify_jwt = false
+
+[functions.seo-auto-rewrite]
+verify_jwt = false
