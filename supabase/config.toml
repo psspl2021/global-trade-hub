@@ -92,3 +92,6 @@ verify_jwt = false
 
 [functions.seo-auto-rewrite]
 verify_jwt = false
+
+[functions.seo-gsc-sync]
+verify_jwt = false
