@@ -37,12 +37,14 @@ Deno.serve(async (req) => {
     let ctr_status = "healthy";
     let rewrite_required = false;
 
-    if (impressions > 3000 && ctr < 1) {
+    if (impressions > 5000 && ctr < 1) {
       ctr_status = "critical";
       rewrite_required = true;
-    } else if (impressions > 1000 && ctr < 1.5) {
+    } else if (impressions > 2000 && ctr < 1.2) {
       ctr_status = "warning";
       rewrite_required = true;
+    } else if (impressions > 1000 && ctr < 1.5) {
+      ctr_status = "low";
     }
 
     await supabase

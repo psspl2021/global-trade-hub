@@ -66,7 +66,7 @@ serve(async (req) => {
       requestBody: {
         startDate,
         endDate,
-        dimensions: ["page"],
+        dimensions: ["page", "query"],
         rowLimit: 2500,
       },
     });

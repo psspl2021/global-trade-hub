@@ -83,6 +83,12 @@ export default function AdminSEOMonitor() {
   const criticalCount = corridors.filter(c => c.ctr_status === 'critical').length;
   const phase2Ready = canExpandToPhase2(indexedCount, warningCount, criticalCount);
 
+  const lastSync = corridors
+    .map(c => c.last_checked)
+    .filter(Boolean)
+    .sort()
+    .reverse()[0];
+
   return (
     <main className="min-h-screen pt-20 pb-16 px-4">
       <div className="container mx-auto max-w-5xl space-y-6">
@@ -96,6 +102,18 @@ export default function AdminSEOMonitor() {
             {phase2Ready ? 'Phase 2 Ready' : 'Phase 1 Active'}
           </Badge>
         </div>
+
+        {/* GSC Last Sync */}
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium">GSC Last Sync:</p>
+            <p className="text-xs text-muted-foreground">
+              {lastSync
+                ? new Date(lastSync).toLocaleString()
+                : "Not synced yet"}
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Warning Block */}
         {warningCount > 0 && (
