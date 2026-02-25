@@ -49,6 +49,7 @@ const ProcurementSignalPage = lazy(() => import("./pages/procurement/Procurement
 const ExplorePage = lazy(() => import("./pages/explore/ExplorePage"));
 const ExploreCountryPage = lazy(() => import("./pages/explore/ExploreCountryPage"));
 const DemandPage = lazy(() => import("./pages/explore/DemandPage"));
+const DemandIndex = lazy(() => import("./pages/explore/DemandIndex"));
 
 // Marketplace Pages - Universal SEO Route Handler
 const MarketplaceBuyPage = lazy(() => import("./pages/marketplace/BuyPage"));
@@ -169,6 +170,7 @@ const BotAwareRouter = () => {
         {/* Hub & Spoke Directory Routes */}
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/explore/:region/:country" element={<ExploreCountryPage />} />
+        <Route path="/demand" element={<DemandIndex />} />
         <Route path="/demand/:slug" element={<DemandPage />} />
         
         {/* Role-Based Dashboard Routes - STRICT SEPARATION */}
