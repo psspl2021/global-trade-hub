@@ -101,6 +101,7 @@ export default function DemandPage() {
   const [auditCount, setAuditCount] = useState(0);
   const [countryName, setCountryName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   // Parse slug: country-category (e.g., "in-metals-ferrous-steel-iron")
   const { countryCode, categorySlug } = useMemo(() => {
@@ -121,29 +122,43 @@ export default function DemandPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!countryCode || !categorySlug) return;
+      if (!countryCode || !categorySlug) {
+        setLoading(false);
+        return;
+      }
 
-      const [signalRes, contractRes, auditRes] = await Promise.all([
-        supabase.from('demand_intelligence_signals')
-          .select('intent_score, category, country, created_at')
-          .ilike('country', `%${countryCode}%`)
-          .ilike('category', `%${categorySlug.replace(/-/g, '%')}%`)
-          .order('created_at', { ascending: false })
-          .limit(10),
-        supabase.from('contract_summaries')
-          .select('total_value, category, approval_status')
-          .eq('approval_status', 'approved')
-          .ilike('category', `%${categorySlug.replace(/-/g, '%')}%`)
-          .limit(20),
-        supabase.from('audit_ledger')
-          .select('id', { count: 'exact', head: true })
-          .eq('entity_type', 'contract'),
-      ]);
+      try {
+        const [signalRes, contractRes, auditRes] = await Promise.all([
+          supabase.from('demand_intelligence_signals')
+            .select('intent_score, category, country, created_at')
+            .ilike('country', `%${countryCode}%`)
+            .ilike('category', `%${categorySlug.replace(/-/g, '%')}%`)
+            .is('closed_at', null)
+            .order('created_at', { ascending: false })
+            .limit(10),
+          supabase.from('contract_summaries')
+            .select('total_value, category, approval_status')
+            .eq('approval_status', 'approved')
+            .ilike('category', `%${categorySlug.replace(/-/g, '%')}%`)
+            .limit(20),
+          supabase.from('audit_ledger')
+            .select('id', { count: 'exact', head: true })
+            .eq('entity_type', 'contract'),
+        ]);
 
-      if (signalRes.data) setSignals(signalRes.data);
-      if (contractRes.data) setContracts(contractRes.data);
-      if (auditRes.count) setAuditCount(auditRes.count);
-      setLoading(false);
+        if (signalRes.error) throw signalRes.error;
+        if (contractRes.error) throw contractRes.error;
+        if (auditRes.error) throw auditRes.error;
+
+        setSignals(signalRes.data || []);
+        setContracts(contractRes.data || []);
+        if (auditRes.count) setAuditCount(auditRes.count);
+      } catch (err) {
+        console.error('Demand fetch error:', err);
+        setError(err instanceof Error ? err : new Error('Failed to load demand signal'));
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, [countryCode, categorySlug]);
@@ -203,6 +218,18 @@ export default function DemandPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="ml-3 text-muted-foreground">Loading demand signal...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Data Error</h1>
+          <p className="text-muted-foreground">Unable to load demand signal. Please try again later.</p>
+        </div>
       </div>
     );
   }
