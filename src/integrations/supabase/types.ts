@@ -2438,6 +2438,7 @@ export type Database = {
           sla_breach_hours: number | null
           sla_notes: string | null
           sla_status: string | null
+          slug: string | null
           subcategory: string | null
           updated_at: string | null
           urgency_score: number | null
@@ -2499,6 +2500,7 @@ export type Database = {
           sla_breach_hours?: number | null
           sla_notes?: string | null
           sla_status?: string | null
+          slug?: string | null
           subcategory?: string | null
           updated_at?: string | null
           urgency_score?: number | null
@@ -2560,6 +2562,7 @@ export type Database = {
           sla_breach_hours?: number | null
           sla_notes?: string | null
           sla_status?: string | null
+          slug?: string | null
           subcategory?: string | null
           updated_at?: string | null
           urgency_score?: number | null
