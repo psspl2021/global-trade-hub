@@ -19,6 +19,9 @@ export default function DemandPage() {
       setLoading(true);
       setError(null);
 
+      console.log("SUPABASE URL:", (supabase as any).supabaseUrl);
+      console.log("Slug:", slug);
+
       const { data, error } = await supabase
         .from("demand_intelligence_signals")
         .select("*")
