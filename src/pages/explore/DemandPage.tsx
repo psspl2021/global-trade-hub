@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
@@ -96,83 +96,56 @@ function MarketOverviewSection({ category, overview }: { category: string; overv
 
 export default function DemandPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [signals, setSignals] = useState<DemandSignal[]>([]);
+  const [signal, setSignal] = useState<any>(null);
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [auditCount, setAuditCount] = useState(0);
   const [countryName, setCountryName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // Parse slug: country-category (e.g., "in-metals-ferrous-steel-iron")
-  const { countryCode, categorySlug } = useMemo(() => {
-    if (!slug) return { countryCode: '', categorySlug: '' };
-    const parts = slug.split('-');
-    return { countryCode: parts[0]?.toUpperCase() || '', categorySlug: parts.slice(1).join('-') };
-  }, [slug]);
-
   const priorityCorridor = slug ? getPriorityCorridorBySlug(slug) : undefined;
-  const categoryDisplay = priorityCorridor?.categoryDisplay || categorySlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const categoryDisplay = priorityCorridor?.categoryDisplay || signal?.category || slug?.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || '';
 
   useEffect(() => {
-    if (!countryCode) return;
-    supabase.from('countries_master').select('country_name, region')
-      .eq('iso_code', countryCode).single()
-      .then(({ data }) => { if (data) setCountryName(data.country_name); });
-  }, [countryCode]);
-
-  useEffect(() => {
-    async function fetchData() {
-      if (!countryCode || !categorySlug) {
-        setLoading(false);
-        return;
-      }
-
+    async function fetchSignal() {
+      if (!slug) return;
+      setLoading(true);
+      setError(null);
       try {
-        const [signalRes, contractRes, auditRes] = await Promise.all([
-          supabase.from('demand_intelligence_signals')
-            .select('intent_score, category, country, created_at')
-            .ilike('country', `%${countryCode}%`)
-            .ilike('category', `%${categorySlug.replace(/-/g, '%')}%`)
-            .is('closed_at', null)
-            .order('created_at', { ascending: false })
-            .limit(10),
-          supabase.from('contract_summaries')
-            .select('total_value, category, approval_status')
-            .eq('approval_status', 'approved')
-            .ilike('category', `%${categorySlug.replace(/-/g, '%')}%`)
-            .limit(20),
-          supabase.from('audit_ledger')
-            .select('id', { count: 'exact', head: true })
-            .eq('entity_type', 'contract'),
-        ]);
+        const { data, error } = await supabase
+          .from("demand_intelligence_signals")
+          .select("*")
+          .eq("slug", slug)
+          .is("closed_at", null)
+          .maybeSingle();
 
-        if (signalRes.error) throw signalRes.error;
-        if (contractRes.error) throw contractRes.error;
-        if (auditRes.error) throw auditRes.error;
+        if (error) throw error;
 
-        setSignals(signalRes.data || []);
-        setContracts(contractRes.data || []);
-        if (auditRes.count) setAuditCount(auditRes.count);
+        if (!data) {
+          throw new Error("No active demand signal found");
+        }
+
+        setSignal(data);
+        setCountryName(data.country || "");
       } catch (err) {
-        console.error('Demand fetch error:', err);
-        setError(err instanceof Error ? err : new Error('Failed to load demand signal'));
+        console.error("Demand fetch error:", err);
+        setError(err instanceof Error ? err : new Error("Failed to load"));
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
-  }, [countryCode, categorySlug]);
 
-  const avgIntent = signals.length > 0 ? (signals.reduce((s, d) => s + (d.intent_score || 0), 0) / signals.length).toFixed(1) : null;
-  const recentSignals = signals.filter(s => {
-    const d = new Date(s.created_at);
-    return d > new Date(Date.now() - 14 * 86400000);
-  }).length;
+    fetchSignal();
+  }, [slug]);
+
+  const signals = signal ? [signal] : [];
+  const avgIntent = signal?.intent_score ? Number(signal.intent_score).toFixed(1) : null;
+  const recentSignals = signal ? 1 : 0;
   const contractValues = contracts.map(c => c.total_value || 0).filter(v => v > 0);
   const avgContractValue = contractValues.length > 0 ? (contractValues.reduce((s, v) => s + v, 0) / contractValues.length) : null;
-  const regionSlug = 'asia'; // fallback
+  const regionSlug = 'asia';
 
-  const display = priorityCorridor?.country || countryName || countryCode;
+  const display = priorityCorridor?.country || countryName || '';
 
   useSEO({
     title: `Buy ${categoryDisplay} in ${display} — AI Verified Suppliers & Live Rates | ProcureSaathi`,
@@ -209,7 +182,7 @@ export default function DemandPage() {
     injectStructuredData(getBreadcrumbSchema([
       { name: 'Home', url: 'https://www.procuresaathi.com' },
       { name: 'Explore', url: 'https://www.procuresaathi.com/explore' },
-      { name: display, url: `https://www.procuresaathi.com/explore/${regionSlug}/${countryCode.toLowerCase()}` },
+      { name: display, url: `https://www.procuresaathi.com/explore/${regionSlug}/${(signal?.country_iso || '').toLowerCase()}` },
       { name: categoryDisplay, url: `https://www.procuresaathi.com/demand/${slug}` },
     ]), 'breadcrumb-demand');
   }, [display, categoryDisplay, avgIntent, contractValues, slug]);
@@ -246,7 +219,7 @@ export default function DemandPage() {
             <span>→</span>
             <Link to="/explore" className="hover:text-primary">Explore</Link>
             <span>→</span>
-            <Link to={`/explore/${regionSlug}/${countryCode.toLowerCase()}`} className="hover:text-primary">{display}</Link>
+            <Link to={`/explore/${regionSlug}/${(signal?.country_iso || '').toLowerCase()}`} className="hover:text-primary">{display}</Link>
             <span>→</span>
             <span className="text-foreground font-medium">{categoryDisplay}</span>
           </nav>
