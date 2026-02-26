@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useSEO } from '@/hooks/useSEO';
-import { TrendingUp, Globe, ArrowRight } from 'lucide-react';
-import { priorityCorridors } from '@/data/priorityCorridors';
+import { TrendingUp, Globe, ArrowRight, BarChart3 } from 'lucide-react';
+import { industrialProducts } from '@/data/industrialProducts';
 
 export default function DemandIndex() {
   useSEO({
@@ -9,6 +9,8 @@ export default function DemandIndex() {
     description: 'Explore live AI-detected demand signals across global procurement corridors. Real-time intent scores, verified suppliers, and transparent market pricing.',
     canonical: 'https://www.procuresaathi.com/demand',
   });
+
+  const activatedProducts = industrialProducts.filter(p => p.isActivated);
 
   return (
     <main className="min-h-screen bg-background">
@@ -30,21 +32,25 @@ export default function DemandIndex() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {priorityCorridors.map((corridor) => (
+            {activatedProducts.map((product) => (
               <Link
-                key={corridor.slug}
-                to={`/demand/${corridor.slug}`}
+                key={product.slug}
+                to={`/demand/${product.slug}`}
                 className="border border-border rounded-xl p-6 bg-card hover:border-primary/50 transition group"
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Globe className="h-4 w-4 text-primary" />
-                      <span className="text-sm text-muted-foreground">{corridor.country}</span>
+                      <span className="text-sm text-muted-foreground">{product.country}</span>
                     </div>
                     <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition">
-                      {corridor.categoryDisplay}
+                      {product.name}
                     </h2>
+                    <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                      <BarChart3 className="h-3.5 w-3.5" />
+                      Intent Score: {product.demandIntelligence.intentScore}
+                    </div>
                   </div>
                   <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition mt-1" />
                 </div>

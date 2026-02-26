@@ -287,6 +287,22 @@ export default function DemandAuthorityPage() {
   const product = getProductBySlug(slug);
   if (!product) return <Navigate to="/demand" replace />;
 
+  // Activation + Thin Page Guard
+  if (!product.isActivated) {
+    return (
+      <>
+        <Helmet>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
+        <Navigate to="/industries" replace />
+      </>
+    );
+  }
+
+  if (!product.sections?.whatIs || product.sections.whatIs.length < 800) {
+    return <Navigate to="/industries" replace />;
+  }
+
   const canonicalUrl = `https://www.procuresaathi.com/demand/${product.slug}`;
 
   const productSchema = {
@@ -332,7 +348,7 @@ export default function DemandAuthorityPage() {
 
       <PostRFQModal 
         open={showRFQ} 
-        onOpenChange={(v) => setShowRFQ(v)}
+        onOpenChange={setShowRFQ}
         signalPageCategory={product.industry}
         signalPageSubcategory={product.name}
       />

@@ -45,6 +45,7 @@ export interface IndustrialProduct {
   relatedProducts: string[];
   hsnCodes: string[];
   standards: string[];
+  isActivated: boolean;
 }
 
 export const industrialProducts: IndustrialProduct[] = [
@@ -180,7 +181,8 @@ Weight calculation follows the standard formula: Weight (kg) = Length (m) × Wid
     },
     relatedProducts: ['tmt-bars-india', 'hr-coil-india', 'structural-steel-india'],
     hsnCodes: ['7208', '7211', '7225'],
-    standards: ['IS 2062:2011', 'IS 2002', 'SA 516 Gr.70', 'ASTM A36']
+    standards: ['IS 2062:2011', 'IS 2002', 'SA 516 Gr.70', 'ASTM A36'],
+    isActivated: true
   },
 
   // ─── 2. TMT BARS ──────────────────────────────────────────────
@@ -314,7 +316,8 @@ BIS certification (ISI mark) is mandatory for TMT bars sold in India. Every bund
     },
     relatedProducts: ['ms-plates-india', 'structural-steel-india', 'hr-coil-india'],
     hsnCodes: ['7214', '7213'],
-    standards: ['IS 1786:2008', 'IS 13920', 'ASTM A615']
+    standards: ['IS 1786:2008', 'IS 13920', 'ASTM A615'],
+    isActivated: true
   },
 
   // ─── 3. HR COIL ──────────────────────────────────────────────
@@ -441,7 +444,8 @@ Thickness tolerance as per IS 2062 varies from ±0.12mm (for 1.6mm nominal) to �
     },
     relatedProducts: ['ms-plates-india', 'cr-coil-india', 'gi-pipes-india'],
     hsnCodes: ['7208', '7211'],
-    standards: ['IS 2062:2011', 'IS 10748', 'ASTM A1011', 'EN 10025']
+    standards: ['IS 2062:2011', 'IS 10748', 'ASTM A1011', 'EN 10025'],
+    isActivated: true
   },
 
   // ─── 4. CR COIL ──────────────────────────────────────────────
@@ -563,7 +567,8 @@ The superior surface quality and dimensional precision of CR coils make them ind
     },
     relatedProducts: ['hr-coil-india', 'gi-pipes-india', 'ms-plates-india'],
     hsnCodes: ['7209', '7211'],
-    standards: ['IS 513:2008', 'JIS G3141', 'EN 10130', 'ASTM A1008']
+    standards: ['IS 513:2008', 'JIS G3141', 'EN 10130', 'ASTM A1008'],
+    isActivated: true
   },
 
   // ─── 5. STRUCTURAL STEEL ──────────────────────────────────────
@@ -683,7 +688,8 @@ All sections manufactured per IS 808 (dimensions) and IS 2062 (material properti
     },
     relatedProducts: ['ms-plates-india', 'tmt-bars-india', 'hr-coil-india'],
     hsnCodes: ['7216', '7228'],
-    standards: ['IS 2062:2011', 'IS 808', 'IS 12778', 'IS 800']
+    standards: ['IS 2062:2011', 'IS 808', 'IS 12778', 'IS 800'],
+    isActivated: true
   },
 
   // ─── 6-10: Condensed product entries ──────────────────────────
@@ -808,7 +814,8 @@ Weight per meter varies by size and class. Example: 25mm NB Class B = 1.56 kg/m;
     },
     relatedProducts: ['structural-steel-india', 'ms-plates-india', 'hr-coil-india'],
     hsnCodes: ['7306', '7304'],
-    standards: ['IS 1239:2004', 'IS 4736', 'IS 554', 'ASTM A53']
+    standards: ['IS 1239:2004', 'IS 4736', 'IS 554', 'ASTM A53'],
+    isActivated: true
   },
 
   {
@@ -923,7 +930,8 @@ Weight per meter varies by size and class. Example: 25mm NB Class B = 1.56 kg/m;
     },
     relatedProducts: ['ms-plates-india', 'cr-coil-india'],
     hsnCodes: ['7601', '7602'],
-    standards: ['IS 617', 'ASTM B179', 'JIS H5302', 'EN 1706']
+    standards: ['IS 617', 'ASTM B179', 'JIS H5302', 'EN 1706'],
+    isActivated: true
   },
 
   {
@@ -1043,7 +1051,8 @@ Weight per meter varies by size and class. Example: 25mm NB Class B = 1.56 kg/m;
     },
     relatedProducts: ['ms-plates-india', 'structural-steel-india'],
     hsnCodes: ['2713'],
-    standards: ['IS 73:2013', 'IS 15462', 'ASTM D3381', 'MoRTH Section 500']
+    standards: ['IS 73:2013', 'IS 15462', 'ASTM D3381', 'MoRTH Section 500'],
+    isActivated: true
   },
 
   {
@@ -1165,7 +1174,8 @@ Indian HDPE producers publish detailed technical data sheets for each grade with
     },
     relatedProducts: ['gi-pipes-india', 'industrial-valves-india'],
     hsnCodes: ['3901'],
-    standards: ['IS 4984', 'IS 14151', 'ISO 4427', 'ASTM D3350']
+    standards: ['IS 4984', 'IS 14151', 'ISO 4427', 'ASTM D3350'],
+    isActivated: true
   },
 
   {
@@ -1286,7 +1296,8 @@ Valve certification typically includes material test certificates (EN 10204 3.1)
     },
     relatedProducts: ['gi-pipes-india', 'structural-steel-india', 'ms-plates-india'],
     hsnCodes: ['8481'],
-    standards: ['API 600', 'API 602', 'API 608', 'API 609', 'IS 14846', 'ASME B16.34']
+    standards: ['API 600', 'API 602', 'API 608', 'API 609', 'IS 14846', 'ASME B16.34'],
+    isActivated: true
   }
 ];
 
