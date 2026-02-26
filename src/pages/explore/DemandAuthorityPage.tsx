@@ -7,7 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { 
   TrendingUp, Shield, Brain, ArrowRight, CheckCircle2, 
   Factory, Globe, BarChart3, FileCheck, Building2, 
-  Lock, Truck, ChevronRight, HelpCircle, AlertTriangle, Activity
+  Lock, Truck, ChevronRight, HelpCircle, AlertTriangle, Activity,
+  Wrench, Package, Ship
 } from 'lucide-react';
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell
@@ -255,12 +256,14 @@ function FAQSection({ product }: { product: IndustrialProduct }) {
 
 function DeepSKUSections({ product }: { product: IndustrialProduct }) {
   const { sections } = product;
-  if (!sections.gradeTable && !sections.thicknessChart && !sections.complianceMatrix && !sections.procurementRiskInsights && !sections.indiaDemandIntelligence) return null;
+  const hasDeep = sections.gradeTable || sections.thicknessChart || sections.complianceMatrix || sections.procurementRiskInsights || sections.indiaDemandIntelligence || sections.sizeTable || sections.widthToleranceTable || sections.bendProperties || sections.seismicPerformance || sections.loadBearingInsights || sections.fabricationImplications || sections.downstreamApplications || sections.exportCompliance;
+  if (!hasDeep) return null;
 
   return (
     <section className="py-12 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto space-y-12">
+          {/* Grade Table — supports tensileStrength and elongation columns dynamically */}
           {sections.gradeTable && (
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-4">Grade Comparison Table</h2>
@@ -269,7 +272,8 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
                   <TableRow>
                     <TableHead>Grade</TableHead>
                     <TableHead>Yield Strength</TableHead>
-                    <TableHead>Tensile Strength</TableHead>
+                    {sections.gradeTable.some(g => g.tensileStrength) && <TableHead>Tensile Strength</TableHead>}
+                    {sections.gradeTable.some(g => g.elongation) && <TableHead>Elongation</TableHead>}
                     <TableHead>Application</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -278,7 +282,8 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
                     <TableRow key={i}>
                       <TableCell className="font-medium">{g.grade}</TableCell>
                       <TableCell>{g.yieldStrength}</TableCell>
-                      <TableCell>{g.tensileStrength}</TableCell>
+                      {sections.gradeTable!.some(g => g.tensileStrength) && <TableCell>{g.tensileStrength || '—'}</TableCell>}
+                      {sections.gradeTable!.some(g => g.elongation) && <TableCell>{g.elongation || '—'}</TableCell>}
                       <TableCell>{g.application}</TableCell>
                     </TableRow>
                   ))}
@@ -287,6 +292,7 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
             </div>
           )}
 
+          {/* Thickness Chart */}
           {sections.thicknessChart && (
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-4">Thickness & Weight Chart</h2>
@@ -309,6 +315,140 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
             </div>
           )}
 
+          {/* Size Table (Structural Steel) */}
+          {sections.sizeTable && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Wrench className="h-5 w-5 text-primary" /> Section Size & Weight Table
+              </h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Section</TableHead>
+                    <TableHead>Weight per Meter</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sections.sizeTable.map((s, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{s.section}</TableCell>
+                      <TableCell>{s.weightPerMeter}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {/* Width Tolerance Table (HR Coil) */}
+          {sections.widthToleranceTable && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Width Tolerance Table</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Width</TableHead>
+                    <TableHead>Tolerance</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sections.widthToleranceTable.map((w, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{w.width}</TableCell>
+                      <TableCell>{w.tolerance}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {/* Bend Properties (TMT) */}
+          {sections.bendProperties && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Wrench className="h-5 w-5 text-primary" /> Bend & Mechanical Properties
+              </h2>
+              <ul className="space-y-2">
+                {sections.bendProperties.map((b, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Seismic Performance (TMT) */}
+          {sections.seismicPerformance && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" /> Seismic Performance
+              </h2>
+              <ul className="space-y-2">
+                {sections.seismicPerformance.map((s, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Load Bearing Insights (Structural) */}
+          {sections.loadBearingInsights && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-primary" /> Load Bearing Insights
+              </h2>
+              <ul className="space-y-2">
+                {sections.loadBearingInsights.map((l, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{l}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Fabrication Implications (Structural) */}
+          {sections.fabricationImplications && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Factory className="h-5 w-5 text-primary" /> Fabrication Implications
+              </h2>
+              <ul className="space-y-2">
+                {sections.fabricationImplications.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Downstream Applications (HR Coil) */}
+          {sections.downstreamApplications && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" /> Downstream Applications
+              </h2>
+              <ul className="space-y-2">
+                {sections.downstreamApplications.map((d, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Compliance Matrix */}
           {sections.complianceMatrix && (
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
@@ -325,6 +465,24 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
             </div>
           )}
 
+          {/* Export Compliance (HR Coil) */}
+          {sections.exportCompliance && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Ship className="h-5 w-5 text-primary" /> Export Compliance
+              </h2>
+              <ul className="space-y-2">
+                {sections.exportCompliance.map((e, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{e}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Procurement Risk */}
           {sections.procurementRiskInsights && (
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
@@ -341,6 +499,7 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
             </div>
           )}
 
+          {/* India Demand Intelligence */}
           {sections.indiaDemandIntelligence && (
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
@@ -436,6 +595,28 @@ export default function DemandAuthorityPage() {
     "brand": { "@type": "Brand", "name": "ProcureSaathi" },
     "category": `${product.industry} > ${product.subIndustry}`,
     "url": canonicalUrl,
+    "additionalProperty": [
+      ...(product.sections.gradeTable ? [{
+        "@type": "PropertyValue",
+        "name": "Available Grades",
+        "value": product.sections.gradeTable.map(g => g.grade).join(", ")
+      }] : []),
+      ...(product.sections.thicknessChart ? [{
+        "@type": "PropertyValue",
+        "name": "Thickness Range",
+        "value": `${product.sections.thicknessChart[0]?.thickness} – ${product.sections.thicknessChart[product.sections.thicknessChart.length - 1]?.thickness}`
+      }] : []),
+      ...(product.sections.sizeTable ? [{
+        "@type": "PropertyValue",
+        "name": "Available Sections",
+        "value": product.sections.sizeTable.map(s => s.section).join(", ")
+      }] : []),
+      ...(product.sections.widthToleranceTable ? [{
+        "@type": "PropertyValue",
+        "name": "Width Range",
+        "value": product.sections.widthToleranceTable.map(w => w.width).join(", ")
+      }] : [])
+    ],
     "offers": {
       "@type": "AggregateOffer",
       "priceCurrency": "INR",
@@ -478,7 +659,6 @@ export default function DemandAuthorityPage() {
         <HeroSection product={product} onOpenRFQ={() => setShowRFQ(true)} />
         <ProductOverviewSection product={product} />
         <DeepSKUSections product={product} />
-        <DemandIntelligenceSection product={product} />
         <DemandIntelligenceSection product={product} />
         <WhyProcureSaathiSection />
         <FAQSection product={product} />

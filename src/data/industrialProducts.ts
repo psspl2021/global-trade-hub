@@ -33,11 +33,19 @@ export interface IndustrialProduct {
     marketTrends: string;
     procurementChallenges: string;
     pricingFactors: string;
-    gradeTable?: { grade: string; yieldStrength: string; tensileStrength: string; application: string }[];
+    gradeTable?: { grade: string; yieldStrength: string; tensileStrength?: string; elongation?: string; application: string }[];
     thicknessChart?: { thickness: string; weightPerSqM: string }[];
+    sizeTable?: { section: string; weightPerMeter: string }[];
+    widthToleranceTable?: { width: string; tolerance: string }[];
     complianceMatrix?: string[];
     procurementRiskInsights?: string[];
     indiaDemandIntelligence?: string[];
+    bendProperties?: string[];
+    seismicPerformance?: string[];
+    loadBearingInsights?: string[];
+    fabricationImplications?: string[];
+    downstreamApplications?: string[];
+    exportCompliance?: string[];
   };
   faqs: ProductFAQ[];
   /** AI Demand Intelligence mock data */
@@ -354,7 +362,36 @@ BIS certification (ISI mark) is mandatory for TMT bars sold in India. Every bund
 
 **Seasonal Demand:** Prices peak during October–March construction season. Post-monsoon demand surge typically adds ₹1,000–₹3,000/MT seasonal premium.
 
-**Government Policy:** Changes in GST rates (currently 18%), import duties on raw materials, and export incentives (MEIS/RoDTEP) impact effective pricing.`
+**Government Policy:** Changes in GST rates (currently 18%), import duties on raw materials, and export incentives (MEIS/RoDTEP) impact effective pricing.`,
+      gradeTable: [
+        { grade: "Fe 415", yieldStrength: "415 MPa", elongation: "14.5%", application: "Residential low-rise construction" },
+        { grade: "Fe 500", yieldStrength: "500 MPa", elongation: "12%", application: "General RCC structures" },
+        { grade: "Fe 500D", yieldStrength: "500 MPa", elongation: "16%", application: "Seismic-prone zones & bridges" },
+        { grade: "Fe 550D", yieldStrength: "550 MPa", elongation: "14%", application: "High-load infrastructure projects" }
+      ],
+      bendProperties: [
+        "180° bend without surface crack (as per IS 1786)",
+        "Re-bend test mandatory for D grades",
+        "Higher elongation improves seismic resistance",
+        "Rib geometry affects bond strength with concrete"
+      ],
+      complianceMatrix: [
+        "IS 1786:2008 High Strength Deformed Steel Bars",
+        "BIS certification mandatory for government tenders",
+        "HSN Code: 7214 (GST 18%)",
+        "Heat number traceability required for EPC"
+      ],
+      seismicPerformance: [
+        "Fe 500D and Fe 550D recommended in Zone III–V",
+        "Higher ductility prevents brittle structural failure",
+        "Improved fatigue resistance under cyclic loads"
+      ],
+      indiaDemandIntelligence: [
+        "PM Awas Yojana housing demand",
+        "Metro rail & elevated corridor projects",
+        "Smart city & highway infrastructure expansion",
+        "Precast construction increasing rebars demand"
+      ]
     },
     faqs: [
       { question: 'What is the current TMT bar price per kg in India?', answer: 'TMT bar prices in India currently range from ₹48 to ₹70 per kg depending on grade, diameter, brand, and location. Fe-500 grade 12mm bars from major brands trade between ₹52,000–₹62,000 per MT. Secondary producers offer BIS-certified equivalent at ₹48,000–₹55,000 per MT. Prices fluctuate monthly based on raw material costs and demand. ProcureSaathi provides real-time competitive pricing through sealed bidding.' },
@@ -483,7 +520,35 @@ Thickness tolerance as per IS 2062 varies from ±0.12mm (for 1.6mm nominal) to �
 
 **Surface Treatment:** Pickled and oiled (P&O) coils trade at ₹3,000–₹5,000/MT premium over mill-scale coils.
 
-**Payment Terms:** Cash/advance buyers receive ₹500–₹1,500/MT discount over credit-term purchases.`
+**Payment Terms:** Cash/advance buyers receive ₹500–₹1,500/MT discount over credit-term purchases.`,
+      gradeTable: [
+        { grade: "IS 2062 E250", yieldStrength: "250 MPa", application: "Fabrication & general engineering" },
+        { grade: "IS 2062 E350", yieldStrength: "350 MPa", application: "Heavy structural applications" },
+        { grade: "API X42", yieldStrength: "290 MPa", application: "Pipeline manufacturing" }
+      ],
+      widthToleranceTable: [
+        { width: "1000 mm", tolerance: "+/- 5 mm" },
+        { width: "1250 mm", tolerance: "+/- 5 mm" },
+        { width: "1500 mm", tolerance: "+/- 6 mm" }
+      ],
+      downstreamApplications: [
+        "CR coil feedstock",
+        "Pipe & tube manufacturing",
+        "Auto component fabrication",
+        "Pressure vessel forming"
+      ],
+      exportCompliance: [
+        "Mill Test Certificate mandatory",
+        "CE marking for EU exports",
+        "SGS / TPI inspection for large consignments",
+        "Packing compliance for container shipping"
+      ],
+      indiaDemandIntelligence: [
+        "Automotive OEM recovery demand",
+        "Infrastructure fabrication growth",
+        "Pipe mills capacity expansion",
+        "Export competitiveness of Indian flat steel"
+      ]
     },
     faqs: [
       { question: 'What is the current HR Coil price in India?', answer: 'HR Coil (IS 2062 E250, 1250mm width, 2–6mm thickness) currently trades between ₹48,000–₹58,000 per MT in Indian markets. Prices vary by location, with western India (Mumbai, Hazira) typically offering the most competitive mill-gate pricing. ProcureSaathi provides real-time competitive quotes through its sealed bidding platform.' },
@@ -729,7 +794,36 @@ All sections manufactured per IS 808 (dimensions) and IS 2062 (material properti
 
 **Transport:** Structural sections have lower loading efficiency per truck compared to coils and plates, resulting in higher freight cost per MT (₹2,000–₹6,000/MT depending on distance).
 
-**Market Dynamics:** Limited competition in structural sections means pricing is less volatile than flat products but also less responsive to downward corrections.`
+**Market Dynamics:** Limited competition in structural sections means pricing is less volatile than flat products but also less responsive to downward corrections.`,
+      sizeTable: [
+        { section: "ISMB 200", weightPerMeter: "25.4 kg/m" },
+        { section: "ISMB 300", weightPerMeter: "44.2 kg/m" },
+        { section: "ISHB 250", weightPerMeter: "74.1 kg/m" },
+        { section: "ISMC 150", weightPerMeter: "16.8 kg/m" }
+      ],
+      loadBearingInsights: [
+        "ISHB sections used for heavy load industrial sheds",
+        "ISMB preferred for general building frames",
+        "Channel sections ideal for secondary structures",
+        "Moment of inertia determines beam performance"
+      ],
+      fabricationImplications: [
+        "Cutting and welding costs vary by flange thickness",
+        "Pre-drilled beams reduce site labor time",
+        "Galvanizing increases cost but improves durability"
+      ],
+      complianceMatrix: [
+        "IS 2062 Structural Steel Standards",
+        "IS 808 Beam dimensions",
+        "BIS compliance required for public infrastructure",
+        "MTC mandatory for EPC billing"
+      ],
+      indiaDemandIntelligence: [
+        "Warehouse & logistics park expansion",
+        "Industrial corridor steel demand",
+        "Renewable energy mounting structures",
+        "Oil & gas structural fabrication growth"
+      ]
     },
     faqs: [
       { question: 'What is the price of structural steel per kg in India?', answer: 'Structural steel (I-beams, H-beams, channels) prices in India range from ₹52 to ₹68 per kg depending on section type, size, grade, and market conditions. ISMB sections from SAIL/JSPL typically trade between ₹55,000–₹65,000 per MT. H-beams command a premium of ₹2,000–₹4,000/MT over equivalent I-beams. ProcureSaathi provides competitive pricing through direct mill connections.' },
