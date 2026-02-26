@@ -33,6 +33,11 @@ export interface IndustrialProduct {
     marketTrends: string;
     procurementChallenges: string;
     pricingFactors: string;
+    gradeTable?: { grade: string; yieldStrength: string; tensileStrength: string; application: string }[];
+    thicknessChart?: { thickness: string; weightPerSqM: string }[];
+    complianceMatrix?: string[];
+    procurementRiskInsights?: string[];
+    indiaDemandIntelligence?: string[];
   };
   faqs: ProductFAQ[];
   /** AI Demand Intelligence mock data */
@@ -162,7 +167,58 @@ Weight calculation follows the standard formula: Weight (kg) = Length (m) × Wid
 
 **Market Sentiment:** Steel prices respond to global commodity cycles, Chinese production/export policies, domestic demand-supply balance, and government trade policy interventions (anti-dumping duties, safeguard measures).
 
-**Seasonal Patterns:** Prices typically strengthen during October–March (construction season) and moderate during monsoon months (July–September) due to reduced construction activity.`
+**Seasonal Patterns:** Prices typically strengthen during October–March (construction season) and moderate during monsoon months (July–September) due to reduced construction activity.`,
+      gradeTable: [
+        { grade: 'IS 2062 E250', yieldStrength: '250 MPa', tensileStrength: '410–540 MPa', application: 'General structural fabrication' },
+        { grade: 'IS 2062 E350', yieldStrength: '350 MPa', tensileStrength: '490–630 MPa', application: 'Heavy load bearing structures' },
+        { grade: 'IS 2062 E450', yieldStrength: '450 MPa', tensileStrength: '570–720 MPa', application: 'High-rise & crane rail applications' },
+        { grade: 'ASTM A36', yieldStrength: '250 MPa', tensileStrength: '400–550 MPa', application: 'Export & international EPC projects' },
+        { grade: 'SA 516 Gr.70', yieldStrength: '260 MPa', tensileStrength: '485–620 MPa', application: 'Pressure vessels & boilers' },
+        { grade: 'SAILMA 350', yieldStrength: '350 MPa', tensileStrength: '490 MPa min', application: 'Govt infrastructure tenders' }
+      ],
+      thicknessChart: [
+        { thickness: '3 mm', weightPerSqM: '23.55 kg' },
+        { thickness: '6 mm', weightPerSqM: '47.10 kg' },
+        { thickness: '10 mm', weightPerSqM: '78.50 kg' },
+        { thickness: '16 mm', weightPerSqM: '125.60 kg' },
+        { thickness: '20 mm', weightPerSqM: '157.00 kg' },
+        { thickness: '25 mm', weightPerSqM: '196.25 kg' },
+        { thickness: '32 mm', weightPerSqM: '251.20 kg' },
+        { thickness: '50 mm', weightPerSqM: '392.50 kg' },
+        { thickness: '80 mm', weightPerSqM: '628.00 kg' },
+        { thickness: '100 mm', weightPerSqM: '785.00 kg' },
+        { thickness: '200 mm', weightPerSqM: '1570.00 kg' }
+      ],
+      complianceMatrix: [
+        'IS 2062:2011 — Hot Rolled Medium and High Tensile Structural Steel (BIS mandatory)',
+        'BIS Certification (CM/L mark) mandatory for public infrastructure projects',
+        'HSN Code: 7208 — Flat-rolled products of iron/non-alloy steel (GST 18%)',
+        'Mill Test Certificate (MTC) required for all EPC and government tenders',
+        'Third-party inspection (TPI) by BV/SGS/TUV required for export consignments',
+        'IS 2002 — Steel plates for pressure vessels (boiler quality applications)',
+        'ASTM A36/A572 compliance required for international export orders',
+        'NHAI/MORTH specifications mandate E350+ grade for highway bridge fabrication'
+      ],
+      procurementRiskInsights: [
+        'Verify heat number traceability on Mill Test Certificate before dispatch acceptance',
+        'Monitor iron ore (Odisha/Chhattisgarh) and coking coal (Australia import) price volatility weekly',
+        'Differentiate primary mill-origin plates from secondary re-rollers — quality variance is significant',
+        'Confirm dimensional tolerance (thickness ±0.5mm–±3mm per IS 2062 Table 11) before cutting',
+        'Freight escalation from mill to site (₹1,500–₹5,000/MT) impacts total landed cost — factor in logistics',
+        'Monsoon season (Jul–Sep) reduces construction activity and can soften spot prices by 3–5%',
+        'Government policy changes (export duties, anti-dumping measures) can shift prices ₹2,000–₹5,000/MT overnight',
+        'Secondary market plates may lack proper BIS certification — verify CM/L license number on every consignment'
+      ],
+      indiaDemandIntelligence: [
+        'NHAI highway expansion (Bharatmala Phase-I: 34,800 km) driving sustained plate demand across Western & Southern corridors',
+        'Railway bridge fabrication procurement cycles increasing under Dedicated Freight Corridor projects',
+        'Union Budget FY2025 infrastructure allocation of ₹11.11 lakh crore boosting steel consumption forecasts',
+        'Industrial corridor expansion (DMIC, CBIC, AKIC) generating heavy fabrication orders for structural plates',
+        'Metro rail projects in 27+ cities creating recurring demand for E350+ grade plates',
+        'Renewable energy (wind tower fabrication) emerging as high-growth demand segment for thick plates (20mm+)',
+        'Defence manufacturing (Make in India) driving specialized high-strength plate procurement',
+        'Port modernization under Sagarmala creating demand for marine-grade and structural plates'
+      ]
     },
     faqs: [
       { question: 'What is MS plate price per kg in India?', answer: 'MS Plate prices in India typically range from ₹45 to ₹75 per kg depending on grade, thickness, and quantity. IS 2062 E250 grade in 10mm–25mm thickness from major mills like SAIL, Tata Steel, and JSW currently trades between ₹50,000–₹65,000 per MT. Prices fluctuate based on raw material costs, demand-supply dynamics, and government policies. ProcureSaathi provides live AI-benchmarked pricing through sealed competitive bidding.' },
