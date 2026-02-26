@@ -35,7 +35,7 @@ function BreadcrumbNav({ product }: { product: IndustrialProduct }) {
         <ChevronRight className="h-3 w-3" />
         {crumbs.map((c, i) => (
           <span key={c.slug} className="flex items-center gap-1">
-            <Link to={c.slug} className="hover:text-primary">{c.name}</Link>
+            <Link to={`/industries${c.slug}`} className="hover:text-primary">{c.name}</Link>
             <ChevronRight className="h-3 w-3" />
           </span>
         ))}
@@ -49,25 +49,35 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
   return (
     <section className="relative py-16 lg:py-24 bg-gradient-to-br from-primary/5 via-background to-background">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <BreadcrumbNav product={product} />
-          <div className="flex flex-wrap gap-2 mb-6">
-            <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
-              <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
-            </Badge>
-            <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 gap-1">
-              <Brain className="h-3.5 w-3.5" /> Live Demand Intelligence
-            </Badge>
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <BreadcrumbNav product={product} />
+            <div className="flex flex-wrap gap-2 mb-6">
+              <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
+                <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
+              </Badge>
+              <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 gap-1">
+                <Brain className="h-3.5 w-3.5" /> Live Demand Intelligence
+              </Badge>
+            </div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4">{product.h1}</h1>
+            <p className="text-lg text-muted-foreground mb-6">{product.introText}</p>
+            <div className="flex flex-wrap gap-3">
+              <Button size="lg" onClick={onOpenRFQ} className="gap-2 text-lg px-8 py-6">
+                Submit RFQ <ArrowRight className="h-5 w-5" />
+              </Button>
+              <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
+                <Link to="/seller">List as Supplier</Link>
+              </Button>
+            </div>
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4">{product.h1}</h1>
-          <p className="text-lg text-muted-foreground mb-6 max-w-3xl">{product.introText}</p>
-          <div className="flex flex-wrap gap-3">
-            <Button size="lg" onClick={onOpenRFQ} className="gap-2 text-lg px-8 py-6">
-              Submit RFQ <ArrowRight className="h-5 w-5" />
-            </Button>
-            <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
-              <Link to="/seller">List as Supplier</Link>
-            </Button>
+          <div className="rounded-xl overflow-hidden border border-border bg-card">
+            <img
+              src={product.heroImage}
+              alt={product.heroImageAlt}
+              className="w-full h-auto object-cover"
+              loading="eager"
+            />
           </div>
         </div>
       </div>
@@ -310,6 +320,7 @@ export default function DemandAuthorityPage() {
     "@type": "Product",
     "name": product.name,
     "description": product.introText,
+    "image": `https://www.procuresaathi.com${product.heroImage}`,
     "brand": { "@type": "Brand", "name": "ProcureSaathi" },
     "category": `${product.industry} > ${product.subIndustry}`,
     "url": canonicalUrl,
@@ -320,6 +331,20 @@ export default function DemandAuthorityPage() {
       "offerCount": product.demandIntelligence.recentRFQs,
       "seller": { "@type": "Organization", "name": "ProcureSaathi", "url": "https://www.procuresaathi.com" }
     }
+  };
+
+  const relatedProductsSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": product.relatedProducts.map((slug, index) => {
+      const related = getProductBySlug(slug);
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        url: `https://www.procuresaathi.com/demand/${slug}`,
+        name: related?.name
+      };
+    })
   };
 
   return (
@@ -334,6 +359,7 @@ export default function DemandAuthorityPage() {
         <meta property="og:type" content="product" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(relatedProductsSchema)}</script>
       </Helmet>
       
       <main className="min-h-screen bg-background">

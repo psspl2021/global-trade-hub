@@ -22,6 +22,7 @@ export interface IndustrialProduct {
   metaTitle: string;
   metaDescription: string;
   introText: string;
+  heroImage: string;
   heroImageAlt: string;
   /** 900+ words structured authority content */
   sections: {
@@ -63,6 +64,7 @@ export const industrialProducts: IndustrialProduct[] = [
     metaTitle: 'Buy MS Plates in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source MS Plates (Mild Steel Plates) from AI-verified Indian suppliers. IS 2062 grades, 3mm–200mm thickness. Live pricing, sealed bidding, and managed procurement.',
     introText: 'MS Plates (Mild Steel Plates) are among the most widely traded flat steel products in India\'s industrial ecosystem. Used across construction, heavy fabrication, shipbuilding, and infrastructure projects, MS Plates are the backbone of structural engineering. ProcureSaathi\'s AI procurement engine connects buyers with verified mill-direct and stockist suppliers for transparent, governance-compliant sourcing.',
+    heroImage: '/images/products/ms-plates.webp',
     heroImageAlt: 'Industrial MS Plate steel sheets stacked in a warehouse in India',
     sections: {
       whatIs: `Mild Steel (MS) Plates are flat-rolled carbon steel products manufactured through hot rolling processes. They are produced from low-carbon steel billets or slabs, typically containing 0.05%–0.25% carbon content, which gives them excellent weldability, formability, and machinability. MS Plates are classified under the broader category of hot-rolled flat products and are one of the highest-volume steel products consumed in India's industrial and infrastructure sectors.
@@ -199,6 +201,7 @@ Weight calculation follows the standard formula: Weight (kg) = Length (m) × Wid
     metaTitle: 'Buy TMT Bars in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source TMT Bars (Fe-500, Fe-500D, Fe-550D) from AI-verified Indian suppliers. BIS-certified, earthquake-resistant grades. Live pricing and managed procurement.',
     introText: 'TMT (Thermo-Mechanically Treated) Bars are the primary reinforcement steel used in India\'s construction industry. From residential buildings to mega infrastructure projects, TMT bars provide the tensile strength and ductility essential for reinforced concrete structures. ProcureSaathi connects construction companies and contractors with BIS-certified TMT bar manufacturers through AI-driven procurement.',
+    heroImage: '/images/products/tmt-bars.webp',
     heroImageAlt: 'TMT reinforcement steel bars bundled at construction site in India',
     sections: {
       whatIs: `TMT Bars (Thermo-Mechanically Treated Bars) are high-strength reinforcement steel bars manufactured through a controlled process of quenching and self-tempering. The TMT process involves rolling heated billets through a series of stands, followed by rapid water quenching that creates a hardened outer martensitic layer, while the core remains soft and ductile. This unique microstructure gives TMT bars their characteristic combination of high strength and superior ductility.
@@ -334,6 +337,7 @@ BIS certification (ISI mark) is mandatory for TMT bars sold in India. Every bund
     metaTitle: 'Buy HR Coils in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source Hot Rolled (HR) Coils from AI-verified Indian mills. IS 2062 E250/E350 grades, 1.6mm–25mm thickness. Competitive mill-direct pricing and managed procurement.',
     introText: 'Hot Rolled (HR) Coils are the most widely produced flat steel product in India, serving as feedstock for cold rolling, galvanizing, pipe manufacturing, and direct consumption in fabrication. ProcureSaathi\'s AI procurement engine connects industrial buyers with verified integrated and secondary steel mills for competitive, transparent HR Coil sourcing.',
+    heroImage: '/images/products/hr-coil.webp',
     heroImageAlt: 'Hot rolled steel coils stacked in an Indian steel warehouse',
     sections: {
       whatIs: `Hot Rolled (HR) Coils are flat steel products manufactured by rolling heated steel slabs through a continuous hot strip mill at temperatures exceeding 900°C. The process begins with reheating steel slabs (200mm–250mm thick) to approximately 1,200°C, followed by successive reduction through roughing and finishing stands to achieve the desired gauge. The resulting strip is coiled at the exit end of the mill at temperatures of 500°C–700°C.
@@ -462,6 +466,7 @@ Thickness tolerance as per IS 2062 varies from ±0.12mm (for 1.6mm nominal) to �
     metaTitle: 'Buy CR Coils in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source Cold Rolled (CR) Coils from AI-verified Indian mills. IS 513 grades, 0.15mm–3mm thickness. Superior surface finish for automotive, appliance, and precision applications.',
     introText: 'Cold Rolled (CR) Coils are premium flat steel products with superior surface finish, tighter dimensional tolerances, and enhanced mechanical properties compared to hot-rolled products. Essential for automotive body panels, home appliances, furniture, and precision engineering applications. ProcureSaathi connects buyers with verified CR coil producers through AI-matched procurement.',
+    heroImage: '/images/products/cr-coil.webp',
     heroImageAlt: 'Cold rolled steel coils with bright finish in Indian steel processing facility',
     sections: {
       whatIs: `Cold Rolled (CR) Coils are flat steel products manufactured by further processing Hot Rolled (HR) coils at room temperature through cold reduction mills. The process involves pickling HR coils to remove mill scale, then passing them through tandem cold rolling mills that reduce thickness by 40%–90% while improving surface finish, flatness, and mechanical properties. The cold rolling process work-hardens the steel, increasing strength but reducing ductility. To restore formability, CR coils are annealed (heated to 650°C–720°C in controlled atmospheres) and may be temper-rolled for final surface finish and mechanical property control.
@@ -585,6 +590,7 @@ The superior surface quality and dimensional precision of CR coils make them ind
     metaTitle: 'Buy Structural Steel in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source Structural Steel sections (I-beams, H-beams, channels, angles) from AI-verified Indian mills. IS 2062 compliant. Competitive pricing for construction and infrastructure.',
     introText: 'Structural Steel encompasses a range of hot-rolled long products including I-beams, H-beams, channels, angles, and joists that form the skeletal framework of modern buildings and infrastructure. India\'s infrastructure boom is driving unprecedented demand for quality structural steel. ProcureSaathi connects construction companies with verified structural steel producers through AI-matched procurement.',
+    heroImage: '/images/products/structural-steel.webp',
     heroImageAlt: 'Structural steel I-beams and H-beams at an Indian construction project',
     sections: {
       whatIs: `Structural Steel refers to a category of hot-rolled steel sections produced in standardized shapes designed to bear loads in construction and infrastructure applications. These sections are manufactured by passing heated billets or blooms through a series of specially designed rolls that progressively shape the steel into the desired cross-sectional profile. The most common structural steel sections include: ISMB (Indian Standard Medium Weight Beams), ISJB (Indian Standard Junior Beams), ISLB (Indian Standard Light Weight Beams), ISWB (Indian Standard Wide Flange Beams), H-beams (universal columns), channels (ISMC, ISJC), angles (equal and unequal leg), and tees. India's structural steel production exceeds 12 million MT annually, supplied primarily by SAIL, Jindal Steel & Power (JSPL), and JSW Steel.`,
@@ -708,6 +714,7 @@ All sections manufactured per IS 808 (dimensions) and IS 2062 (material properti
     metaTitle: 'Buy GI Pipes in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source Galvanized Iron (GI) Pipes from AI-verified Indian manufacturers. IS 1239 compliant, Class A/B/C. For plumbing, water supply, structural, and fencing applications.',
     introText: 'Galvanized Iron (GI) Pipes are zinc-coated steel pipes widely used in plumbing, water supply, structural applications, and fencing across India. The galvanized coating provides corrosion resistance extending pipe life to 20–30 years. ProcureSaathi connects buyers with verified GI pipe manufacturers through AI-driven procurement.',
+    heroImage: '/images/products/gi-pipes.webp',
     heroImageAlt: 'Galvanized iron pipes stacked in an Indian manufacturing facility',
     sections: {
       whatIs: `Galvanized Iron (GI) Pipes are mild steel pipes that have been coated with a layer of zinc through the hot-dip galvanizing process. The base pipe is manufactured by the Electric Resistance Welding (ERW) process from HR steel strips, then immersed in a bath of molten zinc at approximately 450°C. The resulting zinc coating (typically 300–600 g/m²) provides excellent corrosion resistance by acting as both a physical barrier and a sacrificial anode.
@@ -831,6 +838,7 @@ Weight per meter varies by size and class. Example: 25mm NB Class B = 1.56 kg/m;
     metaTitle: 'Buy Aluminium Ingots in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source Aluminium Ingots (99.7% purity, ADC12, LM6) from AI-verified Indian producers. For die casting, extrusion, and alloy manufacturing. Live pricing and managed procurement.',
     introText: 'Aluminium Ingots are the primary raw material for India\'s aluminium downstream industry including die casting, extrusion, rolling, and alloy manufacturing. With India being the world\'s second-largest aluminium producer, ProcureSaathi connects foundries and manufacturers with verified aluminium smelters and recyclers through AI-driven procurement.',
+    heroImage: '/images/products/aluminium-ingots.webp',
     heroImageAlt: 'Aluminium ingots stacked at a smelter facility in India',
     sections: {
       whatIs: `Aluminium Ingots are cast blocks of aluminium produced either from primary smelting of bauxite ore or from secondary recycling of aluminium scrap. Primary aluminium ingots are produced through the Hall-Héroult electrolytic smelting process, where alumina (extracted from bauxite) is dissolved in molten cryolite and reduced to metallic aluminium. The molten aluminium is then cast into standardized ingot forms. India produces approximately 4 million MT of primary aluminium annually, with Hindalco (Aditya Birla Group), Vedanta (BALCO/Jharsuguda), and NALCO being the major smelters. Secondary aluminium from scrap recycling contributes an additional 1.5+ million MT, processed by thousands of small and medium recyclers. Ingots are classified by purity (primary: 99.5%–99.9%) or alloy composition (secondary: ADC12, LM6, LM24, etc.) depending on end-use application.`,
@@ -947,6 +955,7 @@ Weight per meter varies by size and class. Example: 25mm NB Class B = 1.56 kg/m;
     metaTitle: 'Buy Bitumen VG30 in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source Bitumen VG30 (IS 73:2013) from AI-verified Indian refineries and distributors. For road construction, waterproofing, and asphalt plants. Bulk and drummed supply.',
     introText: 'Bitumen VG30 is the most widely consumed viscosity grade bitumen in India, primarily used for road construction and maintenance under the National Highway Authority (NHAI) and state PWD specifications. ProcureSaathi connects road contractors and asphalt plants with verified refinery-direct and authorized distributor supply through AI-driven procurement.',
+    heroImage: '/images/products/bitumen-vg30.webp',
     heroImageAlt: 'Bitumen VG30 being poured at an asphalt mixing plant for road construction in India',
     sections: {
       whatIs: `Bitumen VG30 is a viscosity-graded petroleum bitumen produced by the vacuum distillation of crude oil. It is classified under the IS 73:2013 standard, which replaced the older penetration-based grading system. VG30 indicates a minimum absolute viscosity of 2400 Poises at 60°C, making it suitable for most Indian climatic conditions and traffic loads. India consumes approximately 8 million MT of bitumen annually, with VG30 accounting for over 60% of total consumption. Major producers include Indian Oil Corporation (IOCL), Bharat Petroleum (BPCL), Hindustan Petroleum (HPCL), Mangalore Refinery (MRPL), and Chennai Petroleum (CPCL). Private sector bitumen producers include Reliance Industries and Nayara Energy. Bitumen is a critical infrastructure material, with over 80% consumed in road construction — national highways, state highways, and rural roads under the PMGSY (Pradhan Mantri Gram Sadak Yojana) program.`,
@@ -1068,6 +1077,7 @@ Weight per meter varies by size and class. Example: 25mm NB Class B = 1.56 kg/m;
     metaTitle: 'Buy HDPE Granules in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source HDPE Granules (High Density Polyethylene) from AI-verified Indian producers. Blow molding, pipe, film, and injection grades. Live pricing and managed procurement.',
     introText: 'HDPE (High Density Polyethylene) Granules are among the most widely consumed polymer resins in India, serving packaging, pipe manufacturing, blow molding, and film applications. ProcureSaathi connects plastic processors and manufacturers with verified HDPE producers and authorized distributors through AI-matched procurement.',
+    heroImage: '/images/products/hdpe-granules.webp',
     heroImageAlt: 'HDPE polyethylene granules being processed at an Indian polymer manufacturing plant',
     sections: {
       whatIs: `High Density Polyethylene (HDPE) is a thermoplastic polymer produced by the polymerization of ethylene monomer using Ziegler-Natta or metallocene catalysts. HDPE has a density range of 0.941–0.965 g/cm³, distinguishing it from LDPE (Low Density) and LLDPE (Linear Low Density) polyethylene variants. The linear molecular structure with minimal branching gives HDPE its characteristic high crystallinity, stiffness, and tensile strength. India produces approximately 2 million MT of HDPE annually, with major producers including Reliance Industries (Jamnagar), Indian Oil Corporation (Panipat), GAIL (Pata), OPAL (Dahej), and Haldia Petrochemicals. HDPE granules are sold in 25 kg bags or 1 MT jumbo bags, with grade-specific formulations for different processing methods and end applications.`,
@@ -1191,6 +1201,7 @@ Indian HDPE producers publish detailed technical data sheets for each grade with
     metaTitle: 'Buy Industrial Valves in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
     metaDescription: 'Source Industrial Valves (gate, globe, check, ball, butterfly) from AI-verified Indian manufacturers. API, ASME, and IS certified. For oil & gas, water, and process industries.',
     introText: 'Industrial Valves are critical flow control devices used across every process industry — from oil refineries and power plants to water treatment and chemical processing. India is a major global valve manufacturing hub, exporting to over 100 countries. ProcureSaathi connects EPC contractors and plant operators with verified Indian valve manufacturers through AI-matched procurement.',
+    heroImage: '/images/products/industrial-valves.webp',
     heroImageAlt: 'Industrial gate and ball valves manufactured in India for oil and gas applications',
     sections: {
       whatIs: `Industrial Valves are mechanical devices used to control, regulate, and direct the flow of fluids (liquids, gases, slurries) in piping systems. They are among the most critical components in any process plant, as valve failure can lead to safety hazards, production losses, and environmental incidents. India's valve manufacturing industry is concentrated in clusters at Ahmedabad, Mumbai, Chennai, and Coimbatore, with over 500 organized manufacturers and thousands of small workshops. Indian valve manufacturers produce the full range of valve types including gate valves, globe valves, check valves, ball valves, butterfly valves, plug valves, diaphragm valves, and control valves. The industry generates over $3 billion in annual revenue, with approximately 40% exported globally. Key end-user industries include oil & gas (30%), water and wastewater (25%), power generation (15%), chemical and petrochemical (15%), and others (15%).`,
