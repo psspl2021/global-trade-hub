@@ -7,8 +7,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { 
   TrendingUp, Shield, Brain, ArrowRight, CheckCircle2, 
   Factory, Globe, BarChart3, FileCheck, Building2, 
-  Lock, Truck, ChevronRight, HelpCircle
+  Lock, Truck, ChevronRight, HelpCircle, AlertTriangle, Activity
 } from 'lucide-react';
+import {
+  Table, TableHeader, TableBody, TableHead, TableRow, TableCell
+} from '@/components/ui/table';
 import { PostRFQModal } from '@/components/PostRFQModal';
 import { useState } from 'react';
 
@@ -250,6 +253,115 @@ function FAQSection({ product }: { product: IndustrialProduct }) {
   );
 }
 
+function DeepSKUSections({ product }: { product: IndustrialProduct }) {
+  const { sections } = product;
+  if (!sections.gradeTable && !sections.thicknessChart && !sections.complianceMatrix && !sections.procurementRiskInsights && !sections.indiaDemandIntelligence) return null;
+
+  return (
+    <section className="py-12 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto space-y-12">
+          {sections.gradeTable && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Grade Comparison Table</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Grade</TableHead>
+                    <TableHead>Yield Strength</TableHead>
+                    <TableHead>Tensile Strength</TableHead>
+                    <TableHead>Application</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sections.gradeTable.map((g, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{g.grade}</TableCell>
+                      <TableCell>{g.yieldStrength}</TableCell>
+                      <TableCell>{g.tensileStrength}</TableCell>
+                      <TableCell>{g.application}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {sections.thicknessChart && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Thickness & Weight Chart</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Thickness</TableHead>
+                    <TableHead>Weight per Sq Meter</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sections.thicknessChart.map((t, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{t.thickness}</TableCell>
+                      <TableCell>{t.weightPerSqM}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {sections.complianceMatrix && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" /> Standards & Compliance
+              </h2>
+              <ul className="space-y-2">
+                {sections.complianceMatrix.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {sections.procurementRiskInsights && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" /> Procurement Risk Intelligence
+              </h2>
+              <ul className="space-y-2">
+                {sections.procurementRiskInsights.map((r, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <AlertTriangle className="h-4 w-4 text-destructive/70 mt-1 flex-shrink-0" />
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {sections.indiaDemandIntelligence && (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" /> India Demand Intelligence
+              </h2>
+              <ul className="space-y-2">
+                {sections.indiaDemandIntelligence.map((d, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <TrendingUp className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
   return (
     <section className="py-12 bg-background">
@@ -365,6 +477,8 @@ export default function DemandAuthorityPage() {
       <main className="min-h-screen bg-background">
         <HeroSection product={product} onOpenRFQ={() => setShowRFQ(true)} />
         <ProductOverviewSection product={product} />
+        <DeepSKUSections product={product} />
+        <DemandIntelligenceSection product={product} />
         <DemandIntelligenceSection product={product} />
         <WhyProcureSaathiSection />
         <FAQSection product={product} />
