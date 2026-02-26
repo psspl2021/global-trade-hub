@@ -1332,12 +1332,19 @@ export function getAllProductSlugs(): string[] {
 
 // ─── INDUSTRY TAXONOMY ──────────────────────────────────────────
 
+export interface IndustryAuthoritySection {
+  heading: string;
+  content: string;
+}
+
 export interface IndustryNode {
   slug: string;
   name: string;
   description: string;
   metaTitle: string;
   metaDescription: string;
+  h1?: string;
+  authoritySections?: IndustryAuthoritySection[];
   children?: IndustryNode[];
   productSlugs?: string[];
 }
@@ -1346,24 +1353,93 @@ export const industryTaxonomy: IndustryNode[] = [
   {
     slug: 'metals',
     name: 'Metals & Steel',
+    h1: 'Metals & Steel Suppliers in India — AI-Powered Industrial Procurement',
     description: 'Comprehensive AI-powered procurement for ferrous and non-ferrous metals across India\'s industrial ecosystem.',
     metaTitle: 'Metals & Steel Procurement — AI Verified Suppliers | ProcureSaathi',
     metaDescription: 'Source metals and steel products from AI-verified Indian mills and manufacturers. Ferrous (steel, iron) and non-ferrous (aluminium, copper) with managed procurement.',
+    authoritySections: [
+      {
+        heading: 'India\'s Metals & Steel Industry Overview',
+        content: 'India is the world\'s second-largest crude steel producer, with annual output exceeding 140 million metric tonnes. The nation\'s metals and steel sector is a cornerstone of its economic and industrial infrastructure, supporting everything from large-scale construction and heavy engineering to automotive manufacturing and energy generation. The industry is anchored by integrated steel plants operated by SAIL, Tata Steel, JSW Steel, AMNS India, and JSPL, alongside hundreds of secondary producers, re-rollers, and alloy steel mills spread across key steel corridors in Jharkhand, Odisha, Chhattisgarh, Karnataka, and Gujarat.\n\nThe non-ferrous metals segment — aluminium, copper, zinc, lead, and nickel — complements the ferrous ecosystem. India ranks among the top global aluminium producers, led by Hindalco and Vedanta, while copper cathode production and zinc smelting serve the electrical, automotive, and construction industries. ProcureSaathi aggregates demand intelligence across the full spectrum of metals, enabling procurement teams to source from verified mills and processors with transparent, competitive pricing.'
+      },
+      {
+        heading: 'Major Metal Products for B2B Procurement',
+        content: 'The metals procurement landscape in India encompasses flat products (MS Plates, HR Coils, CR Coils, GI Sheets), long products (TMT Bars, structural steel sections, wire rods, channels, angles), tubular products (GI Pipes, ERW tubes, seamless pipes), and non-ferrous products (aluminium ingots, copper cathode, zinc ingots, brass rods).\n\nFlat steel products dominate industrial procurement volumes. MS Plates conforming to IS 2062 are the highest-demand item for construction and heavy fabrication. HR Coils serve automotive stamping, pipe manufacturing, and general engineering. CR Coils and GI sheets are essential for appliance manufacturing, roofing, and precision applications. On the long products side, TMT Bars (Fe 500/550D per IS 1786) represent the single largest steel consumption category in India\'s construction sector.\n\nProcureSaathi\'s managed procurement platform enables buyers to source any of these products through sealed competitive bidding, with AI-driven supplier matching, real-time pricing intelligence, and complete procurement governance.'
+      },
+      {
+        heading: 'Applications Across Infrastructure & EPC',
+        content: 'Metals and steel are consumed across virtually every infrastructure and industrial vertical in India. The National Infrastructure Pipeline (NIP) and PM Gati Shakti programme collectively target over ₹100 lakh crore in infrastructure investment, creating sustained demand for structural steel, reinforcement bars, pipes, and plates.\n\nKey application sectors include: highways and bridges (structural steel, TMT bars, MS plates), urban metro rail (HR coils, structural sections, GI pipes), water and sewage infrastructure (DI pipes, GI pipes, industrial valves), power generation and transmission (aluminium conductors, transformer steel, structural supports), oil & gas (seamless pipes, alloy steel plates, industrial valves), and commercial and residential construction (TMT bars, cement, GI sheets).\n\nProcureSaathi\'s demand intelligence engine continuously monitors procurement activity across these sectors, identifying high-intent corridors and matching buyers with the most capable and competitively priced suppliers.'
+      },
+      {
+        heading: 'Indian Demand Trends & Market Intelligence',
+        content: 'India\'s steel demand is projected to grow at 6-7% CAGR through 2030, driven by urbanisation, infrastructure spending, and the manufacturing sector\'s expansion under the Production-Linked Incentive (PLI) scheme. The government\'s target of 300 million MT steelmaking capacity by 2030 signals a structural shift in domestic supply capabilities.\n\nKey demand trends include: rising consumption of high-strength and specialty steels (SAILMA grades, alloy steels) for infrastructure projects; increasing adoption of value-added flat products (pre-painted, galvanized, galvalume) in construction; growing non-ferrous metal demand driven by electric vehicle manufacturing and renewable energy infrastructure; and consolidation of procurement through digital platforms that offer price transparency and supplier verification.\n\nProcureSaathi tracks these trends through its AI demand intelligence system, providing procurement teams with real-time market signals, price benchmarks, and supplier capability assessments to optimise sourcing decisions.'
+      },
+      {
+        heading: 'Procurement Standards & Compliance',
+        content: 'Industrial metal procurement in India is governed by Bureau of Indian Standards (BIS) specifications. Key standards include IS 2062 (structural steel), IS 1786 (TMT reinforcement bars), IS 10748 (HR steel sheets and strips), IS 513 (CR steel sheets), IS 277 (galvanized steel sheets), and IS 1239 (steel tubes). For international trade, ASTM, EN, and JIS standards are commonly referenced.\n\nCompliance with Quality Control Orders (QCOs) issued by the Ministry of Steel mandates BIS certification for a growing list of steel products, making it illegal to sell non-certified products in the Indian market. ProcureSaathi\'s supplier verification process validates BIS license status, mill test certificates (MTCs), and manufacturing capabilities as part of the onboarding and bid evaluation workflow.\n\nFor specialised applications — pressure vessels (IS 2002, SA 516), boiler quality plates (IS 2002), and offshore structures — additional certifications from Lloyd\'s, IRS, DNV, and Bureau Veritas may be required. ProcureSaathi\'s managed procurement model ensures all compliance requirements are met before procurement is finalised.'
+      },
+      {
+        heading: 'Related Products in Metals & Steel',
+        content: 'ProcureSaathi\'s metals and steel procurement covers the following products: [MS Plates](/demand/ms-plates-india) (IS 2062), [TMT Bars](/demand/tmt-bars-india) (IS 1786), [HR Coils](/demand/hr-coil-india) (IS 10748), [CR Coils](/demand/cr-coil-india) (IS 513), [Structural Steel](/demand/structural-steel-india) (IS 2062), [GI Pipes](/demand/gi-pipes-india) (IS 1239), and [Aluminium Ingots](/demand/aluminium-ingots-india). Each product has a dedicated procurement intelligence page with live demand signals, supplier verification, and managed bidding.'
+      }
+    ],
     children: [
       {
         slug: 'ferrous',
         name: 'Ferrous Metals (Steel & Iron)',
+        h1: 'Ferrous Metal Suppliers in India — Steel & Iron Procurement',
         description: 'India is the world\'s second-largest steel producer with over 140 million MT annual output. Ferrous metals — encompassing flat products (plates, coils, sheets), long products (TMT bars, structural sections, wire rods), and tubular products (pipes, tubes) — form the backbone of India\'s infrastructure and manufacturing sectors.',
         metaTitle: 'Ferrous Metals (Steel & Iron) Procurement — AI Verified Suppliers | ProcureSaathi',
         metaDescription: 'Source steel and iron products from AI-verified Indian mills. MS Plates, TMT Bars, HR/CR Coils, Structural Steel, GI Pipes. Live pricing and managed procurement.',
+        authoritySections: [
+          {
+            heading: 'What are Ferrous Metals?',
+            content: 'Ferrous metals are iron-based metals and alloys that form the largest segment of industrial metal consumption globally. The term "ferrous" derives from the Latin word "ferrum" meaning iron. In industrial procurement, ferrous metals primarily encompass carbon steel (mild steel, medium carbon steel, high carbon steel), alloy steel (containing chromium, nickel, molybdenum, vanadium), stainless steel (chromium content ≥10.5%), and cast iron.\n\nCarbon steel — specifically mild steel with 0.05-0.25% carbon content — accounts for the vast majority of industrial steel consumption in India. It is the base material for structural steel sections, plates, coils, sheets, bars, rods, pipes, and tubes. The combination of strength, weldability, machinability, and cost-effectiveness makes mild steel the default engineering material for construction, infrastructure, manufacturing, and general fabrication.'
+          },
+          {
+            heading: 'Major Ferrous Products for B2B Procurement',
+            content: 'The ferrous metals procurement ecosystem in India is organized into three broad product categories:\n\n**Flat Products:** MS Plates (IS 2062) for structural fabrication and heavy engineering, HR Coils (IS 10748) for automotive and pipe manufacturing, CR Coils (IS 513) for appliances and precision applications, and GI/GP sheets (IS 277) for roofing and construction. Flat products are predominantly sourced from integrated steel plants and hot strip mills.\n\n**Long Products:** TMT Bars (IS 1786 Fe 500/550D) for reinforced concrete construction, structural steel sections (I-beams, H-beams, channels, angles per IS 2062), wire rods for downstream wire drawing and fastener manufacturing, and rails for railway infrastructure.\n\n**Tubular Products:** GI Pipes (IS 1239) for water supply and plumbing, ERW steel tubes for structural and automotive applications, seamless pipes for oil & gas and high-pressure systems, and spiral welded pipes for large-diameter water and gas transmission.\n\nProcureSaathi enables procurement of all these products through verified Indian mills including SAIL, Tata Steel, JSW Steel, AMNS India, Jindal Steel, and Shyam Steel, along with quality-certified secondary producers.'
+          },
+          {
+            heading: 'Applications in Infrastructure & EPC',
+            content: 'Ferrous metals are the structural backbone of India\'s infrastructure development. Key application sectors include:\n\n**Construction & Real Estate:** TMT bars for reinforced concrete (RCC) structures, MS plates for base plates and connection details, structural steel sections for steel-framed buildings and industrial sheds.\n\n**Highways & Bridges:** High-strength structural steel plates (E350/E450), TMT bars for bridge decks and abutments, crash barriers and guardrails from GI steel.\n\n**Railways & Metro:** Rail steel for tracks, structural steel for station buildings and viaducts, TMT bars for tunnel lining and station foundations.\n\n**Water Infrastructure:** GI pipes for municipal water supply, MS plates for water storage tanks, DI pipes for trunk mains.\n\n**Oil & Gas:** Alloy steel plates for pressure vessels, seamless pipes for drilling and production, carbon steel pipes for transmission pipelines.\n\n**Power & Energy:** Structural steel for thermal and solar power plants, boiler quality plates for steam generators, transmission tower steel.'
+          },
+          {
+            heading: 'Indian Demand Trends',
+            content: 'India\'s ferrous metals demand is structurally driven by urbanisation (35% to 50% urban population by 2047), infrastructure investment (₹111 lakh crore NIP), and manufacturing expansion under Atmanirbhar Bharat and PLI schemes.\n\nSteel consumption per capita in India stands at approximately 80 kg, compared to the global average of 230 kg and China\'s 600+ kg, indicating massive growth headroom. The government\'s National Steel Policy targets 300 million MT capacity and 160 kg per capita consumption by 2030.\n\nKey trends shaping procurement: increasing specification of higher-strength grades (E350, SAILMA) reducing material weight in structures; growing preference for value-added products (pre-engineered buildings, pre-fabricated steel structures); shift toward digital procurement platforms for price transparency; and rising demand for quality-certified products following BIS Quality Control Orders.'
+          },
+          {
+            heading: 'Procurement & Compliance (IS Standards)',
+            content: 'Ferrous metal procurement in India operates within a well-defined standards and compliance framework:\n\n**IS 2062:2011** — Hot Rolled Medium and High Tensile Structural Steel (plates, sections, bars). Grades E250, E300, E350, E410, E450.\n**IS 1786:2008** — High Strength Deformed Steel Bars and Wires for Concrete Reinforcement. Grades Fe 500, Fe 500D, Fe 550, Fe 550D, Fe 600.\n**IS 10748:2004** — Hot Rolled Steel Strip for Welded Tubes and Pipes.\n**IS 513:2008** — Cold Rolled Low Carbon Steel Sheets and Strips.\n**IS 1239** — Mild Steel Tubes, Tubulars and Other Wrought Steel Fittings.\n**IS 277** — Galvanized Steel Sheets (Plain and Corrugated).\n\nAll procurement through ProcureSaathi requires valid BIS certification (CM/L license), mill test certificates (MTCs) with chemical composition and mechanical properties, and compliance with applicable Quality Control Orders. Our AI verification system cross-references supplier certifications with BIS databases to ensure procurement integrity.'
+          }
+        ],
         productSlugs: ['ms-plates-india', 'tmt-bars-india', 'hr-coil-india', 'cr-coil-india', 'structural-steel-india', 'gi-pipes-india']
       },
       {
         slug: 'non-ferrous',
         name: 'Non-Ferrous Metals',
+        h1: 'Non-Ferrous Metal Suppliers in India — Aluminium, Copper & Zinc',
         description: 'Non-ferrous metals including aluminium, copper, zinc, and their alloys serve automotive, electrical, construction, and aerospace industries. India is a major aluminium producer and a growing hub for non-ferrous metal processing and value addition.',
         metaTitle: 'Non-Ferrous Metals Procurement — AI Verified Suppliers | ProcureSaathi',
         metaDescription: 'Source aluminium, copper, zinc, and alloy products from AI-verified Indian smelters and processors. Ingots, sheets, coils, and rods with managed procurement.',
+        authoritySections: [
+          {
+            heading: 'What are Non-Ferrous Metals?',
+            content: 'Non-ferrous metals are metals and alloys that do not contain iron as a primary constituent. This category includes aluminium, copper, zinc, lead, nickel, tin, titanium, and their alloys (brass, bronze, monel, inconel). Non-ferrous metals are valued for properties that ferrous metals lack: corrosion resistance, lightweight characteristics, electrical and thermal conductivity, non-magnetic properties, and recyclability.\n\nIn India\'s industrial procurement landscape, aluminium is the dominant non-ferrous metal by volume, followed by copper and zinc. The country is among the top five global aluminium producers, with Hindalco Industries and Vedanta operating large-scale smelters. Copper consumption is driven by the electrical and electronics sectors, while zinc finds primary use in galvanizing (corrosion protection for steel).'
+          },
+          {
+            heading: 'Key Non-Ferrous Products',
+            content: '**Aluminium:** Primary aluminium ingots (99.7% purity per IS 617), billets for extrusion, wire rods for electrical conductors, rolled products (sheets, coils, foil), and cast alloys for automotive components. India produces approximately 4 million MT of primary aluminium annually.\n\n**Copper:** Copper cathode (99.99% purity, LME Grade A), copper wire rods for electrical wiring, copper tubes for HVAC and plumbing, and copper alloy products (brass, bronze). Hindustan Copper and Sterlite Copper are major domestic producers.\n\n**Zinc:** Zinc ingots for hot-dip galvanizing, zinc alloys for die-casting, and zinc oxide for rubber and ceramics. Hindustan Zinc (Vedanta) is India\'s largest zinc producer.\n\nProcureSaathi facilitates procurement of these products from smelter-direct and authorized stockist channels with verified quality certifications and competitive pricing through sealed bidding.'
+          },
+          {
+            heading: 'Applications & Demand Drivers',
+            content: 'Non-ferrous metals serve critical roles across high-value industrial sectors:\n\n**Electrical & Electronics:** Copper wire and cables for power transmission and distribution, aluminium conductors for overhead power lines, copper busbars for switchgear and transformers.\n\n**Automotive & EV:** Aluminium castings for engine blocks and wheels, copper for EV motors and wiring harnesses, zinc for die-cast components. India\'s EV transition is driving significant incremental demand for copper and aluminium.\n\n**Construction:** Aluminium extrusions for windows, doors, and curtain walls; copper tubes for plumbing and HVAC; zinc for galvanizing structural steel.\n\n**Aerospace & Defence:** Titanium and high-grade aluminium alloys for airframe structures, copper-beryllium alloys for precision instruments.\n\n**Packaging:** Aluminium foil and cans for food and pharmaceutical packaging — one of the fastest-growing demand segments in India.\n\nProcureSaathi\'s AI demand intelligence tracks procurement signals across these sectors, identifying high-intent corridors for non-ferrous sourcing.'
+          },
+          {
+            heading: 'Standards & Quality Compliance',
+            content: 'Non-ferrous metals procurement follows specific BIS and international standards:\n\n**Aluminium:** IS 617 (aluminium ingots), IS 737 (wrought aluminium alloy plates), IS 739 (aluminium alloy castings). LME-registered brands command premium pricing.\n\n**Copper:** IS 191 (copper cathode), IS 613 (copper rods), IS 1545 (copper tubes). Cathode quality is graded per LME standards.\n\n**Zinc:** IS 209 (zinc ingots), IS 3981 (zinc alloy die-casting). Purity levels (SHG 99.995%, HG 99.99%) determine pricing and application suitability.\n\nProcureSaathi verifies smelter origin, assay certificates, and BIS compliance for all non-ferrous procurement, ensuring buyers receive material that meets specified quality parameters.'
+          }
+        ],
         productSlugs: ['aluminium-ingots-india']
       }
     ]
@@ -1371,16 +1447,50 @@ export const industryTaxonomy: IndustryNode[] = [
   {
     slug: 'polymers',
     name: 'Polymers & Resins',
+    h1: 'Polymer & Resin Suppliers in India — HDPE, PP, PVC Procurement',
     description: 'AI-powered procurement for thermoplastic and thermoset polymers serving India\'s rapidly growing plastics processing industry.',
     metaTitle: 'Polymers & Resins Procurement — AI Verified Suppliers | ProcureSaathi',
     metaDescription: 'Source HDPE, LDPE, PP, PVC, and specialty polymers from AI-verified Indian petrochemical producers. Grade-specific procurement with live pricing.',
+    authoritySections: [
+      {
+        heading: 'India\'s Polymer & Petrochemical Industry',
+        content: 'India is the world\'s third-largest polymer consumer, with annual consumption exceeding 20 million metric tonnes of commodity thermoplastics. The polymer industry is driven by India\'s petrochemical majors — Reliance Industries, Indian Oil Corporation (IOCL), GAIL, Haldia Petrochemicals, ONGC Petro additions (OPaL), and Brahmaputra Cracker and Polymer Limited (BCPL). These producers operate naphtha and gas-based crackers that produce ethylene, propylene, and other monomers for downstream polymerisation.\n\nThe sector is experiencing rapid capacity expansion, with Reliance\'s Jamnagar complex alone producing over 5 million MT of polymers annually. New investments by HPCL (Rajasthan refinery-cum-petrochemical complex), BPCL (Kochi), and IOCL (Paradip) are expected to add significant capacity over the next five years, reducing India\'s import dependence for specialty grades.\n\nProcureSaathi\'s polymer procurement platform connects processors with verified producer-direct and authorized distributor channels, offering grade-specific sourcing with competitive pricing through sealed bidding.'
+      },
+      {
+        heading: 'Major Polymer Products for Procurement',
+        content: '**Polyethylene (PE):** The largest-volume polymer family. HDPE (High-Density Polyethylene) for pipes, containers, and geomembranes. LDPE (Low-Density Polyethylene) for films and packaging. LLDPE (Linear Low-Density Polyethylene) for stretch films and flexible packaging. Key grades are defined by density and melt flow index (MFI).\n\n**Polypropylene (PP):** The second-largest polymer by volume. Homopolymer grades for packaging, fibres, and automotive. Copolymer grades (random and impact) for containers, appliances, and automotive bumpers. Raffia grades for woven sacks and FIBC bags.\n\n**Polyvinyl Chloride (PVC):** Suspension-grade PVC resin for pipes, fittings, profiles, and cables. Emulsion-grade PVC for specialty coatings and flooring. PVC pipe compounds are the largest single application segment.\n\n**Engineering & Specialty Polymers:** ABS, Nylon (PA6/PA66), Polycarbonate, PET, and POM for automotive, electronics, and industrial applications.\n\nProcureSaathi enables grade-specific procurement with verified MFI, density, and additive specifications, ensuring processors receive material that meets their exact processing requirements.'
+      },
+      {
+        heading: 'Applications Across Industry Verticals',
+        content: 'Polymers serve as versatile engineering materials across virtually every industrial sector in India:\n\n**Packaging:** The largest polymer-consuming sector, including flexible packaging (LDPE/LLDPE films), rigid packaging (HDPE/PP containers), and woven sacks (PP raffia). India\'s packaging industry is growing at 15%+ annually.\n\n**Infrastructure & Construction:** HDPE and PVC pipes for water supply, sewage, and gas distribution. India\'s Jal Jeevan Mission alone targets piped water to 190 million rural households, driving massive HDPE/PVC demand.\n\n**Automotive:** PP compounds for interior and exterior trim, nylon for under-the-hood components, HDPE for fuel tanks, ABS for dashboard components.\n\n**Agriculture:** LDPE and LLDPE for mulch films, drip irrigation tubing, greenhouse covers, and silage wraps. India\'s agricultural film consumption exceeds 500,000 MT annually.\n\n**Textiles & Fibres:** PP for non-woven fabrics and carpet fibres, PET for polyester staple fibre and filament yarn.\n\nProcureSaathi tracks demand signals across these application sectors, matching buyers with the most competitive and reliable polymer suppliers.'
+      },
+      {
+        heading: 'Pricing Dynamics & Market Intelligence',
+        content: 'Polymer pricing in India is influenced by global crude oil and naphtha prices, petrochemical cracker operating rates, seasonal demand patterns, and import parity pricing. Unlike metals which trade on exchanges (LME, MCX), polymer pricing in India follows a producer-announced pricing model where Reliance, IOCL, and other producers set monthly base prices that serve as market benchmarks.\n\nKey pricing factors include: feedstock costs (naphtha and natural gas), cracker utilisation rates, import parity (particularly from Middle East and Southeast Asian producers), seasonal demand cycles (packaging season peaks, monsoon construction slowdowns), and grade-specific supply-demand dynamics.\n\nProcureSaathi\'s AI pricing intelligence aggregates these signals to provide buyers with real-time benchmark pricing, historical trend analysis, and forward price indicators. This enables procurement teams to time purchases optimally and negotiate from a position of market intelligence.'
+      },
+      {
+        heading: 'Quality Standards & Compliance',
+        content: 'Polymer procurement in India follows BIS and international quality standards:\n\n**HDPE:** IS 7328 (PE pipes), IS 4984 (HDPE pipes for water supply), ASTM D3350 (cell classification). Grade selection based on density (0.940-0.965 g/cm³) and MFI.\n**PVC:** IS 4985 (PVC pipes for potable water), IS 12818 (PVC pipes for sewage), ASTM D1784. K-value and polymerisation method (suspension vs emulsion) define grade categories.\n**PP:** IS 10910 (PP moulded containers), ASTM D4101. MFI ranges from 0.5 (blow moulding) to 35+ (injection moulding fibre grade).\n\nProcureSaathi verifies producer certifications, batch test certificates, and regulatory compliance (including food-contact grade approvals where applicable) for all polymer procurement transactions.'
+      }
+    ],
     children: [
       {
         slug: 'resins',
         name: 'Commodity Resins',
+        h1: 'Commodity Resin Suppliers in India — HDPE, PP, PVC Granules',
         description: 'Commodity thermoplastic resins — polyethylene (HDPE, LDPE, LLDPE), polypropylene, and PVC — are the highest-volume polymer materials consumed in India. These resins serve packaging, pipe manufacturing, automotive, agriculture, and construction sectors.',
         metaTitle: 'Commodity Resins Procurement — HDPE, PP, PVC | ProcureSaathi',
         metaDescription: 'Source commodity polymer resins (HDPE, LDPE, PP, PVC) from AI-verified Indian producers. Grade-specific procurement for packaging, pipes, and industrial applications.',
+        authoritySections: [
+          {
+            heading: 'What are Commodity Resins?',
+            content: 'Commodity resins are high-volume thermoplastic polymers produced in petrochemical plants from ethylene, propylene, and vinyl chloride monomers. Unlike engineering plastics (nylon, polycarbonate, ABS), commodity resins are produced and traded in large volumes with relatively lower unit costs, making them the foundation of India\'s plastics processing industry.\n\nThe primary commodity resins are polyethylene (PE — including HDPE, LDPE, LLDPE), polypropylene (PP), and polyvinyl chloride (PVC). Together, these three polymer families account for over 80% of India\'s total polymer consumption. They are traded as granules or pellets, with each grade defined by specific density, melt flow index, and additive package specifications that determine processing behaviour and end-product properties.'
+          },
+          {
+            heading: 'Procurement & Grade Selection',
+            content: 'Effective commodity resin procurement requires precise grade specification. Each resin family contains dozens of grades optimised for specific processing methods and end applications:\n\n**HDPE Grades:** Pipe grades (PE 80, PE 100) with high ESCR and slow crack growth resistance. Blow moulding grades for containers and drums. Film grades for carry bags and liners. Injection moulding grades for crates and household products.\n\n**PP Grades:** Homopolymer grades for BOPP film, raffia, and injection moulding. Random copolymer grades for transparent containers and medical packaging. Impact copolymer grades for automotive and appliance applications.\n\n**PVC Grades:** Suspension K-67 and K-68 grades for pipe manufacturing. K-65 grades for rigid profiles and fittings. Emulsion grades for paste applications (flooring, leather cloth).\n\nProcureSaathi\'s managed procurement system matches buyer requirements with verified grades, ensuring correct MFI, density, and additive specifications for each application.'
+          }
+        ],
         productSlugs: ['hdpe-granules-india']
       }
     ]
@@ -1388,24 +1498,69 @@ export const industryTaxonomy: IndustryNode[] = [
   {
     slug: 'industrial-supplies',
     name: 'Industrial Supplies',
+    h1: 'Industrial Supplies Procurement in India — Valves, Bitumen & Equipment',
     description: 'AI-powered procurement for industrial equipment, materials, and supplies supporting India\'s manufacturing and infrastructure sectors.',
     metaTitle: 'Industrial Supplies Procurement — AI Verified Suppliers | ProcureSaathi',
     metaDescription: 'Source industrial valves, pumps, bitumen, tools, and equipment from AI-verified Indian manufacturers. Managed procurement with competitive pricing.',
+    authoritySections: [
+      {
+        heading: 'India\'s Industrial Supplies Ecosystem',
+        content: 'India\'s industrial supplies sector encompasses a vast range of products that support manufacturing, infrastructure, energy, and process industries. Unlike primary raw materials (steel, polymers), industrial supplies include finished and semi-finished products such as valves, pumps, fittings, construction chemicals, bitumen, tools, abrasives, and safety equipment. This fragmented sector presents unique procurement challenges — thousands of manufacturers, inconsistent quality standards, complex specification matching, and limited price transparency.\n\nThe Indian industrial supplies market is estimated at over ₹8 lakh crore, with double-digit growth driven by infrastructure investment (roads, railways, ports, airports), industrial capacity expansion (refineries, petrochemicals, steel plants), urban development (smart cities, water supply, sewage treatment), and maintenance-repair-operations (MRO) spending by existing industrial facilities.\n\nProcureSaathi\'s AI-powered procurement platform addresses the fragmentation challenge by aggregating verified suppliers, standardising specifications, and enabling competitive bidding across industrial supply categories.'
+      },
+      {
+        heading: 'Major Industrial Supply Categories',
+        content: '**Flow Control Equipment:** Industrial valves (gate, globe, ball, butterfly, check, control), pumps (centrifugal, reciprocating, submersible), and actuators. These products serve oil & gas, water treatment, power generation, and chemical process industries. Key standards: API 600/602/608, IS 14846, ASME B16.34.\n\n**Construction Materials:** Bitumen (VG 10/20/30/40 per IS 73), construction chemicals (waterproofing, admixtures, grouts), cement additives, geosynthetics, and specialty materials for road construction, building construction, and waterproofing.\n\n**Industrial Hardware:** Fasteners (bolts, nuts, washers per IS 1364/IS 1367), flanges (IS 6392, ASME B16.5), gaskets, O-rings, and sealing solutions for industrial assembly and maintenance.\n\n**Safety & Compliance Equipment:** PPE (helmets, gloves, harnesses), fire safety equipment, gas detection systems, and industrial hygiene products mandated by Indian Factories Act and OISD guidelines.\n\nProcureSaathi enables specification-matched procurement across all these categories with verified manufacturer credentials and competitive pricing through sealed bidding.'
+      },
+      {
+        heading: 'Applications & End-Use Sectors',
+        content: 'Industrial supplies serve as critical components and consumables across India\'s major industrial verticals:\n\n**Oil & Gas:** Industrial valves and fittings for refineries, pipelines, and offshore platforms. India operates 23 refineries with combined capacity exceeding 250 MTPA, each requiring ongoing procurement of valves, gaskets, fasteners, and maintenance supplies.\n\n**Water & Wastewater:** Butterfly valves, sluice gates, pipes, and fittings for water treatment plants, pumping stations, and distribution networks. India\'s Jal Jeevan Mission and AMRUT schemes are driving unprecedented water infrastructure investment.\n\n**Roads & Highways:** Bitumen (VG 30/VG 40), modified bitumen (CRMB, PMB), and road construction equipment. India constructs approximately 12,000 km of national highways annually, consuming over 8 million MT of bitumen.\n\n**Power Generation:** Valves, fittings, boiler spares, and turbine components for thermal, hydro, and renewable power plants.\n\n**Manufacturing & Process Industry:** MRO supplies, industrial chemicals, abrasives, cutting tools, and machine spares for factories and workshops across India.'
+      },
+      {
+        heading: 'Procurement Challenges & How ProcureSaathi Helps',
+        content: 'Industrial supplies procurement faces unique challenges that ProcureSaathi\'s managed model is designed to solve:\n\n**Fragmentation:** Thousands of small and medium manufacturers across India, making supplier discovery and qualification time-intensive. ProcureSaathi\'s AI engine pre-qualifies suppliers based on manufacturing capabilities, certifications, and past performance.\n\n**Specification Complexity:** Products like industrial valves have dozens of parameters (size, pressure rating, material, end connection, actuation type) that must be precisely specified. ProcureSaathi\'s structured RFQ system ensures complete specification capture and accurate supplier matching.\n\n**Quality Variance:** Inconsistent quality across manufacturers, particularly for critical items like pressure-rated valves and structural fasteners. ProcureSaathi validates manufacturer certifications (ISO 9001, API monogram, PED, IBR) and requires compliance documentation with every bid.\n\n**Price Opacity:** Limited price benchmarking data in the industrial supplies sector. ProcureSaathi\'s sealed competitive bidding creates real market pricing, while AI pricing intelligence provides historical benchmarks for informed procurement decisions.\n\nOur governance framework — immutable audit trails, two-way anonymity, and AI-driven evaluation — brings enterprise-grade procurement discipline to what has traditionally been a relationship-driven market.'
+      },
+      {
+        heading: 'Quality Standards & Certifications',
+        content: 'Industrial supplies procurement requires compliance with a range of Indian and international standards:\n\n**Valves:** IS 14846 (industrial valves general requirements), API 600 (gate valves), API 602 (compact gate valves), API 608 (ball valves), BS EN 593 (butterfly valves). Pressure ratings per ASME B16.34.\n**Bitumen:** IS 73:2013 (paving bitumen VG grades), IS 15462 (modified bitumen), IRC SP 53 (bituminous surfacing guidelines).\n**Fasteners:** IS 1364 (hexagon bolts), IS 1367 (technical supply conditions), IS 6623 (high-strength friction grip bolts). Mechanical properties per ISO 898.\n**Safety Equipment:** IS 2925 (safety helmets), IS 6994 (safety gloves), BIS certification mandatory for several PPE categories.\n\nProcureSaathi verifies all applicable certifications, test reports, and regulatory compliance as part of the supplier qualification and bid evaluation process.'
+      }
+    ],
     children: [
       {
         slug: 'construction-materials',
         name: 'Construction Materials',
+        h1: 'Construction Material Suppliers in India — Bitumen & Specialty Materials',
         description: 'Essential construction materials including bitumen, cement additives, waterproofing compounds, and specialty materials for India\'s massive infrastructure development programs.',
         metaTitle: 'Construction Materials Procurement — AI Verified Suppliers | ProcureSaathi',
         metaDescription: 'Source bitumen, construction chemicals, and specialty building materials from AI-verified suppliers. Managed procurement for infrastructure projects.',
+        authoritySections: [
+          {
+            heading: 'Construction Materials in India',
+            content: 'India\'s construction sector is the second-largest employer and a key driver of GDP growth. The construction materials segment encompasses a wide range of products essential for roads, buildings, bridges, dams, and industrial structures. Major construction materials include bitumen for road surfacing, cement and concrete additives, waterproofing systems, structural adhesives, grouting compounds, and specialty chemical formulations.\n\nThe sector is undergoing rapid modernisation driven by government programmes like Bharatmala (road construction), Sagarmala (port development), Smart Cities Mission, and PMAY (housing). These programmes collectively represent over ₹30 lakh crore in planned investment, creating sustained demand for quality construction materials.\n\nProcureSaathi\'s procurement platform addresses the unique challenges of construction material sourcing — seasonal demand fluctuations, transport logistics, quality consistency, and project-specific specification requirements — through verified supplier networks and competitive sealed bidding.'
+          },
+          {
+            heading: 'Key Products & Standards',
+            content: '**Bitumen:** VG 10, VG 20, VG 30, and VG 40 grades per IS 73:2013 for different climatic zones and traffic conditions. Modified bitumen (CRMB 55/60, PMB 40/70) for heavy-traffic highways. Bitumen emulsions (RS, MS, SS grades) for surface dressing and cold mix applications.\n\n**Concrete Admixtures:** Plasticizers, superplasticizers (SNF, PCE-based), retarders, accelerators per IS 9103. Silica fume and fly ash as supplementary cementitious materials.\n\n**Waterproofing:** Integral waterproofing compounds, crystalline waterproofing systems, bituminous membranes (APP/SBS modified), PVC and TPO membranes for roofing.\n\nProcureSaathi ensures all construction material procurement meets applicable BIS, IRC, and project-specific standards with verified test certificates and manufacturer warranties.'
+          }
+        ],
         productSlugs: ['bitumen-vg30-india']
       },
       {
         slug: 'pumps-valves',
         name: 'Pumps & Valves',
+        h1: 'Industrial Valve & Pump Suppliers in India — Oil & Gas, Water & Process',
         description: 'Industrial flow control equipment including gate valves, ball valves, butterfly valves, globe valves, control valves, and pumps for oil & gas, water, power, and chemical process industries.',
         metaTitle: 'Industrial Valves & Pumps Procurement — AI Verified Suppliers | ProcureSaathi',
         metaDescription: 'Source industrial valves and pumps from AI-verified Indian manufacturers. API/ASME certified. For oil & gas, water treatment, and process industries.',
+        authoritySections: [
+          {
+            heading: 'Industrial Valves & Pumps Overview',
+            content: 'Industrial valves and pumps are critical flow control and fluid transfer equipment used across every process industry. Valves regulate, direct, and control the flow of fluids (liquids, gases, slurries) by opening, closing, or partially obstructing passageways. Pumps convert mechanical energy into hydraulic energy to move fluids through piping systems.\n\nIndia\'s valve manufacturing industry is concentrated in key clusters — Ahmedabad (Gujarat), Coimbatore (Tamil Nadu), and Delhi-NCR — producing everything from commodity cast iron gate valves to high-specification forged steel ball valves for offshore applications. The Indian valve market is estimated at over ₹15,000 crore, growing at 8-10% annually driven by oil & gas, water infrastructure, and industrial expansion.\n\nProcureSaathi\'s managed procurement platform enables specification-matched valve and pump sourcing through verified manufacturers with API, ASME, and BIS certifications.'
+          },
+          {
+            heading: 'Applications & Specification Requirements',
+            content: '**Oil & Gas:** API 600/602 gate valves, API 608 ball valves, API 594 butterfly valves for refineries and pipelines. Material specifications range from carbon steel (A216 WCB) to stainless steel (A351 CF8M) and special alloys (Duplex, Inconel) depending on service conditions.\n\n**Water & Wastewater:** IS 14846 sluice valves, butterfly valves (PN 10/16) for water treatment plants, non-return valves for pumping stations. Materials include cast iron (FG 260), ductile iron (SG 500/7), and rubber-lined valves for corrosive service.\n\n**Power Generation:** High-pressure globe and gate valves for boiler feed water systems, steam isolation, and turbine bypass applications. IBR (Indian Boiler Regulations) certification required for pressure parts.\n\n**Chemical Process:** Lined valves (PTFE, PFA, rubber) for corrosive chemical service, knife gate valves for slurry applications, control valves with positioners for automated process control.\n\nProcureSaathi captures complete technical specifications — valve type, size, pressure class, material, end connection, actuation, and applicable standards — to ensure accurate supplier matching and bid comparison.'
+          }
+        ],
         productSlugs: ['industrial-valves-india']
       }
     ]
