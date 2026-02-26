@@ -48,7 +48,7 @@ const ProcurementSignalPage = lazy(() => import("./pages/procurement/Procurement
 // Hub & Spoke Directory Pages
 const ExplorePage = lazy(() => import("./pages/explore/ExplorePage"));
 const ExploreCountryPage = lazy(() => import("./pages/explore/ExploreCountryPage"));
-const DemandPage = lazy(() => import("./pages/explore/DemandPage"));
+
 const DemandIndex = lazy(() => import("./pages/explore/DemandIndex"));
 const DemandAuthorityPage = lazy(() => import("./pages/explore/DemandAuthorityPage"));
 const IndustriesPage = lazy(() => import("./pages/explore/IndustriesPage"));
