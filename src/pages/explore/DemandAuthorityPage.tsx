@@ -331,10 +331,10 @@ export default function DemandAuthorityPage() {
       </main>
 
       <PostRFQModal 
-        isOpen={showRFQ} 
-        onClose={() => setShowRFQ(false)}
-        preselectedCategory={product.industry}
-        preselectedSubcategory={product.name}
+        open={showRFQ} 
+        onOpenChange={(v) => setShowRFQ(v)}
+        signalPageCategory={product.industry}
+        signalPageSubcategory={product.name}
       />
     </>
   );
