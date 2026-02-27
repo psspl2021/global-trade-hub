@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/table';
 import { PostRFQModal } from '@/components/PostRFQModal';
 import { useState } from 'react';
+import { getCountryLinksForProduct } from '@/utils/internalLinking';
 
 function BreadcrumbNav({ product }: { product: IndustrialProduct }) {
   const crumbs = getIndustryBreadcrumb(product.industrySlug, product.subIndustrySlug);
@@ -545,6 +546,34 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
   );
 }
 
+function GlobalSourcingCorridors({ product }: { product: IndustrialProduct }) {
+  const countryLinks = getCountryLinksForProduct(product.slug);
+  if (countryLinks.length === 0) return null;
+  
+  return (
+    <section className="py-12 bg-muted/20 border-b">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <div className="flex items-center gap-2 mb-6">
+          <Globe className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl font-bold">Global Sourcing Corridors</h2>
+        </div>
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {countryLinks.map((c) => (
+            <Link
+              key={c.slug}
+              to={`/source/${c.slug}`}
+              className="flex items-center gap-3 p-4 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+            >
+              <ArrowRight className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm font-medium">Import {product.name} from {c.name}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CTASection({ onOpenRFQ }: { onOpenRFQ: () => void }) {
   return (
     <section className="py-16 bg-primary/5">
@@ -662,6 +691,7 @@ export default function DemandAuthorityPage() {
         <ProductOverviewSection product={product} />
         <DeepSKUSections product={product} />
         <DemandIntelligenceSection product={product} />
+        <GlobalSourcingCorridors product={product} />
         <WhyProcureSaathiSection />
         <FAQSection product={product} />
         <RelatedProductsSection product={product} />

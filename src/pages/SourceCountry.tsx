@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle2, Globe, Package, Ship, Shield, Truck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Globe, Package, Ship, Shield, Truck, AlertTriangle, Anchor, FileText, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -20,6 +20,8 @@ import { useRegionalSEO } from "@/hooks/useRegionalSEO";
 import { LanguageSelector } from "@/components/landing/LanguageSelector";
 import { translations, getDefaultLanguage, isRTL, Language } from "@/lib/i18n/translations";
 import { getSourceCountrySEOContent, getFallbackSourceSEOContent } from '@/data/sourceCountrySEOContent';
+import { getStrategicCountry } from "@/data/strategicCountries";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const countryData: Record<string, {
   name: string;
@@ -697,11 +699,14 @@ export default function SourceCountry() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Strategic country data for deep rendering
+  const strategicData = getStrategicCountry(countryKey);
+
   // SEO hooks
   useSEO({
-    title: `${data.headline} | ProcureSaathi`,
-    description: data.description,
-    canonical: `https://procuresaathi.com/source/${countryKey}`,
+    title: strategicData ? `${strategicData.metaTitle} | ProcureSaathi` : `${data.headline} | ProcureSaathi`,
+    description: strategicData?.metaDescription || data.description,
+    canonical: `https://www.procuresaathi.com/source/${countryKey}`,
     keywords: `${data.name} import, India export, B2B sourcing, ${data.topCategories.join(", ")}`
   });
   
@@ -790,7 +795,37 @@ export default function SourceCountry() {
 
   return (
     <div className={`min-h-screen bg-background ${rtl ? 'rtl' : 'ltr'}`} dir={rtl ? 'rtl' : 'ltr'}>
-      {/* Hero Section */}
+      {/* Strategic Country Structured Data */}
+      {strategicData && (
+        <>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": strategicData.metaTitle,
+            "description": strategicData.metaDescription,
+            "url": `https://www.procuresaathi.com/source/${strategicData.slug}`,
+            "about": { "@type": "Country", "name": strategicData.name },
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.procuresaathi.com" },
+                { "@type": "ListItem", "position": 2, "name": "Global Sourcing", "item": "https://www.procuresaathi.com/global-sourcing-countries" },
+                { "@type": "ListItem", "position": 3, "name": `${strategicData.name} Suppliers`, "item": `https://www.procuresaathi.com/source/${strategicData.slug}` }
+              ]
+            }
+          })}} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": `High-demand imports from ${strategicData.name}`,
+            "itemListElement": strategicData.relatedDemandSlugs.map((slug, i) => ({
+              "@type": "ListItem",
+              "position": i + 1,
+              "url": `https://www.procuresaathi.com/demand/${slug}`
+            }))
+          })}} />
+        </>
+      )}
       <section className="relative py-20 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="container mx-auto px-4">
           {/* Language Selector */}
@@ -981,6 +1016,125 @@ export default function SourceCountry() {
           </section>
         );
       })()}
+
+      {/* Strategic Country Deep Sections */}
+      {strategicData && (
+        <>
+          {/* Hero Intro */}
+          <section className="py-12 bg-background border-b">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <h2 className="text-2xl font-bold mb-4">{strategicData.h1}</h2>
+              <p className="text-muted-foreground leading-relaxed">{strategicData.heroIntro}</p>
+            </div>
+          </section>
+
+          {/* Trade Intelligence */}
+          <section className="py-12 bg-muted/20 border-b">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <div className="flex items-center gap-2 mb-6">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-bold">Trade Intelligence</h2>
+              </div>
+              <ul className="space-y-3">
+                {strategicData.tradeIntelligence.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-1 shrink-0" />
+                    <span className="text-muted-foreground text-sm">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/* HS Code Exports Table */}
+          <section className="py-12 bg-background border-b">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <div className="flex items-center gap-2 mb-6">
+                <FileText className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-bold">Top Export Categories (HS Codes)</h2>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>HS Code</TableHead>
+                    <TableHead>Product</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {strategicData.topExports.map((exp, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-mono font-semibold">{exp.hsCode}</TableCell>
+                      <TableCell>{exp.product}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </section>
+
+          {/* Major Ports & Trade Agreement */}
+          <section className="py-12 bg-muted/20 border-b">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Anchor className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-bold">Major Ports</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {strategicData.majorPorts.map((port) => (
+                      <Badge key={port} variant="secondary" className="text-sm">{port}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-bold">Trade Agreement Status</h3>
+                  </div>
+                  <p className="text-muted-foreground text-sm">{strategicData.tradeAgreementStatus}</p>
+                </div>
+              </div>
+              <div className="mt-8">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className={`h-5 w-5 ${
+                    strategicData.riskScore === 'Low' ? 'text-green-500' :
+                    strategicData.riskScore === 'Moderate' ? 'text-yellow-500' :
+                    'text-destructive'
+                  }`} />
+                  <h3 className="text-lg font-bold">Procurement Risk Score</h3>
+                </div>
+                <Badge variant={
+                  strategicData.riskScore === 'Low' ? 'secondary' :
+                  strategicData.riskScore === 'Moderate' ? 'outline' :
+                  'destructive'
+                } className="text-sm">
+                  {strategicData.riskScore} Risk
+                </Badge>
+              </div>
+            </div>
+          </section>
+
+          {/* Related SKU Authority Links (Country → Product) */}
+          <section className="py-12 bg-background border-b">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <h2 className="text-xl font-bold mb-6">High-Demand Industrial Categories</h2>
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {strategicData.relatedDemandSlugs.map((slug) => (
+                  <Link
+                    key={slug}
+                    to={`/demand/${slug}`}
+                    className="flex items-center gap-2 p-4 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                  >
+                    <ArrowRight className="h-4 w-4 text-primary shrink-0" />
+                    <span className="text-sm font-medium capitalize">{slug.replace(/-/g, " ")}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
       {/* Top Categories Section */}
       <section className="py-16 bg-muted/30">
