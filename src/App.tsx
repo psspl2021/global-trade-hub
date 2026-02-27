@@ -31,6 +31,7 @@ const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
 const Browse = lazy(() => import("./pages/Browse"));
 const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
+const GlobalSourcingPage = lazy(() => import("./pages/GlobalSourcingPage"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Requirements = lazy(() => import("./pages/Requirements"));
@@ -107,6 +108,21 @@ const CategoriesRedirect = () => {
   return <Navigate to={`/category/${slug}`} replace />;
 };
 
+// Strategic countries that keep standalone /source/:country pages
+const STRATEGIC_COUNTRIES = new Set([
+  "china", "uae", "germany", "usa", "japan",
+  "south-korea", "saudi-arabia", "vietnam", "indonesia", "italy",
+]);
+
+// Redirect non-strategic /source/:country → /global-sourcing-countries
+const SourceCountryGate = () => {
+  const { country } = useParams();
+  if (!country || !STRATEGIC_COUNTRIES.has(country.toLowerCase())) {
+    return <Navigate to="/global-sourcing-countries" replace />;
+  }
+  return <SourceCountry />;
+};
+
 // Simple loading fallback
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
@@ -163,7 +179,8 @@ const BotAwareRouter = () => {
         <Route path="/seller" element={<Seller />} />
         <Route path="/buyer" element={<Buyer />} />
         <Route path="/private-label" element={<PrivateLabel />} />
-        <Route path="/source/:country" element={<SourceCountry />} />
+        <Route path="/source/:country" element={<SourceCountryGate />} />
+        <Route path="/global-sourcing-countries" element={<GlobalSourcingPage />} />
         <Route path="/invoice-generator" element={<InvoiceGenerator />} />
         <Route path="/affiliate" element={<AffiliatePortal />} />
         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
