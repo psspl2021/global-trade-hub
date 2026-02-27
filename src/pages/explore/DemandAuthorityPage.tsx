@@ -620,8 +620,10 @@ export default function DemandAuthorityPage() {
     "offers": {
       "@type": "AggregateOffer",
       "priceCurrency": "INR",
-      "availability": "https://schema.org/InStock",
+      "lowPrice": "50000",
+      "highPrice": "75000",
       "offerCount": product.demandIntelligence.recentRFQs,
+      "availability": "https://schema.org/InStock",
       "seller": { "@type": "Organization", "name": "ProcureSaathi", "url": "https://www.procuresaathi.com" }
     }
   };
