@@ -2,12 +2,18 @@ import { useParams, Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useCasePagesData } from "@/data/useCasePages";
 import { getComparisonsForUseCase, getRelatedUseCases } from "@/utils/related";
+import { injectContextualLinks } from "@/utils/internalLinkingEngine";
+import { enhanceIntent } from "@/utils/intentEnhancer";
 import { Button } from "@/components/ui/button";
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, ShieldCheck, AlertTriangle, HelpCircle, Link2, Wrench } from "lucide-react";
+import FloatingRFQ from "@/components/FloatingRFQ";
+import AuthorityInsightBlock from "@/components/seo/AuthorityInsightBlock";
+import GeoSourcingBlock from "@/components/seo/GeoSourcingBlock";
+import SteelNetworkFooter from "@/components/seo/SteelNetworkFooter";
 
 const BASE = "https://www.procuresaathi.com";
 
@@ -22,9 +28,15 @@ export default function UseCasePage() {
 
   const articleSchema = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "TechArticle",
     headline: page.title,
     description: page.metaDescription,
+    author: { "@type": "Organization", name: "ProcureSaathi Global Trade Hub" },
+    publisher: {
+      "@type": "Organization",
+      name: "ProcureSaathi",
+      logo: { "@type": "ImageObject", url: `${BASE}/logo.png` },
+    },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `${BASE}/use-case/${page.slug}`,
@@ -78,10 +90,16 @@ export default function UseCasePage() {
             {page.title}
           </h1>
 
-          {/* Intro */}
-          <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
-            {page.intro}
-          </p>
+          {/* Intent-Enhanced Intro with Auto-Linking */}
+          <div
+            className="mb-8 text-lg leading-relaxed text-muted-foreground"
+            dangerouslySetInnerHTML={{
+              __html: injectContextualLinks(enhanceIntent(page.title, page.intro)),
+            }}
+          />
+
+          {/* Authority Amplification */}
+          <AuthorityInsightBlock />
 
           {/* Technical Requirements */}
           <section className="mb-10">
@@ -157,10 +175,15 @@ export default function UseCasePage() {
             </div>
           </section>
 
-          {/* Cost Considerations */}
+          {/* Cost Considerations with Auto-Linking */}
           <section className="mb-10">
             <h2 className="mb-4 text-2xl font-semibold text-foreground">Cost & Supply Considerations</h2>
-            <p className="text-muted-foreground leading-relaxed">{page.costConsiderations}</p>
+            <div
+              className="text-muted-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: injectContextualLinks(page.costConsiderations),
+              }}
+            />
             <div className="mt-4">
               <Link to="/post-rfq">
                 <Button size="lg" className="gap-2">
@@ -226,8 +249,11 @@ export default function UseCasePage() {
             </section>
           )}
 
+          {/* Geo Sourcing Block */}
+          <GeoSourcingBlock />
+
           {/* Cross-Linking Footer */}
-          <section className="rounded-xl border border-border bg-muted/20 p-6">
+          <section className="mt-10 rounded-xl border border-border bg-muted/20 p-6">
             <h2 className="mb-4 text-xl font-semibold text-foreground">Explore More</h2>
             <div className="flex flex-wrap gap-3">
               <Link to={`/demand/${page.relatedDemandSlug}`}>
@@ -246,8 +272,13 @@ export default function UseCasePage() {
               </Link>
             </div>
           </section>
+
+          {/* Steel Intelligence Network */}
+          <SteelNetworkFooter />
         </div>
       </main>
+
+      <FloatingRFQ />
     </>
   );
 }
