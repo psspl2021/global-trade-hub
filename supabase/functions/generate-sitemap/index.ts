@@ -60,6 +60,30 @@ const staticPages = [
   { url: '/singapore/ai-b2b-procurement', priority: 0.9, changefreq: 'weekly' },
   // Global sourcing authority hub
   { url: '/global-sourcing-countries', priority: 0.9, changefreq: 'weekly' },
+  // Steel comparison hub + individual pages
+  { url: '/steel-comparisons', priority: 0.9, changefreq: 'weekly' },
+  { url: '/compare/fe-500-vs-fe-500d-tmt-bars', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/fe-415-vs-fe-500-tmt', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/e250-vs-e350-structural-steel', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/ismb-vs-ishb-beam-comparison', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/ismb-vs-ismc-channel', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/hr-coil-vs-cr-coil', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/ms-plate-vs-hr-sheet', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/api-grade-vs-is-2062-steel', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/erw-pipe-vs-seamless-pipe', priority: 0.8, changefreq: 'monthly' },
+  { url: '/compare/structural-steel-vs-tmt-bars', priority: 0.8, changefreq: 'monthly' },
+  // Industrial use-case hub + individual pages
+  { url: '/industrial-use-cases', priority: 0.9, changefreq: 'weekly' },
+  { url: '/use-case/tmt-bars-for-epc-projects', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/structural-steel-for-industrial-sheds', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/hr-coil-for-export-manufacturing', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/ms-plates-for-heavy-fabrication', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/steel-pipes-for-oil-gas-projects', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/steel-for-high-rise-buildings', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/structural-steel-for-warehouses', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/tmt-bars-for-seismic-zones', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/hr-coil-for-automotive-manufacturing', priority: 0.8, changefreq: 'monthly' },
+  { url: '/use-case/ms-plates-for-infrastructure-projects', priority: 0.8, changefreq: 'monthly' },
 ];
 
 // Strategic source country pages — only these 10 are indexed

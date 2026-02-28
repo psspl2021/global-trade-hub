@@ -70,6 +70,12 @@ const ExportCertificationPage = lazy(() => import("./pages/export-certification/
 
 // Comparison Pages
 const BestB2BPlatformsIndia = lazy(() => import("./pages/comparisons/BestB2BPlatformsIndia"));
+
+// SEO Comparison & Use-Case Templates
+const ComparisonPage = lazy(() => import("./pages/seo/ComparisonPage"));
+const UseCasePage = lazy(() => import("./pages/seo/UseCasePage"));
+const SteelComparisonsHub = lazy(() => import("./pages/seo/SteelComparisonsHub"));
+const IndustrialUseCasesHub = lazy(() => import("./pages/seo/IndustrialUseCasesHub"));
 const AIProcurementVsTraditional = lazy(() => import("./pages/comparisons/AIProcurementVsTraditional"));
 const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMarketplace"));
 
@@ -224,6 +230,12 @@ const BotAwareRouter = () => {
         
         {/* Country-specific signal pages for geo-intelligence */}
         <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
+        
+        {/* Steel Comparison & Use-Case SEO Pages */}
+        <Route path="/steel-comparisons" element={<SteelComparisonsHub />} />
+        <Route path="/compare/:slug" element={<ComparisonPage />} />
+        <Route path="/industrial-use-cases" element={<IndustrialUseCasesHub />} />
+        <Route path="/use-case/:slug" element={<UseCasePage />} />
         
         {/* AEO/GEO How-To & Guide Pages */}
         <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />
