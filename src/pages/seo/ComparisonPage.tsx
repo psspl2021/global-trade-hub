@@ -2,12 +2,18 @@ import { useParams, Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { comparisonPagesData } from "@/data/comparisonPages";
 import { getRelatedComparisons, getUseCasesForComparison } from "@/utils/related";
+import { injectContextualLinks } from "@/utils/internalLinkingEngine";
+import { enhanceIntent } from "@/utils/intentEnhancer";
 import { Button } from "@/components/ui/button";
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Scale, ShieldCheck, TrendingUp, HelpCircle, Link2 } from "lucide-react";
+import FloatingRFQ from "@/components/FloatingRFQ";
+import AuthorityInsightBlock from "@/components/seo/AuthorityInsightBlock";
+import GeoSourcingBlock from "@/components/seo/GeoSourcingBlock";
+import SteelNetworkFooter from "@/components/seo/SteelNetworkFooter";
 
 const BASE = "https://www.procuresaathi.com";
 
@@ -22,9 +28,15 @@ export default function ComparisonPage() {
 
   const articleSchema = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "TechArticle",
     headline: page.title,
     description: page.metaDescription,
+    author: { "@type": "Organization", name: "ProcureSaathi Global Trade Hub" },
+    publisher: {
+      "@type": "Organization",
+      name: "ProcureSaathi",
+      logo: { "@type": "ImageObject", url: `${BASE}/logo.png` },
+    },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `${BASE}/compare/${page.slug}`,
@@ -78,10 +90,16 @@ export default function ComparisonPage() {
             {page.title}
           </h1>
 
-          {/* Intro */}
-          <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
-            {page.intro}
-          </p>
+          {/* Intent-Enhanced Intro with Auto-Linking */}
+          <div
+            className="mb-8 text-lg leading-relaxed text-muted-foreground"
+            dangerouslySetInnerHTML={{
+              __html: injectContextualLinks(enhanceIntent(page.title, page.intro)),
+            }}
+          />
+
+          {/* Authority Amplification */}
+          <AuthorityInsightBlock />
 
           {/* Quick Decision Box */}
           <section className="mb-10 rounded-xl border-2 border-primary/20 bg-primary/5 p-6">
@@ -193,13 +211,18 @@ export default function ComparisonPage() {
             </div>
           </section>
 
-          {/* Price Implication */}
+          {/* Price Implication with Auto-Linking */}
           <section className="mb-10">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="h-5 w-5 text-primary" />
               <h2 className="text-2xl font-semibold text-foreground">Price & Cost Implication</h2>
             </div>
-            <p className="text-muted-foreground leading-relaxed">{page.priceImplication}</p>
+            <div
+              className="text-muted-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: injectContextualLinks(page.priceImplication),
+              }}
+            />
           </section>
 
           {/* FAQs */}
@@ -258,15 +281,20 @@ export default function ComparisonPage() {
             </section>
           )}
 
+          {/* Geo Sourcing Block */}
+          <GeoSourcingBlock />
+
           {/* Cross-Linking Footer */}
-          <section className="rounded-xl border border-border bg-muted/20 p-6">
+          <section className="mt-10 rounded-xl border border-border bg-muted/20 p-6">
             <h2 className="mb-4 text-xl font-semibold text-foreground">Explore More</h2>
             <div className="flex flex-wrap gap-3">
               <Link to={`/demand/${page.relatedDemandSlug}`}>
                 <Button variant="outline" size="sm">View Live Pricing</Button>
               </Link>
               <Link to={`/source/${page.relatedCountrySlug}`}>
-                <Button variant="outline" size="sm">Import from {page.relatedCountrySlug.charAt(0).toUpperCase() + page.relatedCountrySlug.slice(1)}</Button>
+                <Button variant="outline" size="sm">
+                  Import from {page.relatedCountrySlug.charAt(0).toUpperCase() + page.relatedCountrySlug.slice(1).replace(/-/g, " ")}
+                </Button>
               </Link>
               <Link to="/global-sourcing-countries">
                 <Button variant="outline" size="sm">Global Sourcing Hub</Button>
@@ -276,8 +304,13 @@ export default function ComparisonPage() {
               </Link>
             </div>
           </section>
+
+          {/* Steel Intelligence Network */}
+          <SteelNetworkFooter />
         </div>
       </main>
+
+      <FloatingRFQ />
     </>
   );
 }
