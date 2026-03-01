@@ -16,6 +16,9 @@ import GeoSourcingBlock from "@/components/seo/GeoSourcingBlock";
 import SteelNetworkFooter from "@/components/seo/SteelNetworkFooter";
 import RevenueLinksBlock from "@/components/seo/RevenueLinksBlock";
 import ScrollDepthTracker from "@/components/seo/ScrollDepthTracker";
+import QueryBoosterSection from "@/components/seo/QueryBoosterSection";
+import MidContentCTA from "@/components/seo/MidContentCTA";
+import TrustStrip from "@/components/seo/TrustStrip";
 
 const BASE = "https://www.procuresaathi.com";
 
@@ -65,6 +68,13 @@ export default function UseCasePage() {
     ],
   };
 
+  const definedTermSchema = {
+    "@context": "https://schema.org",
+    "@type": "DefinedTermSet",
+    name: page.title,
+    description: page.metaDescription,
+  };
+
   return (
     <>
       <Helmet>
@@ -74,6 +84,7 @@ export default function UseCasePage() {
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(definedTermSchema)}</script>
       </Helmet>
 
       <main className="min-h-screen bg-background">
@@ -195,8 +206,14 @@ export default function UseCasePage() {
             </div>
           </section>
 
+          {/* Mid-Content CTA */}
+          <MidContentCTA title={page.title.split("–")[0].trim()} />
+
+          {/* Trust Strip */}
+          <TrustStrip />
+
           {/* FAQs */}
-          <section className="mb-10">
+          <section className="mb-10 mt-10">
             <div className="flex items-center gap-2 mb-4">
               <HelpCircle className="h-5 w-5 text-primary" />
               <h2 className="text-2xl font-semibold text-foreground">Frequently Asked Questions</h2>
@@ -210,6 +227,9 @@ export default function UseCasePage() {
               ))}
             </div>
           </section>
+
+          {/* GSC Query Booster */}
+          <QueryBoosterSection slug={page.slug} />
 
           {/* Related Comparisons */}
           {relatedComparisons.length > 0 && (
