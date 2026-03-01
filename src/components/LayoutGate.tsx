@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import ExitIntentModal from "@/components/ExitIntentModal";
 
 export default function LayoutGate({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -25,5 +26,10 @@ export default function LayoutGate({ children }: { children: React.ReactNode }) 
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <ExitIntentModal />
+    </>
+  );
 }

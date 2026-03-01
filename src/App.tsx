@@ -76,6 +76,7 @@ const ComparisonPage = lazy(() => import("./pages/seo/ComparisonPage"));
 const UseCasePage = lazy(() => import("./pages/seo/UseCasePage"));
 const SteelComparisonsHub = lazy(() => import("./pages/seo/SteelComparisonsHub"));
 const IndustrialUseCasesHub = lazy(() => import("./pages/seo/IndustrialUseCasesHub"));
+const CountryComparisonPage = lazy(() => import("./pages/seo/CountryComparisonPage"));
 const AIProcurementVsTraditional = lazy(() => import("./pages/comparisons/AIProcurementVsTraditional"));
 const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMarketplace"));
 
@@ -236,6 +237,7 @@ const BotAwareRouter = () => {
         <Route path="/compare/:slug" element={<ComparisonPage />} />
         <Route path="/industrial-use-cases" element={<IndustrialUseCasesHub />} />
         <Route path="/use-case/:slug" element={<UseCasePage />} />
+        <Route path="/import/:slug" element={<CountryComparisonPage />} />
         
         {/* AEO/GEO How-To & Guide Pages */}
         <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />
