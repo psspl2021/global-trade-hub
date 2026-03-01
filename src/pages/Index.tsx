@@ -650,6 +650,27 @@ const Index = () => {
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
 
+      {/* ===== STEEL INTELLIGENCE HUBS ===== */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Steel Intelligence Hubs</h2>
+          <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <Link to="/steel-comparisons" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
+              Grade Comparisons
+            </Link>
+            <Link to="/industrial-use-cases" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
+              Industrial Use Cases
+            </Link>
+            <Link to="/global-sourcing-countries" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
+              Global Trade Hub
+            </Link>
+            <Link to="/demand" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
+              Live Demand
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ===== SECTION 10: GLOBAL CORRIDORS + FOOTER ===== */}
       <GlobalProcurementCorridors />
       <Footer />

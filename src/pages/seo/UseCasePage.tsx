@@ -14,6 +14,8 @@ import FloatingRFQ from "@/components/FloatingRFQ";
 import AuthorityInsightBlock from "@/components/seo/AuthorityInsightBlock";
 import GeoSourcingBlock from "@/components/seo/GeoSourcingBlock";
 import SteelNetworkFooter from "@/components/seo/SteelNetworkFooter";
+import RevenueLinksBlock from "@/components/seo/RevenueLinksBlock";
+import ScrollDepthTracker from "@/components/seo/ScrollDepthTracker";
 
 const BASE = "https://www.procuresaathi.com";
 
@@ -273,12 +275,16 @@ export default function UseCasePage() {
             </div>
           </section>
 
+          {/* Revenue-Weighted Links */}
+          <RevenueLinksBlock limit={5} />
+
           {/* Steel Intelligence Network */}
           <SteelNetworkFooter />
         </div>
       </main>
 
       <FloatingRFQ />
+      <ScrollDepthTracker />
     </>
   );
 }

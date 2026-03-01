@@ -16,7 +16,7 @@ export default function SteelNetworkFooter() {
         <Link to="/global-sourcing-countries" className="text-sm font-medium text-primary hover:underline">
           Global Sourcing Hub →
         </Link>
-        <Link to="/demand-intelligence" className="text-sm font-medium text-primary hover:underline">
+        <Link to="/demand" className="text-sm font-medium text-primary hover:underline">
           Live Demand Intelligence →
         </Link>
       </div>
