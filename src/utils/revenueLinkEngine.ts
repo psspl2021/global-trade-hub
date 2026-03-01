@@ -1,9 +1,16 @@
-import { getPriorityScore } from "@/data/skuPriority";
+import { getPriorityScore, skuPriorityData } from "@/data/skuPriority";
 import { comparisonPagesData } from "@/data/comparisonPages";
 import { useCasePagesData } from "@/data/useCasePages";
 
 export function getWeightedLinks() {
   const allPages = [
+    // Demand pages are the commercial core — always included with a boost
+    ...skuPriorityData.map(sku => ({
+      slug: sku.slug,
+      demandSlug: sku.slug,
+      url: `/demand/${sku.slug}`,
+      label: sku.slug.replace(/-/g, " "),
+    })),
     ...comparisonPagesData.map(p => ({
       slug: p.slug,
       demandSlug: p.relatedDemandSlug,
