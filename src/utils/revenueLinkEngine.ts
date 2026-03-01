@@ -6,11 +6,13 @@ export function getWeightedLinks() {
   const allPages = [
     ...comparisonPagesData.map(p => ({
       slug: p.slug,
+      demandSlug: p.relatedDemandSlug,
       url: `/compare/${p.slug}`,
       label: `${p.gradeA} vs ${p.gradeB}`,
     })),
     ...useCasePagesData.map(p => ({
       slug: p.slug,
+      demandSlug: p.relatedDemandSlug,
       url: `/use-case/${p.slug}`,
       label: p.title.split("–")[0].trim(),
     })),
@@ -19,7 +21,7 @@ export function getWeightedLinks() {
   return allPages
     .map(p => ({
       ...p,
-      score: getPriorityScore(p.slug),
+      score: getPriorityScore(p.demandSlug),
     }))
     .sort((a, b) => b.score - a.score);
 }
