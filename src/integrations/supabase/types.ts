@@ -2950,6 +2950,54 @@ export type Database = {
         }
         Relationships: []
       }
+      funnel_sessions: {
+        Row: {
+          country_slug: string | null
+          created_at: string
+          cta_click_at: string | null
+          id: string
+          landing_page: string | null
+          rfq_form_view_at: string | null
+          rfq_id: string | null
+          rfq_submit_at: string | null
+          scroll_50_at: string | null
+          session_id: string
+          sku_slug: string | null
+          source_page_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          country_slug?: string | null
+          created_at?: string
+          cta_click_at?: string | null
+          id?: string
+          landing_page?: string | null
+          rfq_form_view_at?: string | null
+          rfq_id?: string | null
+          rfq_submit_at?: string | null
+          scroll_50_at?: string | null
+          session_id: string
+          sku_slug?: string | null
+          source_page_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country_slug?: string | null
+          created_at?: string
+          cta_click_at?: string | null
+          id?: string
+          landing_page?: string | null
+          rfq_form_view_at?: string | null
+          rfq_id?: string | null
+          rfq_submit_at?: string | null
+          scroll_50_at?: string | null
+          session_id?: string
+          sku_slug?: string | null
+          source_page_type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       google_index_queue: {
         Row: {
           created_at: string | null
@@ -3013,6 +3061,45 @@ export type Database = {
           max_credit_days?: number | null
           min_vendor_count?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gsc_striking_distance: {
+        Row: {
+          boosted_at: string | null
+          clicks: number
+          ctr: number | null
+          detected_at: string
+          id: string
+          impressions: number
+          is_active: boolean | null
+          page_slug: string
+          position: number
+          query: string
+        }
+        Insert: {
+          boosted_at?: string | null
+          clicks?: number
+          ctr?: number | null
+          detected_at?: string
+          id?: string
+          impressions?: number
+          is_active?: boolean | null
+          page_slug: string
+          position: number
+          query: string
+        }
+        Update: {
+          boosted_at?: string | null
+          clicks?: number
+          ctr?: number | null
+          detected_at?: string
+          id?: string
+          impressions?: number
+          is_active?: boolean | null
+          page_slug?: string
+          position?: number
+          query?: string
         }
         Relationships: []
       }
@@ -5905,6 +5992,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rfq_revenue_attribution: {
+        Row: {
+          country_slug: string | null
+          created_at: string
+          id: string
+          page_path: string
+          revenue_value: number | null
+          rfq_id: string | null
+          session_id: string | null
+          sku_slug: string | null
+          source_page_type: string
+        }
+        Insert: {
+          country_slug?: string | null
+          created_at?: string
+          id?: string
+          page_path: string
+          revenue_value?: number | null
+          rfq_id?: string | null
+          session_id?: string | null
+          sku_slug?: string | null
+          source_page_type?: string
+        }
+        Update: {
+          country_slug?: string | null
+          created_at?: string
+          id?: string
+          page_path?: string
+          revenue_value?: number | null
+          rfq_id?: string | null
+          session_id?: string | null
+          sku_slug?: string | null
+          source_page_type?: string
+        }
+        Relationships: []
       }
       role_verification_logs: {
         Row: {

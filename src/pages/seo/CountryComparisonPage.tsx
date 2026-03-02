@@ -1,56 +1,25 @@
 import { useParams, Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { strategicCountriesData } from "@/data/strategicCountries";
+import { countryComparisons } from "@/data/countryComparisons";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloatingRFQ from "@/components/FloatingRFQ";
 import SteelNetworkFooter from "@/components/seo/SteelNetworkFooter";
 import RevenueLinksBlock from "@/components/seo/RevenueLinksBlock";
 import TrustStrip from "@/components/seo/TrustStrip";
+import AntiImportSection from "@/components/seo/AntiImportSection";
 
 const BASE = "https://www.procuresaathi.com";
-
-// Data for country comparison — extendable
-const countryComparisonData: Record<string, {
-  slugA: string;
-  slugB: string;
-  priceDelta: string;
-  leadTimeDelta: string;
-  dutyComparison: string;
-  qualityRisk: string;
-  currencyRisk: string;
-  recommendedUseCase: string;
-}> = {
-  "japan-vs-china": {
-    slugA: "japan",
-    slugB: "china",
-    priceDelta: "Japan steel averages 12–18% higher than Chinese equivalents due to premium JIS-grade quality.",
-    leadTimeDelta: "China delivers 15–25 days vs Japan's 20–35 days for similar steel categories.",
-    dutyComparison: "Japan benefits from India-Japan CEPA (0–5% duty on eligible items). China faces anti-dumping duties of 10–30% on select steel categories.",
-    qualityRisk: "Japanese suppliers maintain strict JIS compliance with lower defect rates. Chinese supply requires enhanced QC inspection protocols.",
-    currencyRisk: "JPY is more volatile against INR than CNY. Hedging recommended for orders >₹1Cr from Japan.",
-    recommendedUseCase: "Choose Japan for precision/high-tensile applications (auto, aerospace). Choose China for volume-driven infrastructure procurement.",
-  },
-  "uae-vs-saudi-arabia": {
-    slugA: "uae",
-    slugB: "saudi-arabia",
-    priceDelta: "UAE re-export hub pricing is 3–6% higher than Saudi direct manufacturing prices.",
-    leadTimeDelta: "UAE: 5–7 days transit. Saudi Arabia: 7–12 days transit to Indian west coast.",
-    dutyComparison: "Both benefit from GCC frameworks. UAE has India-UAE CEPA with tariff reductions on 80%+ goods.",
-    qualityRisk: "UAE serves as quality gateway with international certifications. Saudi SABIC products meet global petrochemical standards.",
-    currencyRisk: "Both AED and SAR are pegged to USD, offering currency stability for Indian importers.",
-    recommendedUseCase: "Choose UAE for diversified industrial goods and faster transit. Choose Saudi Arabia for bulk petrochemicals and polymers.",
-  },
-};
 
 export default function CountryComparisonPage() {
   const { slug } = useParams<{ slug: string }>();
 
-  if (!slug || !countryComparisonData[slug]) {
+  if (!slug || !countryComparisons[slug]) {
     return <Navigate to="/global-sourcing-countries" replace />;
   }
 
-  const comparison = countryComparisonData[slug];
+  const comparison = countryComparisons[slug];
   const countryA = strategicCountriesData.find(c => c.slug === comparison.slugA);
   const countryB = strategicCountriesData.find(c => c.slug === comparison.slugB);
 
@@ -91,6 +60,11 @@ export default function CountryComparisonPage() {
     { heading: "Currency Risk", content: comparison.currencyRisk },
     { heading: "Recommended Use Case", content: comparison.recommendedUseCase },
   ];
+
+  // Cross-link to other comparisons
+  const otherComparisons = Object.values(countryComparisons)
+    .filter(c => c.slug !== slug)
+    .slice(0, 4);
 
   return (
     <>
@@ -133,11 +107,42 @@ export default function CountryComparisonPage() {
             ))}
           </div>
 
+          {/* Anti-Import Sections — Decision Intelligence */}
+          <div className="mt-10 space-y-6">
+            <AntiImportSection
+              countryName={countryA.name}
+              reasons={comparison.antiImportA}
+            />
+            <AntiImportSection
+              countryName={countryB.name}
+              reasons={comparison.antiImportB}
+            />
+          </div>
+
           {/* Trust Strip */}
           <TrustStrip />
 
-          {/* Country Links */}
+          {/* Cross-links to other comparisons */}
           <section className="mt-10 rounded-xl border border-border bg-muted/20 p-6">
+            <h2 className="mb-4 text-xl font-semibold text-foreground">More Import Comparisons</h2>
+            <div className="flex flex-wrap gap-3">
+              {otherComparisons.map(c => {
+                const cA = strategicCountriesData.find(s => s.slug === c.slugA);
+                const cB = strategicCountriesData.find(s => s.slug === c.slugB);
+                if (!cA || !cB) return null;
+                return (
+                  <Link key={c.slug} to={`/import/${c.slug}`}>
+                    <Button variant="outline" size="sm" className="gap-1">
+                      {cA.name} vs {cB.name} <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Country Links */}
+          <section className="mt-6 rounded-xl border border-border bg-muted/20 p-6">
             <h2 className="mb-4 text-xl font-semibold text-foreground">Explore Source Countries</h2>
             <div className="flex flex-wrap gap-3">
               <Link to={`/source/${countryA.slug}`}>
