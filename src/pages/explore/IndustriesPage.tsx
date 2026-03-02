@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { industryTaxonomy, getProductBySlug, type IndustryNode } from '@/data/industrialProducts';
 import { ArrowRight, ChevronRight, Layers } from 'lucide-react';
+import { getPriorityScore } from '@/data/skuPriority';
 
 const BASE = 'https://www.procuresaathi.com';
 
@@ -177,7 +178,8 @@ function IndustryDetailPage({ industrySlug }: { industrySlug: string }) {
   const industry = industryTaxonomy.find(i => i.slug === industrySlug);
   if (!industry) return <Navigate to="/industries" replace />;
 
-  const allProducts = industry.children?.flatMap(c => c.productSlugs || []) || industry.productSlugs || [];
+  const allProducts = [...(industry.children?.flatMap(c => c.productSlugs || []) || industry.productSlugs || [])]
+    .sort((a, b) => getPriorityScore(b) - getPriorityScore(a));
   const canonical = `${BASE}/industries/${industry.slug}`;
 
   const breadcrumbItems = [
@@ -271,7 +273,8 @@ function SubIndustryDetailPage({ industrySlug, subIndustrySlug }: { industrySlug
   if (!subIndustry) return <Navigate to={`/industries/${industrySlug}`} replace />;
 
   const canonical = `${BASE}/industries/${industrySlug}/${subIndustrySlug}`;
-  const productSlugs = subIndustry.productSlugs || [];
+  const productSlugs = [...(subIndustry.productSlugs || [])]
+    .sort((a, b) => getPriorityScore(b) - getPriorityScore(a));
 
   const breadcrumbItems = [
     { name: 'Home', url: `${BASE}/` },

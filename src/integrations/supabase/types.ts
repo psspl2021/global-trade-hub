@@ -8815,6 +8815,16 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_revenue_dashboard: {
+        Row: {
+          country_slug: string | null
+          rfq_count: number | null
+          sku_slug: string | null
+          source_page_type: string | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
       supplier_deal_closures: {
         Row: {
           bid_id: string | null

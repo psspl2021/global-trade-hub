@@ -314,13 +314,38 @@ async function fetchCountriesForExplore(): Promise<{ iso_code: string; region: s
   }
 }
 
+// Fetch revenue scores for dynamic sitemap priority
+async function fetchRevenueScores(): Promise<Map<string, number>> {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data, error } = await supabase
+      .from('seo_revenue_dashboard')
+      .select('sku_slug, total_revenue');
+
+    if (error || !data) return new Map();
+
+    const scores = new Map<string, number>();
+    for (const row of data) {
+      if (!row.sku_slug) continue;
+      scores.set(row.sku_slug, (scores.get(row.sku_slug) || 0) + (row.total_revenue || 0));
+    }
+    return scores;
+  } catch {
+    return new Map();
+  }
+}
+
 async function generateSitemap(): Promise<string> {
   const today = new Date().toISOString().split('T')[0];
-  const [blogPosts, dynamicSignalPages, seoDemandPages, exploreCountries] = await Promise.all([
+  const [blogPosts, dynamicSignalPages, seoDemandPages, exploreCountries, revenueScores] = await Promise.all([
     fetchBlogPosts(),
     fetchDynamicSignalPages(),
     fetchSeoDemandPages(),
     fetchCountriesForExplore(),
+    fetchRevenueScores(),
   ]);
   
   // Build a set of already-included signal slugs to avoid duplicates
@@ -502,9 +527,19 @@ async function generateSitemap(): Promise<string> {
   }
 
   // SEO demand pages - /demand/:slug (excluding priority corridors to avoid duplicates)
+  // Revenue-weighted priority: pages with revenue data get boosted priority (0.5-1.0 scale)
+  const maxRevenue = Math.max(...[...revenueScores.values()], 1);
   for (const page of seoDemandPages) {
     if (prioritySet.has(page.slug)) continue;
-    const priority = (page.intent_weight || 50) > 70 ? 0.9 : 0.6;
+    const revenueScore = revenueScores.get(page.slug) || 0;
+    let priority: number;
+    if (revenueScore > 0) {
+      // Revenue-weighted: scale from 0.6 to 0.95 based on relative revenue
+      priority = Math.round((0.6 + (revenueScore / maxRevenue) * 0.35) * 100) / 100;
+    } else {
+      // Fallback to intent weight
+      priority = (page.intent_weight || 50) > 70 ? 0.9 : 0.6;
+    }
     xml += `  <url>
     <loc>${baseUrl}/demand/${page.slug}</loc>
     <lastmod>${today}</lastmod>
