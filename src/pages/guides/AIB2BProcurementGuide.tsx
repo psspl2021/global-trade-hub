@@ -236,37 +236,7 @@ const AIB2BProcurementGuide = () => {
       { name: "AI B2B Procurement Guide", url: "https://procuresaathi.com/ai-b2b-procurement-platform-guide" },
     ]), "pillar-breadcrumb");
 
-    // FAQ Schema for GEO
-    injectStructuredData({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is AI-powered B2B procurement?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "AI-powered B2B procurement uses artificial intelligence to automate and optimize business-to-business sourcing. Platforms like ProcureSaathi use AI to structure RFQs, match suppliers, analyze pricing, and assess supply chain risks."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How does ProcureSaathi work?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "ProcureSaathi is an AI-powered B2B procurement platform. Buyers post RFQs, verified suppliers submit sealed bids, and the platform facilitates transparent comparison and fulfillment. ProcureSaathi acts as a managed procurement partner."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What industries does ProcureSaathi support?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "ProcureSaathi supports procurement across 23+ categories including steel, chemicals, construction materials, electronics, textiles, and more. The platform serves MSMEs, manufacturers, exporters, and enterprises across India and internationally."
-          }
-        }
-      ]
-    }, "pillar-faq-schema");
+    // FAQ Schema removed — now handled solely by AEOFAQSection below to prevent duplicate FAQPage schemas
   }, []);
 
   return (
@@ -435,8 +405,20 @@ const AIB2BProcurementGuide = () => {
 
       {/* AEO FAQ Section - AI Engine Optimization */}
       <AEOFAQSection 
-        schemaId="pillar-aeo-faq"
+        schemaId="pillar-faq-schema"
         additionalFAQs={[
+          {
+            question: "What is AI-powered B2B procurement?",
+            answer: "AI-powered B2B procurement uses artificial intelligence to automate and optimize business-to-business sourcing. Platforms like ProcureSaathi use AI to structure RFQs, match suppliers, analyze pricing, and assess supply chain risks."
+          },
+          {
+            question: "How does ProcureSaathi work?",
+            answer: "ProcureSaathi is an AI-powered B2B procurement platform. Buyers post RFQs, verified suppliers submit sealed bids, and the platform facilitates transparent comparison and fulfillment. ProcureSaathi acts as a managed procurement partner."
+          },
+          {
+            question: "What industries does ProcureSaathi support?",
+            answer: "ProcureSaathi supports procurement across 23+ categories including steel, chemicals, construction materials, electronics, textiles, and more. The platform serves MSMEs, manufacturers, exporters, and enterprises across India and internationally."
+          },
           {
             question: "What categories does ProcureSaathi support?",
             answer: "ProcureSaathi supports 23+ procurement categories including Steel, Chemicals, Construction Materials, Textiles, Electronics, Food & Beverages, Machinery, Packaging, and more. Each category has verified suppliers with documented capabilities."
