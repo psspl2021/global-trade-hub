@@ -25,6 +25,7 @@ import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSect
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { Footer } from '@/components/landing/Footer';
 import { GlobalProcurementCorridors } from '@/components/GlobalProcurementCorridors';
+import HighDemandSection from '@/components/landing/HighDemandSection';
 
 // Lazy load below-the-fold components
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -313,6 +314,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* ===== HIGH DEMAND SECTION (Revenue-Weighted) ===== */}
+        <HighDemandSection />
 
         {/* ===== SECTION 3: LIVE BUYER DEMAND SECTION ===== */}
         <LiveBuyerDemandSection />
