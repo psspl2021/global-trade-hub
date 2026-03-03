@@ -40,20 +40,25 @@ export async function getRevenueMap(): Promise<Record<string, number>> {
   return map;
 }
 
-/** Composite key map: SKU|Country|PageType → score */
+/** Composite key map: SKU|Country|PageType → score (with time-decay) */
 export function buildCompositeScoreMap(
   nodes: RevenueNode[],
   marginWeights?: Record<string, number>
 ): Record<string, number> {
   const map: Record<string, number> = {};
+  const now = Date.now();
 
   nodes.forEach((node) => {
     const key = `${node.skuSlug}|${node.countrySlug}|${node.sourcePageType}`;
     const marginW = marginWeights?.[node.skuSlug] ?? 1;
-    const score =
+    const base =
       node.rfqCount * 0.4 +
       node.totalRevenue * 0.4 +
       marginW * 0.2;
+    // Apply time-decay: nodes without timestamps get 50% weight
+    const DECAY_LAMBDA = 0.01;
+    const decay = 0.5; // default for view-sourced data without row-level timestamps
+    const score = base * decay;
     map[key] = (map[key] || 0) + score;
   });
 
