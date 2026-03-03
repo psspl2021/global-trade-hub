@@ -2,6 +2,7 @@ import { getPriorityScore, skuPriorityData } from "@/data/skuPriority";
 import { comparisonPagesData } from "@/data/comparisonPages";
 import { useCasePagesData } from "@/data/useCasePages";
 import { generateAllImportSlugs } from "@/utils/corridorLinkEngine";
+import { createDampeningTracker } from "@/utils/revenueDynamicEngine";
 
 export function getWeightedLinks() {
   const allPages = [
@@ -35,10 +36,18 @@ export function getWeightedLinks() {
     })),
   ];
 
+  // Score and apply authority dampening by demandSlug
+  const tracker = createDampeningTracker();
+
   return allPages
     .map(p => ({
       ...p,
-      score: getPriorityScore(p.demandSlug),
+      rawScore: getPriorityScore(p.demandSlug),
+    }))
+    .sort((a, b) => b.rawScore - a.rawScore)
+    .map(p => ({
+      ...p,
+      score: tracker.apply(p.demandSlug, p.rawScore),
     }))
     .sort((a, b) => b.score - a.score);
 }
