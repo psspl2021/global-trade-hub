@@ -1459,6 +1459,216 @@ Valve certification typically includes material test certificates (EN 10204 3.1)
     hsnCodes: ['8481'],
     standards: ['API 600', 'API 602', 'API 608', 'API 609', 'IS 14846', 'ASME B16.34'],
     isActivated: true
+  },
+
+  // ─── PP GRANULES ──────────────────────────────────────────────
+  {
+    slug: 'pp-granules-india',
+    name: 'PP Granules',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Polymers',
+    industrySlug: 'polymers',
+    subIndustry: 'Commodity Resins',
+    subIndustrySlug: 'resins',
+    h1: 'Buy PP Granules in India — AI Verified Suppliers & Live Pricing',
+    metaTitle: 'Buy PP Granules in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
+    metaDescription: 'Source Polypropylene (PP) granules from AI-verified Indian petrochemical producers. Homopolymer, copolymer, and raffia grades with managed procurement.',
+    introText: 'Polypropylene (PP) is India\'s second-largest commodity polymer by volume, consumed across packaging, automotive, textiles, and household products.',
+    heroImage: '/images/products/pp-granules.webp',
+    heroImageAlt: 'Polypropylene PP granules in industrial packaging',
+    sections: {
+      whatIs: 'Polypropylene (PP) is a semi-crystalline thermoplastic polymer produced by polymerisation of propylene monomer. It is classified into homopolymer (highest stiffness), random copolymer (transparency), and impact copolymer (toughness) grades. India produces approximately 5 million MT of PP annually, led by Reliance Industries, IOCL, and HPCL-Mittal Energy.',
+      grades: 'PP grades are specified by MFI (Melt Flow Index), copolymer type, and additive package. Common grades include Repol (Reliance), Koylene (IOCL), and M110 (HMEL). MFI ranges from 0.5 (blow moulding) to 35+ (fibre/injection moulding).',
+      specifications: 'Density: 0.900–0.910 g/cm³. MFI: 0.3–35 g/10min. Packaging: 25 kg bags on pallets or 1 MT jumbo bags. BIS IS 10910 for moulded products.',
+      applications: 'BOPP films for flexible packaging, woven sacks for cement/fertilizer, automotive components (bumpers, interior trim), household products, non-woven fabrics for medical and hygiene, and industrial containers.',
+      marketTrends: 'India\'s PP demand is growing at 8–10% CAGR driven by FMCG packaging, automotive lightweighting, and infrastructure (FIBC/woven sacks). New cracker capacity from HPCL Rajasthan and BPCL Kochi will add 2+ MTPA by 2027.',
+      procurementChallenges: 'Grade-specific availability varies by producer cycle. Price volatility linked to crude oil and propylene margins. Distributor markups of ₹2,000–₹5,000/MT over producer list price.',
+      pricingFactors: 'PP pricing follows monthly producer price announcements by Reliance and IOCL. Key drivers: crude oil prices, naphtha/propylene margins, import parity (Middle East, Southeast Asia), and seasonal demand patterns.'
+    },
+    faqs: [
+      { question: 'What is PP granule price per kg in India?', answer: 'PP granule prices in India typically range from ₹95–₹135 per kg depending on grade and quantity.' },
+    ],
+    demandIntelligence: { intentScore: 72, confidencePercent: 68, recentRFQs: 45, avgDealSize: '₹15–₹40 Lakh', corridors: ['India domestic', 'Middle East → India'] },
+    relatedProducts: ['hdpe-granules-india', 'pvc-resin-india', 'abs-granules-india'],
+    hsnCodes: ['3902'],
+    standards: ['IS 10910', 'ASTM D4101'],
+    isActivated: true
+  },
+
+  // ─── PVC RESIN ──────────────────────────────────────────────
+  {
+    slug: 'pvc-resin-india',
+    name: 'PVC Resin',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Polymers',
+    industrySlug: 'polymers',
+    subIndustry: 'Commodity Resins',
+    subIndustrySlug: 'resins',
+    h1: 'Buy PVC Resin in India — AI Verified Suppliers & Live Pricing',
+    metaTitle: 'Buy PVC Resin in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
+    metaDescription: 'Source PVC Resin from AI-verified Indian producers. Suspension and emulsion grades for pipes, fittings, profiles, and cables.',
+    introText: 'PVC (Polyvinyl Chloride) resin is India\'s third-largest commodity polymer, primarily consumed in pipe manufacturing, construction profiles, cables, and flooring.',
+    heroImage: '/images/products/pvc-resin.webp',
+    heroImageAlt: 'PVC resin granules for industrial pipe manufacturing',
+    sections: {
+      whatIs: 'PVC resin is a thermoplastic polymer produced from vinyl chloride monomer (VCM) through suspension or emulsion polymerisation. India produces approximately 1.8 million MT of PVC annually, with significant imports.',
+      grades: 'PVC resin grades are specified by K-value. K-67 and K-68 are standard pipe grades. K-65 for rigid profiles. K-70+ for flexible applications.',
+      specifications: 'K-value: 57–73. Bulk density: 0.45–0.60 g/ml. Particle size: 100–250 microns. Packaging: 25 kg bags or 1 MT bags.',
+      applications: 'PVC pipes (60%+ of Indian PVC consumption) for water supply, sewage, and drainage. Window profiles and door frames. Electrical cable insulation and sheathing.',
+      marketTrends: 'India\'s PVC demand is growing at 7–9% annually driven by Jal Jeevan Mission and Smart Cities Mission. India imports 40–50% of its PVC requirement.',
+      procurementChallenges: 'Import dependence creates price volatility. Grade-specific K-value matching is critical for pipe extrusion. Anti-dumping duties on Chinese PVC affect import economics.',
+      pricingFactors: 'PVC pricing driven by import parity, domestic producer pricing, and ethylene/VCM costs. Current range: ₹70,000–₹95,000/MT.'
+    },
+    faqs: [
+      { question: 'What is PVC resin price per kg in India?', answer: 'PVC resin prices range from ₹70–₹95 per kg depending on K-value, source, and order quantity.' },
+    ],
+    demandIntelligence: { intentScore: 68, confidencePercent: 65, recentRFQs: 38, avgDealSize: '₹20–₹50 Lakh', corridors: ['China → India', 'US → India'] },
+    relatedProducts: ['hdpe-granules-india', 'pp-granules-india'],
+    hsnCodes: ['3904'],
+    standards: ['IS 4985', 'IS 12818', 'ASTM D1784'],
+    isActivated: true
+  },
+
+  // ─── ABS GRANULES ──────────────────────────────────────────────
+  {
+    slug: 'abs-granules-india',
+    name: 'ABS Granules',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Polymers',
+    industrySlug: 'polymers',
+    subIndustry: 'Engineering Polymers',
+    subIndustrySlug: 'engineering',
+    h1: 'Buy ABS Granules in India — AI Verified Suppliers & Live Pricing',
+    metaTitle: 'Buy ABS Granules in India — AI Verified Suppliers & Live Pricing | ProcureSaathi',
+    metaDescription: 'Source ABS granules from AI-verified suppliers. Injection moulding and extrusion grades for automotive, electronics, and appliances.',
+    introText: 'ABS is a versatile engineering thermoplastic combining strength, toughness, and processability for automotive, electronics, and appliance applications.',
+    heroImage: '/images/products/abs-granules.webp',
+    heroImageAlt: 'ABS granules for automotive and electronics manufacturing',
+    sections: {
+      whatIs: 'ABS (Acrylonitrile Butadiene Styrene) is an opaque engineering thermoplastic. India imports 80%+ of its ABS requirement, primarily from South Korea, Taiwan, and Thailand.',
+      grades: 'ABS grades vary by impact strength, heat resistance, flow, and specialty properties (plating grade, flame retardant, UV stabilised). MFI ranges from 5–50 g/10min.',
+      specifications: 'Density: 1.04–1.07 g/cm³. MFI: 5–50 g/10min. Izod impact: 15–45 kJ/m². HDT: 85–115°C.',
+      applications: 'Automotive interior/exterior components, consumer electronics housings, home appliances, luggage, and consumer products.',
+      marketTrends: 'India\'s ABS consumption is growing at 10–12% annually, driven by automotive and electronics manufacturing growth.',
+      procurementChallenges: 'Import-dependent market with long lead times (4–8 weeks). Grade proliferation requires precise specification matching.',
+      pricingFactors: 'ABS pricing driven by monomer costs (acrylonitrile, butadiene, styrene), import freight, and customs duty. Range: ₹140–₹200/kg.'
+    },
+    faqs: [
+      { question: 'What is ABS granule price per kg in India?', answer: 'ABS granule prices range from ₹140–₹200 per kg depending on grade, source, and quantity.' },
+    ],
+    demandIntelligence: { intentScore: 55, confidencePercent: 60, recentRFQs: 18, avgDealSize: '₹10–₹25 Lakh', corridors: ['South Korea → India', 'Taiwan → India'] },
+    relatedProducts: ['pp-granules-india', 'hdpe-granules-india'],
+    hsnCodes: ['3903'],
+    standards: ['ASTM D4673'],
+    isActivated: true
+  },
+
+  // ─── FERRO MANGANESE ──────────────────────────────────────────────
+  {
+    slug: 'ferro-manganese-india',
+    name: 'Ferro Manganese',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Metals',
+    industrySlug: 'metals',
+    subIndustry: 'Ferro Alloys',
+    subIndustrySlug: 'ferro-alloys',
+    h1: 'Buy Ferro Manganese in India — AI Verified Suppliers & Live Pricing',
+    metaTitle: 'Buy Ferro Manganese in India — AI Verified Suppliers | ProcureSaathi',
+    metaDescription: 'Source ferro manganese (HC/MC/LC FeMn) from AI-verified Indian producers for steelmaking applications.',
+    introText: 'Ferro Manganese is an essential ferro alloy used as a deoxidizer and alloying agent in steelmaking. India is among the top global producers.',
+    heroImage: '/images/products/ferro-manganese.webp',
+    heroImageAlt: 'Ferro manganese lumps for steelmaking',
+    sections: {
+      whatIs: 'Ferro Manganese (FeMn) is an iron-manganese alloy containing 65–82% manganese, used primarily as a deoxidizer and alloying agent in steel production.',
+      grades: 'HC FeMn: 65–75% Mn, 6–8% C. MC FeMn: 75–82% Mn, 1.0–1.5% C. LC FeMn: 75–85% Mn, <0.5% C.',
+      specifications: 'Mn: 65–85%. C: <0.5% to 8%. Si: <1.5%. P: <0.35%. Lump size: 10–100mm. Packaging: 1 MT jumbo bags.',
+      applications: 'Steel deoxidation, alloy steel production, railway track steel, welding electrode manufacturing.',
+      marketTrends: 'India produces ~1.5 million MT of FeMn annually with significant exports to Japan and South Korea.',
+      procurementChallenges: 'Quality variation between producers. Electricity cost fluctuations affect production economics.',
+      pricingFactors: 'FeMn: ₹65,000–₹110,000/MT depending on grade (HC/MC/LC) and Mn content.'
+    },
+    faqs: [
+      { question: 'What is ferro manganese used for?', answer: 'Ferro manganese is used as a deoxidizer and desulfurizer in steelmaking, adding manganese to improve strength and wear resistance.' },
+    ],
+    demandIntelligence: { intentScore: 58, confidencePercent: 62, recentRFQs: 22, avgDealSize: '₹15–₹40 Lakh', corridors: ['India domestic', 'India → Japan'] },
+    relatedProducts: ['ferro-silicon-india', 'ferro-chrome-india'],
+    hsnCodes: ['7202'],
+    standards: ['IS 1462'],
+    isActivated: true
+  },
+
+  // ─── FERRO SILICON ──────────────────────────────────────────────
+  {
+    slug: 'ferro-silicon-india',
+    name: 'Ferro Silicon',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Metals',
+    industrySlug: 'metals',
+    subIndustry: 'Ferro Alloys',
+    subIndustrySlug: 'ferro-alloys',
+    h1: 'Buy Ferro Silicon in India — AI Verified Suppliers & Live Pricing',
+    metaTitle: 'Buy Ferro Silicon in India — AI Verified Suppliers | ProcureSaathi',
+    metaDescription: 'Source ferro silicon (FeSi 65/75) from AI-verified Indian producers for steel and foundry applications.',
+    introText: 'Ferro Silicon is a primary deoxidizer used in steel and iron foundry production. India is a significant producer and exporter.',
+    heroImage: '/images/products/ferro-silicon.webp',
+    heroImageAlt: 'Ferro silicon lumps for steelmaking and foundry',
+    sections: {
+      whatIs: 'Ferro Silicon (FeSi) is an iron-silicon alloy containing 15–90% silicon, produced in electric arc furnaces from quartz, coke, and iron.',
+      grades: 'FeSi 75%: Premium deoxidation grade. FeSi 65%: Standard steelmaking grade. FeSi 45%: Foundry grade. Inoculant grades for ladle addition.',
+      specifications: 'Si: 65–78%. Al: <1.5%. C: <0.1%. Lump size: 10–60mm. Packaging: 1 MT jumbo bags.',
+      applications: 'Steel deoxidation, cast iron inoculation, silicon steel production, ferrosilicon magnesium for ductile iron.',
+      marketTrends: 'India produces ~600,000 MT of FeSi annually with growing export demand.',
+      procurementChallenges: 'Silicon content consistency. Aluminium impurity control. Electricity cost volatility.',
+      pricingFactors: 'FeSi: ₹80,000–₹130,000/MT depending on Si content and aluminium level.'
+    },
+    faqs: [
+      { question: 'What is ferro silicon used for?', answer: 'Ferro silicon is the primary deoxidizer in steelmaking, removing dissolved oxygen to improve steel quality.' },
+    ],
+    demandIntelligence: { intentScore: 52, confidencePercent: 58, recentRFQs: 18, avgDealSize: '₹10–₹30 Lakh', corridors: ['India domestic', 'India → UAE'] },
+    relatedProducts: ['ferro-manganese-india', 'ferro-chrome-india'],
+    hsnCodes: ['7202'],
+    standards: ['IS 1570'],
+    isActivated: true
+  },
+
+  // ─── FERRO CHROME ──────────────────────────────────────────────
+  {
+    slug: 'ferro-chrome-india',
+    name: 'Ferro Chrome',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Metals',
+    industrySlug: 'metals',
+    subIndustry: 'Ferro Alloys',
+    subIndustrySlug: 'ferro-alloys',
+    h1: 'Buy Ferro Chrome in India — AI Verified Suppliers & Live Pricing',
+    metaTitle: 'Buy Ferro Chrome in India — AI Verified Suppliers | ProcureSaathi',
+    metaDescription: 'Source ferro chrome (HC FeCr) from AI-verified Indian producers. Essential for stainless steel production.',
+    introText: 'Ferro Chrome is an essential alloy for stainless steel production, providing chromium content for corrosion resistance. India is among the top global producers.',
+    heroImage: '/images/products/ferro-chrome.webp',
+    heroImageAlt: 'Ferro chrome lumps for stainless steel production',
+    sections: {
+      whatIs: 'Ferro Chrome (FeCr) is an iron-chromium alloy containing 50–72% chromium, produced from chromite ore in submerged arc furnaces.',
+      grades: 'HC FeCr: 60–72% Cr, 6–8% C. Charge Chrome: 50–55% Cr. LC FeCr: 60–72% Cr, <0.1% C.',
+      specifications: 'Cr: 50–72%. C: <0.1% to 8%. Lump size: 10–150mm. Packaging: 1 MT bulk bags.',
+      applications: 'Stainless steel production (80%+ of FeCr consumption), heat-resistant alloys, welding electrodes.',
+      marketTrends: 'India produces ~1.2 million MT of FeCr annually. Major producers include IMFA, Balasore Alloys, and Tata Steel.',
+      procurementChallenges: 'Cr content and carbon grade specification critical. Electricity costs create regional pricing variation.',
+      pricingFactors: 'FeCr: ₹85,000–₹140,000/MT depending on Cr content and carbon grade.'
+    },
+    faqs: [
+      { question: 'Why is ferro chrome important for stainless steel?', answer: 'Ferro chrome provides the chromium content (minimum 10.5%) that gives stainless steel its corrosion resistance.' },
+    ],
+    demandIntelligence: { intentScore: 48, confidencePercent: 55, recentRFQs: 12, avgDealSize: '₹20–₹60 Lakh', corridors: ['India domestic', 'India → China'] },
+    relatedProducts: ['ferro-manganese-india', 'ferro-silicon-india'],
+    hsnCodes: ['7202'],
+    standards: ['IS 1559'],
+    isActivated: true
   }
 ];
 
@@ -1566,6 +1776,25 @@ export const industryTaxonomy: IndustryNode[] = [
         productSlugs: ['ms-plates-india', 'tmt-bars-india', 'hr-coil-india', 'cr-coil-india', 'structural-steel-india', 'gi-pipes-india']
       },
       {
+        slug: 'ferro-alloys',
+        name: 'Ferro Alloys',
+        h1: 'Ferro Alloy Suppliers in India — Ferro Manganese, Ferro Silicon & Ferro Chrome',
+        description: 'Ferro alloys are essential metallic additives used in steelmaking and foundry operations. India is one of the world\'s largest ferro alloy producers, with key clusters in Odisha, Chhattisgarh, and Andhra Pradesh serving both domestic steel mills and export markets.',
+        metaTitle: 'Ferro Alloys Procurement — AI Verified Suppliers | ProcureSaathi',
+        metaDescription: 'Source ferro manganese, ferro silicon, and ferro chrome from AI-verified Indian producers. Managed procurement for steelmaking and foundry applications.',
+        authoritySections: [
+          {
+            heading: 'What are Ferro Alloys?',
+            content: 'Ferro alloys are iron-based alloys containing a high proportion of one or more additional elements such as manganese, silicon, chromium, vanadium, tungsten, or molybdenum. They are primarily used as deoxidizers and alloying agents in steelmaking. India produces over 3 million MT of ferro alloys annually, ranking among the top five global producers.\n\nThe three major ferro alloys by volume are ferro manganese (FeMn), ferro silicon (FeSi), and ferro chrome (FeCr). These are consumed by integrated steel plants and electric arc furnace (EAF) operations to achieve required alloy composition and mechanical properties in finished steel products.'
+          },
+          {
+            heading: 'Applications & Market Dynamics',
+            content: '**Ferro Manganese (FeMn):** Used as a deoxidizer and desulfurizer in steelmaking. High-carbon FeMn (HC FeMn with 6–8% carbon) is the most traded grade. Medium-carbon (MC FeMn) and low-carbon (LC FeMn) grades serve specialty steel applications. India\'s FeMn production is concentrated in Odisha and Chhattisgarh, close to manganese ore deposits.\n\n**Ferro Silicon (FeSi):** Primary deoxidizer for steel and cast iron production. Standard grades are FeSi 65% and FeSi 75%. Also used in silicon steel (CRGO/CRNGO) for transformer cores and in foundry applications for grey iron casting. India exports significant FeSi volumes to Middle East and Southeast Asian steel mills.\n\n**Ferro Chrome (FeCr):** Essential for stainless steel production, providing chromium content for corrosion resistance. High-carbon FeCr is the dominant grade. India\'s FeCr production benefits from large chromite ore reserves in Odisha, making it a cost-competitive global supplier.\n\nProcureSaathi enables grade-specific ferro alloy procurement with verified chemical composition, lump size specifications, and delivery to steel mills across India.'
+          }
+        ],
+        productSlugs: ['ferro-manganese-india', 'ferro-silicon-india', 'ferro-chrome-india']
+      },
+      {
         slug: 'non-ferrous',
         name: 'Non-Ferrous Metals',
         h1: 'Non-Ferrous Metal Suppliers in India — Aluminium, Copper & Zinc',
@@ -1641,7 +1870,26 @@ export const industryTaxonomy: IndustryNode[] = [
             content: 'Effective commodity resin procurement requires precise grade specification. Each resin family contains dozens of grades optimised for specific processing methods and end applications:\n\n**HDPE Grades:** Pipe grades (PE 80, PE 100) with high ESCR and slow crack growth resistance. Blow moulding grades for containers and drums. Film grades for carry bags and liners. Injection moulding grades for crates and household products.\n\n**PP Grades:** Homopolymer grades for BOPP film, raffia, and injection moulding. Random copolymer grades for transparent containers and medical packaging. Impact copolymer grades for automotive and appliance applications.\n\n**PVC Grades:** Suspension K-67 and K-68 grades for pipe manufacturing. K-65 grades for rigid profiles and fittings. Emulsion grades for paste applications (flooring, leather cloth).\n\nProcureSaathi\'s managed procurement system matches buyer requirements with verified grades, ensuring correct MFI, density, and additive specifications for each application.'
           }
         ],
-        productSlugs: ['hdpe-granules-india']
+        productSlugs: ['hdpe-granules-india', 'pp-granules-india', 'pvc-resin-india']
+      },
+      {
+        slug: 'engineering',
+        name: 'Engineering Polymers',
+        h1: 'Engineering Polymer Suppliers in India — ABS, Nylon, Polycarbonate',
+        description: 'Engineering polymers are high-performance thermoplastics used in automotive, electronics, appliances, and industrial applications where superior mechanical, thermal, and chemical properties are required beyond commodity resins.',
+        metaTitle: 'Engineering Polymers Procurement — ABS, Nylon, PC | ProcureSaathi',
+        metaDescription: 'Source ABS, nylon, polycarbonate, and specialty engineering plastics from AI-verified Indian compounders. Grade-specific procurement with competitive pricing.',
+        authoritySections: [
+          {
+            heading: 'What are Engineering Polymers?',
+            content: 'Engineering polymers — also called engineering plastics — are thermoplastic materials that exhibit superior mechanical strength, thermal stability, chemical resistance, and dimensional precision compared to commodity resins like PE, PP, and PVC. Key engineering polymers include ABS (Acrylonitrile Butadiene Styrene), nylon (PA6/PA66), polycarbonate (PC), POM (polyacetal), PBT, and their alloys/blends.\n\nIndia\'s engineering polymer consumption is growing at 12–15% annually, driven by automotive lightweighting, electronics manufacturing, appliance production, and industrial component demand. Major suppliers include INEOS Styrolution (ABS), SABIC, LG Chem, Covestro (PC), and domestic compounders.'
+          },
+          {
+            heading: 'Key Products & Applications',
+            content: '**ABS (Acrylonitrile Butadiene Styrene):** Used for automotive dashboard and interior trim, electronic housings, appliance bodies, luggage, and LEGO-type consumer products. Standard grades (MFI 15–25) for injection moulding dominate procurement volume.\n\n**Nylon (PA6/PA66):** Used for automotive under-hood components, gears, bearings, cable ties, and industrial wear parts. Glass-filled grades (15–50% GF) provide enhanced stiffness and heat resistance.\n\n**Polycarbonate (PC):** Transparent engineering plastic for automotive headlamp lenses, safety helmets, electronic device housings, and medical equipment. Optical-grade PC requires strict quality control.\n\nProcureSaathi facilitates grade-specific procurement with verified MFI, impact strength, and additive specifications for engineering polymer applications.'
+          }
+        ],
+        productSlugs: ['abs-granules-india']
       }
     ]
   },

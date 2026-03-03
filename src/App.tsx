@@ -77,6 +77,7 @@ const UseCasePage = lazy(() => import("./pages/seo/UseCasePage"));
 const SteelComparisonsHub = lazy(() => import("./pages/seo/SteelComparisonsHub"));
 const IndustrialUseCasesHub = lazy(() => import("./pages/seo/IndustrialUseCasesHub"));
 const CountryComparisonPage = lazy(() => import("./pages/seo/CountryComparisonPage"));
+const TransactionalImportPage = lazy(() => import("./pages/seo/TransactionalImportPage"));
 const AIProcurementVsTraditional = lazy(() => import("./pages/comparisons/AIProcurementVsTraditional"));
 const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMarketplace"));
 
@@ -114,6 +115,16 @@ const GeoSingapore = lazy(() => import("./pages/geo/GeoSingapore"));
 const CategoriesRedirect = () => {
   const { slug } = useParams();
   return <Navigate to={`/category/${slug}`} replace />;
+};
+
+// Import route resolver — checks if slug is a transactional corridor or country comparison
+const ImportRouteResolver = () => {
+  const { slug } = useParams();
+  // Transactional import pages use "-from-" pattern
+  if (slug?.includes("-from-")) {
+    return <TransactionalImportPage />;
+  }
+  return <CountryComparisonPage />;
 };
 
 // Strategic countries that keep standalone /source/:country pages
@@ -239,7 +250,7 @@ const BotAwareRouter = () => {
         <Route path="/compare/:slug" element={<ComparisonPage />} />
         <Route path="/industrial-use-cases" element={<IndustrialUseCasesHub />} />
         <Route path="/use-case/:slug" element={<UseCasePage />} />
-        <Route path="/import/:slug" element={<CountryComparisonPage />} />
+        <Route path="/import/:slug" element={<ImportRouteResolver />} />
         
         {/* AEO/GEO How-To & Guide Pages */}
         <Route path="/how-to-post-rfq-online" element={<HowToPostRFQ />} />

@@ -549,6 +549,63 @@ async function generateSitemap(): Promise<string> {
 `;
   }
 
+  // Transactional import corridor pages with revenue weighting
+  const importCorridorPages = [
+    'ms-plates-india-from-japan',
+    'ms-plates-india-from-china',
+    'hr-coil-india-from-indonesia',
+    'tmt-bars-india-from-vietnam',
+    'structural-steel-india-from-japan',
+  ];
+
+  for (const slug of importCorridorPages) {
+    // Extract SKU slug from corridor slug for revenue lookup
+    const skuSlug = slug.split('-from-')[0];
+    const revenueScore = revenueScores.get(skuSlug) || 0;
+    const priority = revenueScore > 0
+      ? Math.round((0.6 + (revenueScore / maxRevenue) * 0.35) * 100) / 100
+      : 0.8;
+    xml += `  <url>
+    <loc>${baseUrl}/import/${slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${priority}</priority>
+  </url>
+`;
+  }
+
+  // Use-case pages with revenue weighting
+  const useCasePages = [
+    { slug: 'tmt-bars-for-epc-projects', skuSlug: 'tmt-bars-india' },
+    { slug: 'structural-steel-for-industrial-sheds', skuSlug: 'structural-steel-india' },
+    { slug: 'hr-coil-for-export-manufacturing', skuSlug: 'hr-coil-india' },
+    { slug: 'ms-plates-for-heavy-fabrication', skuSlug: 'ms-plates-india' },
+    { slug: 'steel-pipes-for-oil-gas-projects', skuSlug: 'structural-steel-india' },
+    { slug: 'steel-for-high-rise-buildings', skuSlug: 'structural-steel-india' },
+    { slug: 'structural-steel-for-warehouses', skuSlug: 'structural-steel-india' },
+    { slug: 'tmt-bars-for-seismic-zones', skuSlug: 'tmt-bars-india' },
+    { slug: 'hr-coil-for-automotive-manufacturing', skuSlug: 'hr-coil-india' },
+    { slug: 'ms-plates-for-infrastructure-projects', skuSlug: 'ms-plates-india' },
+  ];
+
+  // Deduplicate: only add use-case URLs not already in static pages
+  const existingUrls = new Set(staticPages.map(p => p.url));
+  for (const uc of useCasePages) {
+    const ucUrl = `/use-case/${uc.slug}`;
+    if (existingUrls.has(ucUrl)) continue;
+    const revenueScore = revenueScores.get(uc.skuSlug) || 0;
+    const priority = revenueScore > 0
+      ? Math.round((0.6 + (revenueScore / maxRevenue) * 0.35) * 100) / 100
+      : 0.8;
+    xml += `  <url>
+    <loc>${baseUrl}${ucUrl}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${priority}</priority>
+  </url>
+`;
+  }
+
   // NOTE: Mass 6,000+ country-category combos removed.
   // Only priority corridors + DB-registered demand pages are indexed.
 
