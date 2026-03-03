@@ -1,11 +1,12 @@
 /**
  * Dynamic Revenue Weight Engine
  *
- * Designed to replace static priority scores with live metrics
- * once GSC + conversion data flows from the database.
- *
- * Until live data is available, the static skuPriority model is used.
+ * Blends static SKU priority with live revenue + margin data
+ * for intelligent corridor and link scoring.
  */
+
+import { skuMarginWeights } from "@/utils/corridorLinkEngine";
+import type { RevenueNode } from "@/utils/revenueMap";
 
 export interface RevenueMetric {
   slug: string;
@@ -14,8 +15,17 @@ export interface RevenueMetric {
   conversionRate: number;
 }
 
+/**
+ * Composite dynamic score:
+ *   (RFQ × 0.4) + (Revenue × 0.4) + (Margin × 0.2)
+ */
 export function calculateDynamicScore(metric: RevenueMetric): number {
-  return metric.rfqSubmissions * metric.avgDealValue * metric.conversionRate;
+  const marginW = skuMarginWeights[metric.slug] ?? 1;
+  return (
+    metric.rfqSubmissions * 0.4 +
+    metric.avgDealValue * metric.conversionRate * 0.4 +
+    marginW * 0.2
+  );
 }
 
 /**
@@ -31,4 +41,25 @@ export function blendScores(
   if (!dynamicMetric) return staticScore;
   const dynamicScore = calculateDynamicScore(dynamicMetric);
   return staticScore * (1 - factor) + dynamicScore * factor;
+}
+
+/**
+ * Build RevenueMetric from revenue nodes for a given SKU.
+ */
+export function buildMetricFromNodes(
+  skuSlug: string,
+  nodes: RevenueNode[]
+): RevenueMetric | undefined {
+  const matching = nodes.filter((n) => n.skuSlug === skuSlug);
+  if (matching.length === 0) return undefined;
+
+  const totalRfq = matching.reduce((s, n) => s + n.rfqCount, 0);
+  const totalRev = matching.reduce((s, n) => s + n.totalRevenue, 0);
+
+  return {
+    slug: skuSlug,
+    rfqSubmissions: totalRfq,
+    avgDealValue: totalRfq > 0 ? totalRev / totalRfq : 0,
+    conversionRate: 1, // placeholder until funnel data flows
+  };
 }

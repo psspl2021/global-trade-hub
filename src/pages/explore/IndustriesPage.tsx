@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { industryTaxonomy, getProductBySlug, type IndustryNode } from '@/data/industrialProducts';
 import { ArrowRight, ChevronRight, Layers } from 'lucide-react';
 import { getPriorityScore } from '@/data/skuPriority';
+import IndustryCorridorBridge from '@/components/seo/IndustryCorridorBridge';
 
 const BASE = 'https://www.procuresaathi.com';
 
@@ -249,6 +250,9 @@ function IndustryDetailPage({ industrySlug }: { industrySlug: string }) {
               </>
             )}
 
+            {/* Corridor, Comparison & Use-Case Bridge */}
+            <IndustryCorridorBridge productSlugs={allProducts} industryName={industry.name} />
+
             <div className="mt-10 text-center">
               <Link
                 to="/post-rfq"
@@ -334,6 +338,9 @@ function SubIndustryDetailPage({ industrySlug, subIndustrySlug }: { industrySlug
                 </div>
               </>
             )}
+
+            {/* Corridor, Comparison & Use-Case Bridge */}
+            <IndustryCorridorBridge productSlugs={productSlugs} industryName={subIndustry.name} />
 
             <div className="mt-10 text-center">
               <Link
