@@ -6463,6 +6463,27 @@ export type Database = {
           },
         ]
       }
+      sku_industry_mapping: {
+        Row: {
+          created_at: string | null
+          industry_slug: string
+          sku_slug: string
+          sub_cluster: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          industry_slug: string
+          sku_slug: string
+          sub_cluster?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          industry_slug?: string
+          sku_slug?: string
+          sub_cluster?: string | null
+        }
+        Relationships: []
+      }
       stock_inventory: {
         Row: {
           id: string
@@ -8028,6 +8049,17 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_corridor_intelligence: {
+        Row: {
+          country_slug: string | null
+          revenue_component: number | null
+          rfq_count: number | null
+          sku_slug: string | null
+          source_page_type: string | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
       admin_daily_kpis: {
         Row: {
           ai_rfqs: number | null
@@ -8073,6 +8105,15 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      admin_industry_revenue: {
+        Row: {
+          industry_slug: string | null
+          sub_cluster: string | null
+          total_revenue: number | null
+          total_rfqs: number | null
+        }
+        Relationships: []
       }
       admin_landing_page_metrics: {
         Row: {
@@ -8145,6 +8186,33 @@ export type Database = {
           total_gmv: number | null
           total_margin: number | null
           trade_type: string | null
+        }
+        Relationships: []
+      }
+      admin_revenue_trend_30d: {
+        Row: {
+          day: string | null
+          revenue: number | null
+          rfqs: number | null
+        }
+        Relationships: []
+      }
+      admin_revenue_trend_7d: {
+        Row: {
+          day: string | null
+          revenue: number | null
+          rfqs: number | null
+        }
+        Relationships: []
+      }
+      admin_seo_funnel: {
+        Row: {
+          clicks: number | null
+          keyword: string | null
+          landing_page: string | null
+          position: number | null
+          revenue: number | null
+          rfqs: number | null
         }
         Relationships: []
       }
