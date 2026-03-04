@@ -67,6 +67,11 @@ serve(async (req) => {
       "admin_ai_inventory_suppliers",
       "admin_revenue_by_trade_type",
       "admin_daily_kpis",
+      "admin_corridor_intelligence",
+      "admin_industry_revenue",
+      "admin_revenue_trend_7d",
+      "admin_revenue_trend_30d",
+      "admin_seo_funnel",
     ];
 
     if (!allowedViews.includes(view)) {
@@ -103,6 +108,22 @@ serve(async (req) => {
       queryError = result.error;
     } else if (view === "admin_revenue_by_trade_type") {
       const result = await serviceClient.from(view).select("*");
+      data = result.data;
+      queryError = result.error;
+    } else if (view === "admin_corridor_intelligence") {
+      const result = await serviceClient.from(view).select("*").order("total_revenue", { ascending: false }).limit(limit);
+      data = result.data;
+      queryError = result.error;
+    } else if (view === "admin_industry_revenue") {
+      const result = await serviceClient.from(view).select("*").order("total_revenue", { ascending: false }).limit(limit);
+      data = result.data;
+      queryError = result.error;
+    } else if (view === "admin_revenue_trend_7d" || view === "admin_revenue_trend_30d") {
+      const result = await serviceClient.from(view).select("*").order("day", { ascending: true });
+      data = result.data;
+      queryError = result.error;
+    } else if (view === "admin_seo_funnel") {
+      const result = await serviceClient.from(view).select("*").order("revenue", { ascending: false }).limit(limit);
       data = result.data;
       queryError = result.error;
     }
