@@ -2170,6 +2170,25 @@ export const industryTaxonomy: IndustryNode[] = [
           }
         ],
         productSlugs: ['industrial-valves-india']
+      },
+      {
+        slug: 'fasteners',
+        name: 'Fasteners & Hardware',
+        h1: 'Structural Fastener & Bolt Suppliers in India — IS 1367 Certified',
+        description: 'High-strength structural fasteners, bolts, and hardware for steel construction, heavy engineering, and industrial assembly applications.',
+        metaTitle: 'Structural Fasteners & HT Bolts — AI Verified Suppliers | ProcureSaathi',
+        metaDescription: 'Source structural fasteners and high tensile bolts (Grade 8.8/10.9/12.9) from AI-verified Indian manufacturers. IS 1367 certified.',
+        authoritySections: [
+          {
+            heading: 'Structural Fasteners & High Tensile Bolts',
+            content: 'Structural fasteners are engineered connection components critical for steel structures, heavy machinery, and industrial equipment. India\'s fastener industry produces over 1 million MT annually, with manufacturing clusters in Ludhiana, Rajkot, and Pune. Products range from standard hex bolts (IS 1364) to high-strength friction grip (HSFG) bolts (IS 4000) for structural steel connections.\n\nHigh tensile (HT) bolts — Grade 8.8, 10.9, and 12.9 per IS 1367/ISO 898 — are heat-treated fasteners with controlled tensile strength and proof load properties. They are essential for load-bearing connections in pre-engineered buildings, bridges, towers, and heavy machinery.'
+          },
+          {
+            heading: 'Key Products & Applications',
+            content: '**Structural Bolts:** IS 4000 HSFG bolts for steel structure slip-critical connections. Property Class 8.8 and 10.9 per IS 1367.\n\n**High Tensile Bolts:** Grade 8.8 (800 MPa tensile) for standard industrial use. Grade 10.9 (1040 MPa) for heavy engineering. Grade 12.9 (1220 MPa) for critical and high-fatigue applications.\n\n**Foundation Bolts:** Anchor bolts, J-bolts, and L-bolts for equipment and structural foundations. Typically Grade 4.6 or 8.8.\n\nProcureSaathi verifies mechanical test certificates, heat treatment records, and BIS compliance for all fastener procurement.'
+          }
+        ],
+        productSlugs: ['structural-fasteners-india', 'high-tensile-bolts-india']
       }
     ]
   }
