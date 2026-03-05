@@ -1983,7 +1983,7 @@ export const industryTaxonomy: IndustryNode[] = [
             content: 'Ferrous metal procurement in India operates within a well-defined standards and compliance framework:\n\n**IS 2062:2011** — Hot Rolled Medium and High Tensile Structural Steel (plates, sections, bars). Grades E250, E300, E350, E410, E450.\n**IS 1786:2008** — High Strength Deformed Steel Bars and Wires for Concrete Reinforcement. Grades Fe 500, Fe 500D, Fe 550, Fe 550D, Fe 600.\n**IS 10748:2004** — Hot Rolled Steel Strip for Welded Tubes and Pipes.\n**IS 513:2008** — Cold Rolled Low Carbon Steel Sheets and Strips.\n**IS 1239** — Mild Steel Tubes, Tubulars and Other Wrought Steel Fittings.\n**IS 277** — Galvanized Steel Sheets (Plain and Corrugated).\n\nAll procurement through ProcureSaathi requires valid BIS certification (CM/L license), mill test certificates (MTCs) with chemical composition and mechanical properties, and compliance with applicable Quality Control Orders. Our AI verification system cross-references supplier certifications with BIS databases to ensure procurement integrity.'
           }
         ],
-        productSlugs: ['ms-plates-india', 'tmt-bars-india', 'hr-coil-india', 'cr-coil-india', 'structural-steel-india', 'gi-pipes-india']
+        productSlugs: ['ms-plates-india', 'tmt-bars-india', 'hr-coil-india', 'cr-coil-india', 'structural-steel-india', 'gi-pipes-india', 'ms-pipes-india']
       },
       {
         slug: 'ferro-alloys',
