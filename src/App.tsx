@@ -241,6 +241,14 @@ const BotAwareRouter = () => {
         <Route path="/purchaser-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
         
+        {/* /buy-* → /demand/* 301 consolidation */}
+        <Route path="/buy-metals-ferrous-steel-iron" element={<Navigate to="/demand/ms-plates-india" replace />} />
+        <Route path="/buy-metals-ferrous" element={<Navigate to="/demand/hr-coil-india" replace />} />
+        <Route path="/buy-metals-non-ferrous" element={<Navigate to="/demand/aluminium-ingots-india" replace />} />
+        <Route path="/buy-energy-power" element={<Navigate to="/demand/structural-steel-india" replace />} />
+        <Route path="/buy-industrial-supplies" element={<Navigate to="/demand/ms-pipes-india" replace />} />
+        <Route path="/buy-polymers" element={<Navigate to="/demand/pp-granules-india" replace />} />
+        
         {/* /categories/{slug} → redirect to /category/{slug} (canonical normalization) */}
         <Route path="/categories/:slug" element={<CategoriesRedirect />} />
         
