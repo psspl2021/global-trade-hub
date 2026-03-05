@@ -2029,7 +2029,7 @@ export const industryTaxonomy: IndustryNode[] = [
             content: 'Non-ferrous metals procurement follows specific BIS and international standards:\n\n**Aluminium:** IS 617 (aluminium ingots), IS 737 (wrought aluminium alloy plates), IS 739 (aluminium alloy castings). LME-registered brands command premium pricing.\n\n**Copper:** IS 191 (copper cathode), IS 613 (copper rods), IS 1545 (copper tubes). Cathode quality is graded per LME standards.\n\n**Zinc:** IS 209 (zinc ingots), IS 3981 (zinc alloy die-casting). Purity levels (SHG 99.995%, HG 99.99%) determine pricing and application suitability.\n\nProcureSaathi verifies smelter origin, assay certificates, and BIS compliance for all non-ferrous procurement, ensuring buyers receive material that meets specified quality parameters.'
           }
         ],
-        productSlugs: ['aluminium-ingots-india']
+        productSlugs: ['aluminium-ingots-india', 'copper-cathodes-india', 'zinc-ingots-india', 'lead-ingots-india']
       }
     ]
   },
