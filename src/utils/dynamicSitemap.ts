@@ -13,6 +13,9 @@ export function generateDynamicSitemapXml(): string {
   const maxScore = Math.max(...weightedLinks.map(l => l.score), 1);
 
   // Static high-priority pages
+  const lastmod = new Date().toISOString().split('T')[0];
+
+  // Static high-priority pages
   const staticPages = [
     { url: `${base}/`, priority: 1.0 },
     { url: `${base}/industries`, priority: 0.9 },
@@ -24,6 +27,7 @@ export function generateDynamicSitemapXml(): string {
     { url: `${base}/industries/metals/non-ferrous`, priority: 0.8 },
     { url: `${base}/industries/polymers`, priority: 0.8 },
     { url: `${base}/industries/industrial-supplies`, priority: 0.8 },
+    { url: `${base}/favicon.ico`, priority: 0.1 },
   ];
 
   // Dynamic priority from revenue score (0.5 to 1.0 range)
@@ -56,6 +60,7 @@ export function generateDynamicSitemapXml(): string {
     ${uniquePages.map(page => `
       <url>
         <loc>${page.url}</loc>
+        <lastmod>${lastmod}</lastmod>
         <changefreq>${page.priority >= 0.9 ? 'daily' : 'weekly'}</changefreq>
         <priority>${page.priority}</priority>
       </url>`).join("")}
