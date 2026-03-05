@@ -1669,6 +1669,216 @@ Valve certification typically includes material test certificates (EN 10204 3.1)
     hsnCodes: ['7202'],
     standards: ['IS 1559'],
     isActivated: true
+  },
+
+  // ─── COPPER CATHODES ──────────────────────────────────────────────
+  {
+    slug: 'copper-cathodes-india',
+    name: 'Copper Cathodes',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Metals',
+    industrySlug: 'metals',
+    subIndustry: 'Non-Ferrous',
+    subIndustrySlug: 'non-ferrous',
+    h1: 'Buy Copper Cathodes in India — LME Grade A Suppliers & Live Pricing',
+    metaTitle: 'Buy Copper Cathodes in India — LME Grade A Suppliers | ProcureSaathi',
+    metaDescription: 'Source LME Grade A copper cathodes (99.99% Cu) from AI-verified smelters and traders. Hindustan Copper, Sterlite supply with managed procurement.',
+    introText: 'Copper cathodes are the primary refined copper product used as feedstock for wire rods, tubes, sheets, and alloy manufacturing. India consumes approximately 1 million MT of refined copper annually.',
+    heroImage: '/images/products/copper-cathodes.webp',
+    heroImageAlt: 'LME Grade A copper cathodes stacked in warehouse',
+    sections: {
+      whatIs: 'Copper cathodes are sheets of 99.99% pure copper produced through electrolytic refining. LME Grade A cathodes meet BS EN 1978:1998 (Cu-CATH-1) specification with minimum 99.99% copper content. India\'s domestic copper smelting capacity is approximately 1 million MT, with Sterlite Copper (Vedanta) and Hindustan Copper as major producers.',
+      grades: 'LME Grade A (99.99% Cu) is the global benchmark. Indian cathodes from Sterlite and Hindalco are LME-registered. Standard cathode dimensions: ~1m × 1m × 8mm, weight ~125 kg per cathode.',
+      specifications: 'Cu: ≥99.99%. Impurities: Ag <25ppm, S <15ppm, Bi <1ppm, Pb <5ppm. Standard cathode weight: 100–125 kg. Packaging: bundled on wooden pallets.',
+      applications: 'Copper wire rods for electrical wiring (60%+ consumption), copper tubes for HVAC and plumbing, copper sheets for roofing and cladding, brass and bronze alloy production, and EV motor winding.',
+      marketTrends: 'India\'s copper demand is growing at 6–8% CAGR, driven by power infrastructure, EV manufacturing, and construction. The EV transition alone could add 200,000+ MT annual demand by 2030.',
+      procurementChallenges: 'LME price volatility (copper traded at $8,000–$10,000/MT). Import dependence for ~40% of consumption. Premium over LME varies by origin and delivery terms.',
+      pricingFactors: 'Pricing follows LME copper benchmark + regional premium. Current range: ₹700,000–₹850,000/MT. TC/RC (treatment and refining charges) impact smelter economics.'
+    },
+    faqs: [
+      { question: 'What is copper cathode price in India?', answer: 'Copper cathode prices in India follow the LME benchmark, currently ranging from ₹700–₹850 per kg depending on market conditions and delivery terms.' },
+    ],
+    demandIntelligence: { intentScore: 62, confidencePercent: 65, recentRFQs: 28, avgDealSize: '₹50–₹200 Lakh', corridors: ['Chile → India', 'Japan → India'] },
+    relatedProducts: ['aluminium-ingots-india', 'zinc-ingots-india'],
+    hsnCodes: ['7403'],
+    standards: ['IS 191', 'BS EN 1978'],
+    isActivated: true
+  },
+
+  // ─── ZINC INGOTS ──────────────────────────────────────────────
+  {
+    slug: 'zinc-ingots-india',
+    name: 'Zinc Ingots',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Metals',
+    industrySlug: 'metals',
+    subIndustry: 'Non-Ferrous',
+    subIndustrySlug: 'non-ferrous',
+    h1: 'Buy Zinc Ingots in India — SHG Grade Suppliers & Live Pricing',
+    metaTitle: 'Buy Zinc Ingots in India — SHG 99.995% Suppliers | ProcureSaathi',
+    metaDescription: 'Source SHG zinc ingots (99.995%) from AI-verified smelters. Hindustan Zinc supply for galvanizing, die-casting, and alloy applications.',
+    introText: 'Zinc ingots are the primary refined zinc product used for galvanizing steel, die-casting, and brass/alloy production. India is the world\'s fourth-largest zinc producer led by Hindustan Zinc (Vedanta).',
+    heroImage: '/images/products/zinc-ingots.webp',
+    heroImageAlt: 'SHG zinc ingots for galvanizing and die-casting',
+    sections: {
+      whatIs: 'Zinc ingots are refined zinc metal cast into standard shapes (25 kg jumbo or slab ingots). Special High Grade (SHG) zinc contains ≥99.995% Zn. India produces ~800,000 MT annually, predominantly from Hindustan Zinc\'s Rajasthan operations.',
+      grades: 'SHG (Special High Grade): 99.995% Zn — premium galvanizing and alloy grade. HG (High Grade): 99.99% Zn — standard galvanizing. GOB (Good Ordinary Brand): 98.5% Zn — general use.',
+      specifications: 'Zn: ≥99.995% (SHG). Pb: <30ppm. Cd: <20ppm. Fe: <30ppm. Ingot weight: 25 kg standard. Packaging: palletized with steel strapping.',
+      applications: 'Hot-dip galvanizing (60%+ consumption), zinc die-casting for automotive parts, brass production, zinc oxide manufacturing, and cathodic protection.',
+      marketTrends: 'Indian zinc demand driven by infrastructure steel galvanizing requirements. Auto component die-casting growing with PLI scheme incentives.',
+      procurementChallenges: 'LME price volatility. Hindustan Zinc domestic pricing follows LME + premium model. Import options from Korea, Australia, and Peru.',
+      pricingFactors: 'LME zinc benchmark + domestic premium. Current range: ₹220,000–₹280,000/MT for SHG grade.'
+    },
+    faqs: [
+      { question: 'What is zinc ingot price in India?', answer: 'Zinc ingot prices follow LME benchmarks, currently ₹220–₹280 per kg for SHG grade from Hindustan Zinc.' },
+    ],
+    demandIntelligence: { intentScore: 55, confidencePercent: 60, recentRFQs: 22, avgDealSize: '₹20–₹80 Lakh', corridors: ['India domestic', 'South Korea → India'] },
+    relatedProducts: ['aluminium-ingots-india', 'copper-cathodes-india', 'lead-ingots-india'],
+    hsnCodes: ['7901'],
+    standards: ['IS 209', 'BS EN 1179'],
+    isActivated: true
+  },
+
+  // ─── LEAD INGOTS ──────────────────────────────────────────────
+  {
+    slug: 'lead-ingots-india',
+    name: 'Lead Ingots',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Metals',
+    industrySlug: 'metals',
+    subIndustry: 'Non-Ferrous',
+    subIndustrySlug: 'non-ferrous',
+    h1: 'Buy Lead Ingots in India — Refined Lead Suppliers & Pricing',
+    metaTitle: 'Buy Lead Ingots in India — 99.97% Purity Suppliers | ProcureSaathi',
+    metaDescription: 'Source refined lead ingots from AI-verified smelters for battery manufacturing, cable sheathing, and industrial applications.',
+    introText: 'Lead ingots are refined lead metal primarily consumed in battery manufacturing, cable sheathing, and radiation shielding applications.',
+    heroImage: '/images/products/lead-ingots.webp',
+    heroImageAlt: 'Refined lead ingots for battery manufacturing',
+    sections: {
+      whatIs: 'Lead ingots are refined metallic lead cast into standard shapes. India produces ~200,000 MT of primary lead annually, supplemented by significant secondary (recycled) lead from battery scrap processing.',
+      grades: 'Refined lead: 99.97% Pb minimum. Corroding grade: 99.99% Pb for chemical applications. Antimonial lead: Pb-Sb alloy for battery grids.',
+      specifications: 'Pb: ≥99.97%. Sb: <500ppm (refined grade). Ingot weight: 25–50 kg. Packaging: palletized.',
+      applications: 'Lead-acid battery manufacturing (80%+ consumption), cable sheathing, radiation shielding, lead sheets for construction waterproofing.',
+      marketTrends: 'Battery demand driving lead consumption despite environmental concerns. EV growth may reduce lead-acid battery demand long-term but current volumes remain strong.',
+      procurementChallenges: 'Environmental regulations on lead smelting. Quality variation in secondary lead. LME price volatility.',
+      pricingFactors: 'LME lead benchmark + domestic premium. Range: ₹180,000–₹220,000/MT.'
+    },
+    faqs: [
+      { question: 'What is lead ingot price in India?', answer: 'Lead ingot prices follow LME benchmarks, typically ₹180–₹220 per kg for refined grade.' },
+    ],
+    demandIntelligence: { intentScore: 42, confidencePercent: 55, recentRFQs: 15, avgDealSize: '₹10–₹40 Lakh', corridors: ['India domestic', 'Australia → India'] },
+    relatedProducts: ['zinc-ingots-india', 'copper-cathodes-india'],
+    hsnCodes: ['7801'],
+    standards: ['IS 27', 'BS EN 12659'],
+    isActivated: true
+  },
+
+  // ─── MS PIPES ──────────────────────────────────────────────
+  {
+    slug: 'ms-pipes-india',
+    name: 'MS Pipes',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Metals',
+    industrySlug: 'metals',
+    subIndustry: 'Ferrous',
+    subIndustrySlug: 'ferrous',
+    h1: 'Buy MS Pipes in India — ERW & Seamless Suppliers & Pricing',
+    metaTitle: 'Buy MS Pipes in India — ERW & Seamless Suppliers | ProcureSaathi',
+    metaDescription: 'Source MS (mild steel) pipes — ERW, seamless, and structural tubes from AI-verified Indian manufacturers. IS 1239, IS 3589 compliant.',
+    introText: 'MS Pipes (Mild Steel Pipes) are tubular steel products manufactured through ERW (Electric Resistance Welding) or seamless processes, used across construction, water supply, and industrial applications.',
+    heroImage: '/images/products/ms-pipes.webp',
+    heroImageAlt: 'Mild steel ERW pipes stacked in warehouse',
+    sections: {
+      whatIs: 'MS Pipes are carbon steel tubes manufactured by ERW welding of HR coil strips or through seamless piercing of steel billets. ERW pipes dominate the market for sizes up to 20 inches, while seamless pipes serve high-pressure and critical applications.',
+      grades: 'IS 1239 (Part 1) — Light, Medium, and Heavy grade for water and gas. IS 3589 — ERW pipes for water and sewage. ASTM A53 — Grade A and B for general structural use.',
+      specifications: 'OD: 15mm–600mm. Wall thickness: 1.8mm–12mm. Length: 6m standard. Surface: Black (plain) or galvanized. Ends: Plain, threaded, or beveled.',
+      applications: 'Water supply and plumbing, structural scaffolding, fencing and railing, mechanical and general engineering, fire sprinkler systems, and oil field line pipes.',
+      marketTrends: 'MS pipe demand driven by construction activity and water infrastructure projects. ERW pipe capacity expansion by APL Apollo, Jindal SAW, and Welspun.',
+      procurementChallenges: 'Grade and size standardization across manufacturers. Weld quality variation in secondary producers. GST and freight impact on landed costs.',
+      pricingFactors: 'MS pipe pricing based on HR coil input cost + conversion margin. Range: ₹45,000–₹65,000/MT for ERW pipes.'
+    },
+    faqs: [
+      { question: 'What is MS pipe price per kg in India?', answer: 'MS pipe prices range from ₹45–₹65 per kg depending on grade, size, and manufacturer.' },
+    ],
+    demandIntelligence: { intentScore: 65, confidencePercent: 70, recentRFQs: 35, avgDealSize: '₹8–₹25 Lakh', corridors: ['India domestic'] },
+    relatedProducts: ['gi-pipes-india', 'structural-steel-india', 'hr-coil-india'],
+    hsnCodes: ['7306'],
+    standards: ['IS 1239', 'IS 3589', 'ASTM A53'],
+    isActivated: true
+  },
+
+  // ─── STRUCTURAL FASTENERS ──────────────────────────────────────────────
+  {
+    slug: 'structural-fasteners-india',
+    name: 'Structural Fasteners',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Industrial Supplies',
+    industrySlug: 'industrial-supplies',
+    subIndustry: 'Fasteners & Hardware',
+    subIndustrySlug: 'fasteners',
+    h1: 'Buy Structural Fasteners in India — IS 1364/1367 Suppliers',
+    metaTitle: 'Structural Fasteners India — IS 1367 Certified Suppliers | ProcureSaathi',
+    metaDescription: 'Source structural bolts, nuts, and washers (IS 1364, IS 1367, ASTM A325/A490) from AI-verified Indian manufacturers for construction and infrastructure.',
+    introText: 'Structural fasteners — including high-strength bolts, nuts, and washers — are critical connection elements in steel structures, bridges, and industrial equipment.',
+    heroImage: '/images/products/structural-fasteners.webp',
+    heroImageAlt: 'High-strength structural bolts and nuts',
+    sections: {
+      whatIs: 'Structural fasteners are engineered bolted connection components designed for load-bearing structural steel joints. Unlike general-purpose hardware, structural fasteners are manufactured to controlled tensile strength, proof load, and hardness specifications.',
+      grades: 'Property Class 8.8 (IS 1367) — Standard high-strength structural bolts. Property Class 10.9 — Higher strength for heavy structural applications. ASTM A325 and A490 — International structural bolt standards.',
+      specifications: 'Diameter: M12–M36 (common structural range). Length: 30mm–300mm. Thread: ISO metric coarse. Finish: Plain, hot-dip galvanized, or zinc flake coated.',
+      applications: 'Steel structure connections (pre-engineered buildings, industrial sheds), bridge girder connections, tower bolt connections (transmission, telecom), equipment foundation bolting.',
+      marketTrends: 'Structural fastener demand growing with pre-engineered building (PEB) adoption and infrastructure expansion. Indian manufacturers gaining export competitiveness.',
+      procurementChallenges: 'Grade verification critical — counterfeit high-strength bolts are a safety concern. Test certificate validation essential. Size/grade combination availability.',
+      pricingFactors: 'Pricing based on steel wire rod cost + cold forging conversion. Range: ₹80,000–₹150,000/MT depending on grade and finish.'
+    },
+    faqs: [
+      { question: 'What grade bolts are used for structural steel?', answer: 'Property Class 8.8 (IS 1367) and ASTM A325 are the standard structural bolt grades. Class 10.9 and A490 are used for heavy-duty connections.' },
+    ],
+    demandIntelligence: { intentScore: 58, confidencePercent: 62, recentRFQs: 30, avgDealSize: '₹5–₹15 Lakh', corridors: ['India domestic'] },
+    relatedProducts: ['high-tensile-bolts-india', 'structural-steel-india'],
+    hsnCodes: ['7318'],
+    standards: ['IS 1364', 'IS 1367', 'ASTM A325', 'ASTM A490'],
+    isActivated: true
+  },
+
+  // ─── HIGH TENSILE BOLTS ──────────────────────────────────────────────
+  {
+    slug: 'high-tensile-bolts-india',
+    name: 'High Tensile Bolts',
+    country: 'India',
+    countryCode: 'IN',
+    industry: 'Industrial Supplies',
+    industrySlug: 'industrial-supplies',
+    subIndustry: 'Fasteners & Hardware',
+    subIndustrySlug: 'fasteners',
+    h1: 'Buy High Tensile Bolts in India — Grade 8.8/10.9/12.9 Suppliers',
+    metaTitle: 'High Tensile Bolts India — Grade 8.8/10.9/12.9 Suppliers | ProcureSaathi',
+    metaDescription: 'Source high tensile bolts (Grade 8.8, 10.9, 12.9) from AI-verified Indian manufacturers for heavy engineering, automotive, and infrastructure.',
+    introText: 'High tensile bolts are heat-treated fasteners with enhanced tensile and yield strength properties, critical for heavy engineering, automotive, and structural applications.',
+    heroImage: '/images/products/high-tensile-bolts.webp',
+    heroImageAlt: 'High tensile bolts grade 10.9 for industrial applications',
+    sections: {
+      whatIs: 'High tensile (HT) bolts are manufactured from medium carbon steel or alloy steel, heat-treated (quenched and tempered) to achieve specified mechanical properties. They are classified by property class (8.8, 10.9, 12.9) per IS 1367/ISO 898.',
+      grades: 'Grade 8.8: 800 MPa tensile, 640 MPa yield — standard industrial grade. Grade 10.9: 1040 MPa tensile, 940 MPa yield — heavy engineering. Grade 12.9: 1220 MPa tensile, 1100 MPa yield — critical applications.',
+      specifications: 'Material: 40Cr (8.8), 35CrMo/42CrMo (10.9/12.9). Diameter: M6–M64. Heat treatment: Quench & temper to IS 1367. Testing: Tensile, proof load, hardness, wedge load.',
+      applications: 'Heavy machinery assembly, automotive engine and chassis, power plant equipment, pressure vessel flanges, railway track fastening, wind turbine tower connections.',
+      marketTrends: 'Growing demand from automotive (BS-VI compliance requiring precision bolting), renewable energy (wind turbine foundation bolts), and infrastructure (metro, highway) sectors.',
+      procurementChallenges: 'Grade authenticity verification paramount — non-conforming HT bolts pose safety risk. Heat treatment quality varies between manufacturers. Dimensional accuracy critical.',
+      pricingFactors: 'Pricing based on grade, diameter, and quantity. Range: ₹120,000–₹250,000/MT. Grade 12.9 commands 40–60% premium over 8.8.'
+    },
+    faqs: [
+      { question: 'What is the difference between Grade 8.8 and 10.9 bolts?', answer: 'Grade 8.8 has 800 MPa tensile strength, while 10.9 offers 1040 MPa — about 30% stronger. Grade 10.9 is used where higher clamping force is required.' },
+    ],
+    demandIntelligence: { intentScore: 55, confidencePercent: 60, recentRFQs: 25, avgDealSize: '₹3–₹12 Lakh', corridors: ['India domestic', 'Taiwan → India'] },
+    relatedProducts: ['structural-fasteners-india', 'structural-steel-india'],
+    hsnCodes: ['7318'],
+    standards: ['IS 1367', 'ISO 898', 'ASTM A193'],
+    isActivated: true
   }
 ];
 
