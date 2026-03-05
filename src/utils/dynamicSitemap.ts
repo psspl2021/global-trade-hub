@@ -12,8 +12,8 @@ export function generateDynamicSitemapXml(): string {
   const weightedLinks = getWeightedLinks();
   const maxScore = Math.max(...weightedLinks.map(l => l.score), 1);
 
-  // Static high-priority pages
-  const lastmod = new Date().toISOString().split('T')[0];
+  // Fallback lastmod — prefer actual dates when available
+  const fallbackLastmod = new Date().toISOString().split('T')[0];
 
   // Static high-priority pages
   const staticPages = [
@@ -60,7 +60,7 @@ export function generateDynamicSitemapXml(): string {
     ${uniquePages.map(page => `
       <url>
         <loc>${page.url}</loc>
-        <lastmod>${lastmod}</lastmod>
+        <lastmod>${(page as any).lastmod || fallbackLastmod}</lastmod>
         <changefreq>${page.priority >= 0.9 ? 'daily' : 'weekly'}</changefreq>
         <priority>${page.priority}</priority>
       </url>`).join("")}

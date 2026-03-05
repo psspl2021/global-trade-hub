@@ -32,6 +32,11 @@ Disallow: /api/
 
 # Sitemaps
 Sitemap: https://www.procuresaathi.com/sitemap.xml
+Sitemap: https://www.procuresaathi.com/sitemap-pages.xml
+Sitemap: https://www.procuresaathi.com/sitemap-demand.xml
+Sitemap: https://www.procuresaathi.com/sitemap-import.xml
+Sitemap: https://www.procuresaathi.com/sitemap-industries.xml
+Sitemap: https://www.procuresaathi.com/sitemap-blogs.xml
 
 # Host
 Host: www.procuresaathi.com
