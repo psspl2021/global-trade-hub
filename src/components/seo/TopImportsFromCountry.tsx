@@ -60,7 +60,7 @@ export default function TopImportsFromCountry({ countrySlug, countryName }: Prop
                 </span>
                 <div className="flex-1">
                   <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {c.skuLabel}
+                    Import {c.skuLabel} from {countryName}
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">
                     {c.costAdvantage} · {c.leadTimeDays} days
