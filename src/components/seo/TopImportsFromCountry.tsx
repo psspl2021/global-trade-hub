@@ -53,6 +53,7 @@ export default function TopImportsFromCountry({ countrySlug, countryName }: Prop
               <Link
                 key={`${c.sku}-${c.countrySlug}`}
                 to={`/import/${c.sku}-from-${c.countrySlug}`}
+                title={`Import ${c.skuLabel} from ${countryName} – pricing, suppliers & duty`}
                 className="group flex items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-primary/5"
               >
                 <span className="text-xs font-bold text-muted-foreground mt-0.5 w-5 shrink-0">
