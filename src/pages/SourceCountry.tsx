@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, CheckCircle2, Globe, Package, Ship, Shield, Truck, AlertTriangle, Anchor, FileText, TrendingUp } from "lucide-react";
 import ImportDecisionMatrix from "@/components/seo/ImportDecisionMatrix";
 import CountrySkuTable from "@/components/seo/CountrySkuTable";
+import TopImportsFromCountry from "@/components/seo/TopImportsFromCountry";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -1136,6 +1137,9 @@ export default function SourceCountry() {
             </div>
           </section>
 
+          {/* Top Imports — Country Authority Cluster */}
+          <TopImportsFromCountry countrySlug={strategicData.slug} countryName={strategicData.name} />
+
           {/* Import Decision Matrix */}
           <section className="py-12 bg-background border-b">
             <div className="container mx-auto px-4 max-w-4xl">
@@ -1218,6 +1222,9 @@ export default function SourceCountry() {
           </div>
         </div>
       </section>
+
+      {/* Top Imports — Generic country fallback */}
+      <TopImportsFromCountry countrySlug={countryKey} countryName={data.name} />
 
       {/* CTA Section */}
       <section className="py-16 bg-primary text-primary-foreground">
