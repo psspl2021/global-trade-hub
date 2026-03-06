@@ -11,9 +11,9 @@ interface Props {
 }
 
 export default function TopImportsFromCountry({ countrySlug, countryName }: Props) {
-  const corridors = [...getCountrySkuOptions(countrySlug)].sort(
-    (a, b) => (b.demandRank ?? 0) - (a.demandRank ?? 0)
-  );
+  const corridors = [...getCountrySkuOptions(countrySlug)]
+    .sort((a, b) => (b.demandRank ?? 0) - (a.demandRank ?? 0))
+    .slice(0, 6);
 
   if (corridors.length === 0) return null;
 
