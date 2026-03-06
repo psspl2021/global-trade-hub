@@ -48,29 +48,30 @@ export default function TopImportsFromCountry({ countrySlug, countryName }: Prop
             High-demand industrial products sourced from {countryName} with verified suppliers, landed cost benchmarks, and duty intelligence.
           </p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid gap-3 sm:grid-cols-2 list-none p-0 m-0">
             {corridors.map((c, i) => (
-              <Link
-                key={`${c.sku}-${c.countrySlug}`}
-                to={`/import/${c.sku}-from-${c.countrySlug}`}
-                title={`Import ${c.skuLabel} from ${countryName} – pricing, suppliers & duty`}
-                className="group flex items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-primary/5"
-              >
-                <span className="text-xs font-bold text-muted-foreground mt-0.5 w-5 shrink-0">
-                  {i + 1}.
-                </span>
-                <div className="flex-1">
-                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                    Import {c.skuLabel} from {countryName}
+              <li key={`${c.sku}-${c.countrySlug}`}>
+                <Link
+                  to={`/import/${c.sku}-from-${c.countrySlug}`}
+                  title={`Import ${c.skuLabel} from ${countryName} – pricing, suppliers & duty`}
+                  className="group flex items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-primary/5"
+                >
+                  <span className="text-xs font-bold text-muted-foreground mt-0.5 w-5 shrink-0">
+                    {i + 1}.
                   </span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {c.costAdvantage} · {c.leadTimeDays} days
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 mt-1 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-              </Link>
+                  <div className="flex-1">
+                    <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                      Import {c.skuLabel} from {countryName}
+                    </span>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {c.costAdvantage} · {c.leadTimeDays} days
+                    </p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 mt-1 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
     </>
