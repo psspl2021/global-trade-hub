@@ -11,9 +11,9 @@ interface Props {
 }
 
 export default function TopImportsFromCountry({ countrySlug, countryName }: Props) {
-  const corridors = [...getCountrySkuOptions(countrySlug)].sort(
-    (a, b) => (b.demandRank ?? 0) - (a.demandRank ?? 0)
-  );
+  const corridors = [...getCountrySkuOptions(countrySlug)]
+    .sort((a, b) => (b.demandRank ?? 0) - (a.demandRank ?? 0))
+    .slice(0, 6);
 
   if (corridors.length === 0) return null;
 
@@ -60,7 +60,7 @@ export default function TopImportsFromCountry({ countrySlug, countryName }: Prop
                 </span>
                 <div className="flex-1">
                   <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {c.skuLabel}
+                    Import {c.skuLabel} from {countryName}
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">
                     {c.costAdvantage} · {c.leadTimeDays} days
