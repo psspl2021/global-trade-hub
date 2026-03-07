@@ -3,6 +3,7 @@
  * Adjusts priority based on revenue score
  */
 import { industrialProducts } from "@/data/industrialProducts";
+import { demandProducts } from "@/data/demandProducts";
 import { getWeightedLinks } from "@/utils/revenueLinkEngine";
 
 export function generateDynamicSitemapXml(): string {
