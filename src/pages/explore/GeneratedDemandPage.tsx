@@ -1,0 +1,394 @@
+import { useParams, Link, Navigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { getDemandProductBySlug, type DemandProduct } from '@/data/demandProducts';
+import { generateDemandContent } from '@/utils/demandContentEngine';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  TrendingUp, Shield, Brain, ArrowRight, CheckCircle2,
+  Factory, Globe, BarChart3, ChevronRight, Package, Ship, Wrench
+} from 'lucide-react';
+import { PostRFQModal } from '@/components/PostRFQModal';
+import { useState } from 'react';
+
+function BreadcrumbNav({ product }: { product: DemandProduct }) {
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.procuresaathi.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Demand", "item": "https://www.procuresaathi.com/demand" },
+      { "@type": "ListItem", "position": 3, "name": product.name, "item": `https://www.procuresaathi.com/demand/${product.slug}` }
+    ]
+  };
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <nav className="text-sm text-muted-foreground mb-6 flex flex-wrap items-center gap-1" aria-label="Breadcrumb">
+        <Link to="/" className="hover:text-primary">Home</Link>
+        <ChevronRight className="h-3 w-3" />
+        <Link to="/demand" className="hover:text-primary">Demand</Link>
+        <ChevronRight className="h-3 w-3" />
+        <span className="text-foreground font-medium">{product.name}</span>
+      </nav>
+    </>
+  );
+}
+
+export default function GeneratedDemandPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const [rfqOpen, setRfqOpen] = useState(false);
+
+  const product = slug ? getDemandProductBySlug(slug) : undefined;
+  if (!product) return null; // Let parent handle fallback
+
+  const content = generateDemandContent(product);
+  const canonicalUrl = `https://www.procuresaathi.com/demand/${product.slug}`;
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "brand": { "@type": "Brand", "name": "ProcureSaathi" },
+    "category": product.category,
+    "description": `Source ${product.name} in India with verified suppliers, import intelligence, and procurement insights for industrial buyers.`,
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock"
+    }
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": `What is the price of ${product.name} in India?`,
+        "acceptedAnswer": { "@type": "Answer", "text": `${product.name} prices in India typically range around ${product.priceRange} depending on grade, quantity, and source.` }
+      },
+      {
+        "@type": "Question",
+        "name": `Which industries procure ${product.name}?`,
+        "acceptedAnswer": { "@type": "Answer", "text": `${product.name} is primarily procured by ${product.industries.join(', ')} industries in India.` }
+      },
+      {
+        "@type": "Question",
+        "name": `What are the key grades of ${product.name}?`,
+        "acceptedAnswer": { "@type": "Answer", "text": `Key grades include ${product.grades.slice(0, 5).join(', ')}. Grade selection depends on specific application requirements and industry standards.` }
+      },
+      {
+        "@type": "Question",
+        "name": `How to source ${product.name} with verified suppliers?`,
+        "acceptedAnswer": { "@type": "Answer", "text": `ProcureSaathi connects industrial buyers with AI-verified ${product.name} suppliers through managed procurement, sealed bidding, and quality-assured sourcing with complete documentation.` }
+      }
+    ]
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>Buy {product.name} in India | Procurement & Suppliers | ProcureSaathi</title>
+        <meta name="description" content={`Source ${product.name} in India with verified suppliers, import intelligence, and procurement insights for industrial buyers.`} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={`Buy ${product.name} in India | Procurement & Suppliers`} />
+        <meta property="og:description" content={`Source ${product.name} in India with verified suppliers and procurement insights.`} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="product" />
+      </Helmet>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, faqSchema]) }} />
+
+      <main className="min-h-screen bg-background">
+        {/* ─── HERO ──────────────────────────────────────────── */}
+        <section className="relative py-16 lg:py-24 bg-gradient-to-br from-primary/5 via-background to-background">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <BreadcrumbNav product={product} />
+
+            <div className="flex flex-wrap gap-2 mb-6">
+              <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
+                <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
+              </Badge>
+              <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 gap-1">
+                <Brain className="h-3.5 w-3.5" /> Live Demand Intelligence
+              </Badge>
+            </div>
+
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-6">
+              {product.name} Procurement in India
+            </h1>
+
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-3xl">
+              {content.heroIntro}
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <Button size="lg" onClick={() => setRfqOpen(true)} className="gap-2 text-lg px-8 py-6">
+                Get Verified Supplier Quotes <ArrowRight className="h-5 w-5" />
+              </Button>
+              <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
+                <Link to="/seller">List as Supplier</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        <div className="container mx-auto px-4 max-w-5xl py-12 space-y-16">
+          {/* ─── INDUSTRY DEMAND INTELLIGENCE ─────────────────── */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <Factory className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">Industry Demand Intelligence</h2>
+            </div>
+            <div className="prose prose-lg max-w-none text-muted-foreground dark:prose-invert">
+              {content.industryDemand.split('\n').map((line, i) => {
+                if (line.startsWith('**') && line.endsWith('**')) {
+                  return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                }
+                if (line.startsWith('•')) {
+                  const parts = line.replace('• ', '').split(':**');
+                  if (parts.length === 2) {
+                    return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
+                  }
+                  return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                }
+                if (line.trim() === '') return null;
+                return <p key={i} className="mb-3">{line}</p>;
+              })}
+            </div>
+          </section>
+
+          {/* ─── PROCUREMENT SPECIFICATIONS ───────────────────── */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <Wrench className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">Procurement Specifications</h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <Card className="border-border">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary" /> Available Grades
+                  </h3>
+                  <ul className="space-y-2">
+                    {product.grades.map((g, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-primary mt-1">•</span> {g}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+              <Card className="border-border">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Package className="h-5 w-5 text-primary" /> Key Specifications
+                  </h3>
+                  <ul className="space-y-2">
+                    {product.specifications.map((s, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-primary mt-1">•</span> {s}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <p className="text-sm"><strong className="text-foreground">Standards:</strong> <span className="text-muted-foreground">{product.standards.join(', ')}</span></p>
+                    <p className="text-sm mt-2"><strong className="text-foreground">HSN Codes:</strong> <span className="text-muted-foreground">{product.hsnCodes.join(', ')}</span></p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="prose prose-lg max-w-none text-muted-foreground">
+              {content.procurementSpecs.split('\n').filter(l => !l.startsWith('**Available') && !l.startsWith('**Key Spec') && !l.startsWith('**Applicable') && !l.startsWith('**Typical Price') && !l.startsWith('•')).map((line, i) => {
+                if (line.startsWith('**') && line.endsWith('**')) {
+                  return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                }
+                if (line.trim() === '') return null;
+                return <p key={i} className="mb-3">{line.replace(/\*\*/g, '')}</p>;
+              })}
+            </div>
+          </section>
+
+          {/* ─── IMPORT CORRIDOR LINKS ────────────────────────── */}
+          {product.importCountries.length > 0 && (
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <Ship className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-bold text-foreground">Import Sourcing Corridors</h2>
+              </div>
+              <p className="text-muted-foreground mb-6">
+                India imports {product.name} from multiple international sources. Explore country-specific import corridors for pricing, duty structures, and supplier intelligence.
+              </p>
+              <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 list-none p-0 m-0">
+                {product.importCountries.slice(0, 6).map(country => {
+                  const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
+                  const productBase = product.slug.replace('-india', '');
+                  return (
+                    <li key={country}>
+                      <Link
+                        to={`/import/${productBase}-from-${countrySlug}`}
+                        title={`Import ${product.name} from ${country} – pricing, suppliers & duty`}
+                        className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                      >
+                        <Globe className="h-5 w-5 text-primary shrink-0" />
+                        <span className="text-sm font-medium text-foreground">Import {product.name} from {country}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+
+          {/* ─── RFQ DEMAND SIGNALS ──────────────────────────── */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <BarChart3 className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">RFQ Demand Signals</h2>
+            </div>
+            <div className="prose prose-lg max-w-none text-muted-foreground">
+              {content.rfqSignals.split('\n').map((line, i) => {
+                if (line.startsWith('**') && line.endsWith('**')) {
+                  return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                }
+                if (line.startsWith('•')) {
+                  const parts = line.replace('• ', '').split(':');
+                  if (parts.length >= 2) {
+                    return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0]}:</strong> {parts.slice(1).join(':')}</p>;
+                  }
+                  return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                }
+                if (line.trim() === '') return null;
+                return <p key={i} className="mb-3">{line}</p>;
+              })}
+            </div>
+          </section>
+
+          {/* ─── APPLICATIONS / USE CASES ────────────────────── */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <TrendingUp className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">Key Applications & Use Cases</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+              {product.applications.map((app, i) => (
+                <Card key={i} className="border-border">
+                  <CardContent className="p-4 flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm text-muted-foreground">{app}</span>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* ─── WHY PROCURESAATHI ────────────────────────────── */}
+          <section className="bg-primary/5 rounded-2xl p-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Why Source {product.name} Through ProcureSaathi?</h2>
+            <div className="prose prose-lg max-w-none text-muted-foreground">
+              {content.whyProcureSaathi.split('\n').map((line, i) => {
+                if (line.startsWith('**') && line.endsWith('**')) {
+                  return <h3 key={i} className="text-lg font-semibold text-foreground mt-4 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                }
+                if (line.startsWith('•')) {
+                  const parts = line.replace('• ', '').split(':**');
+                  if (parts.length === 2) {
+                    return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
+                  }
+                  return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                }
+                if (line.trim() === '') return null;
+                return <p key={i} className="mb-3">{line}</p>;
+              })}
+            </div>
+          </section>
+
+          {/* ─── RELATED PRODUCTS ─────────────────────────────── */}
+          <section>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Related Products</h2>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {product.relatedSlugs.slice(0, 6).map(relSlug => {
+                const relName = relSlug
+                  .replace('-india', '')
+                  .split('-')
+                  .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                  .join(' ');
+                return (
+                  <Link
+                    key={relSlug}
+                    to={`/demand/${relSlug}`}
+                    className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+                  >
+                    <ArrowRight className="h-4 w-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
+                    <span className="text-sm font-medium text-foreground">{relName}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* ─── INTERNAL LINKS ──────────────────────────────── */}
+          <section className="border-t border-border pt-8">
+            <h2 className="text-xl font-bold text-foreground mb-4">Explore More</h2>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/industries">
+                <Button variant="outline" size="sm">All Industries</Button>
+              </Link>
+              <Link to="/global-sourcing-countries">
+                <Button variant="outline" size="sm">Global Sourcing Countries</Button>
+              </Link>
+              <Link to="/steel-comparisons">
+                <Button variant="outline" size="sm">Steel Comparisons</Button>
+              </Link>
+              <Link to="/industrial-use-cases">
+                <Button variant="outline" size="sm">Industrial Use Cases</Button>
+              </Link>
+              <Link to="/demand">
+                <Button variant="outline" size="sm">All Demand Pages</Button>
+              </Link>
+            </div>
+          </section>
+
+          {/* ─── RFQ CTA ─────────────────────────────────────── */}
+          <section className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-8 text-center">
+            <h2 className="text-2xl font-bold text-foreground mb-3">Get Verified Supplier Quotes for {product.name}</h2>
+            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Submit your {product.name} requirement and receive competitive quotes from AI-verified suppliers within 24 hours. Managed procurement with quality assurance and logistics coordination.
+            </p>
+            <Button size="lg" onClick={() => setRfqOpen(true)} className="gap-2 text-lg px-8 py-6">
+              Submit RFQ Now <ArrowRight className="h-5 w-5" />
+            </Button>
+          </section>
+
+          {/* ─── FAQ SECTION ─────────────────────────────────── */}
+          <section>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Frequently Asked Questions</h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">What is the price of {product.name} in India?</h3>
+                <p className="text-muted-foreground">{product.name} prices in India typically range around {product.priceRange} depending on grade, quantity, and source. Prices fluctuate based on raw material costs, import parity, and seasonal demand patterns.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Which industries procure {product.name}?</h3>
+                <p className="text-muted-foreground">{product.name} is primarily procured by {product.industries.join(', ')} industries in India. Each sector has specific grade and specification requirements.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">What are the key grades of {product.name}?</h3>
+                <p className="text-muted-foreground">Key grades include {product.grades.slice(0, 5).join(', ')}. Grade selection depends on specific application requirements, mechanical properties needed, and applicable industry standards.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">How to source {product.name} with verified suppliers?</h3>
+                <p className="text-muted-foreground">ProcureSaathi connects industrial buyers with AI-verified {product.name} suppliers through managed procurement. Submit your RFQ with specifications and receive competitive sealed bids from verified suppliers within 24 hours.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <PostRFQModal open={rfqOpen} onOpenChange={setRfqOpen} />
+    </>
+  );
+}
