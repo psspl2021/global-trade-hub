@@ -597,7 +597,13 @@ export default function DemandAuthorityPage() {
   if (!slug) return <Navigate to="/demand" replace />;
   
   const product = getProductBySlug(slug);
-  if (!product) return <Navigate to="/demand" replace />;
+  
+  // Fallback to generated demand page if not in rich product list
+  if (!product) {
+    const generated = getDemandProductBySlug(slug);
+    if (generated) return <GeneratedDemandPage />;
+    return <Navigate to="/demand" replace />;
+  }
 
   // Activation + Thin Page Guard
   if (!product.isActivated) {
