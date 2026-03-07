@@ -3,6 +3,7 @@
  * Adjusts priority based on revenue score
  */
 import { industrialProducts } from "@/data/industrialProducts";
+import { demandProducts } from "@/data/demandProducts";
 import { getWeightedLinks } from "@/utils/revenueLinkEngine";
 
 export function generateDynamicSitemapXml(): string {
@@ -45,7 +46,19 @@ export function generateDynamicSitemapXml(): string {
       priority: 0.7,
     }));
 
-  const allPages = [...staticPages, ...dynamicPages, ...productPages];
+  // Generated demand pages not already covered
+  const coveredSlugs = new Set([
+    ...weightedSlugs,
+    ...industrialProducts.filter(p => p.isActivated).map(p => p.slug),
+  ]);
+  const generatedPages = demandProducts
+    .filter(p => !coveredSlugs.has(p.slug))
+    .map(p => ({
+      url: `${base}/demand/${p.slug}`,
+      priority: 0.65,
+    }));
+
+  const allPages = [...staticPages, ...dynamicPages, ...productPages, ...generatedPages];
 
   // Deduplicate by URL
   const seen = new Set<string>();

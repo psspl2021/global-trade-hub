@@ -1,6 +1,8 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { getProductBySlug, getIndustryBreadcrumb, type IndustrialProduct } from '@/data/industrialProducts';
+import { getDemandProductBySlug } from '@/data/demandProducts';
+import GeneratedDemandPage from '@/pages/explore/GeneratedDemandPage';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -595,7 +597,13 @@ export default function DemandAuthorityPage() {
   if (!slug) return <Navigate to="/demand" replace />;
   
   const product = getProductBySlug(slug);
-  if (!product) return <Navigate to="/demand" replace />;
+  
+  // Fallback to generated demand page if not in rich product list
+  if (!product) {
+    const generated = getDemandProductBySlug(slug);
+    if (generated) return <GeneratedDemandPage />;
+    return <Navigate to="/demand" replace />;
+  }
 
   // Activation + Thin Page Guard
   if (!product.isActivated) {
