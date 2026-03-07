@@ -58,7 +58,7 @@ export function generateDynamicSitemapXml(): string {
       priority: 0.65,
     }));
 
-  const allPages = [...staticPages, ...dynamicPages, ...productPages];
+  const allPages = [...staticPages, ...dynamicPages, ...productPages, ...generatedPages];
 
   // Deduplicate by URL
   const seen = new Set<string>();
