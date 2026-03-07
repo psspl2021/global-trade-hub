@@ -1,6 +1,8 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { getProductBySlug, getIndustryBreadcrumb, type IndustrialProduct } from '@/data/industrialProducts';
+import { getDemandProductBySlug } from '@/data/demandProducts';
+import GeneratedDemandPage from '@/pages/explore/GeneratedDemandPage';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
