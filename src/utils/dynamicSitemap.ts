@@ -46,6 +46,18 @@ export function generateDynamicSitemapXml(): string {
       priority: 0.7,
     }));
 
+  // Generated demand pages not already covered
+  const coveredSlugs = new Set([
+    ...weightedSlugs,
+    ...industrialProducts.filter(p => p.isActivated).map(p => p.slug),
+  ]);
+  const generatedPages = demandProducts
+    .filter(p => !coveredSlugs.has(p.slug))
+    .map(p => ({
+      url: `${base}/demand/${p.slug}`,
+      priority: 0.65,
+    }));
+
   const allPages = [...staticPages, ...dynamicPages, ...productPages];
 
   // Deduplicate by URL
