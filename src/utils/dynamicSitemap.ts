@@ -5,6 +5,8 @@
 import { industrialProducts } from "@/data/industrialProducts";
 import { demandProducts } from "@/data/demandProducts";
 import { getWeightedLinks } from "@/utils/revenueLinkEngine";
+import { autoComparisonPairs } from "@/data/autoComparisonPairs";
+import { procurementGuides } from "@/data/procurementGuides";
 
 export function generateDynamicSitemapXml(): string {
   const base = "https://www.procuresaathi.com";
@@ -58,7 +60,19 @@ export function generateDynamicSitemapXml(): string {
       priority: 0.65,
     }));
 
-  const allPages = [...staticPages, ...dynamicPages, ...productPages, ...generatedPages];
+  // Auto-generated comparison pages
+  const autoComparisonPages = autoComparisonPairs.map(p => ({
+    url: `${base}/compare/${p.slug}`,
+    priority: 0.75,
+  }));
+
+  // Procurement guide pages
+  const guidePages = procurementGuides.map(g => ({
+    url: `${base}/guides/${g.slug}`,
+    priority: 0.85,
+  }));
+
+  const allPages = [...staticPages, ...dynamicPages, ...productPages, ...generatedPages, ...autoComparisonPages, ...guidePages];
 
   // Deduplicate by URL
   const seen = new Set<string>();

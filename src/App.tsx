@@ -66,6 +66,7 @@ const FindVerifiedSuppliers = lazy(() => import("./pages/guides/FindVerifiedSupp
 const EnterpriseProcurementGuide = lazy(() => import("./pages/guides/EnterpriseProcurementGuide"));
 const ExportImportSourcingGuide = lazy(() => import("./pages/guides/ExportImportSourcingGuide"));
 const AIB2BProcurementGuide = lazy(() => import("./pages/guides/AIB2BProcurementGuide"));
+const ProcurementGuidePage = lazy(() => import("./pages/guides/ProcurementGuidePage"));
 const ExportCertificationPage = lazy(() => import("./pages/export-certification/ExportCertificationPage"));
 
 // Comparison Pages
@@ -269,6 +270,7 @@ const BotAwareRouter = () => {
         <Route path="/export-import-sourcing-guide" element={<ExportImportSourcingGuide />} />
         <Route path="/export-certification/:slug" element={<ExportCertificationPage />} />
         <Route path="/ai-b2b-procurement-platform-guide" element={<AIB2BProcurementGuide />} />
+        <Route path="/guides/:slug" element={<ProcurementGuidePage />} />
         
         {/* Comparison Pages */}
         <Route path="/best-b2b-procurement-platforms-india" element={<BestB2BPlatformsIndia />} />

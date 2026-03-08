@@ -1,6 +1,8 @@
+import { lazy, Suspense } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { comparisonPagesData } from "@/data/comparisonPages";
+import { getAutoComparisonBySlug } from "@/data/autoComparisonPairs";
 import { getRelatedComparisons, getUseCasesForComparison } from "@/utils/related";
 import { injectContextualLinks } from "@/utils/internalLinkingEngine";
 import { enhanceIntent } from "@/utils/intentEnhancer";
@@ -26,7 +28,14 @@ export default function ComparisonPage() {
   const { slug } = useParams<{ slug: string }>();
   const page = comparisonPagesData.find(p => p.slug === slug);
 
-  if (!page) return <Navigate to="/404" replace />;
+  // Fall back to auto-generated comparison page if no curated page found
+  if (!page) {
+    if (slug && getAutoComparisonBySlug(slug)) {
+      const AutoComparisonPage = lazy(() => import("@/pages/seo/AutoComparisonPage"));
+      return <Suspense fallback={<div className="min-h-screen" />}><AutoComparisonPage /></Suspense>;
+    }
+    return <Navigate to="/404" replace />;
+  }
 
   const related = getRelatedComparisons(page.slug);
   const relatedUseCases = getUseCasesForComparison(page.slug);

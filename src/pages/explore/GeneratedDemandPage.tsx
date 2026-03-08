@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
 import { useState } from 'react';
+import GSCQueryInjection from '@/components/seo/GSCQueryInjection';
+import RevenueWeightedLinksLive from '@/components/seo/RevenueWeightedLinksLive';
+import DemandIntelligenceTable from '@/components/seo/DemandIntelligenceTable';
 
 function BreadcrumbNav({ product }: { product: DemandProduct }) {
   const breadcrumbSchema = {
@@ -421,6 +424,15 @@ export default function GeneratedDemandPage() {
                   ))}
                 </div>
               </section>
+
+              {/* ─── MODULE 3: REGIONAL DEMAND INTELLIGENCE ─────── */}
+              <DemandIntelligenceTable product={product} />
+
+              {/* ─── MODULE 1: GSC QUERY INJECTION ────────────────── */}
+              <GSCQueryInjection slug={product.slug} productName={product.name} />
+
+              {/* ─── MODULE 2: REVENUE WEIGHTED LINKS ────────────── */}
+              <RevenueWeightedLinksLive currentSlug={product.slug} />
 
               {/* ─── WHY PROCURESAATHI ────────────────────────────── */}
               <section className="bg-primary/5 rounded-2xl p-8">
