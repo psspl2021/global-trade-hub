@@ -11,6 +11,7 @@ export interface AutoComparisonPair {
   title: string;
   metaTitle: string;
   metaDescription: string;
+  searchVolume?: number;
 }
 
 /** Define comparison pairs by slug pairs */
