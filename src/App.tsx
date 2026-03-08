@@ -106,6 +106,7 @@ const EnterpriseControlCenterPage = lazy(() => import("./pages/EnterpriseControl
 const AdminSEOMonitor = lazy(() => import("./pages/AdminSEOMonitor"));
 const SeoRevenueDashboard = lazy(() => import("./pages/admin/SeoRevenueDashboard"));
 const AdminIntelligenceDashboard = lazy(() => import("./pages/admin/AdminIntelligenceDashboard"));
+const SEODashboard = lazy(() => import("./pages/admin/SEODashboard"));
 // GEO Landing Pages
 const GeoUSA = lazy(() => import("./pages/geo/GeoUSA"));
 const GeoUK = lazy(() => import("./pages/geo/GeoUK"));
