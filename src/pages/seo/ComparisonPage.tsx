@@ -26,7 +26,15 @@ export default function ComparisonPage() {
   const { slug } = useParams<{ slug: string }>();
   const page = comparisonPagesData.find(p => p.slug === slug);
 
-  if (!page) return <Navigate to="/404" replace />;
+  // Fall back to auto-generated comparison page if no curated page found
+  if (!page) {
+    const AutoComparisonPage = lazy(() => import("./AutoComparisonPage"));
+    const { getAutoComparisonBySlug } = require("@/data/autoComparisonPairs");
+    if (slug && getAutoComparisonBySlug(slug)) {
+      return <Suspense fallback={<div className="min-h-screen" />}><AutoComparisonPage /></Suspense>;
+    }
+    return <Navigate to="/404" replace />;
+  }
 
   const related = getRelatedComparisons(page.slug);
   const relatedUseCases = getUseCasesForComparison(page.slug);
