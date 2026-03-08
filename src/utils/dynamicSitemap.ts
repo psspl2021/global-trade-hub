@@ -5,6 +5,8 @@
 import { industrialProducts } from "@/data/industrialProducts";
 import { demandProducts } from "@/data/demandProducts";
 import { getWeightedLinks } from "@/utils/revenueLinkEngine";
+import { autoComparisonPairs } from "@/data/autoComparisonPairs";
+import { procurementGuides } from "@/data/procurementGuides";
 
 export function generateDynamicSitemapXml(): string {
   const base = "https://www.procuresaathi.com";
