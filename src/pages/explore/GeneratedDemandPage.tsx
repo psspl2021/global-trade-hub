@@ -102,6 +102,7 @@ export default function GeneratedDemandPage() {
     "brand": { "@type": "Brand", "name": "ProcureSaathi" },
     "category": product.category,
     "description": `Source ${product.name} in India with verified suppliers, import intelligence, and procurement insights for industrial buyers.`,
+    "dateModified": new Date().toISOString().split('T')[0],
     "offers": {
       "@type": "AggregateOffer",
       "priceCurrency": "INR",

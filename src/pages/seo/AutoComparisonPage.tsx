@@ -123,6 +123,7 @@ export default function AutoComparisonPage() {
         <title>{pair.metaTitle}</title>
         <meta name="description" content={pair.metaDescription} />
         <link rel="canonical" href={canonicalUrl} />
+        {!indexAllowed && <meta name="robots" content="noindex, follow" />}
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
