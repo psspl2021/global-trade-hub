@@ -1,10 +1,11 @@
 /**
  * Module 4: Auto-Generated Comparison Page
  * Renders a rich comparison for any product pair in the autoComparisonPairs registry.
+ * Noindexes low-demand pages to prevent crawl budget waste.
  */
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { getAutoComparisonBySlug } from '@/data/autoComparisonPairs';
+import { getAutoComparisonBySlug, SEARCH_VOLUME_THRESHOLD } from '@/data/autoComparisonPairs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -82,6 +83,8 @@ export default function AutoComparisonPage() {
     },
   ];
 
+  const indexAllowed = (pair.searchVolume ?? 0) >= SEARCH_VOLUME_THRESHOLD;
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -89,6 +92,8 @@ export default function AutoComparisonPage() {
     "description": pair.metaDescription,
     "author": { "@type": "Organization", "name": "ProcureSaathi" },
     "publisher": { "@type": "Organization", "name": "ProcureSaathi" },
+    "datePublished": "2026-01-01",
+    "dateModified": new Date().toISOString().split('T')[0],
     "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
   };
 
@@ -118,6 +123,7 @@ export default function AutoComparisonPage() {
         <title>{pair.metaTitle}</title>
         <meta name="description" content={pair.metaDescription} />
         <link rel="canonical" href={canonicalUrl} />
+        {!indexAllowed && <meta name="robots" content="noindex, follow" />}
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>

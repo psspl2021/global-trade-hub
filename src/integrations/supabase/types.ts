@@ -3171,6 +3171,27 @@ export type Database = {
           },
         ]
       }
+      internal_links: {
+        Row: {
+          id: string
+          link_count: number | null
+          target_slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          link_count?: number | null
+          target_slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          link_count?: number | null
+          target_slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       international_leads: {
         Row: {
           company_name: string | null
@@ -5254,6 +5275,33 @@ export type Database = {
         }
         Relationships: []
       }
+      query_history: {
+        Row: {
+          clicks: number | null
+          created_at: string | null
+          date: string
+          id: string
+          impressions: number | null
+          query: string
+        }
+        Insert: {
+          clicks?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          impressions?: number | null
+          query: string
+        }
+        Update: {
+          clicks?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          impressions?: number | null
+          query?: string
+        }
+        Relationships: []
+      }
       referral_commissions: {
         Row: {
           bid_amount: number
@@ -5894,6 +5942,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rfq_analytics: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          organic_visits: number | null
+          page_slug: string
+          rfqs: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          organic_visits?: number | null
+          page_slug: string
+          rfqs?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          organic_visits?: number | null
+          page_slug?: string
+          rfqs?: number | null
+        }
+        Relationships: []
       }
       rfq_conversion_events: {
         Row: {
