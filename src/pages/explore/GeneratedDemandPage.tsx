@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
 import { useState } from 'react';
+import GSCQueryInjection from '@/components/seo/GSCQueryInjection';
+import RevenueWeightedLinksLive from '@/components/seo/RevenueWeightedLinksLive';
+import DemandIntelligenceTable from '@/components/seo/DemandIntelligenceTable';
 
 function BreadcrumbNav({ product }: { product: DemandProduct }) {
   const breadcrumbSchema = {
