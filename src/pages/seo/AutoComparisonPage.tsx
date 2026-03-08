@@ -83,6 +83,8 @@ export default function AutoComparisonPage() {
     },
   ];
 
+  const indexAllowed = (pair.searchVolume ?? 0) >= SEARCH_VOLUME_THRESHOLD;
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -90,6 +92,8 @@ export default function AutoComparisonPage() {
     "description": pair.metaDescription,
     "author": { "@type": "Organization", "name": "ProcureSaathi" },
     "publisher": { "@type": "Organization", "name": "ProcureSaathi" },
+    "datePublished": "2026-01-01",
+    "dateModified": new Date().toISOString().split('T')[0],
     "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
   };
 
