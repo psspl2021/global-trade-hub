@@ -1,10 +1,11 @@
 /**
  * Module 4: Auto-Generated Comparison Page
  * Renders a rich comparison for any product pair in the autoComparisonPairs registry.
+ * Noindexes low-demand pages to prevent crawl budget waste.
  */
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { getAutoComparisonBySlug } from '@/data/autoComparisonPairs';
+import { getAutoComparisonBySlug, SEARCH_VOLUME_THRESHOLD } from '@/data/autoComparisonPairs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
