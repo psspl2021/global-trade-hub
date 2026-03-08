@@ -270,6 +270,7 @@ const BotAwareRouter = () => {
         <Route path="/export-import-sourcing-guide" element={<ExportImportSourcingGuide />} />
         <Route path="/export-certification/:slug" element={<ExportCertificationPage />} />
         <Route path="/ai-b2b-procurement-platform-guide" element={<AIB2BProcurementGuide />} />
+        <Route path="/guides/:slug" element={<ProcurementGuidePage />} />
         
         {/* Comparison Pages */}
         <Route path="/best-b2b-procurement-platforms-india" element={<BestB2BPlatformsIndia />} />
