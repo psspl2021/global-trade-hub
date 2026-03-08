@@ -425,6 +425,15 @@ export default function GeneratedDemandPage() {
                 </div>
               </section>
 
+              {/* ─── MODULE 3: REGIONAL DEMAND INTELLIGENCE ─────── */}
+              <DemandIntelligenceTable product={product} />
+
+              {/* ─── MODULE 1: GSC QUERY INJECTION ────────────────── */}
+              <GSCQueryInjection slug={product.slug} productName={product.name} />
+
+              {/* ─── MODULE 2: REVENUE WEIGHTED LINKS ────────────── */}
+              <RevenueWeightedLinksLive currentSlug={product.slug} />
+
               {/* ─── WHY PROCURESAATHI ────────────────────────────── */}
               <section className="bg-primary/5 rounded-2xl p-8">
                 <h2 className="text-2xl font-bold text-foreground mb-6">Why Source {product.name} Through ProcureSaathi?</h2>
