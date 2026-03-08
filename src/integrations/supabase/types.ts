@@ -3064,6 +3064,39 @@ export type Database = {
         }
         Relationships: []
       }
+      gsc_queries: {
+        Row: {
+          clicks: number | null
+          ctr: number | null
+          id: string
+          impressions: number | null
+          page_slug: string
+          position: number | null
+          query: string
+          updated_at: string | null
+        }
+        Insert: {
+          clicks?: number | null
+          ctr?: number | null
+          id?: string
+          impressions?: number | null
+          page_slug: string
+          position?: number | null
+          query: string
+          updated_at?: string | null
+        }
+        Update: {
+          clicks?: number | null
+          ctr?: number | null
+          id?: string
+          impressions?: number | null
+          page_slug?: string
+          position?: number | null
+          query?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       gsc_striking_distance: {
         Row: {
           boosted_at: string | null
@@ -6026,6 +6059,39 @@ export type Database = {
           session_id?: string | null
           sku_slug?: string | null
           source_page_type?: string
+        }
+        Relationships: []
+      }
+      rfq_signals: {
+        Row: {
+          avg_order_size: number | null
+          id: string
+          last_updated: string | null
+          price_trend: string | null
+          product_name: string | null
+          product_slug: string
+          rfq_count: number | null
+          top_industries: string[] | null
+        }
+        Insert: {
+          avg_order_size?: number | null
+          id?: string
+          last_updated?: string | null
+          price_trend?: string | null
+          product_name?: string | null
+          product_slug: string
+          rfq_count?: number | null
+          top_industries?: string[] | null
+        }
+        Update: {
+          avg_order_size?: number | null
+          id?: string
+          last_updated?: string | null
+          price_trend?: string | null
+          product_name?: string | null
+          product_slug?: string
+          rfq_count?: number | null
+          top_industries?: string[] | null
         }
         Relationships: []
       }
