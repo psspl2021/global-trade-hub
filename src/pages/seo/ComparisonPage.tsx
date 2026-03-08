@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { comparisonPagesData } from "@/data/comparisonPages";
+import { getAutoComparisonBySlug } from "@/data/autoComparisonPairs";
 import { getRelatedComparisons, getUseCasesForComparison } from "@/utils/related";
 import { injectContextualLinks } from "@/utils/internalLinkingEngine";
 import { enhanceIntent } from "@/utils/intentEnhancer";
