@@ -66,6 +66,7 @@ const FindVerifiedSuppliers = lazy(() => import("./pages/guides/FindVerifiedSupp
 const EnterpriseProcurementGuide = lazy(() => import("./pages/guides/EnterpriseProcurementGuide"));
 const ExportImportSourcingGuide = lazy(() => import("./pages/guides/ExportImportSourcingGuide"));
 const AIB2BProcurementGuide = lazy(() => import("./pages/guides/AIB2BProcurementGuide"));
+const ProcurementGuidePage = lazy(() => import("./pages/guides/ProcurementGuidePage"));
 const ExportCertificationPage = lazy(() => import("./pages/export-certification/ExportCertificationPage"));
 
 // Comparison Pages
