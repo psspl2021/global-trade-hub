@@ -237,6 +237,7 @@ const BotAwareRouter = () => {
         <Route path="/admin/seo-monitor" element={<AdminSEOMonitor />} />
         <Route path="/admin/seo-revenue" element={<SeoRevenueDashboard />} />
         <Route path="/admin/seo-intelligence" element={<AdminIntelligenceDashboard />} />
+        <Route path="/admin/seo-dashboard" element={<SEODashboard />} />
         
         {/* Legacy routes - redirect to new structure */}
         <Route path="/management-dashboard" element={<Navigate to="/management" replace />} />
