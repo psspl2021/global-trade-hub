@@ -7,13 +7,16 @@ interface Props {
 
 /**
  * Module 1: GSC Query Intelligence Engine
- * Injects top-performing search queries as content sections on demand pages.
- * Queries come from live GSC data stored in the gsc_queries table.
+ * Injects top 3 performing search queries to avoid keyword stuffing.
  */
 export default function GSCQueryInjection({ slug, productName }: Props) {
   const { data: queries } = useGSCQueries(slug);
 
-  if (!queries || queries.length === 0) return null;
+  const topQueries = (queries ?? [])
+    .sort((a, b) => b.impressions - a.impressions)
+    .slice(0, 3);
+
+  if (topQueries.length === 0) return null;
 
   return (
     <section className="space-y-6">
@@ -29,16 +32,16 @@ export default function GSCQueryInjection({ slug, productName }: Props) {
         Based on real search demand intelligence, these are the most common procurement queries related to {productName} in India.
       </p>
       <div className="grid gap-4 md:grid-cols-2">
-        {queries.slice(0, 6).map((q, i) => (
+        {topQueries.map((q, i) => (
           <div key={i} className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors">
             <h3 className="font-semibold text-foreground capitalize mb-2">
               {q.query}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
               Industrial buyers searching for "{q.query}" typically evaluate supplier reliability,
-              pricing benchmarks, grade compliance, and logistics lead times. ProcureSaathi provides
-              verified suppliers and procurement intelligence to support informed sourcing decisions
-              for {productName}.
+              pricing benchmarks, compliance standards, and delivery timelines.
+              ProcureSaathi provides verified suppliers and procurement intelligence
+              to support informed sourcing decisions for {productName}.
             </p>
             <div className="flex gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
