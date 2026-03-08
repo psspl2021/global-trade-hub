@@ -30,9 +30,8 @@ export default function ComparisonPage() {
 
   // Fall back to auto-generated comparison page if no curated page found
   if (!page) {
-    const AutoComparisonPage = lazy(() => import("@/pages/seo/AutoComparisonPage"));
-    const { getAutoComparisonBySlug } = await import("@/data/autoComparisonPairs");
     if (slug && getAutoComparisonBySlug(slug)) {
+      const AutoComparisonPage = lazy(() => import("@/pages/seo/AutoComparisonPage"));
       return <Suspense fallback={<div className="min-h-screen" />}><AutoComparisonPage /></Suspense>;
     }
     return <Navigate to="/404" replace />;
