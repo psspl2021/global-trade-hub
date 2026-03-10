@@ -19,7 +19,7 @@ export function useGSCQueries(slug: string) {
         .select('page_slug, query, clicks, impressions, ctr, position')
         .eq('page_slug', `/demand/${slug}`)
         .order('impressions', { ascending: false })
-        .limit(8);
+        .limit(10);
 
       if (error) throw error;
       return (data || []) as GSCQuery[];
