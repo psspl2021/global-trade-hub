@@ -124,9 +124,9 @@ export default function SEODashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="p-5 text-center">
-                  <p className="text-3xl font-bold text-primary">{indexationRate}%</p>
+                  <p className="text-3xl font-bold text-primary">{indexationRate.toFixed(1)}%</p>
                   <p className="text-sm text-muted-foreground mt-1">Indexation Rate</p>
-                  <p className="text-xs text-muted-foreground">{indexedCount} / {indexedTotal} pages{hasRealData ? '' : ' (estimated)'}</p>
+                  <p className="text-xs text-muted-foreground">{indexedCount} / {indexedTotal} pages indexed</p>
                 </CardContent>
               </Card>
               <Card>
