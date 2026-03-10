@@ -3171,6 +3171,24 @@ export type Database = {
           },
         ]
       }
+      indexed_pages: {
+        Row: {
+          indexed: boolean
+          last_checked: string | null
+          url: string
+        }
+        Insert: {
+          indexed?: boolean
+          last_checked?: string | null
+          url: string
+        }
+        Update: {
+          indexed?: boolean
+          last_checked?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       internal_links: {
         Row: {
           id: string

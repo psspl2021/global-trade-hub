@@ -34,11 +34,29 @@ interface RFQAnalyticsRow {
   date: string;
 }
 
+interface IndexedPageRow {
+  url: string;
+  indexed: boolean;
+  last_checked: string;
+}
+interface InternalLinkRow {
+  target_slug: string;
+  link_count: number;
+}
+
+interface RFQAnalyticsRow {
+  page_slug: string;
+  organic_visits: number;
+  rfqs: number;
+  date: string;
+}
+
 /* ─── Component ────────────────────────────────── */
 export default function SEODashboard() {
   const [queryHistory, setQueryHistory] = useState<QueryHistoryRow[]>([]);
   const [internalLinks, setInternalLinks] = useState<InternalLinkRow[]>([]);
   const [rfqAnalytics, setRFQAnalytics] = useState<RFQAnalyticsRow[]>([]);
+  const [indexedPages, setIndexedPages] = useState<IndexedPageRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Page counts
@@ -50,15 +68,17 @@ export default function SEODashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [qRes, lRes, rRes] = await Promise.all([
+      const [qRes, lRes, rRes, iRes] = await Promise.all([
         supabase.from('query_history').select('*').order('date', { ascending: true }).limit(500),
         supabase.from('internal_links').select('*').order('link_count', { ascending: false }).limit(20),
         supabase.from('rfq_analytics').select('*').order('date', { ascending: false }).limit(100),
+        supabase.from('indexed_pages').select('*'),
       ]);
 
       if (qRes.data) setQueryHistory(qRes.data as QueryHistoryRow[]);
       if (lRes.data) setInternalLinks(lRes.data as InternalLinkRow[]);
       if (rRes.data) setRFQAnalytics(rRes.data as RFQAnalyticsRow[]);
+      if (iRes.data) setIndexedPages(iRes.data as IndexedPageRow[]);
       setLoading(false);
     }
     fetchData();
@@ -85,9 +105,13 @@ export default function SEODashboard() {
     .sort((a, b) => Number(b.conversion) - Number(a.conversion))
     .slice(0, 20);
 
-  // Simulated indexation (would come from GSC API in production)
-  const estimatedIndexed = Math.round(totalPages * 0.85);
-  const indexationRate = totalPages > 0 ? ((estimatedIndexed / totalPages) * 100).toFixed(1) : '0';
+  // Real indexation from indexed_pages table
+  const realIndexedCount = indexedPages.filter(p => p.indexed).length;
+  const realTotal = indexedPages.length;
+  const hasRealData = realTotal > 0;
+  const indexedCount = hasRealData ? realIndexedCount : Math.round(totalPages * 0.85);
+  const indexedTotal = hasRealData ? realTotal : totalPages;
+  const indexationRate = indexedTotal > 0 ? ((indexedCount / indexedTotal) * 100).toFixed(1) : '0';
 
   return (
     <>
@@ -116,7 +140,7 @@ export default function SEODashboard() {
                 <CardContent className="p-5 text-center">
                   <p className="text-3xl font-bold text-primary">{indexationRate}%</p>
                   <p className="text-sm text-muted-foreground mt-1">Indexation Rate</p>
-                  <p className="text-xs text-muted-foreground">{estimatedIndexed} / {totalPages} pages</p>
+                  <p className="text-xs text-muted-foreground">{indexedCount} / {indexedTotal} pages{hasRealData ? '' : ' (estimated)'}</p>
                 </CardContent>
               </Card>
               <Card>

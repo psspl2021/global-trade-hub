@@ -17,7 +17,7 @@ export function useGSCQueries(slug: string) {
       const { data, error } = await supabase
         .from('gsc_queries')
         .select('page_slug, query, clicks, impressions, ctr, position')
-        .eq('page_slug', slug)
+        .eq('page_slug', `/demand/${slug}`)
         .order('impressions', { ascending: false })
         .limit(8);
 
