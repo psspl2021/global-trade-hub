@@ -105,9 +105,13 @@ export default function SEODashboard() {
     .sort((a, b) => Number(b.conversion) - Number(a.conversion))
     .slice(0, 20);
 
-  // Simulated indexation (would come from GSC API in production)
-  const estimatedIndexed = Math.round(totalPages * 0.85);
-  const indexationRate = totalPages > 0 ? ((estimatedIndexed / totalPages) * 100).toFixed(1) : '0';
+  // Real indexation from indexed_pages table
+  const realIndexedCount = indexedPages.filter(p => p.indexed).length;
+  const realTotal = indexedPages.length;
+  const hasRealData = realTotal > 0;
+  const indexedCount = hasRealData ? realIndexedCount : Math.round(totalPages * 0.85);
+  const indexedTotal = hasRealData ? realTotal : totalPages;
+  const indexationRate = indexedTotal > 0 ? ((indexedCount / indexedTotal) * 100).toFixed(1) : '0';
 
   return (
     <>
