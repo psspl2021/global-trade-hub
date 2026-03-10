@@ -53,7 +53,7 @@ const SKIP_PATHS = [
 export function GlobalDemandTracker() {
   const location = useLocation();
   const geoData = useGeoDetection();
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPathRef = useRef<string>('');
   
   // Log stats on mount (dev only)

@@ -89,7 +89,7 @@ const getTimeSpentOnPage = (path: string): number | null => {
 export const VisitorTracker = () => {
   const location = useLocation();
   const lastTrackedPath = useRef<string>('');
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentVisitId = useRef<string | null>(null);
 
   // Function to update time spent on previous page
