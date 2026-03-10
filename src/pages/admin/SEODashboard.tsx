@@ -76,7 +76,7 @@ export default function SEODashboard() {
       setLoading(false);
     }
     fetchData();
-  }, []);
+  }, [totalPages]);
 
   // Aggregate query growth by date
   const queryGrowthData = queryHistory.reduce<Record<string, { date: string; clicks: number; impressions: number }>>((acc, row) => {
