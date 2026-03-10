@@ -78,26 +78,30 @@ export default function SEODashboard() {
     fetchData();
   }, [totalPages]);
 
-  // Aggregate query growth by date
-  const queryGrowthData = queryHistory.reduce<Record<string, { date: string; clicks: number; impressions: number }>>((acc, row) => {
-    if (!acc[row.date]) acc[row.date] = { date: row.date, clicks: 0, impressions: 0 };
-    acc[row.date].clicks += row.clicks;
-    acc[row.date].impressions += row.impressions;
-    return acc;
-  }, {});
-  const queryGrowthChart = Object.values(queryGrowthData).sort((a, b) => a.date.localeCompare(b.date));
+  // Aggregate query growth by date (memoized for performance)
+  const queryGrowthChart = useMemo(() => {
+    const growth = queryHistory.reduce<Record<string, { date: string; clicks: number; impressions: number }>>((acc, row) => {
+      if (!acc[row.date]) acc[row.date] = { date: row.date, clicks: 0, impressions: 0 };
+      acc[row.date].clicks += row.clicks;
+      acc[row.date].impressions += row.impressions;
+      return acc;
+    }, {});
+    return Object.values(growth).sort((a, b) => a.date.localeCompare(b.date));
+  }, [queryHistory]);
 
-  // Top pages by RFQ conversion
-  const rfqByPage = rfqAnalytics.reduce<Record<string, { page_slug: string; organic_visits: number; rfqs: number }>>((acc, row) => {
-    if (!acc[row.page_slug]) acc[row.page_slug] = { page_slug: row.page_slug, organic_visits: 0, rfqs: 0 };
-    acc[row.page_slug].organic_visits += row.organic_visits;
-    acc[row.page_slug].rfqs += row.rfqs;
-    return acc;
-  }, {});
-  const rfqConversionTable = Object.values(rfqByPage)
-    .map(r => ({ ...r, conversion: r.organic_visits > 0 ? ((r.rfqs / r.organic_visits) * 100).toFixed(2) : '0' }))
-    .sort((a, b) => Number(b.conversion) - Number(a.conversion))
-    .slice(0, 20);
+  // Top pages by RFQ conversion (memoized for performance)
+  const rfqConversionTable = useMemo(() => {
+    const rfqByPage = rfqAnalytics.reduce<Record<string, { page_slug: string; organic_visits: number; rfqs: number }>>((acc, row) => {
+      if (!acc[row.page_slug]) acc[row.page_slug] = { page_slug: row.page_slug, organic_visits: 0, rfqs: 0 };
+      acc[row.page_slug].organic_visits += row.organic_visits;
+      acc[row.page_slug].rfqs += row.rfqs;
+      return acc;
+    }, {});
+    return Object.values(rfqByPage)
+      .map(r => ({ ...r, conversion: r.organic_visits > 0 ? ((r.rfqs / r.organic_visits) * 100).toFixed(2) : '0' }))
+      .sort((a, b) => Number(b.conversion) - Number(a.conversion))
+      .slice(0, 20);
+  }, [rfqAnalytics]);
 
   return (
     <>
