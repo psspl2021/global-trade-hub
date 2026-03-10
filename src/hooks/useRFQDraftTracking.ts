@@ -111,7 +111,7 @@ export function useRFQDraftTracking({
   const hasInteracted = useRef(false);
   const isSubmitted = useRef(false);
   const draftSaved = useRef(false);
-  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionId = useRef(getSessionId());
   
   // Store latest form data for saving - category is extracted dynamically at save time

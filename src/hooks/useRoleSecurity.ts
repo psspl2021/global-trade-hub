@@ -51,7 +51,7 @@ export function useRoleSecurity(): RoleSecurityContext {
   const { user } = useAuth();
   const [verifiedRoles, setVerifiedRoles] = useState<Map<string, VerificationState>>(new Map());
   const [isVerifying, setIsVerifying] = useState(false);
-  const expiryTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const expiryTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // Clear all verifications on logout
   useEffect(() => {
