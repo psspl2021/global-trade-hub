@@ -56,6 +56,7 @@ export default function SEODashboard() {
   const [queryHistory, setQueryHistory] = useState<QueryHistoryRow[]>([]);
   const [internalLinks, setInternalLinks] = useState<InternalLinkRow[]>([]);
   const [rfqAnalytics, setRFQAnalytics] = useState<RFQAnalyticsRow[]>([]);
+  const [indexedPages, setIndexedPages] = useState<IndexedPageRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Page counts
@@ -67,15 +68,17 @@ export default function SEODashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [qRes, lRes, rRes] = await Promise.all([
+      const [qRes, lRes, rRes, iRes] = await Promise.all([
         supabase.from('query_history').select('*').order('date', { ascending: true }).limit(500),
         supabase.from('internal_links').select('*').order('link_count', { ascending: false }).limit(20),
         supabase.from('rfq_analytics').select('*').order('date', { ascending: false }).limit(100),
+        supabase.from('indexed_pages').select('*'),
       ]);
 
       if (qRes.data) setQueryHistory(qRes.data as QueryHistoryRow[]);
       if (lRes.data) setInternalLinks(lRes.data as InternalLinkRow[]);
       if (rRes.data) setRFQAnalytics(rRes.data as RFQAnalyticsRow[]);
+      if (iRes.data) setIndexedPages(iRes.data as IndexedPageRow[]);
       setLoading(false);
     }
     fetchData();
