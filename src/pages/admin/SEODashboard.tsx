@@ -140,7 +140,7 @@ export default function SEODashboard() {
                 <CardContent className="p-5 text-center">
                   <p className="text-3xl font-bold text-primary">{indexationRate}%</p>
                   <p className="text-sm text-muted-foreground mt-1">Indexation Rate</p>
-                  <p className="text-xs text-muted-foreground">{estimatedIndexed} / {totalPages} pages</p>
+                  <p className="text-xs text-muted-foreground">{indexedCount} / {indexedTotal} pages{hasRealData ? '' : ' (estimated)'}</p>
                 </CardContent>
               </Card>
               <Card>
