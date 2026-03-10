@@ -34,6 +34,23 @@ interface RFQAnalyticsRow {
   date: string;
 }
 
+interface IndexedPageRow {
+  url: string;
+  indexed: boolean;
+  last_checked: string;
+}
+interface InternalLinkRow {
+  target_slug: string;
+  link_count: number;
+}
+
+interface RFQAnalyticsRow {
+  page_slug: string;
+  organic_visits: number;
+  rfqs: number;
+  date: string;
+}
+
 /* ─── Component ────────────────────────────────── */
 export default function SEODashboard() {
   const [queryHistory, setQueryHistory] = useState<QueryHistoryRow[]>([]);
