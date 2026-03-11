@@ -66,6 +66,7 @@ import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard'
 import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
+import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -368,6 +369,9 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Reverse Auction Section */}
+            <ReverseAuctionDashboard isSupplier={false} />
 
             {/* Requirements List with Bid Details */}
             {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
@@ -786,6 +790,11 @@ const Dashboard = () => {
                 <p className="text-sm font-medium">Invoices & PO</p>
                 <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowCRM(true)}>CRM</Button>
               </Card>
+            </div>
+
+            {/* Reverse Auctions (Supplier View) */}
+            <div className="mt-4">
+              <ReverseAuctionDashboard isSupplier={true} />
             </div>
 
             {/* Compact cards grid for Subscription, Email, Platform Invoices */}
