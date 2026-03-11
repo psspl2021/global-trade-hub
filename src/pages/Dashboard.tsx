@@ -792,6 +792,11 @@ const Dashboard = () => {
               </Card>
             </div>
 
+            {/* Reverse Auctions (Supplier View) */}
+            <div className="mt-4">
+              <ReverseAuctionDashboard isSupplier={true} />
+            </div>
+
             {/* Compact cards grid for Subscription, Email, Platform Invoices */}
             <div className="grid gap-2 grid-cols-3 mt-4">
               <Card className="p-3">
