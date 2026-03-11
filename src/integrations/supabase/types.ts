@@ -5961,6 +5961,154 @@ export type Database = {
           },
         ]
       }
+      reverse_auction_bids: {
+        Row: {
+          auction_id: string
+          bid_price: number
+          created_at: string
+          id: string
+          is_winning: boolean
+          supplier_id: string
+        }
+        Insert: {
+          auction_id: string
+          bid_price: number
+          created_at?: string
+          id?: string
+          is_winning?: boolean
+          supplier_id: string
+        }
+        Update: {
+          auction_id?: string
+          bid_price?: number
+          created_at?: string
+          id?: string
+          is_winning?: boolean
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reverse_auction_bids_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reverse_auction_suppliers: {
+        Row: {
+          auction_id: string
+          floor_price: number | null
+          id: string
+          invited_at: string
+          joined: boolean
+          joined_at: string | null
+          supplier_id: string
+        }
+        Insert: {
+          auction_id: string
+          floor_price?: number | null
+          id?: string
+          invited_at?: string
+          joined?: boolean
+          joined_at?: string | null
+          supplier_id: string
+        }
+        Update: {
+          auction_id?: string
+          floor_price?: number | null
+          id?: string
+          invited_at?: string
+          joined?: boolean
+          joined_at?: string | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reverse_auction_suppliers_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reverse_auctions: {
+        Row: {
+          anti_snipe_seconds: number
+          anti_snipe_threshold_seconds: number
+          auction_end: string | null
+          auction_start: string | null
+          buyer_id: string
+          category: string
+          created_at: string
+          currency: string
+          current_price: number | null
+          id: string
+          minimum_bid_step_pct: number
+          product_slug: string
+          quantity: number
+          reserve_price: number | null
+          starting_price: number
+          status: string
+          title: string
+          transaction_type: string
+          unit: string
+          updated_at: string
+          winner_supplier_id: string | null
+          winning_price: number | null
+        }
+        Insert: {
+          anti_snipe_seconds?: number
+          anti_snipe_threshold_seconds?: number
+          auction_end?: string | null
+          auction_start?: string | null
+          buyer_id: string
+          category?: string
+          created_at?: string
+          currency?: string
+          current_price?: number | null
+          id?: string
+          minimum_bid_step_pct?: number
+          product_slug: string
+          quantity: number
+          reserve_price?: number | null
+          starting_price: number
+          status?: string
+          title: string
+          transaction_type?: string
+          unit?: string
+          updated_at?: string
+          winner_supplier_id?: string | null
+          winning_price?: number | null
+        }
+        Update: {
+          anti_snipe_seconds?: number
+          anti_snipe_threshold_seconds?: number
+          auction_end?: string | null
+          auction_start?: string | null
+          buyer_id?: string
+          category?: string
+          created_at?: string
+          currency?: string
+          current_price?: number | null
+          id?: string
+          minimum_bid_step_pct?: number
+          product_slug?: string
+          quantity?: number
+          reserve_price?: number | null
+          starting_price?: number
+          status?: string
+          title?: string
+          transaction_type?: string
+          unit?: string
+          updated_at?: string
+          winner_supplier_id?: string | null
+          winning_price?: number | null
+        }
+        Relationships: []
+      }
       rfq_analytics: {
         Row: {
           created_at: string | null
