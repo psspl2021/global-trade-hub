@@ -274,8 +274,8 @@ export default function SEODashboard() {
                       <TableCell>{row.organic_visits.toLocaleString()}</TableCell>
                       <TableCell>{row.rfqs}</TableCell>
                       <TableCell>
-                        <Badge variant={Number(row.conversion) > 2 ? 'default' : 'secondary'}>
-                          {row.conversion}%
+                        <Badge variant={row.conversion > 2 ? 'default' : 'secondary'}>
+                          {row.conversion.toFixed(2)}%
                         </Badge>
                       </TableCell>
                     </TableRow>
