@@ -98,8 +98,8 @@ export default function SEODashboard() {
       return acc;
     }, {});
     return Object.values(rfqByPage)
-      .map(r => ({ ...r, conversion: r.organic_visits > 0 ? ((r.rfqs / r.organic_visits) * 100).toFixed(2) : '0' }))
-      .sort((a, b) => Number(b.conversion) - Number(a.conversion))
+      .map(r => ({ ...r, conversion: r.organic_visits > 0 ? (r.rfqs / r.organic_visits) * 100 : 0 }))
+      .sort((a, b) => b.conversion - a.conversion)
       .slice(0, 20);
   }, [rfqAnalytics]);
 
