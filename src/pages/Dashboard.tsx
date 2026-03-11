@@ -370,6 +370,9 @@ const Dashboard = () => {
               </Card>
             </div>
 
+            {/* Reverse Auction Section */}
+            <ReverseAuctionDashboard isSupplier={false} />
+
             {/* Requirements List with Bid Details */}
             {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
             
