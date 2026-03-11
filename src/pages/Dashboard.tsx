@@ -66,6 +66,7 @@ import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard'
 import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
+import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
