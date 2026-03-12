@@ -1,17 +1,18 @@
 /**
  * Create Reverse Auction Form — Buyer Tool
- * Allows buyers to set up a reverse auction with invited suppliers
+ * AI-generated title, supplier search, manual start date/time, auto end calculation
  */
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Gavel, Plus, X, Clock, IndianRupee } from 'lucide-react';
+import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useReverseAuction, CreateAuctionInput } from '@/hooks/useReverseAuction';
+import { supabase } from '@/integrations/supabase/client';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
@@ -27,6 +28,26 @@ const DURATION_OPTIONS = [
   { label: '24 hours', value: 1440 },
 ];
 
+interface SupplierOption {
+  id: string;
+  company_name: string;
+  contact_person: string;
+  city: string | null;
+}
+
+function generateAuctionTitle(product: string, quantity: string, unit: string, tradeType: string): string {
+  if (!product || !quantity) return '';
+  const tradeLabel = tradeType === 'domestic' ? 'Domestic' : tradeType === 'import' ? 'Import' : 'Export';
+  return `${product} – ${quantity} ${unit} Reverse Auction (${tradeLabel})`;
+}
+
+function calculateEndTime(date: string, time: string, durationMinutes: number): Date | null {
+  if (!date || !time) return null;
+  const start = new Date(`${date}T${time}`);
+  if (isNaN(start.getTime())) return null;
+  return new Date(start.getTime() + durationMinutes * 60 * 1000);
+}
+
 interface CreateReverseAuctionFormProps {
   onCreated?: () => void;
 }
@@ -36,52 +57,88 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [title, setTitle] = useState('');
+  // Form state
   const [product, setProduct] = useState('');
   const [category, setCategory] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('MT');
   const [startingPrice, setStartingPrice] = useState('');
   const [reservePrice, setReservePrice] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(30);
-  const [transactionType, setTransactionType] = useState('domestic');
   const [minBidStep, setMinBidStep] = useState('0.25');
-  const [supplierEmail, setSupplierEmail] = useState('');
-  const [invitedSuppliers, setInvitedSuppliers] = useState<string[]>([]);
+  const [transactionType, setTransactionType] = useState('domestic');
 
-  const addSupplier = () => {
-    if (supplierEmail.trim() && !invitedSuppliers.includes(supplierEmail.trim())) {
-      setInvitedSuppliers(prev => [...prev, supplierEmail.trim()]);
-      setSupplierEmail('');
-    }
+  // AI title
+  const [auctionTitle, setAuctionTitle] = useState('');
+  useEffect(() => {
+    setAuctionTitle(generateAuctionTitle(product, quantity, unit, transactionType));
+  }, [product, quantity, unit, transactionType]);
+
+  // Supplier search
+  const [supplierSearch, setSupplierSearch] = useState('');
+  const [allSuppliers, setAllSuppliers] = useState<SupplierOption[]>([]);
+  const [invitedSuppliers, setInvitedSuppliers] = useState<SupplierOption[]>([]);
+  const [showResults, setShowResults] = useState(false);
+
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, company_name, contact_person, city')
+        .eq('business_type', 'supplier')
+        .order('company_name');
+      if (data) setAllSuppliers(data as SupplierOption[]);
+    };
+    if (open) fetchSuppliers();
+  }, [open]);
+
+  const filteredSuppliers = useMemo(() => {
+    if (!supplierSearch.trim()) return [];
+    const q = supplierSearch.toLowerCase();
+    const invitedIds = new Set(invitedSuppliers.map(s => s.id));
+    return allSuppliers
+      .filter(s => !invitedIds.has(s.id) && (
+        s.company_name.toLowerCase().includes(q) ||
+        s.contact_person.toLowerCase().includes(q)
+      ))
+      .slice(0, 8);
+  }, [supplierSearch, allSuppliers, invitedSuppliers]);
+
+  const addSupplier = (supplier: SupplierOption) => {
+    setInvitedSuppliers(prev => [...prev, supplier]);
+    setSupplierSearch('');
+    setShowResults(false);
   };
 
-  const removeSupplier = (email: string) => {
-    setInvitedSuppliers(prev => prev.filter(s => s !== email));
+  const removeSupplier = (id: string) => {
+    setInvitedSuppliers(prev => prev.filter(s => s.id !== id));
   };
+
+  // Calculated end time
+  const auctionEnd = useMemo(() => calculateEndTime(startDate, startTime, durationMinutes), [startDate, startTime, durationMinutes]);
 
   const handleSubmit = async () => {
-    if (!title || !product || !category || !quantity || !startingPrice) {
-      return;
-    }
+    if (!auctionTitle || !product || !category || !quantity || !startingPrice || !startDate || !startTime) return;
+    if (!auctionEnd) return;
 
     setIsSubmitting(true);
-    const now = new Date();
-    const end = new Date(now.getTime() + durationMinutes * 60 * 1000);
+    const auctionStart = new Date(`${startDate}T${startTime}`);
 
     const input: CreateAuctionInput = {
-      title,
+      title: auctionTitle,
       product_slug: product.toLowerCase().replace(/\s+/g, '-'),
       category,
       quantity: parseFloat(quantity),
       unit,
       starting_price: parseFloat(startingPrice),
       reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
-      auction_start: now.toISOString(),
-      auction_end: end.toISOString(),
+      auction_start: auctionStart.toISOString(),
+      auction_end: auctionEnd.toISOString(),
       transaction_type: transactionType,
       minimum_bid_step_pct: parseFloat(minBidStep),
-      invited_supplier_ids: invitedSuppliers,
+      invited_supplier_ids: invitedSuppliers.map(s => s.id),
     };
 
     const result = await createAuction(input);
@@ -95,15 +152,19 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   };
 
   const resetForm = () => {
-    setTitle('');
     setProduct('');
     setCategory('');
     setQuantity('');
     setStartingPrice('');
     setReservePrice('');
+    setStartDate('');
+    setStartTime('');
     setInvitedSuppliers([]);
-    setSupplierEmail('');
+    setSupplierSearch('');
+    setAuctionTitle('');
   };
+
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -122,10 +183,21 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Title */}
+          {/* AI Generated Title */}
           <div>
-            <Label htmlFor="title">Auction Title</Label>
-            <Input id="title" placeholder="e.g. HR Coil Q2 Procurement" value={title} onChange={e => setTitle(e.target.value)} />
+            <Label className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              AI Generated Auction Title
+            </Label>
+            <Input
+              value={auctionTitle}
+              onChange={e => setAuctionTitle(e.target.value)}
+              placeholder="Title auto-generates from product, quantity & trade type"
+              className="mt-1"
+            />
+            {auctionTitle && (
+              <p className="text-xs text-muted-foreground mt-1">Auto-generated — you can edit if needed</p>
+            )}
           </div>
 
           {/* Product & Category */}
@@ -183,7 +255,19 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </div>
           </div>
 
-          {/* Auction Settings */}
+          {/* Start Date & Time */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Auction Start Date</Label>
+              <Input type="date" min={today} value={startDate} onChange={e => setStartDate(e.target.value)} />
+            </div>
+            <div>
+              <Label>Auction Start Time</Label>
+              <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+            </div>
+          </div>
+
+          {/* Duration, Bid Step, Trade Type */}
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label>Duration</Label>
@@ -211,38 +295,77 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </div>
           </div>
 
-          {/* Invite Suppliers */}
-          <div>
-            <Label>Invite Suppliers (by ID)</Label>
-            <div className="flex gap-2 mt-1">
-              <Input
-                placeholder="Supplier User ID"
-                value={supplierEmail}
-                onChange={e => setSupplierEmail(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSupplier())}
-              />
-              <Button variant="outline" size="icon" onClick={addSupplier}>
-                <Plus className="w-4 h-4" />
-              </Button>
+          {/* Calculated end time display */}
+          {auctionEnd && (
+            <div className="text-sm text-muted-foreground bg-muted/50 rounded-md px-3 py-2 flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5" />
+              Auction ends: <span className="font-medium text-foreground">{auctionEnd.toLocaleString()}</span>
             </div>
+          )}
+
+          {/* Supplier Search & Invite */}
+          <div>
+            <Label className="flex items-center gap-1.5">
+              <Search className="w-3.5 h-3.5" />
+              Invite Suppliers
+            </Label>
+            <div className="relative mt-1">
+              <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+              <Input
+                placeholder="Search supplier by name..."
+                className="pl-9"
+                value={supplierSearch}
+                onChange={e => { setSupplierSearch(e.target.value); setShowResults(true); }}
+                onFocus={() => setShowResults(true)}
+                onBlur={() => setTimeout(() => setShowResults(false), 200)}
+              />
+            </div>
+
+            {/* Search results dropdown */}
+            {showResults && filteredSuppliers.length > 0 && (
+              <div className="border rounded-md mt-1 max-h-48 overflow-y-auto bg-popover shadow-md">
+                {filteredSuppliers.map(s => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-accent/50 flex items-center justify-between text-sm transition-colors"
+                    onMouseDown={() => addSupplier(s)}
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{s.company_name}</p>
+                      <p className="text-xs text-muted-foreground">{s.contact_person}{s.city ? ` • ${s.city}` : ''}</p>
+                    </div>
+                    <Plus className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {supplierSearch.trim() && showResults && filteredSuppliers.length === 0 && (
+              <p className="text-xs text-muted-foreground mt-1">No matching suppliers found</p>
+            )}
+
+            {/* Invited suppliers tags */}
             {invitedSuppliers.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {invitedSuppliers.map(s => (
-                  <Badge key={s} variant="secondary" className="gap-1">
-                    {s.slice(0, 8)}...
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => removeSupplier(s)} />
+                  <Badge key={s.id} variant="secondary" className="gap-1 pr-1">
+                    {s.company_name}
+                    <button type="button" onClick={() => removeSupplier(s.id)} className="ml-1 rounded-full hover:bg-destructive/20 p-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Info */}
-          <Card className="bg-amber-50 border-amber-200">
+          {/* Anti-Sniping Info */}
+          <Card className="bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
             <CardContent className="py-3">
               <div className="flex items-start gap-2">
-                <Clock className="w-4 h-4 text-amber-600 mt-0.5" />
-                <div className="text-sm text-amber-800">
+                <Shield className="w-4 h-4 text-amber-600 mt-0.5" />
+                <div className="text-sm text-amber-800 dark:text-amber-200">
                   <p className="font-medium">Anti-Sniping Protection</p>
                   <p className="text-xs mt-1">If a bid is placed in the last 30 seconds, the auction automatically extends by 60 seconds.</p>
                 </div>
@@ -250,7 +373,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </CardContent>
           </Card>
 
-          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full">
+          <Button onClick={handleSubmit} disabled={isSubmitting || !auctionTitle || !product || !category || !quantity || !startingPrice || !startDate || !startTime} className="w-full">
             {isSubmitting ? 'Creating...' : 'Create Reverse Auction'}
           </Button>
         </div>
