@@ -1,6 +1,8 @@
 /**
  * Create Reverse Auction Form — Buyer Tool
  * AI-generated title, supplier search, manual start date/time, auto end calculation
+ * Validations: supplier invite required, future start time, reserve < starting price
+ * AI suggested starting price from RFQ analytics
  */
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,10 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield } from 'lucide-react';
+import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useReverseAuction, CreateAuctionInput } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { getSuggestedStartingPrice, getMarketBenchmark, type RFQSignal } from '@/utils/aiAuctionPricing';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
@@ -46,6 +50,10 @@ function calculateEndTime(date: string, time: string, durationMinutes: number): 
   const start = new Date(`${date}T${time}`);
   if (isNaN(start.getTime())) return null;
   return new Date(start.getTime() + durationMinutes * 60 * 1000);
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
 }
 
 interface CreateReverseAuctionFormProps {
@@ -82,6 +90,9 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const [invitedSuppliers, setInvitedSuppliers] = useState<SupplierOption[]>([]);
   const [showResults, setShowResults] = useState(false);
 
+  // RFQ signals for AI pricing
+  const [rfqSignals, setRfqSignals] = useState<RFQSignal[]>([]);
+
   useEffect(() => {
     const fetchSuppliers = async () => {
       const { data } = await supabase
@@ -91,7 +102,25 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
         .order('company_name');
       if (data) setAllSuppliers(data as SupplierOption[]);
     };
-    if (open) fetchSuppliers();
+
+    const fetchRFQSignals = async () => {
+      const { data } = await supabase
+        .from('category_price_benchmarks')
+        .select('subcategory, benchmark_price, unit, category');
+      if (data) {
+        setRfqSignals(
+          data.map((d: any) => ({
+            product_slug: (d.subcategory || d.category || '').toLowerCase().replace(/\s+/g, '-'),
+            avg_price: d.benchmark_price,
+          }))
+        );
+      }
+    };
+
+    if (open) {
+      fetchSuppliers();
+      fetchRFQSignals();
+    }
   }, [open]);
 
   const filteredSuppliers = useMemo(() => {
@@ -116,25 +145,70 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     setInvitedSuppliers(prev => prev.filter(s => s.id !== id));
   };
 
+  // AI suggested pricing
+  const productSlug = useMemo(() => product.toLowerCase().replace(/\s+/g, '-'), [product]);
+  const suggestedPrice = useMemo(() => {
+    if (!product) return null;
+    return getSuggestedStartingPrice(productSlug, rfqSignals);
+  }, [product, productSlug, rfqSignals]);
+
+  const benchmarkPrice = useMemo(() => {
+    if (!product) return null;
+    return getMarketBenchmark(productSlug, rfqSignals);
+  }, [product, productSlug, rfqSignals]);
+
   // Calculated end time
   const auctionEnd = useMemo(() => calculateEndTime(startDate, startTime, durationMinutes), [startDate, startTime, durationMinutes]);
 
   const handleSubmit = async () => {
-    if (!auctionTitle || !product || !category || !quantity || !startingPrice || !startDate || !startTime) return;
-    if (!auctionEnd) return;
+    // === VALIDATION ===
+
+    if (!auctionTitle || !product || !category || !quantity || !startDate || !startTime) {
+      toast.error('Please fill all required fields.');
+      return;
+    }
+
+    // FIX 1: Require at least one invited supplier
+    if (invitedSuppliers.length === 0) {
+      toast.error('Please invite at least one supplier to start the reverse auction.');
+      return;
+    }
+
+    // MANDATORY: Starting price required
+    if (!startingPrice || parseFloat(startingPrice) <= 0) {
+      toast.error('Starting price is required for reverse auctions.');
+      return;
+    }
+
+    // FIX 2: Prevent past start time
+    const start = new Date(`${startDate}T${startTime}`);
+    if (start < new Date()) {
+      toast.error('Auction start time must be in the future.');
+      return;
+    }
+
+    // FIX 3: Reserve price must be lower than starting price
+    if (reservePrice && parseFloat(reservePrice) >= parseFloat(startingPrice)) {
+      toast.error('Reserve price must be lower than the starting price.');
+      return;
+    }
+
+    if (!auctionEnd) {
+      toast.error('Could not calculate auction end time.');
+      return;
+    }
 
     setIsSubmitting(true);
-    const auctionStart = new Date(`${startDate}T${startTime}`);
 
     const input: CreateAuctionInput = {
       title: auctionTitle,
-      product_slug: product.toLowerCase().replace(/\s+/g, '-'),
+      product_slug: productSlug,
       category,
       quantity: parseFloat(quantity),
       unit,
       starting_price: parseFloat(startingPrice),
       reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
-      auction_start: auctionStart.toISOString(),
+      auction_start: start.toISOString(),
       auction_end: auctionEnd.toISOString(),
       transaction_type: transactionType,
       minimum_bid_step_pct: parseFloat(minBidStep),
@@ -240,7 +314,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
           {/* Pricing */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="startPrice">Starting Price (per {unit})</Label>
+              <Label htmlFor="startPrice">Starting Price (per {unit}) *</Label>
               <div className="relative">
                 <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
                 <Input id="startPrice" type="number" className="pl-8" placeholder="61000" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} />
@@ -254,6 +328,32 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
               </div>
             </div>
           </div>
+
+          {/* AI Suggested Price */}
+          {suggestedPrice && benchmarkPrice && (
+            <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
+              <CardContent className="py-3">
+                <div className="flex items-start gap-2">
+                  <TrendingUp className="w-4 h-4 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-800 dark:text-blue-200">
+                    <p className="font-medium">AI Pricing Intelligence</p>
+                    <p className="text-xs mt-1">
+                      Market benchmark: {formatCurrency(benchmarkPrice)} • Suggested starting price: <strong>{formatCurrency(suggestedPrice)}</strong>
+                    </p>
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-blue-700 dark:text-blue-300 mt-1"
+                      onClick={() => setStartingPrice(String(suggestedPrice))}
+                    >
+                      Use suggested price
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Start Date & Time */}
           <div className="grid grid-cols-2 gap-4">
@@ -307,7 +407,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
           <div>
             <Label className="flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5" />
-              Invite Suppliers
+              Invite Suppliers *
             </Label>
             <div className="relative mt-1">
               <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
@@ -358,6 +458,10 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                 ))}
               </div>
             )}
+
+            {invitedSuppliers.length === 0 && (
+              <p className="text-xs text-destructive mt-1">At least one supplier must be invited</p>
+            )}
           </div>
 
           {/* Anti-Sniping Info */}
@@ -373,7 +477,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </CardContent>
           </Card>
 
-          <Button onClick={handleSubmit} disabled={isSubmitting || !auctionTitle || !product || !category || !quantity || !startingPrice || !startDate || !startTime} className="w-full">
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full"
+          >
             {isSubmitting ? 'Creating...' : 'Create Reverse Auction'}
           </Button>
         </div>
