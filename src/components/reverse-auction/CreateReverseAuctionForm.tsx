@@ -268,6 +268,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     } finally {
       setIsSubmitting(false);
     }
+  };
 
   const resetForm = () => {
     setProduct('');
