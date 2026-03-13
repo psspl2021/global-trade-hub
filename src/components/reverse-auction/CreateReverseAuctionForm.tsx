@@ -555,7 +555,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             disabled={isSubmitting}
             className="w-full"
           >
-            {isSubmitting ? 'Creating...' : 'Create Reverse Auction'}
+            {isSubmitting ? 'Processing Payment...' : `Pay ${auctionFee ? formatINR(auctionFee.total) : ''} & Create Auction`}
           </Button>
         </div>
       </DialogContent>
