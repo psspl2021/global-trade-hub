@@ -11,12 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp } from 'lucide-react';
+import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useReverseAuction, CreateAuctionInput } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getSuggestedStartingPrice, getMarketBenchmark, type RFQSignal } from '@/utils/aiAuctionPricing';
+import { getAuctionFee, formatINR } from '@/utils/auctionPricing';
+import { useAuth } from '@/hooks/useAuth';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
@@ -62,6 +64,7 @@ interface CreateReverseAuctionFormProps {
 
 export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -160,6 +163,9 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   // Calculated end time
   const auctionEnd = useMemo(() => calculateEndTime(startDate, startTime, durationMinutes), [startDate, startTime, durationMinutes]);
 
+  // Auction fee calculation
+  const auctionFee = useMemo(() => getAuctionFee(transactionType), [transactionType]);
+
   const handleSubmit = async () => {
     // === VALIDATION ===
 
@@ -198,30 +204,69 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
       return;
     }
 
+    if (!auctionFee) {
+      toast.error('Could not calculate auction fee.');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const input: CreateAuctionInput = {
-      title: auctionTitle,
-      product_slug: productSlug,
-      category,
-      quantity: parseFloat(quantity),
-      unit,
-      starting_price: parseFloat(startingPrice),
-      reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
-      auction_start: start.toISOString(),
-      auction_end: auctionEnd.toISOString(),
-      transaction_type: transactionType,
-      minimum_bid_step_pct: parseFloat(minBidStep),
-      invited_supplier_ids: invitedSuppliers.map(s => s.id),
-    };
+    try {
+      // Step 1: Record payment
+      const { data: payment, error: payError } = await supabase
+        .from('auction_payments')
+        .insert({
+          buyer_id: user!.id,
+          transaction_type: transactionType,
+          base_fee: auctionFee.base,
+          gst: auctionFee.gst,
+          total_amount: auctionFee.total,
+          payment_status: 'paid',
+        } as any)
+        .select()
+        .single();
 
-    const result = await createAuction(input);
-    setIsSubmitting(false);
+      if (payError) {
+        toast.error('Auction payment failed: ' + payError.message);
+        setIsSubmitting(false);
+        return;
+      }
 
-    if (result) {
-      setOpen(false);
-      resetForm();
-      onCreated?.();
+      // Step 2: Create auction
+      const input: CreateAuctionInput = {
+        title: auctionTitle,
+        product_slug: productSlug,
+        category,
+        quantity: parseFloat(quantity),
+        unit,
+        starting_price: parseFloat(startingPrice),
+        reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
+        auction_start: start.toISOString(),
+        auction_end: auctionEnd.toISOString(),
+        transaction_type: transactionType,
+        minimum_bid_step_pct: parseFloat(minBidStep),
+        invited_supplier_ids: invitedSuppliers.map(s => s.id),
+      };
+
+      const result = await createAuction(input);
+
+      // Step 3: Link payment to auction
+      if (result && payment) {
+        await supabase
+          .from('auction_payments')
+          .update({ auction_id: (result as any).id } as any)
+          .eq('id', (payment as any).id);
+      }
+
+      if (result) {
+        setOpen(false);
+        resetForm();
+        onCreated?.();
+      }
+    } catch (err: any) {
+      toast.error('Failed: ' + err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -395,7 +440,35 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </div>
           </div>
 
-          {/* Calculated end time display */}
+          {/* Auction Platform Fee */}
+          {auctionFee && (
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="py-3">
+                <div className="flex items-start gap-2">
+                  <Receipt className="w-4 h-4 text-primary mt-0.5" />
+                  <div className="text-sm w-full">
+                    <p className="font-semibold text-foreground">{auctionFee.label}</p>
+                    <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Platform Fee</p>
+                        <p className="font-medium text-foreground">{formatINR(auctionFee.base)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">GST (18%)</p>
+                        <p className="font-medium text-foreground">{formatINR(auctionFee.gst)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Total Payable</p>
+                        <p className="font-bold text-primary">{formatINR(auctionFee.total)}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">Payment required before auction goes live.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {auctionEnd && (
             <div className="text-sm text-muted-foreground bg-muted/50 rounded-md px-3 py-2 flex items-center gap-2">
               <Clock className="w-3.5 h-3.5" />
@@ -482,7 +555,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             disabled={isSubmitting}
             className="w-full"
           >
-            {isSubmitting ? 'Creating...' : 'Create Reverse Auction'}
+            {isSubmitting ? 'Processing Payment...' : `Pay ${auctionFee ? formatINR(auctionFee.total) : ''} & Create Auction`}
           </Button>
         </div>
       </DialogContent>
