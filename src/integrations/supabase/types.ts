@@ -975,6 +975,53 @@ export type Database = {
           },
         ]
       }
+      auction_payments: {
+        Row: {
+          auction_id: string | null
+          base_fee: number
+          buyer_id: string
+          created_at: string
+          gst: number
+          id: string
+          payment_status: string
+          total_amount: number
+          transaction_type: string
+          updated_at: string
+        }
+        Insert: {
+          auction_id?: string | null
+          base_fee: number
+          buyer_id: string
+          created_at?: string
+          gst: number
+          id?: string
+          payment_status?: string
+          total_amount: number
+          transaction_type?: string
+          updated_at?: string
+        }
+        Update: {
+          auction_id?: string | null
+          base_fee?: number
+          buyer_id?: string
+          created_at?: string
+          gst?: number
+          id?: string
+          payment_status?: string
+          total_amount?: number
+          transaction_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_payments_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_ledger: {
         Row: {
           action: string
