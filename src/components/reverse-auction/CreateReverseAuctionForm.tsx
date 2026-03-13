@@ -204,32 +204,70 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
       return;
     }
 
+    if (!auctionFee) {
+      toast.error('Could not calculate auction fee.');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const input: CreateAuctionInput = {
-      title: auctionTitle,
-      product_slug: productSlug,
-      category,
-      quantity: parseFloat(quantity),
-      unit,
-      starting_price: parseFloat(startingPrice),
-      reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
-      auction_start: start.toISOString(),
-      auction_end: auctionEnd.toISOString(),
-      transaction_type: transactionType,
-      minimum_bid_step_pct: parseFloat(minBidStep),
-      invited_supplier_ids: invitedSuppliers.map(s => s.id),
-    };
+    try {
+      // Step 1: Record payment
+      const { data: payment, error: payError } = await supabase
+        .from('auction_payments')
+        .insert({
+          buyer_id: user!.id,
+          transaction_type: transactionType,
+          base_fee: auctionFee.base,
+          gst: auctionFee.gst,
+          total_amount: auctionFee.total,
+          payment_status: 'paid',
+        } as any)
+        .select()
+        .single();
 
-    const result = await createAuction(input);
-    setIsSubmitting(false);
+      if (payError) {
+        toast.error('Auction payment failed: ' + payError.message);
+        setIsSubmitting(false);
+        return;
+      }
 
-    if (result) {
-      setOpen(false);
-      resetForm();
-      onCreated?.();
+      // Step 2: Create auction
+      const input: CreateAuctionInput = {
+        title: auctionTitle,
+        product_slug: productSlug,
+        category,
+        quantity: parseFloat(quantity),
+        unit,
+        starting_price: parseFloat(startingPrice),
+        reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
+        auction_start: start.toISOString(),
+        auction_end: auctionEnd.toISOString(),
+        transaction_type: transactionType,
+        minimum_bid_step_pct: parseFloat(minBidStep),
+        invited_supplier_ids: invitedSuppliers.map(s => s.id),
+      };
+
+      const result = await createAuction(input);
+
+      // Step 3: Link payment to auction
+      if (result && payment) {
+        await supabase
+          .from('auction_payments')
+          .update({ auction_id: (result as any).id } as any)
+          .eq('id', (payment as any).id);
+      }
+
+      if (result) {
+        setOpen(false);
+        resetForm();
+        onCreated?.();
+      }
+    } catch (err: any) {
+      toast.error('Failed: ' + err.message);
+    } finally {
+      setIsSubmitting(false);
     }
-  };
 
   const resetForm = () => {
     setProduct('');
