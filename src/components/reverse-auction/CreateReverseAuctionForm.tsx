@@ -64,6 +64,7 @@ interface CreateReverseAuctionFormProps {
 
 export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
