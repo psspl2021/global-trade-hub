@@ -440,7 +440,35 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </div>
           </div>
 
-          {/* Calculated end time display */}
+          {/* Auction Platform Fee */}
+          {auctionFee && (
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="py-3">
+                <div className="flex items-start gap-2">
+                  <Receipt className="w-4 h-4 text-primary mt-0.5" />
+                  <div className="text-sm w-full">
+                    <p className="font-semibold text-foreground">{auctionFee.label}</p>
+                    <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Platform Fee</p>
+                        <p className="font-medium text-foreground">{formatINR(auctionFee.base)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">GST (18%)</p>
+                        <p className="font-medium text-foreground">{formatINR(auctionFee.gst)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Total Payable</p>
+                        <p className="font-bold text-primary">{formatINR(auctionFee.total)}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">Payment required before auction goes live.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {auctionEnd && (
             <div className="text-sm text-muted-foreground bg-muted/50 rounded-md px-3 py-2 flex items-center gap-2">
               <Clock className="w-3.5 h-3.5" />
