@@ -163,6 +163,9 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   // Calculated end time
   const auctionEnd = useMemo(() => calculateEndTime(startDate, startTime, durationMinutes), [startDate, startTime, durationMinutes]);
 
+  // Auction fee calculation
+  const auctionFee = useMemo(() => getAuctionFee(transactionType), [transactionType]);
+
   const handleSubmit = async () => {
     // === VALIDATION ===
 
