@@ -980,6 +980,7 @@ export type Database = {
           auction_id: string | null
           base_fee: number
           buyer_id: string
+          consumed_at: string | null
           created_at: string
           gst: number
           id: string
@@ -992,6 +993,7 @@ export type Database = {
           auction_id?: string | null
           base_fee: number
           buyer_id: string
+          consumed_at?: string | null
           created_at?: string
           gst: number
           id?: string
@@ -1004,6 +1006,7 @@ export type Database = {
           auction_id?: string | null
           base_fee?: number
           buyer_id?: string
+          consumed_at?: string | null
           created_at?: string
           gst?: number
           id?: string
