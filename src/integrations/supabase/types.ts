@@ -8790,6 +8790,16 @@ export type Database = {
           },
         ]
       }
+      buyer_auction_revenue: {
+        Row: {
+          auctions: number | null
+          base_revenue: number | null
+          buyer_id: string | null
+          revenue: number | null
+          total_gst: number | null
+        }
+        Relationships: []
+      }
       buyer_bid_items_view: {
         Row: {
           bid_id: string | null
