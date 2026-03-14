@@ -9382,6 +9382,13 @@ export type Database = {
           platform_profit: number
         }[]
       }
+      auction_revenue_daily: {
+        Args: never
+        Returns: {
+          date: string
+          revenue: number
+        }[]
+      }
       auto_assign_supplier: {
         Args: { p_requirement_id: string }
         Returns: Json
