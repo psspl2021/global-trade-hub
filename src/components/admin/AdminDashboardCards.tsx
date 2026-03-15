@@ -265,6 +265,9 @@ export function AdminDashboardCards({
         </CardContent>
       </Card>
 
+      {/* Auction Intelligence Widget */}
+      <AuctionTrackerCard />
+
       <Card className="border-indigo-500/20 bg-indigo-500/5 md:col-span-2 lg:col-span-1">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
