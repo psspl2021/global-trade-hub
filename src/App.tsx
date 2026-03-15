@@ -45,7 +45,7 @@ const AffiliatePortal = lazy(() => import("./pages/AffiliatePortal"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
-const AuctionAdminDashboard = lazy(() => import("./pages/admin/AuctionAdminDashboard"));
+
 
 // Hub & Spoke Directory Pages
 const ExplorePage = lazy(() => import("./pages/explore/ExplorePage"));
