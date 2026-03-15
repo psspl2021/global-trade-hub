@@ -281,6 +281,7 @@ const BotAwareRouter = () => {
         <Route path="/best-b2b-procurement-platforms-india" element={<BestB2BPlatformsIndia />} />
         <Route path="/ai-procurement-vs-traditional-rfq" element={<AIProcurementVsTraditional />} />
         <Route path="/managed-procurement-vs-b2b-marketplace" element={<ManagedVsMarketplace />} />
+        <Route path="/reverse-auction-procurement" element={<ReverseAuctionSEOPage />} />
         
         {/* Industry Use-Case Pages */}
         <Route path="/procurement-for-steel-manufacturers" element={<ProcurementForSteelManufacturers />} />
