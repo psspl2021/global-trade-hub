@@ -9389,11 +9389,34 @@ export type Database = {
           revenue: number
         }[]
       }
+      auction_savings: {
+        Args: never
+        Returns: {
+          auction_id: string
+          final_price: number
+          savings_percent: number
+          starting_price: number
+        }[]
+      }
+      auction_success_metrics: {
+        Args: never
+        Returns: {
+          completed_auctions: number
+          success_rate: number
+          total_auctions: number
+        }[]
+      }
       auto_assign_supplier: {
         Args: { p_requirement_id: string }
         Returns: Json
       }
       auto_expire_requirements: { Args: never; Returns: undefined }
+      buyer_procurement_savings: {
+        Args: never
+        Returns: {
+          total_savings: number
+        }[]
+      }
       calculate_bid_markup: {
         Args: {
           p_buyer_country: string
@@ -9980,6 +10003,13 @@ export type Database = {
         Args: { _pin: string; _role: string; _user_id: string }
         Returns: Json
       }
+      supplier_bid_activity: {
+        Args: never
+        Returns: {
+          auction_id: string
+          supplier_count: number
+        }[]
+      }
       unlock_logistics_awarding: {
         Args: { req_id: string }
         Returns: undefined
@@ -9992,6 +10022,13 @@ export type Database = {
       validate_referral_eligibility: {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: boolean
+      }
+      verify_auction_payments: {
+        Args: never
+        Returns: {
+          auctions_without_payment: number
+          payments_without_auction: number
+        }[]
       }
       verify_role_pin: {
         Args: { _pin: string; _role: string; _user_id: string }

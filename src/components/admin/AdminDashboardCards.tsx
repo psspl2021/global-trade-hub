@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain, Gauge, Rocket, Flame } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
+import AuctionTrackerCard from './AuctionTrackerCard';
 
 interface AdminStats {
   pendingInvoices: number;
@@ -263,6 +264,9 @@ export function AdminDashboardCards({
           </Button>
         </CardContent>
       </Card>
+
+      {/* Auction Intelligence Widget */}
+      <AuctionTrackerCard />
 
       <Card className="border-indigo-500/20 bg-indigo-500/5 md:col-span-2 lg:col-span-1">
         <CardHeader className="pb-2">
