@@ -124,7 +124,7 @@ export default function ReverseAuctionSEOPage() {
         </Link>
       </section>
 
-      <FloatingRFQ />
+      
     </div>
   );
 }
