@@ -82,6 +82,7 @@ const CountryComparisonPage = lazy(() => import("./pages/seo/CountryComparisonPa
 const TransactionalImportPage = lazy(() => import("./pages/seo/TransactionalImportPage"));
 const AIProcurementVsTraditional = lazy(() => import("./pages/comparisons/AIProcurementVsTraditional"));
 const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMarketplace"));
+const ReverseAuctionSEOPage = lazy(() => import("./pages/ReverseAuctionSEOPage"));
 
 // Industry Use-Case Pages
 const ProcurementForSteelManufacturers = lazy(() => import("./pages/industries/ProcurementForSteelManufacturers"));
