@@ -1,6 +1,5 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { FloatingRFQ } from "@/components/conversion/FloatingRFQ";
 
 export default function ReverseAuctionSEOPage() {
   return (
