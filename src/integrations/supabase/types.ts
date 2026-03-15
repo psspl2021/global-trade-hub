@@ -9382,6 +9382,7 @@ export type Database = {
           platform_profit: number
         }[]
       }
+      auction_competition_score: { Args: never; Returns: number }
       auction_revenue_daily: {
         Args: never
         Returns: {
@@ -9406,6 +9407,7 @@ export type Database = {
           total_auctions: number
         }[]
       }
+      auction_total_revenue: { Args: never; Returns: number }
       auto_assign_supplier: {
         Args: { p_requirement_id: string }
         Returns: Json

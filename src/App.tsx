@@ -45,7 +45,7 @@ const AffiliatePortal = lazy(() => import("./pages/AffiliatePortal"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
-const AuctionAdminDashboard = lazy(() => import("./pages/admin/AuctionAdminDashboard"));
+
 
 // Hub & Spoke Directory Pages
 const ExplorePage = lazy(() => import("./pages/explore/ExplorePage"));
@@ -239,7 +239,7 @@ const BotAwareRouter = () => {
         <Route path="/admin/seo-revenue" element={<SeoRevenueDashboard />} />
         <Route path="/admin/seo-intelligence" element={<AdminIntelligenceDashboard />} />
         <Route path="/admin/seo-dashboard" element={<SEODashboard />} />
-        <Route path="/admin/auction-dashboard" element={<AuctionAdminDashboard />} />
+        
         
         {/* Legacy routes - redirect to new structure */}
         <Route path="/management-dashboard" element={<Navigate to="/management" replace />} />

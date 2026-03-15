@@ -51,23 +51,21 @@ export default function AuctionTrackerCard() {
 
   async function load() {
     try {
-      const [total, live, completed, revenue, success, savings, supplierData, buyerSavings, integrity] =
+      const [total, live, completed, revenue, success, savings, supplierData, buyerSavings, integrity, competition] =
         await Promise.all([
           supabase.from("reverse_auctions").select("*", { count: "exact", head: true }),
           supabase.from("reverse_auctions").select("*", { count: "exact", head: true }).eq("status", "live"),
           supabase.from("reverse_auctions").select("*", { count: "exact", head: true }).eq("status", "completed"),
-          supabase.from("auction_payments").select("total_amount").eq("payment_status", "consumed"),
+          supabase.rpc("auction_total_revenue" as any),
           supabase.rpc("auction_success_metrics" as any),
           supabase.rpc("auction_savings" as any),
           supabase.rpc("supplier_bid_activity" as any),
           supabase.rpc("buyer_procurement_savings" as any),
           supabase.rpc("verify_auction_payments" as any),
+          supabase.rpc("auction_competition_score" as any),
         ]);
 
-      const revenueTotal = (revenue.data || []).reduce(
-        (s: number, r: any) => s + (r.total_amount || 0),
-        0
-      );
+      const revenueTotal = typeof revenue.data === 'number' ? revenue.data : 0;
 
       const savingsData = savings.data || [];
       const avgSavings = savingsData.length
