@@ -622,7 +622,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             <div className="relative mt-1">
               <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
               <Input
-                placeholder="Search supplier by name..."
+                placeholder="Search supplier name or enter email to invite..."
                 className="pl-9"
                 value={supplierSearch}
                 onChange={e => { setSupplierSearch(e.target.value); setShowResults(true); }}
