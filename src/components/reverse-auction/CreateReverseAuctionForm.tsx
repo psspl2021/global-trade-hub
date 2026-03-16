@@ -310,6 +310,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
         transaction_type: transactionType,
         minimum_bid_step_pct: parseFloat(minBidStep),
         invited_supplier_ids: invitedSuppliers.filter(s => !s.manual).map(s => s.id),
+        invited_suppliers: invitedSuppliers.map(s => ({
+          id: s.id,
+          email: s.email,
+          manual: s.manual,
+        })),
       };
 
       const result = await createAuction(input);
