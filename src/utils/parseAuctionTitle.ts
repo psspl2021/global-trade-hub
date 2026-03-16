@@ -33,13 +33,18 @@ export function parseAuctionTitle(input: string): ParsedItem[] {
     const text = part.trim();
     if (!text) continue;
 
-    const qtyMatch = text.match(/(\d+(?:\.\d+)?)\s*(ton|tons|mt|kg|kgs|pcs|pieces|ltrs|litres|liters)/i);
-    if (!qtyMatch) continue;
+    const UNITS_RE = 'ton|tons|mt|kg|kgs|pcs|pieces|ltrs|litres|liters';
+    const match =
+      text.match(new RegExp(`(\\d+(?:\\.\\d+)?)\\s*(${UNITS_RE})`, 'i')) ||
+      text.match(new RegExp(`(${UNITS_RE})\\s*(\\d+(?:\\.\\d+)?)`, 'i'));
+    if (!match) continue;
 
-    const quantity = qtyMatch[1];
-    const rawUnit = qtyMatch[2].toLowerCase();
+    // Determine which capture group has the number vs unit
+    const isQtyFirst = /^\d/.test(match[1]);
+    const quantity = isQtyFirst ? match[1] : match[2];
+    const rawUnit = (isQtyFirst ? match[2] : match[1]).toLowerCase();
     const unit = UNIT_MAP[rawUnit] || 'MT';
-    const product = text.replace(qtyMatch[0], '').trim();
+    const product = text.replace(match[0], '').trim();
 
     if (product) {
       items.push({ product, quantity, unit });
