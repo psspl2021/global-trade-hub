@@ -1,23 +1,26 @@
 /**
- * Create Reverse Auction Form — Buyer Tool
- * AI-generated title, supplier search, manual start date/time, auto end calculation
- * Validations: supplier invite required, future start time, reserve < starting price
- * AI suggested starting price from RFQ analytics
+ * Create Reverse Auction Form — Enterprise Edition
+ * Features:
+ * 1) AI-generated title from multi-line items
+ * 2) Multiple product line items (+ Add Product)
+ * 3) Supplier search + manual add supplier
+ * 4) First 5 domestic auctions → 50% fee discount
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt } from 'lucide-react';
+import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt, UserPlus, Trash2, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useReverseAuction, CreateAuctionInput } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getSuggestedStartingPrice, getMarketBenchmark, type RFQSignal } from '@/utils/aiAuctionPricing';
 import { getAuctionFee, formatINR } from '@/utils/auctionPricing';
+import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuctionTitle';
 import { useAuth } from '@/hooks/useAuth';
 
 const CATEGORIES = [
@@ -34,17 +37,19 @@ const DURATION_OPTIONS = [
   { label: '24 hours', value: 1440 },
 ];
 
+const UNIT_OPTIONS = [
+  { label: 'MT', value: 'MT' },
+  { label: 'KG', value: 'KG' },
+  { label: 'Pieces', value: 'Pcs' },
+  { label: 'Litres', value: 'Ltrs' },
+];
+
 interface SupplierOption {
   id: string;
   company_name: string;
   contact_person: string;
   city: string | null;
-}
-
-function generateAuctionTitle(product: string, quantity: string, unit: string, tradeType: string): string {
-  if (!product || !quantity) return '';
-  const tradeLabel = tradeType === 'domestic' ? 'Domestic' : tradeType === 'import' ? 'Import' : 'Export';
-  return `${product} – ${quantity} ${unit} Reverse Auction (${tradeLabel})`;
+  manual?: boolean;
 }
 
 function calculateEndTime(date: string, time: string, durationMinutes: number): Date | null {
@@ -52,10 +57,6 @@ function calculateEndTime(date: string, time: string, durationMinutes: number): 
   const start = new Date(`${date}T${time}`);
   if (isNaN(start.getTime())) return null;
   return new Date(start.getTime() + durationMinutes * 60 * 1000);
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
 }
 
 interface CreateReverseAuctionFormProps {
@@ -68,11 +69,26 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ── Multi Line Items (Feature #2) ──
+  const [items, setItems] = useState<AuctionLineItem[]>([
+    { product: '', quantity: '', unit: 'MT' }
+  ]);
+
+  const addLineItem = () => {
+    setItems(prev => [...prev, { product: '', quantity: '', unit: 'MT' }]);
+  };
+
+  const updateItem = (index: number, key: keyof AuctionLineItem, value: string) => {
+    setItems(prev => prev.map((item, i) => i === index ? { ...item, [key]: value } : item));
+  };
+
+  const removeItem = (index: number) => {
+    if (items.length <= 1) return;
+    setItems(prev => prev.filter((_, i) => i !== index));
+  };
+
   // Form state
-  const [product, setProduct] = useState('');
   const [category, setCategory] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('MT');
   const [startingPrice, setStartingPrice] = useState('');
   const [reservePrice, setReservePrice] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -81,22 +97,27 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const [minBidStep, setMinBidStep] = useState('0.25');
   const [transactionType, setTransactionType] = useState('domestic');
 
-  // AI title
+  // ── AI Title (Feature #1) ──
   const [auctionTitle, setAuctionTitle] = useState('');
   useEffect(() => {
-    setAuctionTitle(generateAuctionTitle(product, quantity, unit, transactionType));
-  }, [product, quantity, unit, transactionType]);
+    setAuctionTitle(generateAuctionTitle(items, transactionType));
+  }, [items, transactionType]);
 
-  // Supplier search
+  // ── Supplier Search + Manual Add (Feature #3) ──
   const [supplierSearch, setSupplierSearch] = useState('');
   const [allSuppliers, setAllSuppliers] = useState<SupplierOption[]>([]);
   const [invitedSuppliers, setInvitedSuppliers] = useState<SupplierOption[]>([]);
   const [showResults, setShowResults] = useState(false);
 
+  // ── Buyer Auction Count for Discount (Feature #4) ──
+  const [buyerAuctionCount, setBuyerAuctionCount] = useState<number>(0);
+
   // RFQ signals for AI pricing
   const [rfqSignals, setRfqSignals] = useState<RFQSignal[]>([]);
 
   useEffect(() => {
+    if (!open || !user) return;
+
     const fetchSuppliers = async () => {
       const { data } = await supabase
         .from('profiles')
@@ -120,11 +141,18 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
       }
     };
 
-    if (open) {
-      fetchSuppliers();
-      fetchRFQSignals();
-    }
-  }, [open]);
+    const fetchAuctionCount = async () => {
+      const { count } = await supabase
+        .from('reverse_auctions')
+        .select('*', { count: 'exact', head: true })
+        .eq('buyer_id', user.id);
+      setBuyerAuctionCount(count || 0);
+    };
+
+    fetchSuppliers();
+    fetchRFQSignals();
+    fetchAuctionCount();
+  }, [open, user]);
 
   const filteredSuppliers = useMemo(() => {
     if (!supplierSearch.trim()) return [];
@@ -144,56 +172,69 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     setShowResults(false);
   };
 
+  const addManualSupplier = () => {
+    const name = supplierSearch.trim();
+    if (!name) return;
+    const manualSupplier: SupplierOption = {
+      id: crypto.randomUUID(),
+      company_name: name,
+      contact_person: '',
+      city: null,
+      manual: true,
+    };
+    setInvitedSuppliers(prev => [...prev, manualSupplier]);
+    setSupplierSearch('');
+    setShowResults(false);
+  };
+
   const removeSupplier = (id: string) => {
     setInvitedSuppliers(prev => prev.filter(s => s.id !== id));
   };
 
-  // AI suggested pricing
-  const productSlug = useMemo(() => product.toLowerCase().replace(/\s+/g, '-'), [product]);
+  // AI suggested pricing (based on first item)
+  const primaryProduct = items[0]?.product || '';
+  const primaryUnit = items[0]?.unit || 'MT';
+  const productSlug = useMemo(() => primaryProduct.toLowerCase().replace(/\s+/g, '-'), [primaryProduct]);
   const suggestedPrice = useMemo(() => {
-    if (!product) return null;
+    if (!primaryProduct) return null;
     return getSuggestedStartingPrice(productSlug, rfqSignals);
-  }, [product, productSlug, rfqSignals]);
+  }, [primaryProduct, productSlug, rfqSignals]);
 
   const benchmarkPrice = useMemo(() => {
-    if (!product) return null;
+    if (!primaryProduct) return null;
     return getMarketBenchmark(productSlug, rfqSignals);
-  }, [product, productSlug, rfqSignals]);
+  }, [primaryProduct, productSlug, rfqSignals]);
 
   // Calculated end time
   const auctionEnd = useMemo(() => calculateEndTime(startDate, startTime, durationMinutes), [startDate, startTime, durationMinutes]);
 
-  // Auction fee calculation
-  const auctionFee = useMemo(() => getAuctionFee(transactionType), [transactionType]);
+  // Auction fee with discount logic (Feature #4)
+  const auctionFee = useMemo(() => getAuctionFee(transactionType, buyerAuctionCount), [transactionType, buyerAuctionCount]);
 
   const handleSubmit = async () => {
-    // === VALIDATION ===
+    const validItems = items.filter(i => i.product.trim() && i.quantity.trim());
 
-    if (!auctionTitle || !product || !category || !quantity || !startDate || !startTime) {
-      toast.error('Please fill all required fields.');
+    if (!auctionTitle || validItems.length === 0 || !category || !startDate || !startTime) {
+      toast.error('Please fill all required fields and add at least one product.');
       return;
     }
 
-    // FIX 1: Require at least one invited supplier
     if (invitedSuppliers.length === 0) {
       toast.error('Please invite at least one supplier to start the reverse auction.');
       return;
     }
 
-    // MANDATORY: Starting price required
     if (!startingPrice || parseFloat(startingPrice) <= 0) {
       toast.error('Starting price is required for reverse auctions.');
       return;
     }
 
-    // FIX 2: Prevent past start time
     const start = new Date(`${startDate}T${startTime}`);
     if (start < new Date()) {
       toast.error('Auction start time must be in the future.');
       return;
     }
 
-    // FIX 3: Reserve price must be lower than starting price
     if (reservePrice && parseFloat(reservePrice) >= parseFloat(startingPrice)) {
       toast.error('Reserve price must be lower than the starting price.');
       return;
@@ -232,20 +273,24 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
         return;
       }
 
+      // Build product slug from all items
+      const combinedSlug = validItems.map(i => i.product.toLowerCase().replace(/\s+/g, '-')).join('_');
+      const totalQty = validItems.reduce((sum, i) => sum + parseFloat(i.quantity || '0'), 0);
+
       // Step 2: Create auction
       const input: CreateAuctionInput = {
         title: auctionTitle,
-        product_slug: productSlug,
+        product_slug: combinedSlug,
         category,
-        quantity: parseFloat(quantity),
-        unit,
+        quantity: totalQty,
+        unit: validItems[0].unit,
         starting_price: parseFloat(startingPrice),
         reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
         auction_start: start.toISOString(),
         auction_end: auctionEnd.toISOString(),
         transaction_type: transactionType,
         minimum_bid_step_pct: parseFloat(minBidStep),
-        invited_supplier_ids: invitedSuppliers.map(s => s.id),
+        invited_supplier_ids: invitedSuppliers.filter(s => !s.manual).map(s => s.id),
       };
 
       const result = await createAuction(input);
@@ -271,9 +316,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   };
 
   const resetForm = () => {
-    setProduct('');
+    setItems([{ product: '', quantity: '', unit: 'MT' }]);
     setCategory('');
-    setQuantity('');
     setStartingPrice('');
     setReservePrice('');
     setStartDate('');
@@ -302,7 +346,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* AI Generated Title */}
+          {/* ── AI Generated Title (Feature #1) ── */}
           <div>
             <Label className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -311,7 +355,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             <Input
               value={auctionTitle}
               onChange={e => setAuctionTitle(e.target.value)}
-              placeholder="Title auto-generates from product, quantity & trade type"
+              placeholder="Title auto-generates from products & trade type"
               className="mt-1"
             />
             {auctionTitle && (
@@ -319,47 +363,83 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             )}
           </div>
 
-          {/* Product & Category */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="product">Product</Label>
-              <Input id="product" placeholder="e.g. HR Coil IS2062" value={product} onChange={e => setProduct(e.target.value)} />
+          {/* ── Multi Line Items (Feature #2) ── */}
+          <div>
+            <Label className="flex items-center gap-1.5 mb-2">
+              <Package className="w-3.5 h-3.5" />
+              Products / Line Items
+            </Label>
+            <div className="space-y-2">
+              {items.map((item, i) => (
+                <div key={i} className="grid grid-cols-[1fr_100px_90px_32px] gap-2 items-end">
+                  <div>
+                    {i === 0 && <span className="text-xs text-muted-foreground">Product</span>}
+                    <Input
+                      placeholder="e.g. HR Coil IS2062"
+                      value={item.product}
+                      onChange={e => updateItem(i, 'product', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    {i === 0 && <span className="text-xs text-muted-foreground">Qty</span>}
+                    <Input
+                      type="number"
+                      placeholder="500"
+                      value={item.quantity}
+                      onChange={e => updateItem(i, 'quantity', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    {i === 0 && <span className="text-xs text-muted-foreground">Unit</span>}
+                    <Select value={item.unit} onValueChange={v => updateItem(i, 'unit', v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {UNIT_OPTIONS.map(u => (
+                          <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9"
+                    disabled={items.length <= 1}
+                    onClick={() => removeItem(i)}
+                  >
+                    <Trash2 className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              ))}
             </div>
-            <div>
-              <Label>Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addLineItem}
+              className="mt-2 gap-1 text-primary"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Another Product
+            </Button>
           </div>
 
-          {/* Quantity & Unit */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2">
-              <Label htmlFor="qty">Quantity</Label>
-              <Input id="qty" type="number" placeholder="500" value={quantity} onChange={e => setQuantity(e.target.value)} />
-            </div>
-            <div>
-              <Label>Unit</Label>
-              <Select value={unit} onValueChange={setUnit}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MT">MT</SelectItem>
-                  <SelectItem value="KG">KG</SelectItem>
-                  <SelectItem value="Pcs">Pieces</SelectItem>
-                  <SelectItem value="Ltrs">Litres</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Category */}
+          <div>
+            <Label>Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Pricing */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="startPrice">Starting Price (per {unit}) *</Label>
+              <Label htmlFor="startPrice">Starting Price (per {primaryUnit}) *</Label>
               <div className="relative">
                 <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
                 <Input id="startPrice" type="number" className="pl-8" placeholder="61000" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} />
@@ -383,7 +463,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                   <div className="text-sm text-blue-800 dark:text-blue-200">
                     <p className="font-medium">AI Pricing Intelligence</p>
                     <p className="text-xs mt-1">
-                      Market benchmark: {formatCurrency(benchmarkPrice)} • Suggested starting price: <strong>{formatCurrency(suggestedPrice)}</strong>
+                      Market benchmark: {formatINR(benchmarkPrice)} • Suggested starting price: <strong>{formatINR(suggestedPrice)}</strong>
                     </p>
                     <Button
                       type="button"
@@ -440,7 +520,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </div>
           </div>
 
-          {/* Auction Platform Fee */}
+          {/* ── Auction Platform Fee with Discount (Feature #4) ── */}
           {auctionFee && (
             <Card className="border-primary/30 bg-primary/5">
               <CardContent className="py-3">
@@ -448,6 +528,19 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                   <Receipt className="w-4 h-4 text-primary mt-0.5" />
                   <div className="text-sm w-full">
                     <p className="font-semibold text-foreground">{auctionFee.label}</p>
+                    {auctionFee.discountApplied && (
+                      <div className="mt-1 flex items-center gap-2">
+                        <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs">
+                          🎉 50% Launch Discount Applied
+                        </Badge>
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatINR(auctionFee.originalBase || 5000)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          ({5 - buyerAuctionCount} discount auction{5 - buyerAuctionCount !== 1 ? 's' : ''} remaining)
+                        </span>
+                      </div>
+                    )}
                     <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
                       <div>
                         <p className="text-muted-foreground">Platform Fee</p>
@@ -476,7 +569,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </div>
           )}
 
-          {/* Supplier Search & Invite */}
+          {/* ── Supplier Search & Manual Add (Feature #3) ── */}
           <div>
             <Label className="flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5" />
@@ -495,7 +588,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </div>
 
             {/* Search results dropdown */}
-            {showResults && filteredSuppliers.length > 0 && (
+            {showResults && supplierSearch.trim() && (
               <div className="border rounded-md mt-1 max-h-48 overflow-y-auto bg-popover shadow-md">
                 {filteredSuppliers.map(s => (
                   <button
@@ -511,11 +604,19 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                     <Plus className="w-4 h-4 text-muted-foreground" />
                   </button>
                 ))}
-              </div>
-            )}
 
-            {supplierSearch.trim() && showResults && filteredSuppliers.length === 0 && (
-              <p className="text-xs text-muted-foreground mt-1">No matching suppliers found</p>
+                {/* Manual add option when no DB matches */}
+                {filteredSuppliers.length === 0 && (
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-accent/50 flex items-center gap-2 text-sm transition-colors text-primary"
+                    onMouseDown={addManualSupplier}
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Add "{supplierSearch.trim()}" as manual supplier
+                  </button>
+                )}
+              </div>
             )}
 
             {/* Invited suppliers tags */}
@@ -524,6 +625,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                 {invitedSuppliers.map(s => (
                   <Badge key={s.id} variant="secondary" className="gap-1 pr-1">
                     {s.company_name}
+                    {s.manual && <span className="text-[10px] opacity-60">(manual)</span>}
                     <button type="button" onClick={() => removeSupplier(s.id)} className="ml-1 rounded-full hover:bg-destructive/20 p-0.5">
                       <X className="w-3 h-3" />
                     </button>

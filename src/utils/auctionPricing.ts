@@ -1,6 +1,6 @@
 /**
- * Auction Pricing Utility — Fixed Fee Model
- * Domestic: ₹5,000 + 18% GST = ₹5,900
+ * Auction Pricing Utility — Fixed Fee Model with Launch Discount
+ * Domestic: ₹5,000 + 18% GST = ₹5,900 (first 5 auctions: ₹2,500 + 18% GST = ₹2,950)
  * Import/Export: ₹10,000 + 18% GST = ₹11,800
  */
 
@@ -9,21 +9,31 @@ export interface AuctionFee {
   gst: number;
   total: number;
   label: string;
+  discountApplied: boolean;
+  originalBase?: number;
 }
 
 const GST_RATE = 0.18;
 
-export function getAuctionFee(transactionType: string): AuctionFee | null {
+export function getAuctionFee(transactionType: string, buyerAuctionCount?: number): AuctionFee | null {
   if (transactionType === 'domestic') {
-    const base = 5000;
+    const isDiscounted = typeof buyerAuctionCount === 'number' && buyerAuctionCount < 5;
+    const base = isDiscounted ? 2500 : 5000;
     const gst = Math.round(base * GST_RATE);
-    return { base, gst, total: base + gst, label: 'Domestic Auction Fee' };
+    return {
+      base,
+      gst,
+      total: base + gst,
+      label: 'Domestic Auction Fee',
+      discountApplied: isDiscounted,
+      originalBase: isDiscounted ? 5000 : undefined,
+    };
   }
 
   if (transactionType === 'import' || transactionType === 'export') {
     const base = 10000;
     const gst = Math.round(base * GST_RATE);
-    return { base, gst, total: base + gst, label: 'Import/Export Auction Fee' };
+    return { base, gst, total: base + gst, label: 'Import/Export Auction Fee', discountApplied: false };
   }
 
   return null;
