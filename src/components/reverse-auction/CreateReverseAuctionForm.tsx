@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { getSuggestedStartingPrice, getMarketBenchmark, type RFQSignal } from '@/utils/aiAuctionPricing';
 import { getAuctionFee, formatINR } from '@/utils/auctionPricing';
 import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuctionTitle';
+import { parseAuctionTitle } from '@/utils/parseAuctionTitle';
 import { useAuth } from '@/hooks/useAuth';
 
 const CATEGORIES = [
