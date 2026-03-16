@@ -100,7 +100,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   // ── AI Title (Feature #1) ──
   const [auctionTitle, setAuctionTitle] = useState('');
   useEffect(() => {
-    setAuctionTitle(generateAuctionTitle(items, transactionType));
+    const title = generateAuctionTitle(items, transactionType);
+    if (title !== auctionTitle) {
+      setAuctionTitle(title);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, transactionType]);
 
   // ── Supplier Search + Manual Add (Feature #3) ──
