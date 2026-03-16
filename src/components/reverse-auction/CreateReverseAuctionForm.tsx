@@ -50,6 +50,7 @@ interface SupplierOption {
   company_name: string;
   contact_person: string;
   city: string | null;
+  email?: string;
   manual?: boolean;
 }
 
@@ -127,7 +128,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const fetchSuppliers = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('id, company_name, contact_person, city')
+        .select('id, company_name, contact_person, city, email')
         .eq('business_type', 'supplier')
         .order('company_name');
       if (data) setAllSuppliers(data as SupplierOption[]);
@@ -184,17 +185,20 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   };
 
   const addManualSupplier = () => {
-    const name = supplierSearch.trim();
-    if (!name) return;
+    const input = supplierSearch.trim();
+    if (!input) return;
     if (invitedSuppliers.length >= 20) {
       toast.error('Maximum 20 suppliers per auction');
       return;
     }
+    // Check if input looks like an email
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
     const manualSupplier: SupplierOption = {
       id: `manual-${Date.now()}`,
-      company_name: name,
+      company_name: isEmail ? input : input,
       contact_person: '',
       city: null,
+      email: isEmail ? input : undefined,
       manual: true,
     };
     setInvitedSuppliers(prev => [...prev, manualSupplier]);
@@ -306,6 +310,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
         transaction_type: transactionType,
         minimum_bid_step_pct: parseFloat(minBidStep),
         invited_supplier_ids: invitedSuppliers.filter(s => !s.manual).map(s => s.id),
+        invited_suppliers: invitedSuppliers.map(s => ({
+          id: s.id,
+          email: s.email,
+          manual: s.manual,
+        })),
       };
 
       const result = await createAuction(input);
@@ -618,7 +627,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             <div className="relative mt-1">
               <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
               <Input
-                placeholder="Search supplier by name..."
+                placeholder="Search supplier name or enter email to invite..."
                 className="pl-9"
                 value={supplierSearch}
                 onChange={e => { setSupplierSearch(e.target.value); setShowResults(true); }}
@@ -645,17 +654,17 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                   </button>
                 ))}
 
-                {/* Manual add option when no DB matches */}
-                {filteredSuppliers.length === 0 && (
-                  <button
-                    type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-accent/50 flex items-center gap-2 text-sm transition-colors text-primary"
-                    onMouseDown={addManualSupplier}
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    Add "{supplierSearch.trim()}" as manual supplier
-                  </button>
-                )}
+                {/* Manual add option — always show at bottom */}
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 hover:bg-accent/50 flex items-center gap-2 text-sm transition-colors text-primary border-t"
+                  onMouseDown={addManualSupplier}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  {/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(supplierSearch.trim())
+                    ? `Invite "${supplierSearch.trim()}" via email`
+                    : `Add "${supplierSearch.trim()}" as supplier`}
+                </button>
               </div>
             )}
 
@@ -665,7 +674,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                 {invitedSuppliers.map(s => (
                   <Badge key={s.id} variant="secondary" className="gap-1 pr-1">
                     {s.company_name}
-                    {s.manual && <span className="text-[10px] opacity-60">(manual)</span>}
+                    {s.manual && s.email && <span className="text-[10px] opacity-60">(email)</span>}
+                    {s.manual && !s.email && <span className="text-[10px] opacity-60">(manual)</span>}
                     <button type="button" onClick={() => removeSupplier(s.id)} className="ml-1 rounded-full hover:bg-destructive/20 p-0.5">
                       <X className="w-3 h-3" />
                     </button>

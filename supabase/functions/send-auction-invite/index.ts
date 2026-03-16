@@ -1,0 +1,107 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { email, auctionTitle, product, quantity, startTime, auctionLink } = await req.json();
+
+    if (!email) {
+      return new Response(JSON.stringify({ error: 'Email is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured');
+      return new Response(JSON.stringify({ error: 'Email service not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const startDate = startTime ? new Date(startTime).toLocaleString('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: 'Asia/Kolkata',
+    }) : 'TBD';
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'ProcureSaathi <auctions@procuresaathi.com>',
+        to: [email],
+        subject: `Reverse Auction Invitation – ${auctionTitle}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #d97706, #ea580c); padding: 24px; border-radius: 12px 12px 0 0;">
+              <h1 style="color: #fff; margin: 0; font-size: 22px;">🔨 Reverse Auction Invitation</h1>
+            </div>
+            <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 12px 12px;">
+              <p style="color: #374151; font-size: 16px; margin-top: 0;">
+                You have been invited by a buyer to participate in a reverse auction on <strong>ProcureSaathi</strong>.
+              </p>
+              
+              <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                <h2 style="color: #92400e; margin: 0 0 12px 0; font-size: 18px;">${auctionTitle}</h2>
+                <table style="width: 100%; font-size: 14px; color: #374151;">
+                  <tr><td style="padding: 4px 0; font-weight: 600;">Product:</td><td>${product || 'Multiple items'}</td></tr>
+                  <tr><td style="padding: 4px 0; font-weight: 600;">Quantity:</td><td>${quantity || 'See auction details'}</td></tr>
+                  <tr><td style="padding: 4px 0; font-weight: 600;">Auction Start:</td><td>${startDate}</td></tr>
+                </table>
+              </div>
+
+              <div style="text-align: center; margin: 24px 0;">
+                <a href="${auctionLink}" style="background: linear-gradient(135deg, #d97706, #ea580c); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
+                  Join Auction →
+                </a>
+              </div>
+
+              <p style="color: #6b7280; font-size: 13px; margin-bottom: 0;">
+                This is a private invitation. Only invited suppliers can view and bid on this auction.
+              </p>
+            </div>
+            <p style="color: #9ca3af; font-size: 11px; text-align: center; margin-top: 16px;">
+              ProcureSaathi — India's B2B Procurement Platform
+            </p>
+          </div>
+        `,
+      }),
+    });
+
+    const responseBody = await emailResponse.text();
+
+    if (!emailResponse.ok) {
+      console.error(`Resend API error [${emailResponse.status}]:`, responseBody);
+      return new Response(JSON.stringify({ error: 'Failed to send email', details: responseBody }), {
+        status: emailResponse.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error in send-auction-invite:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
