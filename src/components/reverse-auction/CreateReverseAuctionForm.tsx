@@ -161,7 +161,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const filteredSuppliers = useMemo(() => {
     if (!supplierSearch.trim()) return [];
     const q = supplierSearch.toLowerCase();
-    const invitedIds = new Set(invitedSuppliers.map(s => s.id));
+    const invitedIds = new Set(invitedSuppliers.filter(s => !s.manual).map(s => s.id));
     return allSuppliers
       .filter(s => !invitedIds.has(s.id) && (
         (s.company_name || '').toLowerCase().includes(q) ||
@@ -171,6 +171,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   }, [supplierSearch, allSuppliers, invitedSuppliers]);
 
   const addSupplier = (supplier: SupplierOption) => {
+    if (invitedSuppliers.some(s => s.id === supplier.id)) return;
+    if (invitedSuppliers.length >= 20) {
+      toast.error('Maximum 20 suppliers per auction');
+      return;
+    }
     setInvitedSuppliers(prev => [...prev, supplier]);
     setSupplierSearch('');
     setShowResults(false);
@@ -179,6 +184,10 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const addManualSupplier = () => {
     const name = supplierSearch.trim();
     if (!name) return;
+    if (invitedSuppliers.length >= 20) {
+      toast.error('Maximum 20 suppliers per auction');
+      return;
+    }
     const manualSupplier: SupplierOption = {
       id: `manual-${Date.now()}`,
       company_name: name,
