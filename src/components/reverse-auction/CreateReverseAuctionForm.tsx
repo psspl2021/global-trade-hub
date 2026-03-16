@@ -386,7 +386,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                 const parsed = parseAuctionTitle(pasted);
                 if (parsed.length > 0) {
                   e.preventDefault();
-                  setAuctionTitle(pasted);
+                  const cleanTitle = parsed.map(p => p.product).join(', ') + ' Reverse Auction';
+                  setAuctionTitle(cleanTitle);
                   setItems(parsed.map(p => ({
                     product: p.product,
                     quantity: p.quantity,
