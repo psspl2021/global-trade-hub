@@ -27,7 +27,7 @@ export function parseAuctionTitle(input: string): ParsedItem[] {
   if (!input) return [];
 
   const items: ParsedItem[] = [];
-  const parts = input.split(',');
+  const parts = input.split(/,|\n/);
 
   for (const part of parts) {
     const text = part.trim();
