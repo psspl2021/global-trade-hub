@@ -184,6 +184,10 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const addManualSupplier = () => {
     const name = supplierSearch.trim();
     if (!name) return;
+    if (invitedSuppliers.length >= 20) {
+      toast.error('Maximum 20 suppliers per auction');
+      return;
+    }
     const manualSupplier: SupplierOption = {
       id: `manual-${Date.now()}`,
       company_name: name,
