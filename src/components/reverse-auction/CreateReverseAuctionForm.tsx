@@ -180,7 +180,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const name = supplierSearch.trim();
     if (!name) return;
     const manualSupplier: SupplierOption = {
-      id: crypto.randomUUID(),
+      id: `manual-${Date.now()}`,
       company_name: name,
       contact_person: '',
       city: null,
