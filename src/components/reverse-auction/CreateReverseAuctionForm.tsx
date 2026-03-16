@@ -185,17 +185,20 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   };
 
   const addManualSupplier = () => {
-    const name = supplierSearch.trim();
-    if (!name) return;
+    const input = supplierSearch.trim();
+    if (!input) return;
     if (invitedSuppliers.length >= 20) {
       toast.error('Maximum 20 suppliers per auction');
       return;
     }
+    // Check if input looks like an email
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
     const manualSupplier: SupplierOption = {
       id: `manual-${Date.now()}`,
-      company_name: name,
+      company_name: isEmail ? input : input,
       contact_person: '',
       city: null,
+      email: isEmail ? input : undefined,
       manual: true,
     };
     setInvitedSuppliers(prev => [...prev, manualSupplier]);
