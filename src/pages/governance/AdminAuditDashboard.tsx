@@ -68,10 +68,10 @@ import { AdminDemandHeatmap } from '@/components/admin/AdminDemandHeatmap';
 import { SalesControlBoard } from '@/components/admin/SalesControlBoard';
 import { BenchmarkManager } from '@/components/admin/BenchmarkManager';
 import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
+import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
-
 type AdminView = 
   | 'dashboard' 
   | 'control-tower' 
