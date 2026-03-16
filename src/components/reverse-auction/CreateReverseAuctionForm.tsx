@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { getSuggestedStartingPrice, getMarketBenchmark, type RFQSignal } from '@/utils/aiAuctionPricing';
 import { getAuctionFee, formatINR } from '@/utils/auctionPricing';
 import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuctionTitle';
+import { parseAuctionTitle } from '@/utils/parseAuctionTitle';
 import { useAuth } from '@/hooks/useAuth';
 
 const CATEGORIES = [
@@ -100,8 +101,9 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   // ── AI Title (Feature #1) ──
   const [auctionTitle, setAuctionTitle] = useState('');
   useEffect(() => {
+    if (auctionTitle) return;
     const title = generateAuctionTitle(items, transactionType);
-    if (title !== auctionTitle) {
+    if (title) {
       setAuctionTitle(title);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -367,8 +369,19 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </Label>
             <Input
               value={auctionTitle}
-              onChange={e => setAuctionTitle(e.target.value)}
-              placeholder="Title auto-generates from products & trade type"
+              onChange={(e) => {
+                const value = e.target.value;
+                setAuctionTitle(value);
+                const parsed = parseAuctionTitle(value);
+                if (parsed.length > 0) {
+                  setItems(parsed.map(p => ({
+                    product: p.product,
+                    quantity: p.quantity,
+                    unit: p.unit || 'MT',
+                  })));
+                }
+              }}
+              placeholder="e.g. hr coil 2mm 30 ton, 5mm 10 ton — auto-fills line items"
               className="mt-1"
             />
             {auctionTitle && (
