@@ -111,11 +111,47 @@ export function useReverseAuction() {
 
       if (error) throw error;
 
-      // Invite suppliers
-      if (input.invited_supplier_ids.length > 0 && auction) {
+      // Invite suppliers (with email + invited_by support)
+      const auctionId = (auction as any).id;
+      const allInvites = input.invited_suppliers || [];
+      
+      if (allInvites.length > 0 && auction) {
+        const invites = allInvites.map(s => ({
+          auction_id: auctionId,
+          supplier_id: s.manual ? null : s.id,
+          supplier_email: s.email || null,
+          invited_by: user.id,
+        }));
+        const { error: inviteError } = await supabase
+          .from('reverse_auction_suppliers')
+          .insert(invites as any);
+        if (inviteError) console.error('Error inviting suppliers:', inviteError);
+
+        // Send email invitations
+        for (const supplier of allInvites) {
+          if (supplier.email) {
+            try {
+              await supabase.functions.invoke('send-auction-invite', {
+                body: {
+                  email: supplier.email,
+                  auctionTitle: input.title,
+                  product: input.product_slug.replace(/_/g, ', ').replace(/-/g, ' '),
+                  quantity: `${input.quantity} ${input.unit}`,
+                  startTime: input.auction_start,
+                  auctionLink: `${window.location.origin}/auctions/${auctionId}`,
+                },
+              });
+            } catch (emailErr) {
+              console.error('Failed to send invite email:', emailErr);
+            }
+          }
+        }
+      } else if (input.invited_supplier_ids.length > 0 && auction) {
+        // Legacy: invited_supplier_ids only
         const invites = input.invited_supplier_ids.map(sid => ({
-          auction_id: (auction as any).id,
+          auction_id: auctionId,
           supplier_id: sid,
+          invited_by: user.id,
         }));
         const { error: inviteError } = await supabase
           .from('reverse_auction_suppliers')
