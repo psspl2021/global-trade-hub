@@ -161,7 +161,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const filteredSuppliers = useMemo(() => {
     if (!supplierSearch.trim()) return [];
     const q = supplierSearch.toLowerCase();
-    const invitedIds = new Set(invitedSuppliers.map(s => s.id));
+    const invitedIds = new Set(invitedSuppliers.filter(s => !s.manual).map(s => s.id));
     return allSuppliers
       .filter(s => !invitedIds.has(s.id) && (
         (s.company_name || '').toLowerCase().includes(q) ||
