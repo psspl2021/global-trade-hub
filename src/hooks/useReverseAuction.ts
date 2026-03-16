@@ -54,6 +54,7 @@ export interface CreateAuctionInput {
   auction_end: string;
   transaction_type?: string;
   invited_supplier_ids: string[];
+  invited_suppliers?: { id: string; email?: string; manual?: boolean }[];
 }
 
 export function useReverseAuction() {
