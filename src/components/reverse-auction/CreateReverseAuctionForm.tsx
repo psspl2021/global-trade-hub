@@ -171,6 +171,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   }, [supplierSearch, allSuppliers, invitedSuppliers]);
 
   const addSupplier = (supplier: SupplierOption) => {
+    if (invitedSuppliers.some(s => s.id === supplier.id)) return;
+    if (invitedSuppliers.length >= 20) {
+      toast.error('Maximum 20 suppliers per auction');
+      return;
+    }
     setInvitedSuppliers(prev => [...prev, supplier]);
     setSupplierSearch('');
     setShowResults(false);
