@@ -46,6 +46,7 @@ export default function AuctionTrackerCard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("AuctionTrackerCard mounted");
     load();
   }, []);
 
