@@ -128,7 +128,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const fetchSuppliers = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('id, company_name, contact_person, city')
+        .select('id, company_name, contact_person, city, email')
         .eq('business_type', 'supplier')
         .order('company_name');
       if (data) setAllSuppliers(data as SupplierOption[]);
