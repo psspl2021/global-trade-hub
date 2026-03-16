@@ -419,7 +419,7 @@ export default function AdminAuditDashboard() {
       </div>
 
       {/* Second Row - Primary Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-fr">
         {/* Control Tower */}
         <Card className="bg-slate-800 text-white border-0">
           <CardHeader className="pb-2">
@@ -485,6 +485,8 @@ export default function AdminAuditDashboard() {
             </Button>
           </CardContent>
         </Card>
+
+        <AuctionTrackerCard />
       </div>
 
       {/* Enterprise Intelligence Row */}
