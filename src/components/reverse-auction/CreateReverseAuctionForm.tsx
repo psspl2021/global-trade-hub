@@ -381,6 +381,19 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                   })));
                 }
               }}
+              onPaste={(e) => {
+                const pasted = e.clipboardData.getData('text');
+                const parsed = parseAuctionTitle(pasted);
+                if (parsed.length > 0) {
+                  e.preventDefault();
+                  setAuctionTitle(pasted);
+                  setItems(parsed.map(p => ({
+                    product: p.product,
+                    quantity: p.quantity,
+                    unit: p.unit || 'MT',
+                  })));
+                }
+              }}
               placeholder="e.g. hr coil 2mm 30 ton, 5mm 10 ton — auto-fills line items"
               className="mt-1"
             />
