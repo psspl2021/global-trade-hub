@@ -649,17 +649,17 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                   </button>
                 ))}
 
-                {/* Manual add option when no DB matches */}
-                {filteredSuppliers.length === 0 && (
-                  <button
-                    type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-accent/50 flex items-center gap-2 text-sm transition-colors text-primary"
-                    onMouseDown={addManualSupplier}
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    Add "{supplierSearch.trim()}" as manual supplier
-                  </button>
-                )}
+                {/* Manual add option — always show at bottom */}
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 hover:bg-accent/50 flex items-center gap-2 text-sm transition-colors text-primary border-t"
+                  onMouseDown={addManualSupplier}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  {/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(supplierSearch.trim())
+                    ? `Invite "${supplierSearch.trim()}" via email`
+                    : `Add "${supplierSearch.trim()}" as supplier`}
+                </button>
               </div>
             )}
 
