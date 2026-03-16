@@ -148,7 +148,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const fetchAuctionCount = async () => {
       const { count } = await supabase
         .from('reverse_auctions')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('buyer_id', user.id);
       setBuyerAuctionCount(count || 0);
     };
