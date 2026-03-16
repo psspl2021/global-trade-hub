@@ -669,7 +669,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                 {invitedSuppliers.map(s => (
                   <Badge key={s.id} variant="secondary" className="gap-1 pr-1">
                     {s.company_name}
-                    {s.manual && <span className="text-[10px] opacity-60">(manual)</span>}
+                    {s.manual && s.email && <span className="text-[10px] opacity-60">(email)</span>}
+                    {s.manual && !s.email && <span className="text-[10px] opacity-60">(manual)</span>}
                     <button type="button" onClick={() => removeSupplier(s.id)} className="ml-1 rounded-full hover:bg-destructive/20 p-0.5">
                       <X className="w-3 h-3" />
                     </button>
