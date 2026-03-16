@@ -6052,27 +6052,33 @@ export type Database = {
           floor_price: number | null
           id: string
           invited_at: string
+          invited_by: string | null
           joined: boolean
           joined_at: string | null
-          supplier_id: string
+          supplier_email: string | null
+          supplier_id: string | null
         }
         Insert: {
           auction_id: string
           floor_price?: number | null
           id?: string
           invited_at?: string
+          invited_by?: string | null
           joined?: boolean
           joined_at?: string | null
-          supplier_id: string
+          supplier_email?: string | null
+          supplier_id?: string | null
         }
         Update: {
           auction_id?: string
           floor_price?: number | null
           id?: string
           invited_at?: string
+          invited_by?: string | null
           joined?: boolean
           joined_at?: string | null
-          supplier_id?: string
+          supplier_email?: string | null
+          supplier_id?: string | null
         }
         Relationships: [
           {
