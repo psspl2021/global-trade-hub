@@ -201,7 +201,7 @@ export function AdminDashboardCards({
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-auto">
       {/* Control Tower Card - First Position (Featured) */}
       <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 md:col-span-2 lg:col-span-1">
         <CardHeader className="pb-2">
