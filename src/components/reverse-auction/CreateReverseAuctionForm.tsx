@@ -164,8 +164,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const invitedIds = new Set(invitedSuppliers.map(s => s.id));
     return allSuppliers
       .filter(s => !invitedIds.has(s.id) && (
-        s.company_name.toLowerCase().includes(q) ||
-        s.contact_person.toLowerCase().includes(q)
+        (s.company_name || '').toLowerCase().includes(q) ||
+        (s.contact_person || '').toLowerCase().includes(q)
       ))
       .slice(0, 8);
   }, [supplierSearch, allSuppliers, invitedSuppliers]);
