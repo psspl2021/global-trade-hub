@@ -369,8 +369,19 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
             </Label>
             <Input
               value={auctionTitle}
-              onChange={e => setAuctionTitle(e.target.value)}
-              placeholder="Title auto-generates from products & trade type"
+              onChange={(e) => {
+                const value = e.target.value;
+                setAuctionTitle(value);
+                const parsed = parseAuctionTitle(value);
+                if (parsed.length > 0) {
+                  setItems(parsed.map(p => ({
+                    product: p.product,
+                    quantity: p.quantity,
+                    unit: p.unit || 'MT',
+                  })));
+                }
+              }}
+              placeholder="e.g. hr coil 2mm 30 ton, 5mm 10 ton — auto-fills line items"
               className="mt-1"
             />
             {auctionTitle && (
