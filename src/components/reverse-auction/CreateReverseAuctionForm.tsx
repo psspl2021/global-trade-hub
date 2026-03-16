@@ -50,6 +50,7 @@ interface SupplierOption {
   company_name: string;
   contact_person: string;
   city: string | null;
+  email?: string;
   manual?: boolean;
 }
 
