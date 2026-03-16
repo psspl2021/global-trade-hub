@@ -587,7 +587,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                 value={supplierSearch}
                 onChange={e => { setSupplierSearch(e.target.value); setShowResults(true); }}
                 onFocus={() => setShowResults(true)}
-                onBlur={() => setTimeout(() => setShowResults(false), 200)}
+                onBlur={() => { setTimeout(() => setShowResults(false), 150); }}
               />
             </div>
 
