@@ -100,7 +100,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   // ── AI Title (Feature #1) ──
   const [auctionTitle, setAuctionTitle] = useState('');
   useEffect(() => {
-    setAuctionTitle(generateAuctionTitle(items, transactionType));
+    const title = generateAuctionTitle(items, transactionType);
+    if (title !== auctionTitle) {
+      setAuctionTitle(title);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, transactionType]);
 
   // ── Supplier Search + Manual Add (Feature #3) ──
@@ -144,7 +148,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const fetchAuctionCount = async () => {
       const { count } = await supabase
         .from('reverse_auctions')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('buyer_id', user.id);
       setBuyerAuctionCount(count || 0);
     };
@@ -160,8 +164,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const invitedIds = new Set(invitedSuppliers.map(s => s.id));
     return allSuppliers
       .filter(s => !invitedIds.has(s.id) && (
-        s.company_name.toLowerCase().includes(q) ||
-        s.contact_person.toLowerCase().includes(q)
+        (s.company_name || '').toLowerCase().includes(q) ||
+        (s.contact_person || '').toLowerCase().includes(q)
       ))
       .slice(0, 8);
   }, [supplierSearch, allSuppliers, invitedSuppliers]);
@@ -176,7 +180,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     const name = supplierSearch.trim();
     if (!name) return;
     const manualSupplier: SupplierOption = {
-      id: crypto.randomUUID(),
+      id: `manual-${Date.now()}`,
       company_name: name,
       contact_person: '',
       city: null,
@@ -583,7 +587,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
                 value={supplierSearch}
                 onChange={e => { setSupplierSearch(e.target.value); setShowResults(true); }}
                 onFocus={() => setShowResults(true)}
-                onBlur={() => setTimeout(() => setShowResults(false), 200)}
+                onBlur={() => { setTimeout(() => setShowResults(false), 150); }}
               />
             </div>
 
