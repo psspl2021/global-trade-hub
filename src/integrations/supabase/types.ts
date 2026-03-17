@@ -6055,8 +6055,10 @@ export type Database = {
           invited_by: string | null
           joined: boolean
           joined_at: string | null
+          supplier_company_name: string | null
           supplier_email: string | null
           supplier_id: string | null
+          supplier_source: string | null
         }
         Insert: {
           auction_id: string
@@ -6066,8 +6068,10 @@ export type Database = {
           invited_by?: string | null
           joined?: boolean
           joined_at?: string | null
+          supplier_company_name?: string | null
           supplier_email?: string | null
           supplier_id?: string | null
+          supplier_source?: string | null
         }
         Update: {
           auction_id?: string
@@ -6077,8 +6081,10 @@ export type Database = {
           invited_by?: string | null
           joined?: boolean
           joined_at?: string | null
+          supplier_company_name?: string | null
           supplier_email?: string | null
           supplier_id?: string | null
+          supplier_source?: string | null
         }
         Relationships: [
           {

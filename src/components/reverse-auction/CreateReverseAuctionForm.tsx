@@ -174,7 +174,11 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   }, [supplierSearch, allSuppliers, invitedSuppliers]);
 
   const addSupplier = (supplier: SupplierOption) => {
-    if (invitedSuppliers.some(s => s.id === supplier.id)) return;
+    // Prevent duplicates by id AND email
+    if (invitedSuppliers.some(s => s.id === supplier.id || (supplier.email && s.email === supplier.email))) {
+      toast.info('This supplier is already invited');
+      return;
+    }
     if (invitedSuppliers.length >= 20) {
       toast.error('Maximum 20 suppliers per auction');
       return;
@@ -193,6 +197,13 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     }
     // Check if input looks like an email
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+    
+    // Prevent duplicate email invites
+    if (isEmail && invitedSuppliers.some(s => s.email === input)) {
+      toast.info('This email is already invited');
+      return;
+    }
+    
     const manualSupplier: SupplierOption = {
       id: `manual-${Date.now()}`,
       company_name: isEmail ? input : input,
