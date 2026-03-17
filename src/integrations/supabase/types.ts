@@ -9505,6 +9505,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: boolean
       }
+      can_supplier_access_auction: {
+        Args: { p_auction_id: string; p_email: string; p_supplier_id: string }
+        Returns: boolean
+      }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
       check_and_create_demand_alerts: { Args: never; Returns: number }
       check_and_create_forecast_alerts: { Args: never; Returns: number }
