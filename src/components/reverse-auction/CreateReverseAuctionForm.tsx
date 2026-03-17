@@ -197,6 +197,13 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     }
     // Check if input looks like an email
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+    
+    // Prevent duplicate email invites
+    if (isEmail && invitedSuppliers.some(s => s.email === input)) {
+      toast.info('This email is already invited');
+      return;
+    }
+    
     const manualSupplier: SupplierOption = {
       id: `manual-${Date.now()}`,
       company_name: isEmail ? input : input,

@@ -111,39 +111,64 @@ export function useReverseAuction() {
 
       if (error) throw error;
 
-      // Invite suppliers (with email + invited_by support)
+      // Invite suppliers with dedup, email guarantee, and source tracking
       const auctionId = (auction as any).id;
       const allInvites = input.invited_suppliers || [];
       
       if (allInvites.length > 0 && auction) {
-        const invites = allInvites.map(s => ({
+        // Step 1: Deduplicate by email or id
+        const uniqueInvites = Array.from(
+          new Map(allInvites.map(s => [s.email || s.id, s])).values()
+        );
+
+        // Step 2: For platform suppliers, fetch their email from profiles
+        const platformIds = uniqueInvites.filter(s => !s.manual).map(s => s.id);
+        let profileEmails: Record<string, string> = {};
+        if (platformIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, email')
+            .in('id', platformIds);
+          if (profiles) {
+            profileEmails = Object.fromEntries(profiles.map((p: any) => [p.id, p.email]));
+          }
+        }
+
+        // Step 3: Build invites with guaranteed email and source tracking
+        const invites = uniqueInvites.map(s => ({
           auction_id: auctionId,
           supplier_id: s.manual ? null : s.id,
-          supplier_email: s.email || null,
+          supplier_email: s.email || profileEmails[s.id] || null,
           invited_by: user.id,
+          supplier_source: s.manual ? 'buyer_invite' : 'platform',
+          supplier_company_name: s.manual ? (s.email || null) : null,
         }));
+
         const { error: inviteError } = await supabase
           .from('reverse_auction_suppliers')
           .insert(invites as any);
         if (inviteError) console.error('Error inviting suppliers:', inviteError);
 
-        // Send email invitations
-        for (const supplier of allInvites) {
-          if (supplier.email) {
-            try {
-              await supabase.functions.invoke('send-auction-invite', {
-                body: {
-                  email: supplier.email,
-                  auctionTitle: input.title,
-                  product: input.product_slug.replace(/_/g, ', ').replace(/-/g, ' '),
-                  quantity: `${input.quantity} ${input.unit}`,
-                  startTime: input.auction_start,
-                  auctionLink: `${window.location.origin}/auctions/${auctionId}`,
-                },
-              });
-            } catch (emailErr) {
-              console.error('Failed to send invite email:', emailErr);
-            }
+        // Step 4: Send email invitations to all suppliers with emails
+        const product = input.product_slug.replace(/_/g, ', ').replace(/-/g, ' ');
+        const quantity = `${input.quantity} ${input.unit}`;
+        const auctionLink = `${window.location.origin}/auctions/${auctionId}`;
+
+        for (const invite of invites) {
+          if (!invite.supplier_email) continue;
+          try {
+            await supabase.functions.invoke('send-auction-invite', {
+              body: {
+                email: invite.supplier_email,
+                auctionTitle: input.title,
+                product,
+                quantity,
+                startTime: input.auction_start,
+                auctionLink,
+              },
+            });
+          } catch (emailErr) {
+            console.error('Failed to send invite email:', emailErr);
           }
         }
       } else if (input.invited_supplier_ids.length > 0 && auction) {
@@ -152,6 +177,7 @@ export function useReverseAuction() {
           auction_id: auctionId,
           supplier_id: sid,
           invited_by: user.id,
+          supplier_source: 'platform',
         }));
         const { error: inviteError } = await supabase
           .from('reverse_auction_suppliers')
