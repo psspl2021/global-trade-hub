@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt, UserPlus, Trash2, Package } from 'lucide-react';
+import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt, UserPlus, Trash2, Package, Wallet } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useReverseAuction, CreateAuctionInput } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
@@ -269,6 +269,27 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   // Auction fee with discount logic (Feature #4)
   const auctionFee = useMemo(() => getAuctionFee(transactionType, buyerAuctionCount), [transactionType, buyerAuctionCount]);
 
+  // ── Buyer Auction Credits ──
+  const [buyerCredits, setBuyerCredits] = useState<{ id: string; total: number; used: number } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchCredits = async () => {
+      const { data } = await supabase
+        .from('buyer_auction_credits')
+        .select('id, total_credits, used_credits')
+        .eq('buyer_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits });
+    };
+    fetchCredits();
+  }, [user]);
+
+  const remainingCredits = buyerCredits ? buyerCredits.total - buyerCredits.used : 0;
+  const hasCredits = remainingCredits > 0;
+
   const handleSubmit = async () => {
     const validItems = items.filter(i => i.product.trim() && i.quantity.trim());
 
@@ -308,10 +329,31 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
+    // Check for credits
+    if (!hasCredits) {
+      toast.error('No auction credits available. Please purchase a plan first.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Step 1: Record payment
+      // Step 1: Consume 1 credit
+      const { error: creditError } = await supabase
+        .from('buyer_auction_credits')
+        .update({ 
+          used_credits: buyerCredits!.used + 1,
+          updated_at: new Date().toISOString(),
+        } as any)
+        .eq('id', buyerCredits!.id);
+
+      if (creditError) {
+        toast.error('Failed to consume auction credit: ' + creditError.message);
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 2: Record payment (mark as paid via credit)
       const { data: payment, error: payError } = await supabase
         .from('auction_payments')
         .insert({
@@ -335,7 +377,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       const combinedSlug = validItems.map(i => i.product.toLowerCase().replace(/\s+/g, '-')).join('_');
       const totalQty = validItems.reduce((sum, i) => sum + parseFloat(i.quantity || '0'), 0);
 
-      // Step 2: Create auction
+      // Step 3: Create auction
       const input: CreateAuctionInput = {
         title: auctionTitle,
         product_slug: combinedSlug,
@@ -358,7 +400,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
       const result = await createAuction(input);
 
-      // Step 3: Link payment to auction
+      // Step 4: Link payment to auction
       if (result && payment) {
         await supabase
           .from('auction_payments')
@@ -726,12 +768,34 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             </CardContent>
           </Card>
 
+          {/* Credits Status */}
+          {buyerCredits !== null && (
+            <Card className={hasCredits ? 'border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20' : 'border-destructive/30 bg-destructive/5'}>
+              <CardContent className="py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">Auction Credits</span>
+                  </div>
+                  <Badge variant={hasCredits ? 'secondary' : 'destructive'}>
+                    {remainingCredits} remaining
+                  </Badge>
+                </div>
+                {!hasCredits && (
+                  <p className="text-xs text-destructive mt-1">
+                    No credits available. <a href="/buyer" className="underline font-medium">Purchase a plan</a> to create auctions.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !hasCredits}
             className="w-full"
           >
-            {isSubmitting ? 'Processing Payment...' : `Pay ${auctionFee ? formatINR(auctionFee.total) : ''} & Create Auction`}
+            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : 'Buy Credits to Continue'}
           </Button>
     </div>
   );

@@ -975,6 +975,77 @@ export type Database = {
           },
         ]
       }
+      auction_credit_payments: {
+        Row: {
+          amount: number
+          buyer_id: string
+          cf_payment_id: string | null
+          created_at: string | null
+          credits_credited: boolean | null
+          credits_purchased: number
+          currency: string | null
+          gst_amount: number
+          id: string
+          metadata: Json | null
+          order_id: string
+          paid_at: string | null
+          payment_method: string | null
+          payment_session_id: string | null
+          plan_id: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          cf_payment_id?: string | null
+          created_at?: string | null
+          credits_credited?: boolean | null
+          credits_purchased: number
+          currency?: string | null
+          gst_amount?: number
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_session_id?: string | null
+          plan_id?: string | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          cf_payment_id?: string | null
+          created_at?: string | null
+          credits_credited?: boolean | null
+          credits_purchased?: number
+          currency?: string | null
+          gst_amount?: number
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_session_id?: string | null
+          plan_id?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_credit_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "auction_pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auction_payments: {
         Row: {
           auction_id: string | null
@@ -1024,6 +1095,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      auction_pricing_plans: {
+        Row: {
+          auctions_count: number
+          created_at: string | null
+          description: string | null
+          gst_rate: number
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          price_per_auction: number
+          sort_order: number | null
+        }
+        Insert: {
+          auctions_count: number
+          created_at?: string | null
+          description?: string | null
+          gst_rate?: number
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price: number
+          price_per_auction: number
+          sort_order?: number | null
+        }
+        Update: {
+          auctions_count?: number
+          created_at?: string | null
+          description?: string | null
+          gst_rate?: number
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          price_per_auction?: number
+          sort_order?: number | null
+        }
+        Relationships: []
       }
       audit_ledger: {
         Row: {
@@ -1523,6 +1633,47 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      buyer_auction_credits: {
+        Row: {
+          buyer_id: string
+          created_at: string | null
+          id: string
+          payment_order_id: string | null
+          plan_id: string | null
+          total_credits: number
+          updated_at: string | null
+          used_credits: number
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string | null
+          id?: string
+          payment_order_id?: string | null
+          plan_id?: string | null
+          total_credits?: number
+          updated_at?: string | null
+          used_credits?: number
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string | null
+          id?: string
+          payment_order_id?: string | null
+          plan_id?: string | null
+          total_credits?: number
+          updated_at?: string | null
+          used_credits?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_auction_credits_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "auction_pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       buyer_companies: {
         Row: {
