@@ -1,18 +1,25 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Gavel, RotateCcw, ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { CreateReverseAuctionForm } from "@/components/reverse-auction/CreateReverseAuctionForm";
 
 export default function CreateReverseAuctionPage() {
   const navigate = useNavigate();
   const [refresh, setRefresh] = useState(0);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   const handleDraftSaved = useCallback(() => {
     setLastSaved(new Date());
   }, []);
 
   const handleBack = () => {
+    setShowExitConfirm(true);
+  };
+
+  const confirmLeave = () => {
     if (window.history.length > 1) {
       navigate(-1);
     } else {
@@ -79,6 +86,26 @@ export default function CreateReverseAuctionPage() {
           />
         </div>
       </div>
+
+      {/* Exit Confirmation */}
+      <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Leave this page?</DialogTitle>
+            <DialogDescription>
+              Your draft is saved automatically. You can come back anytime to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowExitConfirm(false)}>
+              Continue Editing
+            </Button>
+            <Button variant="destructive" onClick={confirmLeave}>
+              Leave Page
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
