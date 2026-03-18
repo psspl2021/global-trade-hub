@@ -768,12 +768,34 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             </CardContent>
           </Card>
 
+          {/* Credits Status */}
+          {buyerCredits !== null && (
+            <Card className={hasCredits ? 'border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20' : 'border-destructive/30 bg-destructive/5'}>
+              <CardContent className="py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">Auction Credits</span>
+                  </div>
+                  <Badge variant={hasCredits ? 'secondary' : 'destructive'}>
+                    {remainingCredits} remaining
+                  </Badge>
+                </div>
+                {!hasCredits && (
+                  <p className="text-xs text-destructive mt-1">
+                    No credits available. <a href="/buyer" className="underline font-medium">Purchase a plan</a> to create auctions.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !hasCredits}
             className="w-full"
           >
-            {isSubmitting ? 'Processing Payment...' : `Pay ${auctionFee ? formatINR(auctionFee.total) : ''} & Create Auction`}
+            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : 'Buy Credits to Continue'}
           </Button>
     </div>
   );
