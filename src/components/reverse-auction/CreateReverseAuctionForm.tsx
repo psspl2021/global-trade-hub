@@ -269,6 +269,27 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   // Auction fee with discount logic (Feature #4)
   const auctionFee = useMemo(() => getAuctionFee(transactionType, buyerAuctionCount), [transactionType, buyerAuctionCount]);
 
+  // ── Buyer Auction Credits ──
+  const [buyerCredits, setBuyerCredits] = useState<{ id: string; total: number; used: number } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchCredits = async () => {
+      const { data } = await supabase
+        .from('buyer_auction_credits')
+        .select('id, total_credits, used_credits')
+        .eq('buyer_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits });
+    };
+    fetchCredits();
+  }, [user]);
+
+  const remainingCredits = buyerCredits ? buyerCredits.total - buyerCredits.used : 0;
+  const hasCredits = remainingCredits > 0;
+
   const handleSubmit = async () => {
     const validItems = items.filter(i => i.product.trim() && i.quantity.trim());
 
@@ -308,10 +329,31 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
+    // Check for credits
+    if (!hasCredits) {
+      toast.error('No auction credits available. Please purchase a plan first.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Step 1: Record payment
+      // Step 1: Consume 1 credit
+      const { error: creditError } = await supabase
+        .from('buyer_auction_credits')
+        .update({ 
+          used_credits: buyerCredits!.used + 1,
+          updated_at: new Date().toISOString(),
+        } as any)
+        .eq('id', buyerCredits!.id);
+
+      if (creditError) {
+        toast.error('Failed to consume auction credit: ' + creditError.message);
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 2: Record payment (mark as paid via credit)
       const { data: payment, error: payError } = await supabase
         .from('auction_payments')
         .insert({
@@ -335,7 +377,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       const combinedSlug = validItems.map(i => i.product.toLowerCase().replace(/\s+/g, '-')).join('_');
       const totalQty = validItems.reduce((sum, i) => sum + parseFloat(i.quantity || '0'), 0);
 
-      // Step 2: Create auction
+      // Step 3: Create auction
       const input: CreateAuctionInput = {
         title: auctionTitle,
         product_slug: combinedSlug,
@@ -358,7 +400,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
       const result = await createAuction(input);
 
-      // Step 3: Link payment to auction
+      // Step 4: Link payment to auction
       if (result && payment) {
         await supabase
           .from('auction_payments')
