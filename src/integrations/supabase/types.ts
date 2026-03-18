@@ -6112,6 +6112,7 @@ export type Database = {
           product_slug: string
           quantity: number
           reserve_price: number | null
+          result_notified: boolean | null
           starting_price: number
           status: string
           title: string
@@ -6137,6 +6138,7 @@ export type Database = {
           product_slug: string
           quantity: number
           reserve_price?: number | null
+          result_notified?: boolean | null
           starting_price: number
           status?: string
           title: string
@@ -6162,6 +6164,7 @@ export type Database = {
           product_slug?: string
           quantity?: number
           reserve_price?: number | null
+          result_notified?: boolean | null
           starting_price?: number
           status?: string
           title?: string

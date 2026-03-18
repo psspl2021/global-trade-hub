@@ -206,6 +206,69 @@ serve(async (req) => {
       .update({ is_winning: true })
       .eq('id', winnerBid.id);
 
+    // 4. Notify buyer about auction completion
+    if (auction.buyer_id) {
+      try {
+        const { data: buyer } = await supabase
+          .from('profiles')
+          .select('email, company_name')
+          .eq('id', auction.buyer_id)
+          .single();
+
+        if (buyer?.email) {
+          const buyerRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${RESEND_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: 'ProcureSaathi <auctions@procuresaathi.com>',
+              to: [buyer.email],
+              subject: `🏁 Auction Completed — ${auction.title}`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <div style="background: linear-gradient(135deg, #2563eb, #1d4ed8); padding: 24px; border-radius: 12px 12px 0 0;">
+                    <h1 style="color: #fff; margin: 0; font-size: 22px;">🏁 Your Auction Has Completed</h1>
+                  </div>
+                  <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 12px 12px;">
+                    <p style="color: #374151; font-size: 16px; margin-top: 0;">
+                      Dear <strong>${buyer.company_name || 'Buyer'}</strong>, your reverse auction has successfully closed.
+                    </p>
+                    
+                    <div style="background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                      <h2 style="color: #1e40af; margin: 0 0 12px 0; font-size: 18px;">${auction.title}</h2>
+                      <table style="width: 100%; font-size: 14px; color: #374151;">
+                        <tr><td style="padding: 4px 0; font-weight: 600;">Winning Supplier:</td><td>${winnerInfo?.company || 'N/A'}</td></tr>
+                        <tr><td style="padding: 4px 0; font-weight: 600;">Winning Price:</td><td style="color: #2563eb; font-weight: 700; font-size: 16px;">${currencySymbol}${winnerBid.bid_price}</td></tr>
+                        <tr><td style="padding: 4px 0; font-weight: 600;">Total Bids Received:</td><td>${bids.length}</td></tr>
+                      </table>
+                    </div>
+
+                    <p style="color: #374151; font-size: 14px;">
+                      You can now proceed with order finalization. The winning supplier has been notified and is awaiting your confirmation.
+                    </p>
+                    
+                    <p style="color: #6b7280; font-size: 13px; margin-bottom: 0;">
+                      Log in to ProcureSaathi to review the full results and initiate the order.
+                    </p>
+                  </div>
+                  <p style="color: #9ca3af; font-size: 11px; text-align: center; margin-top: 16px;">
+                    ProcureSaathi — India's B2B Procurement Platform
+                  </p>
+                </div>
+              `,
+            }),
+          });
+          const buyerResBody = await buyerRes.text();
+          emailResults.push(`Buyer (${buyer.email}): ${buyerRes.ok ? 'sent' : buyerResBody}`);
+        }
+      } catch (e) {
+        console.error('Failed to send buyer email:', e);
+        emailResults.push(`Buyer email failed: ${e}`);
+      }
+    }
+
     console.log('Auction result emails:', emailResults);
 
     return new Response(JSON.stringify({ success: true, results: emailResults }), {
