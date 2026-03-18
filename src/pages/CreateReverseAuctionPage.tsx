@@ -9,12 +9,17 @@ export default function CreateReverseAuctionPage() {
   const navigate = useNavigate();
   const [refresh, setRefresh] = useState(0);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   const handleDraftSaved = useCallback(() => {
     setLastSaved(new Date());
   }, []);
 
   const handleBack = () => {
+    setShowExitConfirm(true);
+  };
+
+  const confirmLeave = () => {
     if (window.history.length > 1) {
       navigate(-1);
     } else {
