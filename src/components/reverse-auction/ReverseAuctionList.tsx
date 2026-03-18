@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format } from 'date-fns';
-import { CreateReverseAuctionForm } from './CreateReverseAuctionForm';
+import { useNavigate } from 'react-router-dom';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: <Clock className="w-3 h-3" /> },

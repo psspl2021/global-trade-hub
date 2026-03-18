@@ -63,9 +63,10 @@ function calculateEndTime(date: string, time: string, durationMinutes: number): 
 
 interface CreateReverseAuctionFormProps {
   onCreated?: () => void;
+  mode?: 'dialog' | 'page';
 }
 
-export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionFormProps) {
+export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
