@@ -63,10 +63,11 @@ function calculateEndTime(date: string, time: string, durationMinutes: number): 
 
 interface CreateReverseAuctionFormProps {
   onCreated?: () => void;
+  onDraftSaved?: () => void;
   mode?: 'dialog' | 'page';
 }
 
-export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateReverseAuctionFormProps) {
+export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dialog' }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -145,7 +146,8 @@ export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateR
     if (mode !== 'page') return;
     const draft = { items, category, startingPrice, invitedSuppliers, auctionTitle };
     localStorage.setItem('auction_draft', JSON.stringify(draft));
-  }, [mode, items, category, startingPrice, invitedSuppliers, auctionTitle]);
+    onDraftSaved?.();
+  }, [mode, items, category, startingPrice, invitedSuppliers, auctionTitle, onDraftSaved]);
 
   useEffect(() => {
     if (mode === 'dialog' && !open) return;
