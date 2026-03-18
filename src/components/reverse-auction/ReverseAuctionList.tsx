@@ -42,6 +42,7 @@ interface ReverseAuctionListProps {
 
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseAuctionListProps) {
   const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
