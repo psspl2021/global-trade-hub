@@ -86,6 +86,26 @@ export default function CreateReverseAuctionPage() {
           />
         </div>
       </div>
+
+      {/* Exit Confirmation */}
+      <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Leave this page?</DialogTitle>
+            <DialogDescription>
+              Your draft is saved automatically. You can come back anytime to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowExitConfirm(false)}>
+              Continue Editing
+            </Button>
+            <Button variant="destructive" onClick={confirmLeave}>
+              Leave Page
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
