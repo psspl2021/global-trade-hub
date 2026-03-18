@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.seo-gsc-sync]
 verify_jwt = false
+
+[functions.send-auction-result]
+verify_jwt = false
