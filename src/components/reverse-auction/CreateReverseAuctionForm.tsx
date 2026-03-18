@@ -63,9 +63,10 @@ function calculateEndTime(date: string, time: string, durationMinutes: number): 
 
 interface CreateReverseAuctionFormProps {
   onCreated?: () => void;
+  mode?: 'dialog' | 'page';
 }
 
-export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionFormProps) {
+export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -123,7 +124,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
   const [rfqSignals, setRfqSignals] = useState<RFQSignal[]>([]);
 
   useEffect(() => {
-    if (!open || !user) return;
+    if (mode === 'dialog' && !open) return;
+    if (!user) return;
 
     const fetchSuppliers = async () => {
       const { data } = await supabase
@@ -159,7 +161,7 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
     fetchSuppliers();
     fetchRFQSignals();
     fetchAuctionCount();
-  }, [open, user]);
+  }, [mode, open, user]);
 
   const filteredSuppliers = useMemo(() => {
     if (!supplierSearch.trim()) return [];
@@ -364,23 +366,8 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
 
   const today = new Date().toISOString().split('T')[0];
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white">
-          <Gavel className="w-4 h-4" />
-          Create Reverse Auction
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Gavel className="w-5 h-5 text-amber-600" />
-            Create Reverse Auction
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 py-2">
+  const formContent = (
+    <div className="space-y-4 py-2">
           {/* ── AI Generated Title (Feature #1) ── */}
           <div>
             <Label className="flex items-center gap-1.5">
@@ -720,7 +707,29 @@ export function CreateReverseAuctionForm({ onCreated }: CreateReverseAuctionForm
           >
             {isSubmitting ? 'Processing Payment...' : `Pay ${auctionFee ? formatINR(auctionFee.total) : ''} & Create Auction`}
           </Button>
-        </div>
+    </div>
+  );
+
+  if (mode === 'page') {
+    return formContent;
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white">
+          <Gavel className="w-4 h-4" />
+          Create Reverse Auction
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Gavel className="w-5 h-5 text-amber-600" />
+            Create Reverse Auction
+          </DialogTitle>
+        </DialogHeader>
+        {formContent}
       </DialogContent>
     </Dialog>
   );

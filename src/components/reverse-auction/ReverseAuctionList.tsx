@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format } from 'date-fns';
-import { CreateReverseAuctionForm } from './CreateReverseAuctionForm';
+import { useNavigate } from 'react-router-dom';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: <Clock className="w-3 h-3" /> },
@@ -42,6 +42,7 @@ interface ReverseAuctionListProps {
 
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseAuctionListProps) {
   const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -64,7 +65,15 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
             <p className="text-xs text-muted-foreground">Price discovery through competitive reverse bidding</p>
           </div>
         </div>
-        {isBuyer && <CreateReverseAuctionForm onCreated={refetch} />}
+        {isBuyer && (
+          <Button
+            className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
+            onClick={() => navigate('/buyer/create-reverse-auction')}
+          >
+            <Gavel className="w-4 h-4" />
+            Create Reverse Auction
+          </Button>
+        )}
       </div>
 
       {/* Auction Cards */}

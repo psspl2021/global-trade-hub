@@ -83,6 +83,7 @@ const TransactionalImportPage = lazy(() => import("./pages/seo/TransactionalImpo
 const AIProcurementVsTraditional = lazy(() => import("./pages/comparisons/AIProcurementVsTraditional"));
 const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMarketplace"));
 const ReverseAuctionSEOPage = lazy(() => import("./pages/ReverseAuctionSEOPage"));
+const CreateReverseAuctionPage = lazy(() => import("./pages/CreateReverseAuctionPage"));
 
 // Industry Use-Case Pages
 const ProcurementForSteelManufacturers = lazy(() => import("./pages/industries/ProcurementForSteelManufacturers"));
@@ -202,6 +203,7 @@ const BotAwareRouter = () => {
         <Route path="/post-rfq" element={<PostRFQ />} />
         <Route path="/seller" element={<Seller />} />
         <Route path="/buyer" element={<Buyer />} />
+        <Route path="/buyer/create-reverse-auction" element={<CreateReverseAuctionPage />} />
         <Route path="/private-label" element={<PrivateLabel />} />
         <Route path="/source/:country" element={<SourceCountryGate />} />
         <Route path="/global-sourcing-countries" element={<GlobalSourcingPage />} />
