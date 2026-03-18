@@ -65,7 +65,15 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
             <p className="text-xs text-muted-foreground">Price discovery through competitive reverse bidding</p>
           </div>
         </div>
-        {isBuyer && <CreateReverseAuctionForm onCreated={refetch} />}
+        {isBuyer && (
+          <Button
+            className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
+            onClick={() => navigate('/buyer/create-reverse-auction')}
+          >
+            <Gavel className="w-4 h-4" />
+            Create Reverse Auction
+          </Button>
+        )}
       </div>
 
       {/* Auction Cards */}

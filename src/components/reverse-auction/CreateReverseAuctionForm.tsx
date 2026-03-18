@@ -161,7 +161,7 @@ export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateR
     fetchSuppliers();
     fetchRFQSignals();
     fetchAuctionCount();
-  }, [open, user]);
+  }, [mode, open, user]);
 
   const filteredSuppliers = useMemo(() => {
     if (!supplierSearch.trim()) return [];
