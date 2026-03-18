@@ -74,12 +74,32 @@ serve(async (req) => {
       console.error('Failed to fetch suppliers:', suppliersError);
     }
 
-    // Build supplier email map
+    // Fetch missing emails from profiles as fallback
+    const supplierIds = suppliers
+      ?.filter(s => s.supplier_id && !s.supplier_email)
+      .map(s => s.supplier_id) || [];
+
+    let profileMap: Record<string, string> = {};
+    if (supplierIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, email')
+        .in('id', supplierIds);
+
+      if (profiles) {
+        profileMap = Object.fromEntries(
+          profiles.map((p: any) => [p.id, p.email])
+        );
+      }
+    }
+
+    // Build supplier email map with fallback
     const supplierMap = new Map<string, { email: string; company: string }>();
     for (const s of suppliers || []) {
-      if (s.supplier_id && s.supplier_email) {
+      const email = s.supplier_email || profileMap[s.supplier_id];
+      if (s.supplier_id && email) {
         supplierMap.set(s.supplier_id, {
-          email: s.supplier_email,
+          email,
           company: s.supplier_company_name || 'Supplier',
         });
       }
