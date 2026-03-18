@@ -146,7 +146,8 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     if (mode !== 'page') return;
     const draft = { items, category, startingPrice, invitedSuppliers, auctionTitle };
     localStorage.setItem('auction_draft', JSON.stringify(draft));
-  }, [mode, items, category, startingPrice, invitedSuppliers, auctionTitle]);
+    onDraftSaved?.();
+  }, [mode, items, category, startingPrice, invitedSuppliers, auctionTitle, onDraftSaved]);
 
   useEffect(() => {
     if (mode === 'dialog' && !open) return;
