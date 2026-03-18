@@ -123,6 +123,30 @@ export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateR
   // RFQ signals for AI pricing
   const [rfqSignals, setRfqSignals] = useState<RFQSignal[]>([]);
 
+  // ── Draft auto-save (page mode only) ──
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  useEffect(() => {
+    if (mode !== 'page' || draftLoaded) return;
+    try {
+      const raw = localStorage.getItem('auction_draft');
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.items?.length) setItems(draft.items);
+        if (draft.category) setCategory(draft.category);
+        if (draft.startingPrice) setStartingPrice(draft.startingPrice);
+        if (draft.invitedSuppliers?.length) setInvitedSuppliers(draft.invitedSuppliers);
+        if (draft.auctionTitle) setAuctionTitle(draft.auctionTitle);
+      }
+    } catch {}
+    setDraftLoaded(true);
+  }, [mode, draftLoaded]);
+
+  useEffect(() => {
+    if (mode !== 'page') return;
+    const draft = { items, category, startingPrice, invitedSuppliers, auctionTitle };
+    localStorage.setItem('auction_draft', JSON.stringify(draft));
+  }, [mode, items, category, startingPrice, invitedSuppliers, auctionTitle]);
+
   useEffect(() => {
     if (mode === 'dialog' && !open) return;
     if (!user) return;
