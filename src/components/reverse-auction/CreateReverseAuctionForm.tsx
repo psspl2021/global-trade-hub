@@ -124,7 +124,8 @@ export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateR
   const [rfqSignals, setRfqSignals] = useState<RFQSignal[]>([]);
 
   useEffect(() => {
-    if (!open || !user) return;
+    if (mode === 'dialog' && !open) return;
+    if (!user) return;
 
     const fetchSuppliers = async () => {
       const { data } = await supabase
