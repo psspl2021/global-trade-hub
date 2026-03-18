@@ -6119,6 +6119,7 @@ export type Database = {
           unit: string
           updated_at: string
           winner_supplier_id: string | null
+          winning_bid: number | null
           winning_price: number | null
         }
         Insert: {
@@ -6143,6 +6144,7 @@ export type Database = {
           unit?: string
           updated_at?: string
           winner_supplier_id?: string | null
+          winning_bid?: number | null
           winning_price?: number | null
         }
         Update: {
@@ -6167,6 +6169,7 @@ export type Database = {
           unit?: string
           updated_at?: string
           winner_supplier_id?: string | null
+          winning_bid?: number | null
           winning_price?: number | null
         }
         Relationships: []
@@ -9545,6 +9548,7 @@ export type Database = {
         }
         Returns: Json
       }
+      close_expired_auctions: { Args: never; Returns: undefined }
       complete_supplier_reveal: {
         Args: {
           p_payment_reference?: string
