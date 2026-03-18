@@ -77,6 +77,11 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
         )}
       </div>
 
+      {/* Auction Credits Purchase (Buyer only) */}
+      {isBuyer && (
+        <AuctionCreditsPurchase onCreditsUpdated={refetch} />
+      )}
+
       {/* Auction Cards */}
       {auctions.length === 0 ? (
         <Card>
