@@ -366,23 +366,8 @@ export function CreateReverseAuctionForm({ onCreated, mode = 'dialog' }: CreateR
 
   const today = new Date().toISOString().split('T')[0];
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white">
-          <Gavel className="w-4 h-4" />
-          Create Reverse Auction
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Gavel className="w-5 h-5 text-amber-600" />
-            Create Reverse Auction
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 py-2">
+  const formContent = (
+    <div className="space-y-4 py-2">
           {/* ── AI Generated Title (Feature #1) ── */}
           <div>
             <Label className="flex items-center gap-1.5">
