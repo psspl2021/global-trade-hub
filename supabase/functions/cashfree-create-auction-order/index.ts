@@ -54,21 +54,18 @@ serve(async (req) => {
       throw new Error("Invalid or inactive pricing plan");
     }
 
-    // 🚨 Starter abuse prevention — safe client-side filter (no string interpolation in queries)
+    // 🚨 Starter abuse prevention — filtered query (fast + safe with normalized inputs)
     if (plan.name.toLowerCase().includes("starter")) {
       const { data: existing } = await supabase
         .from("auction_credit_payments")
-        .select("metadata, buyer_id, buyer_email, buyer_phone, buyer_company")
-        .eq("status", "paid");
+        .select("metadata")
+        .eq("status", "paid")
+        .or(
+          `buyer_id.eq.${buyer_id},buyer_email.eq.${normalizedEmail},buyer_phone.eq.${normalizedPhone},buyer_company.eq.${normalizedCompany}`
+        );
 
       const hasStarter = existing?.some((p: any) =>
-        p.metadata?.plan_name?.toLowerCase().includes("starter") &&
-        (
-          p.buyer_id === buyer_id ||
-          p.buyer_email === normalizedEmail ||
-          p.buyer_phone === normalizedPhone ||
-          p.buyer_company === normalizedCompany
-        )
+        p.metadata?.plan_name?.toLowerCase().includes("starter")
       );
 
       if (hasStarter) {
