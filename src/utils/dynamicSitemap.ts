@@ -76,10 +76,12 @@ export function generateDynamicSitemapXml(): string {
 
   const allPages = [...staticPages, ...dynamicPages, ...productPages, ...generatedPages, ...autoComparisonPages, ...guidePages];
 
-  // Deduplicate by URL
+  // Deduplicate by URL and exclude duplicate page patterns
+  const EXCLUDE_PATTERNS = [/\/buy-/, /-suppliers$/,  /\/categories\//];
   const seen = new Set<string>();
   const uniquePages = allPages.filter(p => {
     if (seen.has(p.url)) return false;
+    if (EXCLUDE_PATTERNS.some(pat => pat.test(p.url))) return false;
     seen.add(p.url);
     return true;
   });

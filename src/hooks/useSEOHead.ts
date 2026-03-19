@@ -6,35 +6,55 @@ const CANONICAL_DOMAIN = 'https://www.procuresaathi.com';
 // Routes that should NOT be indexed
 const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier', '/seller', '/buyer', '/browseproducts', '/browse', '/enterprise', '/affiliate', '/invoice-generator'];
 
-// Category name to slug mapping for /browse?category= → /category/{slug} canonical
-const categoryToSlug = (category: string): string => {
-  return category.toLowerCase()
-    .replace(/[&,()]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-};
+// Duplicate page patterns that must be noindexed (authority lives elsewhere)
+const NOINDEX_PATTERNS = [
+  /^\/buy-/,          // /buy-* → authority is /demand/*
+  /\-suppliers$/,     // /*-suppliers → duplicate supplier intent
+];
+
+/**
+ * Remap duplicate URLs to their canonical authority path.
+ * This tells Google: "the real page lives HERE".
+ */
+function remapCanonical(pathname: string): string {
+  // /buy-{slug} → /demand/{slug}
+  if (pathname.startsWith('/buy-')) {
+    const productSlug = pathname.replace('/buy-', '');
+    return `/demand/${productSlug}`;
+  }
+
+  // /{slug}-suppliers → noindex (no canonical remap, just noindex)
+  // These pages have no single authority target
+
+  // /categories/{slug} → /industries (consolidated)
+  if (pathname.startsWith('/categories/')) {
+    return pathname.replace('/categories/', '/industries/');
+  }
+  if (pathname === '/categories') {
+    return '/industries';
+  }
+
+  return pathname;
+}
 
 /**
  * Global SEO head manager.
  * - Enforces ONE canonical per page (www, no trailing slash)
- * - Handles query URLs: noindex + canonical to clean path
- * - Normalizes /categories/{slug} → canonical /category/{slug}
- * - Sets robots meta
- * - Sets og:url
+ * - Remaps duplicate patterns to authority canonical
+ * - Noindexes all query-param URLs and duplicate page types
+ * - Sets robots meta + og:url
  */
 export function useSEOHead(options?: { title?: string; description?: string; noindex?: boolean }) {
   const { pathname, search } = useLocation();
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(search);
     const hasQueryParams = search.length > 0;
 
     // Determine if page should be noindexed
     const isNoindexRoute = NOINDEX_ROUTES.some(r => pathname.startsWith(r));
-    const isBrowsePath = pathname === '/browse' || pathname === '/browseproducts';
-    // ALL query param URLs get noindexed — no exceptions
-    const isNoindex = options?.noindex || isNoindexRoute || hasQueryParams;
+    const isNoindexPattern = NOINDEX_PATTERNS.some(p => p.test(pathname));
+    // ALL query param URLs + duplicate patterns get noindexed
+    const isNoindex = options?.noindex || isNoindexRoute || isNoindexPattern || hasQueryParams;
 
     // --- Robots meta ---
     let robotsMeta = document.querySelector('meta[name="robots"]') as HTMLMetaElement;
@@ -45,22 +65,8 @@ export function useSEOHead(options?: { title?: string; description?: string; noi
     }
     robotsMeta.content = isNoindex ? 'noindex, follow' : 'index, follow, max-image-preview:large';
 
-    // --- Build canonical URL ---
-    let canonicalPath = pathname;
-
-    // Normalize /categories/{slug} → /category/{slug}
-    if (canonicalPath.startsWith('/categories/')) {
-      canonicalPath = canonicalPath.replace('/categories/', '/category/');
-    }
-
-    // For /browse?category=X or /browseproducts?category=X → canonical to /category/{slug}
-    if (isBrowsePath && searchParams.has('category')) {
-      const categoryName = searchParams.get('category') || '';
-      canonicalPath = `/category/${categoryToSlug(categoryName)}`;
-    } else if (isBrowsePath && hasQueryParams) {
-      // Any other query on browse → canonical to /browseproducts (clean)
-      canonicalPath = '/browseproducts';
-    }
+    // --- Build canonical URL (remap duplicates) ---
+    let canonicalPath = remapCanonical(pathname);
 
     // Clean: no trailing slash except root
     const cleanPath = canonicalPath === '/' ? '/' : canonicalPath.replace(/\/+$/, '');
