@@ -4,15 +4,11 @@
 User-agent: *
 Allow: /
 
-# Block query-parameter crawl waste
-Disallow: /browse
-Disallow: /browse?
-Disallow: /*?q=
-Disallow: /*?category=
-Disallow: /*?sort=
-Disallow: /*?page=
+# Block ALL query parameter URLs
+Disallow: /*?*
+Disallow: /*?
 
-# Block non-public routes
+# Block non-public / low-value routes
 Disallow: /admin
 Disallow: /admin/
 Disallow: /dashboard
@@ -21,13 +17,22 @@ Disallow: /management
 Disallow: /management/
 Disallow: /control-tower
 Disallow: /control-tower/
+Disallow: /enterprise
+Disallow: /enterprise/
 Disallow: /supplier
 Disallow: /supplier/
 Disallow: /seller
+Disallow: /seller/
 Disallow: /buyer
+Disallow: /buyer/
 Disallow: /login
 Disallow: /signup
 Disallow: /reset-password
+Disallow: /browse
+Disallow: /browseproducts
+Disallow: /invoice-generator
+Disallow: /affiliate
+Disallow: /affiliate-signup
 Disallow: /api/
 
 # Sitemaps

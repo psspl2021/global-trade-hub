@@ -32,9 +32,9 @@ export function useSEOHead(options?: { title?: string; description?: string; noi
 
     // Determine if page should be noindexed
     const isNoindexRoute = NOINDEX_ROUTES.some(r => pathname.startsWith(r));
-    const isQueryUrl = hasQueryParams;
     const isBrowsePath = pathname === '/browse' || pathname === '/browseproducts';
-    const isNoindex = options?.noindex || isNoindexRoute || (isQueryUrl && isBrowsePath);
+    // ALL query param URLs get noindexed — no exceptions
+    const isNoindex = options?.noindex || isNoindexRoute || hasQueryParams;
 
     // --- Robots meta ---
     let robotsMeta = document.querySelector('meta[name="robots"]') as HTMLMetaElement;
