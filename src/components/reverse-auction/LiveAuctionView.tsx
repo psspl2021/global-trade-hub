@@ -29,12 +29,14 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
 export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuctionViewProps) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const { bids, placeBid } = useReverseAuctionBids(auction.id);
   const [bidPrice, setBidPrice] = useState('');
   const [bidError, setBidError] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [showBidPanel, setShowBidPanel] = useState(true);
+  const prevRankRef = useRef<number | null>(null);
 
   const isLive = auction.status === 'live';
 
