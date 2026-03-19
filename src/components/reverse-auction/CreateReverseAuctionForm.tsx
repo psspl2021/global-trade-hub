@@ -7,6 +7,7 @@
  * 4) First 5 domestic auctions → 50% fee discount
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -70,6 +71,7 @@ interface CreateReverseAuctionFormProps {
 export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dialog' }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
   const { user } = useAuth();
+  const navigateToCredits = useNavigate();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -341,7 +343,8 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
     // Check for credits
     if (!hasCredits) {
-      toast.error('No auction credits available. Please purchase a plan first.');
+      toast.error('No auction credits available. Redirecting to purchase credits...');
+      navigateToCredits('/buyer?tab=auctions&buy_credits=true');
       return;
     }
 
@@ -786,7 +789,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 </div>
                 {!hasCredits && (
                   <p className="text-xs text-destructive mt-1">
-                    No credits available. <a href="/buyer" className="underline font-medium">Purchase a plan</a> to create auctions.
+                    No credits available.{' '}
+                    <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium hover:text-destructive/80">
+                      Buy Credits Now
+                    </button>{' '}
+                    to create auctions.
                   </p>
                 )}
               </CardContent>
@@ -794,11 +801,12 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           )}
 
           <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !hasCredits}
+            onClick={hasCredits ? handleSubmit : () => navigateToCredits('/buyer?tab=auctions&buy_credits=true')}
+            disabled={isSubmitting}
             className="w-full"
+            variant={hasCredits ? 'default' : 'destructive'}
           >
-            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : 'Buy Credits to Continue'}
+            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : '🛒 Buy Credits to Continue'}
           </Button>
     </div>
   );
