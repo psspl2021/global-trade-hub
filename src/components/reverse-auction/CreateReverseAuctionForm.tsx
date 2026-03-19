@@ -789,7 +789,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 </div>
                 {!hasCredits && (
                   <p className="text-xs text-destructive mt-1">
-                    No credits available. <a href="/buyer" className="underline font-medium">Purchase a plan</a> to create auctions.
+                    No credits available.{' '}
+                    <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium hover:text-destructive/80">
+                      Buy Credits Now
+                    </button>{' '}
+                    to create auctions.
                   </p>
                 )}
               </CardContent>
