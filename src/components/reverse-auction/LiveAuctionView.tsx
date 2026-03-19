@@ -117,6 +117,10 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
 
   const handlePlaceBid = async () => {
     if (isPlacing) return;
+    if (!isLive) {
+      setBidError('Auction has ended');
+      return;
+    }
     setBidError('');
     if (!user) return;
     if (!bidPrice) {
