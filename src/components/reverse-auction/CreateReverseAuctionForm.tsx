@@ -397,13 +397,13 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
       // Step 3: AFTER SUCCESS — consume 1 credit and link payment
       if (result) {
-        await supabase
-          .from('buyer_auction_credits')
-          .update({
-            used_credits: buyerCredits!.used + 1,
-            updated_at: new Date().toISOString(),
-          } as any)
-          .eq('id', buyerCredits!.id);
+        const { error: creditError } = await supabase.rpc('consume_auction_credit', {
+          p_credit_id: buyerCredits!.id,
+        });
+        if (creditError) {
+          console.error('Credit consumption failed:', creditError);
+          toast.error('Credit deduction failed. Please contact support.');
+        }
 
         if (payment) {
           await supabase
