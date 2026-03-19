@@ -45,6 +45,18 @@ interface ReverseAuctionListProps {
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseAuctionListProps) {
   const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const creditsRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to credits purchase when buy_credits=true
+  useEffect(() => {
+    if (searchParams.get('buy_credits') === 'true' && creditsRef.current) {
+      creditsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Clean URL
+      searchParams.delete('buy_credits');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   if (isLoading) {
     return (
