@@ -197,6 +197,9 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
           {isPlacing ? 'Placing...' : '🚀 Bid'}
         </Button>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Suggested: {formatCurrency(Math.floor(maxAllowedBid))}
+      </p>
       {/* Error feedback */}
       {bidError && (
         <p className="text-xs text-destructive font-medium">{bidError}</p>
