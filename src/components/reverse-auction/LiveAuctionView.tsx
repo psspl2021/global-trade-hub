@@ -158,6 +158,8 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     return 'text-foreground';
   }, [auction.auction_end, isLive, timeLeft]);
 
+  const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) <= maxAllowedBid;
+
   // Reusable bid panel content
   const bidPanelContent = isSupplier && isLive ? (
     <div className="space-y-3">
