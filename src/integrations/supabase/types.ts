@@ -978,7 +978,10 @@ export type Database = {
       auction_credit_payments: {
         Row: {
           amount: number
+          buyer_company: string | null
+          buyer_email: string | null
           buyer_id: string
+          buyer_phone: string | null
           cf_payment_id: string | null
           created_at: string | null
           credits_credited: boolean | null
@@ -998,7 +1001,10 @@ export type Database = {
         }
         Insert: {
           amount: number
+          buyer_company?: string | null
+          buyer_email?: string | null
           buyer_id: string
+          buyer_phone?: string | null
           cf_payment_id?: string | null
           created_at?: string | null
           credits_credited?: boolean | null
@@ -1018,7 +1024,10 @@ export type Database = {
         }
         Update: {
           amount?: number
+          buyer_company?: string | null
+          buyer_email?: string | null
           buyer_id?: string
+          buyer_phone?: string | null
           cf_payment_id?: string | null
           created_at?: string | null
           credits_credited?: boolean | null
