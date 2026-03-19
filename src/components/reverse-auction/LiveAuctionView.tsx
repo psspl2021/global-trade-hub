@@ -37,6 +37,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const [timeLeft, setTimeLeft] = useState('');
   const [showBidPanel, setShowBidPanel] = useState(true);
   const prevRankRef = useRef<number | null>(null);
+  const lastOutbidRef = useRef(0);
 
   const isLive = auction.status === 'live';
 
