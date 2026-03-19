@@ -18,16 +18,18 @@
  * - All verification state is in-memory only (no localStorage)
  */
 
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
-import { LogOut, Settings, ShieldCheck, AlertTriangle, Home } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
 interface BuyerDashboardHeaderProps {

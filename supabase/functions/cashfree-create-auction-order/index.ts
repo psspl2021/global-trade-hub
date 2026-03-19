@@ -123,7 +123,7 @@ serve(async (req) => {
 
     const orderId = `AUC_CREDIT_${Date.now()}_${buyer_id.substring(0, 8)}`;
 
-    // Create payment record with normalized buyer identity
+    // Create payment record with normalized buyer identity + idempotency key
     const { data: insertedPayment, error: dbError } = await supabase
       .from("auction_credit_payments")
       .insert({
@@ -139,6 +139,7 @@ serve(async (req) => {
         buyer_email: normalizedEmail,
         buyer_phone: normalizedPhone,
         buyer_company: normalizedCompany,
+        idempotency_key: idempotencyKey,
         metadata: {
           plan_name: plan.name,
           price_per_auction: plan.price_per_auction,
