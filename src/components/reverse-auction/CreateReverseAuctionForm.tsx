@@ -343,7 +343,8 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
     // Check for credits
     if (!hasCredits) {
-      toast.error('No auction credits available. Please purchase a plan first.');
+      toast.error('No auction credits available. Redirecting to purchase credits...');
+      navigateToCredits('/buyer?tab=auctions&buy_credits=true');
       return;
     }
 
