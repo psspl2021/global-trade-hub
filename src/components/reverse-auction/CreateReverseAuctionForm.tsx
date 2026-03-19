@@ -801,11 +801,12 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           )}
 
           <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !hasCredits}
+            onClick={hasCredits ? handleSubmit : () => navigateToCredits('/buyer?tab=auctions&buy_credits=true')}
+            disabled={isSubmitting}
             className="w-full"
+            variant={hasCredits ? 'default' : 'destructive'}
           >
-            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : 'Buy Credits to Continue'}
+            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : '🛒 Buy Credits to Continue'}
           </Button>
     </div>
   );
