@@ -71,6 +71,7 @@ interface CreateReverseAuctionFormProps {
 export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dialog' }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
   const { user } = useAuth();
+  const navigateToCredits = useNavigate();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
