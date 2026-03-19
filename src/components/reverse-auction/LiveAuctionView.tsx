@@ -37,6 +37,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const [timeLeft, setTimeLeft] = useState('');
   const [showBidPanel, setShowBidPanel] = useState(true);
   const prevRankRef = useRef<number | null>(null);
+  const lastOutbidRef = useRef(0);
 
   const isLive = auction.status === 'live';
 
@@ -75,12 +76,19 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   // Outbid alert
   useEffect(() => {
     if (myRank === null || !isSupplier) return;
-    if (prevRankRef.current !== null && prevRankRef.current === 1 && myRank > 1) {
+    const now = Date.now();
+    if (
+      prevRankRef.current !== null &&
+      prevRankRef.current === 1 &&
+      myRank > 1 &&
+      now - lastOutbidRef.current > 3000
+    ) {
       toast({
         title: "You were outbid ⚠️",
         description: "Place a lower bid to win",
         variant: "destructive",
       });
+      lastOutbidRef.current = now;
     }
     prevRankRef.current = myRank;
   }, [myRank, isSupplier, toast]);
@@ -131,7 +139,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     setIsPlacing(true);
     try {
       await placeBid(user.id, price);
-      setBidPrice('');
+      setBidPrice(Math.floor(maxAllowedBid).toString());
       toast({
         title: "Bid placed 🚀",
         description: `Your bid of ${formatCurrency(price)} is now competing for L1`,
@@ -149,6 +157,8 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     if (secs <= 300) return 'text-destructive';
     return 'text-foreground';
   }, [auction.auction_end, isLive, timeLeft]);
+
+  const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) <= maxAllowedBid;
 
   // Reusable bid panel content
   const bidPanelContent = isSupplier && isLive ? (
@@ -191,7 +201,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
         </div>
         <Button
           onClick={handlePlaceBid}
-          disabled={isPlacing}
+          disabled={!isValidBid || isPlacing}
           className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
         >
           {isPlacing ? 'Placing...' : '🚀 Bid'}
@@ -216,7 +226,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
 
       {/* 🔥 STICKY LIVE STRIP */}
       {isLive && (
-        <div id="live-strip" className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-sm rounded-lg p-3">
+        <div id="live-strip" className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-sm rounded-lg p-3 scroll-mt-24">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-xs text-muted-foreground">Current L1</p>
