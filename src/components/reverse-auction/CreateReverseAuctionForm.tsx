@@ -290,6 +290,13 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const remainingCredits = buyerCredits ? buyerCredits.total - buyerCredits.used : 0;
   const hasCredits = remainingCredits > 0;
 
+  // Low credits warning
+  useEffect(() => {
+    if (buyerCredits && remainingCredits <= 1 && remainingCredits >= 0) {
+      toast.warning('Low Credits — You have ' + remainingCredits + ' credit(s) left. Buy more to continue auctions.');
+    }
+  }, [remainingCredits, buyerCredits]);
+
   const handleSubmit = async () => {
     // Double-click protection
     if (isSubmitting) return;
