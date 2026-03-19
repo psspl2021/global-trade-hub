@@ -49,6 +49,34 @@ serve(async (req) => {
       throw new Error("Invalid or inactive pricing plan");
     }
 
+    // 🚨 Starter abuse prevention — check by buyer_id, email, or company
+    if (plan.name.toLowerCase().includes("starter")) {
+      const { data: existing } = await supabase
+        .from("auction_credit_payments")
+        .select("id")
+        .eq("status", "paid")
+        .or(`buyer_id.eq.${buyer_id},buyer_email.ilike.${customer_email},buyer_company.ilike.${customer_name}`)
+        .not("plan_id", "is", null);
+
+      // Check if any of those paid payments were for a starter plan
+      if (existing && existing.length > 0) {
+        // Verify they used a starter plan
+        const { data: starterPayments } = await supabase
+          .from("auction_credit_payments")
+          .select("id, metadata")
+          .eq("status", "paid")
+          .or(`buyer_id.eq.${buyer_id},buyer_email.ilike.${customer_email},buyer_company.ilike.${customer_name}`);
+
+        const hasStarter = starterPayments?.some((p: any) =>
+          p.metadata?.plan_name?.toLowerCase().includes("starter")
+        );
+
+        if (hasStarter) {
+          throw new Error("Starter plan already used. Please choose Pro or Enterprise pack.");
+        }
+      }
+    }
+
     // Calculate pricing
     const basePrice = Number(plan.price);
     const gstRate = Number(plan.gst_rate) || 0.18;
@@ -57,7 +85,7 @@ serve(async (req) => {
 
     const orderId = `AUC_CREDIT_${Date.now()}_${buyer_id.substring(0, 8)}`;
 
-    // Create payment record
+    // Create payment record with buyer identity
     const { error: dbError } = await supabase
       .from("auction_credit_payments")
       .insert({
@@ -70,6 +98,9 @@ serve(async (req) => {
         currency: "INR",
         status: "pending",
         credits_purchased: plan.auctions_count,
+        buyer_email: customer_email,
+        buyer_phone: customer_phone.replace(/\D/g, "").slice(-10),
+        buyer_company: customer_name,
         metadata: {
           plan_name: plan.name,
           price_per_auction: plan.price_per_auction,

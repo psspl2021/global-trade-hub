@@ -291,6 +291,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const hasCredits = remainingCredits > 0;
 
   const handleSubmit = async () => {
+    // Double-click protection
+    if (isSubmitting) return;
+
     const validItems = items.filter(i => i.product.trim() && i.quantity.trim());
 
     if (!auctionTitle || validItems.length === 0 || !category || !startDate || !startTime) {
@@ -338,22 +341,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setIsSubmitting(true);
 
     try {
-      // Step 1: Consume 1 credit
-      const { error: creditError } = await supabase
-        .from('buyer_auction_credits')
-        .update({ 
-          used_credits: buyerCredits!.used + 1,
-          updated_at: new Date().toISOString(),
-        } as any)
-        .eq('id', buyerCredits!.id);
-
-      if (creditError) {
-        toast.error('Failed to consume auction credit: ' + creditError.message);
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Step 2: Record payment (mark as paid via credit)
+      // Step 1: Record payment (mark as paid via credit)
       const { data: payment, error: payError } = await supabase
         .from('auction_payments')
         .insert({
@@ -377,7 +365,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       const combinedSlug = validItems.map(i => i.product.toLowerCase().replace(/\s+/g, '-')).join('_');
       const totalQty = validItems.reduce((sum, i) => sum + parseFloat(i.quantity || '0'), 0);
 
-      // Step 3: Create auction
+      // Step 2: Create auction
       const input: CreateAuctionInput = {
         title: auctionTitle,
         product_slug: combinedSlug,
@@ -400,15 +388,23 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
       const result = await createAuction(input);
 
-      // Step 4: Link payment to auction
-      if (result && payment) {
-        await supabase
-          .from('auction_payments')
-          .update({ auction_id: (result as any).id } as any)
-          .eq('id', (payment as any).id);
-      }
-
+      // Step 3: AFTER SUCCESS — consume 1 credit and link payment
       if (result) {
+        await supabase
+          .from('buyer_auction_credits')
+          .update({
+            used_credits: buyerCredits!.used + 1,
+            updated_at: new Date().toISOString(),
+          } as any)
+          .eq('id', buyerCredits!.id);
+
+        if (payment) {
+          await supabase
+            .from('auction_payments')
+            .update({ auction_id: (result as any).id } as any)
+            .eq('id', (payment as any).id);
+        }
+
         setOpen(false);
         resetForm();
         onCreated?.();
