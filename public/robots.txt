@@ -8,6 +8,10 @@ Allow: /
 Disallow: /*?*
 Disallow: /*?
 
+# Block duplicate page patterns (authority lives at /demand/*, /industries/*)
+Disallow: /buy-
+Disallow: /*-suppliers
+
 # Block non-public / low-value routes
 Disallow: /admin
 Disallow: /admin/
@@ -34,6 +38,7 @@ Disallow: /invoice-generator
 Disallow: /affiliate
 Disallow: /affiliate-signup
 Disallow: /api/
+Disallow: /categories
 
 # Sitemaps
 Sitemap: https://www.procuresaathi.com/sitemap.xml

@@ -90,7 +90,7 @@ export default function BuyPage() {
     description: config.metaDescription,
     productName: config.productName,
     categoryName: config.categoryName,
-    canonical: `https://www.procuresaathi.com/buy-${config.slug}`
+    canonical: `https://www.procuresaathi.com/demand/${config.slug}`
   });
 
   // Service schema for category pages - NO Product schema on listing pages (GSC compliance)
