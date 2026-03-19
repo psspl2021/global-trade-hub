@@ -3,6 +3,7 @@
  * Used by both buyers (monitor) and suppliers (place bids)
  */
 import { useState, useEffect, useMemo } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,8 +27,10 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
 
 export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuctionViewProps) {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const { bids, placeBid } = useReverseAuctionBids(auction.id);
   const [bidPrice, setBidPrice] = useState('');
+  const [bidError, setBidError] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [showBidPanel, setShowBidPanel] = useState(true);
@@ -89,10 +92,25 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   }, [auction.auction_end, isLive]);
 
   const handlePlaceBid = async () => {
-    if (!user || !bidPrice) return;
+    setBidError('');
+    if (!user) return;
+    if (!bidPrice) {
+      setBidError('Enter a bid amount');
+      return;
+    }
     const price = parseFloat(bidPrice);
-    if (price >= currentLowest) return;
-    if (price > maxAllowedBid) return;
+    if (isNaN(price) || price <= 0) {
+      setBidError('Enter a valid amount');
+      return;
+    }
+    if (price >= currentLowest) {
+      setBidError('Bid must be LOWER than current L1');
+      return;
+    }
+    if (price > maxAllowedBid) {
+      setBidError(`Max allowed: ${formatCurrency(maxAllowedBid)} (min ${auction.minimum_bid_step_pct}% step)`);
+      return;
+    }
     setIsPlacing(true);
     await placeBid(user.id, price);
     setBidPrice('');
@@ -107,6 +125,59 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     return 'text-foreground';
   }, [auction.auction_end, isLive, timeLeft]);
 
+  // Reusable bid panel content
+  const bidPanelContent = isSupplier && isLive ? (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Gavel className="w-5 h-5 text-primary" />
+        <h3 className="font-semibold">Place Your Bid</h3>
+      </div>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <AlertTriangle className="w-3 h-3 text-amber-600" />
+        Must be below {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
+      </div>
+      {/* Quick Bid Buttons */}
+      <div className="flex gap-2 flex-wrap">
+        {[1, 2, 3].map((step) => {
+          const quick = currentLowest * (1 - (minBidStep * step));
+          return (
+            <button
+              key={step}
+              onClick={() => { setBidPrice(Math.floor(quick).toString()); setBidError(''); }}
+              className="text-xs border border-border px-2 py-1 rounded-md hover:bg-muted transition-colors"
+            >
+              -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(quick))})
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+          <Input
+            type="number"
+            className="pl-8"
+            placeholder={`Max ${Math.floor(maxAllowedBid)}`}
+            value={bidPrice}
+            onChange={e => { setBidPrice(e.target.value); setBidError(''); }}
+            onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}
+          />
+        </div>
+        <Button
+          onClick={handlePlaceBid}
+          disabled={isPlacing}
+          className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
+        >
+          {isPlacing ? 'Placing...' : '🚀 Bid'}
+        </Button>
+      </div>
+      {/* Error feedback */}
+      {bidError && (
+        <p className="text-xs text-destructive font-medium">{bidError}</p>
+      )}
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-4 pb-20">
       {/* Back button */}
@@ -114,7 +185,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
         <ArrowLeft className="w-4 h-4" /> Back to Auctions
       </Button>
 
-      {/* 🔥 STICKY LIVE STRIP — Always visible during bidding */}
+      {/* 🔥 STICKY LIVE STRIP */}
       {isLive && (
         <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-sm rounded-lg p-3">
           <div className="flex justify-between items-center">
@@ -151,7 +222,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
             </div>
           </div>
 
-          {/* 🔥 Winning / Losing feedback strip */}
+          {/* Winning / Losing feedback strip */}
           {isSupplier && myRank !== null && (
             <div className={`mt-2 rounded-md px-3 py-1.5 text-sm font-medium flex items-center gap-2 ${
               isWinning
@@ -174,162 +245,145 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
         </div>
       )}
 
-      {/* Auction Header */}
-      <Card className={isLive ? 'border-emerald-300 ring-2 ring-emerald-100' : ''}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">{auction.title}</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {auction.category} • {auction.quantity} {auction.unit} • {auction.product_slug}
-              </p>
-            </div>
-            <div className="text-right">
-              {isLive && (
-                <Badge className="bg-emerald-600 text-white animate-pulse text-lg px-3 py-1">
-                  🔴 LIVE
-                </Badge>
-              )}
-              {!isLive && auction.status === 'completed' && (
-                <Badge className="bg-primary text-primary-foreground px-3 py-1">
-                  Completed
-                </Badge>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {/* Price Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <div className="bg-muted/50 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground">Starting Price</p>
-              <p className="text-lg font-bold">{formatCurrency(auction.starting_price)}<span className="text-xs text-muted-foreground">/{auction.unit}</span></p>
-            </div>
-            <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-              <p className="text-xs text-emerald-700">Current Lowest</p>
-              <p className="text-lg font-bold text-emerald-800">{formatCurrency(currentLowest)}<span className="text-xs text-muted-foreground">/{auction.unit}</span></p>
-            </div>
-            <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
-              <p className="text-xs text-amber-700">Total Savings</p>
-              <div className="flex items-center gap-1">
-                <TrendingDown className="w-4 h-4 text-amber-700" />
-                <p className="text-lg font-bold text-amber-800">{totalSavings.toFixed(1)}%</p>
+      {/* Desktop: side-by-side layout with sticky bid panel */}
+      <div className={`${!isMobile && bidPanelContent ? 'flex gap-4 items-start' : ''}`}>
+        <div className="flex-1 space-y-4">
+          {/* Auction Header */}
+          <Card className={isLive ? 'border-emerald-300 ring-2 ring-emerald-100' : ''}>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">{auction.title}</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {auction.category} • {auction.quantity} {auction.unit} • {auction.product_slug}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {isLive && (
+                    <Badge className="bg-emerald-600 text-white animate-pulse text-lg px-3 py-1">
+                      🔴 LIVE
+                    </Badge>
+                  )}
+                  {!isLive && auction.status === 'completed' && (
+                    <Badge className="bg-primary text-primary-foreground px-3 py-1">
+                      Completed
+                    </Badge>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <p className="text-xs text-blue-700">Buyer Price (incl. fee)</p>
-              <p className="text-lg font-bold text-blue-800">{formatCurrency(buyerPrice)}<span className="text-xs text-muted-foreground">/{auction.unit}</span></p>
-            </div>
-          </div>
-
-          {/* Savings Progress */}
-          <div className="mb-4">
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
-              <span>Starting: {formatCurrency(auction.starting_price)}</span>
-              <span>{totalSavings.toFixed(1)}% saved</span>
-              {auction.reserve_price && <span>Reserve: {formatCurrency(auction.reserve_price)}</span>}
-            </div>
-            <Progress value={Math.min(totalSavings, 100)} className="h-2" />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Bid History */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Bid History ({bids.length} bids)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {bids.length === 0 ? (
-            <p className="text-center text-muted-foreground py-6 text-sm">No bids yet. Waiting for suppliers to bid...</p>
-          ) : (
-            <div className="space-y-2 max-h-80 overflow-y-auto">
-              {bids.map((bid, idx) => {
-                const isMine = user && bid.supplier_id === user.id;
-                return (
-                  <div
-                    key={bid.id}
-                    className={`flex items-center justify-between p-2 rounded-md text-sm ${
-                      idx === 0
-                        ? 'bg-emerald-50 border border-emerald-200'
-                        : isMine
-                          ? 'bg-primary/5 border border-primary/20'
-                          : 'bg-muted/30'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {idx === 0 && <Badge className="bg-emerald-600 text-white text-xs">L1</Badge>}
-                      {isMine && <Badge variant="outline" className="text-xs border-primary text-primary">You</Badge>}
-                      <span className="text-muted-foreground font-mono text-xs">
-                        PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`font-semibold ${
-                        idx === 0 ? 'text-emerald-700' : isMine ? 'text-primary' : ''
-                      }`}>
-                        {formatCurrency(bid.bid_price)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true })}
-                      </span>
-                    </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Starting Price</p>
+                  <p className="text-lg font-bold">{formatCurrency(auction.starting_price)}<span className="text-xs text-muted-foreground">/{auction.unit}</span></p>
+                </div>
+                <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                  <p className="text-xs text-emerald-700">Current Lowest</p>
+                  <p className="text-lg font-bold text-emerald-800">{formatCurrency(currentLowest)}<span className="text-xs text-muted-foreground">/{auction.unit}</span></p>
+                </div>
+                <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                  <p className="text-xs text-amber-700">Total Savings</p>
+                  <div className="flex items-center gap-1">
+                    <TrendingDown className="w-4 h-4 text-amber-700" />
+                    <p className="text-lg font-bold text-amber-800">{totalSavings.toFixed(1)}%</p>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <p className="text-xs text-blue-700">Buyer Price (incl. fee)</p>
+                  <p className="text-lg font-bold text-blue-800">{formatCurrency(buyerPrice)}<span className="text-xs text-muted-foreground">/{auction.unit}</span></p>
+                </div>
+              </div>
 
-      {/* 🔥 STICKY BID PANEL — Fixed at bottom for suppliers during live auctions */}
-      {isSupplier && isLive && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 md:left-auto md:right-4 md:bottom-4 md:w-[360px] md:rounded-xl bg-background border-t md:border shadow-2xl">
+              <div className="mb-4">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>Starting: {formatCurrency(auction.starting_price)}</span>
+                  <span>{totalSavings.toFixed(1)}% saved</span>
+                  {auction.reserve_price && <span>Reserve: {formatCurrency(auction.reserve_price)}</span>}
+                </div>
+                <Progress value={Math.min(totalSavings, 100)} className="h-2" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bid History */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Bid History ({bids.length} bids)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {bids.length === 0 ? (
+                <p className="text-center text-muted-foreground py-6 text-sm">No bids yet. Waiting for suppliers to bid...</p>
+              ) : (
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {bids.map((bid, idx) => {
+                    const isMine = user && bid.supplier_id === user.id;
+                    return (
+                      <div
+                        key={bid.id}
+                        className={`flex items-center justify-between p-2 rounded-md text-sm ${
+                          idx === 0
+                            ? 'bg-emerald-50 border border-emerald-200'
+                            : isMine
+                              ? 'bg-primary/5 border border-primary/20'
+                              : 'bg-muted/30'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {idx === 0 && <Badge className="bg-emerald-600 text-white text-xs">L1</Badge>}
+                          {isMine && <Badge variant="outline" className="text-xs border-primary text-primary">You</Badge>}
+                          <span className="text-muted-foreground font-mono text-xs">
+                            PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`font-semibold ${
+                            idx === 0 ? 'text-emerald-700' : isMine ? 'text-primary' : ''
+                          }`}>
+                            {formatCurrency(bid.bid_price)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true })}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 💻 DESKTOP → Right sticky bid panel */}
+        {!isMobile && bidPanelContent && (
+          <div className="sticky top-24 w-[320px] shrink-0 bg-background border rounded-xl shadow-lg p-4">
+            {bidPanelContent}
+          </div>
+        )}
+      </div>
+
+      {/* 📱 MOBILE → Fixed bottom bid panel */}
+      {isMobile && bidPanelContent && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-2xl">
           <div
-            className="flex items-center justify-between p-3 cursor-pointer md:cursor-default border-b md:border-b-0"
+            className="flex items-center justify-between p-3 cursor-pointer border-b"
             onClick={() => setShowBidPanel(p => !p)}
           >
             <div className="flex items-center gap-2">
               <Gavel className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold">Place Your Bid</h3>
+              <h3 className="font-semibold text-sm">Place Your Bid</h3>
             </div>
-            <Button variant="ghost" size="icon" className="md:hidden h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8">
               {showBidPanel ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
             </Button>
           </div>
           {showBidPanel && (
-            <div className="p-4 pt-2 space-y-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <AlertTriangle className="w-3 h-3 text-amber-600" />
-                Must be below {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
-              </div>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-                  <Input
-                    type="number"
-                    className="pl-8"
-                    placeholder={`Max ${Math.floor(maxAllowedBid)}`}
-                    value={bidPrice}
-                    onChange={e => setBidPrice(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}
-                  />
-                </div>
-                <Button
-                  onClick={handlePlaceBid}
-                  disabled={isPlacing || !bidPrice || parseFloat(bidPrice) >= currentLowest}
-                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
-                >
-                  {isPlacing ? 'Placing...' : '🚀 Bid'}
-                </Button>
-              </div>
-              {/* Quick feedback */}
-              {bidPrice && parseFloat(bidPrice) >= currentLowest && (
-                <p className="text-xs text-destructive">Bid must be lower than current L1</p>
-              )}
+            <div className="p-4 pt-2">
+              {bidPanelContent}
             </div>
           )}
         </div>
