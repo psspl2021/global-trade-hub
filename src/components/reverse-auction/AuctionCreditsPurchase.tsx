@@ -40,6 +40,7 @@ export function AuctionCreditsPurchase({ onCreditsUpdated }: AuctionCreditsPurch
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [cashfreeLoaded, setCashfreeLoaded] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [starterUsed, setStarterUsed] = useState(false);
 
   // Load Cashfree SDK
   useEffect(() => {
@@ -69,20 +70,27 @@ export function AuctionCreditsPurchase({ onCreditsUpdated }: AuctionCreditsPurch
     }
   }, [toast, onCreditsUpdated]);
 
-  // Fetch plans, credits, profile
+  // Fetch plans, credits, profile, and starter usage
   useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
-      const [plansRes, creditsRes, profileRes] = await Promise.all([
+      const [plansRes, creditsRes, profileRes, paymentsRes] = await Promise.all([
         supabase.from('auction_pricing_plans').select('*').eq('is_active', true).order('sort_order'),
         supabase.from('buyer_auction_credits').select('total_credits, used_credits').eq('buyer_id', user.id).limit(1).single(),
         supabase.from('profiles').select('contact_person, company_name, email, phone').eq('id', user.id).single(),
+        supabase.from('auction_credit_payments').select('id, metadata').eq('buyer_id', user.id).eq('status', 'paid'),
       ]);
 
       if (plansRes.data) setPlans(plansRes.data as unknown as AuctionPlan[]);
       if (creditsRes.data) setCredits({ total: (creditsRes.data as any).total_credits, used: (creditsRes.data as any).used_credits });
       if (profileRes.data) setProfile(profileRes.data);
+
+      // Check if starter plan was already used
+      const hasStarter = paymentsRes.data?.some((p: any) =>
+        p.metadata?.plan_name?.toLowerCase().includes('starter')
+      );
+      setStarterUsed(!!hasStarter);
     };
     fetchData();
   }, [user]);
