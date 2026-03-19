@@ -108,6 +108,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   }, [auction.auction_end, isLive]);
 
   const handlePlaceBid = async () => {
+    if (isPlacing) return;
     setBidError('');
     if (!user) return;
     if (!bidPrice) {
@@ -128,9 +129,17 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
       return;
     }
     setIsPlacing(true);
-    await placeBid(user.id, price);
-    setBidPrice('');
-    setIsPlacing(false);
+    try {
+      await placeBid(user.id, price);
+      setBidPrice('');
+      toast({
+        title: "Bid placed 🚀",
+        description: `Your bid of ${formatCurrency(price)} is now competing for L1`,
+      });
+      document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
+    } finally {
+      setIsPlacing(false);
+    }
   };
 
   const urgencyColor = useMemo(() => {
