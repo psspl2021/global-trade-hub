@@ -120,11 +120,12 @@ export default function BuyPage() {
       <Helmet>
         <title>{globalSEO.enhancedTitle}</title>
         <meta name="description" content={globalSEO.enhancedDescription} />
+        <meta name="robots" content="noindex, follow" />
         <meta name="geo.region" content={globalSEO.geoMeta.region} />
         <meta name="geo.placename" content={globalSEO.geoMeta.placename} />
         <meta property="og:title" content={globalSEO.enhancedTitle} />
         <meta property="og:description" content={globalSEO.enhancedDescription} />
-        <link rel="canonical" href={`https://www.procuresaathi.com/buy-${config.slug}`} />
+        <link rel="canonical" href={`https://www.procuresaathi.com/demand/${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
       </Helmet>
