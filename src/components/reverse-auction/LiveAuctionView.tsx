@@ -139,7 +139,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     setIsPlacing(true);
     try {
       await placeBid(user.id, price);
-      setBidPrice('');
+      setBidPrice(Math.floor(maxAllowedBid).toString());
       toast({
         title: "Bid placed 🚀",
         description: `Your bid of ${formatCurrency(price)} is now competing for L1`,
