@@ -35,10 +35,10 @@ serve(async (req) => {
       throw new Error("Missing required fields");
     }
 
-    // Normalize inputs
-    const normalizedEmail = customer_email.trim().toLowerCase();
-    const normalizedPhone = customer_phone.replace(/\D/g, "").slice(-10);
-    const normalizedCompany = (customer_name || "").trim().toLowerCase();
+    // Normalize inputs strictly for consistent matching
+    const normalizedEmail = customer_email?.trim().toLowerCase() || "";
+    const normalizedPhone = customer_phone?.replace(/\D/g, "").slice(-10) || "";
+    const normalizedCompany = customer_name?.trim().toLowerCase() || "";
 
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
