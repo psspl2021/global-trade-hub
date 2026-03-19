@@ -220,6 +220,13 @@ export function AuctionCreditsPurchase({ onCreditsUpdated }: AuctionCreditsPurch
                   </div>
                 </div>
 
+                {/* Trust message for Starter */}
+                {plan.name.includes('Starter') && !starterUsed && (
+                  <p className="text-xs text-muted-foreground">
+                    ⚡ One-time launch offer (per company)
+                  </p>
+                )}
+
                 {plan.name === 'Enterprise Pack' ? (
                   <a
                     href="https://wa.me/918368127357?text=Hi, I'm interested in the Enterprise Auction Pack (50 auctions)."
@@ -230,6 +237,10 @@ export function AuctionCreditsPurchase({ onCreditsUpdated }: AuctionCreditsPurch
                     <MessageCircle className="w-4 h-4" />
                     Contact Sales
                   </a>
+                ) : plan.name.includes('Starter') && starterUsed ? (
+                  <Button disabled className="w-full" variant="outline">
+                    Starter Already Used
+                  </Button>
                 ) : (
                   <Button
                     onClick={() => handlePurchase(plan)}
