@@ -76,7 +76,8 @@ export const CategoryShowcase = () => {
   const navigate = useNavigate();
 
   const handleCategoryClick = (categoryName: string) => {
-    navigate(`/browse?category=${encodeURIComponent(categoryName)}`);
+    const slug = categoryName.toLowerCase().replace(/[&,()]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    navigate(`/category/${slug}`);
   };
 
   return (

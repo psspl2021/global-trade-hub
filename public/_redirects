@@ -4,6 +4,10 @@
 # 301 Redirect non-www to www for all routes
 https://procuresaathi.com/*  https://www.procuresaathi.com/:splat  301!
 
+# Canonical normalization: /categories → /industries (301)
+/categories  /industries  301!
+/categories/*  /industries  301!
+
 # Dynamic sitemap from edge function
 /sitemap.xml  https://hsybhjjtxdwtpfvcmoqk.supabase.co/functions/v1/generate-sitemap  200!
 

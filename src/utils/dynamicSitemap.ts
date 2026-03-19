@@ -18,13 +18,15 @@ export function generateDynamicSitemapXml(): string {
   // Fallback lastmod — prefer actual dates when available
   const fallbackLastmod = new Date().toISOString().split('T')[0];
 
-  // Static high-priority pages
+  // Static high-priority pages — ONLY indexable, content-rich pages
   const staticPages = [
     { url: `${base}/`, priority: 1.0 },
     { url: `${base}/industries`, priority: 0.9 },
     { url: `${base}/global-sourcing-countries`, priority: 0.9 },
     { url: `${base}/steel-comparisons`, priority: 0.85 },
     { url: `${base}/industrial-use-cases`, priority: 0.85 },
+    { url: `${base}/blogs`, priority: 0.85 },
+    { url: `${base}/contact`, priority: 0.6 },
     { url: `${base}/industries/metals`, priority: 0.8 },
     { url: `${base}/industries/metals/ferrous`, priority: 0.8 },
     { url: `${base}/industries/metals/non-ferrous`, priority: 0.8 },

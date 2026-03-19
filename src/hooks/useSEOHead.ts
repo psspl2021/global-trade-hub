@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 const CANONICAL_DOMAIN = 'https://www.procuresaathi.com';
 
 // Routes that should NOT be indexed
-const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier'];
+const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier', '/seller', '/buyer', '/browseproducts', '/browse', '/enterprise', '/affiliate', '/invoice-generator'];
 
 // Category name to slug mapping for /browse?category= → /category/{slug} canonical
 const categoryToSlug = (category: string): string => {
@@ -32,9 +32,9 @@ export function useSEOHead(options?: { title?: string; description?: string; noi
 
     // Determine if page should be noindexed
     const isNoindexRoute = NOINDEX_ROUTES.some(r => pathname.startsWith(r));
-    const isQueryUrl = hasQueryParams;
     const isBrowsePath = pathname === '/browse' || pathname === '/browseproducts';
-    const isNoindex = options?.noindex || isNoindexRoute || (isQueryUrl && isBrowsePath);
+    // ALL query param URLs get noindexed — no exceptions
+    const isNoindex = options?.noindex || isNoindexRoute || hasQueryParams;
 
     // --- Robots meta ---
     let robotsMeta = document.querySelector('meta[name="robots"]') as HTMLMetaElement;

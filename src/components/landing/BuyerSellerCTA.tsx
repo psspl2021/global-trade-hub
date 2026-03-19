@@ -12,7 +12,7 @@ export const BuyerSellerCTA = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/browseproducts`, { state: { search: searchQuery.trim() } });
     }
   };
 
