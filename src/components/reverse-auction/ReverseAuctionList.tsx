@@ -1,13 +1,14 @@
 /**
  * Reverse Auction List — Shows all auctions for the current user (buyer or supplier)
  */
+import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -44,6 +45,18 @@ interface ReverseAuctionListProps {
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseAuctionListProps) {
   const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const creditsRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to credits purchase when buy_credits=true
+  useEffect(() => {
+    if (searchParams.get('buy_credits') === 'true' && creditsRef.current) {
+      creditsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Clean URL
+      searchParams.delete('buy_credits');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   if (isLoading) {
     return (
@@ -79,7 +92,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
 
       {/* Auction Credits Purchase (Buyer only) */}
       {isBuyer && (
-        <AuctionCreditsPurchase onCreditsUpdated={refetch} />
+        <div ref={creditsRef}>
+          <AuctionCreditsPurchase onCreditsUpdated={refetch} />
+        </div>
       )}
 
       {/* Auction Cards */}
