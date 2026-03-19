@@ -117,7 +117,8 @@ serve(async (req) => {
 
     if (dbError) {
       console.error("Database error:", dbError);
-      if (dbError.message.includes("duplicate")) {
+      // PostgreSQL unique violation code = 23505
+      if (dbError.code === "23505" || dbError.message.includes("duplicate")) {
         throw new Error("Starter plan already used. Please choose Pro or Enterprise pack.");
       }
       throw new Error("Failed to create payment record");
