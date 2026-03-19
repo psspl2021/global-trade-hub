@@ -70,6 +70,26 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
       }
     };
     fetchCredits();
+
+    // Real-time credits update
+    const channel = supabase
+      .channel('credits')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'buyer_auction_credits',
+          filter: `buyer_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const d = payload.new as { total_credits: number; used_credits: number };
+          setRemainingCredits(d.total_credits - d.used_credits);
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
   return (
