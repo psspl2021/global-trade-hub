@@ -70,6 +70,26 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
       }
     };
     fetchCredits();
+
+    // Real-time credits update
+    const channel = supabase
+      .channel('credits')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'buyer_auction_credits',
+          filter: `buyer_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const d = payload.new as { total_credits: number; used_credits: number };
+          setRemainingCredits(d.total_credits - d.used_credits);
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
   return (
@@ -90,9 +110,12 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
           <div className="flex items-center gap-1 sm:gap-2">
             {/* Auction Credits Badge */}
             {remainingCredits !== null && (
-              <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-semibold">
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${remainingCredits <= 2 ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
                 <Coins className="h-4 w-4" />
                 <span>{remainingCredits} Credits</span>
+                {remainingCredits <= 2 && (
+                  <span className="text-xs">⚠ Low</span>
+                )}
               </div>
             )}
             <NotificationBell />
