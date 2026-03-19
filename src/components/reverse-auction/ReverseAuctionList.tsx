@@ -1,13 +1,14 @@
 /**
  * Reverse Auction List — Shows all auctions for the current user (buyer or supplier)
  */
+import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
