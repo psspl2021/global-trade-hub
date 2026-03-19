@@ -52,9 +52,14 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
   useEffect(() => {
     if (searchParams.get('buy_credits') === 'true' && creditsRef.current) {
       creditsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Clean URL
-      searchParams.delete('buy_credits');
-      setSearchParams(searchParams, { replace: true });
+      // Highlight effect
+      creditsRef.current.classList.add('ring-2', 'ring-primary');
+      const el = creditsRef.current;
+      setTimeout(() => el?.classList.remove('ring-2', 'ring-primary'), 2000);
+      // Clean URL — safe copy, no mutation
+      const params = new URLSearchParams(searchParams);
+      params.delete('buy_credits');
+      setSearchParams(params, { replace: true });
     }
   }, [searchParams, setSearchParams]);
 
