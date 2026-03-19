@@ -9720,6 +9720,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      consume_auction_credit: {
+        Args: { p_credit_id: string }
+        Returns: undefined
+      }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
       create_bid_item_for_auto_bid: {
         Args: {
