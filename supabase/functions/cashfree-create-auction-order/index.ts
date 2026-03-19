@@ -35,6 +35,11 @@ serve(async (req) => {
       throw new Error("Missing required fields");
     }
 
+    // Normalize inputs
+    const normalizedEmail = customer_email.trim().toLowerCase();
+    const normalizedPhone = customer_phone.replace(/\D/g, "").slice(-10);
+    const normalizedCompany = (customer_name || "").trim().toLowerCase();
+
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
     // Fetch plan details
@@ -49,31 +54,22 @@ serve(async (req) => {
       throw new Error("Invalid or inactive pricing plan");
     }
 
-    // 🚨 Starter abuse prevention — check by buyer_id, email, or company
+    // 🚨 Starter abuse prevention — normalized + safe
     if (plan.name.toLowerCase().includes("starter")) {
       const { data: existing } = await supabase
         .from("auction_credit_payments")
-        .select("id")
+        .select("metadata")
         .eq("status", "paid")
-        .or(`buyer_id.eq.${buyer_id},buyer_email.ilike.${customer_email},buyer_company.ilike.${customer_name}`)
-        .not("plan_id", "is", null);
-
-      // Check if any of those paid payments were for a starter plan
-      if (existing && existing.length > 0) {
-        // Verify they used a starter plan
-        const { data: starterPayments } = await supabase
-          .from("auction_credit_payments")
-          .select("id, metadata")
-          .eq("status", "paid")
-          .or(`buyer_id.eq.${buyer_id},buyer_email.ilike.${customer_email},buyer_company.ilike.${customer_name}`);
-
-        const hasStarter = starterPayments?.some((p: any) =>
-          p.metadata?.plan_name?.toLowerCase().includes("starter")
+        .or(
+          `buyer_id.eq.${buyer_id},buyer_email.eq.${normalizedEmail},buyer_phone.eq.${normalizedPhone},buyer_company.eq.${normalizedCompany}`
         );
 
-        if (hasStarter) {
-          throw new Error("Starter plan already used. Please choose Pro or Enterprise pack.");
-        }
+      const hasStarter = existing?.some((p: any) =>
+        p.metadata?.plan_name?.toLowerCase().includes("starter")
+      );
+
+      if (hasStarter) {
+        throw new Error("Starter plan already used. Please choose Pro or Enterprise pack.");
       }
     }
 
@@ -85,8 +81,8 @@ serve(async (req) => {
 
     const orderId = `AUC_CREDIT_${Date.now()}_${buyer_id.substring(0, 8)}`;
 
-    // Create payment record with buyer identity
-    const { error: dbError } = await supabase
+    // Create payment record with normalized buyer identity
+    const { data: insertedPayment, error: dbError } = await supabase
       .from("auction_credit_payments")
       .insert({
         buyer_id,
@@ -98,18 +94,23 @@ serve(async (req) => {
         currency: "INR",
         status: "pending",
         credits_purchased: plan.auctions_count,
-        buyer_email: customer_email,
-        buyer_phone: customer_phone.replace(/\D/g, "").slice(-10),
-        buyer_company: customer_name,
+        buyer_email: normalizedEmail,
+        buyer_phone: normalizedPhone,
+        buyer_company: normalizedCompany,
         metadata: {
           plan_name: plan.name,
           price_per_auction: plan.price_per_auction,
           gst_rate: gstRate,
         },
-      });
+      })
+      .select()
+      .single();
 
     if (dbError) {
       console.error("Database error:", dbError);
+      if (dbError.message.includes("duplicate")) {
+        throw new Error("Starter plan already used. Please choose Pro or Enterprise pack.");
+      }
       throw new Error("Failed to create payment record");
     }
 
