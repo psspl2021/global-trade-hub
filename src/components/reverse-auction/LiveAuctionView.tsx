@@ -76,12 +76,19 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   // Outbid alert
   useEffect(() => {
     if (myRank === null || !isSupplier) return;
-    if (prevRankRef.current !== null && prevRankRef.current === 1 && myRank > 1) {
+    const now = Date.now();
+    if (
+      prevRankRef.current !== null &&
+      prevRankRef.current === 1 &&
+      myRank > 1 &&
+      now - lastOutbidRef.current > 3000
+    ) {
       toast({
         title: "You were outbid ⚠️",
         description: "Place a lower bid to win",
         variant: "destructive",
       });
+      lastOutbidRef.current = now;
     }
     prevRankRef.current = myRank;
   }, [myRank, isSupplier, toast]);
