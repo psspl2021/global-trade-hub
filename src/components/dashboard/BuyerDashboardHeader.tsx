@@ -18,16 +18,18 @@
  * - All verification state is in-memory only (no localStorage)
  */
 
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
-import { LogOut, Settings, ShieldCheck, AlertTriangle, Home } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
 interface BuyerDashboardHeaderProps {
@@ -52,6 +54,24 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
   const { isRoleVerified } = useRoleSecurity();
   const isCurrentViewVerified = managementView ? isRoleVerified(managementView) : false;
 
+  const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchCredits = async () => {
+      const { data } = await supabase
+        .from('buyer_auction_credits')
+        .select('total_credits, used_credits')
+        .eq('buyer_id', user.id)
+        .limit(1)
+        .single();
+      if (data) {
+        setRemainingCredits(data.total_credits - data.used_credits);
+      }
+    };
+    fetchCredits();
+  }, [user]);
+
   return (
     <header className="border-b bg-card">
       <div className="container mx-auto px-4 py-3 sm:py-4">
@@ -68,6 +88,13 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
             />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
+            {/* Auction Credits Badge */}
+            {remainingCredits !== null && (
+              <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-semibold">
+                <Coins className="h-4 w-4" />
+                <span>{remainingCredits} Credits</span>
+              </div>
+            )}
             <NotificationBell />
             <Button 
               variant="outline" 

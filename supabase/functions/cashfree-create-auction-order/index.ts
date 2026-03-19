@@ -54,8 +54,41 @@ serve(async (req) => {
       throw new Error("Invalid or inactive pricing plan");
     }
 
+    // Generate idempotency key for this buyer + plan combo
+    const isStarter = plan.name.toLowerCase().includes("starter");
+    const idempotencyKey = isStarter
+      ? `starter_${buyer_id}_${normalizedEmail}`
+      : `${plan.name.toLowerCase().replace(/\s+/g, '_')}_${buyer_id}_${Date.now()}`;
+
+    // Idempotency: return existing pending order instead of creating duplicate
+    if (isStarter) {
+      const { data: existingOrder } = await supabase
+        .from("auction_credit_payments")
+        .select("order_id, payment_session_id, status")
+        .eq("idempotency_key", idempotencyKey)
+        .maybeSingle();
+
+      if (existingOrder) {
+        if (existingOrder.status === "pending" && existingOrder.payment_session_id) {
+          return new Response(
+            JSON.stringify({
+              success: true,
+              order_id: existingOrder.order_id,
+              payment_session_id: existingOrder.payment_session_id,
+              order_status: "PENDING",
+              resumed: true,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        if (existingOrder.status === "paid") {
+          throw new Error("Starter plan already used. Please choose Pro or Enterprise pack.");
+        }
+      }
+    }
+
     // 🚨 Starter abuse prevention — null-safe filtered query
-    if (plan.name.toLowerCase().includes("starter")) {
+    if (isStarter) {
       const filters = [
         buyer_id ? `buyer_id.eq.${buyer_id}` : null,
         normalizedEmail ? `buyer_email.eq.${normalizedEmail}` : null,
@@ -90,7 +123,7 @@ serve(async (req) => {
 
     const orderId = `AUC_CREDIT_${Date.now()}_${buyer_id.substring(0, 8)}`;
 
-    // Create payment record with normalized buyer identity
+    // Create payment record with normalized buyer identity + idempotency key
     const { data: insertedPayment, error: dbError } = await supabase
       .from("auction_credit_payments")
       .insert({
@@ -106,6 +139,7 @@ serve(async (req) => {
         buyer_email: normalizedEmail,
         buyer_phone: normalizedPhone,
         buyer_company: normalizedCompany,
+        idempotency_key: idempotencyKey,
         metadata: {
           plan_name: plan.name,
           price_per_auction: plan.price_per_auction,
