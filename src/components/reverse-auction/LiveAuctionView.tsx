@@ -2,8 +2,9 @@
  * Live Reverse Auction View — Real-time bidding interface
  * Used by both buyers (monitor) and suppliers (place bids)
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,12 +29,14 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
 export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuctionViewProps) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const { bids, placeBid } = useReverseAuctionBids(auction.id);
   const [bidPrice, setBidPrice] = useState('');
   const [bidError, setBidError] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [showBidPanel, setShowBidPanel] = useState(true);
+  const prevRankRef = useRef<number | null>(null);
 
   const isLive = auction.status === 'live';
 
@@ -69,6 +72,19 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
 
   const isWinning = myRank === 1;
 
+  // Outbid alert
+  useEffect(() => {
+    if (myRank === null || !isSupplier) return;
+    if (prevRankRef.current !== null && prevRankRef.current === 1 && myRank > 1) {
+      toast({
+        title: "You were outbid ⚠️",
+        description: "Place a lower bid to win",
+        variant: "destructive",
+      });
+    }
+    prevRankRef.current = myRank;
+  }, [myRank, isSupplier, toast]);
+
   // Timer
   useEffect(() => {
     if (!auction.auction_end || !isLive) return;
@@ -92,6 +108,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   }, [auction.auction_end, isLive]);
 
   const handlePlaceBid = async () => {
+    if (isPlacing) return;
     setBidError('');
     if (!user) return;
     if (!bidPrice) {
@@ -112,9 +129,17 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
       return;
     }
     setIsPlacing(true);
-    await placeBid(user.id, price);
-    setBidPrice('');
-    setIsPlacing(false);
+    try {
+      await placeBid(user.id, price);
+      setBidPrice('');
+      toast({
+        title: "Bid placed 🚀",
+        description: `Your bid of ${formatCurrency(price)} is now competing for L1`,
+      });
+      document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
+    } finally {
+      setIsPlacing(false);
+    }
   };
 
   const urgencyColor = useMemo(() => {
@@ -156,6 +181,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
           <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
           <Input
             type="number"
+            inputMode="numeric"
             className="pl-8"
             placeholder={`Max ${Math.floor(maxAllowedBid)}`}
             value={bidPrice}
@@ -171,6 +197,9 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
           {isPlacing ? 'Placing...' : '🚀 Bid'}
         </Button>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Suggested: {formatCurrency(Math.floor(maxAllowedBid))}
+      </p>
       {/* Error feedback */}
       {bidError && (
         <p className="text-xs text-destructive font-medium">{bidError}</p>
@@ -187,7 +216,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
 
       {/* 🔥 STICKY LIVE STRIP */}
       {isLive && (
-        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-sm rounded-lg p-3">
+        <div id="live-strip" className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-sm rounded-lg p-3">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-xs text-muted-foreground">Current L1</p>
