@@ -181,6 +181,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
           <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
           <Input
             type="number"
+            inputMode="numeric"
             className="pl-8"
             placeholder={`Max ${Math.floor(maxAllowedBid)}`}
             value={bidPrice}
