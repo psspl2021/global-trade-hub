@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 const CANONICAL_DOMAIN = 'https://www.procuresaathi.com';
 
 // Routes that should NOT be indexed
-const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier'];
+const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier', '/seller', '/buyer', '/browseproducts', '/browse', '/enterprise', '/affiliate', '/invoice-generator'];
 
 // Category name to slug mapping for /browse?category= → /category/{slug} canonical
 const categoryToSlug = (category: string): string => {
