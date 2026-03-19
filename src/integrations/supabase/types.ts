@@ -989,6 +989,7 @@ export type Database = {
           currency: string | null
           gst_amount: number
           id: string
+          idempotency_key: string | null
           metadata: Json | null
           order_id: string
           paid_at: string | null
@@ -1012,6 +1013,7 @@ export type Database = {
           currency?: string | null
           gst_amount?: number
           id?: string
+          idempotency_key?: string | null
           metadata?: Json | null
           order_id: string
           paid_at?: string | null
@@ -1035,6 +1037,7 @@ export type Database = {
           currency?: string | null
           gst_amount?: number
           id?: string
+          idempotency_key?: string | null
           metadata?: Json | null
           order_id?: string
           paid_at?: string | null
