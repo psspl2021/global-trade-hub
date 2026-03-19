@@ -224,7 +224,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
 
       {/* 🔥 STICKY LIVE STRIP */}
       {isLive && (
-        <div id="live-strip" className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-sm rounded-lg p-3">
+        <div id="live-strip" className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-sm rounded-lg p-3 scroll-mt-24">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-xs text-muted-foreground">Current L1</p>
