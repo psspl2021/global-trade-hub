@@ -21,6 +21,55 @@ import CommercialCTA from '@/components/seo/CommercialCTA';
 import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
 import BreadcrumbHierarchy from '@/components/seo/BreadcrumbHierarchy';
 
+function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: string; answer: string }>; productName: string }) {
+  const isFromGoogle = typeof document !== "undefined" && document.referrer.includes("google");
+  const [openIndexes, setOpenIndexes] = useState<number[]>(isFromGoogle ? [0, 1] : [0]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.scrollY > 800) {
+        setOpenIndexes(prev => prev.includes(2) ? prev : [...prev, 2]);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const toggle = (i: number) => {
+    setOpenIndexes(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  };
+
+  return (
+    <section>
+      <div className="flex items-center gap-3 mb-6">
+        <HelpCircle className="h-6 w-6 text-primary" />
+        <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
+      </div>
+      <div className="divide-y divide-border">
+        {allFaqs.map((faq, i) => (
+          <div key={i} className="py-4">
+            <button
+              onClick={() => toggle(i)}
+              className="font-semibold text-foreground cursor-pointer flex items-center justify-between gap-4 w-full text-left"
+            >
+              <h3 className="text-left">{faq.question}</h3>
+              <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${openIndexes.includes(i) ? 'rotate-90' : ''}`} />
+            </button>
+            {openIndexes.includes(i) && (
+              <p className="text-muted-foreground mt-3 leading-relaxed">{renderSafeAnswer(faq.answer)}</p>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground/70 mt-6">
+        Also searched: {productName} suppliers near me, bulk {productName} price,{' '}
+        {productName} manufacturers India, {productName} wholesale rate,{' '}
+        best {productName} dealer in India
+      </p>
+    </section>
+  );
+}
+
 function BreadcrumbNav({ product }: { product: DemandProduct }) {
   const breadcrumbSchema = {
     "@context": "https://schema.org",
