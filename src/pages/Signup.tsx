@@ -236,6 +236,7 @@ const Signup = () => {
         fieldErrors[field] = err.message;
       });
       setErrors(fieldErrors);
+      toast.error(result.error.errors[0]?.message || 'Please fill all required fields');
       return;
     }
 
