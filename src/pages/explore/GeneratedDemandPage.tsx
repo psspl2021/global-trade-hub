@@ -12,7 +12,7 @@ import {
   Activity, Layers, GitCompare, HelpCircle, Building
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import GSCQueryInjection from '@/components/seo/GSCQueryInjection';
 import RevenueWeightedLinksLive from '@/components/seo/RevenueWeightedLinksLive';
 import DemandIntelligenceTable from '@/components/seo/DemandIntelligenceTable';
