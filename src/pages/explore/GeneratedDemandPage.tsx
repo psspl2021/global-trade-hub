@@ -168,7 +168,7 @@ export default function GeneratedDemandPage() {
         <meta property="og:type" content="product" />
       </Helmet>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, faqSchema]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, serviceSchema, faqSchema]) }} />
 
       <main className="min-h-screen bg-background">
         {/* ─── HERO ──────────────────────────────────────────── */}
