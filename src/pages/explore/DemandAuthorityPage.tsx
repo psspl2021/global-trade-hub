@@ -741,8 +741,33 @@ export default function DemandAuthorityPage() {
       <main className="min-h-screen bg-background">
         <HeroSection product={product} onOpenRFQ={() => setShowRFQ(true)} />
         <ProductOverviewSection product={product} />
+
+        {/* Intent Keyword Layer — long-tail ranking signals */}
+        <section className="py-12 bg-background">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <IntentKeywordSection
+              productName={product.name}
+              slug={product.slug}
+              country={product.country}
+              recentRFQs={product.demandIntelligence.recentRFQs}
+            />
+          </div>
+        </section>
+
         <DeepSKUSections product={product} />
         <DemandIntelligenceSection product={product} />
+
+        {/* Commercial CTA + Freshness Signal */}
+        <section className="py-12 bg-background">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <CommercialCTA
+              productName={product.name}
+              recentRFQs={product.demandIntelligence.recentRFQs}
+              onOpenRFQ={() => setShowRFQ(true)}
+            />
+          </div>
+        </section>
+
         <GlobalSourcingCorridors product={product} />
         <WhyProcureSaathiSection />
         <FAQSection product={product} />
