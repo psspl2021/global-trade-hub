@@ -559,7 +559,7 @@ export default function GeneratedDemandPage() {
                   {allFaqs.map((faq, i) => (
                     <div key={i}>
                       <h3 className="font-semibold text-foreground mb-2">{faq.question}</h3>
-                      <p className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                      <p className="text-muted-foreground">{renderSafeAnswer(faq.answer)}</p>
                     </div>
                   ))}
                 </div>
