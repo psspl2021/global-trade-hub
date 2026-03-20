@@ -637,13 +637,13 @@ export default function GeneratedDemandPage() {
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {crossCategory.map(p => (
-                        <Link
+                        <a
                           key={p.slug}
-                          to={`/demand/${p.slug}`}
+                          href={`/demand/${p.slug}`}
                           className="text-sm text-primary hover:underline transition-colors"
                         >
                           {p.name}
-                        </Link>
+                        </a>
                       ))}
                     </div>
                   </section>
