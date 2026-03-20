@@ -1,6 +1,8 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
 import CommercialCTA from '@/components/seo/CommercialCTA';
+import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
+import BreadcrumbHierarchy from '@/components/seo/BreadcrumbHierarchy';
 import { Helmet } from 'react-helmet-async';
 import { getProductBySlug, getIndustryBreadcrumb, industrialProducts, type IndustrialProduct } from '@/data/industrialProducts';
 import { getDemandProductBySlug } from '@/data/demandProducts';
@@ -765,6 +767,24 @@ export default function DemandAuthorityPage() {
               recentRFQs={product.demandIntelligence.recentRFQs}
               onOpenRFQ={() => setShowRFQ(true)}
             />
+          </div>
+        </section>
+
+        {/* Breadcrumb Hierarchy for crawl depth */}
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <BreadcrumbHierarchy
+              industrySlug={product.industrySlug}
+              industryName={product.industry}
+              productName={product.name}
+            />
+          </div>
+        </section>
+
+        {/* Buyer Trust (E-E-A-T signal) */}
+        <section className="py-12 bg-background">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <BuyerTrustSection />
           </div>
         </section>
 

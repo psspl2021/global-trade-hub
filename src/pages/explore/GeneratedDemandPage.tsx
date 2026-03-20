@@ -17,6 +17,8 @@ import RevenueWeightedLinksLive from '@/components/seo/RevenueWeightedLinksLive'
 import DemandIntelligenceTable from '@/components/seo/DemandIntelligenceTable';
 import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
 import CommercialCTA from '@/components/seo/CommercialCTA';
+import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
+import BreadcrumbHierarchy from '@/components/seo/BreadcrumbHierarchy';
 
 function BreadcrumbNav({ product }: { product: DemandProduct }) {
   const breadcrumbSchema = {
@@ -535,6 +537,16 @@ export default function GeneratedDemandPage() {
                 recentRFQs={content.demandSignals.recentRfqs}
                 onOpenRFQ={() => setRfqOpen(true)}
               />
+
+              {/* ─── BREADCRUMB HIERARCHY ─────────────────────────── */}
+              <BreadcrumbHierarchy
+                industrySlug={product.industrySlug || product.category.toLowerCase().replace(/\s+/g, '-')}
+                industryName={product.category}
+                productName={product.name}
+              />
+
+              {/* ─── BUYER TRUST (E-E-A-T) ────────────────────────── */}
+              <BuyerTrustSection />
 
               {/* ─── FAQ SECTION (7 FAQs) ────────────────────────── */}
               <section>
