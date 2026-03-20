@@ -22,8 +22,13 @@ import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
 import BreadcrumbHierarchy from '@/components/seo/BreadcrumbHierarchy';
 
 function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: string; answer: string }>; productName: string }) {
-  const isFromGoogle = typeof document !== "undefined" && document.referrer.includes("google");
-  const [openIndexes, setOpenIndexes] = useState<number[]>(isFromGoogle ? [0, 1] : [0]);
+  const [openIndexes, setOpenIndexes] = useState<number[]>([0]);
+
+  useEffect(() => {
+    if (typeof document !== "undefined" && document.referrer.includes("google")) {
+      setOpenIndexes([0, 1]);
+    }
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
