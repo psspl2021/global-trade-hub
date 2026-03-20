@@ -17,6 +17,8 @@ import RevenueWeightedLinksLive from '@/components/seo/RevenueWeightedLinksLive'
 import DemandIntelligenceTable from '@/components/seo/DemandIntelligenceTable';
 import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
 import CommercialCTA from '@/components/seo/CommercialCTA';
+import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
+import BreadcrumbHierarchy from '@/components/seo/BreadcrumbHierarchy';
 
 function BreadcrumbNav({ product }: { product: DemandProduct }) {
   const breadcrumbSchema = {
