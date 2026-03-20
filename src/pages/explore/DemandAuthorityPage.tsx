@@ -706,6 +706,7 @@ export default function DemandAuthorityPage() {
         <meta property="og:type" content="product" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(relatedProductsSchema)}</script>
       </Helmet>
       
