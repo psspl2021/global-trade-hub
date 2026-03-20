@@ -251,7 +251,12 @@ function FAQSection({ product }: { product: IndustrialProduct }) {
                   {faq.question}
                   <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
                 </summary>
-                <div className="px-4 pb-4 text-muted-foreground text-sm leading-relaxed">{faq.answer}</div>
+                <div className="px-4 pb-4 text-muted-foreground text-sm leading-relaxed">
+                  {faq.answer}{' '}
+                  <Link to={`/demand/${product.slug}`} className="text-primary hover:underline">
+                    Learn more about {product.name} procurement →
+                  </Link>
+                </div>
               </details>
             ))}
           </div>
