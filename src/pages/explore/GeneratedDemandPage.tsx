@@ -256,8 +256,11 @@ export default function GeneratedDemandPage() {
               {product.name} Procurement in India
             </h1>
 
-            <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-3xl">
+            <p className="text-lg text-muted-foreground mb-4 leading-relaxed max-w-3xl">
               {content.heroIntro}
+            </p>
+            <p className="text-xs text-muted-foreground/70 mb-8">
+              Updated daily with live RFQs and supplier activity · Last refreshed {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
 
             <div className="flex flex-wrap gap-3">
