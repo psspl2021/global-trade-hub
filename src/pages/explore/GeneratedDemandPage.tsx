@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { renderSafeAnswer } from '@/utils/safeHtmlRenderer';
 import { Helmet } from 'react-helmet-async';
 import { getDemandProductBySlug, demandProducts, type DemandProduct } from '@/data/demandProducts';
 import { generateDemandContent } from '@/utils/demandContentEngine';
@@ -150,13 +151,16 @@ export default function GeneratedDemandPage() {
     ...content.extraFaqs,
   ];
 
+  // Strip HTML from answers for schema (plain text only)
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '');
+
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": allFaqs.map(f => ({
       "@type": "Question",
       "name": f.question,
-      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+      "acceptedAnswer": { "@type": "Answer", "text": stripHtml(f.answer) }
     }))
   };
 
@@ -558,10 +562,17 @@ export default function GeneratedDemandPage() {
                   {allFaqs.map((faq, i) => (
                     <div key={i}>
                       <h3 className="font-semibold text-foreground mb-2">{faq.question}</h3>
-                      <p className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                      <p className="text-muted-foreground">{renderSafeAnswer(faq.answer)}</p>
                     </div>
                   ))}
                 </div>
+
+                {/* ─── KEYWORD VARIATION LINE (long-tail capture) ── */}
+                <p className="text-xs text-muted-foreground/70 mt-6">
+                  Also searched: {product.name} suppliers near me, bulk {product.name} price,{' '}
+                  {product.name} manufacturers India, {product.name} wholesale rate,{' '}
+                  best {product.name} dealer in India
+                </p>
               </section>
             </div>
 
