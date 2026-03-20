@@ -566,6 +566,13 @@ export default function GeneratedDemandPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* ─── KEYWORD VARIATION LINE (long-tail capture) ── */}
+                <p className="text-xs text-muted-foreground/70 mt-6">
+                  Also searched: {product.name} suppliers near me, bulk {product.name} price,{' '}
+                  {product.name} manufacturers India, {product.name} wholesale rate,{' '}
+                  best {product.name} dealer in India
+                </p>
               </section>
             </div>
 
