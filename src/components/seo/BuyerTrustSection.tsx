@@ -1,4 +1,4 @@
-import { CheckCircle, Shield } from 'lucide-react';
+import { CheckCircle, Shield, Users } from 'lucide-react';
 
 const trustPoints = [
   'Verified suppliers with BIS/ISO compliance checks',
@@ -25,6 +25,12 @@ export default function BuyerTrustSection() {
           </li>
         ))}
       </ul>
+      <div className="flex items-center gap-2 pt-2 border-t border-border">
+        <Users className="h-4 w-4 text-primary" />
+        <p className="text-sm text-muted-foreground">
+          Trusted by <span className="font-semibold text-foreground">500+</span> verified suppliers across India
+        </p>
+      </div>
     </section>
   );
 }
