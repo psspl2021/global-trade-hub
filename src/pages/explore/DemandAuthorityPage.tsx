@@ -525,6 +525,12 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
 }
 
 function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
+  // Cross-category top demand pages for internal linking beyond same-category
+  const crossCategoryLinks = industrialProducts
+    .filter(p => p.isActivated && p.industrySlug !== product.industrySlug && p.slug !== product.slug)
+    .sort((a, b) => b.demandIntelligence.intentScore - a.demandIntelligence.intentScore)
+    .slice(0, 6);
+
   return (
     <section className="py-12 bg-background">
       <div className="container mx-auto px-4">
@@ -542,6 +548,26 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
               );
             })}
           </div>
+
+          {/* Cross-category internal links for authority flow */}
+          {crossCategoryLinks.length > 0 && (
+            <div className="mt-10">
+              <h2 className="text-xl font-bold text-foreground mb-4">Explore Other Procurement Categories</h2>
+              <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 list-none p-0 m-0">
+                {crossCategoryLinks.map(p => (
+                  <li key={p.slug}>
+                    <Link
+                      to={`/demand/${p.slug}`}
+                      className="flex items-center gap-2 p-3 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors text-sm"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="font-medium text-foreground">{p.name} Suppliers</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </section>
