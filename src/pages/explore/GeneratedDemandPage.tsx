@@ -619,8 +619,15 @@ export default function GeneratedDemandPage() {
 
               {/* ─── CROSS-CATEGORY INTERNAL LINKS ────────────── */}
               {(() => {
+                // Deterministic shuffle based on current slug for varied linking
+                const hash = product.slug.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
                 const crossCategory = demandProducts
                   .filter(p => p.slug !== product.slug && p.categorySlug !== product.categorySlug)
+                  .sort((a, b) => {
+                    const aHash = a.slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+                    const bHash = b.slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+                    return ((aHash * 31 + hash) % 97) - ((bHash * 31 + hash) % 97);
+                  })
                   .slice(0, 6);
                 if (!crossCategory.length) return null;
                 return (
