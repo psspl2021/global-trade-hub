@@ -770,6 +770,24 @@ export default function DemandAuthorityPage() {
           </div>
         </section>
 
+        {/* Breadcrumb Hierarchy for crawl depth */}
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <BreadcrumbHierarchy
+              industrySlug={product.industrySlug}
+              industryName={product.industry}
+              productName={product.name}
+            />
+          </div>
+        </section>
+
+        {/* Buyer Trust (E-E-A-T signal) */}
+        <section className="py-12 bg-background">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <BuyerTrustSection />
+          </div>
+        </section>
+
         <GlobalSourcingCorridors product={product} />
         <WhyProcureSaathiSection />
         <FAQSection product={product} />

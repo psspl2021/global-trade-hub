@@ -538,6 +538,16 @@ export default function GeneratedDemandPage() {
                 onOpenRFQ={() => setRfqOpen(true)}
               />
 
+              {/* ─── BREADCRUMB HIERARCHY ─────────────────────────── */}
+              <BreadcrumbHierarchy
+                industrySlug={product.industrySlug || product.category.toLowerCase().replace(/\s+/g, '-')}
+                industryName={product.category}
+                productName={product.name}
+              />
+
+              {/* ─── BUYER TRUST (E-E-A-T) ────────────────────────── */}
+              <BuyerTrustSection />
+
               {/* ─── FAQ SECTION (7 FAQs) ────────────────────────── */}
               <section>
                 <div className="flex items-center gap-3 mb-6">
