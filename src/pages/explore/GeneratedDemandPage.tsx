@@ -616,6 +616,32 @@ export default function GeneratedDemandPage() {
 
               {/* ─── FAQ SECTION (ACCORDION) ─────────────────── */}
               <FAQAccordion allFaqs={allFaqs} productName={product.name} />
+
+              {/* ─── CROSS-CATEGORY INTERNAL LINKS ────────────── */}
+              {(() => {
+                const crossCategory = demandProducts
+                  .filter(p => p.slug !== product.slug && p.categorySlug !== product.categorySlug)
+                  .slice(0, 6);
+                if (!crossCategory.length) return null;
+                return (
+                  <section className="mt-10">
+                    <h2 className="text-lg font-semibold text-foreground mb-3">
+                      Related Procurement Categories
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {crossCategory.map(p => (
+                        <Link
+                          key={p.slug}
+                          to={`/demand/${p.slug}`}
+                          className="text-sm text-primary hover:underline transition-colors"
+                        >
+                          {p.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                );
+              })()}
             </div>
 
             {/* Sidebar */}
