@@ -553,30 +553,7 @@ export default function GeneratedDemandPage() {
               <BuyerTrustSection />
 
               {/* ─── FAQ SECTION (ACCORDION) ─────────────────── */}
-              <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <HelpCircle className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
-                </div>
-                <div className="divide-y divide-border">
-                  {allFaqs.map((faq, i) => (
-                    <details key={i} className="group py-4" {...(i === 0 ? { open: true } : {})}>
-                      <summary className="font-semibold text-foreground cursor-pointer list-none flex items-center justify-between gap-4">
-                        <h3 className="text-left">{faq.question}</h3>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 transition-transform group-open:rotate-90" />
-                      </summary>
-                      <p className="text-muted-foreground mt-3 leading-relaxed">{renderSafeAnswer(faq.answer)}</p>
-                    </details>
-                  ))}
-                </div>
-
-                {/* ─── KEYWORD VARIATION LINE (long-tail capture) ── */}
-                <p className="text-xs text-muted-foreground/70 mt-6">
-                  Also searched: {product.name} suppliers near me, bulk {product.name} price,{' '}
-                  {product.name} manufacturers India, {product.name} wholesale rate,{' '}
-                  best {product.name} dealer in India
-                </p>
-              </section>
+              <FAQAccordion allFaqs={allFaqs} productName={product.name} />
             </div>
 
             {/* Sidebar */}
