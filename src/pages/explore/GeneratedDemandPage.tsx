@@ -12,7 +12,7 @@ import {
   Activity, Layers, GitCompare, HelpCircle, Building
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GSCQueryInjection from '@/components/seo/GSCQueryInjection';
 import RevenueWeightedLinksLive from '@/components/seo/RevenueWeightedLinksLive';
 import DemandIntelligenceTable from '@/components/seo/DemandIntelligenceTable';
@@ -20,6 +20,55 @@ import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
 import CommercialCTA from '@/components/seo/CommercialCTA';
 import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
 import BreadcrumbHierarchy from '@/components/seo/BreadcrumbHierarchy';
+
+function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: string; answer: string }>; productName: string }) {
+  const isFromGoogle = typeof document !== "undefined" && document.referrer.includes("google");
+  const [openIndexes, setOpenIndexes] = useState<number[]>(isFromGoogle ? [0, 1] : [0]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.scrollY > 800) {
+        setOpenIndexes(prev => prev.includes(2) ? prev : [...prev, 2]);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const toggle = (i: number) => {
+    setOpenIndexes(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  };
+
+  return (
+    <section>
+      <div className="flex items-center gap-3 mb-6">
+        <HelpCircle className="h-6 w-6 text-primary" />
+        <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
+      </div>
+      <div className="divide-y divide-border">
+        {allFaqs.map((faq, i) => (
+          <div key={i} className="py-4">
+            <button
+              onClick={() => toggle(i)}
+              className="font-semibold text-foreground cursor-pointer flex items-center justify-between gap-4 w-full text-left"
+            >
+              <h3 className="text-left">{faq.question}</h3>
+              <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${openIndexes.includes(i) ? 'rotate-90' : ''}`} />
+            </button>
+            {openIndexes.includes(i) && (
+              <p className="text-muted-foreground mt-3 leading-relaxed">{renderSafeAnswer(faq.answer)}</p>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground/70 mt-6">
+        Also searched: {productName} suppliers near me, bulk {productName} price,{' '}
+        {productName} manufacturers India, {productName} wholesale rate,{' '}
+        best {productName} dealer in India
+      </p>
+    </section>
+  );
+}
 
 function BreadcrumbNav({ product }: { product: DemandProduct }) {
   const breadcrumbSchema = {
@@ -553,30 +602,7 @@ export default function GeneratedDemandPage() {
               <BuyerTrustSection />
 
               {/* ─── FAQ SECTION (ACCORDION) ─────────────────── */}
-              <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <HelpCircle className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
-                </div>
-                <div className="divide-y divide-border">
-                  {allFaqs.map((faq, i) => (
-                    <details key={i} className="group py-4" {...(i === 0 ? { open: true } : {})}>
-                      <summary className="font-semibold text-foreground cursor-pointer list-none flex items-center justify-between gap-4">
-                        <h3 className="text-left">{faq.question}</h3>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 transition-transform group-open:rotate-90" />
-                      </summary>
-                      <p className="text-muted-foreground mt-3 leading-relaxed">{renderSafeAnswer(faq.answer)}</p>
-                    </details>
-                  ))}
-                </div>
-
-                {/* ─── KEYWORD VARIATION LINE (long-tail capture) ── */}
-                <p className="text-xs text-muted-foreground/70 mt-6">
-                  Also searched: {product.name} suppliers near me, bulk {product.name} price,{' '}
-                  {product.name} manufacturers India, {product.name} wholesale rate,{' '}
-                  best {product.name} dealer in India
-                </p>
-              </section>
+              <FAQAccordion allFaqs={allFaqs} productName={product.name} />
             </div>
 
             {/* Sidebar */}
