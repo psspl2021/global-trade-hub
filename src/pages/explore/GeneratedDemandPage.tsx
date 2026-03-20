@@ -39,6 +39,9 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+  const toggle = useCallback((i: number) => {
+    setOpenIndexes(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  }, []);
 
   const faqs = useMemo(() => allFaqs, [allFaqs]);
 
