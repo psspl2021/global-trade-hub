@@ -623,6 +623,21 @@ export default function DemandAuthorityPage() {
 
   const canonicalUrl = `https://www.procuresaathi.com/demand/${product.slug}`;
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": `${product.name} Procurement via Reverse Auction`,
+    "description": product.metaDescription,
+    "url": canonicalUrl,
+    "provider": {
+      "@type": "Organization",
+      "name": "ProcureSaathi",
+      "url": "https://www.procuresaathi.com"
+    },
+    "areaServed": product.country,
+    "serviceType": "B2B Industrial Procurement"
+  };
+
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
