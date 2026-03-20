@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function DemandPage() {
@@ -18,9 +19,6 @@ export default function DemandPage() {
 
       setLoading(true);
       setError(null);
-
-      console.log("SUPABASE URL:", (supabase as any).supabaseUrl);
-      console.log("Slug:", slug);
 
       const { data, error } = await supabase
         .from("demand_intelligence_signals")
@@ -51,28 +49,39 @@ export default function DemandPage() {
     );
   }
 
-  if (error) {
+  if (error || !signal) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-2">404</h1>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <Link to="/explore" className="text-primary hover:underline">
-            Back to Demand
-          </Link>
+      <>
+        <Helmet>
+          <meta name="robots" content="noindex, follow" />
+          <title>Demand Signal Not Found | ProcureSaathi</title>
+        </Helmet>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-foreground mb-2">404</h1>
+            <p className="text-muted-foreground mb-4">{error || "Demand signal not found."}</p>
+            <Link to="/demand" className="text-primary hover:underline">
+              Back to Demand Intelligence
+            </Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background p-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-foreground mb-4">{signal.category}</h1>
-        <p className="text-muted-foreground">Country: {signal.country}</p>
-        <p className="text-muted-foreground">Intent Score: {signal.intent_score}</p>
-        <p className="text-muted-foreground">Discovered: {signal.discovered_at}</p>
-      </div>
-    </main>
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
+      <main className="min-h-screen bg-background p-8">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-3xl font-bold text-foreground mb-4">{signal.category}</h1>
+          <p className="text-muted-foreground">Country: {signal.country}</p>
+          <p className="text-muted-foreground">Intent Score: {signal.intent_score}</p>
+          <p className="text-muted-foreground">Discovered: {signal.discovered_at}</p>
+        </div>
+      </main>
+    </>
   );
 }

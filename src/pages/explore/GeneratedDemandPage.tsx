@@ -110,6 +110,21 @@ export default function GeneratedDemandPage() {
     }
   };
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": `${product.name} Procurement via Reverse Auction`,
+    "description": `Source ${product.name} in India with verified suppliers and managed procurement.`,
+    "url": canonicalUrl,
+    "provider": {
+      "@type": "Organization",
+      "name": "ProcureSaathi",
+      "url": "https://www.procuresaathi.com"
+    },
+    "areaServed": "India",
+    "serviceType": "B2B Industrial Procurement"
+  };
+
   // All FAQs combined for schema
   const allFaqs = [
     {
@@ -153,7 +168,7 @@ export default function GeneratedDemandPage() {
         <meta property="og:type" content="product" />
       </Helmet>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, faqSchema]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, serviceSchema, faqSchema]) }} />
 
       <main className="min-h-screen bg-background">
         {/* ─── HERO ──────────────────────────────────────────── */}

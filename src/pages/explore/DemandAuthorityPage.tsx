@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { getProductBySlug, getIndustryBreadcrumb, type IndustrialProduct } from '@/data/industrialProducts';
+import { getProductBySlug, getIndustryBreadcrumb, industrialProducts, type IndustrialProduct } from '@/data/industrialProducts';
 import { getDemandProductBySlug } from '@/data/demandProducts';
 import GeneratedDemandPage from '@/pages/explore/GeneratedDemandPage';
 import { Button } from '@/components/ui/button';
@@ -525,6 +525,12 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
 }
 
 function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
+  // Cross-category top demand pages for internal linking beyond same-category
+  const crossCategoryLinks = industrialProducts
+    .filter(p => p.isActivated && p.industrySlug !== product.industrySlug && p.slug !== product.slug)
+    .sort((a, b) => b.demandIntelligence.intentScore - a.demandIntelligence.intentScore)
+    .slice(0, 6);
+
   return (
     <section className="py-12 bg-background">
       <div className="container mx-auto px-4">
@@ -542,6 +548,26 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
               );
             })}
           </div>
+
+          {/* Cross-category internal links for authority flow */}
+          {crossCategoryLinks.length > 0 && (
+            <div className="mt-10">
+              <h2 className="text-xl font-bold text-foreground mb-4">Explore Other Procurement Categories</h2>
+              <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 list-none p-0 m-0">
+                {crossCategoryLinks.map(p => (
+                  <li key={p.slug}>
+                    <Link
+                      to={`/demand/${p.slug}`}
+                      className="flex items-center gap-2 p-3 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors text-sm"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="font-medium text-foreground">{p.name} Suppliers</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -623,6 +649,21 @@ export default function DemandAuthorityPage() {
 
   const canonicalUrl = `https://www.procuresaathi.com/demand/${product.slug}`;
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": `${product.name} Procurement via Reverse Auction`,
+    "description": product.metaDescription,
+    "url": canonicalUrl,
+    "provider": {
+      "@type": "Organization",
+      "name": "ProcureSaathi",
+      "url": "https://www.procuresaathi.com"
+    },
+    "areaServed": product.country,
+    "serviceType": "B2B Industrial Procurement"
+  };
+
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -691,6 +732,7 @@ export default function DemandAuthorityPage() {
         <meta property="og:type" content="product" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(relatedProductsSchema)}</script>
       </Helmet>
       
