@@ -15,6 +15,8 @@ import { useState } from 'react';
 import GSCQueryInjection from '@/components/seo/GSCQueryInjection';
 import RevenueWeightedLinksLive from '@/components/seo/RevenueWeightedLinksLive';
 import DemandIntelligenceTable from '@/components/seo/DemandIntelligenceTable';
+import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
+import CommercialCTA from '@/components/seo/CommercialCTA';
 
 function BreadcrumbNav({ product }: { product: DemandProduct }) {
   const breadcrumbSchema = {
@@ -519,16 +521,20 @@ export default function GeneratedDemandPage() {
                 </div>
               </section>
 
-              {/* ─── RFQ CTA ─────────────────────────────────────── */}
-              <section className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-8 text-center">
-                <h2 className="text-2xl font-bold text-foreground mb-3">Get Verified Supplier Quotes for {product.name}</h2>
-                <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                  Submit your {product.name} requirement and receive competitive quotes from AI-verified suppliers within 24 hours. Managed procurement with quality assurance and logistics coordination.
-                </p>
-                <Button size="lg" onClick={() => setRfqOpen(true)} className="gap-2 text-lg px-8 py-6">
-                  Submit RFQ Now <ArrowRight className="h-5 w-5" />
-                </Button>
-              </section>
+              {/* ─── INTENT KEYWORD LAYER ────────────────────────── */}
+              <IntentKeywordSection
+                productName={product.name}
+                slug={product.slug}
+                priceRange={product.priceRange}
+                recentRFQs={content.demandSignals.recentRfqs}
+              />
+
+              {/* ─── COMMERCIAL CTA + FRESHNESS ──────────────────── */}
+              <CommercialCTA
+                productName={product.name}
+                recentRFQs={content.demandSignals.recentRfqs}
+                onOpenRFQ={() => setRfqOpen(true)}
+              />
 
               {/* ─── FAQ SECTION (7 FAQs) ────────────────────────── */}
               <section>
