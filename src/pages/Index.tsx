@@ -676,6 +676,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* ===== TRENDING PROCUREMENT CATEGORIES (CRAWL BOOST) ===== */}
+      <TrendingProcurementCategories />
+
       {/* ===== SECTION 10: DEMAND LINKS + GLOBAL CORRIDORS + FOOTER ===== */}
       <HomeDemandLinks />
       <GlobalProcurementCorridors />
