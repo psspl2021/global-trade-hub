@@ -67,6 +67,7 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
             )}
           </div>
         ))}
+      </div>
       <p className="text-xs text-muted-foreground/70 mt-6">
         Also searched: {productName} suppliers near me, bulk {productName} price,{' '}
         {productName} manufacturers India, {productName} wholesale rate,{' '}
