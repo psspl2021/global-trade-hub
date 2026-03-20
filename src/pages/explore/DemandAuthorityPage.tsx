@@ -1,4 +1,6 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
+import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
+import CommercialCTA from '@/components/seo/CommercialCTA';
 import { Helmet } from 'react-helmet-async';
 import { getProductBySlug, getIndustryBreadcrumb, industrialProducts, type IndustrialProduct } from '@/data/industrialProducts';
 import { getDemandProductBySlug } from '@/data/demandProducts';
