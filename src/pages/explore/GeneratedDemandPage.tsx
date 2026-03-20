@@ -151,13 +151,16 @@ export default function GeneratedDemandPage() {
     ...content.extraFaqs,
   ];
 
+  // Strip HTML from answers for schema (plain text only)
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '');
+
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": allFaqs.map(f => ({
       "@type": "Question",
       "name": f.question,
-      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+      "acceptedAnswer": { "@type": "Answer", "text": stripHtml(f.answer) }
     }))
   };
 
