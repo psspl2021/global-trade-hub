@@ -52,7 +52,7 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
       </div>
       <div className="divide-y divide-border">
         {allFaqs.map((faq, i) => (
-          <div key={i} className="py-4">
+          <div id={`faq-${i}`} key={i} className="py-4">
             <button
               onClick={() => toggle(i)}
               className="font-semibold text-foreground cursor-pointer flex items-center justify-between gap-4 w-full text-left"
