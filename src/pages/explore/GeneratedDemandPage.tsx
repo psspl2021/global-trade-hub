@@ -40,32 +40,33 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const toggle = (i: number) => {
-    setOpenIndexes(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
-  };
+  const faqs = useMemo(() => allFaqs, [allFaqs]);
 
   return (
-    <section>
+    <section itemScope itemType="https://schema.org/FAQPage">
       <div className="flex items-center gap-3 mb-6">
         <HelpCircle className="h-6 w-6 text-primary" />
         <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
       </div>
       <div className="divide-y divide-border">
-        {allFaqs.map((faq, i) => (
+        {faqs.map((faq, i) => (
           <div id={`faq-${i}`} key={i} className="py-4">
             <button
               onClick={() => toggle(i)}
+              aria-expanded={openIndexes.includes(i)}
+              aria-controls={`faq-content-${i}`}
               className="font-semibold text-foreground cursor-pointer flex items-center justify-between gap-4 w-full text-left"
             >
               <h3 className="text-left">{faq.question}</h3>
               <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${openIndexes.includes(i) ? 'rotate-90' : ''}`} />
             </button>
             {openIndexes.includes(i) && (
-              <p className="text-muted-foreground mt-3 leading-relaxed">{renderSafeAnswer(faq.answer)}</p>
+              <div id={`faq-content-${i}`} role="region" className="text-muted-foreground mt-3 leading-relaxed">
+                {renderSafeAnswer(faq.answer)}
+              </div>
             )}
           </div>
         ))}
-      </div>
       <p className="text-xs text-muted-foreground/70 mt-6">
         Also searched: {productName} suppliers near me, bulk {productName} price,{' '}
         {productName} manufacturers India, {productName} wholesale rate,{' '}
