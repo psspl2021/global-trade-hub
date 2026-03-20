@@ -27,6 +27,7 @@ import { Footer } from '@/components/landing/Footer';
 import { GlobalProcurementCorridors } from '@/components/GlobalProcurementCorridors';
 import HighDemandSection from '@/components/landing/HighDemandSection';
 import HomeDemandLinks from '@/components/HomeDemandLinks';
+import TrendingProcurementCategories from '@/components/TrendingProcurementCategories';
 
 // Lazy load below-the-fold components
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -675,6 +676,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* ===== TRENDING PROCUREMENT CATEGORIES (CRAWL BOOST) ===== */}
+      <TrendingProcurementCategories />
 
       {/* ===== SECTION 10: DEMAND LINKS + GLOBAL CORRIDORS + FOOTER ===== */}
       <HomeDemandLinks />
