@@ -157,7 +157,7 @@ export default function GeneratedDemandPage() {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": allFaqs.map(f => ({
+    "mainEntity": allFaqs.slice(0, 5).map(f => ({
       "@type": "Question",
       "name": f.question,
       "acceptedAnswer": { "@type": "Answer", "text": stripHtml(f.answer) }
