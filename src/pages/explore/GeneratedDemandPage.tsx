@@ -22,8 +22,13 @@ import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
 import BreadcrumbHierarchy from '@/components/seo/BreadcrumbHierarchy';
 
 function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: string; answer: string }>; productName: string }) {
-  const isFromGoogle = typeof document !== "undefined" && document.referrer.includes("google");
-  const [openIndexes, setOpenIndexes] = useState<number[]>(isFromGoogle ? [0, 1] : [0]);
+  const [openIndexes, setOpenIndexes] = useState<number[]>([0]);
+
+  useEffect(() => {
+    if (typeof document !== "undefined" && document.referrer.includes("google")) {
+      setOpenIndexes([0, 1]);
+    }
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -47,7 +52,7 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
       </div>
       <div className="divide-y divide-border">
         {allFaqs.map((faq, i) => (
-          <div key={i} className="py-4">
+          <div id={`faq-${i}`} key={i} className="py-4">
             <button
               onClick={() => toggle(i)}
               className="font-semibold text-foreground cursor-pointer flex items-center justify-between gap-4 w-full text-left"
