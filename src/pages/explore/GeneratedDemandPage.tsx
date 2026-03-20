@@ -133,11 +133,11 @@ export default function GeneratedDemandPage() {
   const allFaqs = [
     {
       question: `What is the price of ${product.name} in India?`,
-      answer: `${product.name} prices in India typically range around ${product.priceRange} depending on grade, quantity, and source.`
+      answer: `${product.name} prices in India typically range around ${product.priceRange} depending on grade, quantity, and source. Check real-time pricing on our <a href="${canonicalUrl}">${product.name} procurement page</a>.`
     },
     {
       question: `Which industries procure ${product.name}?`,
-      answer: `${product.name} is primarily procured by ${product.industries.join(', ')} industries in India.`
+      answer: `${product.name} is primarily procured by ${product.industries.join(', ')} industries in India. Explore more categories on our <a href="/demand">procurement directory</a>.`
     },
     {
       question: `What are the key grades of ${product.name}?`,
@@ -145,7 +145,7 @@ export default function GeneratedDemandPage() {
     },
     {
       question: `How to source ${product.name} with verified suppliers?`,
-      answer: `ProcureSaathi connects industrial buyers with AI-verified ${product.name} suppliers through managed procurement, sealed bidding, and quality-assured sourcing with complete documentation.`
+      answer: `ProcureSaathi connects industrial buyers with AI-verified ${product.name} suppliers through managed procurement, sealed bidding, and quality-assured sourcing. <a href="/buyer">Start a reverse auction</a> to get competitive quotes.`
     },
     ...content.extraFaqs,
   ];
