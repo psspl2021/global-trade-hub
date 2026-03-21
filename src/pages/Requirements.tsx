@@ -114,7 +114,7 @@ const Requirements = () => {
   const handleShare = (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => {
     e.stopPropagation();
     const baseUrl = window.location.origin;
-    const shareUrl = `${baseUrl}/requirements?rfq=${req.id}`;
+    const shareUrl = `${baseUrl}/rfq/${req.id}`;
     const shareText = `Check out this RFQ: ${req.title} - ${req.quantity} ${req.unit} | ${req.product_category} | Deadline: ${format(new Date(req.deadline), 'PP')}`;
 
     switch (platform) {
@@ -497,7 +497,7 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: Require
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-base font-medium line-clamp-2 group-hover:text-primary transition-colors">
-              <a href={`/requirements#rfq-${requirement.id}`} title={`${requirement.title} - RFQ India | ProcureSaathi`} className="hover:underline">
+              <a href={`/rfq/${requirement.id}`} title={`${requirement.title} - RFQ India | ProcureSaathi`} className="hover:underline">
                 {requirement.title}
               </a>
             </h3>

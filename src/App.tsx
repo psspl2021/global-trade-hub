@@ -35,6 +35,7 @@ const GlobalSourcingPage = lazy(() => import("./pages/GlobalSourcingPage"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Requirements = lazy(() => import("./pages/Requirements"));
+const RFQDetail = lazy(() => import("./pages/RFQDetail"));
 const PostRFQ = lazy(() => import("./pages/PostRFQ"));
 const Seller = lazy(() => import("./pages/Seller"));
 const Buyer = lazy(() => import("./pages/Buyer"));
@@ -200,6 +201,7 @@ const BotAwareRouter = () => {
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/blogs/:slug" element={<BlogPost />} />
         <Route path="/requirements" element={<Requirements />} />
+        <Route path="/rfq/:id" element={<RFQDetail />} />
         <Route path="/post-rfq" element={<PostRFQ />} />
         <Route path="/seller" element={<Seller />} />
         <Route path="/buyer" element={<Buyer />} />
