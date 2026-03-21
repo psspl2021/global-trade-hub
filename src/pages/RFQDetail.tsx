@@ -40,6 +40,10 @@ const RFQDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
     if (!id) return;
     const fetchRFQ = async () => {
       setLoading(true);
@@ -52,7 +56,6 @@ const RFQDetail = () => {
       if (!error && data) {
         setRfq(data as unknown as RFQData);
 
-        // Fetch related RFQs in same category
         const { data: related } = await supabase
           .from('requirements')
           .select('id, title, product_category, quantity, unit, delivery_location, deadline, status, created_at')
@@ -80,6 +83,9 @@ const RFQDetail = () => {
   const isExpired = rfq ? (rfq.status === 'expired' || new Date(rfq.deadline) < new Date()) : false;
   const isAwarded = rfq?.status === 'awarded';
   const canBid = rfq?.status === 'active' && !isExpired;
+  const daysLeft = rfq
+    ? Math.max(0, Math.ceil((new Date(rfq.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 0;
 
   const getCategorySlug = (cat: string) =>
     cat?.toLowerCase().replace(/[\s&]+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -195,10 +201,15 @@ const RFQDetail = () => {
             )}
           </div>
 
-          {/* Urgency */}
+          {/* Urgency — countdown + FOMO */}
           {canBid && (
-            <p className="text-xs text-destructive font-medium mb-4">
-              ⚡ High demand RFQ — suppliers already viewing this requirement
+            <p className="text-sm text-destructive font-semibold mb-1">
+              ⏳ {daysLeft} day{daysLeft !== 1 ? 's' : ''} left to submit quotation
+            </p>
+          )}
+          {canBid && (
+            <p className="text-xs text-warning font-medium mb-4">
+              🔥 Suppliers already viewing this RFQ today
             </p>
           )}
 
@@ -380,6 +391,17 @@ const RFQDetail = () => {
               <Link to="/signup?role=supplier">Join & Quote Now <ArrowRight className="ml-1 h-4 w-4" /></Link>
             </Button>
           )}
+        </div>
+      )}
+
+      {/* ===== STICKY DESKTOP CTA ===== */}
+      {canBid && (
+        <div className="hidden md:block fixed right-6 bottom-6 z-40">
+          <Button size="lg" asChild>
+            <Link to={user ? "/dashboard" : "/signup?role=supplier"}>
+              🚀 Submit Quote
+            </Link>
+          </Button>
         </div>
       )}
 
