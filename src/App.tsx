@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo } from "react";
+import { Suspense, lazy, useEffect, useMemo } from "react";
 import { useSEOHead } from "@/hooks/useSEOHead";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -157,6 +157,26 @@ const PageLoader = () => (
 );
 
 const queryClient = new QueryClient();
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, [pathname]);
+
+  return null;
+};
 
 // Bot-aware router component that serves static content to crawlers
 const BotAwareRouter = () => {
@@ -333,6 +353,7 @@ const App = () => (
           <GlobalSEOTools />
           <GlobalSEO />
           <BrowserRouter>
+            <ScrollToTop />
             <LayoutGate>
               <GlobalDemandTracker />
               <VisitorTracker />
