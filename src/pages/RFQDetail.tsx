@@ -40,6 +40,10 @@ const RFQDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
     if (!id) return;
     const fetchRFQ = async () => {
       setLoading(true);
@@ -52,7 +56,6 @@ const RFQDetail = () => {
       if (!error && data) {
         setRfq(data as unknown as RFQData);
 
-        // Fetch related RFQs in same category
         const { data: related } = await supabase
           .from('requirements')
           .select('id, title, product_category, quantity, unit, delivery_location, deadline, status, created_at')
