@@ -496,10 +496,11 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: Require
       <Card className={`h-full hover:shadow-lg transition-shadow group ${!canBid ? 'opacity-75' : ''}`}>
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
-              <a href={`/requirements#rfq-${requirement.id}`} title={`${requirement.title} RFQ India`} className="hover:underline">
+            <h3 className="text-base font-medium line-clamp-2 group-hover:text-primary transition-colors">
+              <a href={`/requirements#rfq-${requirement.id}`} title={`${requirement.title} - RFQ India | ProcureSaathi`} className="hover:underline">
                 {requirement.title}
               </a>
+            </h3>
             </CardTitle>
             <div className="flex items-center gap-1 shrink-0">
               <DropdownMenu>
