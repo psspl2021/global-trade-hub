@@ -134,12 +134,12 @@ const Requirements = () => {
   };
 
   useSEO({
-    title: 'Live RFQs & Buyer Requirements | B2B Procurement - ProcureSaathi',
-    description: 'Browse 40+ active RFQs and buyer requirements for industrial materials, chemicals, steel, polymers, and more. Submit competitive bids on ProcureSaathi B2B marketplace.',
-    canonical: 'https://procuresaathi.com/requirements',
+    title: 'Live Industrial RFQs & Buyer Requirements in India | ProcureSaathi',
+    description: 'Explore verified buyer requirements for steel, pipes, aluminium, polymers, and industrial raw materials. Suppliers can view live RFQs, submit quotations, and win business through competitive bidding.',
+    canonical: 'https://www.procuresaathi.com/requirements',
     keywords: 'RFQ, buyer requirements, B2B procurement, industrial materials, steel requirements, chemical requirements, supplier bidding, tender, quotation request, live tenders India',
     ogType: 'website',
-    ogImage: 'https://procuresaathi.com/og-early-adopter.png',
+    ogImage: 'https://www.procuresaathi.com/og-early-adopter.png',
   });
 
   useEffect(() => {
