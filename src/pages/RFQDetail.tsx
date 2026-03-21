@@ -151,7 +151,7 @@ const RFQDetail = () => {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }} />
 
-      <PageHeader title={rfq.title} subtitle={`${rfq.product_category} • ${rfq.delivery_location}`} />
+      <PageHeader />
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
