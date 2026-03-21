@@ -501,7 +501,7 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: Require
                 {requirement.title}
               </a>
             </h3>
-            </CardTitle>
+            
             <div className="flex items-center gap-1 shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
