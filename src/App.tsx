@@ -168,10 +168,11 @@ const ScrollToTop = () => {
   }, []);
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
+    // Double-rAF ensures scroll fires after LayoutGate content paints
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+      });
     });
   }, [pathname]);
 
