@@ -38,6 +38,8 @@ const RFQDetail = () => {
   const [rfq, setRfq] = useState<RFQData | null>(null);
   const [relatedRfqs, setRelatedRfqs] = useState<RFQData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [daysLeft, setDaysLeft] = useState(0);
+  const [viewCount, setViewCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
