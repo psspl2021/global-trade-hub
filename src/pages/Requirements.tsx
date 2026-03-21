@@ -405,6 +405,47 @@ const Requirements = () => {
           )}
         </section>
 
+        {/* Popular searches — keyword targeting */}
+        <section className="mt-8 text-sm text-muted-foreground">
+          <p>
+            Popular searches: steel RFQ India, MS plate buyers, HR coil requirements, 
+            industrial procurement tenders, bulk raw material buyers, B2B RFQ marketplace India
+          </p>
+        </section>
+
+        {/* How suppliers win orders — static SEO content */}
+        <section className="mt-10 space-y-4">
+          <h2 className="text-xl font-semibold text-foreground">
+            How Suppliers Can Win Orders on ProcureSaathi
+          </h2>
+          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
+            <li>Browse live buyer requirements across industries</li>
+            <li>Submit competitive quotations instantly</li>
+            <li>Participate in reverse auctions for the best price</li>
+            <li>Get verified buyer access — no spam leads</li>
+          </ul>
+        </section>
+
+        {/* Category landing links — internal link equity */}
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-foreground mb-3">
+            Explore RFQs by Category
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+            <a href="/demand/hr-coil" className="text-primary hover:underline">HR Coil Requirements</a>
+            <a href="/demand/ms-pipe" className="text-primary hover:underline">MS Pipe Buyers</a>
+            <a href="/demand/tmt-bars" className="text-primary hover:underline">TMT Bars RFQs</a>
+            <a href="/demand/aluminium-ingots" className="text-primary hover:underline">Aluminium Ingots</a>
+            <a href="/demand/hdpe-granules" className="text-primary hover:underline">HDPE Granules</a>
+            <a href="/demand/cr-coil" className="text-primary hover:underline">CR Coil Requirements</a>
+          </div>
+        </section>
+
+        {/* Freshness signal */}
+        <p className="text-xs text-muted-foreground mt-6">
+          Updated daily with live RFQs and supplier activity • {statusCounts.active}+ active requirements
+        </p>
+
         {/* CTA for guests */}
         {!user && filteredRequirements.length > 0 && (
           <section className="mt-12 p-8 bg-primary/10 rounded-lg text-center" aria-labelledby="cta-heading">
