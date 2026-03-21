@@ -455,6 +455,9 @@ const Requirements = () => {
         <p className="text-xs text-muted-foreground mt-6">
           Updated daily with live RFQs and supplier activity • {statusCounts.active}+ active requirements
         </p>
+        <p className="text-xs text-muted-foreground mt-2">
+          ⚡ New requirements are added daily — early suppliers get higher chances of winning bids
+        </p>
 
         {/* CTA for guests */}
         {!user && filteredRequirements.length > 0 && (
