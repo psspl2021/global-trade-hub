@@ -216,7 +216,7 @@ const RFQDetail = () => {
           )}
           {canBid && (
             <p className="text-xs text-warning font-medium mb-4">
-              🔥 Suppliers already viewing this RFQ today
+              🔥 {viewCount}+ suppliers already viewed this RFQ today
             </p>
           )}
 
