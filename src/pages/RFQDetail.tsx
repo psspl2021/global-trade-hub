@@ -83,6 +83,9 @@ const RFQDetail = () => {
   const isExpired = rfq ? (rfq.status === 'expired' || new Date(rfq.deadline) < new Date()) : false;
   const isAwarded = rfq?.status === 'awarded';
   const canBid = rfq?.status === 'active' && !isExpired;
+  const daysLeft = rfq
+    ? Math.max(0, Math.ceil((new Date(rfq.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 0;
 
   const getCategorySlug = (cat: string) =>
     cat?.toLowerCase().replace(/[\s&]+/g, '-').replace(/[^a-z0-9-]/g, '');
