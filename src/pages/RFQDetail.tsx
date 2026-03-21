@@ -42,10 +42,6 @@ const RFQDetail = () => {
   const [viewCount, setViewCount] = useState(0);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [id]);
-
-  useEffect(() => {
     if (!id) return;
     const fetchRFQ = async () => {
       setLoading(true);
