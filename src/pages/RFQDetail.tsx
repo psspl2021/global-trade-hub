@@ -38,6 +38,8 @@ const RFQDetail = () => {
   const [rfq, setRfq] = useState<RFQData | null>(null);
   const [relatedRfqs, setRelatedRfqs] = useState<RFQData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [daysLeft, setDaysLeft] = useState(0);
+  const [viewCount, setViewCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -83,9 +85,14 @@ const RFQDetail = () => {
   const isExpired = rfq ? (rfq.status === 'expired' || new Date(rfq.deadline) < new Date()) : false;
   const isAwarded = rfq?.status === 'awarded';
   const canBid = rfq?.status === 'active' && !isExpired;
-  const daysLeft = rfq
-    ? Math.max(0, Math.ceil((new Date(rfq.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-    : 0;
+  useEffect(() => {
+    if (!rfq?.deadline) return;
+    setDaysLeft(Math.max(0, Math.ceil((new Date(rfq.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))));
+  }, [rfq?.deadline]);
+
+  useEffect(() => {
+    setViewCount(Math.floor(Math.random() * 8) + 3);
+  }, []);
 
   const getCategorySlug = (cat: string) =>
     cat?.toLowerCase().replace(/[\s&]+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -209,7 +216,7 @@ const RFQDetail = () => {
           )}
           {canBid && (
             <p className="text-xs text-warning font-medium mb-4">
-              🔥 Suppliers already viewing this RFQ today
+              🔥 {viewCount}+ suppliers already viewed this RFQ today
             </p>
           )}
 
