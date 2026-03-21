@@ -153,80 +153,114 @@ const RFQDetail = () => {
 
       <PageHeader />
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-6">
-          <ol className="flex items-center gap-1 flex-wrap">
-            <li><Link to="/" className="hover:underline">Home</Link></li>
-            <li>/</li>
-            <li><Link to="/requirements" className="hover:underline">Live RFQs</Link></li>
-            <li>/</li>
-            <li className="text-foreground font-medium truncate max-w-[200px]">{rfq.title}</li>
-          </ol>
-        </nav>
+      {/* ===== CONVERSION HERO (Above the fold) ===== */}
+      <section className="bg-gradient-to-b from-background to-muted border-b">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground mb-3">
+            <ol className="flex items-center gap-1 flex-wrap">
+              <li><Link to="/" className="hover:underline">Home</Link></li>
+              <li>/</li>
+              <li><Link to="/requirements" className="hover:underline">Live RFQs</Link></li>
+              <li>/</li>
+              <li className="text-foreground font-medium truncate max-w-[200px]">{rfq.title}</li>
+            </ol>
+          </nav>
 
-        {/* H1 */}
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
-          {rfq.title}
-        </h1>
+          {/* H1 */}
+          <h1 className="text-xl md:text-2xl font-bold mb-2 text-foreground">
+            {rfq.title}
+          </h1>
 
-        {/* Status badges */}
-        <div className="flex gap-2 flex-wrap mb-6">
-          <Badge variant={canBid ? 'default' : isExpired ? 'destructive' : 'secondary'}>
-            {canBid ? 'Active' : isAwarded ? 'Awarded' : 'Expired'}
-          </Badge>
-          <Badge variant="outline">{rfq.product_category}</Badge>
-          {rfq.trade_type && (
-            <Badge variant="outline">
-              {rfq.trade_type === 'import' ? 'Import' : rfq.trade_type === 'export' ? 'Export' : 'Domestic India'}
+          {/* Key Info — instant value signals */}
+          <div className="flex flex-wrap gap-3 md:gap-4 text-sm text-muted-foreground mb-3">
+            <span className="flex items-center gap-1">
+              <FileText className="h-3.5 w-3.5" /> {Number(rfq.quantity).toFixed(0)} {rfq.unit}
+            </span>
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5" /> {rfq.delivery_location}
+            </span>
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5" /> Deadline: {format(new Date(rfq.deadline), 'MMM d, yyyy')}
+            </span>
+            {(rfq.budget_min || rfq.budget_max) && (
+              <span className="flex items-center gap-1">
+                <IndianRupee className="h-3.5 w-3.5" />
+                {rfq.budget_min && rfq.budget_max
+                  ? `₹${rfq.budget_min.toLocaleString()} – ₹${rfq.budget_max.toLocaleString()}`
+                  : rfq.budget_max
+                    ? `Up to ₹${rfq.budget_max.toLocaleString()}`
+                    : `From ₹${rfq.budget_min?.toLocaleString()}`}
+              </span>
+            )}
+          </div>
+
+          {/* Urgency */}
+          {canBid && (
+            <p className="text-xs text-destructive font-medium mb-4">
+              ⚡ High demand RFQ — suppliers already viewing this requirement
+            </p>
+          )}
+
+          {/* Status badges */}
+          <div className="flex gap-2 flex-wrap mb-4">
+            <Badge variant={canBid ? 'default' : isExpired ? 'destructive' : 'secondary'}>
+              {canBid ? 'Active' : isAwarded ? 'Awarded' : 'Expired'}
             </Badge>
+            <Badge variant="outline">{rfq.product_category}</Badge>
+            {rfq.trade_type && (
+              <Badge variant="outline">
+                {rfq.trade_type === 'import' ? 'Import' : rfq.trade_type === 'export' ? 'Export' : 'Domestic India'}
+              </Badge>
+            )}
+          </div>
+
+          {/* CTA */}
+          {canBid ? (
+            <div>
+              <div className="flex gap-3 flex-wrap">
+                {user ? (
+                  <Button size="lg" asChild>
+                    <Link to="/dashboard">
+                      Submit Quote Now <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button size="lg" asChild>
+                    <Link to="/signup?role=supplier">
+                      Join & Quote Now <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </Button>
+                )}
+                <Button variant="outline" size="lg" asChild>
+                  <Link to="/requirements">View All RFQs</Link>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                ✔ Verified buyer • ✔ No spam leads • ✔ Direct business opportunity
+              </p>
+            </div>
+          ) : (
+            <div className="text-muted-foreground">
+              <p className="font-medium">{isAwarded ? 'This requirement has been awarded.' : 'Bidding period has ended.'}</p>
+              <Button variant="outline" className="mt-3" asChild>
+                <Link to="/requirements">View Active RFQs</Link>
+              </Button>
+            </div>
           )}
         </div>
+      </section>
 
-        {/* RFQ Details Card */}
-        <Card className="mb-8">
-          <CardContent className="pt-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <span><strong>Quantity:</strong> {Number(rfq.quantity).toFixed(2)} {rfq.unit}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <span><strong>Delivery:</strong> {rfq.delivery_location}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <span>
-                  <strong>Deadline:</strong>{' '}
-                  <time dateTime={rfq.deadline}>{format(new Date(rfq.deadline), 'MMM d, yyyy')}</time>
-                </span>
-              </div>
-              {(rfq.budget_min || rfq.budget_max) && (
-                <div className="flex items-center gap-2">
-                  <IndianRupee className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  <span>
-                    <strong>Budget:</strong>{' '}
-                    {rfq.budget_min && rfq.budget_max
-                      ? `₹${rfq.budget_min.toLocaleString()} – ₹${rfq.budget_max.toLocaleString()}`
-                      : rfq.budget_max
-                        ? `Up to ₹${rfq.budget_max.toLocaleString()}`
-                        : `From ₹${rfq.budget_min?.toLocaleString()}`}
-                  </span>
-                </div>
-              )}
-              {rfq.buyer_profile?.company_name && (
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  <span><strong>Buyer:</strong> {maskCompanyName(rfq.buyer_profile.company_name)}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <span>Posted: <time dateTime={rfq.created_at}>{format(new Date(rfq.created_at), 'MMM d, yyyy')}</time></span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* ===== MAIN CONTENT ===== */}
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Buyer info */}
+        {rfq.buyer_profile?.company_name && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+            <Building2 className="h-4 w-4" />
+            <span><strong>Buyer:</strong> {maskCompanyName(rfq.buyer_profile.company_name)}</span>
+            <span className="ml-4">Posted: <time dateTime={rfq.created_at}>{format(new Date(rfq.created_at), 'MMM d, yyyy')}</time></span>
+          </div>
+        )}
 
         {/* Description */}
         <section className="mb-8">
@@ -244,41 +278,6 @@ const RFQDetail = () => {
             Suppliers can submit quotations, participate in reverse auctions, 
             and win bulk orders based on competitive pricing and delivery capability.
           </p>
-        </section>
-
-        {/* CTA */}
-        <section className="bg-muted rounded-xl p-6 mb-8">
-          {canBid ? (
-            <>
-              <h2 className="text-lg font-semibold mb-2">Submit Your Quotation</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                This is a verified buyer requirement. Register as a supplier to submit your competitive quote.
-              </p>
-              <p className="text-xs text-muted-foreground mb-4">
-                ⚡ Early suppliers get higher chances of winning bids — respond within 24 hours for priority consideration.
-              </p>
-              {user ? (
-                <Button asChild>
-                  <Link to="/dashboard">
-                    Go to Dashboard & Bid <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              ) : (
-                <Button asChild>
-                  <Link to="/signup?role=supplier">
-                    Join as Supplier & Quote Now <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              )}
-            </>
-          ) : (
-            <div className="text-center text-muted-foreground">
-              <p className="font-medium">{isAwarded ? 'This requirement has been awarded.' : 'Bidding period has ended.'}</p>
-              <Button variant="outline" className="mt-3" asChild>
-                <Link to="/requirements">View Active RFQs</Link>
-              </Button>
-            </div>
-          )}
         </section>
 
         {/* Internal link to category */}
@@ -368,6 +367,21 @@ const RFQDetail = () => {
           </Link>
         </div>
       </main>
+
+      {/* ===== STICKY MOBILE CTA ===== */}
+      {canBid && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-3 md:hidden z-40">
+          {user ? (
+            <Button className="w-full" size="lg" asChild>
+              <Link to="/dashboard">Submit Quote Now <ArrowRight className="ml-1 h-4 w-4" /></Link>
+            </Button>
+          ) : (
+            <Button className="w-full" size="lg" asChild>
+              <Link to="/signup?role=supplier">Join & Quote Now <ArrowRight className="ml-1 h-4 w-4" /></Link>
+            </Button>
+          )}
+        </div>
+      )}
 
       <Footer />
     </>
