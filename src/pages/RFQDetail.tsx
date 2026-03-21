@@ -87,7 +87,7 @@ const RFQDetail = () => {
   if (loading) {
     return (
       <>
-        <PageHeader title="Loading RFQ..." subtitle="" />
+        <PageHeader />
         <main className="max-w-4xl mx-auto px-4 py-12">
           <Skeleton className="h-8 w-3/4 mb-4" />
           <Skeleton className="h-4 w-1/2 mb-8" />
