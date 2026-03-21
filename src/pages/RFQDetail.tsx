@@ -394,6 +394,17 @@ const RFQDetail = () => {
         </div>
       )}
 
+      {/* ===== STICKY DESKTOP CTA ===== */}
+      {canBid && (
+        <div className="hidden md:block fixed right-6 bottom-6 z-40">
+          <Button size="lg" asChild>
+            <Link to={user ? "/dashboard" : "/signup?role=supplier"}>
+              🚀 Submit Quote
+            </Link>
+          </Button>
+        </div>
+      )}
+
       <Footer />
     </>
   );
