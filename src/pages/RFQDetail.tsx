@@ -333,6 +333,34 @@ const RFQDetail = () => {
           </section>
         )}
 
+        {/* FAQ section with schema */}
+        <section className="mt-10 mb-8">
+          <h2 className="text-lg font-semibold mb-3">FAQs</h2>
+          <div className="text-sm text-muted-foreground space-y-3">
+            <p><strong>How to quote for this RFQ?</strong><br />
+            Register as a supplier on ProcureSaathi and submit your quotation directly.</p>
+            <p><strong>Is this a verified requirement?</strong><br />
+            Yes, all RFQs are verified by our team before publishing.</p>
+            <p><strong>Who can apply?</strong><br />
+            Manufacturers, traders, and suppliers dealing in {rfq.product_category}.</p>
+          </div>
+        </section>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "How to quote for this RFQ?", "acceptedAnswer": { "@type": "Answer", "text": "Register as a supplier on ProcureSaathi and submit your quotation directly." } },
+            { "@type": "Question", "name": "Is this a verified requirement?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, all RFQs are verified by our team before publishing." } },
+            { "@type": "Question", "name": `Who can apply for ${rfq.product_category} RFQs?`, "acceptedAnswer": { "@type": "Answer", "text": `Manufacturers, traders, and suppliers dealing in ${rfq.product_category}.` } }
+          ]
+        }) }} />
+
+        {/* Long-tail keyword signals */}
+        <div className="text-xs text-muted-foreground mt-6 mb-8">
+          Also searched: {rfq.title} suppliers near me, {rfq.product_category} buyers India, 
+          bulk {rfq.product_category} RFQ, {rfq.product_category} procurement India
+        </div>
+
         {/* Back link */}
         <div className="pt-4 border-t">
           <Link to="/requirements" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
