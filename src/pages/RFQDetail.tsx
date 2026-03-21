@@ -7,12 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, MapPin, IndianRupee, Building2, FileText, ArrowRight, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
-import { useSEOHead } from '@/hooks/useSEOHead';
 import { useAuth } from '@/hooks/useAuth';
 import { maskCompanyName } from '@/lib/utils';
 import SEOHead from '@/components/SEOHead';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/landing/Footer';
+import { PageHeader } from '@/components/landing/PageHeader';
+import { Footer } from '@/components/landing/Footer';
 
 interface RFQData {
   id: string;
@@ -39,8 +38,6 @@ const RFQDetail = () => {
   const [rfq, setRfq] = useState<RFQData | null>(null);
   const [relatedRfqs, setRelatedRfqs] = useState<RFQData[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useSEOHead();
 
   useEffect(() => {
     if (!id) return;
@@ -90,7 +87,7 @@ const RFQDetail = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
+        <PageHeader title="Loading RFQ..." subtitle="" />
         <main className="max-w-4xl mx-auto px-4 py-12">
           <Skeleton className="h-8 w-3/4 mb-4" />
           <Skeleton className="h-4 w-1/2 mb-8" />
@@ -104,10 +101,8 @@ const RFQDetail = () => {
   if (!rfq) {
     return (
       <>
-        <Navbar />
+        <PageHeader title="RFQ Not Found" subtitle="This requirement may have been removed or does not exist." />
         <main className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-4">RFQ Not Found</h1>
-          <p className="text-muted-foreground mb-6">This requirement may have been removed or does not exist.</p>
           <Button asChild>
             <Link to="/requirements">View All Live RFQs</Link>
           </Button>
@@ -156,7 +151,7 @@ const RFQDetail = () => {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }} />
 
-      <Navbar />
+      <PageHeader title={rfq.title} subtitle={`${rfq.product_category} • ${rfq.delivery_location}`} />
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
