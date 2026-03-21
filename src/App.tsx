@@ -175,6 +175,7 @@ const ScrollToTop = () => {
     });
   }, [pathname]);
 
+
   return null;
 };
 
@@ -353,8 +354,8 @@ const App = () => (
           <GlobalSEOTools />
           <GlobalSEO />
           <BrowserRouter>
-            <ScrollToTop />
             <LayoutGate>
+              <ScrollToTop />
               <GlobalDemandTracker />
               <VisitorTracker />
               <SEMTracker />
