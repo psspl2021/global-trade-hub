@@ -91,8 +91,10 @@ const RFQDetail = () => {
   }, [rfq?.deadline]);
 
   useEffect(() => {
-    setViewCount(Math.floor(Math.random() * 8) + 3);
-  }, []);
+    if (!id) return;
+    const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    setViewCount((hash % 8) + 3);
+  }, [id]);
 
   const getCategorySlug = (cat: string) =>
     cat?.toLowerCase().replace(/[\s&]+/g, '-').replace(/[^a-z0-9-]/g, '');
