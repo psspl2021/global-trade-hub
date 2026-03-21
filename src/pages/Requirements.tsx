@@ -497,7 +497,7 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: Require
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-base font-medium line-clamp-2 group-hover:text-primary transition-colors">
-              <a href={`/requirements#rfq-${requirement.id}`} title={`${requirement.title} - RFQ India | ProcureSaathi`} className="hover:underline">
+              <a href={`/rfq/${requirement.id}`} title={`${requirement.title} - RFQ India | ProcureSaathi`} className="hover:underline">
                 {requirement.title}
               </a>
             </h3>
