@@ -134,12 +134,12 @@ const Requirements = () => {
   };
 
   useSEO({
-    title: 'Live RFQs & Buyer Requirements | B2B Procurement - ProcureSaathi',
-    description: 'Browse 40+ active RFQs and buyer requirements for industrial materials, chemicals, steel, polymers, and more. Submit competitive bids on ProcureSaathi B2B marketplace.',
-    canonical: 'https://procuresaathi.com/requirements',
+    title: 'Live Industrial RFQs & Buyer Requirements in India | ProcureSaathi',
+    description: 'Explore verified buyer requirements for steel, pipes, aluminium, polymers, and industrial raw materials. Suppliers can view live RFQs, submit quotations, and win business through competitive bidding.',
+    canonical: 'https://www.procuresaathi.com/requirements',
     keywords: 'RFQ, buyer requirements, B2B procurement, industrial materials, steel requirements, chemical requirements, supplier bidding, tender, quotation request, live tenders India',
     ogType: 'website',
-    ogImage: 'https://procuresaathi.com/og-early-adopter.png',
+    ogImage: 'https://www.procuresaathi.com/og-early-adopter.png',
   });
 
   useEffect(() => {
@@ -151,8 +151,8 @@ const Requirements = () => {
     if (requirements.length === 0) return;
 
     injectStructuredData(getBreadcrumbSchema([
-      { name: 'Home', url: 'https://procuresaathi.com' },
-      { name: 'Live Requirements', url: 'https://procuresaathi.com/requirements' }
+      { name: 'Home', url: 'https://www.procuresaathi.com' },
+      { name: 'Live Requirements', url: 'https://www.procuresaathi.com/requirements' }
     ]), 'breadcrumb-schema');
 
     // ItemList schema for requirements
@@ -257,10 +257,11 @@ const Requirements = () => {
           <nav className="flex justify-between items-start mb-6" aria-label="Requirements header">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-                Live RFQs & Requirements
+                Live Industrial RFQs & Buyer Requirements in India
               </h1>
               <p className="text-lg text-muted-foreground mt-4 max-w-2xl">
-                Browse active buyer requirements for industrial materials, chemicals, steel, polymers, and more. Submit competitive bids to win orders.
+                Explore verified buyer requirements for steel, pipes, aluminium, polymers, and industrial raw materials. 
+                Suppliers can view live RFQs, submit quotations, and win business through competitive bidding.
               </p>
             </div>
             <Link to="/" className="inline-block" aria-label="Go to ProcureSaathi homepage">
@@ -404,6 +405,47 @@ const Requirements = () => {
             </div>
           )}
         </section>
+
+        {/* Popular searches — keyword targeting */}
+        <section className="mt-8 text-sm text-muted-foreground">
+          <p>
+            Popular searches: steel RFQ India, MS plate buyers, HR coil requirements, 
+            industrial procurement tenders, bulk raw material buyers, B2B RFQ marketplace India
+          </p>
+        </section>
+
+        {/* How suppliers win orders — static SEO content */}
+        <section className="mt-10 space-y-4">
+          <h2 className="text-xl font-semibold text-foreground">
+            How Suppliers Can Win Orders on ProcureSaathi
+          </h2>
+          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
+            <li>Browse live buyer requirements across industries</li>
+            <li>Submit competitive quotations instantly</li>
+            <li>Participate in reverse auctions for the best price</li>
+            <li>Get verified buyer access — no spam leads</li>
+          </ul>
+        </section>
+
+        {/* Category landing links — internal link equity */}
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-foreground mb-3">
+            Explore RFQs by Category
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+            <a href="/demand/hr-coil" className="text-primary hover:underline">HR Coil Requirements</a>
+            <a href="/demand/ms-pipe" className="text-primary hover:underline">MS Pipe Buyers</a>
+            <a href="/demand/tmt-bars" className="text-primary hover:underline">TMT Bars RFQs</a>
+            <a href="/demand/aluminium-ingots" className="text-primary hover:underline">Aluminium Ingots</a>
+            <a href="/demand/hdpe-granules" className="text-primary hover:underline">HDPE Granules</a>
+            <a href="/demand/cr-coil" className="text-primary hover:underline">CR Coil Requirements</a>
+          </div>
+        </section>
+
+        {/* Freshness signal */}
+        <p className="text-xs text-muted-foreground mt-6">
+          Updated daily with live RFQs and supplier activity • {statusCounts.active}+ active requirements
+        </p>
 
         {/* CTA for guests */}
         {!user && filteredRequirements.length > 0 && (
