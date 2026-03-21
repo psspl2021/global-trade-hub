@@ -201,10 +201,15 @@ const RFQDetail = () => {
             )}
           </div>
 
-          {/* Urgency */}
+          {/* Urgency — countdown + FOMO */}
           {canBid && (
-            <p className="text-xs text-destructive font-medium mb-4">
-              ⚡ High demand RFQ — suppliers already viewing this requirement
+            <p className="text-sm text-destructive font-semibold mb-1">
+              ⏳ {daysLeft} day{daysLeft !== 1 ? 's' : ''} left to submit quotation
+            </p>
+          )}
+          {canBid && (
+            <p className="text-xs text-warning font-medium mb-4">
+              🔥 Suppliers already viewing this RFQ today
             </p>
           )}
 
