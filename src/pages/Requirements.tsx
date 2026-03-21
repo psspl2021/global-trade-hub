@@ -257,10 +257,11 @@ const Requirements = () => {
           <nav className="flex justify-between items-start mb-6" aria-label="Requirements header">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-                Live RFQs & Requirements
+                Live Industrial RFQs & Buyer Requirements in India
               </h1>
               <p className="text-lg text-muted-foreground mt-4 max-w-2xl">
-                Browse active buyer requirements for industrial materials, chemicals, steel, polymers, and more. Submit competitive bids to win orders.
+                Explore verified buyer requirements for steel, pipes, aluminium, polymers, and industrial raw materials. 
+                Suppliers can view live RFQs, submit quotations, and win business through competitive bidding.
               </p>
             </div>
             <Link to="/" className="inline-block" aria-label="Go to ProcureSaathi homepage">
