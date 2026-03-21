@@ -151,8 +151,8 @@ const Requirements = () => {
     if (requirements.length === 0) return;
 
     injectStructuredData(getBreadcrumbSchema([
-      { name: 'Home', url: 'https://procuresaathi.com' },
-      { name: 'Live Requirements', url: 'https://procuresaathi.com/requirements' }
+      { name: 'Home', url: 'https://www.procuresaathi.com' },
+      { name: 'Live Requirements', url: 'https://www.procuresaathi.com/requirements' }
     ]), 'breadcrumb-schema');
 
     // ItemList schema for requirements
