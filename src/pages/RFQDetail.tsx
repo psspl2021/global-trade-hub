@@ -96,14 +96,14 @@ const RFQDetail = () => {
   useEffect(() => {
     if (loading || !rfq || !contentRef.current) return;
 
-    const timeoutId = window.setTimeout(() => {
-      contentRef.current?.scrollIntoView({
-        behavior: 'auto',
-        block: 'start',
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        contentRef.current?.scrollIntoView({
+          behavior: 'auto',
+          block: 'start',
+        });
       });
-    }, 50);
-
-    return () => window.clearTimeout(timeoutId);
+    });
   }, [loading, rfq]);
 
   const getCategorySlug = (cat: string) =>
@@ -282,7 +282,7 @@ const RFQDetail = () => {
       </section>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main ref={contentRef} className="max-w-4xl mx-auto px-4 py-8">
+      <main ref={contentRef} className="max-w-4xl mx-auto px-4 py-8 min-h-[60vh]">
         {/* Buyer info */}
         {rfq.buyer_profile?.company_name && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
