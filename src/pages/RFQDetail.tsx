@@ -236,6 +236,16 @@ const RFQDetail = () => {
           </p>
         </section>
 
+        {/* SEO content depth block */}
+        <section className="mb-8 text-sm text-muted-foreground leading-relaxed">
+          <p>
+            This RFQ for {rfq.title} is part of ProcureSaathi's live procurement marketplace, 
+            where industrial buyers connect with verified suppliers across India. 
+            Suppliers can submit quotations, participate in reverse auctions, 
+            and win bulk orders based on competitive pricing and delivery capability.
+          </p>
+        </section>
+
         {/* CTA */}
         <section className="bg-muted rounded-xl p-6 mb-8">
           {canBid ? (
