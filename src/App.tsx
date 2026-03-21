@@ -35,6 +35,7 @@ const GlobalSourcingPage = lazy(() => import("./pages/GlobalSourcingPage"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Requirements = lazy(() => import("./pages/Requirements"));
+const RFQDetail = lazy(() => import("./pages/RFQDetail"));
 const PostRFQ = lazy(() => import("./pages/PostRFQ"));
 const Seller = lazy(() => import("./pages/Seller"));
 const Buyer = lazy(() => import("./pages/Buyer"));
