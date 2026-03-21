@@ -494,7 +494,9 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: Require
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
-              {requirement.title}
+              <a href={`/requirements?rfq=${requirement.id}`} className="hover:underline">
+                {requirement.title}
+              </a>
             </CardTitle>
             <div className="flex items-center gap-1 shrink-0">
               <DropdownMenu>
