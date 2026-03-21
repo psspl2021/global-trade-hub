@@ -101,7 +101,7 @@ const RFQDetail = () => {
   if (!rfq) {
     return (
       <>
-        <PageHeader title="RFQ Not Found" subtitle="This requirement may have been removed or does not exist." />
+        <PageHeader />
         <main className="max-w-4xl mx-auto px-4 py-12 text-center">
           <Button asChild>
             <Link to="/requirements">View All Live RFQs</Link>
