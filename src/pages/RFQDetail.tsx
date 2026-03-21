@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +40,7 @@ const RFQDetail = () => {
   const [loading, setLoading] = useState(true);
   const [daysLeft, setDaysLeft] = useState(0);
   const [viewCount, setViewCount] = useState(0);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -91,6 +92,19 @@ const RFQDetail = () => {
     const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
     setViewCount((hash % 8) + 3);
   }, [id]);
+
+  useEffect(() => {
+    if (loading || !rfq || !contentRef.current) return;
+
+    const timeoutId = window.setTimeout(() => {
+      contentRef.current?.scrollIntoView({
+        behavior: 'auto',
+        block: 'start',
+      });
+    }, 50);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loading, rfq]);
 
   const getCategorySlug = (cat: string) =>
     cat?.toLowerCase().replace(/[\s&]+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -268,7 +282,7 @@ const RFQDetail = () => {
       </section>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main ref={contentRef} className="max-w-4xl mx-auto px-4 py-8">
         {/* Buyer info */}
         {rfq.buyer_profile?.company_name && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
