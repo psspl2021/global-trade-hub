@@ -201,6 +201,7 @@ const BotAwareRouter = () => {
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/blogs/:slug" element={<BlogPost />} />
         <Route path="/requirements" element={<Requirements />} />
+        <Route path="/rfq/:id" element={<RFQDetail />} />
         <Route path="/post-rfq" element={<PostRFQ />} />
         <Route path="/seller" element={<Seller />} />
         <Route path="/buyer" element={<Buyer />} />
