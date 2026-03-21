@@ -114,7 +114,7 @@ const Requirements = () => {
   const handleShare = (e: React.MouseEvent, req: Requirement, platform: 'whatsapp' | 'linkedin' | 'copy') => {
     e.stopPropagation();
     const baseUrl = window.location.origin;
-    const shareUrl = `${baseUrl}/requirements?rfq=${req.id}`;
+    const shareUrl = `${baseUrl}/rfq/${req.id}`;
     const shareText = `Check out this RFQ: ${req.title} - ${req.quantity} ${req.unit} | ${req.product_category} | Deadline: ${format(new Date(req.deadline), 'PP')}`;
 
     switch (platform) {
