@@ -278,6 +278,15 @@ const Requirements = () => {
       </header>
 
       <div className="container mx-auto px-4 py-12">
+        {/* Static SEO intro — above filters for Google priority */}
+        <section className="mb-8">
+          <p className="text-sm text-muted-foreground">
+            ProcureSaathi is a live B2B procurement platform where suppliers can access real-time buyer requirements 
+            for steel, pipes, aluminium, polymers, and industrial raw materials across India. 
+            All RFQs are verified and updated daily to ensure genuine demand.
+          </p>
+        </section>
+
         {/* Search and Filters */}
         <nav className="flex flex-col md:flex-row gap-4 mb-8" aria-label="Requirements filters">
           <div className="relative flex-1 max-w-md">
@@ -446,6 +455,9 @@ const Requirements = () => {
         <p className="text-xs text-muted-foreground mt-6">
           Updated daily with live RFQs and supplier activity • {statusCounts.active}+ active requirements
         </p>
+        <p className="text-xs text-muted-foreground mt-2">
+          ⚡ New requirements are added daily — early suppliers get higher chances of winning bids
+        </p>
 
         {/* CTA for guests */}
         {!user && filteredRequirements.length > 0 && (
@@ -485,7 +497,9 @@ const RequirementCard = ({ requirement, isLoggedIn, onShare, copiedId }: Require
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
-              {requirement.title}
+              <a href={`/requirements?rfq=${requirement.id}`} className="hover:underline">
+                {requirement.title}
+              </a>
             </CardTitle>
             <div className="flex items-center gap-1 shrink-0">
               <DropdownMenu>
