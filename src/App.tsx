@@ -29,6 +29,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Categories = lazy(() => import("./pages/Categories"));
 const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
 const Browse = lazy(() => import("./pages/Browse"));
+const Terms = lazy(() => import("./pages/Terms"));
 const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
 const GlobalSourcingPage = lazy(() => import("./pages/GlobalSourcingPage"));
