@@ -2,8 +2,9 @@ import { useSEOHead } from '@/hooks/useSEOHead';
 
 const Terms = () => {
   useSEOHead({
-    title: 'Terms & Conditions | ProcureSaathi — B2B Procurement Platform',
-    description: 'Read the Terms & Conditions for using ProcureSaathi, India\'s trusted B2B procurement marketplace connecting verified buyers and suppliers.',
+    title: 'Terms & Conditions | ProcureSaathi',
+    description: 'Terms and conditions for using ProcureSaathi B2B procurement platform.',
+    noindex: true,
   });
 
   return (
