@@ -15,6 +15,7 @@ import { Shield, Power, Gift, Lock, Banknote } from 'lucide-react';
 import { AdminKillSwitch } from '@/components/governance';
 import { AdminIncentiveAudit } from '@/components/purchaser';
 import { AdminBillingManagement } from '@/components/admin/AdminBillingManagement';
+import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 import { AccessDenied } from '@/components/purchaser';
 import { GovernanceLegalArmor } from '@/components/governance/GovernanceLegalArmor';
