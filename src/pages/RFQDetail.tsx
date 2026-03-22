@@ -47,12 +47,22 @@ const RFQDetail = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('requirements')
-        .select('*, buyer_profile:profiles!requirements_buyer_id_fkey(company_name)')
+        .select('*')
         .eq('id', id)
         .single();
 
       if (!error && data) {
-        setRfq(data as unknown as RFQData);
+        // Try to fetch buyer profile separately if buyer_id exists
+        let buyerProfile = null;
+        if ((data as any).buyer_id) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('company_name')
+            .eq('id', (data as any).buyer_id)
+            .single();
+          if (profile) buyerProfile = profile;
+        }
+        setRfq({ ...data, buyer_profile: buyerProfile } as unknown as RFQData);
 
         const { data: related } = await supabase
           .from('requirements')
