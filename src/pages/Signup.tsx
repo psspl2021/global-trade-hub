@@ -98,6 +98,7 @@ const Signup = () => {
     logisticsPartnerType: '' as '' | 'agent' | 'fleet_owner',
     yardLocation: '',
     buyerIndustry: '',
+    companySize: '',
   });
 
   const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other'>('priyanka');
