@@ -276,6 +276,7 @@ const Signup = () => {
       subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
       email_notification_consent: emailNotificationConsent,
       country: detectedCountry,
+      company_size: formData.companySize || null,
     });
 
     setLoading(false);
