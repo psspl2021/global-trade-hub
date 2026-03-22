@@ -11,10 +11,11 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Power, Gift, Lock } from 'lucide-react';
+import { Shield, Power, Gift, Lock, Banknote } from 'lucide-react';
 import { AdminKillSwitch } from '@/components/governance';
 import { AdminIncentiveAudit } from '@/components/purchaser';
 import { AdminBillingManagement } from '@/components/admin/AdminBillingManagement';
+import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 import { AccessDenied } from '@/components/purchaser';
 import { GovernanceLegalArmor } from '@/components/governance/GovernanceLegalArmor';
@@ -76,7 +77,7 @@ export default function AdminAuditPage() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
             <TabsTrigger value="killswitch" className="gap-2">
               <Power className="w-4 h-4" />
               <span className="hidden sm:inline">Kill Switch</span>
@@ -88,6 +89,10 @@ export default function AdminAuditPage() {
             <TabsTrigger value="billing" className="gap-2">
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">Billing</span>
+            </TabsTrigger>
+            <TabsTrigger value="credit-leads" className="gap-2">
+              <Banknote className="w-4 h-4" />
+              <span className="hidden sm:inline">Credit Leads</span>
             </TabsTrigger>
           </TabsList>
 
@@ -101,6 +106,10 @@ export default function AdminAuditPage() {
 
           <TabsContent value="billing" className="space-y-6">
             <AdminBillingManagement />
+          </TabsContent>
+
+          <TabsContent value="credit-leads" className="space-y-6">
+            <CreditLeadsCard />
           </TabsContent>
         </Tabs>
 
