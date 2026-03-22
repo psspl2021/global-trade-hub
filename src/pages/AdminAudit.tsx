@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Power, Gift, Lock } from 'lucide-react';
+import { Shield, Power, Gift, Lock, Banknote } from 'lucide-react';
 import { AdminKillSwitch } from '@/components/governance';
 import { AdminIncentiveAudit } from '@/components/purchaser';
 import { AdminBillingManagement } from '@/components/admin/AdminBillingManagement';
