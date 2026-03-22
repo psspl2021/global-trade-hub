@@ -29,6 +29,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Categories = lazy(() => import("./pages/Categories"));
 const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
 const Browse = lazy(() => import("./pages/Browse"));
+const Terms = lazy(() => import("./pages/Terms"));
 const BookTruck = lazy(() => import("./pages/BookTruck"));
 const SourceCountry = lazy(() => import("./pages/SourceCountry"));
 const GlobalSourcingPage = lazy(() => import("./pages/GlobalSourcingPage"));
@@ -197,6 +198,7 @@ const BotAwareRouter = () => {
         <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryLanding />} />
         <Route path="/browseproducts" element={<Browse />} />
         <Route path="/browse" element={<Navigate to="/browseproducts" replace />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/book-truck" element={<BookTruck />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/blogs/:slug" element={<BlogPost />} />

@@ -544,17 +544,27 @@ const Browse = () => {
               <Card>
                 <CardContent className="p-12 text-center">
                   <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No products found</h3>
-                  <p className="text-muted-foreground mb-4">
-                    {subcategoryParam 
-                      ? `No products available in "${subcategoryParam}" yet.`
-                      : categoryParam 
-                        ? `No products available in "${categoryParam}" category yet.`
-                        : 'No products available yet.'}
+                  <h2 className="text-lg font-semibold mb-2">
+                    {categoryParam
+                      ? `No ${categoryParam} products available right now`
+                      : 'No products found for this search'}
+                  </h2>
+                  <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                    {categoryParam
+                      ? `We're onboarding verified ${categoryParam} suppliers across India. Meanwhile, explore active buyer requirements or browse other procurement categories.`
+                      : 'Try a different category or explore live RFQs from buyers across India.'}
                   </p>
-                  <Button variant="outline" onClick={() => navigate('/categories')}>
-                    Browse Other Categories
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button variant="default" onClick={() => navigate('/requirements')}>
+                      View Live RFQs →
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate('/categories')}>
+                      Browse Other Categories
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-6">
+                    ProcureSaathi connects 5,000+ verified Indian suppliers with global buyers for bulk procurement in steel, chemicals, textiles, polymers & more.
+                  </p>
                 </CardContent>
               </Card>
             ) : (
