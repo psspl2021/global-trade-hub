@@ -98,6 +98,7 @@ const Signup = () => {
     logisticsPartnerType: '' as '' | 'agent' | 'fleet_owner',
     yardLocation: '',
     buyerIndustry: '',
+    companySize: '',
   });
 
   const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other'>('priyanka');
@@ -275,6 +276,7 @@ const Signup = () => {
       subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
       email_notification_consent: emailNotificationConsent,
       country: detectedCountry,
+      company_size: formData.companySize || null,
     });
 
     setLoading(false);
@@ -552,6 +554,28 @@ const Signup = () => {
                       {errors.gstin && <p className="text-sm text-destructive">{errors.gstin}</p>}
                     </div>
                   </div>
+
+                  {/* Company Size - Optional for buyers and suppliers */}
+                  {(formData.role === 'buyer' || formData.role === 'supplier') && (
+                    <div className="space-y-2">
+                      <Label htmlFor="companySize">Company Size (Optional)</Label>
+                      <Select
+                        value={formData.companySize}
+                        onValueChange={(value) => setFormData({ ...formData, companySize: value })}
+                      >
+                        <SelectTrigger className="min-h-[44px]">
+                          <SelectValue placeholder="Select annual turnover range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0-1cr">₹0 – 1 Cr</SelectItem>
+                          <SelectItem value="1-10cr">₹1 – 10 Cr</SelectItem>
+                          <SelectItem value="10-50cr">₹10 – 50 Cr</SelectItem>
+                          <SelectItem value="50cr+">₹50 Cr+</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">Helps us match you with the right partners</p>
+                    </div>
+                  )}
 
                   {/* Yard Location for Suppliers */}
                   {formData.role === 'supplier' && (

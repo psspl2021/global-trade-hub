@@ -4855,6 +4855,7 @@ export type Database = {
           city: string | null
           company_logo_url: string | null
           company_name: string
+          company_size: string | null
           contact_person: string
           country: string | null
           created_at: string
@@ -4892,6 +4893,7 @@ export type Database = {
           city?: string | null
           company_logo_url?: string | null
           company_name: string
+          company_size?: string | null
           contact_person: string
           country?: string | null
           created_at?: string
@@ -4929,6 +4931,7 @@ export type Database = {
           city?: string | null
           company_logo_url?: string | null
           company_name?: string
+          company_size?: string | null
           contact_person?: string
           country?: string | null
           created_at?: string
