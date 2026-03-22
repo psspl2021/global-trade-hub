@@ -29,7 +29,13 @@ export function CreditLeadsCard() {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
-      if (data) setLeads(data as CreditLead[]);
+      if (data) {
+        const sorted = (data as CreditLead[]).sort((a, b) => {
+          const parseCredit = (v: string | null) => Number((v || "0").replace(/[^0-9]/g, "")) || 0;
+          return parseCredit(b.credit_required) - parseCredit(a.credit_required);
+        });
+        setLeads(sorted);
+      }
       setLoading(false);
     };
     fetchLeads();
