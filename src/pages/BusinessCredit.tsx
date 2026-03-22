@@ -90,7 +90,7 @@ export default function BusinessCreditPage() {
               Procure raw materials with up to 90 days credit. Credit is sanctioned through
               trusted banks &amp; NBFCs based on your financials — secured or unsecured.
             </p>
-            <p className="text-sm font-medium text-orange-600 mt-3">
+            <p className="text-sm font-medium text-destructive mt-3">
               🔥 200+ businesses already applied for procurement credit this month
             </p>
           </div>
