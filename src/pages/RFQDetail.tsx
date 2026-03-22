@@ -59,7 +59,7 @@ const RFQDetail = () => {
             .from('profiles')
             .select('company_name')
             .eq('id', (data as any).buyer_id)
-            .single();
+            .maybeSingle();
           if (profile) buyerProfile = profile;
         }
         setRfq({ ...data, buyer_profile: buyerProfile } as unknown as RFQData);
