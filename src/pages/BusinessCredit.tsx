@@ -192,8 +192,8 @@ export default function BusinessCreditPage() {
                 <CheckCircle2 className="h-12 w-12 text-primary mx-auto" />
                 <h2 className="text-xl font-semibold text-foreground">Application Submitted</h2>
                 <p className="text-muted-foreground">Our team will contact you within 24 hours.</p>
-                <Link to="/requirements" className="text-primary underline text-sm hover:no-underline">
-                  Browse live RFQs →
+                <Link to="/post-rfq" className="inline-flex items-center gap-1 text-primary underline text-sm hover:no-underline">
+                  Post Your Requirement <ArrowRight className="h-3 w-3" />
                 </Link>
               </CardContent>
             </Card>
