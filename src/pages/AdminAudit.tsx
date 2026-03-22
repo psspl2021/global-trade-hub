@@ -106,6 +106,10 @@ export default function AdminAuditPage() {
           <TabsContent value="billing" className="space-y-6">
             <AdminBillingManagement />
           </TabsContent>
+
+          <TabsContent value="credit-leads" className="space-y-6">
+            <CreditLeadsCard />
+          </TabsContent>
         </Tabs>
 
         {/* Footer Legal Armor */}
