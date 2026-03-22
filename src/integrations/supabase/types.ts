@@ -2429,6 +2429,48 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_leads: {
+        Row: {
+          city: string | null
+          company_name: string | null
+          contact_name: string | null
+          created_at: string | null
+          credit_required: string | null
+          email: string | null
+          id: string
+          phone: string | null
+          status: string | null
+          tenure: string | null
+          turnover_range: string | null
+        }
+        Insert: {
+          city?: string | null
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          credit_required?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          status?: string | null
+          tenure?: string | null
+          turnover_range?: string | null
+        }
+        Update: {
+          city?: string | null
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          credit_required?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          status?: string | null
+          tenure?: string | null
+          turnover_range?: string | null
+        }
+        Relationships: []
+      }
       demand_alerts: {
         Row: {
           actioned_at: string | null
