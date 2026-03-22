@@ -95,17 +95,19 @@ const RFQDetail = () => {
   useEffect(() => {
     if (loading || !rfq) return;
 
-    const frameId = requestAnimationFrame(() => {
-      const nestedFrameId = requestAnimationFrame(() => {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: 'auto',
-        });
-      });
+    let attempts = 0;
+    let frameId = 0;
 
-      return () => cancelAnimationFrame(nestedFrameId);
-    });
+    const forceScrollTop = () => {
+      window.scrollTo(0, 0);
+      attempts += 1;
+
+      if (attempts < 5) {
+        frameId = requestAnimationFrame(forceScrollTop);
+      }
+    };
+
+    frameId = requestAnimationFrame(forceScrollTop);
 
     return () => cancelAnimationFrame(frameId);
   }, [loading, rfq]);
@@ -286,7 +288,7 @@ const RFQDetail = () => {
       </section>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main className="max-w-4xl mx-auto px-4 py-8 min-h-[60vh]">
+      <main className="max-w-4xl mx-auto px-4 py-8 min-h-[70vh]">
         {/* Buyer info */}
         {rfq.buyer_profile?.company_name && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
