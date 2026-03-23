@@ -20,6 +20,7 @@ const creditSchema = z.object({
   credit_required: z.string().trim().min(1, "Enter credit amount required").max(50),
   tenure: z.string().min(1, "Select credit period"),
   city: z.string().trim().min(1, "City is required").max(100),
+  gst: z.string().trim().min(1, "GST is required").regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Enter valid 15-character GST number"),
 });
 
 const FAQ_SCHEMA = {
@@ -116,14 +117,14 @@ export default function BusinessCreditPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
       />
 
-      <main className="min-h-screen bg-background pt-20 pb-16">
+      <main className="min-h-screen bg-background pb-16">
         {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
         <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border relative">
-          <div className="absolute right-6 top-6 hidden md:block opacity-80">
+          <div className="absolute right-8 top-8 hidden md:block opacity-90">
             <img
               src="/procuresaathi-logo.png"
               alt="ProcureSaathi"
-              className="h-16 w-auto"
+              className="h-20 w-auto"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = "none";
               }}
@@ -236,16 +237,18 @@ export default function BusinessCreditPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="gst">GST Number (Optional)</Label>
+                  <Label htmlFor="gst">GST Number *</Label>
                   <Input
                     id="gst"
                     placeholder="e.g. 27ABCDE1234F1Z5"
                     value={form.gst}
-                    onChange={(e) => updateField("gst", e.target.value)}
+                    onChange={(e) => updateField("gst", e.target.value.toUpperCase())}
+                    maxLength={15}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Used only for credit assessment. Not shared publicly.
+                    Required for faster approval &amp; lender verification
                   </p>
+                  {errors.gst && <p className="text-xs text-destructive">{errors.gst}</p>}
                 </div>
 
                 <div className="space-y-1">
