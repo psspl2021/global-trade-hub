@@ -217,13 +217,17 @@ export default function BusinessCreditPage() {
                 ))}
 
                 <div className="space-y-1">
-                  <Label htmlFor="turnover">Last Financial Year Turnover (₹)</Label>
+                  <Label htmlFor="turnover">Last Financial Year Turnover (₹) <span className="text-xs text-muted-foreground font-normal">(for loan eligibility)</span></Label>
                   <Input
                     id="turnover"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     placeholder="e.g. ₹2,40,00,000"
-                    value={form.turnover}
-                    onChange={(e) => updateField("turnover", e.target.value)}
+                    value={form.turnover ? `₹${new Intl.NumberFormat("en-IN").format(Number(form.turnover))}` : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      updateField("turnover", raw);
+                    }}
                   />
                   <p className="text-xs text-muted-foreground">
                     Enter exact turnover based on last financial year (ITR/GST)
@@ -240,17 +244,22 @@ export default function BusinessCreditPage() {
                     onChange={(e) => updateField("gst", e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    GST number helps faster approval
+                    Used only for credit assessment. Not shared publicly.
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="credit_required">Credit Required (₹)</Label>
+                  <Label htmlFor="credit_required">Credit Required (₹) <span className="text-xs text-muted-foreground font-normal">(for loan eligibility)</span></Label>
                   <Input
                     id="credit_required"
-                    placeholder="e.g. 25,00,000"
-                    value={form.credit_required}
-                    onChange={(e) => updateField("credit_required", e.target.value)}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="e.g. ₹25,00,000"
+                    value={form.credit_required ? `₹${new Intl.NumberFormat("en-IN").format(Number(form.credit_required))}` : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      updateField("credit_required", raw);
+                    }}
                   />
                   {errors.credit_required && <p className="text-xs text-destructive">{errors.credit_required}</p>}
                 </div>
@@ -280,8 +289,7 @@ export default function BusinessCreditPage() {
                 </div>
 
                 <Button onClick={handleSubmit} disabled={loading} className="w-full" size="lg">
-                  {loading ? "Submitting..." : "Apply for Credit"}
-                  {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
+                  {loading ? "Processing..." : "Apply for Credit →"}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-3 text-center">
                   ✔ No impact on CIBIL score · ✔ MSME compliant financing · ✔ 100% secure
@@ -292,8 +300,9 @@ export default function BusinessCreditPage() {
             <Card className="max-w-lg mx-auto">
               <CardContent className="py-12 text-center space-y-4">
                 <CheckCircle2 className="h-12 w-12 text-primary mx-auto" />
-                <h2 className="text-xl font-semibold text-foreground">Application Submitted</h2>
-                <p className="text-muted-foreground">Our team will contact you within 24 hours.</p>
+                <h2 className="text-xl font-semibold text-foreground">Application Submitted ✅</h2>
+                <p className="text-muted-foreground">Our credit team will contact you within 24 hours.</p>
+                <p className="text-sm text-muted-foreground">📞 Keep your phone available for faster processing</p>
                 <Link to="/post-rfq" className="inline-flex items-center gap-1 text-primary underline text-sm hover:no-underline">
                   Post Your Requirement <ArrowRight className="h-3 w-3" />
                 </Link>
