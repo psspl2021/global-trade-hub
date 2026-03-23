@@ -71,6 +71,7 @@ export default function BusinessCreditPage() {
     credit_required: "",
     tenure: "",
     city: "",
+    gst: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
