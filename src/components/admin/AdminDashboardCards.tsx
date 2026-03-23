@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Receipt, Users, FileText, IndianRupee, AlertTriangle, Truck, Download, Gavel, Eye, Mail, BarChart3, Monitor, Smartphone, Globe, TrendingUp, RefreshCw, Star, Gift, PenTool, Search, CreditCard, Target, Trophy, Brain, Gauge, Rocket, Flame } from 'lucide-react';
 import { VisitorAnalyticsModal } from './VisitorAnalyticsModal';
+import { CreditLeadsCard } from './CreditLeadsCard';
 import AuctionTrackerCard from './AuctionTrackerCard';
 
 interface AdminStats {
@@ -371,6 +372,9 @@ export function AdminDashboardCards({
         analytics={analytics}
         selectedDays={selectedDays}
       />
+
+      {/* Credit Leads Card */}
+      <CreditLeadsCard />
 
       <Card className="border-orange-500/20 bg-orange-500/5">
         <CardHeader className="pb-2">
