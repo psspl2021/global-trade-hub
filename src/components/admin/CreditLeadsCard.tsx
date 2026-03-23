@@ -63,12 +63,13 @@ export function CreditLeadsCard() {
   };
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Banknote className="h-4 w-4 text-primary" />
           Credit Leads ({leads.length})
         </CardTitle>
+        <p className="text-sm text-muted-foreground">High intent MSME credit leads</p>
       </CardHeader>
       <CardContent>
         {loading ? (

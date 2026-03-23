@@ -249,7 +249,7 @@ export default function BusinessCreditPage() {
                     value={form.gst}
                     onChange={(e) => updateField("gst", e.target.value.toUpperCase())}
                     maxLength={15}
-                    className="uppercase"
+                    className="min-h-[44px] uppercase"
                   />
                   <p className="text-xs text-muted-foreground">
                     Required for faster approval &amp; lender verification
