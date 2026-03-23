@@ -270,6 +270,9 @@ export default function BusinessCreditPage() {
                   {loading ? "Submitting..." : "Apply for Credit"}
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
                 </Button>
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  ✔ No impact on CIBIL score · ✔ MSME compliant financing
+                </p>
               </CardContent>
             </Card>
           ) : (
