@@ -300,8 +300,9 @@ export default function BusinessCreditPage() {
             <Card className="max-w-lg mx-auto">
               <CardContent className="py-12 text-center space-y-4">
                 <CheckCircle2 className="h-12 w-12 text-primary mx-auto" />
-                <h2 className="text-xl font-semibold text-foreground">Application Submitted</h2>
-                <p className="text-muted-foreground">Our team will contact you within 24 hours.</p>
+                <h2 className="text-xl font-semibold text-foreground">Application Submitted ✅</h2>
+                <p className="text-muted-foreground">Our credit team will contact you within 24 hours.</p>
+                <p className="text-sm text-muted-foreground">📞 Keep your phone available for faster processing</p>
                 <Link to="/post-rfq" className="inline-flex items-center gap-1 text-primary underline text-sm hover:no-underline">
                   Post Your Requirement <ArrowRight className="h-3 w-3" />
                 </Link>
