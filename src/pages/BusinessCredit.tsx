@@ -130,6 +130,8 @@ export default function BusinessCreditPage() {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
             />
+              <span className="text-lg font-semibold text-foreground">ProcureSaathi</span>
+            </div>
           </div>
           <div className="max-w-5xl mx-auto px-4 py-12 text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight text-foreground">
