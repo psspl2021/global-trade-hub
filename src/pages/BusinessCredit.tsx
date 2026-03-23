@@ -119,11 +119,11 @@ export default function BusinessCreditPage() {
       <main className="min-h-screen bg-background pb-16">
         {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
         <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border relative">
-          <div className="absolute right-6 top-6 hidden md:block opacity-80">
+          <div className="absolute right-8 top-8 hidden md:block opacity-90">
             <img
               src="/procuresaathi-logo.png"
               alt="ProcureSaathi"
-              className="h-16 w-auto"
+              className="h-20 w-auto"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = "none";
               }}
