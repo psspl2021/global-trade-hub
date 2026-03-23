@@ -16,7 +16,7 @@ const creditSchema = z.object({
   contact_name: z.string().trim().min(1, "Contact name is required").max(100),
   phone: z.string().trim().min(10, "Valid phone number required").max(15),
   email: z.string().trim().email("Valid email required").max(255),
-  turnover: z.string().trim().min(1, "Turnover is required").max(50),
+  turnover: z.string().trim().min(1, "Turnover is required").max(50).refine((val) => Number(val) > 0, "Enter valid turnover"),
   credit_required: z.string().trim().min(1, "Enter credit amount required").max(50),
   tenure: z.string().min(1, "Select credit period"),
   city: z.string().trim().min(1, "City is required").max(100),
@@ -71,6 +71,7 @@ export default function BusinessCreditPage() {
     credit_required: "",
     tenure: "",
     city: "",
+    gst: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -220,7 +221,7 @@ export default function BusinessCreditPage() {
                   <Input
                     id="turnover"
                     type="number"
-                    placeholder="e.g. 25000000"
+                    placeholder="e.g. ₹2,40,00,000"
                     value={form.turnover}
                     onChange={(e) => updateField("turnover", e.target.value)}
                   />
@@ -228,6 +229,19 @@ export default function BusinessCreditPage() {
                     Enter exact turnover based on last financial year (ITR/GST)
                   </p>
                   {errors.turnover && <p className="text-xs text-destructive">{errors.turnover}</p>}
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="gst">GST Number (Optional)</Label>
+                  <Input
+                    id="gst"
+                    placeholder="e.g. 27ABCDE1234F1Z5"
+                    value={form.gst}
+                    onChange={(e) => updateField("gst", e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    GST number helps faster approval
+                  </p>
                 </div>
 
                 <div className="space-y-1">
