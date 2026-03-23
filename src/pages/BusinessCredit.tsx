@@ -117,41 +117,39 @@ export default function BusinessCreditPage() {
 
       <main className="min-h-screen bg-background pt-20 pb-16">
         {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
-        <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border">
-          <div className="max-w-5xl mx-auto px-4 py-10 text-center">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <img
-                src="/procuresaathi-logo.png"
-                alt="ProcureSaathi Logo"
-                className="h-10 w-auto"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
-              />
-              <span className="text-lg font-semibold tracking-tight text-foreground">
-                ProcureSaathi
-              </span>
-            </div>
+        <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border relative">
+          <div className="absolute right-6 top-6 hidden md:block opacity-80">
+            <img
+              src="/procuresaathi-logo.png"
+              alt="ProcureSaathi"
+              className="h-16 w-auto"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
+          <div className="max-w-5xl mx-auto px-4 py-12 text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight text-foreground">
-              MSME Business Credit for <span className="text-primary">Raw Material Purchase</span>
+              MSME Business Credit for{" "}
+              <span className="text-primary">Raw Material Purchase</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-2">
               Get up to <strong>90 days working capital credit</strong> for steel, chemicals,
-              polymers, and industrial raw materials. Powered by trusted banks &amp; NBFCs across India.
+              polymers, and industrial raw materials.
             </p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-2">
               Credit lines from ₹5 Lakhs to ₹5 Crores available
             </p>
             <p className="text-sm text-destructive font-medium mb-6">
               🔥 200+ MSMEs applied for procurement credit this month
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div className="border border-border rounded-lg p-3 bg-card">✔ Up to 90 Days Credit</div>
-              <div className="border border-border rounded-lg p-3 bg-card">✔ Fast Approval</div>
-              <div className="border border-border rounded-lg p-3 bg-card">✔ RBI Approved Lenders</div>
-              <div className="border border-border rounded-lg p-3 bg-card">✔ Secured / Unsecured</div>
+            <div className="flex flex-wrap justify-center gap-3 text-sm mb-4">
+              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ Up to 90 Days Credit</span>
+              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ Fast Approval</span>
+              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ RBI Approved Lenders</span>
+              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ Secured / Unsecured</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-3 mt-4 text-xs text-muted-foreground">
+            <div className="flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
               <span>🔒 Secure Application</span>
               <span>🏦 Partnered with Banks &amp; NBFCs</span>
               <span>📊 MSME Focused Lending</span>
