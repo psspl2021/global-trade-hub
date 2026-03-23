@@ -237,16 +237,18 @@ export default function BusinessCreditPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="gst">GST Number (Optional)</Label>
+                  <Label htmlFor="gst">GST Number *</Label>
                   <Input
                     id="gst"
                     placeholder="e.g. 27ABCDE1234F1Z5"
                     value={form.gst}
-                    onChange={(e) => updateField("gst", e.target.value)}
+                    onChange={(e) => updateField("gst", e.target.value.toUpperCase())}
+                    maxLength={15}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Used only for credit assessment. Not shared publicly.
+                    Required for faster approval &amp; lender verification
                   </p>
+                  {errors.gst && <p className="text-xs text-destructive">{errors.gst}</p>}
                 </div>
 
                 <div className="space-y-1">
