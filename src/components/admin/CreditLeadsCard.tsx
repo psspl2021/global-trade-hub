@@ -15,6 +15,7 @@ interface CreditLead {
   tenure: string | null;
   city: string | null;
   status: string | null;
+  assigned_to: string | null;
   created_at: string;
 }
 
@@ -62,6 +63,13 @@ export function CreditLeadsCard() {
     );
   };
 
+  const handleAssignChange = async (leadId: string, assignee: string) => {
+    await supabase.from("credit_leads").update({ assigned_to: assignee }).eq("id", leadId);
+    setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, assigned_to: assignee } : l))
+    );
+  };
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
@@ -72,13 +80,20 @@ export function CreditLeadsCard() {
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">High intent MSME credit leads</p>
           {leads.length > 0 && (
-            <span className="text-sm font-semibold text-primary">
+            <span className="text-lg font-semibold text-green-600">
               ₹{new Intl.NumberFormat("en-IN").format(
                 leads.reduce((sum, l) => sum + parseCredit(l.credit_required), 0)
               )} pipeline
             </span>
           )}
         </div>
+        {leads.length > 0 && (
+          <p className="text-xs text-muted-foreground">
+            Avg deal size: ₹{new Intl.NumberFormat("en-IN").format(
+              Math.floor(leads.reduce((sum, l) => sum + parseCredit(l.credit_required), 0) / leads.length)
+            )}
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -114,15 +129,26 @@ export function CreditLeadsCard() {
                         {timeAgo(lead.created_at)}
                       </span>
                     </div>
-                    <select
-                      value={status}
-                      onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                      className={`text-xs border rounded px-2 py-0.5 ${statusStyles[status] || ""}`}
-                    >
-                      <option value="new">New</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="closed">Closed</option>
-                    </select>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={status}
+                        onChange={(e) => handleStatusChange(lead.id, e.target.value)}
+                        className={`text-xs border rounded px-2 py-0.5 ${statusStyles[status] || ""}`}
+                      >
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                      <select
+                        value={lead.assigned_to || ""}
+                        onChange={(e) => handleAssignChange(lead.id, e.target.value)}
+                        className="text-xs border rounded px-2 py-0.5"
+                      >
+                        <option value="">Assign</option>
+                        <option value="sales1">Sales 1</option>
+                        <option value="sales2">Sales 2</option>
+                      </select>
+                    </div>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-0.5">
                     <div className="flex items-center justify-between">

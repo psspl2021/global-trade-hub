@@ -2431,6 +2431,7 @@ export type Database = {
       }
       credit_leads: {
         Row: {
+          assigned_to: string | null
           city: string | null
           company_name: string | null
           contact_name: string | null
@@ -2445,6 +2446,7 @@ export type Database = {
           turnover_range: string | null
         }
         Insert: {
+          assigned_to?: string | null
           city?: string | null
           company_name?: string | null
           contact_name?: string | null
@@ -2459,6 +2461,7 @@ export type Database = {
           turnover_range?: string | null
         }
         Update: {
+          assigned_to?: string | null
           city?: string | null
           company_name?: string | null
           contact_name?: string | null
