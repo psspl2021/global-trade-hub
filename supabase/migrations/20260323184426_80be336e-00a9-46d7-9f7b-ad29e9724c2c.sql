@@ -1,0 +1,1 @@
+ALTER TABLE credit_leads ADD COLUMN assigned_to text;

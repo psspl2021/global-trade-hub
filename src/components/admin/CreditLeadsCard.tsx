@@ -15,6 +15,7 @@ interface CreditLead {
   tenure: string | null;
   city: string | null;
   status: string | null;
+  assigned_to: string | null;
   created_at: string;
 }
 
