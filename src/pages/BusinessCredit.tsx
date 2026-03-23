@@ -116,7 +116,7 @@ export default function BusinessCreditPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
       />
 
-      <main className="min-h-screen bg-background pt-20 pb-16">
+      <main className="min-h-screen bg-background pb-16">
         {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
         <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border relative">
           <div className="absolute right-6 top-6 hidden md:block opacity-80">
