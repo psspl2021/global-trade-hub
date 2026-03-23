@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Banknote } from "lucide-react";
+import { Banknote, Phone } from "lucide-react";
 
 interface CreditLead {
   id: string;
@@ -18,6 +18,14 @@ interface CreditLead {
   created_at: string;
 }
 
+const parseCredit = (v: string | null) => Number((v || "0").replace(/[^0-9]/g, "")) || 0;
+
+const statusStyles: Record<string, string> = {
+  new: "bg-blue-100 text-blue-700 border-blue-200",
+  contacted: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  closed: "bg-green-100 text-green-700 border-green-200",
+};
+
 export function CreditLeadsCard() {
   const [leads, setLeads] = useState<CreditLead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,10 +38,9 @@ export function CreditLeadsCard() {
         .order("created_at", { ascending: false })
         .limit(50);
       if (data) {
-        const sorted = (data as CreditLead[]).sort((a, b) => {
-          const parseCredit = (v: string | null) => Number((v || "0").replace(/[^0-9]/g, "")) || 0;
-          return parseCredit(b.credit_required) - parseCredit(a.credit_required);
-        });
+        const sorted = (data as CreditLead[]).sort(
+          (a, b) => parseCredit(b.credit_required) - parseCredit(a.credit_required)
+        );
         setLeads(sorted);
       }
       setLoading(false);
@@ -55,20 +62,56 @@ export function CreditLeadsCard() {
         ) : leads.length === 0 ? (
           <p className="text-sm text-muted-foreground">No credit leads yet.</p>
         ) : (
-          <div className="space-y-2 max-h-80 overflow-auto">
-            {leads.map((lead) => (
-              <div key={lead.id} className="border border-border rounded-md p-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm text-foreground">{lead.company_name}</span>
-                  <Badge variant="outline" className="text-xs">{lead.status}</Badge>
+          <div className="space-y-2 max-h-[28rem] overflow-auto">
+            {leads.map((lead) => {
+              const isHighValue = parseCredit(lead.credit_required) > 1000000;
+              const status = lead.status || "new";
+              return (
+                <div
+                  key={lead.id}
+                  className={`border rounded-md p-3 space-y-1.5 ${
+                    isHighValue
+                      ? "border-green-500 bg-green-50 dark:bg-green-950/20"
+                      : "border-border"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {isHighValue && (
+                        <span className="text-xs font-semibold text-green-700 whitespace-nowrap">
+                          🔥 HOT
+                        </span>
+                      )}
+                      <span className="font-medium text-sm text-foreground truncate">
+                        {lead.company_name}
+                      </span>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs shrink-0 ${statusStyles[status] || ""}`}
+                    >
+                      {status}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-0.5">
+                    <div className="flex items-center justify-between">
+                      <span>{lead.contact_name} · {lead.city}</span>
+                      {lead.phone && (
+                        <a
+                          href={`tel:${lead.phone}`}
+                          className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                        >
+                          <Phone className="h-3 w-3" />
+                          Call
+                        </a>
+                      )}
+                    </div>
+                    <div>Turnover: {lead.turnover_range} · Credit: ₹{lead.credit_required}</div>
+                    <div>{lead.tenure} · {lead.email}</div>
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground space-y-0.5">
-                  <div>{lead.contact_name} · {lead.phone}</div>
-                  <div>Turnover: {lead.turnover_range} · Credit: ₹{lead.credit_required}</div>
-                  <div>{lead.tenure} days · {lead.city}</div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>
