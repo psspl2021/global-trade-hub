@@ -129,16 +129,26 @@ export function CreditLeadsCard() {
                         {timeAgo(lead.created_at)}
                       </span>
                     </div>
-                    <select
-                      value={status}
-                      onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                      className={`text-xs border rounded px-2 py-0.5 ${statusStyles[status] || ""}`}
-                    >
-                      <option value="new">New</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="closed">Closed</option>
-                    </select>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={status}
+                        onChange={(e) => handleStatusChange(lead.id, e.target.value)}
+                        className={`text-xs border rounded px-2 py-0.5 ${statusStyles[status] || ""}`}
+                      >
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                      <select
+                        value={lead.assigned_to || ""}
+                        onChange={(e) => handleAssignChange(lead.id, e.target.value)}
+                        className="text-xs border rounded px-2 py-0.5"
+                      >
+                        <option value="">Assign</option>
+                        <option value="sales1">Sales 1</option>
+                        <option value="sales2">Sales 2</option>
+                      </select>
+                    </div>
                   <div className="text-xs text-muted-foreground space-y-0.5">
                     <div className="flex items-center justify-between">
                       <span>{lead.contact_name} · {lead.city}</span>
