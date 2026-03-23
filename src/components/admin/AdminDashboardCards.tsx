@@ -373,6 +373,9 @@ export function AdminDashboardCards({
         selectedDays={selectedDays}
       />
 
+      {/* Credit Leads Card */}
+      <CreditLeadsCard />
+
       <Card className="border-orange-500/20 bg-orange-500/5">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">

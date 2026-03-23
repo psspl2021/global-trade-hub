@@ -160,6 +160,11 @@ export default function BusinessCreditPage() {
           </div>
         </section>
 
+        {/* ===== WHO SHOULD APPLY ===== */}
+        <div className="text-sm text-muted-foreground mt-4 mb-2 text-center max-w-5xl mx-auto px-4">
+          <span className="font-medium text-foreground">Ideal for:</span> Manufacturers buying raw materials · Traders handling bulk orders · MSMEs facing working capital gaps
+        </div>
+
         {/* ===== TRUST BAR ===== */}
         <section className="bg-muted py-6 text-center text-sm text-muted-foreground">
           Trusted by MSMEs, Traders &amp; Manufacturers across India for procurement financing
