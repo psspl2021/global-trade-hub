@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Clock, Shield, Banknote, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -22,12 +22,44 @@ const creditSchema = z.object({
   city: z.string().trim().min(1, "City is required").max(100),
 });
 
-const BENEFITS = [
-  { icon: Clock, label: "Up to 90 days credit" },
-  { icon: CheckCircle2, label: "Fast approval" },
-  { icon: Shield, label: "Trusted lenders" },
-  { icon: Banknote, label: "No collateral (select cases)" },
-];
+const FAQ_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Who can apply for procurement credit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MSMEs, traders, manufacturers, and distributors across India."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is collateral required?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Depends on financials — both secured and unsecured credit options are available."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the credit period?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Typically 30, 60, or 90 days depending on approval."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How fast is approval?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Initial approval within 24–48 hours after document verification."
+      }
+    }
+  ]
+};
 
 export default function BusinessCreditPage() {
   const [form, setForm] = useState({
@@ -74,40 +106,75 @@ export default function BusinessCreditPage() {
   return (
     <>
       <SEOHead
-        title="Business Credit for Raw Material Purchase | ProcureSaathi"
-        description="Get up to 90 days credit for raw material procurement. Fast approval through trusted banks & NBFCs. Apply now for secured or unsecured business credit."
+        title="MSME Business Credit for Raw Material Purchase | ProcureSaathi"
+        description="Get up to 90 days working capital credit for steel, chemicals, polymers & industrial raw materials. Fast approval through RBI-approved banks & NBFCs. Apply now."
         canonical="https://www.procuresaathi.com/business-credit"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
       />
 
       <main className="min-h-screen bg-background pt-20 pb-16">
+        {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
+        <section className="max-w-5xl mx-auto px-4 py-10 text-center">
+          <img
+            src="/logo.png"
+            alt="ProcureSaathi"
+            className="mx-auto h-12 mb-4"
+          />
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-foreground">
+            MSME Business Credit for Raw Material Purchase
+          </h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-4">
+            Get up to <strong>90 days working capital credit</strong> for steel, chemicals,
+            polymers, and industrial raw materials. Powered by trusted banks &amp; NBFCs across India.
+          </p>
+          <p className="text-sm text-destructive font-medium mb-6">
+            🔥 200+ MSMEs applied for procurement credit this month
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="border border-border rounded-lg p-3">✔ Up to 90 Days Credit</div>
+            <div className="border border-border rounded-lg p-3">✔ Fast Approval</div>
+            <div className="border border-border rounded-lg p-3">✔ RBI Approved Lenders</div>
+            <div className="border border-border rounded-lg p-3">✔ Secured / Unsecured</div>
+          </div>
+        </section>
+
+        {/* ===== TRUST BAR ===== */}
+        <section className="bg-muted py-6 text-center text-sm text-muted-foreground">
+          Trusted by MSMEs, Traders &amp; Manufacturers across India for procurement financing
+        </section>
+
+        {/* ===== HOW IT WORKS ===== */}
+        <section className="max-w-5xl mx-auto px-4 py-10">
+          <h2 className="text-xl font-semibold mb-6 text-center text-foreground">
+            How MSME Credit Works
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6 text-sm">
+            <div className="border border-border p-4 rounded-lg">
+              <strong>1. Apply Online</strong>
+              <p className="text-muted-foreground mt-2">
+                Submit your business details and credit requirement in 2 minutes.
+              </p>
+            </div>
+            <div className="border border-border p-4 rounded-lg">
+              <strong>2. Get Assessed</strong>
+              <p className="text-muted-foreground mt-2">
+                Banks/NBFCs evaluate turnover, GST &amp; financials.
+              </p>
+            </div>
+            <div className="border border-border p-4 rounded-lg">
+              <strong>3. Get Credit Line</strong>
+              <p className="text-muted-foreground mt-2">
+                Receive approved credit for raw material procurement.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== APPLICATION FORM ===== */}
         <section className="max-w-4xl mx-auto px-4 py-8">
-          {/* Hero */}
-          <div className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4">
-              Get Business Credit for Raw Material Purchase
-            </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg">
-              Procure raw materials with up to 90 days credit. Credit is sanctioned through
-              trusted banks &amp; NBFCs based on your financials — secured or unsecured.
-            </p>
-            <p className="text-sm font-medium text-destructive mt-3">
-              🔥 200+ businesses already applied for procurement credit this month
-            </p>
-          </div>
-
-          {/* Benefits */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            {BENEFITS.map((b) => (
-              <Card key={b.label} className="border-border/50">
-                <CardContent className="flex items-center gap-2 p-4">
-                  <b.icon className="h-5 w-5 text-primary shrink-0" />
-                  <span className="text-sm font-medium text-foreground">{b.label}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Form */}
           {!success ? (
             <Card className="max-w-lg mx-auto">
               <CardContent className="pt-6 space-y-4">
@@ -198,21 +265,46 @@ export default function BusinessCreditPage() {
               </CardContent>
             </Card>
           )}
+        </section>
 
-          {/* SEO content block */}
-          <section className="mt-16 max-w-2xl mx-auto text-sm text-muted-foreground space-y-4">
-            <h2 className="text-lg font-semibold text-foreground">How Business Credit Works on ProcureSaathi</h2>
-            <p>
-              ProcureSaathi partners with leading banks and NBFCs to provide working capital credit for raw material
-              procurement. Whether you're buying steel, chemicals, polymers, or textiles, get credit lines of up to
-              ₹5 Cr with flexible repayment tenures of 30, 60, or 90 days.
-            </p>
-            <p>
-              Our credit program is designed for MSMEs, manufacturers, and traders who need short-term financing
-              to fulfil bulk orders without straining cash flow. Apply in under 2 minutes and receive approval
-              within 48 hours.
-            </p>
-          </section>
+        {/* ===== FAQ (SEO BOOST) ===== */}
+        <section className="max-w-4xl mx-auto px-4 py-10">
+          <h2 className="text-xl font-semibold mb-6 text-foreground">
+            FAQs – MSME Business Credit
+          </h2>
+          <div className="space-y-4 text-sm">
+            <div>
+              <strong>Who can apply for procurement credit?</strong>
+              <p className="text-muted-foreground">
+                MSMEs, traders, manufacturers, and distributors across India.
+              </p>
+            </div>
+            <div>
+              <strong>Is collateral required?</strong>
+              <p className="text-muted-foreground">
+                Depends on financials — both secured and unsecured options available.
+              </p>
+            </div>
+            <div>
+              <strong>What is the credit period?</strong>
+              <p className="text-muted-foreground">
+                Typically 30, 60, or 90 days depending on approval.
+              </p>
+            </div>
+            <div>
+              <strong>How fast is approval?</strong>
+              <p className="text-muted-foreground">
+                Initial approval within 24–48 hours after document verification.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== INTERNAL LINKING (SEO BOOST) ===== */}
+        <section className="text-center pb-10">
+          <Link to="/post-rfq" className="text-primary underline">
+            Post your raw material requirement →
+          </Link>
         </section>
       </main>
     </>
