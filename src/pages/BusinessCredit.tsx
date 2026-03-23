@@ -232,6 +232,19 @@ export default function BusinessCreditPage() {
                 </div>
 
                 <div className="space-y-1">
+                  <Label htmlFor="gst">GST Number (Optional)</Label>
+                  <Input
+                    id="gst"
+                    placeholder="e.g. 27ABCDE1234F1Z5"
+                    value={form.gst}
+                    onChange={(e) => updateField("gst", e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    GST number helps faster approval
+                  </p>
+                </div>
+
+                <div className="space-y-1">
                   <Label htmlFor="credit_required">Credit Required (₹)</Label>
                   <Input
                     id="credit_required"
