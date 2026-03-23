@@ -289,8 +289,7 @@ export default function BusinessCreditPage() {
                 </div>
 
                 <Button onClick={handleSubmit} disabled={loading} className="w-full" size="lg">
-                  {loading ? "Submitting..." : "Apply for Credit"}
-                  {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
+                  {loading ? "Processing..." : "Apply for Credit →"}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-3 text-center">
                   ✔ No impact on CIBIL score · ✔ MSME compliant financing · ✔ 100% secure
