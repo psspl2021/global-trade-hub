@@ -217,13 +217,17 @@ export default function BusinessCreditPage() {
                 ))}
 
                 <div className="space-y-1">
-                  <Label htmlFor="turnover">Last Financial Year Turnover (₹)</Label>
+                  <Label htmlFor="turnover">Last Financial Year Turnover (₹) <span className="text-xs text-muted-foreground font-normal">(for loan eligibility)</span></Label>
                   <Input
                     id="turnover"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     placeholder="e.g. ₹2,40,00,000"
-                    value={form.turnover}
-                    onChange={(e) => updateField("turnover", e.target.value)}
+                    value={form.turnover ? `₹${new Intl.NumberFormat("en-IN").format(Number(form.turnover))}` : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      updateField("turnover", raw);
+                    }}
                   />
                   <p className="text-xs text-muted-foreground">
                     Enter exact turnover based on last financial year (ITR/GST)
@@ -240,17 +244,22 @@ export default function BusinessCreditPage() {
                     onChange={(e) => updateField("gst", e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    GST number helps faster approval
+                    Used only for credit assessment. Not shared publicly.
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="credit_required">Credit Required (₹)</Label>
+                  <Label htmlFor="credit_required">Credit Required (₹) <span className="text-xs text-muted-foreground font-normal">(for loan eligibility)</span></Label>
                   <Input
                     id="credit_required"
-                    placeholder="e.g. 25,00,000"
-                    value={form.credit_required}
-                    onChange={(e) => updateField("credit_required", e.target.value)}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="e.g. ₹25,00,000"
+                    value={form.credit_required ? `₹${new Intl.NumberFormat("en-IN").format(Number(form.credit_required))}` : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      updateField("credit_required", raw);
+                    }}
                   />
                   {errors.credit_required && <p className="text-xs text-destructive">{errors.credit_required}</p>}
                 </div>
