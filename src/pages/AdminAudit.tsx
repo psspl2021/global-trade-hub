@@ -109,6 +109,12 @@ export default function AdminAuditPage() {
           </TabsContent>
 
           <TabsContent value="credit-leads" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Credit Leads Dashboard</h2>
+              <span className="text-sm text-muted-foreground">
+                High-intent MSME financing leads
+              </span>
+            </div>
             <CreditLeadsCard />
           </TabsContent>
         </Tabs>
