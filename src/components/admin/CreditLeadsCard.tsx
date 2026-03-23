@@ -80,13 +80,20 @@ export function CreditLeadsCard() {
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">High intent MSME credit leads</p>
           {leads.length > 0 && (
-            <span className="text-sm font-semibold text-primary">
+            <span className="text-lg font-semibold text-green-600">
               ₹{new Intl.NumberFormat("en-IN").format(
                 leads.reduce((sum, l) => sum + parseCredit(l.credit_required), 0)
               )} pipeline
             </span>
           )}
         </div>
+        {leads.length > 0 && (
+          <p className="text-xs text-muted-foreground">
+            Avg deal size: ₹{new Intl.NumberFormat("en-IN").format(
+              Math.floor(leads.reduce((sum, l) => sum + parseCredit(l.credit_required), 0) / leads.length)
+            )}
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         {loading ? (
