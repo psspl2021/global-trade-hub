@@ -149,6 +149,7 @@ export function CreditLeadsCard() {
                         <option value="sales2">Sales 2</option>
                       </select>
                     </div>
+                  </div>
                   <div className="text-xs text-muted-foreground space-y-0.5">
                     <div className="flex items-center justify-between">
                       <span>{lead.contact_name} · {lead.city}</span>
