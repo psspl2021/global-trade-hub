@@ -195,7 +195,7 @@ export default function BusinessCreditPage() {
         {/* ===== APPLICATION FORM ===== */}
         <section className="max-w-4xl mx-auto px-4 py-8">
           {!success ? (
-            <Card className="max-w-lg mx-auto">
+            <Card className="max-w-lg mx-auto border shadow-lg">
               <CardContent className="pt-6 space-y-4">
                 <h2 className="text-lg font-semibold text-foreground mb-2">Apply for Credit</h2>
 
