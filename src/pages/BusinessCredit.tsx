@@ -67,7 +67,7 @@ export default function BusinessCreditPage() {
     contact_name: "",
     phone: "",
     email: "",
-    turnover_range: "",
+    turnover: "",
     credit_required: "",
     tenure: "",
     city: "",
