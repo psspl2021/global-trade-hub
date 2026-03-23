@@ -20,6 +20,7 @@ const creditSchema = z.object({
   credit_required: z.string().trim().min(1, "Enter credit amount required").max(50),
   tenure: z.string().min(1, "Select credit period"),
   city: z.string().trim().min(1, "City is required").max(100),
+  gst: z.string().trim().min(1, "GST is required").regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Enter valid 15-character GST number"),
 });
 
 const FAQ_SCHEMA = {
