@@ -63,6 +63,13 @@ export function CreditLeadsCard() {
     );
   };
 
+  const handleAssignChange = async (leadId: string, assignee: string) => {
+    await supabase.from("credit_leads").update({ assigned_to: assignee }).eq("id", leadId);
+    setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, assigned_to: assignee } : l))
+    );
+  };
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
