@@ -216,17 +216,18 @@ export default function BusinessCreditPage() {
                 ))}
 
                 <div className="space-y-1">
-                  <Label>Company Turnover</Label>
-                  <Select value={form.turnover_range} onValueChange={(v) => updateField("turnover_range", v)}>
-                    <SelectTrigger><SelectValue placeholder="Select turnover range" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0-1cr">₹0 – 1 Cr</SelectItem>
-                      <SelectItem value="1-10cr">₹1 – 10 Cr</SelectItem>
-                      <SelectItem value="10-50cr">₹10 – 50 Cr</SelectItem>
-                      <SelectItem value="50cr+">₹50 Cr+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.turnover_range && <p className="text-xs text-destructive">{errors.turnover_range}</p>}
+                  <Label htmlFor="turnover">Last Financial Year Turnover (₹)</Label>
+                  <Input
+                    id="turnover"
+                    type="number"
+                    placeholder="e.g. 25000000"
+                    value={form.turnover}
+                    onChange={(e) => updateField("turnover", e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter exact turnover based on last financial year (ITR/GST)
+                  </p>
+                  {errors.turnover && <p className="text-xs text-destructive">{errors.turnover}</p>}
                 </div>
 
                 <div className="space-y-1">
