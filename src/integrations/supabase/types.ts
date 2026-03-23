@@ -2441,6 +2441,7 @@ export type Database = {
           phone: string | null
           status: string | null
           tenure: string | null
+          turnover: string | null
           turnover_range: string | null
         }
         Insert: {
@@ -2454,6 +2455,7 @@ export type Database = {
           phone?: string | null
           status?: string | null
           tenure?: string | null
+          turnover?: string | null
           turnover_range?: string | null
         }
         Update: {
@@ -2467,6 +2469,7 @@ export type Database = {
           phone?: string | null
           status?: string | null
           tenure?: string | null
+          turnover?: string | null
           turnover_range?: string | null
         }
         Relationships: []
