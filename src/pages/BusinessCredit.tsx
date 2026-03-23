@@ -221,7 +221,7 @@ export default function BusinessCreditPage() {
                   <Input
                     id="turnover"
                     type="number"
-                    placeholder="e.g. 25000000"
+                    placeholder="e.g. ₹2,40,00,000"
                     value={form.turnover}
                     onChange={(e) => updateField("turnover", e.target.value)}
                   />
