@@ -69,7 +69,16 @@ export function CreditLeadsCard() {
           <Banknote className="h-4 w-4 text-primary" />
           Credit Leads ({leads.length})
         </CardTitle>
-        <p className="text-sm text-muted-foreground">High intent MSME credit leads</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">High intent MSME credit leads</p>
+          {leads.length > 0 && (
+            <span className="text-sm font-semibold text-primary">
+              ₹{new Intl.NumberFormat("en-IN").format(
+                leads.reduce((sum, l) => sum + parseCredit(l.credit_required), 0)
+              )} pipeline
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {loading ? (
