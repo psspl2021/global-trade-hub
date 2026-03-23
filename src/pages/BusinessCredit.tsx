@@ -117,27 +117,46 @@ export default function BusinessCreditPage() {
 
       <main className="min-h-screen bg-background pt-20 pb-16">
         {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
-        <section className="max-w-5xl mx-auto px-4 py-10 text-center">
-          <img
-            src="/logo.png"
-            alt="ProcureSaathi"
-            className="mx-auto h-12 mb-4"
-          />
-          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-foreground">
-            MSME Business Credit for Raw Material Purchase
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto mb-4">
-            Get up to <strong>90 days working capital credit</strong> for steel, chemicals,
-            polymers, and industrial raw materials. Powered by trusted banks &amp; NBFCs across India.
-          </p>
-          <p className="text-sm text-destructive font-medium mb-6">
-            🔥 200+ MSMEs applied for procurement credit this month
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div className="border border-border rounded-lg p-3">✔ Up to 90 Days Credit</div>
-            <div className="border border-border rounded-lg p-3">✔ Fast Approval</div>
-            <div className="border border-border rounded-lg p-3">✔ RBI Approved Lenders</div>
-            <div className="border border-border rounded-lg p-3">✔ Secured / Unsecured</div>
+        <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border">
+          <div className="max-w-5xl mx-auto px-4 py-10 text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img
+                src="/procuresaathi-logo.png"
+                alt="ProcureSaathi Logo"
+                className="h-10 w-auto"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+              <span className="text-lg font-semibold tracking-tight text-foreground">
+                ProcureSaathi
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight text-foreground">
+              MSME Business Credit for <span className="text-primary">Raw Material Purchase</span>
+            </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto mb-2">
+              Get up to <strong>90 days working capital credit</strong> for steel, chemicals,
+              polymers, and industrial raw materials. Powered by trusted banks &amp; NBFCs across India.
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Credit lines from ₹5 Lakhs to ₹5 Crores available
+            </p>
+            <p className="text-sm text-destructive font-medium mb-6">
+              🔥 200+ MSMEs applied for procurement credit this month
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="border border-border rounded-lg p-3 bg-card">✔ Up to 90 Days Credit</div>
+              <div className="border border-border rounded-lg p-3 bg-card">✔ Fast Approval</div>
+              <div className="border border-border rounded-lg p-3 bg-card">✔ RBI Approved Lenders</div>
+              <div className="border border-border rounded-lg p-3 bg-card">✔ Secured / Unsecured</div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3 mt-4 text-xs text-muted-foreground">
+              <span>🔒 Secure Application</span>
+              <span>🏦 Partnered with Banks &amp; NBFCs</span>
+              <span>📊 MSME Focused Lending</span>
+              <span>⚡ 24–48h Approval</span>
+            </div>
           </div>
         </section>
 
@@ -176,7 +195,7 @@ export default function BusinessCreditPage() {
         {/* ===== APPLICATION FORM ===== */}
         <section className="max-w-4xl mx-auto px-4 py-8">
           {!success ? (
-            <Card className="max-w-lg mx-auto">
+            <Card className="max-w-lg mx-auto border shadow-lg">
               <CardContent className="pt-6 space-y-4">
                 <h2 className="text-lg font-semibold text-foreground mb-2">Apply for Credit</h2>
 
@@ -251,6 +270,9 @@ export default function BusinessCreditPage() {
                   {loading ? "Submitting..." : "Apply for Credit"}
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
                 </Button>
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  ✔ No impact on CIBIL score · ✔ MSME compliant financing
+                </p>
               </CardContent>
             </Card>
           ) : (
