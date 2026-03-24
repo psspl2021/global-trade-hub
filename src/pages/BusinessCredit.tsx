@@ -117,59 +117,76 @@ export default function BusinessCreditPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
       />
 
-      <main className="min-h-screen bg-background pb-16">
-        {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
-        <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border relative pt-0 mt-0">
-          <div className="max-w-5xl mx-auto px-4 pt-8">
-            <div className="flex items-center justify-between mb-8">
+      <main className="min-h-screen bg-background">
+        {/* ===== NAVBAR ===== */}
+        <nav className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-3">
               <img
                 src="/procuresaathi-logo.png"
                 alt="ProcureSaathi"
-                className="h-10 w-auto"
+                className="h-14 w-auto"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
               />
+              <span className="text-xl font-bold tracking-tight text-foreground">ProcureSaathi</span>
+            </Link>
+            <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">🔒 256-bit Encrypted</span>
+              <span className="text-border">|</span>
+              <span className="flex items-center gap-1">🏦 RBI Regulated Partners</span>
             </div>
           </div>
-          <div className="max-w-5xl mx-auto px-4 py-12 text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight text-foreground">
-              MSME Business Credit for{" "}
-              <span className="text-primary">Raw Material Purchase</span>
-            </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-2">
-              Get up to <strong>90 days working capital credit</strong> for steel, chemicals,
-              polymers, and industrial raw materials.
-            </p>
-            <p className="text-sm text-muted-foreground mb-2">
-              Credit lines from ₹5 Lakhs to ₹5 Crores available
-            </p>
-            <p className="text-sm text-destructive font-medium mb-6">
-              🔥 200+ MSMEs applied for procurement credit this month
-            </p>
-            <div className="flex flex-wrap justify-center gap-3 text-sm mb-4">
-              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ Up to 90 Days Credit</span>
-              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ Fast Approval</span>
-              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ RBI Approved Lenders</span>
-              <span className="border border-border rounded-full px-4 py-1 bg-card">✔ Secured / Unsecured</span>
+        </nav>
+
+        {/* ===== HERO ===== */}
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-primary/3 to-transparent" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+          <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-20">
+            <div className="max-w-3xl mx-auto text-center space-y-5">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full">
+                🔥 200+ MSMEs applied this month
+              </div>
+              <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-foreground tracking-tight">
+                MSME Business Credit for{" "}
+                <span className="text-primary">Raw Material Purchase</span>
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Get up to <strong className="text-foreground">90 days working capital credit</strong> for steel, chemicals,
+                polymers, and industrial raw materials. Powered by trusted banks &amp; NBFCs.
+              </p>
+              <p className="text-base font-semibold text-foreground">
+                Credit lines from <span className="text-primary">₹5 Lakhs</span> to <span className="text-primary">₹5 Crores</span>
+              </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
+
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              {["Up to 90 Days Credit", "24–48h Approval", "RBI Approved Lenders", "Secured & Unsecured"].map((item) => (
+                <span key={item} className="flex items-center gap-1.5 bg-card border border-border rounded-full px-4 py-2 text-sm font-medium text-foreground shadow-sm">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  {item}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-4 mt-6 text-xs text-muted-foreground">
               <span>🔒 Secure Application</span>
               <span>🏦 Partnered with Banks &amp; NBFCs</span>
               <span>📊 MSME Focused Lending</span>
-              <span>⚡ 24–48h Approval</span>
             </div>
           </div>
         </section>
 
-        {/* ===== WHO SHOULD APPLY ===== */}
-        <div className="text-sm text-muted-foreground mt-4 mb-2 text-center max-w-5xl mx-auto px-4">
-          <span className="font-medium text-foreground">Ideal for:</span> Manufacturers buying raw materials · Traders handling bulk orders · MSMEs facing working capital gaps
-        </div>
-
-        {/* ===== TRUST BAR ===== */}
-        <section className="bg-muted py-6 text-center text-sm text-muted-foreground">
-          Trusted by MSMEs, Traders &amp; Manufacturers across India for procurement financing
+        {/* ===== IDEAL FOR + TRUST BAR ===== */}
+        <section className="border-y border-border bg-muted/50">
+          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-center gap-3 md:gap-8 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Ideal for:</span>
+            <span>🏭 Manufacturers buying raw materials</span>
+            <span>📦 Traders handling bulk orders</span>
+            <span>💼 MSMEs facing working capital gaps</span>
+          </div>
         </section>
 
         {/* ===== HOW IT WORKS ===== */}
