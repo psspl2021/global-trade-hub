@@ -1493,7 +1493,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹400 – ₹2,500 per sq.ft',
     applications: ['Clean room wall and ceiling lining', 'Cold storage chamber walls', 'Food processing facility hygiene walls', 'Chemical plant partitions', 'Pharma manufacturing enclosures', 'Industrial canteen interiors'],
     challenges: ['Fire rating compliance for specific use cases', 'Joint sealing for hygiene-critical applications', 'Panel flatness and finish quality', 'Custom color and texture matching'],
-    marketTrend: 'Growing demand from food processing, pharma, and cold chain sectors in India as FSSAI and GMP compliance drives adoption of hygienic, corrosion-proof GFRP panels.'
+    marketTrend: 'Growing demand from food processing, pharma, and cold chain sectors in India as FSSAI and GMP compliance drives adoption of hygienic, corrosion-proof GFRP panels.',
+    heroImage: gfrpPanelsImg,
+    heroImageAlt: 'Flat GFRP panels stacked in factory warehouse'
   },
   {
     slug: 'gfrp-pipes-india',
