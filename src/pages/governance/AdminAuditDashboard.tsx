@@ -633,11 +633,9 @@ export default function AdminAuditDashboard() {
             </Button>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Credit Leads Tracking */}
-      <div className="grid grid-cols-1 gap-4">
-        <CreditLeadsCard />
+        {/* Credit Leads Summary */}
+        <CreditLeadsSummaryCard />
       </div>
 
       {/* Third Row - Documents & Revenue */}
