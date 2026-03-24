@@ -243,33 +243,50 @@ export default function GeneratedDemandPage() {
           <div className="container mx-auto px-4 max-w-6xl">
             <BreadcrumbNav product={product} />
 
-            <div className="flex flex-wrap gap-2 mb-6">
-              <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
-                <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
-              </Badge>
-              <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 gap-1">
-                <Brain className="h-3.5 w-3.5" /> Live Demand Intelligence
-              </Badge>
-            </div>
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
+                    <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
+                  </Badge>
+                  <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 gap-1">
+                    <Brain className="h-3.5 w-3.5" /> Live Demand Intelligence
+                  </Badge>
+                </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-6">
-              {product.name} Procurement in India
-            </h1>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-6">
+                  {product.name} Procurement in India
+                </h1>
 
-            <p className="text-lg text-muted-foreground mb-4 leading-relaxed max-w-3xl">
-              {content.heroIntro}
-            </p>
-            <p className="text-xs text-muted-foreground/70 mb-8">
-              Updated daily with live RFQs and supplier activity · Last refreshed {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-            </p>
+                <p className="text-lg text-muted-foreground mb-4 leading-relaxed max-w-3xl">
+                  {content.heroIntro}
+                </p>
+                <p className="text-xs text-muted-foreground/70 mb-8">
+                  Updated daily with live RFQs and supplier activity · Last refreshed {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
 
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg" onClick={() => setRfqOpen(true)} className="gap-2 text-lg px-8 py-6">
-                Get Verified Supplier Quotes <ArrowRight className="h-5 w-5" />
-              </Button>
-              <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
-                <Link to="/seller">List as Supplier</Link>
-              </Button>
+                <div className="flex flex-wrap gap-3">
+                  <Button size="lg" onClick={() => setRfqOpen(true)} className="gap-2 text-lg px-8 py-6">
+                    Get Verified Supplier Quotes <ArrowRight className="h-5 w-5" />
+                  </Button>
+                  <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
+                    <Link to="/seller">List as Supplier</Link>
+                  </Button>
+                </div>
+              </div>
+
+              {product.heroImage && (
+                <div className="rounded-xl overflow-hidden border border-border bg-card shadow-sm">
+                  <img
+                    src={product.heroImage}
+                    alt={product.heroImageAlt || `${product.name} - Industrial product`}
+                    className="w-full h-auto object-cover"
+                    loading="eager"
+                    width={800}
+                    height={512}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>

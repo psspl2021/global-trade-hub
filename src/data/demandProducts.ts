@@ -4,6 +4,13 @@
  * Rich content is generated at render time by the content engine.
  */
 
+import gfrpSheetsImg from '@/assets/products/gfrp-sheets.jpg';
+import gfrpGratingsImg from '@/assets/products/gfrp-gratings.jpg';
+import gfrpPanelsImg from '@/assets/products/gfrp-panels.jpg';
+import gfrpPipesImg from '@/assets/products/gfrp-pipes.jpg';
+import frpTanksImg from '@/assets/products/frp-tanks.jpg';
+import gfrpRebarsImg from '@/assets/products/gfrp-rebars.jpg';
+
 export interface DemandProduct {
   slug: string;
   name: string;
@@ -37,6 +44,10 @@ export interface DemandProduct {
   challenges: string[];
   /** Market trend summary */
   marketTrend: string;
+  /** Optional hero image path */
+  heroImage?: string;
+  /** Alt text for hero image */
+  heroImageAlt?: string;
 }
 
 function createSlug(product: string): string {
@@ -1436,7 +1447,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹180 – ₹600 per sq.ft',
     applications: ['Industrial roofing and skylights', 'Warehouse cladding', 'Chemical plant enclosures', 'Cooling tower panels', 'Agricultural greenhouses', 'Factory daylighting systems'],
     challenges: ['UV degradation over time', 'Fire rating compliance for specific industries', 'Matching corrugation profiles with metal roofing', 'Quality consistency in glass fiber content'],
-    marketTrend: 'GFRP sheet demand growing at 8–12% CAGR in India driven by warehouse construction boom, corrosion-resistant roofing needs in chemical/steel plants, and smart city infrastructure projects.'
+    marketTrend: 'GFRP sheet demand growing at 8–12% CAGR in India driven by warehouse construction boom, corrosion-resistant roofing needs in chemical/steel plants, and smart city infrastructure projects.',
+    heroImage: gfrpSheetsImg,
+    heroImageAlt: 'GFRP corrugated roofing sheets stacked in industrial warehouse'
   },
   {
     slug: 'gfrp-gratings-india',
@@ -1457,7 +1470,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹3,000 – ₹12,000 per sq.m',
     applications: ['Chemical plant walkways and platforms', 'Trench and drain covers', 'Offshore platform decking', 'Water treatment plant flooring', 'Cooling tower structures', 'Sewage treatment plant access'],
     challenges: ['Load rating verification for specific applications', 'Resin system selection (polyester vs vinyl ester)', 'UV stabilization for outdoor installations', 'Cut-to-size accuracy and edge finishing'],
-    marketTrend: 'FRP grating market expanding rapidly as Indian refineries, chemical plants, and water treatment facilities replace corroding steel gratings with maintenance-free GFRP alternatives.'
+    marketTrend: 'FRP grating market expanding rapidly as Indian refineries, chemical plants, and water treatment facilities replace corroding steel gratings with maintenance-free GFRP alternatives.',
+    heroImage: gfrpGratingsImg,
+    heroImageAlt: 'Industrial FRP molded gratings with yellow safety border'
   },
   {
     slug: 'gfrp-panels-india',
@@ -1478,7 +1493,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹400 – ₹2,500 per sq.ft',
     applications: ['Clean room wall and ceiling lining', 'Cold storage chamber walls', 'Food processing facility hygiene walls', 'Chemical plant partitions', 'Pharma manufacturing enclosures', 'Industrial canteen interiors'],
     challenges: ['Fire rating compliance for specific use cases', 'Joint sealing for hygiene-critical applications', 'Panel flatness and finish quality', 'Custom color and texture matching'],
-    marketTrend: 'Growing demand from food processing, pharma, and cold chain sectors in India as FSSAI and GMP compliance drives adoption of hygienic, corrosion-proof GFRP panels.'
+    marketTrend: 'Growing demand from food processing, pharma, and cold chain sectors in India as FSSAI and GMP compliance drives adoption of hygienic, corrosion-proof GFRP panels.',
+    heroImage: gfrpPanelsImg,
+    heroImageAlt: 'Flat GFRP panels stacked in factory warehouse'
   },
   {
     slug: 'gfrp-pipes-india',
@@ -1499,7 +1516,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹800 – ₹25,000 per running meter',
     applications: ['Municipal water supply mains', 'Sewage and effluent transport', 'Chemical process piping', 'Desalination plant piping', 'Irrigation canal crossings', 'Industrial cooling water systems'],
     challenges: ['Jointing methods (adhesive bonded vs rubber ring)', 'Handling and transport of large diameter pipes', 'UV protection for above-ground installations', 'Design verification for buried pipe conditions'],
-    marketTrend: 'India\'s Jal Jeevan Mission and Smart Cities initiative driving massive GFRP pipe adoption for water supply and sewage networks. Market growing at 10–15% CAGR.'
+    marketTrend: 'India\'s Jal Jeevan Mission and Smart Cities initiative driving massive GFRP pipe adoption for water supply and sewage networks. Market growing at 10–15% CAGR.',
+    heroImage: gfrpPipesImg,
+    heroImageAlt: 'Large diameter GFRP pipes stacked at construction site'
   },
   {
     slug: 'frp-tanks-india',
@@ -1520,7 +1539,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹50,000 – ₹25,00,000 per tank',
     applications: ['Chemical raw material storage', 'ETP/STP chemical dosing tanks', 'Acid and alkali storage in plants', 'Water storage in corrosive environments', 'Food-grade liquid storage', 'Underground fuel and chemical storage'],
     challenges: ['Design pressure and temperature validation', 'Nozzle and fitting integration', 'Seismic zone design considerations', 'Internal inspection and maintenance access'],
-    marketTrend: 'FRP tank demand surging in India as chemical industry expands and environmental regulations mandate leak-proof, corrosion-resistant storage solutions.'
+    marketTrend: 'FRP tank demand surging in India as chemical industry expands and environmental regulations mandate leak-proof, corrosion-resistant storage solutions.',
+    heroImage: frpTanksImg,
+    heroImageAlt: 'Large FRP chemical storage tanks at industrial plant'
   },
   {
     slug: 'gfrp-rebars-india',
@@ -1541,7 +1562,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹150 – ₹600 per running meter',
     applications: ['Bridge decks and approach slabs', 'Coastal and marine seawalls', 'Highway median barriers and parapets', 'Tunnel lining reinforcement', 'MRI room construction (non-magnetic)', 'Chemical plant foundations and floors', 'Water treatment tank reinforcement', 'Precast concrete panel reinforcement'],
     challenges: ['No yielding (brittle failure mode requires design factor adjustment)', 'Bending must be done at factory (no field bending)', 'Higher initial cost vs steel (offset by zero maintenance)', 'Limited BIS code awareness among contractors', 'Lap splice length calculations differ from steel'],
-    marketTrend: 'GFRP rebar adoption in India accelerating with NHAI and IRC mandating corrosion-resistant reinforcement for coastal highways and bridges. Market projected to grow at 15–20% CAGR as lifecycle cost benefits over steel become widely recognized. Major infrastructure projects like Sagarmala, Bharatmala, and Smart Cities driving demand.'
+    marketTrend: 'GFRP rebar adoption in India accelerating with NHAI and IRC mandating corrosion-resistant reinforcement for coastal highways and bridges. Market projected to grow at 15–20% CAGR as lifecycle cost benefits over steel become widely recognized. Major infrastructure projects like Sagarmala, Bharatmala, and Smart Cities driving demand.',
+    heroImage: gfrpRebarsImg,
+    heroImageAlt: 'Bundle of GFRP composite reinforcement rebars'
   },
 ];
 
