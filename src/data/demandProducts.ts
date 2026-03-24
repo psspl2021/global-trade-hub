@@ -37,6 +37,10 @@ export interface DemandProduct {
   challenges: string[];
   /** Market trend summary */
   marketTrend: string;
+  /** Optional hero image path */
+  heroImage?: string;
+  /** Alt text for hero image */
+  heroImageAlt?: string;
 }
 
 function createSlug(product: string): string {
