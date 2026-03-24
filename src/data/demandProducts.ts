@@ -4,6 +4,13 @@
  * Rich content is generated at render time by the content engine.
  */
 
+import gfrpSheetsImg from '@/assets/products/gfrp-sheets.jpg';
+import gfrpGratingsImg from '@/assets/products/gfrp-gratings.jpg';
+import gfrpPanelsImg from '@/assets/products/gfrp-panels.jpg';
+import gfrpPipesImg from '@/assets/products/gfrp-pipes.jpg';
+import frpTanksImg from '@/assets/products/frp-tanks.jpg';
+import gfrpRebarsImg from '@/assets/products/gfrp-rebars.jpg';
+
 export interface DemandProduct {
   slug: string;
   name: string;
