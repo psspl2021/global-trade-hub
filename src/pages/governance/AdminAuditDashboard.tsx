@@ -70,6 +70,7 @@ import { BenchmarkManager } from '@/components/admin/BenchmarkManager';
 import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
 import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
 import { CreditLeadsSummaryCard } from '@/components/admin/CreditLeadsSummaryCard';
+import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
@@ -84,7 +85,8 @@ type AdminView =
   | 'sales-board'
   | 'benchmarks'
   | 'ai-blog-gen'
-  | 'enterprise';
+  | 'enterprise'
+  | 'credit-leads';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
@@ -263,6 +265,16 @@ export default function AdminAuditDashboard() {
     fetchStats();
   }, [user]);
 
+  // Listen for inline view switch events (e.g. from summary cards)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const view = (e as CustomEvent).detail as AdminView;
+      if (view) setCurrentView(view);
+    };
+    window.addEventListener("open-admin-view", handler);
+    return () => window.removeEventListener("open-admin-view", handler);
+  }, []);
+
   // Debug log for role access
   useEffect(() => {
     if (!accessLoading) {
@@ -335,6 +347,8 @@ export default function AdminAuditDashboard() {
         return <AIBlogGenerator />;
       case 'enterprise':
         return <EnterpriseControlCenter />;
+      case 'credit-leads':
+        return <CreditLeadsCard />;
       default:
         return renderDashboard();
     }
