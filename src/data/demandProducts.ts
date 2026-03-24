@@ -1562,7 +1562,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹150 – ₹600 per running meter',
     applications: ['Bridge decks and approach slabs', 'Coastal and marine seawalls', 'Highway median barriers and parapets', 'Tunnel lining reinforcement', 'MRI room construction (non-magnetic)', 'Chemical plant foundations and floors', 'Water treatment tank reinforcement', 'Precast concrete panel reinforcement'],
     challenges: ['No yielding (brittle failure mode requires design factor adjustment)', 'Bending must be done at factory (no field bending)', 'Higher initial cost vs steel (offset by zero maintenance)', 'Limited BIS code awareness among contractors', 'Lap splice length calculations differ from steel'],
-    marketTrend: 'GFRP rebar adoption in India accelerating with NHAI and IRC mandating corrosion-resistant reinforcement for coastal highways and bridges. Market projected to grow at 15–20% CAGR as lifecycle cost benefits over steel become widely recognized. Major infrastructure projects like Sagarmala, Bharatmala, and Smart Cities driving demand.'
+    marketTrend: 'GFRP rebar adoption in India accelerating with NHAI and IRC mandating corrosion-resistant reinforcement for coastal highways and bridges. Market projected to grow at 15–20% CAGR as lifecycle cost benefits over steel become widely recognized. Major infrastructure projects like Sagarmala, Bharatmala, and Smart Cities driving demand.',
+    heroImage: gfrpRebarsImg,
+    heroImageAlt: 'Bundle of GFRP composite reinforcement rebars'
   },
 ];
 
