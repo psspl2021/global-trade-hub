@@ -199,13 +199,15 @@ export const getOrganizationSchema = () => ({
 
 // FAQ schema — filters out invalid/empty entries to prevent "Unnamed item" errors in Search Console
 export const getFAQSchema = (faqs: { question: string; answer: string }[]) => {
+  const sanitize = (text: string) => text.replace(/<[^>]*>?/gm, "").trim();
+
   const validFaqs = (faqs || []).filter(
     (f) =>
       f &&
       typeof f.question === "string" &&
       typeof f.answer === "string" &&
-      f.question.trim().length > 0 &&
-      f.answer.trim().length > 0
+      sanitize(f.question).length > 0 &&
+      sanitize(f.answer).length > 0
   );
 
   if (validFaqs.length === 0) return null;
@@ -213,12 +215,12 @@ export const getFAQSchema = (faqs: { question: string; answer: string }[]) => {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": validFaqs.slice(0, 10).map(faq => ({
+    "mainEntity": validFaqs.slice(0, 5).map(faq => ({
       "@type": "Question",
-      "name": faq.question.trim(),
+      "name": sanitize(faq.question),
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": faq.answer.trim()
+        "text": sanitize(faq.answer)
       }
     }))
   };
