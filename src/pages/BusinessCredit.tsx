@@ -337,43 +337,34 @@ export default function BusinessCreditPage() {
         </section>
 
         {/* ===== FAQ (SEO BOOST) ===== */}
-        <section className="max-w-4xl mx-auto px-4 py-10">
-          <h2 className="text-xl font-semibold mb-6 text-foreground">
-            FAQs – MSME Business Credit
-          </h2>
-          <div className="space-y-4 text-sm">
-            <div>
-              <strong>Who can apply for procurement credit?</strong>
-              <p className="text-muted-foreground">
-                MSMEs, traders, manufacturers, and distributors across India.
-              </p>
-            </div>
-            <div>
-              <strong>Is collateral required?</strong>
-              <p className="text-muted-foreground">
-                Depends on financials — both secured and unsecured options available.
-              </p>
-            </div>
-            <div>
-              <strong>What is the credit period?</strong>
-              <p className="text-muted-foreground">
-                Typically 30, 60, or 90 days depending on approval.
-              </p>
-            </div>
-            <div>
-              <strong>How fast is approval?</strong>
-              <p className="text-muted-foreground">
-                Initial approval within 24–48 hours after document verification.
-              </p>
+        {/* ===== FAQ ===== */}
+        <section className="bg-muted/30 border-t border-border">
+          <div className="max-w-4xl mx-auto px-4 py-14">
+            <h2 className="text-2xl font-bold mb-8 text-foreground">
+              FAQs – MSME Business Credit
+            </h2>
+            <div className="space-y-6">
+              {FAQ_SCHEMA.mainEntity.map((faq, i) => (
+                <div key={i} className="bg-card border border-border rounded-lg p-5">
+                  <strong className="text-foreground">{faq.name}</strong>
+                  <p className="text-muted-foreground text-sm mt-2">{faq.acceptedAnswer.text}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* ===== INTERNAL LINKING (SEO BOOST) ===== */}
-        <section className="text-center pb-10">
-          <Link to="/post-rfq" className="text-primary underline">
-            Post your raw material requirement →
-          </Link>
+        {/* ===== CTA FOOTER ===== */}
+        <section className="border-t border-border bg-card">
+          <div className="max-w-4xl mx-auto px-4 py-10 text-center space-y-4">
+            <p className="text-lg font-semibold text-foreground">Not looking for credit?</p>
+            <Link to="/post-rfq" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+              Post your raw material requirement <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="text-xs text-muted-foreground mt-4">
+              © {new Date().getFullYear()} ProcureSaathi · Trusted by MSMEs across India
+            </p>
+          </div>
         </section>
       </main>
     </>
