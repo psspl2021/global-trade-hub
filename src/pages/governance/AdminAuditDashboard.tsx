@@ -680,13 +680,6 @@ export default function AdminAuditDashboard() {
       </div>
 
 
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-        <Card className="bg-gradient-to-r from-slate-900 to-zinc-800 text-white border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Shield className="h-4 w-4" />
-              Enterprise Control Center
-              <Badge className="bg-white/20 text-white text-xs">NEW</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
