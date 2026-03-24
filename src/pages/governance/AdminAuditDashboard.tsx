@@ -84,7 +84,8 @@ type AdminView =
   | 'sales-board'
   | 'benchmarks'
   | 'ai-blog-gen'
-  | 'enterprise';
+  | 'enterprise'
+  | 'credit-leads';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
