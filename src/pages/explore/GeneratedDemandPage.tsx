@@ -159,21 +159,6 @@ export default function GeneratedDemandPage() {
   const content = generateDemandContent(product);
   const canonicalUrl = `https://www.procuresaathi.com/demand/${product.slug}`;
 
-  const productSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": product.name,
-    "brand": { "@type": "Brand", "name": "ProcureSaathi" },
-    "category": product.category,
-    "description": `Source ${product.name} in India with verified suppliers, import intelligence, and procurement insights for industrial buyers.`,
-    "dateModified": new Date().toISOString().split('T')[0],
-    "offers": {
-      "@type": "AggregateOffer",
-      "priceCurrency": "INR",
-      "availability": "https://schema.org/InStock"
-    }
-  };
-
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -232,10 +217,10 @@ export default function GeneratedDemandPage() {
         <meta property="og:title" content={`Buy ${product.name} in India | Procurement & Suppliers`} />
         <meta property="og:description" content={`Source ${product.name} in India with verified suppliers and procurement insights.`} />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="product" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, serviceSchema, faqSchema]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([serviceSchema, faqSchema]) }} />
 
       <main className="min-h-screen bg-background">
         {/* ─── HERO ──────────────────────────────────────────── */}
