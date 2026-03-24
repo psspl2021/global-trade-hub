@@ -125,7 +125,7 @@ export default function BusinessCreditPage() {
               <img
                 src="/procuresaathi-logo.png"
                 alt="ProcureSaathi"
-                className="h-20 w-auto"
+                className="h-28 w-auto"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
