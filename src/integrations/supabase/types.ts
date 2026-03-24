@@ -2438,6 +2438,7 @@ export type Database = {
           created_at: string | null
           credit_required: string | null
           email: string | null
+          gst: string | null
           id: string
           phone: string | null
           status: string | null
@@ -2453,6 +2454,7 @@ export type Database = {
           created_at?: string | null
           credit_required?: string | null
           email?: string | null
+          gst?: string | null
           id?: string
           phone?: string | null
           status?: string | null
@@ -2468,6 +2470,7 @@ export type Database = {
           created_at?: string | null
           credit_required?: string | null
           email?: string | null
+          gst?: string | null
           id?: string
           phone?: string | null
           status?: string | null

@@ -1,0 +1,1 @@
+ALTER TABLE public.credit_leads ADD COLUMN gst text;
