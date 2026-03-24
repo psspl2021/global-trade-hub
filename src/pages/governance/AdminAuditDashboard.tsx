@@ -336,6 +336,8 @@ export default function AdminAuditDashboard() {
         return <AIBlogGenerator />;
       case 'enterprise':
         return <EnterpriseControlCenter />;
+      case 'credit-leads':
+        return <CreditLeadsCard />;
       default:
         return renderDashboard();
     }
