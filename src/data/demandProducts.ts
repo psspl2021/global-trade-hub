@@ -1470,7 +1470,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹3,000 – ₹12,000 per sq.m',
     applications: ['Chemical plant walkways and platforms', 'Trench and drain covers', 'Offshore platform decking', 'Water treatment plant flooring', 'Cooling tower structures', 'Sewage treatment plant access'],
     challenges: ['Load rating verification for specific applications', 'Resin system selection (polyester vs vinyl ester)', 'UV stabilization for outdoor installations', 'Cut-to-size accuracy and edge finishing'],
-    marketTrend: 'FRP grating market expanding rapidly as Indian refineries, chemical plants, and water treatment facilities replace corroding steel gratings with maintenance-free GFRP alternatives.'
+    marketTrend: 'FRP grating market expanding rapidly as Indian refineries, chemical plants, and water treatment facilities replace corroding steel gratings with maintenance-free GFRP alternatives.',
+    heroImage: gfrpGratingsImg,
+    heroImageAlt: 'Industrial FRP molded gratings with yellow safety border'
   },
   {
     slug: 'gfrp-panels-india',
