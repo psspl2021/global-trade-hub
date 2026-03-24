@@ -678,26 +678,8 @@ export default function AdminAuditDashboard() {
           </CardContent>
         </Card>
       </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Global demand intelligence across 196 countries × 30 categories
-            </p>
-            <Button 
-              className="w-full bg-rose-500 hover:bg-rose-600 text-white"
-              onClick={() => setCurrentView('demand-heatmap')}
-            >
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Open Demand Heatmap
-            </Button>
-          </CardContent>
-        </Card>
 
-        <AuctionTrackerCard />
-      </div>
 
-      {/* Enterprise Intelligence Row */}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         <Card className="bg-gradient-to-r from-slate-900 to-zinc-800 text-white border-0">
           <CardHeader className="pb-2">
