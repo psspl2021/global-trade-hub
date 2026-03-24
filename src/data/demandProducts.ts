@@ -1516,7 +1516,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹800 – ₹25,000 per running meter',
     applications: ['Municipal water supply mains', 'Sewage and effluent transport', 'Chemical process piping', 'Desalination plant piping', 'Irrigation canal crossings', 'Industrial cooling water systems'],
     challenges: ['Jointing methods (adhesive bonded vs rubber ring)', 'Handling and transport of large diameter pipes', 'UV protection for above-ground installations', 'Design verification for buried pipe conditions'],
-    marketTrend: 'India\'s Jal Jeevan Mission and Smart Cities initiative driving massive GFRP pipe adoption for water supply and sewage networks. Market growing at 10–15% CAGR.'
+    marketTrend: 'India\'s Jal Jeevan Mission and Smart Cities initiative driving massive GFRP pipe adoption for water supply and sewage networks. Market growing at 10–15% CAGR.',
+    heroImage: gfrpPipesImg,
+    heroImageAlt: 'Large diameter GFRP pipes stacked at construction site'
   },
   {
     slug: 'frp-tanks-india',
