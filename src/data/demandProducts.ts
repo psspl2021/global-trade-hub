@@ -1522,6 +1522,27 @@ const compositeProducts: DemandProduct[] = [
     challenges: ['Design pressure and temperature validation', 'Nozzle and fitting integration', 'Seismic zone design considerations', 'Internal inspection and maintenance access'],
     marketTrend: 'FRP tank demand surging in India as chemical industry expands and environmental regulations mandate leak-proof, corrosion-resistant storage solutions.'
   },
+  {
+    slug: 'gfrp-rebars-india',
+    name: 'GFRP Rebars',
+    category: 'GFRP & Composites',
+    categorySlug: 'gfrp-composites',
+    industrySlug: 'composites',
+    subIndustrySlug: 'gfrp',
+    definition: 'GFRP (Glass Fiber Reinforced Polymer) rebars are non-metallic reinforcement bars made from high-strength glass fibers embedded in a thermosetting polymer resin. They offer 2–3x higher tensile strength-to-weight ratio than steel, are 100% corrosion-resistant, and electromagnetically neutral — making them ideal for coastal infrastructure, bridges, tunnels, marine structures, MRI rooms, and chemical plants where steel rebar corrodes rapidly.',
+    industries: ['Infrastructure & Highways', 'Bridges & Flyovers', 'Marine & Coastal Construction', 'Chemical & Petrochemical Plants', 'Water Treatment & Desalination', 'Healthcare (MRI Facilities)', 'Tunnels & Underground Structures', 'Power & Telecom'],
+    grades: ['GFRP Rebar #8 (8mm)', 'GFRP Rebar #10 (10mm)', 'GFRP Rebar #12 (12mm)', 'GFRP Rebar #16 (16mm)', 'GFRP Rebar #20 (20mm)', 'GFRP Rebar #25 (25mm)', 'Bent/Stirrup GFRP Bars', 'Sand-Coated GFRP Rebars', 'Helical Wrapped GFRP Rebars'],
+    specifications: ['Tensile Strength: 800–1200 MPa', 'Elastic Modulus: 40–55 GPa', 'Density: 1.8–2.2 g/cm³ (75% lighter than steel)', 'Thermal Expansion: 6–10 µm/m°C', 'Glass Content: 70–80% by weight', 'Bar Surface: Sand-coated / Ribbed / Helical'],
+    standards: ['ACI 440.1R', 'CSA S807', 'ASTM D7957', 'ISO 10406-1', 'IS 15894:2018 (BIS)', 'IRC SP:120 (Indian Roads)'],
+    hsnCodes: ['7019', '3926'],
+    orderSizes: '1 MT to 500 MT per project',
+    importCountries: ['China', 'Russia', 'USA', 'Canada', 'UAE'],
+    relatedSlugs: ['gfrp-sheets-india', 'gfrp-gratings-india', 'tmt-bars-india', 'gfrp-pipes-india'],
+    priceRange: '₹150 – ₹600 per running meter',
+    applications: ['Bridge decks and approach slabs', 'Coastal and marine seawalls', 'Highway median barriers and parapets', 'Tunnel lining reinforcement', 'MRI room construction (non-magnetic)', 'Chemical plant foundations and floors', 'Water treatment tank reinforcement', 'Precast concrete panel reinforcement'],
+    challenges: ['No yielding (brittle failure mode requires design factor adjustment)', 'Bending must be done at factory (no field bending)', 'Higher initial cost vs steel (offset by zero maintenance)', 'Limited BIS code awareness among contractors', 'Lap splice length calculations differ from steel'],
+    marketTrend: 'GFRP rebar adoption in India accelerating with NHAI and IRC mandating corrosion-resistant reinforcement for coastal highways and bridges. Market projected to grow at 15–20% CAGR as lifecycle cost benefits over steel become widely recognized. Major infrastructure projects like Sagarmala, Bharatmala, and Smart Cities driving demand.'
+  },
 ];
 
 // ─── COMBINED EXPORT ────────────────────────────────────────────
