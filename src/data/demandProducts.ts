@@ -1539,7 +1539,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹50,000 – ₹25,00,000 per tank',
     applications: ['Chemical raw material storage', 'ETP/STP chemical dosing tanks', 'Acid and alkali storage in plants', 'Water storage in corrosive environments', 'Food-grade liquid storage', 'Underground fuel and chemical storage'],
     challenges: ['Design pressure and temperature validation', 'Nozzle and fitting integration', 'Seismic zone design considerations', 'Internal inspection and maintenance access'],
-    marketTrend: 'FRP tank demand surging in India as chemical industry expands and environmental regulations mandate leak-proof, corrosion-resistant storage solutions.'
+    marketTrend: 'FRP tank demand surging in India as chemical industry expands and environmental regulations mandate leak-proof, corrosion-resistant storage solutions.',
+    heroImage: frpTanksImg,
+    heroImageAlt: 'Large FRP chemical storage tanks at industrial plant'
   },
   {
     slug: 'gfrp-rebars-india',
