@@ -127,15 +127,21 @@ function generateFAQSchema(pageType: string, category: string) {
     }
   ];
 
+  const validFaqs = faqs.filter(
+    f => f && f.question?.trim() && f.answer?.trim()
+  );
+
+  if (validFaqs.length === 0) return null;
+
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map(faq => ({
+    mainEntity: validFaqs.map(faq => ({
       '@type': 'Question',
-      name: faq.question,
+      name: faq.question.trim(),
       acceptedAnswer: {
         '@type': 'Answer',
-        text: faq.answer
+        text: faq.answer.trim()
       }
     }))
   };

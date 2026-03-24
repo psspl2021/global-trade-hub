@@ -127,8 +127,14 @@ export const useSEO = ({
   }, [title, description, canonical, keywords, ogImage, ogType, twitterCard, ogSiteName, hreflang, geoRegion, geoPlacename, targetCountry]);
 };
 
-// Helper to inject JSON-LD structured data
-export const injectStructuredData = (data: object, id: string) => {
+// Helper to inject JSON-LD structured data (skips null/undefined data)
+export const injectStructuredData = (data: object | null | undefined, id: string) => {
+  if (!data) {
+    // Remove existing script if data is null (e.g. no valid FAQs)
+    const existing = document.getElementById(id);
+    if (existing) existing.remove();
+    return;
+  }
   let script = document.getElementById(id) as HTMLScriptElement | null;
   if (!script) {
     script = document.createElement('script');
@@ -191,19 +197,32 @@ export const getOrganizationSchema = () => ({
   }
 });
 
-// FAQ schema
-export const getFAQSchema = (faqs: { question: string; answer: string }[]) => ({
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": faqs.map(faq => ({
-    "@type": "Question",
-    "name": faq.question,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": faq.answer
-    }
-  }))
-});
+// FAQ schema — filters out invalid/empty entries to prevent "Unnamed item" errors in Search Console
+export const getFAQSchema = (faqs: { question: string; answer: string }[]) => {
+  const validFaqs = (faqs || []).filter(
+    (f) =>
+      f &&
+      typeof f.question === "string" &&
+      typeof f.answer === "string" &&
+      f.question.trim().length > 0 &&
+      f.answer.trim().length > 0
+  );
+
+  if (validFaqs.length === 0) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": validFaqs.slice(0, 10).map(faq => ({
+      "@type": "Question",
+      "name": faq.question.trim(),
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer.trim()
+      }
+    }))
+  };
+};
 
 // Breadcrumb schema
 export const getBreadcrumbSchema = (items: { name: string; url: string }[]) => ({
