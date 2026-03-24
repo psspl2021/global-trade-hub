@@ -36,10 +36,10 @@ export function CreditLeadsSummaryCard() {
           <span className="text-sm text-muted-foreground">Open leads</span>
           <span className="text-sm font-semibold">{openCount}</span>
         </div>
-        <div className="text-2xl font-bold text-green-600">
-          ₹{new Intl.NumberFormat("en-IN").format(pipeline)}
+        <div className="text-2xl font-bold text-primary">
+          {openCount}
         </div>
-        <p className="text-xs text-muted-foreground">Open pipeline value</p>
+        <p className="text-xs text-muted-foreground">Total open leads</p>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("open-admin-view", { detail: "credit-leads" }))}
           className="w-full text-sm border rounded-md py-2 hover:bg-accent transition-colors mt-2"
