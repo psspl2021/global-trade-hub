@@ -217,7 +217,7 @@ export default function GeneratedDemandPage() {
         <meta property="og:title" content={`Buy ${product.name} in India | Procurement & Suppliers`} />
         <meta property="og:description" content={`Source ${product.name} in India with verified suppliers and procurement insights.`} />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="product" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, serviceSchema, faqSchema]) }} />
