@@ -70,6 +70,7 @@ import { BenchmarkManager } from '@/components/admin/BenchmarkManager';
 import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
 import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
 import { CreditLeadsSummaryCard } from '@/components/admin/CreditLeadsSummaryCard';
+import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';

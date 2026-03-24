@@ -41,7 +41,7 @@ export function CreditLeadsSummaryCard() {
         </div>
         <p className="text-xs text-muted-foreground">Open pipeline value</p>
         <button
-          onClick={() => window.location.href = "/admin-audit?tab=credit-leads"}
+          onClick={() => window.dispatchEvent(new CustomEvent("open-admin-view", { detail: "credit-leads" }))}
           className="w-full text-sm border rounded-md py-2 hover:bg-accent transition-colors mt-2"
         >
           View Leads →
