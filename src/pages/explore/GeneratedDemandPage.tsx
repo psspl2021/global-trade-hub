@@ -46,7 +46,7 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
   const faqs = useMemo(() => allFaqs, [allFaqs]);
 
   return (
-    <section itemScope itemType="https://schema.org/FAQPage">
+    <section aria-label="Frequently Asked Questions">
       <div className="flex items-center gap-3 mb-6">
         <HelpCircle className="h-6 w-6 text-primary" />
         <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
