@@ -265,6 +265,16 @@ export default function AdminAuditDashboard() {
     fetchStats();
   }, [user]);
 
+  // Listen for inline view switch events (e.g. from summary cards)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const view = (e as CustomEvent).detail as AdminView;
+      if (view) setCurrentView(view);
+    };
+    window.addEventListener("open-admin-view", handler);
+    return () => window.removeEventListener("open-admin-view", handler);
+  }, []);
+
   // Debug log for role access
   useEffect(() => {
     if (!accessLoading) {
