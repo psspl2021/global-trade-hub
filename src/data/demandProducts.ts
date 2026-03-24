@@ -1447,7 +1447,9 @@ const compositeProducts: DemandProduct[] = [
     priceRange: '₹180 – ₹600 per sq.ft',
     applications: ['Industrial roofing and skylights', 'Warehouse cladding', 'Chemical plant enclosures', 'Cooling tower panels', 'Agricultural greenhouses', 'Factory daylighting systems'],
     challenges: ['UV degradation over time', 'Fire rating compliance for specific industries', 'Matching corrugation profiles with metal roofing', 'Quality consistency in glass fiber content'],
-    marketTrend: 'GFRP sheet demand growing at 8–12% CAGR in India driven by warehouse construction boom, corrosion-resistant roofing needs in chemical/steel plants, and smart city infrastructure projects.'
+    marketTrend: 'GFRP sheet demand growing at 8–12% CAGR in India driven by warehouse construction boom, corrosion-resistant roofing needs in chemical/steel plants, and smart city infrastructure projects.',
+    heroImage: gfrpSheetsImg,
+    heroImageAlt: 'GFRP corrugated roofing sheets stacked in industrial warehouse'
   },
   {
     slug: 'gfrp-gratings-india',
