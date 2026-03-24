@@ -190,38 +190,35 @@ export default function BusinessCreditPage() {
         </section>
 
         {/* ===== HOW IT WORKS ===== */}
-        <section className="max-w-5xl mx-auto px-4 py-10">
-          <h2 className="text-xl font-semibold mb-6 text-center text-foreground">
+        <section className="max-w-6xl mx-auto px-4 py-14">
+          <h2 className="text-2xl font-bold mb-8 text-center text-foreground">
             How MSME Credit Works
           </h2>
-          <div className="grid md:grid-cols-3 gap-6 text-sm">
-            <div className="border border-border p-4 rounded-lg">
-              <strong>1. Apply Online</strong>
-              <p className="text-muted-foreground mt-2">
-                Submit your business details and credit requirement in 2 minutes.
-              </p>
-            </div>
-            <div className="border border-border p-4 rounded-lg">
-              <strong>2. Get Assessed</strong>
-              <p className="text-muted-foreground mt-2">
-                Banks/NBFCs evaluate turnover, GST &amp; financials.
-              </p>
-            </div>
-            <div className="border border-border p-4 rounded-lg">
-              <strong>3. Get Credit Line</strong>
-              <p className="text-muted-foreground mt-2">
-                Receive approved credit for raw material procurement.
-              </p>
-            </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { step: "01", title: "Apply Online", desc: "Submit your business details and credit requirement in 2 minutes.", icon: "📋" },
+              { step: "02", title: "Get Assessed", desc: "Banks/NBFCs evaluate turnover, GST & financials.", icon: "🔍" },
+              { step: "03", title: "Get Credit Line", desc: "Receive approved credit for raw material procurement.", icon: "💳" },
+            ].map((item) => (
+              <div key={item.step} className="relative bg-card border border-border p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-3xl mb-3">{item.icon}</div>
+                <div className="text-xs font-bold text-primary tracking-widest mb-1">STEP {item.step}</div>
+                <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* ===== APPLICATION FORM ===== */}
-        <section className="max-w-4xl mx-auto px-4 py-8">
+        <section className="max-w-4xl mx-auto px-4 py-10" id="apply">
           {!success ? (
-            <Card className="max-w-lg mx-auto border shadow-lg">
-              <CardContent className="pt-6 space-y-4">
-                <h2 className="text-lg font-semibold text-foreground mb-2">Apply for Credit</h2>
+            <Card className="max-w-lg mx-auto border-2 border-primary/20 shadow-xl bg-card">
+              <CardContent className="pt-8 pb-6 space-y-4">
+                <div className="text-center mb-4">
+                  <h2 className="text-xl font-bold text-foreground">Apply for Credit</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Takes less than 2 minutes</p>
+                </div>
 
                 {[
                   { field: "company_name", label: "Company Name", placeholder: "Your company name" },
