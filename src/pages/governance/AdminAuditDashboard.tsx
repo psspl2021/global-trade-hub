@@ -69,7 +69,7 @@ import { SalesControlBoard } from '@/components/admin/SalesControlBoard';
 import { BenchmarkManager } from '@/components/admin/BenchmarkManager';
 import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
 import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
-import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
+import { CreditLeadsSummaryCard } from '@/components/admin/CreditLeadsSummaryCard';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
@@ -633,11 +633,9 @@ export default function AdminAuditDashboard() {
             </Button>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Credit Leads Tracking */}
-      <div className="grid grid-cols-1 gap-4">
-        <CreditLeadsCard />
+        {/* Credit Leads Summary */}
+        <CreditLeadsSummaryCard />
       </div>
 
       {/* Third Row - Documents & Revenue */}
