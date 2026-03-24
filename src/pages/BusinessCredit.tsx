@@ -121,16 +121,15 @@ export default function BusinessCreditPage() {
         {/* ===== HERO (MSME + TRUST + BRAND) ===== */}
         <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border relative pt-0 mt-0">
           <div className="max-w-5xl mx-auto px-4 pt-8">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center justify-between mb-8">
               <img
                 src="/procuresaathi-logo.png"
                 alt="ProcureSaathi"
-                className="h-12 w-auto"
+                className="h-10 w-auto"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
-            />
-              <span className="text-lg font-semibold text-foreground">ProcureSaathi</span>
+              />
             </div>
           </div>
           <div className="max-w-5xl mx-auto px-4 py-12 text-center">
