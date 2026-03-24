@@ -127,8 +127,14 @@ export const useSEO = ({
   }, [title, description, canonical, keywords, ogImage, ogType, twitterCard, ogSiteName, hreflang, geoRegion, geoPlacename, targetCountry]);
 };
 
-// Helper to inject JSON-LD structured data
-export const injectStructuredData = (data: object, id: string) => {
+// Helper to inject JSON-LD structured data (skips null/undefined data)
+export const injectStructuredData = (data: object | null | undefined, id: string) => {
+  if (!data) {
+    // Remove existing script if data is null (e.g. no valid FAQs)
+    const existing = document.getElementById(id);
+    if (existing) existing.remove();
+    return;
+  }
   let script = document.getElementById(id) as HTMLScriptElement | null;
   if (!script) {
     script = document.createElement('script');
