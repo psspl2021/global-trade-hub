@@ -74,6 +74,7 @@ import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
+
 type AdminView = 
   | 'dashboard' 
   | 'control-tower' 
@@ -95,7 +96,6 @@ export default function AdminAuditDashboard() {
   
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
   
-  // Dialog states for modal-based components
   const [showUsers, setShowUsers] = useState(false);
   const [showRequirements, setShowRequirements] = useState(false);
   const [showBids, setShowBids] = useState(false);
@@ -135,13 +135,11 @@ export default function AdminAuditDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [userName, setUserName] = useState('Admin');
 
-  // Fetch analytics from edge function
   const fetchStats = async () => {
     if (!user) return;
     setStatsLoading(true);
     
     try {
-      // Fetch user name from profiles
       const { data: profileData } = await supabase
         .from('profiles')
         .select('company_name, contact_person')
@@ -152,19 +150,16 @@ export default function AdminAuditDashboard() {
         setUserName(profileData.contact_person || profileData.company_name || 'Admin');
       }
 
-      // Fetch users count
       const { count: usersCount } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
       
-      // Fetch requirements count
       const reqResult = await supabase
         .from('requirements')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'active');
       const reqCount = reqResult.count;
 
-      // Fetch pending invoices
       const invoicesResult = await (supabase
         .from('platform_invoices') as any)
         .select('total_amount')
@@ -172,7 +167,6 @@ export default function AdminAuditDashboard() {
       const invoicesData = invoicesResult.data || [];
       const pendingAmount = invoicesData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
 
-      // Fetch total collected
       const collectedResult = await (supabase
         .from('platform_invoices') as any)
         .select('total_amount')
@@ -180,14 +174,12 @@ export default function AdminAuditDashboard() {
       const collectedData = collectedResult.data || [];
       const totalCollected = collectedData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
 
-      // Fetch vehicles pending verification
       const vehiclesResult = await (supabase
         .from('vehicles') as any)
         .select('id', { count: 'exact', head: true })
         .eq('is_verified', false);
       const vehiclesCount = vehiclesResult.count || 0;
 
-      // Fetch partner docs pending
       const docsResult = await (supabase
         .from('partner_documents') as any)
         .select('id', { count: 'exact', head: true })
@@ -204,23 +196,12 @@ export default function AdminAuditDashboard() {
         partnerDocsPending: docsCount || 0
       });
 
-      // Fetch REAL visitor analytics using edge function for complete data
       const { data: analyticsData, error: analyticsError } = await supabase.functions.invoke('get-analytics', {
         body: { days: selectedDays }
       });
 
       if (!analyticsError && analyticsData) {
         setFullAnalytics(analyticsData);
-        
-        // Format top countries string for card display
-        const topCountryStr = analyticsData.countryBreakdown?.slice(0, 2)
-          .map((c: any) => `${c.country} (${c.percentage}%)`)
-          .join(', ') || 'No data';
-        
-        // Format top source string for card display
-        const topSourceStr = analyticsData.topSources?.length > 0
-          ? `${analyticsData.topSources[0].source} (${analyticsData.topSources[0].percentage}%)`
-          : 'No data';
         
         setVisitorStats({
           totalVisitors: analyticsData.totalVisitors || 0,
@@ -236,16 +217,9 @@ export default function AdminAuditDashboard() {
         });
       } else {
         setVisitorStats({
-          totalVisitors: 0,
-          pageViews: 0,
-          desktopPercent: 0,
-          mobilePercent: 0,
-          tabletPercent: 0,
-          pagesPerVisit: 0,
-          avgTimeSeconds: 0,
-          topCountries: [],
-          topSources: [],
-          lastUpdated: new Date().toLocaleTimeString()
+          totalVisitors: 0, pageViews: 0, desktopPercent: 0, mobilePercent: 0,
+          tabletPercent: 0, pagesPerVisit: 0, avgTimeSeconds: 0,
+          topCountries: [], topSources: [], lastUpdated: new Date().toLocaleTimeString()
         });
       }
     } catch (error) {
@@ -255,17 +229,14 @@ export default function AdminAuditDashboard() {
     }
   };
 
-  // Refetch when selectedDays changes
   useEffect(() => {
     if (user) fetchStats();
   }, [selectedDays]);
 
-  // Initial fetch on mount
   useEffect(() => {
     fetchStats();
   }, [user]);
 
-  // Listen for inline view switch events (e.g. from summary cards)
   useEffect(() => {
     const handler = (e: Event) => {
       const view = (e as CustomEvent).detail as AdminView;
@@ -275,41 +246,22 @@ export default function AdminAuditDashboard() {
     return () => window.removeEventListener("open-admin-view", handler);
   }, []);
 
-  // Debug log for role access
   useEffect(() => {
     if (!accessLoading) {
       console.log('[AdminAuditDashboard] Access check:', {
-        primaryRole,
-        isAccessDenied,
-        authLoading,
-        accessLoading,
-        userId: user?.id
+        primaryRole, isAccessDenied, authLoading, accessLoading, userId: user?.id
       });
     }
   }, [primaryRole, isAccessDenied, authLoading, accessLoading, user?.id]);
 
-  // Role-based redirects
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/login');
-      return;
-    }
-    
+    if (!authLoading && !user) { navigate('/login'); return; }
     if (!accessLoading && primaryRole) {
-      // Purchaser/buyer roles → /dashboard
-      if (['purchaser', 'buyer', 'buyer_purchaser'].includes(primaryRole)) {
-        navigate('/dashboard');
-        return;
-      }
-      // Management roles → /management
-      if (['cfo', 'ceo', 'manager', 'buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(primaryRole)) {
-        navigate('/management');
-        return;
-      }
+      if (['purchaser', 'buyer', 'buyer_purchaser'].includes(primaryRole)) { navigate('/dashboard'); return; }
+      if (['cfo', 'ceo', 'manager', 'buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(primaryRole)) { navigate('/management'); return; }
     }
   }, [authLoading, accessLoading, user, primaryRole, navigate]);
 
-  // STEP 1: Show loading until BOTH auth AND role are fully resolved
   if (authLoading || accessLoading || !primaryRole || primaryRole === 'unknown') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
@@ -319,7 +271,6 @@ export default function AdminAuditDashboard() {
     );
   }
 
-  // STEP 2: Only AFTER role is resolved, check access
   if (isAccessDenied || !['ps_admin', 'admin'].includes(primaryRole)) {
     console.warn('[AdminAuditDashboard] Access denied for role:', primaryRole);
     return <AccessDenied variant="404" />;
@@ -327,30 +278,18 @@ export default function AdminAuditDashboard() {
 
   const renderView = () => {
     switch (currentView) {
-      case 'control-tower':
-        return <ControlTowerExecutive />;
-      case 'ai-sales':
-        return <AISalesDashboard />;
-      case 'demand-heatmap':
-        return <AdminDemandHeatmap />;
-      case 'leads':
-        return <LeadsDashboard />;
-      case 'blogs':
-        return <AdminBlogManager />;
-      case 'email-tracking':
-        return <AdminEmailTracking />;
-      case 'sales-board':
-        return <SalesControlBoard />;
-      case 'benchmarks':
-        return <BenchmarkManager />;
-      case 'ai-blog-gen':
-        return <AIBlogGenerator />;
-      case 'enterprise':
-        return <EnterpriseControlCenter />;
-      case 'credit-leads':
-        return <CreditLeadsCard />;
-      default:
-        return renderDashboard();
+      case 'control-tower': return <ControlTowerExecutive />;
+      case 'ai-sales': return <AISalesDashboard />;
+      case 'demand-heatmap': return <AdminDemandHeatmap />;
+      case 'leads': return <LeadsDashboard />;
+      case 'blogs': return <AdminBlogManager />;
+      case 'email-tracking': return <AdminEmailTracking />;
+      case 'sales-board': return <SalesControlBoard />;
+      case 'benchmarks': return <BenchmarkManager />;
+      case 'ai-blog-gen': return <AIBlogGenerator />;
+      case 'enterprise': return <EnterpriseControlCenter />;
+      case 'credit-leads': return <CreditLeadsCard />;
+      default: return renderDashboard();
     }
   };
 
@@ -628,843 +567,29 @@ export default function AdminAuditDashboard() {
       <PremiumBidsManager open={showPremiumBids} onOpenChange={setShowPremiumBids} adminId={user?.id || ''} />
     </div>
   );
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <TrendingUp className="h-4 w-4" />
-              Sales Control Board
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-red-200">
-              HOT / WARM / COLD RFQ pipeline with sales actions
-            </p>
-            <Button 
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
-              onClick={() => setCurrentView('sales-board')}
-            >
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Open Sales Board
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Price Benchmarks */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <IndianRupee className="h-4 w-4 text-emerald-500" />
-              Price Benchmarks
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Set market benchmarks for savings visualization
-            </p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setCurrentView('benchmarks')}
-            >
-              <IndianRupee className="h-4 w-4 mr-2" />
-              Manage Benchmarks
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* AI Blog Generator */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <PenTool className="h-4 w-4 text-violet-500" />
-              AI Blog Generator
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Auto-generate buyer-intent SEO blogs
-            </p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setCurrentView('ai-blog-gen')}
-            >
-              <PenTool className="h-4 w-4 mr-2" />
-              Generate Blog
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Second Row - Primary Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Control Tower */}
-        <Card className="bg-slate-800 text-white border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Shield className="h-4 w-4" />
-              Control Tower
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-slate-300">
-              Complete platform analytics, AI inventory tracking & financial metrics
-            </p>
-            <Button 
-              className="w-full bg-primary hover:bg-primary/90"
-              onClick={() => setCurrentView('control-tower')}
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Open Control Tower
-            </Button>
-          </CardContent>
-        </Card>
-
-      </div>
-
-      {/* Third Row - Enterprise + Auction */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-r from-slate-900 to-zinc-800 text-white border-0 md:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Shield className="h-4 w-4" />
-              Enterprise Control Center
-              <Badge className="bg-white/20 text-white text-xs">NEW</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-slate-300">
-              Commercial Intelligence • Spend Analytics • Audit Trails • ERP Exports • Governance Controls
-            </p>
-            <Button className="w-full bg-white text-slate-900 hover:bg-slate-100" onClick={() => setCurrentView('enterprise')}>
-              <Shield className="h-4 w-4 mr-2" />Open Enterprise Center
-            </Button>
-          </CardContent>
-        </Card>
-        <AuctionTrackerCard />
-      </div>
-
-      {/* Fourth Row - Analytics & KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <BarChart3 className="h-4 w-4 text-indigo-600" />
-                Visitor Analytics
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={fetchStats} disabled={statsLoading}>
-                  <RefreshCw className={`h-3 w-3 ${statsLoading ? 'animate-spin' : ''}`} />
-                </Button>
-              </CardTitle>
-              <Select value={String(selectedDays)} onValueChange={(val) => setSelectedDays(Number(val))}>
-                <SelectTrigger className="w-[110px] h-7 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7">Last 7 days</SelectItem>
-                  <SelectItem value="15">Last 15 days</SelectItem>
-                  <SelectItem value="30">Last 30 days</SelectItem>
-                  <SelectItem value="90">Last 90 days</SelectItem>
-                  <SelectItem value="365">Last 365 days</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-xs text-muted-foreground">Updated: {visitorStats.lastUpdated}</p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {statsLoading ? (
-              <div className="flex items-center justify-center py-4"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-2xl font-bold text-indigo-600">{visitorStats.totalVisitors.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">Total Visitors</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-indigo-600">{visitorStats.pageViews.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">Page Views</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><Monitor className="h-3 w-3" />{visitorStats.desktopPercent}%</span>
-                  <span className="flex items-center gap-1"><Smartphone className="h-3 w-3" />{visitorStats.mobilePercent}%</span>
-                  <span>{visitorStats.pagesPerVisit} pages/visit</span>
-                </div>
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p className="flex items-center gap-1"><Globe className="h-3 w-3" />Top: {visitorStats.topCountries.slice(0, 2).map(c => `${c.country} (${c.percentage}%)`).join(', ') || 'No data'}</p>
-                  <p>Top source: {visitorStats.topSources[0]?.source || 'No data'} ({visitorStats.topSources[0]?.percentage || 0}%)</p>
-                </div>
-                <Button variant="outline" className="w-full" onClick={() => setShowAnalyticsModal(true)}>
-                  <BarChart3 className="h-4 w-4 mr-2" />View Detailed Analytics
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base"><FileText className="h-4 w-4 text-rose-500" />Pending Invoices</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-rose-500">{stats.pendingInvoices}</p>
-            <p className="text-sm text-muted-foreground">₹{stats.pendingInvoiceAmount.toLocaleString()} pending collection</p>
-            <Button className="w-full" onClick={() => setShowInvoices(true)}>Manage Invoices</Button>
-          </CardContent>
-        </Card>
-        <CreditLeadsSummaryCard />
-      </div>
-
-      {/* Fifth Row - Verification & Documents */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Car className="h-4 w-4 text-slate-600" />Vehicle Verification</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.vehiclesPending}</p>
-            <p className="text-sm text-muted-foreground">Vehicles awaiting RC verification</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowVehicles(true)}>Verify Vehicles</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><FileText className="h-4 w-4 text-slate-600" />Partner Documents</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.partnerDocsPending}</p>
-            <p className="text-sm text-muted-foreground">Aadhar, PAN & Notary verification</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowPartnerDocs(true)}>Verify Documents</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><IndianRupee className="h-4 w-4 text-emerald-500" />Total Collected</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-emerald-600">₹{stats.totalCollected.toLocaleString()}</p>
-            <p className="text-sm text-muted-foreground">Platform profit collected</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Sixth Row - Operations */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Users className="h-4 w-4 text-primary" />All Users</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.totalUsers}</p>
-            <p className="text-sm text-muted-foreground">Suppliers & Logistics Partners</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowUsers(true)}><Eye className="h-4 w-4 mr-2" />View All Users</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><ClipboardList className="h-4 w-4 text-slate-600" />Requirements</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.totalRequirements}</p>
-            <p className="text-sm text-muted-foreground">Active requirements</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowRequirements(true)}><Eye className="h-4 w-4 mr-2" />View All Requirements</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Gavel className="h-4 w-4 text-amber-500" />All Bids</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">View supplier & logistics bids</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowBids(true)}><Eye className="h-4 w-4 mr-2" />View All Bids</Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Seventh Row - AI & Logistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Settings className="h-4 w-4 text-violet-500" />L1 Analysis</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Line-item level L1 supplier analysis</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowL1Analysis(true)}><Settings className="h-4 w-4 mr-2" />View L1 Analysis</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Settings className="h-4 w-4 text-slate-600" />AI Selection Engine</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">AI-powered supplier selection with anonymity</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowL1Analysis(true)}><Settings className="h-4 w-4 mr-2" />Open AI Engine</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Truck className="h-4 w-4 text-blue-500" />Logistics</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Vehicles, warehouses & requirements</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowLogistics(true)}><Eye className="h-4 w-4 mr-2" />View Logistics</Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Eighth Row - Leads, Premium & Referrals */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Mail className="h-4 w-4 text-slate-600" />Leads Dashboard</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Newsletter subscribers & demo requests</p>
-            <Button variant="outline" className="w-full" onClick={() => setCurrentView('leads')}><Eye className="h-4 w-4 mr-2" />View Leads</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Sparkles className="h-4 w-4 text-amber-500" />Premium Bids</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Manage premium bids for suppliers & transporters</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowPremiumBids(true)}><Sparkles className="h-4 w-4 mr-2" />Manage Premium Bids</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Gift className="h-4 w-4 text-rose-500" />Referral Program</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">View referral stats & top referrers leaderboard</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowReferrals(true)}><Eye className="h-4 w-4 mr-2" />View Referral Stats</Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Ninth Row - Content & Tools */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><PenTool className="h-4 w-4 text-slate-600" />Blog Management</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Create and manage blog posts</p>
-            <Button variant="outline" className="w-full" onClick={() => setCurrentView('blogs')}><PenTool className="h-4 w-4 mr-2" />Manage Blogs</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Mail className="h-4 w-4 text-emerald-500" />Email Tracking</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Supplier email quotas, Brevo tracking & subscriptions</p>
-            <Button variant="outline" className="w-full" onClick={() => setCurrentView('email-tracking')}><Mail className="h-4 w-4 mr-2" />Manage Email Tracking</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Download className="h-4 w-4 text-slate-600" />Data Export</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Download signups, requirements, bids & transactions</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowDataExport(true)}>Export Data</Button>
-          </CardContent>
-        </Card>
-      </div>
-
-
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-slate-300">
-              Commercial Intelligence • Spend Analytics • Audit Trails • ERP Exports • Governance Controls
-            </p>
-            <Button 
-              className="w-full bg-white text-slate-900 hover:bg-slate-100"
-              onClick={() => setCurrentView('enterprise')}
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Open Enterprise Center
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Second Row - Analytics & Verification */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Visitor Analytics */}
-        <Card className="bg-card border md:col-span-2 lg:col-span-1">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <BarChart3 className="h-4 w-4 text-indigo-600" />
-                Visitor Analytics
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={fetchStats} disabled={statsLoading}>
-                  <RefreshCw className={`h-3 w-3 ${statsLoading ? 'animate-spin' : ''}`} />
-                </Button>
-              </CardTitle>
-              <Select value={String(selectedDays)} onValueChange={(val) => setSelectedDays(Number(val))}>
-                <SelectTrigger className="w-[110px] h-7 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7">Last 7 days</SelectItem>
-                  <SelectItem value="15">Last 15 days</SelectItem>
-                  <SelectItem value="30">Last 30 days</SelectItem>
-                  <SelectItem value="90">Last 90 days</SelectItem>
-                  <SelectItem value="365">Last 365 days</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-xs text-muted-foreground">Updated: {visitorStats.lastUpdated}</p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {statsLoading ? (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-2xl font-bold text-indigo-600">{visitorStats.totalVisitors.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">Total Visitors</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-indigo-600">{visitorStats.pageViews.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">Page Views</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Monitor className="h-3 w-3" />
-                    {visitorStats.desktopPercent}%
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Smartphone className="h-3 w-3" />
-                    {visitorStats.mobilePercent}%
-                  </span>
-                  <span>{visitorStats.pagesPerVisit} pages/visit</span>
-                </div>
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p className="flex items-center gap-1">
-                    <Globe className="h-3 w-3" />
-                    Top: {visitorStats.topCountries.slice(0, 2).map(c => `${c.country} (${c.percentage}%)`).join(', ') || 'No data'}
-                  </p>
-                  <p>Top source: {visitorStats.topSources[0]?.source || 'No data'} ({visitorStats.topSources[0]?.percentage || 0}%)</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setShowAnalyticsModal(true)}
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  View Detailed Analytics
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Pending Invoices */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="h-4 w-4 text-rose-500" />
-              Pending Invoices
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-rose-500">{stats.pendingInvoices}</p>
-            <p className="text-sm text-muted-foreground">
-              ₹{stats.pendingInvoiceAmount.toLocaleString()} pending collection
-            </p>
-            <Button 
-              className="w-full"
-              onClick={() => setShowInvoices(true)}
-            >
-              Manage Invoices
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Vehicle Verification */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Car className="h-4 w-4 text-slate-600" />
-              Vehicle Verification
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.vehiclesPending}</p>
-            <p className="text-sm text-muted-foreground">Vehicles awaiting RC verification</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowVehicles(true)}
-            >
-              Verify Vehicles
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Credit Leads Summary */}
-        <CreditLeadsSummaryCard />
-      </div>
-
-      {/* Third Row - Documents & Revenue */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Partner Documents */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="h-4 w-4 text-slate-600" />
-              Partner Documents
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.partnerDocsPending}</p>
-            <p className="text-sm text-muted-foreground">Aadhar, PAN & Notary verification</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowPartnerDocs(true)}
-            >
-              Verify Documents
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Total Collected */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <IndianRupee className="h-4 w-4 text-emerald-500" />
-              Total Collected
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-emerald-600">₹{stats.totalCollected.toLocaleString()}</p>
-            <p className="text-sm text-muted-foreground">Platform profit collected</p>
-          </CardContent>
-        </Card>
-
-        {/* All Users */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Users className="h-4 w-4 text-primary" />
-              All Users
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.totalUsers}</p>
-            <p className="text-sm text-muted-foreground">Suppliers & Logistics Partners</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowUsers(true)}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View All Users
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Fourth Row - Operations */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Requirements */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ClipboardList className="h-4 w-4 text-slate-600" />
-              Requirements
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-3xl font-bold text-primary">{stats.totalRequirements}</p>
-            <p className="text-sm text-muted-foreground">Active requirements</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowRequirements(true)}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View All Requirements
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* All Bids */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Gavel className="h-4 w-4 text-amber-500" />
-              All Bids
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">View supplier & logistics bids</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowBids(true)}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View All Bids
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* L1 Analysis */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Settings className="h-4 w-4 text-violet-500" />
-              L1 Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Line-item level L1 supplier analysis</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowL1Analysis(true)}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              View L1 Analysis
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Fifth Row - AI & Logistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* AI Selection Engine */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Settings className="h-4 w-4 text-slate-600" />
-              AI Selection Engine
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">AI-powered supplier selection with anonymity</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowL1Analysis(true)}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Open AI Engine
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Logistics */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Truck className="h-4 w-4 text-blue-500" />
-              Logistics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Vehicles, warehouses & requirements</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowLogistics(true)}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View Logistics
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Data Export */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Download className="h-4 w-4 text-slate-600" />
-              Data Export
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Download signups, requirements, bids & transactions</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowDataExport(true)}
-            >
-              Export Data
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Sixth Row - Leads & Programs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Leads Dashboard */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Mail className="h-4 w-4 text-slate-600" />
-              Leads Dashboard
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Newsletter subscribers & demo requests</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setCurrentView('leads')}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View Leads
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Premium Bids */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Sparkles className="h-4 w-4 text-amber-500" />
-              Premium Bids
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Manage premium bids for suppliers & transporters</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowPremiumBids(true)}
-            >
-              <Sparkles className="h-4 w-4 mr-2" />
-              Manage Premium Bids
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Referral Program */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Gift className="h-4 w-4 text-rose-500" />
-              Referral Program
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">View referral stats & top referrers leaderboard</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowReferrals(true)}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View Referral Stats
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Seventh Row - Content & Tracking */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Blog Management */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <PenTool className="h-4 w-4 text-slate-600" />
-              Blog Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Create and manage blog posts</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setCurrentView('blogs')}
-            >
-              <PenTool className="h-4 w-4 mr-2" />
-              Manage Blogs
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Email Tracking */}
-        <Card className="bg-card border">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Mail className="h-4 w-4 text-emerald-500" />
-              Email Tracking
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Supplier email quotas, Brevo tracking & subscriptions</p>
-            <Button 
-              variant="outline"
-              className="w-full"
-              onClick={() => setCurrentView('email-tracking')}
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              Manage Email Tracking
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Dialog-based admin modals */}
-      <AdminUsersList open={showUsers} onOpenChange={setShowUsers} />
-      <AdminRequirementsList open={showRequirements} onOpenChange={setShowRequirements} />
-      <AdminBidsList open={showBids} onOpenChange={setShowBids} />
-      <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
-      <AdminLogisticsList open={showLogistics} onOpenChange={setShowLogistics} />
-      <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
-      <AdminReferralStats open={showReferrals} onOpenChange={setShowReferrals} />
-      <AdminInvoiceManagement open={showInvoices} onOpenChange={setShowInvoices} />
-      <VehicleVerification open={showVehicles} onOpenChange={setShowVehicles} adminId={user?.id || ''} />
-      <PartnerDocumentVerification open={showPartnerDocs} onOpenChange={setShowPartnerDocs} adminId={user?.id || ''} />
-      <PremiumBidsManager open={showPremiumBids} onOpenChange={setShowPremiumBids} adminId={user?.id || ''} />
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b bg-background sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2">
-              <img 
-                src={procureSaathiLogo} 
-                alt="ProcureSaathi" 
-                className="h-12 sm:h-14 w-auto"
-              />
+              <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-12 sm:h-14 w-auto" />
             </Link>
             {currentView !== 'dashboard' && (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setCurrentView('dashboard')}
-              >
-                ← Back to Dashboard
-              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setCurrentView('dashboard')}>← Back to Dashboard</Button>
             )}
           </div>
-          
           <div className="flex items-center gap-3">
-            <Badge className="bg-emerald-600 text-white border-0">
-              <Shield className="w-3 h-3 mr-1" />
-              ADMIN
-            </Badge>
+            <Badge className="bg-emerald-600 text-white border-0"><Shield className="w-3 h-3 mr-1" />ADMIN</Badge>
             <NotificationBell />
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/')}
-            >
-              <Home className="h-4 w-4 mr-2" />
-              Home
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={async () => {
-                await signOut();
-                navigate('/');
-              }}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/')}><Home className="h-4 w-4 mr-2" />Home</Button>
+            <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate('/'); }}><LogOut className="h-4 w-4 mr-2" />Sign Out</Button>
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
-        {renderView()}
-      </main>
-
-      {/* Visitor Analytics Modal */}
-      <VisitorAnalyticsModal
-        open={showAnalyticsModal}
-        onOpenChange={setShowAnalyticsModal}
-        analytics={fullAnalytics}
-        selectedDays={selectedDays}
-      />
+      <main className="container mx-auto px-4 py-6">{renderView()}</main>
+      <VisitorAnalyticsModal open={showAnalyticsModal} onOpenChange={setShowAnalyticsModal} analytics={fullAnalytics} selectedDays={selectedDays} />
     </div>
   );
 }
