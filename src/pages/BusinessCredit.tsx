@@ -130,7 +130,7 @@ export default function BusinessCreditPage() {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
               />
-              <span className="text-xl font-bold tracking-tight text-foreground">ProcureSaathi</span>
+              
             </Link>
             <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">🔒 256-bit Encrypted</span>
