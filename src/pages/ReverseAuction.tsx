@@ -120,6 +120,11 @@ export default function ReverseAuction() {
         />
       </Helmet>
 
+      {/* Hidden SEO heading for long-tail keywords */}
+      <h2 className="sr-only">
+        Reverse Auction Platform India, UAE, Saudi Arabia for Steel, Chemicals, Polymers Procurement
+      </h2>
+
       {/* ===== HEADER (same as /requirements) ===== */}
       <header className="bg-gradient-to-r from-primary/10 to-primary/5 py-16">
         <div className="container mx-auto px-4">
