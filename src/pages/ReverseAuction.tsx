@@ -97,6 +97,7 @@ interface LiveRFQ {
   current_lowest_bid: number | null;
   total_bidders: number | null;
   created_at: string;
+  updated_at: string;
 }
 
 type FilterType = "all" | "rfq" | "reverse";
@@ -117,7 +118,7 @@ export default function ReverseAuction() {
       const { data } = await supabase
         .from("requirements")
         .select(
-          "id, title, delivery_location, quantity, unit, product_category, deadline, status, auction_type, target_price, current_lowest_bid, total_bidders, created_at"
+          "id, title, delivery_location, quantity, unit, product_category, deadline, status, auction_type, target_price, current_lowest_bid, total_bidders, created_at, updated_at"
         )
         .eq("status", "active")
         .order("created_at", { ascending: false })
