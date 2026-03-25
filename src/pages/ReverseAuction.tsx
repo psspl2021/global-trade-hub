@@ -96,6 +96,7 @@ interface LiveRFQ {
   target_price: number | null;
   current_lowest_bid: number | null;
   total_bidders: number | null;
+  created_at: string;
 }
 
 type FilterType = "all" | "rfq" | "reverse";
@@ -116,7 +117,7 @@ export default function ReverseAuction() {
       const { data } = await supabase
         .from("requirements")
         .select(
-          "id, title, delivery_location, quantity, unit, product_category, deadline, status, auction_type, target_price, current_lowest_bid, total_bidders"
+          "id, title, delivery_location, quantity, unit, product_category, deadline, status, auction_type, target_price, current_lowest_bid, total_bidders, created_at"
         )
         .eq("status", "active")
         .order("created_at", { ascending: false })
@@ -387,6 +388,11 @@ export default function ReverseAuction() {
                             Live RFQ
                           </span>
                         )}
+                        {differenceInHours(now, new Date(rfq.created_at)) < 2 && (
+                          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
+                            🟢 New
+                          </span>
+                        )}
                         <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
                           {rfq.title}
                         </p>
@@ -446,6 +452,16 @@ export default function ReverseAuction() {
                               <span className="text-muted-foreground italic">Auto-awarded to lowest bidder</span>
                               {!isEnded && (
                                 <span className="text-muted-foreground">⚡ High competition — act fast to win</span>
+                              )}
+                              {!isEnded && rfq.current_lowest_bid && (
+                                <span className="text-xs text-primary">
+                                  💡 You're competing with {rfq.total_bidders || 0} suppliers
+                                </span>
+                              )}
+                              {!isEnded && (
+                                <span className="text-xs text-muted-foreground">
+                                  🧠 Lower bids have higher chances of winning
+                                </span>
                               )}
                               <TimeLeft deadline={rfq.deadline} />
                             </div>
