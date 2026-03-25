@@ -81,8 +81,25 @@ const Signup = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(initialTab);
+  const [gstinValidation, setGstinValidation] = useState<GSTINValidationResult | null>(null);
+  const [gstinChecking, setGstinChecking] = useState(false);
   
   const { supplierCount, logisticsCount, isLoading: countsLoading } = usePartnerCounts();
+
+  // Debounced GSTIN validation
+  const validateGSTINDebounced = useCallback((value: string) => {
+    if (!value.trim() || detectedCountry !== 'india') {
+      setGstinValidation(null);
+      return;
+    }
+    setGstinChecking(true);
+    const timer = setTimeout(() => {
+      const result = validateGSTIN(value);
+      setGstinValidation(result);
+      setGstinChecking(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [detectedCountry]);
 
   const [formData, setFormData] = useState({
     email: '',
