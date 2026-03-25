@@ -211,19 +211,19 @@ export default function ReverseAuction() {
           <div className="flex flex-wrap gap-3 mb-6">
             <Link
               to="/post-rfq"
-              className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2 shadow-sm"
             >
               <Gavel className="h-4 w-4" /> Start Reverse Auction
             </Link>
             <Link
               to="/post-rfq"
-              className="border border-border text-foreground px-6 py-3 rounded-md text-sm hover:bg-muted transition-colors inline-flex items-center gap-2"
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2 shadow-sm"
             >
               <FileText className="h-4 w-4" /> Post RFQ (Forward)
             </Link>
             <Link
               to="/requirements"
-              className="border border-border text-foreground px-6 py-3 rounded-md text-sm hover:bg-muted transition-colors"
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2 shadow-sm"
             >
               🔍 Browse All Requirements
             </Link>
