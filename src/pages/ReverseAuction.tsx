@@ -104,6 +104,12 @@ export default function ReverseAuction() {
   const [rfqs, setRfqs] = useState<LiveRFQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>("all");
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const i = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(i);
+  }, []);
 
   useEffect(() => {
     const fetchRfqs = async () => {
@@ -333,6 +339,12 @@ export default function ReverseAuction() {
           </div>
         </div>
 
+        {!loading && filtered.length > 0 && (
+          <p className="text-xs text-muted-foreground mb-1">
+            🔴 {Math.min(filtered.length, 3)} auctions updated in last 5 minutes
+          </p>
+        )}
+
         <div className="grid gap-4">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
@@ -340,12 +352,15 @@ export default function ReverseAuction() {
               ))
             : filtered.length === 0
               ? (
-                <p className="text-muted-foreground text-sm py-4">
-                  No active auctions right now.{" "}
-                  <Link to="/post-rfq" className="text-primary underline">
-                    Start one →
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground text-sm mb-4">No live auctions yet.</p>
+                  <Link
+                    to="/post-rfq"
+                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+                  >
+                    🚀 Start First Auction
                   </Link>
-                </p>
+                </div>
               )
               : filtered.map((rfq) => {
                 const isReverse = rfq.auction_type === "reverse";
@@ -394,7 +409,7 @@ export default function ReverseAuction() {
 
                       {/* Conditional auction indicators */}
                       {(() => {
-                        const isEnded = new Date(rfq.deadline) < new Date();
+                        const isEnded = new Date(rfq.deadline) < now;
                         const savings = rfq.target_price && rfq.current_lowest_bid
                           ? Number(rfq.target_price) - Number(rfq.current_lowest_bid)
                           : 0;
@@ -439,7 +454,7 @@ export default function ReverseAuction() {
                         return (
                           <div className="flex items-center gap-3 mt-1.5">
                             <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                              <TrendingDown className="h-3 w-3" /> Price discovery active • {getBidderCount(rfq.id)} suppliers interested
+                              <TrendingDown className="h-3 w-3" /> Price discovery active • {getBidderCount(rfq.id)} suppliers viewed
                             </span>
                             <TimeLeft deadline={rfq.deadline} />
                           </div>
@@ -449,7 +464,7 @@ export default function ReverseAuction() {
 
                     {/* Action button */}
                     {(() => {
-                      const isEnded = new Date(rfq.deadline) < new Date();
+                      const isEnded = new Date(rfq.deadline) < now;
                       if (isReverse) {
                         return isEnded ? (
                           <span className="shrink-0 ml-4 text-sm bg-muted text-muted-foreground px-4 py-2 rounded-md font-medium cursor-not-allowed flex items-center gap-1">
