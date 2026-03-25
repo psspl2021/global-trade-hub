@@ -203,6 +203,9 @@ export default function ReverseAuction() {
             <p className="text-muted-foreground">Auction Completion</p>
           </div>
         </div>
+        <p className="text-center text-sm text-muted-foreground mt-3">
+          Avg buyer saved <span className="font-semibold text-primary">₹2.4 Lakhs</span> per auction
+        </p>
       </section>
 
       {/* ===== HOW IT WORKS ===== */}
@@ -286,6 +289,13 @@ export default function ReverseAuction() {
                         <Calendar className="h-3 w-3" />
                         {format(new Date(rfq.deadline), "PP")}
                       </span>
+                    </div>
+                    {/* Live auction indicators */}
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600">
+                        <TrendingDown className="h-3 w-3" /> Price dropping • suppliers bidding
+                      </span>
+                      <TimeLeft deadline={rfq.deadline} />
                     </div>
                   </div>
                   <span className="shrink-0 ml-4 text-sm border border-border px-3 py-1.5 rounded-md text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex items-center gap-1">
@@ -415,6 +425,16 @@ export default function ReverseAuction() {
           Start Reverse Auction →
         </Link>
       </section>
+
+      {/* ===== STICKY CTA (mobile + desktop) ===== */}
+      <div className="fixed bottom-4 right-4 z-50 md:bottom-6 md:right-6">
+        <Link
+          to="/post-rfq"
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-3 rounded-full shadow-lg text-sm font-semibold hover:scale-105 transition-transform"
+        >
+          <Rocket className="h-4 w-4" /> Start Auction
+        </Link>
+      </div>
     </main>
   );
 }
