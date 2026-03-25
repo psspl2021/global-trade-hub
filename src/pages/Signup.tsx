@@ -224,6 +224,15 @@ const Signup = () => {
       }
     }
 
+    // For India: also run checksum validation
+    if (formData.gstin.trim() && detectedCountry === 'india') {
+      const gstResult = validateGSTIN(formData.gstin);
+      if (!gstResult.isValid) {
+        setErrors({ gstin: gstResult.errors[0] || 'Invalid GSTIN' });
+        return;
+      }
+    }
+
     // Validate referrer fields
     if (!formData.referredByName.trim()) {
       setErrors({ referredByName: 'Referrer name is required' });
