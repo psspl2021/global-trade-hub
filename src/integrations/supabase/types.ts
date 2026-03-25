@@ -6072,6 +6072,7 @@ export type Database = {
       }
       requirements: {
         Row: {
+          auction_type: string | null
           award_locked: boolean | null
           bidding_deadline_at: string | null
           budget_max: number | null
@@ -6080,6 +6081,7 @@ export type Database = {
           buyer_id: string
           certifications_required: string | null
           created_at: string
+          current_lowest_bid: number | null
           customer_name: string | null
           deadline: string
           delivery_location: string
@@ -6108,12 +6110,15 @@ export type Database = {
           source_run_id: string | null
           specifications: Json | null
           status: Database["public"]["Enums"]["requirement_status"]
+          target_price: number | null
           title: string
+          total_bidders: number | null
           trade_type: string | null
           unit: string
           updated_at: string
         }
         Insert: {
+          auction_type?: string | null
           award_locked?: boolean | null
           bidding_deadline_at?: string | null
           budget_max?: number | null
@@ -6122,6 +6127,7 @@ export type Database = {
           buyer_id: string
           certifications_required?: string | null
           created_at?: string
+          current_lowest_bid?: number | null
           customer_name?: string | null
           deadline: string
           delivery_location: string
@@ -6150,12 +6156,15 @@ export type Database = {
           source_run_id?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
+          target_price?: number | null
           title: string
+          total_bidders?: number | null
           trade_type?: string | null
           unit: string
           updated_at?: string
         }
         Update: {
+          auction_type?: string | null
           award_locked?: boolean | null
           bidding_deadline_at?: string | null
           budget_max?: number | null
@@ -6164,6 +6173,7 @@ export type Database = {
           buyer_id?: string
           certifications_required?: string | null
           created_at?: string
+          current_lowest_bid?: number | null
           customer_name?: string | null
           deadline?: string
           delivery_location?: string
@@ -6192,7 +6202,9 @@ export type Database = {
           source_run_id?: string | null
           specifications?: Json | null
           status?: Database["public"]["Enums"]["requirement_status"]
+          target_price?: number | null
           title?: string
+          total_bidders?: number | null
           trade_type?: string | null
           unit?: string
           updated_at?: string
