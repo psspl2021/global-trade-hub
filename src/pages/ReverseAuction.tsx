@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInHours, differenceInMinutes } from "date-fns";
-import { MapPin, Calendar, ArrowRight, Building2, TrendingDown, Rocket } from "lucide-react";
+import { MapPin, Calendar, ArrowRight, Building2, TrendingDown, Rocket, Gavel, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import logo from "@/assets/procuresaathi-logo.png";
 import { TrustBadges } from "@/components/landing/TrustBadges";
@@ -41,6 +41,11 @@ function getBidderCount(id: string) {
 
 const FAQS = [
   {
+    question: "What is the difference between Forward and Reverse auctions?",
+    answer:
+      "In a Forward Auction (RFQ), buyers post requirements and suppliers submit quotes — it's a price discovery process. In a Reverse Auction, suppliers actively bid down the price in real-time, competing to offer the lowest cost. ProcureSaathi supports both on a single platform.",
+  },
+  {
     question: "What is a reverse auction in procurement?",
     answer:
       "A reverse auction is a competitive bidding process where multiple suppliers bid against each other to win a buyer's order. Unlike regular auctions, prices go down as suppliers compete, ensuring the buyer gets the best possible price for raw materials and industrial products.",
@@ -58,12 +63,12 @@ const FAQS = [
   {
     question: "How are suppliers verified on ProcureSaathi?",
     answer:
-      "Every supplier undergoes a multi-step verification process including GST validation, trade license checks, past performance reviews, and quality certifications. Only verified suppliers can participate in reverse auctions.",
+      "Every supplier undergoes a multi-step verification process including GST validation, trade license checks, past performance reviews, and quality certifications. Only verified suppliers can participate in auctions.",
   },
   {
-    question: "Which industries use reverse auctions on ProcureSaathi?",
+    question: "Which industries use auctions on ProcureSaathi?",
     answer:
-      "Steel & metals, chemicals & petrochemicals, polymers & plastics, construction & infrastructure, packaging, and automotive are the top industries. Any standardized commodity with multiple suppliers benefits from reverse auction pricing.",
+      "Steel & metals, chemicals & petrochemicals, polymers & plastics, construction & infrastructure, packaging, and automotive are the top industries. Any standardized commodity with multiple suppliers benefits from competitive auction pricing.",
   },
 ];
 
@@ -87,26 +92,52 @@ interface LiveRFQ {
   product_category: string;
   deadline: string;
   status: string;
+  auction_type: string | null;
+  target_price: number | null;
+  current_lowest_bid: number | null;
+  total_bidders: number | null;
 }
+
+type FilterType = "all" | "rfq" | "reverse";
 
 export default function ReverseAuction() {
   const [rfqs, setRfqs] = useState<LiveRFQ[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterType>("all");
 
   useEffect(() => {
     const fetchRfqs = async () => {
       const { data } = await supabase
         .from("requirements")
         .select(
-          "id, title, delivery_location, quantity, unit, product_category, deadline, status"
+          "id, title, delivery_location, quantity, unit, product_category, deadline, status, auction_type, target_price, current_lowest_bid, total_bidders"
         )
         .eq("status", "active")
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(10);
       setRfqs((data as LiveRFQ[]) || []);
       setLoading(false);
     };
     fetchRfqs();
+  }, []);
+
+  // Real-time updates for live bidding
+  useEffect(() => {
+    const channel = supabase
+      .channel("hybrid-auction-feed")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "requirements" },
+        (payload) => {
+          setRfqs((prev) =>
+            prev.map((r) =>
+              r.id === (payload.new as LiveRFQ).id ? { ...r, ...(payload.new as Partial<LiveRFQ>) } : r
+            )
+          );
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   // Inject FAQ schema
@@ -115,15 +146,23 @@ export default function ReverseAuction() {
     if (faqSchema) injectStructuredData(faqSchema, "faq-schema");
   }, [faqSchema]);
 
+  const filtered = useMemo(() => {
+    if (filter === "all") return rfqs;
+    return rfqs.filter((r) => (r.auction_type || "rfq") === filter);
+  }, [rfqs, filter]);
+
+  const reverseCount = rfqs.filter((r) => r.auction_type === "reverse").length;
+  const rfqCount = rfqs.filter((r) => (r.auction_type || "rfq") === "rfq").length;
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-primary/5 to-background">
       <Helmet>
         <title>
-          Reverse Auction Platform | B2B Procurement Bidding | ProcureSaathi
+          Hybrid Auction Platform | Forward RFQ + Reverse Bidding | ProcureSaathi
         </title>
         <meta
           name="description"
-          content="Procure raw materials at the lowest price through competitive supplier bidding. 20% avg savings. Trusted by buyers across India, Middle East, and global markets."
+          content="India's first hybrid procurement platform — Forward RFQ for supplier discovery + Reverse Auction for lowest price. 20% avg savings. Steel, Chemicals, Polymers."
         />
         <link
           rel="canonical"
@@ -133,24 +172,23 @@ export default function ReverseAuction() {
 
       {/* Hidden SEO heading for long-tail keywords */}
       <h2 className="sr-only">
-        Reverse Auction Platform India, UAE, Saudi Arabia for Steel, Chemicals, Polymers Procurement
+        Hybrid Auction Platform India — Forward RFQ and Reverse Auction for Steel, Chemicals, Polymers Procurement in India, UAE, Saudi Arabia
       </h2>
 
-      {/* ===== HEADER (same as /requirements) ===== */}
+      {/* ===== HEADER ===== */}
       <header className="bg-gradient-to-r from-primary/10 to-primary/5 py-16">
         <div className="container mx-auto px-4">
           <nav
             className="flex justify-between items-start mb-6"
-            aria-label="Reverse auction header"
+            aria-label="Auction platform header"
           >
             <div>
               <h1 className="text-3xl md:text-5xl font-bold text-foreground">
-                Reverse Auction Platform for Global B2B Procurement
+                India's First Hybrid Auction Platform
               </h1>
               <p className="text-lg text-muted-foreground mt-4 max-w-2xl">
-                Procure raw materials and industrial products at the lowest
-                price through competitive supplier bidding. Trusted by buyers
-                across India, Middle East, and global markets.
+                Forward RFQ for supplier discovery + Reverse Auction for lowest price.
+                One platform, two powerful engines for industrial procurement.
               </p>
             </div>
             <Link
@@ -172,22 +210,28 @@ export default function ReverseAuction() {
           <div className="flex flex-wrap gap-3 mb-6">
             <Link
               to="/post-rfq"
-              className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
             >
-              🚀 Start Reverse Auction
+              <Gavel className="h-4 w-4" /> Start Reverse Auction
+            </Link>
+            <Link
+              to="/post-rfq"
+              className="border border-border text-foreground px-6 py-3 rounded-md text-sm hover:bg-muted transition-colors inline-flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" /> Post RFQ (Forward)
             </Link>
             <Link
               to="/requirements"
               className="border border-border text-foreground px-6 py-3 rounded-md text-sm hover:bg-muted transition-colors"
             >
-              🔍 View Live Auctions
+              🔍 Browse All Requirements
             </Link>
           </div>
 
           {/* Trust badges inline */}
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             <span>✔ Verified Global Suppliers</span>
-            <span>✔ Competitive Price Discovery</span>
+            <span>✔ Forward + Reverse Auctions</span>
             <span>✔ Bulk Procurement</span>
             <span>✔ Secure Transactions</span>
           </div>
@@ -219,56 +263,81 @@ export default function ReverseAuction() {
         </p>
       </section>
 
-      {/* ===== HOW IT WORKS ===== */}
+      {/* ===== HOW IT WORKS — DUAL ===== */}
       <section className="bg-muted/40 py-10">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-2xl font-semibold text-foreground text-center mb-8">
-            How Reverse Auction Works
+            Two Engines, One Platform
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: "📋",
-                title: "1. Post Requirement",
-                desc: "Submit your material requirement with specs & quantity.",
-              },
-              {
-                icon: "⚡",
-                title: "2. Suppliers Compete",
-                desc: "Verified suppliers bid and reduce prices in real-time.",
-              },
-              {
-                icon: "💰",
-                title: "3. Get Best Price",
-                desc: "Select lowest or best-value supplier and finalize deal.",
-              },
-            ].map((step) => (
-              <div
-                key={step.title}
-                className="border border-border rounded-lg p-5 text-center bg-background"
-              >
-                <div className="text-3xl mb-2">{step.icon}</div>
-                <h3 className="font-semibold text-foreground mb-1">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">{step.desc}</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Forward */}
+            <div className="border border-border rounded-xl p-6 bg-background">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-semibold px-2 py-1 rounded bg-accent text-accent-foreground">Forward RFQ</span>
+                <FileText className="h-4 w-4 text-primary" />
               </div>
-            ))}
+              <h3 className="font-semibold text-foreground mb-2">Supplier Discovery & Quotes</h3>
+              <ul className="text-sm text-muted-foreground space-y-1.5">
+                <li>📋 Post requirement with specs</li>
+                <li>👥 Multiple suppliers submit quotes</li>
+                <li>📊 Compare and negotiate</li>
+                <li>✅ Award to best supplier</li>
+              </ul>
+              <p className="text-xs text-muted-foreground mt-3 italic">Best for: Custom specs, new supplier onboarding</p>
+            </div>
+            {/* Reverse */}
+            <div className="border-2 border-primary/30 rounded-xl p-6 bg-primary/5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-semibold px-2 py-1 rounded bg-destructive/10 text-destructive">Reverse Auction</span>
+                <Gavel className="h-4 w-4 text-destructive" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Real-Time Price Competition</h3>
+              <ul className="text-sm text-muted-foreground space-y-1.5">
+                <li>🎯 Set target price & deadline</li>
+                <li>🔻 Suppliers bid prices DOWN live</li>
+                <li>⏱ Countdown timer creates urgency</li>
+                <li>💰 Lowest bid wins automatically</li>
+              </ul>
+              <p className="text-xs text-muted-foreground mt-3 italic">Best for: Standardized commodities, cost-first procurement</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ===== LIVE AUCTIONS FEED ===== */}
+      {/* ===== LIVE HYBRID FEED ===== */}
       <section className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="text-2xl font-semibold text-foreground mb-6">
-          🔥 Live Reverse Auctions
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <h2 className="text-2xl font-semibold text-foreground">
+            🔥 Live Procurement Feed
+          </h2>
+          {/* Filter tabs */}
+          <div className="flex gap-2 text-xs">
+            {([
+              { key: "all" as FilterType, label: `All (${rfqs.length})` },
+              { key: "rfq" as FilterType, label: `RFQ (${rfqCount})` },
+              { key: "reverse" as FilterType, label: `Auction (${reverseCount})` },
+            ]).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key)}
+                className={`px-3 py-1.5 rounded-full border transition-colors ${
+                  filter === tab.key
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border text-muted-foreground hover:border-primary/40"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-4">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-20 rounded-lg" />
+                <Skeleton key={i} className="h-24 rounded-lg" />
               ))
-            : rfqs.length === 0
+            : filtered.length === 0
               ? (
                 <p className="text-muted-foreground text-sm py-4">
                   No active auctions right now.{" "}
@@ -277,45 +346,93 @@ export default function ReverseAuction() {
                   </Link>
                 </p>
               )
-              : rfqs.map((rfq) => (
-                <Link
-                  key={rfq.id}
-                  to={`/rfq/${rfq.id}`}
-                  className="border border-border rounded-lg p-4 flex justify-between items-center bg-background hover:border-primary/40 transition-colors group"
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-                      {rfq.title}
-                    </p>
-                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mt-1">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {rfq.delivery_location}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Building2 className="h-3 w-3" />
-                        {rfq.quantity} {rfq.unit}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {format(new Date(rfq.deadline), "PP")}
-                      </span>
+              : filtered.map((rfq) => {
+                const isReverse = rfq.auction_type === "reverse";
+
+                return (
+                  <Link
+                    key={rfq.id}
+                    to={`/rfq/${rfq.id}`}
+                    className="border border-border rounded-lg p-4 flex justify-between items-center bg-background hover:border-primary/40 transition-colors group"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        {/* Badge */}
+                        {isReverse ? (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-destructive/10 text-destructive">
+                            Reverse Auction
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-accent text-accent-foreground">
+                            Live RFQ
+                          </span>
+                        )}
+                        <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                          {rfq.title}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mt-1">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {rfq.delivery_location}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          {rfq.quantity} {rfq.unit}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {format(new Date(rfq.deadline), "PP")}
+                        </span>
+                      </div>
+
+                      {/* Conditional auction indicators */}
+                      {isReverse ? (
+                        <div className="flex flex-wrap items-center gap-3 text-xs mt-1.5">
+                          {rfq.target_price && (
+                            <span className="text-muted-foreground">
+                              🎯 Target: ₹{Number(rfq.target_price).toLocaleString("en-IN")}
+                            </span>
+                          )}
+                          <span className="font-medium text-primary">
+                            🏆 Lowest: ₹{rfq.current_lowest_bid ? Number(rfq.current_lowest_bid).toLocaleString("en-IN") : "—"}
+                          </span>
+                          <span className="text-muted-foreground">
+                            👥 {rfq.total_bidders || 0} suppliers bidding
+                          </span>
+                          {rfq.current_lowest_bid && (
+                            <span className="text-destructive font-medium">
+                              Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} to win
+                            </span>
+                          )}
+                          <TimeLeft deadline={rfq.deadline} />
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                            <TrendingDown className="h-3 w-3" /> Price discovery active • {getBidderCount(rfq.id)} suppliers interested
+                          </span>
+                          <TimeLeft deadline={rfq.deadline} />
+                        </div>
+                      )}
                     </div>
-                    {/* Live auction indicators */}
-                    <div className="flex items-center gap-3 mt-1.5">
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                        <TrendingDown className="h-3 w-3" /> Price dropping • {getBidderCount(rfq.id)} suppliers bidding
+
+                    {/* Action button */}
+                    {isReverse ? (
+                      <span className="shrink-0 ml-4 text-sm bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium group-hover:bg-primary/90 transition-colors flex items-center gap-1">
+                        💰 Place Bid <ArrowRight className="h-3.5 w-3.5" />
                       </span>
-                      <TimeLeft deadline={rfq.deadline} />
-                    </div>
-                  </div>
-                  <span className="shrink-0 ml-4 text-sm border border-border px-3 py-1.5 rounded-md text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex items-center gap-1">
-                    Join Auction <ArrowRight className="h-3.5 w-3.5" />
-                  </span>
-                </Link>
-              ))}
+                    ) : (
+                      <span className="shrink-0 ml-4 text-sm border border-border px-4 py-2 rounded-md text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex items-center gap-1">
+                        Submit Quote <ArrowRight className="h-3.5 w-3.5" />
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
         </div>
-        {rfqs.length > 0 && (
+        {filtered.length > 0 && (
           <div className="text-center mt-6">
             <Link
               to="/requirements"
@@ -330,15 +447,26 @@ export default function ReverseAuction() {
       {/* ===== MID CTA ===== */}
       <section className="my-4 mx-auto max-w-6xl px-4">
         <div className="text-center rounded-xl border-2 border-primary/20 bg-primary/5 p-8">
-          <h3 className="text-lg font-semibold mb-4 text-foreground">
-            Need Bulk Pricing? Start a Reverse Auction Now
+          <h3 className="text-lg font-semibold mb-2 text-foreground">
+            Need Bulk Pricing? Choose Your Auction Mode
           </h3>
-          <Link
-            to="/post-rfq"
-            className="inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:scale-105 hover:shadow-lg"
-          >
-            Request Competitive Quotes
-          </Link>
+          <p className="text-sm text-muted-foreground mb-4">
+            Forward RFQ for discovery • Reverse Auction for lowest price
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              to="/post-rfq"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:scale-105 hover:shadow-lg"
+            >
+              <Gavel className="h-4 w-4" /> Start Reverse Auction
+            </Link>
+            <Link
+              to="/post-rfq"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-6 py-3 text-sm font-semibold text-primary transition hover:scale-105"
+            >
+              <FileText className="h-4 w-4" /> Post RFQ
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -346,7 +474,7 @@ export default function ReverseAuction() {
       <section className="bg-muted/40 py-10">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-2xl font-semibold text-foreground text-center mb-8">
-            Industries Using Reverse Auctions
+            Industries Using Our Hybrid Auction Platform
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             {INDUSTRIES.map((ind) => (
@@ -365,19 +493,19 @@ export default function ReverseAuction() {
       {/* ===== BENEFITS ===== */}
       <section className="max-w-6xl mx-auto px-4 py-10">
         <h2 className="text-2xl font-semibold text-foreground text-center mb-8">
-          Why Use Reverse Auction?
+          Why Use ProcureSaathi's Hybrid Platform?
         </h2>
         <div className="grid md:grid-cols-3 gap-6 text-sm">
           {[
             {
               icon: "💸",
               title: "Lower Procurement Cost",
-              desc: "Suppliers compete → prices drop → you save more.",
+              desc: "Reverse auctions drive prices down. Forward RFQs discover best value.",
             },
             {
               icon: "🌍",
               title: "Global Supplier Access",
-              desc: "Access suppliers across India & international markets.",
+              desc: "Access suppliers across India, Middle East & Southeast Asia.",
             },
             {
               icon: "⚡",
@@ -427,14 +555,23 @@ export default function ReverseAuction() {
       {/* ===== BOTTOM CTA ===== */}
       <section className="bg-primary/5 py-10 text-center">
         <h2 className="text-xl font-semibold text-foreground mb-3">
-          Ready to Reduce Procurement Costs?
+          Ready to Transform Your Procurement?
         </h2>
-        <Link
-          to="/post-rfq"
-          className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          Start Reverse Auction →
-        </Link>
+        <p className="text-sm text-muted-foreground mb-4">Forward RFQ or Reverse Auction — you choose</p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            to="/post-rfq"
+            className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            Start Reverse Auction →
+          </Link>
+          <Link
+            to="/post-rfq"
+            className="inline-block border border-border text-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-muted transition-colors"
+          >
+            Post Forward RFQ →
+          </Link>
+        </div>
       </section>
 
       {/* ===== STICKY CTA (mobile + desktop) ===== */}
