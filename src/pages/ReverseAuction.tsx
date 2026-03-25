@@ -16,8 +16,12 @@ import {
 } from "@/components/ui/accordion";
 
 function TimeLeft({ deadline }: { deadline: string }) {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
   const d = new Date(deadline);
-  const now = new Date();
   if (d <= now) return <span className="text-destructive font-medium">Ended</span>;
   const hrs = differenceInHours(d, now);
   const mins = differenceInMinutes(d, now) % 60;
@@ -26,6 +30,13 @@ function TimeLeft({ deadline }: { deadline: string }) {
       ⏱ {hrs}h {mins}m left
     </span>
   );
+}
+
+/** Stable per-RFQ pseudo-random bidder count (2-6) */
+function getBidderCount(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  return (Math.abs(hash) % 5) + 2;
 }
 
 const FAQS = [
@@ -293,7 +304,7 @@ export default function ReverseAuction() {
                     {/* Live auction indicators */}
                     <div className="flex items-center gap-3 mt-1.5">
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                        <TrendingDown className="h-3 w-3" /> Price dropping • suppliers bidding
+                        <TrendingDown className="h-3 w-3" /> Price dropping • {getBidderCount(rfq.id)} suppliers bidding
                       </span>
                       <TimeLeft deadline={rfq.deadline} />
                     </div>
