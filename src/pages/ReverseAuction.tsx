@@ -339,6 +339,12 @@ export default function ReverseAuction() {
           </div>
         </div>
 
+        {!loading && filtered.length > 0 && (
+          <p className="text-xs text-muted-foreground mb-1">
+            🔴 {Math.min(filtered.length, 3)} auctions updated in last 5 minutes
+          </p>
+        )}
+
         <div className="grid gap-4">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
