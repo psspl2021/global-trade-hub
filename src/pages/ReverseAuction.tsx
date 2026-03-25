@@ -429,27 +429,30 @@ export default function ReverseAuction() {
                           ? Number(rfq.target_price) - Number(rfq.current_lowest_bid)
                           : 0;
                         if (isReverse) {
+                          const lowestBid = rfq.current_lowest_bid ? Number(rfq.current_lowest_bid) : null;
+                          const target = rfq.target_price ? Number(rfq.target_price) : null;
+                          const gap = lowestBid && target ? lowestBid - target : null;
+
                           return (
                             <div className="flex flex-wrap items-center gap-3 text-xs mt-1.5">
                               {isEnded && (
                                 <span className="text-destructive font-medium">⛔ Auction Ended</span>
                               )}
-                              {rfq.target_price && (
+                              {target && (
                                 <span className="text-muted-foreground">
-                                  🎯 Target: ₹{Number(rfq.target_price).toLocaleString("en-IN")}
+                                  🎯 Target: ₹{target.toLocaleString("en-IN")}
                                 </span>
                               )}
-                              <span className="font-medium text-primary">
-                                🏆 Lowest: ₹{rfq.current_lowest_bid ? Number(rfq.current_lowest_bid).toLocaleString("en-IN") : "—"}
-                              </span>
+                              {lowestBid ? (
+                                <span className="font-medium text-primary">
+                                  🏆 Lowest bid: ₹{lowestBid.toLocaleString("en-IN")}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground italic">No bids yet</span>
+                              )}
                               <span className="text-muted-foreground">
                                 👥 {rfq.total_bidders || 0} suppliers bidding
                               </span>
-                              {!isEnded && rfq.current_lowest_bid && (
-                                <span className="text-destructive font-medium">
-                                  Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} to win
-                                </span>
-                              )}
                               {savings > 0 && (
                                 <span className="text-emerald-600 font-medium">
                                   💰 Saved ₹{savings.toLocaleString("en-IN")}
@@ -459,32 +462,33 @@ export default function ReverseAuction() {
                                 <span className="text-primary animate-pulse">🔻 Price dropping fast</span>
                               )}
                               <span className="text-muted-foreground italic">Auto-awarded to lowest bidder</span>
-                              {!isEnded && (
-                                <span className="text-muted-foreground">⚡ High competition — act fast to win</span>
-                              )}
-                              {!isEnded && rfq.current_lowest_bid && (
-                                <span className="text-xs text-muted-foreground">
-                                  🧠 Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} to lead
-                                </span>
-                              )}
                               {rfq.total_bidders && rfq.total_bidders > 5 && (
                                 <span className="text-xs text-destructive font-medium">
                                   🔥 High competition
                                 </span>
                               )}
-                              {rfq.target_price && rfq.current_lowest_bid && Number(rfq.current_lowest_bid) > Number(rfq.target_price) && (
-                                <span className="text-xs text-primary">
-                                  📉 ₹{(Number(rfq.current_lowest_bid) - Number(rfq.target_price)).toLocaleString("en-IN")} above target
-                                </span>
+                              {/* Color-tiered target gap: red > yellow > green */}
+                              {target && lowestBid && gap !== null && (
+                                gap > 0 ? (
+                                  gap > target * 0.1 ? (
+                                    <span className="text-xs text-destructive font-medium">
+                                      📉 ₹{gap.toLocaleString("en-IN")} above target
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-yellow-600 font-medium">
+                                      📉 ₹{gap.toLocaleString("en-IN")} above target — almost there
+                                    </span>
+                                  )
+                                ) : (
+                                  <span className="text-xs text-emerald-600 font-medium">
+                                    ✅ Target achieved
+                                  </span>
+                                )
                               )}
-                              {rfq.target_price && rfq.current_lowest_bid && Number(rfq.current_lowest_bid) <= Number(rfq.target_price) && (
-                                <span className="text-xs text-emerald-600 font-medium">
-                                  ✅ Target achieved
-                                </span>
-                              )}
-                              {rfq.current_lowest_bid && (
-                                <span className="text-xs text-primary font-medium">
-                                  🏆 Current lowest bid wins
+                              {/* Last bid time */}
+                              {rfq.updated_at && lowestBid && (
+                                <span className="text-[11px] text-muted-foreground">
+                                  ⏱ Last bid {differenceInMinutes(now, new Date(rfq.updated_at))} min ago
                                 </span>
                               )}
                               <TimeLeft deadline={rfq.deadline} />
