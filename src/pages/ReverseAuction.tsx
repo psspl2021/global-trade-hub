@@ -393,52 +393,80 @@ export default function ReverseAuction() {
                       </div>
 
                       {/* Conditional auction indicators */}
-                      {isReverse ? (
-                        <div className="flex flex-wrap items-center gap-3 text-xs mt-1.5">
-                          {rfq.target_price && (
-                            <span className="text-muted-foreground">
-                              🎯 Target: ₹{Number(rfq.target_price).toLocaleString("en-IN")}
+                      {(() => {
+                        const isEnded = new Date(rfq.deadline) < new Date();
+                        const savings = rfq.target_price && rfq.current_lowest_bid
+                          ? Number(rfq.target_price) - Number(rfq.current_lowest_bid)
+                          : 0;
+                        if (isReverse) {
+                          return (
+                            <div className="flex flex-wrap items-center gap-3 text-xs mt-1.5">
+                              {isEnded && (
+                                <span className="text-destructive font-medium">⛔ Auction Ended</span>
+                              )}
+                              {rfq.target_price && (
+                                <span className="text-muted-foreground">
+                                  🎯 Target: ₹{Number(rfq.target_price).toLocaleString("en-IN")}
+                                </span>
+                              )}
+                              <span className="font-medium text-primary">
+                                🏆 Lowest: ₹{rfq.current_lowest_bid ? Number(rfq.current_lowest_bid).toLocaleString("en-IN") : "—"}
+                              </span>
+                              <span className="text-muted-foreground">
+                                👥 {rfq.total_bidders || 0} suppliers bidding
+                              </span>
+                              {!isEnded && rfq.current_lowest_bid && (
+                                <span className="text-destructive font-medium">
+                                  Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} to win
+                                </span>
+                              )}
+                              {savings > 0 && (
+                                <span className="text-emerald-600 font-medium">
+                                  💰 Saved ₹{savings.toLocaleString("en-IN")}
+                                </span>
+                              )}
+                              {!isEnded && (rfq.total_bidders || 0) > 3 && (
+                                <span className="text-primary animate-pulse">🔻 Price dropping fast</span>
+                              )}
+                              <span className="text-muted-foreground italic">Auto-awarded to lowest bidder</span>
+                              {!isEnded && (
+                                <span className="text-muted-foreground">⚡ High competition — act fast to win</span>
+                              )}
+                              <TimeLeft deadline={rfq.deadline} />
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="flex items-center gap-3 mt-1.5">
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                              <TrendingDown className="h-3 w-3" /> Price discovery active • {getBidderCount(rfq.id)} suppliers interested
                             </span>
-                          )}
-                          <span className="font-medium text-primary">
-                            🏆 Lowest: ₹{rfq.current_lowest_bid ? Number(rfq.current_lowest_bid).toLocaleString("en-IN") : "—"}
-                          </span>
-                          <span className="text-muted-foreground">
-                            👥 {rfq.total_bidders || 0} suppliers bidding
-                          </span>
-                          {rfq.current_lowest_bid && (
-                            <span className="text-destructive font-medium">
-                              Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} to win
-                            </span>
-                          )}
-                          {rfq.target_price && rfq.current_lowest_bid && (
-                            <span className="text-emerald-600 font-medium">
-                              💰 Saved ₹{(Number(rfq.target_price) - Number(rfq.current_lowest_bid)).toLocaleString("en-IN")}
-                            </span>
-                          )}
-                          <span className="text-muted-foreground italic">Auto-awarded to lowest bidder</span>
-                          <TimeLeft deadline={rfq.deadline} />
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                            <TrendingDown className="h-3 w-3" /> Price discovery active • {getBidderCount(rfq.id)} suppliers interested
-                          </span>
-                          <TimeLeft deadline={rfq.deadline} />
-                        </div>
-                      )}
+                            <TimeLeft deadline={rfq.deadline} />
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Action button */}
-                    {isReverse ? (
-                      <span className="shrink-0 ml-4 text-sm bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium group-hover:bg-primary/90 transition-colors flex items-center gap-1">
-                        💰 Place Bid <ArrowRight className="h-3.5 w-3.5" />
-                      </span>
-                    ) : (
-                      <span className="shrink-0 ml-4 text-sm border border-border px-4 py-2 rounded-md text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex items-center gap-1">
-                        Submit Quote <ArrowRight className="h-3.5 w-3.5" />
-                      </span>
-                    )}
+                    {(() => {
+                      const isEnded = new Date(rfq.deadline) < new Date();
+                      if (isReverse) {
+                        return isEnded ? (
+                          <span className="shrink-0 ml-4 text-sm bg-muted text-muted-foreground px-4 py-2 rounded-md font-medium cursor-not-allowed flex items-center gap-1">
+                            Closed
+                          </span>
+                        ) : (
+                          <span className="shrink-0 ml-4 text-sm bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium group-hover:bg-primary/90 transition-colors flex items-center gap-1">
+                            💰 Place Bid <ArrowRight className="h-3.5 w-3.5" />
+                          </span>
+                        );
+                      }
+                      return (
+                        <span className="shrink-0 ml-4 text-sm border border-border px-4 py-2 rounded-md text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex items-center gap-1">
+                          Submit Quote <ArrowRight className="h-3.5 w-3.5" />
+                        </span>
+                      );
+                    })()}
                   </Link>
                 );
               })}
