@@ -477,6 +477,16 @@ export default function ReverseAuction() {
                                   📉 ₹{(Number(rfq.current_lowest_bid) - Number(rfq.target_price)).toLocaleString("en-IN")} above target
                                 </span>
                               )}
+                              {rfq.target_price && rfq.current_lowest_bid && Number(rfq.current_lowest_bid) <= Number(rfq.target_price) && (
+                                <span className="text-xs text-emerald-600 font-medium">
+                                  ✅ Target achieved
+                                </span>
+                              )}
+                              {rfq.current_lowest_bid && (
+                                <span className="text-xs text-primary font-medium">
+                                  🏆 Current lowest bid wins
+                                </span>
+                              )}
                               <TimeLeft deadline={rfq.deadline} />
                             </div>
                           );
@@ -501,9 +511,16 @@ export default function ReverseAuction() {
                             Closed
                           </span>
                         ) : (
-                          <span className="shrink-0 ml-4 text-sm bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium group-hover:bg-primary/90 transition-colors flex items-center gap-1">
-                            💰 Place Bid <ArrowRight className="h-3.5 w-3.5" />
-                          </span>
+                          <div className="shrink-0 ml-4 flex flex-col items-center gap-1">
+                            <span className="text-sm bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium group-hover:bg-primary/90 transition-colors flex items-center gap-1">
+                              {rfq.current_lowest_bid ? (
+                                <>🔻 Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} <ArrowRight className="h-3.5 w-3.5" /></>
+                              ) : (
+                                <>💰 Start Bidding <ArrowRight className="h-3.5 w-3.5" /></>
+                              )}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground">Bids lower than current price get priority</span>
+                          </div>
                         );
                       }
                       return (
