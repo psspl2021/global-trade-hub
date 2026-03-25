@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, Loader2, Lock, Clock, MessageSquare, Mail, Globe, ArrowLeft, ShoppingBag, Building2, Truck, CheckCircle, Users, Gift } from 'lucide-react';
+import { AlertTriangle, Loader2, Lock, Clock, MessageSquare, Mail, Globe, ArrowLeft, ShoppingBag, Building2, Truck, CheckCircle, Users, Gift, XCircle, BadgeCheck } from 'lucide-react';
+import { validateGSTIN, type GSTINValidationResult } from '@/lib/gstinValidator';
 import { toast } from 'sonner';
 import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
@@ -80,8 +81,25 @@ const Signup = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [emailNotificationConsent, setEmailNotificationConsent] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(initialTab);
+  const [gstinValidation, setGstinValidation] = useState<GSTINValidationResult | null>(null);
+  const [gstinChecking, setGstinChecking] = useState(false);
   
   const { supplierCount, logisticsCount, isLoading: countsLoading } = usePartnerCounts();
+
+  // Debounced GSTIN validation
+  const validateGSTINDebounced = useCallback((value: string) => {
+    if (!value.trim() || detectedCountry !== 'india') {
+      setGstinValidation(null);
+      return;
+    }
+    setGstinChecking(true);
+    const timer = setTimeout(() => {
+      const result = validateGSTIN(value);
+      setGstinValidation(result);
+      setGstinChecking(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [detectedCountry]);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -202,6 +220,15 @@ const Signup = () => {
     if (formData.gstin.trim() && taxConfig.pattern) {
       if (!taxConfig.pattern.test(formData.gstin.trim())) {
         setErrors({ gstin: taxConfig.patternError || `Please enter a valid ${taxConfig.label}` });
+        return;
+      }
+    }
+
+    // For India: also run checksum validation
+    if (formData.gstin.trim() && detectedCountry === 'india') {
+      const gstResult = validateGSTIN(formData.gstin);
+      if (!gstResult.isValid) {
+        setErrors({ gstin: gstResult.errors[0] || 'Invalid GSTIN' });
         return;
       }
     }
@@ -543,15 +570,48 @@ const Signup = () => {
                       <Label htmlFor="gstin">
                         {taxConfig.label} {(taxConfig.isRequired && formData.role !== 'logistics_partner') ? '*' : '(Optional)'}
                       </Label>
-                      <Input
-                        id="gstin"
-                        placeholder={taxConfig.placeholder}
-                        value={formData.gstin}
-                        onChange={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
-                        className={`min-h-[44px] ${errors.gstin ? 'border-destructive' : ''}`}
-                        maxLength={taxConfig.maxLength}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="gstin"
+                          placeholder={taxConfig.placeholder}
+                          value={formData.gstin}
+                          onChange={(e) => {
+                            const val = e.target.value.toUpperCase();
+                            setFormData({ ...formData, gstin: val });
+                            validateGSTINDebounced(val);
+                          }}
+                          className={`min-h-[44px] pr-10 ${
+                            errors.gstin ? 'border-destructive' : 
+                            gstinValidation?.isValid ? 'border-emerald-500' : 
+                            gstinValidation && !gstinValidation.isValid ? 'border-destructive' : ''
+                          }`}
+                          maxLength={taxConfig.maxLength}
+                        />
+                        {/* Verification status icon */}
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {gstinChecking && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                          {!gstinChecking && gstinValidation?.isValid && (
+                            <BadgeCheck className="h-5 w-5 text-emerald-500" />
+                          )}
+                          {!gstinChecking && gstinValidation && !gstinValidation.isValid && gstinValidation.errors.length > 0 && (
+                            <XCircle className="h-5 w-5 text-destructive" />
+                          )}
+                        </div>
+                      </div>
+                      {/* Validation feedback */}
+                      {gstinValidation?.isValid && gstinValidation.stateName && (
+                        <p className="text-xs text-emerald-600 flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          Valid GSTIN — {gstinValidation.stateName} (PAN: {gstinValidation.pan})
+                        </p>
+                      )}
+                      {gstinValidation && !gstinValidation.isValid && gstinValidation.errors.map((err, i) => (
+                        <p key={i} className="text-sm text-destructive">{err}</p>
+                      ))}
                       {errors.gstin && <p className="text-sm text-destructive">{errors.gstin}</p>}
+                      {!gstinValidation && !errors.gstin && detectedCountry === 'india' && (
+                        <p className="text-xs text-muted-foreground">{taxConfig.helperText}</p>
+                      )}
                     </div>
                   </div>
 
