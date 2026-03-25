@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, Loader2, Lock, Clock, MessageSquare, Mail, Globe, ArrowLeft, ShoppingBag, Building2, Truck, CheckCircle, Users, Gift } from 'lucide-react';
+import { AlertTriangle, Loader2, Lock, Clock, MessageSquare, Mail, Globe, ArrowLeft, ShoppingBag, Building2, Truck, CheckCircle, Users, Gift, XCircle, BadgeCheck } from 'lucide-react';
+import { validateGSTIN, type GSTINValidationResult } from '@/lib/gstinValidator';
 import { toast } from 'sonner';
 import { signupSchema } from '@/lib/validations';
 import { checkPasswordBreach, formatBreachCount } from '@/lib/passwordSecurity';
