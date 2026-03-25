@@ -128,10 +128,11 @@ export default function ReverseAuction() {
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "requirements" },
-        (payload) => {
+                (payload) => {
+          const updated = payload.new as Partial<LiveRFQ>;
           setRfqs((prev) =>
             prev.map((r) =>
-              r.id === (payload.new as LiveRFQ).id ? { ...r, ...(payload.new as Partial<LiveRFQ>) } : r
+              r.id === updated.id ? { ...r, ...updated } : r
             )
           );
         }
@@ -353,7 +354,11 @@ export default function ReverseAuction() {
                   <Link
                     key={rfq.id}
                     to={`/rfq/${rfq.id}`}
-                    className="border border-border rounded-lg p-4 flex justify-between items-center bg-background hover:border-primary/40 transition-colors group"
+                    className={`rounded-lg p-4 flex justify-between items-center transition-colors group ${
+                      isReverse
+                        ? "border-2 border-destructive/20 bg-destructive/5 hover:border-destructive/40"
+                        : "border border-accent bg-accent/30 hover:border-primary/40"
+                    }`}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -406,6 +411,12 @@ export default function ReverseAuction() {
                               Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} to win
                             </span>
                           )}
+                          {rfq.target_price && rfq.current_lowest_bid && (
+                            <span className="text-emerald-600 font-medium">
+                              💰 Saved ₹{(Number(rfq.target_price) - Number(rfq.current_lowest_bid)).toLocaleString("en-IN")}
+                            </span>
+                          )}
+                          <span className="text-muted-foreground italic">Auto-awarded to lowest bidder</span>
                           <TimeLeft deadline={rfq.deadline} />
                         </div>
                       ) : (
