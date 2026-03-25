@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { MapPin, Calendar, ArrowRight, Building2 } from "lucide-react";
+import { format, differenceInHours, differenceInMinutes } from "date-fns";
+import { MapPin, Calendar, ArrowRight, Building2, TrendingDown, Rocket } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import logo from "@/assets/procuresaathi-logo.png";
 import { TrustBadges } from "@/components/landing/TrustBadges";
@@ -14,6 +14,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+
+function TimeLeft({ deadline }: { deadline: string }) {
+  const d = new Date(deadline);
+  const now = new Date();
+  if (d <= now) return <span className="text-destructive font-medium">Ended</span>;
+  const hrs = differenceInHours(d, now);
+  const mins = differenceInMinutes(d, now) % 60;
+  return (
+    <span className="text-destructive font-medium tabular-nums">
+      ⏱ {hrs}h {mins}m left
+    </span>
+  );
+}
 
 const FAQS = [
   {
