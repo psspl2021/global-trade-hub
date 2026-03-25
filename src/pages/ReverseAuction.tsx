@@ -292,7 +292,7 @@ export default function ReverseAuction() {
                     </div>
                     {/* Live auction indicators */}
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
                         <TrendingDown className="h-3 w-3" /> Price dropping • suppliers bidding
                       </span>
                       <TimeLeft deadline={rfq.deadline} />
