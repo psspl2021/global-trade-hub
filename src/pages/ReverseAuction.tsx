@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { MapPin, Calendar, ArrowRight, Building2 } from "lucide-react";
+import { format, differenceInHours, differenceInMinutes } from "date-fns";
+import { MapPin, Calendar, ArrowRight, Building2, TrendingDown, Rocket } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import logo from "@/assets/procuresaathi-logo.png";
 import { TrustBadges } from "@/components/landing/TrustBadges";
@@ -14,6 +14,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+
+function TimeLeft({ deadline }: { deadline: string }) {
+  const d = new Date(deadline);
+  const now = new Date();
+  if (d <= now) return <span className="text-destructive font-medium">Ended</span>;
+  const hrs = differenceInHours(d, now);
+  const mins = differenceInMinutes(d, now) % 60;
+  return (
+    <span className="text-destructive font-medium tabular-nums">
+      ⏱ {hrs}h {mins}m left
+    </span>
+  );
+}
 
 const FAQS = [
   {
@@ -107,6 +120,11 @@ export default function ReverseAuction() {
         />
       </Helmet>
 
+      {/* Hidden SEO heading for long-tail keywords */}
+      <h2 className="sr-only">
+        Reverse Auction Platform India, UAE, Saudi Arabia for Steel, Chemicals, Polymers Procurement
+      </h2>
+
       {/* ===== HEADER (same as /requirements) ===== */}
       <header className="bg-gradient-to-r from-primary/10 to-primary/5 py-16">
         <div className="container mx-auto px-4">
@@ -185,6 +203,9 @@ export default function ReverseAuction() {
             <p className="text-muted-foreground">Auction Completion</p>
           </div>
         </div>
+        <p className="text-center text-sm text-muted-foreground mt-3">
+          Avg buyer saved <span className="font-semibold text-primary">₹2.4 Lakhs</span> per auction
+        </p>
       </section>
 
       {/* ===== HOW IT WORKS ===== */}
@@ -268,6 +289,13 @@ export default function ReverseAuction() {
                         <Calendar className="h-3 w-3" />
                         {format(new Date(rfq.deadline), "PP")}
                       </span>
+                    </div>
+                    {/* Live auction indicators */}
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                        <TrendingDown className="h-3 w-3" /> Price dropping • suppliers bidding
+                      </span>
+                      <TimeLeft deadline={rfq.deadline} />
                     </div>
                   </div>
                   <span className="shrink-0 ml-4 text-sm border border-border px-3 py-1.5 rounded-md text-primary font-medium group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex items-center gap-1">
@@ -397,6 +425,16 @@ export default function ReverseAuction() {
           Start Reverse Auction →
         </Link>
       </section>
+
+      {/* ===== STICKY CTA (mobile + desktop) ===== */}
+      <div className="fixed bottom-4 right-4 z-50 md:bottom-6 md:right-6">
+        <Link
+          to="/post-rfq"
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-3 rounded-full shadow-lg text-sm font-semibold hover:scale-105 transition-transform"
+        >
+          <Rocket className="h-4 w-4" /> Start Auction
+        </Link>
+      </div>
     </main>
   );
 }
