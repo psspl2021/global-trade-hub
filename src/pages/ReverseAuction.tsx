@@ -403,7 +403,7 @@ export default function ReverseAuction() {
 
                       {/* Conditional auction indicators */}
                       {(() => {
-                        const isEnded = new Date(rfq.deadline) < new Date();
+                        const isEnded = new Date(rfq.deadline) < now;
                         const savings = rfq.target_price && rfq.current_lowest_bid
                           ? Number(rfq.target_price) - Number(rfq.current_lowest_bid)
                           : 0;
@@ -458,7 +458,7 @@ export default function ReverseAuction() {
 
                     {/* Action button */}
                     {(() => {
-                      const isEnded = new Date(rfq.deadline) < new Date();
+                      const isEnded = new Date(rfq.deadline) < now;
                       if (isReverse) {
                         return isEnded ? (
                           <span className="shrink-0 ml-4 text-sm bg-muted text-muted-foreground px-4 py-2 rounded-md font-medium cursor-not-allowed flex items-center gap-1">
