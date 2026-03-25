@@ -388,11 +388,20 @@ export default function ReverseAuction() {
                             Live RFQ
                           </span>
                         )}
-                        {differenceInHours(now, new Date(rfq.created_at)) < 2 && (
-                          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
-                            🟢 New
-                          </span>
-                        )}
+                        {(() => {
+                          const createdHours = differenceInHours(now, new Date(rfq.created_at));
+                          if (createdHours < 2) return (
+                            <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
+                              🟢 New
+                            </span>
+                          );
+                          if (createdHours < 24) return (
+                            <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-medium">
+                              🕒 {createdHours}h ago
+                            </span>
+                          );
+                          return null;
+                        })()}
                         <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
                           {rfq.title}
                         </p>
@@ -454,13 +463,18 @@ export default function ReverseAuction() {
                                 <span className="text-muted-foreground">⚡ High competition — act fast to win</span>
                               )}
                               {!isEnded && rfq.current_lowest_bid && (
-                                <span className="text-xs text-primary">
-                                  💡 You're competing with {rfq.total_bidders || 0} suppliers
+                                <span className="text-xs text-muted-foreground">
+                                  🧠 Beat ₹{Number(rfq.current_lowest_bid).toLocaleString("en-IN")} to lead
                                 </span>
                               )}
-                              {!isEnded && (
-                                <span className="text-xs text-muted-foreground">
-                                  🧠 Lower bids have higher chances of winning
+                              {rfq.total_bidders && rfq.total_bidders > 5 && (
+                                <span className="text-xs text-destructive font-medium">
+                                  🔥 High competition
+                                </span>
+                              )}
+                              {rfq.target_price && rfq.current_lowest_bid && Number(rfq.current_lowest_bid) > Number(rfq.target_price) && (
+                                <span className="text-xs text-primary">
+                                  📉 ₹{(Number(rfq.current_lowest_bid) - Number(rfq.target_price)).toLocaleString("en-IN")} above target
                                 </span>
                               )}
                               <TimeLeft deadline={rfq.deadline} />
