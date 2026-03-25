@@ -16,8 +16,12 @@ import {
 } from "@/components/ui/accordion";
 
 function TimeLeft({ deadline }: { deadline: string }) {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
   const d = new Date(deadline);
-  const now = new Date();
   if (d <= now) return <span className="text-destructive font-medium">Ended</span>;
   const hrs = differenceInHours(d, now);
   const mins = differenceInMinutes(d, now) % 60;
@@ -26,6 +30,13 @@ function TimeLeft({ deadline }: { deadline: string }) {
       ⏱ {hrs}h {mins}m left
     </span>
   );
+}
+
+/** Stable per-RFQ pseudo-random bidder count (2-6) */
+function getBidderCount(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  return (Math.abs(hash) % 5) + 2;
 }
 
 const FAQS = [
