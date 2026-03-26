@@ -161,6 +161,7 @@ export function useReverseAuction() {
               body: {
                 email: invite.supplier_email,
                 auctionTitle: input.title,
+                auctionId,
                 product,
                 quantity,
                 startTime: input.auction_start,

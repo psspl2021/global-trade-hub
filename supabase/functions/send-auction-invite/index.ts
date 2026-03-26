@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { email, auctionTitle, product, quantity, startTime, auctionLink } = await req.json();
+    const { email, auctionTitle, auctionId, product, quantity, startTime, auctionLink } = await req.json();
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Email is required' }), {
@@ -50,6 +50,9 @@ serve(async (req) => {
         },
         to: [{ email }],
         subject: `🔥 Reverse Auction Invitation – ${auctionTitle}`,
+        headers: {
+          'X-Mailin-custom': `auction_id:${auctionId || ''}`,
+        },
         htmlContent: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #d97706, #ea580c); padding: 24px; border-radius: 12px 12px 0 0;">
