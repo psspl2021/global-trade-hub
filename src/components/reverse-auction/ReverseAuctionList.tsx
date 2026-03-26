@@ -10,6 +10,7 @@ import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
+import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: <Clock className="w-3 h-3" /> },
@@ -171,6 +172,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
                       )}
                     </p>
                   )}
+
+                  {/* Invite Analytics (Buyer only) */}
+                  {isBuyer && <AuctionInviteAnalytics auctionId={auction.id} />}
 
                   {/* Buyer Actions */}
                   {isBuyer && (

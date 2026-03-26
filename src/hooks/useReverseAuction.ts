@@ -152,7 +152,7 @@ export function useReverseAuction() {
         // Step 4: Send email invitations to all suppliers with emails
         const product = input.product_slug.replace(/_/g, ', ').replace(/-/g, ' ');
         const quantity = `${input.quantity} ${input.unit}`;
-        const auctionLink = `${window.location.origin}/auctions/${auctionId}`;
+        const auctionLink = `https://www.procuresaathi.com/reverse-auction/${auctionId}`;
 
         for (const invite of invites) {
           if (!invite.supplier_email) continue;

@@ -131,6 +131,32 @@ const handler = async (req: Request): Promise<Response> => {
       console.log(`Updated email log for message ${messageId} with event ${event.event}`);
     }
 
+    // --- Update reverse_auction_suppliers.invite_status on open/click ---
+    if (event.email && (event.event === "opened" || event.event === "unique_opened" || event.event === "click")) {
+      const newStatus = event.event === "click" ? "clicked" : "opened";
+      // Only escalate status: sent → opened → clicked (never downgrade)
+      const statusPriority: Record<string, number> = { sent: 1, opened: 2, clicked: 3, bid_submitted: 4 };
+
+      const { data: invites } = await supabase
+        .from("reverse_auction_suppliers")
+        .select("id, invite_status")
+        .eq("supplier_email", event.email);
+
+      if (invites && invites.length > 0) {
+        for (const invite of invites) {
+          const currentPriority = statusPriority[invite.invite_status] || 0;
+          const newPriority = statusPriority[newStatus] || 0;
+          if (newPriority > currentPriority) {
+            await supabase
+              .from("reverse_auction_suppliers")
+              .update({ invite_status: newStatus })
+              .eq("id", invite.id);
+            console.log(`Updated invite ${invite.id} status to ${newStatus}`);
+          }
+        }
+      }
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
