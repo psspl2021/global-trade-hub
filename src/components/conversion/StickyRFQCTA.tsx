@@ -66,7 +66,7 @@ export function StickyRFQCTA() {
 
   if (isExcluded) return <AIRFQModal open={modalOpen} onOpenChange={setModalOpen} />;
 
-  const isVisible = !dismissed && (initialShow || showScrollCTA);
+  const isVisible = !dismissed && !modalOpen && (initialShow || showScrollCTA);
 
   return (
     <>
