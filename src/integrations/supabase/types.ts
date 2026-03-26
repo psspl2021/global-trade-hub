@@ -6280,6 +6280,7 @@ export type Database = {
           auction_id: string
           floor_price: number | null
           id: string
+          invite_status: string
           invited_at: string
           invited_by: string | null
           joined: boolean
@@ -6293,6 +6294,7 @@ export type Database = {
           auction_id: string
           floor_price?: number | null
           id?: string
+          invite_status?: string
           invited_at?: string
           invited_by?: string | null
           joined?: boolean
@@ -6306,6 +6308,7 @@ export type Database = {
           auction_id?: string
           floor_price?: number | null
           id?: string
+          invite_status?: string
           invited_at?: string
           invited_by?: string | null
           joined?: boolean
