@@ -22,16 +22,19 @@ export function AuctionInviteAnalytics({ auctionId }: { auctionId: string }) {
       if (!data) return;
 
       const counts: InviteStats = { sent: 0, opened: 0, clicked: 0, bid_submitted: 0 };
-      // Total sent = all rows (every invited supplier counts as sent)
       counts.sent = data.length;
       for (const row of data) {
         const s = (row as any).invite_status;
-        if (s === 'opened') counts.opened++;
-        if (s === 'clicked') counts.clicked++;
-        if (s === 'bid_submitted') counts.bid_submitted++;
-        // opened/clicked/bid_submitted also count as opened
-        if (s === 'clicked' || s === 'bid_submitted') counts.opened++;
-        if (s === 'bid_submitted') counts.clicked++;
+        if (s === 'opened') {
+          counts.opened++;
+        } else if (s === 'clicked') {
+          counts.opened++;
+          counts.clicked++;
+        } else if (s === 'bid_submitted') {
+          counts.opened++;
+          counts.clicked++;
+          counts.bid_submitted++;
+        }
       }
       setStats(counts);
     };
@@ -47,14 +50,20 @@ export function AuctionInviteAnalytics({ auctionId }: { auctionId: string }) {
     { icon: Gavel, label: 'Bidding', value: stats.bid_submitted, color: 'text-emerald-600' },
   ];
 
+  const openRate = stats.sent > 0 ? Math.round((stats.opened / stats.sent) * 100) : 0;
+  const clickRate = stats.sent > 0 ? Math.round((stats.clicked / stats.sent) * 100) : 0;
+
   return (
-    <div className="flex items-center gap-3 text-xs">
+    <div className="flex items-center gap-3 text-xs flex-wrap">
       {items.map(({ icon: Icon, label, value, color }) => (
         <span key={label} className={`flex items-center gap-1 ${color}`}>
           <Icon className="w-3 h-3" />
           {value} {label}
         </span>
       ))}
+      <span className="text-muted-foreground">
+        📈 {openRate}% opened • {clickRate}% clicked
+      </span>
     </div>
   );
 }
