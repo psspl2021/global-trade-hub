@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { validateGSTIN } from '@/lib/gstinValidator';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -644,11 +645,22 @@ function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTablePro
               {user.city && user.state ? `${user.city}, ${user.state}` : user.city || user.state || '-'}
             </TableCell>
             <TableCell>
-              {user.gstin ? (
-                <Badge variant="outline" className="font-mono text-xs">
-                  {user.gstin}
-                </Badge>
-              ) : '-'}
+              {user.gstin ? (() => {
+                const result = validateGSTIN(user.gstin);
+                return (
+                  <div className="flex flex-col gap-1">
+                    <Badge 
+                      variant="outline" 
+                      className={`font-mono text-xs ${result.isValid ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-destructive bg-destructive/10 text-destructive'}`}
+                    >
+                      {user.gstin}
+                    </Badge>
+                    <span className={`text-[10px] ${result.isValid ? 'text-emerald-600' : 'text-destructive'}`}>
+                      {result.isValid ? `✅ Valid · ${result.stateName}` : `❌ ${result.errors[0] || 'Invalid'}`}
+                    </span>
+                  </div>
+                );
+              })() : '-'}
             </TableCell>
             <TableCell>
               {user.created_at ? format(new Date(user.created_at), 'dd MMM yyyy') : '-'}
