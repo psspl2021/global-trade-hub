@@ -624,8 +624,8 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                           <DropdownMenuItem 
                             onClick={() => {
                               const url = `${window.location.origin}/rfq/${req.id}`;
-                              const category = req.category || '';
-                              const quantity = req.items?.[0] ? `${req.items[0].quantity} ${req.items[0].unit}` : '';
+                              const category = req.product_category || '';
+                              const quantity = req.quantity ? `${req.quantity} ${req.unit}` : '';
                               const deadline = req.deadline ? new Date(req.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                               const shareText = `Check out this RFQ: ${req.title}${quantity ? ` - ${quantity}` : ''}${category ? ` | ${category}` : ''}${deadline ? ` | Deadline: ${deadline}` : ''} ${url}`;
                               if (navigator.share) {
