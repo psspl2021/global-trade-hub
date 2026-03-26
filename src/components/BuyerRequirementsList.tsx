@@ -623,12 +623,16 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                           {/* Share Requirement */}
                           <DropdownMenuItem 
                             onClick={() => {
-                              const url = `${window.location.origin}/dashboard?req=${req.id}`;
+                              const url = `${window.location.origin}/rfq/${req.id}`;
+                              const category = req.product_category || '';
+                              const quantity = req.quantity ? `${req.quantity} ${req.unit}` : '';
+                              const deadline = req.deadline ? new Date(req.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                              const shareText = `Check out this RFQ: ${req.title}${quantity ? ` - ${quantity}` : ''}${category ? ` | ${category}` : ''}${deadline ? ` | Deadline: ${deadline}` : ''} ${url}`;
                               if (navigator.share) {
-                                navigator.share({ title: req.title, text: `Check out this requirement: ${req.title}`, url }).catch(() => {});
+                                navigator.share({ title: req.title, text: shareText, url }).catch(() => {});
                               } else {
-                                navigator.clipboard.writeText(url);
-                                toast.success('Requirement link copied to clipboard');
+                                navigator.clipboard.writeText(shareText);
+                                toast.success('RFQ link copied to clipboard');
                               }
                             }}
                           >
