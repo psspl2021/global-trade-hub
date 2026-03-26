@@ -134,13 +134,23 @@ const handler = async (req: Request): Promise<Response> => {
     // --- Update reverse_auction_suppliers.invite_status on open/click ---
     if (event.email && (event.event === "opened" || event.event === "unique_opened" || event.event === "click")) {
       const newStatus = event.event === "click" ? "clicked" : "opened";
-      // Only escalate status: sent → opened → clicked (never downgrade)
       const statusPriority: Record<string, number> = { sent: 1, opened: 2, clicked: 3, bid_submitted: 4 };
 
-      const { data: invites } = await supabase
+      // Extract auction_id from X-Mailin-custom header if available
+      const customHeader = (event as any)["X-Mailin-custom"] || "";
+      const auctionIdMatch = customHeader.match?.(/auction_id:([a-f0-9-]+)/);
+      const auctionId = auctionIdMatch?.[1];
+
+      let query = supabase
         .from("reverse_auction_suppliers")
         .select("id, invite_status")
         .eq("supplier_email", event.email);
+
+      if (auctionId) {
+        query = query.eq("auction_id", auctionId);
+      }
+
+      const { data: invites } = await query;
 
       if (invites && invites.length > 0) {
         for (const invite of invites) {
