@@ -157,7 +157,7 @@ export function useReverseAuction() {
         for (const invite of invites) {
           if (!invite.supplier_email) continue;
           try {
-            await supabase.functions.invoke('send-auction-invite', {
+            const { error: emailErr } = await supabase.functions.invoke('send-auction-invite', {
               body: {
                 email: invite.supplier_email,
                 auctionTitle: input.title,
@@ -167,6 +167,14 @@ export function useReverseAuction() {
                 auctionLink,
               },
             });
+            if (!emailErr) {
+              // Update invite_status to 'sent'
+              await supabase
+                .from('reverse_auction_suppliers')
+                .update({ invite_status: 'sent' } as any)
+                .eq('auction_id', auctionId)
+                .eq('supplier_email', invite.supplier_email);
+            }
           } catch (emailErr) {
             console.error('Failed to send invite email:', emailErr);
           }
