@@ -52,6 +52,7 @@ export function AuctionInviteAnalytics({ auctionId }: { auctionId: string }) {
 
   const openRate = stats.sent > 0 ? Math.round((stats.opened / stats.sent) * 100) : 0;
   const clickRate = stats.sent > 0 ? Math.round((stats.clicked / stats.sent) * 100) : 0;
+  const bidRate = stats.sent > 0 ? Math.round((stats.bid_submitted / stats.sent) * 100) : 0;
 
   return (
     <div className="flex items-center gap-3 text-xs flex-wrap">
@@ -62,8 +63,13 @@ export function AuctionInviteAnalytics({ auctionId }: { auctionId: string }) {
         </span>
       ))}
       <span className="text-muted-foreground">
-        📈 {openRate}% opened • {clickRate}% clicked
+        📈 {openRate}% opened • {clickRate}% clicked • 🔨 {bidRate}% bidding
       </span>
+      {stats.sent > 5 && stats.opened < stats.sent * 0.3 && (
+        <span className="text-xs text-destructive">
+          ⚠️ Low response — invite more suppliers
+        </span>
+      )}
     </div>
   );
 }
