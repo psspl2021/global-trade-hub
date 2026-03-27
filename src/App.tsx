@@ -45,6 +45,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const InvoiceGenerator = lazy(() => import("./pages/InvoiceGenerator"));
 const AffiliatePortal = lazy(() => import("./pages/AffiliatePortal"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const EarnWithProcureSaathi = lazy(() => import("./pages/EarnWithProcureSaathi"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 
