@@ -89,8 +89,15 @@ const EarnWithProcureSaathi = () => {
     }, 300);
     setTimeout(() => {
       window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
-      setSharedCount((prev) => Math.min(prev + 1, 20));
-      toast({ title: "Invite started 🚀", description: "You're one step closer to earning your first commission" });
+      setSharedCount((prev) => {
+        const next = Math.min(prev + 1, 20);
+        if ([5, 10, 20].includes(next)) {
+          toast({ title: "Milestone reached 🎯", description: `You've completed ${next} invites!` });
+        } else {
+          toast({ title: "Invite started 🚀", description: "You're one step closer to earning your first commission" });
+        }
+        return next;
+      });
       setIsSharing(false);
     }, 800);
     setTimeout(() => setCopied(false), 2000);
