@@ -87,6 +87,7 @@ const EarnWithProcureSaathi = () => {
     setTimeout(() => {
       window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
       setSharedCount((prev) => Math.min(prev + 1, 5));
+      toast({ title: "Invite started 🚀", description: "You're one step closer to earning your first commission" });
     }, 800);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -379,6 +380,9 @@ const EarnWithProcureSaathi = () => {
                   🔥 Next milestone: {sharedCount < 10 ? 10 : 20} invites — increase your chances {sharedCount < 10 ? "2x" : "5x"}
                 </p>
               )}
+              <p className="text-xs text-amber-600 mt-1">
+                🏆 Top affiliates invite 15–25 suppliers in their first week
+              </p>
             </div>
           </div>
         </section>
