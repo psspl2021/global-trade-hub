@@ -318,7 +318,8 @@ const EarnWithProcureSaathi = () => {
                 disabled={loadingReferral}
               >
                 <a
-                  href={`https://wa.me/?text=${whatsappText}`}
+                  href={!loadingReferral ? `https://wa.me/?text=${whatsappText}` : "#"}
+                  onClick={(e) => loadingReferral && e.preventDefault()}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -342,9 +343,12 @@ const EarnWithProcureSaathi = () => {
                   className="gap-1 text-xs"
                 >
                   {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                  {copied ? "Copied" : "Copy"}
+                  {copied ? "✅ Copied" : "📋 Copy"}
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Share with at least 5 suppliers to start earning faster
+              </p>
             </div>
           </div>
         </section>
