@@ -343,7 +343,7 @@ const EarnWithProcureSaathi = () => {
               </p>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              🔥 Affiliates who share with 5+ suppliers earn 3x more
+              🔥 100+ suppliers joined this week via affiliates
             </p>
 
             {/* Referral Link Display */}
@@ -370,13 +370,13 @@ const EarnWithProcureSaathi = () => {
                 </p>
               )}
               <p className="text-xs text-success mt-2">
-                🎯 Progress: {sharedCount}/5 invites initiated
+                🎯 Progress: {sharedCount}/{sharedCount < 5 ? 5 : sharedCount < 10 ? 10 : 20} invites initiated
               </p>
               {sharedCount >= 5 && (
                 <p className="text-sm text-success font-medium mt-2">
                   🎉 Great start! You're likely to earn your first commission soon
                   <br />
-                  🔥 Try reaching 10 suppliers to increase your chances 2x
+                  🔥 Next milestone: {sharedCount < 10 ? 10 : 20} invites — increase your chances {sharedCount < 10 ? "2x" : "5x"}
                 </p>
               )}
             </div>
