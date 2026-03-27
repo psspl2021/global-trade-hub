@@ -186,7 +186,7 @@ const EarnWithProcureSaathi = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                className="bg-[#25D366] text-white hover:bg-[#20bd5a] border-none"
                 asChild
               >
                 <a
