@@ -338,16 +338,16 @@ const EarnWithProcureSaathi = () => {
                   </a>
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-foreground/80 mt-1">
                 No spam — only share with relevant suppliers you know
               </p>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-foreground/80 mt-2">
               🔥 100+ suppliers joined this week via affiliates
             </p>
 
             {/* Referral Link Display */}
-            <div className="mt-6 text-sm text-muted-foreground text-center">
+            <div className="mt-6 text-sm text-foreground/70 text-center">
               <p>Your referral link:</p>
               <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
                 <span className="font-medium text-primary break-all bg-muted px-3 py-1.5 rounded-md text-xs">
@@ -369,11 +369,11 @@ const EarnWithProcureSaathi = () => {
                   👉 Paste this link in WhatsApp and send to your supplier contacts
                 </p>
               )}
-              <p className="text-xs text-success mt-2">
+              <p className="text-xs text-foreground font-medium mt-2">
                 🎯 Progress: {sharedCount}/{sharedCount < 5 ? 5 : sharedCount < 10 ? 10 : 20} invites initiated
               </p>
               {sharedCount >= 5 && (
-                <p className="text-sm text-success font-medium mt-2">
+                <p className="text-sm text-foreground font-medium mt-2">
                   🎉 Great start! You're likely to earn your first commission soon
                   <br />
                   🔥 Next milestone: {sharedCount < 10 ? 10 : 20} invites — increase your chances {sharedCount < 10 ? "2x" : "5x"}
