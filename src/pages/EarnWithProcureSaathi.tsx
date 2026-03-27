@@ -327,6 +327,9 @@ const EarnWithProcureSaathi = () => {
                 </a>
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              🔥 Affiliates who share with 5+ suppliers earn 3x more
+            </p>
 
             {/* Referral Link Display */}
             <div className="mt-6 text-sm text-muted-foreground text-center">
@@ -346,6 +349,11 @@ const EarnWithProcureSaathi = () => {
                   {copied ? "✅ Copied" : "📋 Copy"}
                 </Button>
               </div>
+              {copied && (
+                <p className="text-xs text-primary mt-1">
+                  👉 Paste this link in WhatsApp and send to your supplier contacts
+                </p>
+              )}
               <p className="text-xs text-muted-foreground mt-2">
                 Share with at least 5 suppliers to start earning faster
               </p>
