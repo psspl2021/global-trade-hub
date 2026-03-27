@@ -1,17 +1,18 @@
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
-import { MessageCircle, ArrowRight, Briefcase, Users, TrendingUp, Globe, IndianRupee, Sparkles } from "lucide-react";
+import { MessageCircle, ArrowRight, Briefcase, Users, Truck, Building2, UserCheck, Network } from "lucide-react";
 
 const targetAudience = [
-  { icon: <Briefcase className="h-5 w-5" />, label: "Freelancers & Side Hustlers" },
-  { icon: <Users className="h-5 w-5" />, label: "Purchase Executives & Managers" },
-  { icon: <TrendingUp className="h-5 w-5" />, label: "SCM & Logistics Professionals" },
-  { icon: <IndianRupee className="h-5 w-5" />, label: "Traders & Brokers" },
-  { icon: <Sparkles className="h-5 w-5" />, label: "Consultants & Agents" },
-  { icon: <Globe className="h-5 w-5" />, label: "Anyone with Supplier Network" },
+  { icon: <Users className="h-5 w-5" />, label: "Freelancers & Side Hustlers" },
+  { icon: <Briefcase className="h-5 w-5" />, label: "Purchase Executives & Managers" },
+  { icon: <Truck className="h-5 w-5" />, label: "SCM & Logistics Professionals" },
+  { icon: <Building2 className="h-5 w-5" />, label: "Traders & Brokers" },
+  { icon: <UserCheck className="h-5 w-5" />, label: "Consultants & Agents" },
+  { icon: <Network className="h-5 w-5" />, label: "Anyone with Supplier Network" },
 ];
 
 const steps = [
@@ -25,13 +26,22 @@ const benefits = [
   { icon: "💸", text: "No investment needed" },
   { icon: "🌍", text: "Work from anywhere" },
   { icon: "📈", text: "Unlimited earning potential" },
-  { icon: "🔁", text: "Lifetime recurring income" },
+  { icon: "🧠", text: "No technical skills required" },
   { icon: "📊", text: "Real-time tracking dashboard" },
   { icon: "⚡", text: "Instant payout processing" },
 ];
 
 const EarnWithProcureSaathi = () => {
   const navigate = useNavigate();
+  const [showStickyCTA, setShowStickyCTA] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyCTA(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const whatsappText = encodeURIComponent(
     "Start earning with ProcureSaathi — connect suppliers and earn commission on every deal: https://www.procuresaathi.com/signup"
@@ -69,16 +79,19 @@ const EarnWithProcureSaathi = () => {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_70%)]" />
           <div className="relative max-w-3xl mx-auto text-center">
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
-              💰 Earn from Your Network
+              💰 Income Opportunity
             </span>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-5">
-              Earn Extra Income from Your Network
+              Earn ₹20,000+ Per Deal by Connecting Suppliers 💰
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
               Know suppliers, manufacturers, or traders?
               Connect them to ProcureSaathi and earn{" "}
               <span className="text-primary font-semibold">20% commission</span>{" "}
               on every deal they win.
+            </p>
+            <p className="text-sm text-muted-foreground mb-8">
+              Trusted by suppliers across India • High-value industrial deals • No investment required
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Button size="lg" onClick={() => navigate("/signup")} className="gap-2">
@@ -88,6 +101,9 @@ const EarnWithProcureSaathi = () => {
                 Already a member? Login
               </Button>
             </div>
+            <p className="text-sm text-muted-foreground mt-6">
+              🚀 Most users earn their first commission within 7–14 days
+            </p>
           </div>
         </section>
 
@@ -201,6 +217,19 @@ const EarnWithProcureSaathi = () => {
           </div>
         </section>
       </main>
+
+      {/* STICKY MOBILE CTA */}
+      {showStickyCTA && (
+        <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-300 pointer-events-none">
+          <Button
+            size="lg"
+            onClick={() => navigate("/signup")}
+            className="rounded-full shadow-2xl gap-2 pointer-events-auto"
+          >
+            Start Earning <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       <Footer />
     </>
