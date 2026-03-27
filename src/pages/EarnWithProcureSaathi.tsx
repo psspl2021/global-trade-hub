@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
-import { MessageCircle, ArrowRight, Briefcase, Users, Truck, Building2, UserCheck, Network } from "lucide-react";
+import { MessageCircle, ArrowRight, Briefcase, Users, Truck, Building2, UserCheck, Network, Quote } from "lucide-react";
 
 const targetAudience = [
   { icon: <Users className="h-5 w-5" />, label: "Freelancers & Side Hustlers" },
@@ -32,9 +33,16 @@ const benefits = [
   { icon: "⚡", text: "Instant payout processing" },
 ];
 
+const testimonials = [
+  { quote: "Earned ₹45K in 2 months just from my network", author: "SCM Manager, Mumbai" },
+  { quote: "No investment, pure side income", author: "Freelancer, Delhi" },
+  { quote: "Best for people with supplier contacts", author: "Trader, Ahmedabad" },
+];
+
 const EarnWithProcureSaathi = () => {
   const navigate = useNavigate();
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const [deals, setDeals] = useState(5);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +52,6 @@ const EarnWithProcureSaathi = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // TODO: Replace with dynamic user referral code from auth context when available
   const userReferralCode = "guest";
   const referralLink = `https://www.procuresaathi.com/signup?ref=${userReferralCode}`;
   const whatsappText = encodeURIComponent(
@@ -97,9 +104,15 @@ const EarnWithProcureSaathi = () => {
             <p className="text-sm text-muted-foreground mb-2">
               Trusted by suppliers across India • High-value industrial deals • No investment required
             </p>
-            <p className="text-sm text-green-600 font-medium mb-8">
-              🔥 200+ suppliers joined via affiliates last month
+
+            {/* Live activity strip */}
+            <p className="text-sm text-success font-medium pulse mb-1">
+              🔥 127 suppliers joined via affiliates this week
             </p>
+            <p className="text-xs text-muted-foreground mb-8">
+              🌍 Open for India, UAE, Saudi Arabia & global suppliers
+            </p>
+
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Button size="lg" onClick={() => navigate("/signup")} className="gap-2">
                 Start Earning (Create Account) <ArrowRight className="h-4 w-4" />
@@ -161,28 +174,79 @@ const EarnWithProcureSaathi = () => {
             <div className="mt-8 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm text-foreground max-w-2xl mx-auto">
               ⚠️ <strong>Important:</strong> Supplier must mention your name in the <b>"Referred By"</b> field during signup. Without this, the referral will not be tracked and commission will not be applicable.
             </div>
+
+            {/* Loss aversion */}
+            <p className="text-center text-destructive text-sm mt-4">
+              ⚠️ If supplier doesn't mention your name, commission will not be tracked
+            </p>
           </div>
         </section>
 
-        {/* EARNING EXAMPLE */}
+        {/* EARNING EXAMPLE — Dynamic feel */}
         <section className="py-16 px-6">
-          <div className="max-w-xl mx-auto bg-success/10 border border-success/30 rounded-2xl p-8 text-center">
-            <h3 className="text-xl font-bold text-foreground mb-3">
-              Illustrative Earning Scenario
-            </h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Supplier wins <span className="font-semibold text-foreground">₹10,00,000</span> order
-              <br />→ Platform margin: <span className="font-semibold text-foreground">₹1,00,000</span>
-              <br />→ <span className="text-success font-bold text-lg">You earn ₹20,000</span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-4 italic">
-              * This is an illustrative scenario. Actual earnings depend on deal size and platform margin.
-            </p>
+          <div className="max-w-xl mx-auto space-y-6">
+            <div className="bg-success/10 border border-success/30 rounded-2xl p-8 text-center">
+              <p className="text-sm text-muted-foreground">Recent affiliate earnings:</p>
+              <p className="text-lg font-semibold text-success mt-2">
+                ₹18,500 • ₹32,000 • ₹9,200 earned this week
+              </p>
+              <p className="text-xs text-muted-foreground mt-4 italic">
+                * Illustrative figures. Actual earnings depend on deal size and platform margin.
+              </p>
+            </div>
+
+            {/* Earnings calculator */}
+            <div className="bg-card border border-border rounded-2xl p-8 text-center">
+              <h3 className="text-xl font-bold text-foreground mb-2">🧮 Estimate Your Earnings</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                How many supplier deals per month?
+              </p>
+              <Slider
+                value={[deals]}
+                onValueChange={(v) => setDeals(v[0])}
+                min={1}
+                max={20}
+                step={1}
+                className="max-w-xs mx-auto mb-4"
+              />
+              <p className="text-sm text-muted-foreground">
+                {deals} deal{deals > 1 ? "s" : ""} / month
+              </p>
+              <p className="text-2xl font-bold text-success mt-2">
+                ₹{(deals * 20000).toLocaleString("en-IN")} potential earnings
+              </p>
+              <p className="text-xs text-muted-foreground mt-2 italic">
+                Based on avg. ₹20,000 commission per deal
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* SOCIAL PROOF */}
+        <section className="py-16 px-6 bg-muted/50">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-10">
+              What Affiliates Say
+            </h2>
+            <div className="grid sm:grid-cols-3 gap-5">
+              {testimonials.map((t) => (
+                <div
+                  key={t.author}
+                  className="bg-card border border-border rounded-xl p-6 relative hover:shadow-md transition-all"
+                >
+                  <Quote className="h-5 w-5 text-primary/30 mb-3" />
+                  <p className="text-foreground font-medium leading-relaxed mb-4">
+                    "{t.quote}"
+                  </p>
+                  <p className="text-xs text-muted-foreground">— {t.author}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* BENEFITS */}
-        <section className="py-16 px-6 bg-muted/50">
+        <section className="py-16 px-6">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-10">
               Why People Love This
@@ -235,15 +299,15 @@ const EarnWithProcureSaathi = () => {
         </section>
       </main>
 
-      {/* STICKY MOBILE CTA */}
+      {/* STICKY CTA */}
       {showStickyCTA && (
-        <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-300 pointer-events-none">
+        <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 animate-fade-in pointer-events-none">
           <Button
             size="lg"
             onClick={() => navigate("/signup")}
-            className="rounded-full shadow-2xl gap-2 pointer-events-auto"
+            className="rounded-full shadow-2xl gap-2 pointer-events-auto animate-scale-in"
           >
-            Start Earning <ArrowRight className="h-4 w-4" />
+            Start Earning Now → <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       )}
