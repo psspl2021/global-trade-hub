@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -43,6 +44,7 @@ const EarnWithProcureSaathi = () => {
   const navigate = useNavigate();
   const [showStickyCTA, setShowStickyCTA] = useState(false);
   const [deals, setDeals] = useState(5);
+  const [userReferralCode, setUserReferralCode] = useState("guest");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,7 +54,20 @@ const EarnWithProcureSaathi = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const userReferralCode = "guest";
+  useEffect(() => {
+    const fetchReferralCode = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("affiliates")
+          .select("referral_code")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (data?.referral_code) setUserReferralCode(data.referral_code);
+      }
+    };
+    fetchReferralCode();
+  }, []);
   const referralLink = `https://www.procuresaathi.com/signup?ref=${userReferralCode}`;
   const whatsappText = encodeURIComponent(
     `Start earning with ProcureSaathi — connect suppliers and earn commission on every deal: ${referralLink}`
@@ -121,8 +136,11 @@ const EarnWithProcureSaathi = () => {
                 Already an Affiliate? Login
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground mt-6">
+            <p className="text-sm text-muted-foreground mt-4">
               🚀 Most users earn their first commission within 7–14 days
+            </p>
+            <p className="text-sm text-primary font-medium mt-3">
+              If you know just 5 suppliers, you can start earning this month
             </p>
           </div>
         </section>
