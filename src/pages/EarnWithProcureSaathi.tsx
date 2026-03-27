@@ -43,8 +43,11 @@ const EarnWithProcureSaathi = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // TODO: Replace with dynamic user referral code from auth context when available
+  const userReferralCode = "guest";
+  const referralLink = `https://www.procuresaathi.com/signup?ref=${userReferralCode}`;
   const whatsappText = encodeURIComponent(
-    "Start earning with ProcureSaathi — connect suppliers and earn commission on every deal: https://www.procuresaathi.com/signup"
+    `Start earning with ProcureSaathi — connect suppliers and earn commission on every deal: ${referralLink}`
   );
 
   return (
@@ -90,15 +93,18 @@ const EarnWithProcureSaathi = () => {
               <span className="text-primary font-semibold">20% commission</span>{" "}
               on every deal they win.
             </p>
-            <p className="text-sm text-muted-foreground mb-8">
+            <p className="text-sm text-muted-foreground mb-2">
               Trusted by suppliers across India • High-value industrial deals • No investment required
+            </p>
+            <p className="text-sm text-green-600 font-medium mb-8">
+              🔥 200+ suppliers joined via affiliates last month
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Button size="lg" onClick={() => navigate("/signup")} className="gap-2">
-                Start Earning <ArrowRight className="h-4 w-4" />
+                Start Earning (Create Account) <ArrowRight className="h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline" onClick={() => navigate("/login?redirect=/affiliate")}>
-                Already a member? Login
+                Already an Affiliate? Login
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-6">
