@@ -80,13 +80,13 @@ const EarnWithProcureSaathi = () => {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
-    setSharedCount((prev) => Math.min(prev + 1, 5));
     toast({ title: "Link copied!", description: "Share it with your supplier network." });
     setTimeout(() => {
       whatsappRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 300);
     setTimeout(() => {
       window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
+      setSharedCount((prev) => Math.min(prev + 1, 5));
     }, 800);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -367,8 +367,13 @@ const EarnWithProcureSaathi = () => {
                 </p>
               )}
               <p className="text-xs text-success mt-2">
-                🎯 Progress: {sharedCount}/5 suppliers shared
+                🎯 Progress: {sharedCount}/5 invites initiated
               </p>
+              {sharedCount >= 5 && (
+                <p className="text-sm text-success font-medium mt-2">
+                  🎉 Great start! You're likely to earn your first commission soon
+                </p>
+              )}
             </div>
           </div>
         </section>
