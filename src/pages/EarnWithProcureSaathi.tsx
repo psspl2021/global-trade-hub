@@ -46,6 +46,9 @@ const EarnWithProcureSaathi = () => {
   const [showStickyCTA, setShowStickyCTA] = useState(false);
   const [deals, setDeals] = useState(5);
   const [userReferralCode, setUserReferralCode] = useState("guest");
+  const [loadingReferral, setLoadingReferral] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,9 +69,17 @@ const EarnWithProcureSaathi = () => {
           .maybeSingle();
         if (data?.referral_code) setUserReferralCode(data.referral_code);
       }
+      setLoadingReferral(false);
     };
     fetchReferralCode();
   }, []);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    toast({ title: "Link copied!", description: "Share it with your supplier network." });
+    setTimeout(() => setCopied(false), 2000);
+  };
   const referralLink = `https://www.procuresaathi.com/signup?ref=${userReferralCode}`;
   const whatsappText = encodeURIComponent(
     `Start earning with ProcureSaathi — connect suppliers and earn commission on every deal: ${referralLink}`
