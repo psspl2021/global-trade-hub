@@ -49,6 +49,7 @@ const EarnWithProcureSaathi = () => {
   const [loadingReferral, setLoadingReferral] = useState(true);
   const [copied, setCopied] = useState(false);
   const [sharedCount, setSharedCount] = useState(0);
+  const [isSharing, setIsSharing] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -78,6 +79,8 @@ const EarnWithProcureSaathi = () => {
   const whatsappRef = useRef<HTMLDivElement | null>(null);
 
   const handleCopyLink = () => {
+    if (isSharing) return;
+    setIsSharing(true);
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     toast({ title: "Link copied!", description: "Share it with your supplier network." });
@@ -86,8 +89,9 @@ const EarnWithProcureSaathi = () => {
     }, 300);
     setTimeout(() => {
       window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
-      setSharedCount((prev) => Math.min(prev + 1, 5));
+      setSharedCount((prev) => Math.min(prev + 1, 20));
       toast({ title: "Invite started 🚀", description: "You're one step closer to earning your first commission" });
+      setIsSharing(false);
     }, 800);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -373,6 +377,12 @@ const EarnWithProcureSaathi = () => {
               <p className="text-xs text-foreground font-medium mt-2">
                 🎯 Progress: {sharedCount}/{sharedCount < 5 ? 5 : sharedCount < 10 ? 10 : 20} invites initiated
               </p>
+              <div className="w-full bg-muted rounded-full h-2 mt-1">
+                <div
+                  className="bg-primary h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${(sharedCount / (sharedCount < 5 ? 5 : sharedCount < 10 ? 10 : 20)) * 100}%` }}
+                />
+              </div>
               {sharedCount >= 5 && (
                 <p className="text-sm text-foreground font-medium mt-2">
                   🎉 Great start! You're likely to earn your first commission soon
