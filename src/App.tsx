@@ -216,6 +216,7 @@ const BotAwareRouter = () => {
         <Route path="/invoice-generator" element={<InvoiceGenerator />} />
         <Route path="/affiliate" element={<AffiliatePortal />} />
         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+        <Route path="/earn-with-procuresaathi" element={<EarnWithProcureSaathi />} />
         <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
         
         {/* Hub & Spoke Directory Routes */}
