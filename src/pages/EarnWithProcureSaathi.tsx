@@ -48,6 +48,7 @@ const EarnWithProcureSaathi = () => {
   const [userReferralCode, setUserReferralCode] = useState("guest");
   const [loadingReferral, setLoadingReferral] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [sharedCount, setSharedCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -79,10 +80,14 @@ const EarnWithProcureSaathi = () => {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
+    setSharedCount((prev) => Math.min(prev + 1, 5));
     toast({ title: "Link copied!", description: "Share it with your supplier network." });
     setTimeout(() => {
       whatsappRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 300);
+    setTimeout(() => {
+      window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
+    }, 800);
     setTimeout(() => setCopied(false), 2000);
   };
   const referralLink = `https://www.procuresaathi.com/signup?ref=${userReferralCode}`;
@@ -361,11 +366,8 @@ const EarnWithProcureSaathi = () => {
                   👉 Paste this link in WhatsApp and send to your supplier contacts
                 </p>
               )}
-              <p className="text-xs text-muted-foreground mt-2">
-                Share with at least 5 suppliers to start earning faster
-              </p>
-              <p className="text-xs text-success mt-1">
-                🎯 Goal: Share with 5 suppliers to unlock your first earning
+              <p className="text-xs text-success mt-2">
+                🎯 Progress: {sharedCount}/5 suppliers shared
               </p>
             </div>
           </div>
