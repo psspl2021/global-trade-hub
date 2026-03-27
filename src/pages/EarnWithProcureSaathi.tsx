@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { PageHeader } from "@/components/landing/PageHeader";
 import { Footer } from "@/components/landing/Footer";
-import { MessageCircle, ArrowRight, Briefcase, Users, Truck, Building2, UserCheck, Network, Quote } from "lucide-react";
+import { MessageCircle, ArrowRight, Briefcase, Users, Truck, Building2, UserCheck, Network, Quote, Copy, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const targetAudience = [
   { icon: <Users className="h-5 w-5" />, label: "Freelancers & Side Hustlers" },
@@ -303,6 +304,7 @@ const EarnWithProcureSaathi = () => {
                 variant="outline"
                 className="bg-[#25D366] text-white hover:bg-[#20bd5a] border-none"
                 asChild
+                disabled={loadingReferral}
               >
                 <a
                   href={`https://wa.me/?text=${whatsappText}`}
@@ -312,6 +314,26 @@ const EarnWithProcureSaathi = () => {
                   <MessageCircle className="h-4 w-4 mr-2" /> Share on WhatsApp
                 </a>
               </Button>
+            </div>
+
+            {/* Referral Link Display */}
+            <div className="mt-6 text-sm text-muted-foreground text-center">
+              <p>Your referral link:</p>
+              <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
+                <span className="font-medium text-primary break-all bg-muted px-3 py-1.5 rounded-md text-xs">
+                  {loadingReferral ? "Loading..." : referralLink}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCopyLink}
+                  disabled={loadingReferral}
+                  className="gap-1 text-xs"
+                >
+                  {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {copied ? "Copied" : "Copy"}
+                </Button>
+              </div>
             </div>
           </div>
         </section>
