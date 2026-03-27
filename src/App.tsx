@@ -45,6 +45,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const InvoiceGenerator = lazy(() => import("./pages/InvoiceGenerator"));
 const AffiliatePortal = lazy(() => import("./pages/AffiliatePortal"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const EarnWithProcureSaathi = lazy(() => import("./pages/EarnWithProcureSaathi"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 
@@ -216,6 +217,7 @@ const BotAwareRouter = () => {
         <Route path="/invoice-generator" element={<InvoiceGenerator />} />
         <Route path="/affiliate" element={<AffiliatePortal />} />
         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+        <Route path="/earn-with-procuresaathi" element={<EarnWithProcureSaathi />} />
         <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
         
         {/* Hub & Spoke Directory Routes */}
