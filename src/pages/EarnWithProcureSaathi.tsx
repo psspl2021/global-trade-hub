@@ -379,10 +379,13 @@ const EarnWithProcureSaathi = () => {
               </p>
               <div className="w-full bg-muted rounded-full h-2 mt-1">
                 <div
-                  className="bg-primary h-2 rounded-full transition-all duration-500"
+                  className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${(sharedCount / (sharedCount < 5 ? 5 : sharedCount < 10 ? 10 : 20)) * 100}%` }}
                 />
               </div>
+              <p className="text-xs text-foreground/70 mt-1">
+                {Math.round((sharedCount / (sharedCount < 5 ? 5 : sharedCount < 10 ? 10 : 20)) * 100)}% completed
+              </p>
               {sharedCount >= 5 && (
                 <p className="text-sm text-foreground font-medium mt-2">
                   🎉 Great start! You're likely to earn your first commission soon
