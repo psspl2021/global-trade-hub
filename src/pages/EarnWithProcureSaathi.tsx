@@ -16,10 +16,11 @@ const targetAudience = [
 ];
 
 const steps = [
-  { num: "01", title: "Share your referral link", desc: "Get a unique link after signing up" },
-  { num: "02", title: "Supplier signs up", desc: "They join ProcureSaathi via your link" },
-  { num: "03", title: "Supplier gets orders", desc: "They participate in auctions & win deals" },
-  { num: "04", title: "You earn commission", desc: "20% of platform fee — automatically" },
+  { num: "01", title: "Share your referral link", desc: "Get a unique link after signing up", critical: false },
+  { num: "02", title: "Supplier signs up", desc: "They join ProcureSaathi via your link", critical: false },
+  { num: "03", title: "Mention your name in 'Referred By'", desc: "Supplier MUST select or enter your name during signup", critical: true },
+  { num: "04", title: "Supplier gets orders", desc: "They participate in auctions & win deals", critical: false },
+  { num: "05", title: "You earn commission", desc: "20% of platform fee — automatically", critical: false },
 ];
 
 const benefits = [
@@ -141,14 +142,24 @@ const EarnWithProcureSaathi = () => {
             <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-10">
               How You Earn
             </h2>
-            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
+            <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-5">
               {steps.map((step) => (
-                <div key={step.num} className="bg-card border border-border rounded-xl p-6 text-center hover:shadow-md transition-all">
+                <div key={step.num} className={`bg-card border rounded-xl p-6 text-center hover:shadow-md transition-all ${step.critical ? 'border-destructive/50 ring-1 ring-destructive/20' : 'border-border'}`}>
                   <div className="text-3xl font-bold text-primary/20 mb-3">{step.num}</div>
                   <h3 className="font-semibold text-foreground mb-1">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.desc}</p>
+                  {step.critical && (
+                    <span className="text-xs text-destructive block mt-1 font-medium">
+                      Mandatory for commission tracking
+                    </span>
+                  )}
                 </div>
               ))}
+            </div>
+
+            {/* Important referral warning */}
+            <div className="mt-8 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm text-foreground max-w-2xl mx-auto">
+              ⚠️ <strong>Important:</strong> Supplier must mention your name in the <b>"Referred By"</b> field during signup. Without this, the referral will not be tracked and commission will not be applicable.
             </div>
           </div>
         </section>
