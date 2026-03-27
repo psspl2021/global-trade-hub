@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -74,10 +74,15 @@ const EarnWithProcureSaathi = () => {
     fetchReferralCode();
   }, []);
 
+  const whatsappRef = useRef<HTMLDivElement | null>(null);
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     toast({ title: "Link copied!", description: "Share it with your supplier network." });
+    setTimeout(() => {
+      whatsappRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 300);
     setTimeout(() => setCopied(false), 2000);
   };
   const referralLink = `https://www.procuresaathi.com/signup?ref=${userReferralCode}`;
@@ -310,22 +315,24 @@ const EarnWithProcureSaathi = () => {
               >
                 Join Now <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="bg-[#25D366] text-white hover:bg-[#20bd5a] border-none"
-                asChild
-                disabled={loadingReferral}
-              >
-                <a
-                  href={!loadingReferral ? `https://wa.me/?text=${whatsappText}` : "#"}
-                  onClick={(e) => loadingReferral && e.preventDefault()}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              <div ref={whatsappRef}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-[#25D366] text-white hover:bg-[#20bd5a] border-none"
+                  asChild
+                  disabled={loadingReferral}
                 >
-                  <MessageCircle className="h-4 w-4 mr-2" /> Share on WhatsApp
-                </a>
-              </Button>
+                  <a
+                    href={!loadingReferral ? `https://wa.me/?text=${whatsappText}` : "#"}
+                    onClick={(e) => loadingReferral && e.preventDefault()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" /> Share on WhatsApp
+                  </a>
+                </Button>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               🔥 Affiliates who share with 5+ suppliers earn 3x more
@@ -356,6 +363,9 @@ const EarnWithProcureSaathi = () => {
               )}
               <p className="text-xs text-muted-foreground mt-2">
                 Share with at least 5 suppliers to start earning faster
+              </p>
+              <p className="text-xs text-success mt-1">
+                🎯 Goal: Share with 5 suppliers to unlock your first earning
               </p>
             </div>
           </div>
