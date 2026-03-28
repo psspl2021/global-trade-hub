@@ -441,16 +441,6 @@ const Index = () => {
         {/* ===== SECTION 8: AEO FAQ SECTION ===== */}
         <LazyFAQ />
 
-        {/* AI Linking Section - AEO/GEO Optimization */}
-        <AILinkingSection 
-          title="Explore Our Platform"
-          links={[
-            { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step RFQ guide", emoji: "📝" },
-            { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
-            { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" },
-            { title: "Export-Import Guide", url: "/export-import-sourcing-guide", description: "International sourcing", emoji: "🌍" }
-          ]}
-        />
 
         {/* ===== SECTION 9: FINAL CTA STRIP ===== */}
         <section className="py-12 sm:py-16 bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5">
