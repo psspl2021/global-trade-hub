@@ -1115,7 +1115,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                 </CardHeader>
                 <CardContent>
                   {topReferrers.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">No referrals yet</p>
+                    <p className="text-center text-muted-foreground py-8">No affiliates registered yet</p>
                   ) : (
                     <Table>
                       <TableHeader>
