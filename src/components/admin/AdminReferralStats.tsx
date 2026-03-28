@@ -200,10 +200,13 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         const topReferrersList: TopReferrer[] = referrerIds.map(id => {
           const s = referrerMap.get(id)!;
           const profile = profiles?.find(p => p.id === id);
+          const companyName = profile?.company_name?.trim();
+          const contactPerson = profile?.contact_person?.trim();
+
           return {
             referrer_id: id,
-            company_name: profile?.company_name || 'Unknown',
-            contact_person: profile?.contact_person || 'Unknown',
+            company_name: companyName || contactPerson || 'Unknown affiliate',
+            contact_person: contactPerson || companyName || 'Name unavailable',
             total_referrals: s.total,
             signed_up: s.signedUp,
             rewarded: s.rewarded,
@@ -1158,8 +1161,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                               </TableCell>
                               <TableCell>
                                 <div>
-                                  <p className="font-medium">{referrer.company_name}</p>
-                                  <p className="text-sm text-muted-foreground">{referrer.contact_person}</p>
+                                  <p className="font-medium">{referrer.contact_person}</p>
+                                  <p className="text-sm text-muted-foreground">{referrer.company_name}</p>
                                   {referrer.affiliate_status && (
                                     <Badge variant="outline" className="mt-1 text-xs">
                                       {referrer.affiliate_status === 'ACTIVE' ? '✅ Active' : referrer.affiliate_status === 'PENDING' ? '⏳ Pending' : referrer.affiliate_status}
