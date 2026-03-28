@@ -1143,6 +1143,11 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                                 <div>
                                   <p className="font-medium">{referrer.company_name}</p>
                                   <p className="text-sm text-muted-foreground">{referrer.contact_person}</p>
+                                  {referrer.affiliate_status && (
+                                    <Badge variant="outline" className="mt-1 text-xs">
+                                      {referrer.affiliate_status === 'ACTIVE' ? '✅ Active' : referrer.affiliate_status === 'PENDING' ? '⏳ Pending' : referrer.affiliate_status}
+                                    </Badge>
+                                  )}
                                 </div>
                               </TableCell>
                               <TableCell className="text-center">
