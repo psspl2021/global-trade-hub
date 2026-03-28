@@ -60,6 +60,7 @@ interface TopReferrer {
   signed_up: number;
   rewarded: number;
   conversion_rate: number;
+  affiliate_status?: string | null;
 }
 
 type DrillDownType = 'referrals' | 'signed_up' | 'rewards' | 'conversion' | 'pending' | 'signed_not_rewarded' | null;
@@ -142,12 +143,18 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         rewardRate: signedUp > 0 ? (rewarded / signedUp) * 100 : 0,
       });
 
-      // Top referrers - fetch limited set ordered by created_at
-      const { data: referrals } = await supabase
-        .from('referrals')
-        .select('referrer_id, status')
-        .order('created_at', { ascending: false })
-        .limit(500);
+      // Top referrers - fetch referral data + ALL registered affiliates
+      const [{ data: referrals }, { data: allAffiliates }] = await Promise.all([
+        supabase
+          .from('referrals')
+          .select('referrer_id, status')
+          .order('created_at', { ascending: false })
+          .limit(500),
+        supabase
+          .from('affiliates')
+          .select('user_id, status, joined_at')
+          .in('status', ['ACTIVE', 'PENDING', 'WAITLISTED']),
+      ]);
 
       const referrerMap = new Map<string, { total: number; signedUp: number; rewarded: number }>();
       referrals?.forEach(ref => {
@@ -158,12 +165,22 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         referrerMap.set(ref.referrer_id, current);
       });
 
+      // Merge affiliate registry — ensure all affiliates appear even with 0 referrals
+      (allAffiliates || []).forEach(aff => {
+        if (!referrerMap.has(aff.user_id)) {
+          referrerMap.set(aff.user_id, { total: 0, signedUp: 0, rewarded: 0 });
+        }
+      });
+
       const referrerIds = Array.from(referrerMap.keys());
       if (referrerIds.length > 0) {
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, company_name, contact_person')
           .in('id', referrerIds);
+
+        const affiliateStatusMap = new Map<string, string>();
+        (allAffiliates || []).forEach(aff => affiliateStatusMap.set(aff.user_id, aff.status));
 
         const topReferrersList: TopReferrer[] = referrerIds.map(id => {
           const s = referrerMap.get(id)!;
@@ -176,11 +193,12 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
             signed_up: s.signedUp,
             rewarded: s.rewarded,
             conversion_rate: s.total > 0 ? (s.signedUp / s.total) * 100 : 0,
+            affiliate_status: affiliateStatusMap.get(id) || null,
           };
         });
 
         topReferrersList.sort((a, b) => b.total_referrals - a.total_referrals);
-        setTopReferrers(topReferrersList.slice(0, 10));
+        setTopReferrers(topReferrersList);
       }
 
       await fetchCommissions();
@@ -1097,7 +1115,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                 </CardHeader>
                 <CardContent>
                   {topReferrers.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">No referrals yet</p>
+                    <p className="text-center text-muted-foreground py-8">No affiliates registered yet</p>
                   ) : (
                     <Table>
                       <TableHeader>
@@ -1125,6 +1143,11 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                                 <div>
                                   <p className="font-medium">{referrer.company_name}</p>
                                   <p className="text-sm text-muted-foreground">{referrer.contact_person}</p>
+                                  {referrer.affiliate_status && (
+                                    <Badge variant="outline" className="mt-1 text-xs">
+                                      {referrer.affiliate_status === 'ACTIVE' ? '✅ Active' : referrer.affiliate_status === 'PENDING' ? '⏳ Pending' : referrer.affiliate_status}
+                                    </Badge>
+                                  )}
                                 </div>
                               </TableCell>
                               <TableCell className="text-center">
