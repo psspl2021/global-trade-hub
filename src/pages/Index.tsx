@@ -57,7 +57,6 @@ const Index = () => {
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
   const [showLogisticsRequirements, setShowLogisticsRequirements] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
 
   // SEO setup - AEO/GEO optimized
