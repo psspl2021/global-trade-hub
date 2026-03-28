@@ -143,8 +143,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         rewardRate: signedUp > 0 ? (rewarded / signedUp) * 100 : 0,
       });
 
-      // Top referrers - fetch referral data + ALL registered affiliates
-      const [{ data: referrals }, { data: allAffiliates }] = await Promise.all([
+      // Top referrers - fetch referral data + all affiliate identities
+      const [{ data: referrals }, { data: affiliateRegistry }, { data: affiliateRoles }] = await Promise.all([
         supabase
           .from('referrals')
           .select('referrer_id, status')
@@ -154,6 +154,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           .from('affiliates')
           .select('user_id, status, joined_at')
           .in('status', ['ACTIVE', 'PENDING', 'WAITLISTED']),
+        supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .eq('role', 'affiliate'),
       ]);
 
       const referrerMap = new Map<string, { total: number; signedUp: number; rewarded: number }>();
@@ -165,10 +169,20 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         referrerMap.set(ref.referrer_id, current);
       });
 
-      // Merge affiliate registry — ensure all affiliates appear even with 0 referrals
-      (allAffiliates || []).forEach(aff => {
+      const affiliateStatusMap = new Map<string, string>();
+      (affiliateRegistry || []).forEach(aff => {
+        affiliateStatusMap.set(aff.user_id, aff.status);
         if (!referrerMap.has(aff.user_id)) {
           referrerMap.set(aff.user_id, { total: 0, signedUp: 0, rewarded: 0 });
+        }
+      });
+
+      (affiliateRoles || []).forEach(roleRow => {
+        if (!referrerMap.has(roleRow.user_id)) {
+          referrerMap.set(roleRow.user_id, { total: 0, signedUp: 0, rewarded: 0 });
+        }
+        if (!affiliateStatusMap.has(roleRow.user_id)) {
+          affiliateStatusMap.set(roleRow.user_id, 'ACTIVE');
         }
       });
 
@@ -178,9 +192,6 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           .from('profiles')
           .select('id, company_name, contact_person')
           .in('id', referrerIds);
-
-        const affiliateStatusMap = new Map<string, string>();
-        (allAffiliates || []).forEach(aff => affiliateStatusMap.set(aff.user_id, aff.status));
 
         const topReferrersList: TopReferrer[] = referrerIds.map(id => {
           const s = referrerMap.get(id)!;
@@ -199,6 +210,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
 
         topReferrersList.sort((a, b) => b.total_referrals - a.total_referrals);
         setTopReferrers(topReferrersList);
+      } else {
+        setTopReferrers([]);
       }
 
       await fetchCommissions();
