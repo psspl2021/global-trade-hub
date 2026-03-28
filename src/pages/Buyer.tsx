@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { GlobalProcurementCorridors } from '@/components/GlobalProcurementCorridors';
 import { useEffect, useState, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { PostRFQModal } from "@/components/PostRFQModal";
@@ -431,6 +432,9 @@ const Buyer = () => {
           { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" }
         ]}
       />
+
+      {/* Global Procurement Corridors */}
+      <GlobalProcurementCorridors />
 
       {/* Footer Link */}
       <section className="py-10 text-center bg-muted/20">

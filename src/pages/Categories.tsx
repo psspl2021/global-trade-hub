@@ -15,6 +15,8 @@ import { useSEO, injectStructuredData, getBreadcrumbSchema, getCategorySchema } 
 import { nameToSlug } from './CategoryLanding';
 import { CategoryShowcase } from '@/components/landing/CategoryShowcase';
 import { PageHeader } from '@/components/landing/PageHeader';
+import TrendingProcurementCategories from '@/components/TrendingProcurementCategories';
+import HomeDemandLinks from '@/components/HomeDemandLinks';
 
 const Categories = () => {
   const navigate = useNavigate();
@@ -210,6 +212,12 @@ const Categories = () => {
           </div>
         </div>
       </section>
+
+      {/* Trending Procurement Categories */}
+      <TrendingProcurementCategories />
+
+      {/* Top Industrial Procurement Categories */}
+      <HomeDemandLinks />
 
       {/* Footer */}
       <footer className="bg-card border-t border-border/50 py-10">

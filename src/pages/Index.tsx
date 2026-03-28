@@ -24,10 +24,7 @@ import { AILinkingSection } from '@/components/seo';
 import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { Footer } from '@/components/landing/Footer';
-import { GlobalProcurementCorridors } from '@/components/GlobalProcurementCorridors';
 import HighDemandSection from '@/components/landing/HighDemandSection';
-import HomeDemandLinks from '@/components/HomeDemandLinks';
-import TrendingProcurementCategories from '@/components/TrendingProcurementCategories';
 
 // Lazy load below-the-fold components
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -568,33 +565,7 @@ const Index = () => {
       {/* Sticky Signup Banner */}
       <StickySignupBanner />
 
-      {/* ===== STEEL INTELLIGENCE HUBS ===== */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Steel Intelligence Hubs</h2>
-          <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <Link to="/steel-comparisons" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
-              Grade Comparisons
-            </Link>
-            <Link to="/industrial-use-cases" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
-              Industrial Use Cases
-            </Link>
-            <Link to="/global-sourcing-countries" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
-              Global Trade Hub
-            </Link>
-            <Link to="/demand" className="rounded-xl border border-border bg-background p-5 text-center font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors">
-              Live Demand
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== TRENDING PROCUREMENT CATEGORIES (CRAWL BOOST) ===== */}
-      <TrendingProcurementCategories />
-
-      {/* ===== SECTION 10: DEMAND LINKS + GLOBAL CORRIDORS + FOOTER ===== */}
-      <HomeDemandLinks />
-      <GlobalProcurementCorridors />
+      {/* Footer */}
       <Footer />
 
       {/* Live Stock Dialog */}
