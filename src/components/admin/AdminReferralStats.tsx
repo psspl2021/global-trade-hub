@@ -11,6 +11,7 @@ import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, Check
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { AffiliateAntiFraudDashboard } from './AffiliateAntiFraudDashboard';
+import { AffiliateUsersBoard } from './AffiliateUsersBoard';
 
 const PAGE_SIZE = 50;
 
@@ -961,7 +962,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           </div>
         ) : (
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsList className="grid w-full grid-cols-5 mb-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
               <TabsTrigger value="payouts" className="relative">
@@ -975,6 +976,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
               <TabsTrigger value="antifraud" className="gap-1">
                 <Shield className="h-4 w-4" />
                 Anti-Fraud
+              </TabsTrigger>
+              <TabsTrigger value="affiliateusers" className="gap-1">
+                <Users className="h-4 w-4" />
+                Affiliates
               </TabsTrigger>
             </TabsList>
 
@@ -1336,6 +1341,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
 
             <TabsContent value="antifraud">
               <AffiliateAntiFraudDashboard />
+            </TabsContent>
+
+            <TabsContent value="affiliateusers">
+              <AffiliateUsersBoard />
             </TabsContent>
           </Tabs>
         )}
