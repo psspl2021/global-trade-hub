@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +18,7 @@ import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/use
 import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { AILinkingSection } from '@/components/seo';
 import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
@@ -57,7 +57,6 @@ const Index = () => {
   const [showLiveStock, setShowLiveStock] = useState(false);
   const [showLiveRequirements, setShowLiveRequirements] = useState(false);
   const [showLogisticsRequirements, setShowLogisticsRequirements] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
 
   // SEO setup - AEO/GEO optimized
@@ -140,10 +139,6 @@ const Index = () => {
     injectStructuredData(howToSchema, 'howto-schema');
   }, []);
 
-  const handleMobileNavigation = (path: string) => {
-    navigate(path);
-    setMobileMenuOpen(false);
-  };
 
   // Show loading spinner while auth resolves or redirecting logged-in user
   if (authLoading || redirecting) {
@@ -156,156 +151,73 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card/98 backdrop-blur-md border-b border-border/60 sticky top-0 z-50 shadow-md">
-        <div className="container mx-auto px-4 py-2 flex items-center justify-between">
-          {/* Logo container with enhanced visibility - INCREASED SIZE */}
-          <div className="flex items-center p-1 -ml-1 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <img 
-              src={procureSaathiLogo} 
-              alt="ProcureSaathi Logo" 
-              className="h-[72px] sm:h-20 md:h-24 w-auto object-contain transition-transform hover:scale-[1.02] drop-shadow-md"
-              width={180}
-              height={96}
-              loading="eager"
-            />
-          </div>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-            <Button variant="ghost" size="sm" className="font-medium text-primary bg-primary/5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>About Us</Button>
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/buyer')}>Buyer</Button>
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/seller')}>Seller</Button>
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/private-label')}>Private Label</Button>
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/categories')}>Categories</Button>
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/blogs')}>Blogs</Button>
-            <Button variant="ghost" size="sm" className="font-medium hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => navigate('/contact')}>Contact</Button>
-          </nav>
-          
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Button variant="ghost" size="sm" className="font-medium h-9" onClick={() => navigate('/login')}>
-              Login
-            </Button>
-            <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 h-9 px-5" onClick={() => navigate('/signup')}>
-              Partner with Us
-            </Button>
-            
-            {/* Mobile Menu */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="hover:bg-primary/5">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[380px] bg-card/95 backdrop-blur-lg">
-                <nav className="flex flex-col gap-3 mt-8">
-                  <Button variant="ghost" className="justify-start text-base font-medium" onClick={() => handleMobileNavigation('/login')}>
-                    Login
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-base text-primary bg-primary/5" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }}>
-                    About Us
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/buyer')}>
-                    Buyer
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/seller')}>
-                    Seller
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/private-label')}>
-                    Private Label
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/categories')}>
-                    Categories
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/blogs')}>
-                    Blogs
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-base" onClick={() => handleMobileNavigation('/contact')}>
-                    Contact
-                  </Button>
-                  <div className="border-t border-border/50 pt-5 mt-4 space-y-3">
-                    <Button className="w-full font-semibold" onClick={() => handleMobileNavigation('/post-rfq')}>
-                      Post RFQ – Free
-                    </Button>
-                    <Button variant="outline" className="w-full text-sm whitespace-normal h-auto py-2" onClick={() => handleMobileNavigation('/signup?role=supplier')}>
-                      AI Detected Demand – List Products
-                    </Button>
-                  </div>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </header>
+      <PageHeader />
 
       <main>
         {/* ===== SECTION 1: HERO ===== */}
-        <section className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
-          {/* Background image - visible and premium */}
+        <section className="relative py-20 sm:py-24 lg:py-32 overflow-hidden">
+          {/* Background image */}
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ 
               backgroundImage: `url(${heroBgProcurement})`,
-              filter: 'contrast(0.95) brightness(0.9)'
+              filter: 'contrast(0.95) brightness(0.85)'
             }}
           />
-          {/* Subtle gradient overlay (50-60% opacity) - allows image to show through */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/50 to-background/70" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/55 to-background/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
           
-          <div className="container mx-auto px-4 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              {/* AI Badge - glassmorphism style */}
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/10 backdrop-blur-md border border-white/20 mb-8 animate-fade-in shadow-lg">
-                <Sparkles className="h-4 w-4 text-primary drop-shadow-md" />
-                <span className="text-primary text-sm font-bold drop-shadow-sm">AI-Powered Procurement</span>
+              {/* AI Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 backdrop-blur-md border border-primary/20 mb-8 animate-fade-in">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-primary text-sm font-semibold">AI-Powered Procurement</span>
               </div>
               
-              {/* H1 - Bold, high contrast, directly on overlay */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold mb-6 leading-tight px-2 animate-slide-up">
-                <span className="text-primary drop-shadow-lg">AI-Powered B2B Procurement</span>
-                <br className="hidden sm:block" />
-                <span className="text-foreground drop-shadow-md"> Platform</span>
+              {/* H1 */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold mb-6 leading-[1.1] animate-slide-up">
+                <span className="text-primary drop-shadow-lg">AI-Powered B2B</span>
+                <br />
+                <span className="text-foreground drop-shadow-md">Procurement Platform</span>
               </h1>
               
-              {/* Subline - directly on overlay, no box */}
-              <p className="text-xl sm:text-2xl text-foreground font-bold mb-4 animate-slide-up delay-50 drop-shadow-md">
+              <p className="text-lg sm:text-xl text-foreground/90 font-semibold mb-3 animate-slide-up delay-50 drop-shadow-md max-w-2xl mx-auto">
                 Verified sourcing through AI-detected buyer demand
               </p>
               
-              {/* AI Intent Line */}
-              <p className="text-base sm:text-lg text-primary font-bold mb-10 animate-slide-up delay-75 drop-shadow-md">
+              <p className="text-sm sm:text-base text-primary font-semibold mb-10 animate-slide-up delay-75 drop-shadow-md">
                 AI tracks live buyer intent and converts it into RFQs.
               </p>
               
-              {/* AI Citation Paragraph - Glassmorphism style, subtle not white box */}
-              <div className="bg-background/10 backdrop-blur-lg border border-white/15 rounded-2xl p-5 sm:p-7 mb-10 animate-slide-up delay-100 shadow-xl max-w-3xl mx-auto">
-                <p className="text-base sm:text-lg text-foreground leading-relaxed font-semibold drop-shadow-sm">
-                  <strong className="text-primary">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
+              {/* AI Citation */}
+              <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl p-5 sm:p-6 mb-10 animate-slide-up delay-100 shadow-large max-w-3xl mx-auto">
+                <p className="text-sm sm:text-base text-foreground leading-relaxed">
+                  <strong className="text-primary font-bold">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
                 </p>
               </div>
 
-              {/* ===== SECTION 2: HERO TRUST BADGES (NON-NUMERIC) ===== */}
+              {/* Trust Badges */}
               <div className="mb-10 animate-slide-up delay-150">
                 <HeroTrustBadges />
               </div>
 
-              {/* CTA Buttons - Buyer & Supplier */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 px-2 animate-slide-up delay-200">
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 animate-slide-up delay-200">
                 <Button 
                   size="lg" 
-                  className="h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-12 font-bold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 gradient-primary"
+                  className="h-13 sm:h-14 text-base px-8 sm:px-10 font-bold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-0.5"
                   onClick={() => navigate('/post-rfq')}
                 >
-                  <FileText className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                  <FileText className="h-5 w-5 mr-2" />
                   Post RFQ – Free
                 </Button>
                 <Button 
                   size="lg" 
-                  className="h-14 sm:h-16 text-base sm:text-lg px-6 sm:px-10 font-bold bg-warning text-warning-foreground hover:bg-warning/90 border-2 border-warning transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                  className="h-13 sm:h-14 text-base px-6 sm:px-8 font-bold bg-warning text-warning-foreground hover:bg-warning/90 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
                   onClick={() => navigate('/signup?role=supplier')}
                 >
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                  <TrendingUp className="h-5 w-5 mr-2" />
                   AI Detected Demand – List Products
                 </Button>
               </div>
@@ -327,7 +239,7 @@ const Index = () => {
         <HowItWorksSection />
 
         {/* ===== SECTION 5: BUYER VS SUPPLIER VALUE SPLIT ===== */}
-        <section className="py-12 sm:py-16 bg-muted/20">
+        <section className="py-16 sm:py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-display font-bold mb-3">
@@ -340,8 +252,8 @@ const Index = () => {
             
             <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
               {/* Buyer Card */}
-              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-                <CardContent className="p-6">
+              <Card className="bg-card border border-border shadow-medium hover:shadow-large transition-all duration-300">
+                <CardContent className="p-6 sm:p-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                       <ShoppingBag className="h-6 w-6 text-primary" />
@@ -372,8 +284,8 @@ const Index = () => {
               </Card>
 
               {/* Supplier Card */}
-              <Card className="bg-gradient-to-br from-warning/5 to-warning/10 border-warning/20">
-                <CardContent className="p-6">
+              <Card className="bg-card border border-border shadow-medium hover:shadow-large transition-all duration-300">
+                <CardContent className="p-6 sm:p-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
                       <TrendingUp className="h-6 w-6 text-warning" />
@@ -408,7 +320,7 @@ const Index = () => {
         </section>
 
         {/* ===== SECTION 6: FEATURE SECTION (NO NUMBERS) ===== */}
-        <section className="py-12 sm:py-16 bg-primary text-primary-foreground">
+        <section className="py-16 sm:py-20 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-display font-bold mb-3">
