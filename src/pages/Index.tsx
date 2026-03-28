@@ -239,7 +239,7 @@ const Index = () => {
         <HowItWorksSection />
 
         {/* ===== SECTION 5: BUYER VS SUPPLIER VALUE SPLIT ===== */}
-        <section className="py-12 sm:py-16 bg-muted/20">
+        <section className="py-16 sm:py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-display font-bold mb-3">
@@ -252,8 +252,8 @@ const Index = () => {
             
             <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
               {/* Buyer Card */}
-              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-                <CardContent className="p-6">
+              <Card className="bg-card border border-border shadow-medium hover:shadow-large transition-all duration-300">
+                <CardContent className="p-6 sm:p-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                       <ShoppingBag className="h-6 w-6 text-primary" />
@@ -284,8 +284,8 @@ const Index = () => {
               </Card>
 
               {/* Supplier Card */}
-              <Card className="bg-gradient-to-br from-warning/5 to-warning/10 border-warning/20">
-                <CardContent className="p-6">
+              <Card className="bg-card border border-border shadow-medium hover:shadow-large transition-all duration-300">
+                <CardContent className="p-6 sm:p-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
                       <TrendingUp className="h-6 w-6 text-warning" />
@@ -320,7 +320,7 @@ const Index = () => {
         </section>
 
         {/* ===== SECTION 6: FEATURE SECTION (NO NUMBERS) ===== */}
-        <section className="py-12 sm:py-16 bg-primary text-primary-foreground">
+        <section className="py-16 sm:py-20 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-display font-bold mb-3">
