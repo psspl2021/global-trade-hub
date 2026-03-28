@@ -18,7 +18,7 @@ import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/use
 import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { AILinkingSection } from '@/components/seo';
 import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
