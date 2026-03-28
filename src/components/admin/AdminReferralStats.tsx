@@ -372,6 +372,17 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     return Array.from(map.entries());
   }, [referralDetails]);
 
+  const getPriorityScore = (r: ReferralDetail): number => {
+    if (r.status !== 'pending') return 99;
+    const hasPhone = r.referred_phone && r.referred_phone !== '—';
+    const hasEmail = r.referred_email && r.referred_email !== '—';
+    const daysSince = Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (hasPhone && daysSince <= 2) return 0; // Hot
+    if (hasPhone) return 1; // High Intent
+    if (hasEmail && daysSince <= 3) return 2; // Warm
+    return 3; // Cold
+  };
+
   const filteredDrillData = useMemo(() => {
     let data = [...referralDetails];
 
@@ -391,6 +402,9 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       data.sort((a, b) => sortDir === 'asc'
         ? a.referred_company.localeCompare(b.referred_company)
         : b.referred_company.localeCompare(a.referred_company));
+    } else {
+      // Default: sort by priority (hot first)
+      data.sort((a, b) => getPriorityScore(a) - getPriorityScore(b));
     }
 
     return data;
@@ -504,9 +518,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
   const getAutoDropOffReason = (r: ReferralDetail) => {
     if (r.drop_off_reason) return r.drop_off_reason;
     const daysSinceCreated = Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
-    if (r.status === 'pending' && daysSinceCreated > 3) return `No signup (${daysSinceCreated}d ago)`;
-    if (r.status === 'signed_up' && daysSinceCreated > 7) return `No activity (${daysSinceCreated}d since invite)`;
-    if (r.status === 'pending') return 'Recently invited';
+    if (r.status === 'pending' && daysSinceCreated <= 2) return '🔥 Act now (' + daysSinceCreated + 'd)';
+    if (r.status === 'pending' && daysSinceCreated <= 5) return '⚠️ Follow up (' + daysSinceCreated + 'd)';
+    if (r.status === 'pending' && daysSinceCreated > 5) return '❄️ Losing interest (' + daysSinceCreated + 'd)';
+    if (r.status === 'signed_up' && daysSinceCreated > 7) return '⚠️ No activity (' + daysSinceCreated + 'd)';
     if (r.status === 'signed_up') return 'Active — awaiting order';
     return '—';
   };
@@ -654,7 +669,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
             }).length;
             return (
               <>
-                <Card className="border-primary/30 bg-primary/5">
+                <Card className="border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md hover:border-primary/50 transition-all" onClick={() => openDrillDown('pending')}>
                   <CardContent className="pt-4 pb-4">
                     <p className="text-sm font-semibold text-primary flex items-center gap-2">
                       🎯 Focus today: Contact {Math.min(hotLeadsCount || 5, stats?.pending || 5)} high-intent suppliers to unlock
@@ -663,6 +678,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                       </span>
                       revenue
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1">⏱ Best time to call: 4–6 PM · Click to view leads →</p>
                   </CardContent>
                 </Card>
                 <Card className="border-red-200 bg-red-50/50">
