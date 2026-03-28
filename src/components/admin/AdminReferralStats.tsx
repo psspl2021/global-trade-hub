@@ -60,6 +60,7 @@ interface TopReferrer {
   signed_up: number;
   rewarded: number;
   conversion_rate: number;
+  affiliate_status?: string | null;
 }
 
 type DrillDownType = 'referrals' | 'signed_up' | 'rewards' | 'conversion' | 'pending' | 'signed_not_rewarded' | null;
