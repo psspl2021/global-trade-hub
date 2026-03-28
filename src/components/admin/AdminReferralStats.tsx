@@ -294,10 +294,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       if (error) throw error;
       setTotalCount(count || 0);
 
-      const allUserIds = [...new Set([
-        ...(referrals?.map(r => r.referrer_id) || []),
-        ...(referrals?.map(r => r.referred_id) || []),
-      ])];
+      // Collect valid UUIDs only (filter out nulls)
+      const referrerIds = [...new Set((referrals || []).map(r => r.referrer_id).filter(Boolean))];
+      const referredIds = [...new Set((referrals || []).map(r => r.referred_id).filter(Boolean))];
+      const allUserIds = [...new Set([...referrerIds, ...referredIds])];
 
       let profiles: { id: string; company_name: string; contact_person: string; email: string; phone: string }[] = [];
       if (allUserIds.length > 0) {
@@ -310,17 +310,24 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
 
       const details: ReferralDetail[] = (referrals || []).map(r => {
         const referrerProfile = profiles.find(p => p.id === r.referrer_id);
-        const referredProfile = profiles.find(p => p.id === r.referred_id);
+        const referredProfile = r.referred_id ? profiles.find(p => p.id === r.referred_id) : null;
+
+        // Use referrals table columns as primary source, profile as enrichment
+        const referredEmail = r.referred_email || referredProfile?.email || '—';
+        const referredPhone = (r as any).referred_phone || referredProfile?.phone || '—';
+        const referrerEmail = (r as any).referrer_email || referrerProfile?.email || '—';
+        const referrerPhone = (r as any).referrer_phone || referrerProfile?.phone || '—';
+
         return {
           id: r.id,
           referrer_id: r.referrer_id,
           referred_id: r.referred_id,
-          referrer_company: referrerProfile?.company_name || 'Unknown',
-          referrer_contact: referrerProfile?.contact_person || 'Unknown',
-          referred_company: referredProfile?.company_name || 'Unknown',
-          referred_contact: referredProfile?.contact_person || 'Unknown',
-          referred_email: referredProfile?.email || '—',
-          referred_phone: referredProfile?.phone || '—',
+          referrer_company: referrerProfile?.company_name || `User (${r.referrer_id?.slice(0, 6) || '?'})`,
+          referrer_contact: referrerProfile?.contact_person || referrerEmail,
+          referred_company: referredProfile?.company_name || (referredEmail !== '—' ? referredEmail : 'Invited (not signed up)'),
+          referred_contact: referredProfile?.contact_person || '—',
+          referred_email: referredEmail,
+          referred_phone: referredPhone,
           status: r.status,
           drop_off_reason: (r as any).drop_off_reason || null,
           created_at: r.created_at,
