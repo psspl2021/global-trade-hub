@@ -139,10 +139,6 @@ const Index = () => {
     injectStructuredData(howToSchema, 'howto-schema');
   }, []);
 
-  const handleMobileNavigation = (path: string) => {
-    navigate(path);
-    setMobileMenuOpen(false);
-  };
 
   // Show loading spinner while auth resolves or redirecting logged-in user
   if (authLoading || redirecting) {
