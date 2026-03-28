@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet, Shield, AlertTriangle, ArrowLeft, Download, ChevronRight } from 'lucide-react';
+import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet, Shield, AlertTriangle, ArrowLeft, Download, ChevronRight, ChevronLeft, MessageCircle, ArrowUpDown, ExternalLink, UserX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { AffiliateAntiFraudDashboard } from './AffiliateAntiFraudDashboard';
+
+const PAGE_SIZE = 50;
 
 interface ReferralStats {
   totalReferrals: number;
@@ -32,6 +34,7 @@ interface ReferralDetail {
   referred_email: string;
   referred_phone: string;
   status: string;
+  drop_off_reason: string | null;
   created_at: string;
 }
 
@@ -59,14 +62,15 @@ interface TopReferrer {
   conversion_rate: number;
 }
 
-type DrillDownType = 'referrals' | 'signed_up' | 'rewards' | 'conversion' | null;
+type DrillDownType = 'referrals' | 'signed_up' | 'rewards' | 'conversion' | 'pending' | 'signed_not_rewarded' | null;
+type SortField = 'created_at' | 'referrer_company' | 'referred_company' | 'status';
+type SortDir = 'asc' | 'desc';
 
 interface AdminReferralStatsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-// CSV export helper
 const downloadCSV = (rows: Record<string, any>[], filename: string) => {
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);
@@ -95,21 +99,39 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
   const [drillDownLoading, setDrillDownLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [affiliateFilter, setAffiliateFilter] = useState<string>('all');
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [sortField, setSortField] = useState<SortField>('created_at');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
   const { toast } = useToast();
 
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const { data: referrals, error } = await supabase
+      // Use count query instead of fetching all rows
+      const { count: totalCount } = await supabase
         .from('referrals')
-        .select('*');
+        .select('*', { count: 'exact', head: true });
 
-      if (error) throw error;
+      const { count: signedUpCount } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true })
+        .in('status', ['signed_up', 'rewarded']);
 
-      const total = referrals?.length || 0;
-      const signedUp = referrals?.filter(r => r.status === 'signed_up' || r.status === 'rewarded').length || 0;
-      const rewarded = referrals?.filter(r => r.status === 'rewarded').length || 0;
-      const pending = referrals?.filter(r => r.status === 'pending').length || 0;
+      const { count: rewardedCount } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'rewarded');
+
+      const { count: pendingCount } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      const total = totalCount || 0;
+      const signedUp = signedUpCount || 0;
+      const rewarded = rewardedCount || 0;
+      const pending = pendingCount || 0;
 
       setStats({
         totalReferrals: total,
@@ -120,7 +142,13 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
         rewardRate: signedUp > 0 ? (rewarded / signedUp) * 100 : 0,
       });
 
-      // Calculate top referrers
+      // Top referrers - fetch limited set ordered by created_at
+      const { data: referrals } = await supabase
+        .from('referrals')
+        .select('referrer_id, status')
+        .order('created_at', { ascending: false })
+        .limit(500);
+
       const referrerMap = new Map<string, { total: number; signedUp: number; rewarded: number }>();
       referrals?.forEach(ref => {
         const current = referrerMap.get(ref.referrer_id) || { total: 0, signedUp: 0, rewarded: 0 };
@@ -138,16 +166,16 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           .in('id', referrerIds);
 
         const topReferrersList: TopReferrer[] = referrerIds.map(id => {
-          const stats = referrerMap.get(id)!;
+          const s = referrerMap.get(id)!;
           const profile = profiles?.find(p => p.id === id);
           return {
             referrer_id: id,
             company_name: profile?.company_name || 'Unknown',
             contact_person: profile?.contact_person || 'Unknown',
-            total_referrals: stats.total,
-            signed_up: stats.signedUp,
-            rewarded: stats.rewarded,
-            conversion_rate: stats.total > 0 ? (stats.signedUp / stats.total) * 100 : 0,
+            total_referrals: s.total,
+            signed_up: s.signedUp,
+            rewarded: s.rewarded,
+            conversion_rate: s.total > 0 ? (s.signedUp / s.total) * 100 : 0,
           };
         });
 
@@ -167,7 +195,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     const { data: commissions, error } = await supabase
       .from('referral_commissions')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(100);
 
     if (error) {
       console.error('Error fetching commissions:', error);
@@ -225,25 +254,45 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     const totalPaid = pendingList
       .filter(c => c.status === 'paid')
       .reduce((sum, c) => sum + c.commission_amount, 0);
-    const pendingCount = pendingList.filter(c => c.status === 'pending').length;
+    const pCount = pendingList.filter(c => c.status === 'pending').length;
 
-    setPayoutStats({ totalPending, totalPaid, count: pendingCount });
+    setPayoutStats({ totalPending, totalPaid, count: pCount });
   };
 
-  // Drill-down data fetcher
-  const openDrillDown = async (type: DrillDownType) => {
+  // Paginated drill-down data fetcher
+  const openDrillDown = useCallback(async (type: DrillDownType, pageNum = 0) => {
     setDrillDown(type);
+    setPage(pageNum);
     setStatusFilter('all');
     setAffiliateFilter('all');
     setDrillDownLoading(true);
 
     try {
-      const { data: referrals, error } = await supabase
+      // Build query with status filters based on type
+      let query = supabase
         .from('referrals')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: sortDir === 'asc' });
+
+      if (type === 'signed_up') {
+        query = query.in('status', ['signed_up', 'rewarded']);
+      } else if (type === 'rewards') {
+        query = query.eq('status', 'rewarded');
+      } else if (type === 'pending') {
+        query = query.eq('status', 'pending');
+      } else if (type === 'signed_not_rewarded') {
+        query = query.eq('status', 'signed_up');
+      }
+
+      // Apply pagination
+      const from = pageNum * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
+
+      const { data: referrals, error, count } = await query;
 
       if (error) throw error;
+      setTotalCount(count || 0);
 
       const allUserIds = [...new Set([
         ...(referrals?.map(r => r.referrer_id) || []),
@@ -273,6 +322,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           referred_email: referredProfile?.email || '—',
           referred_phone: referredProfile?.phone || '—',
           status: r.status,
+          drop_off_reason: (r as any).drop_off_reason || null,
           created_at: r.created_at,
         };
       });
@@ -283,27 +333,41 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     } finally {
       setDrillDownLoading(false);
     }
+  }, [sortDir]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const handlePageChange = (newPage: number) => {
+    if (drillDown && newPage >= 0 && newPage < totalPages) {
+      openDrillDown(drillDown, newPage);
+    }
   };
 
-  // Unique affiliates for filter dropdown
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('desc');
+    }
+  };
+
+  // Re-fetch when sort changes
+  useEffect(() => {
+    if (drillDown && drillDown !== 'conversion') {
+      openDrillDown(drillDown, 0);
+    }
+  }, [sortField, sortDir]);
+
   const uniqueAffiliates = useMemo(() => {
     const map = new Map<string, string>();
     referralDetails.forEach(r => map.set(r.referrer_id, r.referrer_company));
     return Array.from(map.entries());
   }, [referralDetails]);
 
-  // Filtered data based on drill-down type + filters
   const filteredDrillData = useMemo(() => {
     let data = [...referralDetails];
 
-    // Type-based pre-filter
-    if (drillDown === 'signed_up') {
-      data = data.filter(r => r.status === 'signed_up' || r.status === 'rewarded');
-    } else if (drillDown === 'rewards') {
-      data = data.filter(r => r.status === 'rewarded');
-    }
-
-    // User filters
     if (statusFilter !== 'all') {
       data = data.filter(r => r.status === statusFilter);
     }
@@ -311,8 +375,19 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       data = data.filter(r => r.referrer_id === affiliateFilter);
     }
 
+    // Client-side sort for secondary fields
+    if (sortField === 'referrer_company') {
+      data.sort((a, b) => sortDir === 'asc'
+        ? a.referrer_company.localeCompare(b.referrer_company)
+        : b.referrer_company.localeCompare(a.referrer_company));
+    } else if (sortField === 'referred_company') {
+      data.sort((a, b) => sortDir === 'asc'
+        ? a.referred_company.localeCompare(b.referred_company)
+        : b.referred_company.localeCompare(a.referred_company));
+    }
+
     return data;
-  }, [referralDetails, drillDown, statusFilter, affiliateFilter]);
+  }, [referralDetails, statusFilter, affiliateFilter, sortField, sortDir]);
 
   const updateCommissionStatus = async (commissionId: string, newStatus: 'pending' | 'paid') => {
     setProcessingPayout(commissionId);
@@ -404,6 +479,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     signed_up: 'Signed Up Suppliers',
     rewards: 'Rewards Given',
     conversion: 'Conversion Funnel',
+    pending: 'Pending Referrals',
+    signed_not_rewarded: 'Signed Up — Not Yet Rewarded',
   };
 
   const handleExportDrill = () => {
@@ -415,24 +492,61 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       'Email': r.referred_email,
       'Phone': r.referred_phone,
       'Status': r.status,
+      'Drop-off Reason': r.drop_off_reason || '',
       'Date': format(new Date(r.created_at), 'yyyy-MM-dd'),
     }));
     downloadCSV(exportData, `${drillDown}-export-${format(new Date(), 'yyyyMMdd')}.csv`);
   };
 
-  // Conversion funnel data
+  // Conversion funnel data derived from stats (no extra fetch)
   const funnelData = useMemo(() => {
-    const total = referralDetails.length;
-    const signedUp = referralDetails.filter(r => r.status === 'signed_up' || r.status === 'rewarded').length;
-    const rewarded = referralDetails.filter(r => r.status === 'rewarded').length;
+    const total = stats?.totalReferrals || 0;
+    const signedUp = stats?.signedUp || 0;
+    const rewarded = stats?.rewarded || 0;
     return [
       { stage: 'Total Referrals', count: total, pct: 100, color: 'bg-primary' },
       { stage: 'Signed Up', count: signedUp, pct: total > 0 ? (signedUp / total) * 100 : 0, color: 'bg-blue-500' },
       { stage: 'Rewarded / Active', count: rewarded, pct: total > 0 ? (rewarded / total) * 100 : 0, color: 'bg-green-500' },
     ];
-  }, [referralDetails]);
+  }, [stats]);
 
-  // Render drill-down content
+  const SortHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
+    <TableHead
+      className="cursor-pointer select-none hover:text-foreground transition-colors"
+      onClick={() => toggleSort(field)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {children}
+        <ArrowUpDown className={`h-3 w-3 ${sortField === field ? 'text-primary' : 'text-muted-foreground/40'}`} />
+      </span>
+    </TableHead>
+  );
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="flex items-center justify-between pt-4 border-t border-border/40">
+        <p className="text-sm text-muted-foreground">
+          Page {page + 1} of {totalPages} · {totalCount} total records
+        </p>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => handlePageChange(page - 1)}>
+            <ChevronLeft className="h-4 w-4 mr-1" /> Prev
+          </Button>
+          <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => handlePageChange(page + 1)}>
+            Next <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const getWhatsAppLink = (phone: string) => {
+    if (!phone || phone === '—') return null;
+    const cleaned = phone.replace(/[^0-9+]/g, '');
+    return `https://wa.me/${cleaned.startsWith('+') ? cleaned.slice(1) : (cleaned.startsWith('91') ? cleaned : '91' + cleaned)}`;
+  };
+
   const renderDrillDown = () => {
     if (drillDownLoading) {
       return (
@@ -486,16 +600,42 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
               </ul>
             </CardContent>
           </Card>
+
+          {/* Actionable Buttons */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              className="justify-start gap-2 h-auto py-3 border-yellow-200 hover:bg-yellow-50 text-yellow-800"
+              onClick={() => openDrillDown('pending')}
+            >
+              <Clock className="h-4 w-4" />
+              <div className="text-left">
+                <p className="font-medium">View Pending Referrals</p>
+                <p className="text-xs text-muted-foreground">{stats?.pending || 0} waiting for signup</p>
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-start gap-2 h-auto py-3 border-blue-200 hover:bg-blue-50 text-blue-800"
+              onClick={() => openDrillDown('signed_not_rewarded')}
+            >
+              <UserX className="h-4 w-4" />
+              <div className="text-left">
+                <p className="font-medium">View Stuck Suppliers</p>
+                <p className="text-xs text-muted-foreground">{(stats?.signedUp || 0) - (stats?.rewarded || 0)} signed up but not rewarded</p>
+              </div>
+            </Button>
+          </div>
         </div>
       );
     }
 
-    // Table drill-down for referrals, signed_up, rewards
+    // Table drill-down for referrals, signed_up, rewards, pending, signed_not_rewarded
     return (
       <div className="space-y-4">
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
-          {drillDown !== 'rewards' && (
+          {drillDown === 'referrals' && (
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[160px] h-9 text-sm">
                 <SelectValue placeholder="Status" />
@@ -520,7 +660,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground ml-auto">
-            {filteredDrillData.length} records
+            {filteredDrillData.length} of {totalCount} records
           </span>
         </div>
 
@@ -533,41 +673,73 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Affiliate</TableHead>
-                <TableHead>Supplier</TableHead>
+                <SortHeader field="referrer_company">Affiliate</SortHeader>
+                <SortHeader field="referred_company">Supplier</SortHeader>
                 <TableHead>Email / Phone</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
+                <SortHeader field="created_at">Date</SortHeader>
+                <SortHeader field="status">Status</SortHeader>
+                {(drillDown === 'pending' || drillDown === 'signed_not_rewarded') && (
+                  <TableHead>Drop-off Reason</TableHead>
+                )}
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDrillData.map(r => (
-                <TableRow key={r.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium text-sm">{r.referrer_company}</p>
-                      <p className="text-xs text-muted-foreground">{r.referrer_contact}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium text-sm">{r.referred_company}</p>
-                      <p className="text-xs text-muted-foreground">{r.referred_contact}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p>{r.referred_email}</p>
-                      <p className="text-xs text-muted-foreground">{r.referred_phone}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm">{format(new Date(r.created_at), 'MMM d, yyyy')}</TableCell>
-                  <TableCell>{getStatusBadge(r.status)}</TableCell>
-                </TableRow>
-              ))}
+              {filteredDrillData.map(r => {
+                const waLink = getWhatsAppLink(r.referred_phone);
+                return (
+                  <TableRow key={r.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-sm">{r.referrer_company}</p>
+                        <p className="text-xs text-muted-foreground">{r.referrer_contact}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-sm">{r.referred_company}</p>
+                        <p className="text-xs text-muted-foreground">{r.referred_contact}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p>{r.referred_email}</p>
+                        <p className="text-xs text-muted-foreground">{r.referred_phone}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm">{format(new Date(r.created_at), 'MMM d, yyyy')}</TableCell>
+                    <TableCell>{getStatusBadge(r.status)}</TableCell>
+                    {(drillDown === 'pending' || drillDown === 'signed_not_rewarded') && (
+                      <TableCell>
+                        <span className="text-sm text-muted-foreground italic">
+                          {r.drop_off_reason || '—'}
+                        </span>
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-1">
+                        {waLink && (
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50" asChild>
+                            <a href={waLink} target="_blank" rel="noopener noreferrer" title="WhatsApp follow-up">
+                              <MessageCircle className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild title="View profile">
+                          <a href={`/admin/user/${r.referred_id}`} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}
+
+        {renderPagination()}
       </div>
     );
   };
@@ -579,7 +751,14 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           <DialogTitle className="flex items-center gap-2">
             {drillDown ? (
               <>
-                <Button variant="ghost" size="sm" className="mr-1 h-8 w-8 p-0" onClick={() => setDrillDown(null)}>
+                <Button variant="ghost" size="sm" className="mr-1 h-8 w-8 p-0" onClick={() => {
+                  // Go back to conversion if coming from an actionable sub-view
+                  if (drillDown === 'pending' || drillDown === 'signed_not_rewarded') {
+                    openDrillDown('conversion');
+                  } else {
+                    setDrillDown(null);
+                  }
+                }}>
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 {drillDownTitle[drillDown]}
@@ -598,7 +777,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {drillDown === 'conversion' ? 'Visualize referral-to-reward journey' : 'Click to view details for each referral'}
+                {drillDown === 'conversion' ? 'Visualize referral-to-reward journey & take action' : 'Sortable & paginated — click actions per row'}
               </p>
               {drillDown !== 'conversion' && (
                 <Button variant="outline" size="sm" onClick={handleExportDrill}>
@@ -800,36 +979,48 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                           <TableHead className="text-center">Signed Up</TableHead>
                           <TableHead className="text-center">Rewarded</TableHead>
                           <TableHead className="text-center">Conversion</TableHead>
+                          <TableHead className="text-center">Flag</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {topReferrers.map((referrer, index) => (
-                          <TableRow key={referrer.referrer_id} className={index < 3 ? 'bg-primary/5' : ''}>
-                            <TableCell className="text-center">
-                              {getRankBadge(index)}
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium">{referrer.company_name}</p>
-                                <p className="text-sm text-muted-foreground">{referrer.contact_person}</p>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="outline">{referrer.total_referrals}</Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="secondary">{referrer.signed_up}</Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge className="bg-green-500 hover:bg-green-600">{referrer.rewarded}</Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <span className={referrer.conversion_rate >= 50 ? 'text-green-600 font-medium' : 'text-muted-foreground'}>
-                                {referrer.conversion_rate.toFixed(0)}%
-                              </span>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {topReferrers.map((referrer, index) => {
+                          const isLowPerformer = referrer.total_referrals >= 5 && referrer.conversion_rate < 10;
+                          return (
+                            <TableRow key={referrer.referrer_id} className={index < 3 ? 'bg-primary/5' : ''}>
+                              <TableCell className="text-center">
+                                {getRankBadge(index)}
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">{referrer.company_name}</p>
+                                  <p className="text-sm text-muted-foreground">{referrer.contact_person}</p>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant="outline">{referrer.total_referrals}</Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant="secondary">{referrer.signed_up}</Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge className="bg-green-500 hover:bg-green-600">{referrer.rewarded}</Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <span className={referrer.conversion_rate >= 50 ? 'text-green-600 font-medium' : 'text-muted-foreground'}>
+                                  {referrer.conversion_rate.toFixed(0)}%
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {isLowPerformer && (
+                                  <Badge variant="destructive" className="text-xs gap-1">
+                                    <AlertTriangle className="h-3 w-3" />
+                                    Low
+                                  </Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   )}
