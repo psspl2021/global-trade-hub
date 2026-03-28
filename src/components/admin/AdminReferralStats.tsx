@@ -160,6 +160,10 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
           .eq('role', 'affiliate'),
       ]);
 
+      console.log('[AdminReferralStats] affiliateRoles:', affiliateRoles);
+      console.log('[AdminReferralStats] affiliateRegistry:', affiliateRegistry);
+      console.log('[AdminReferralStats] referrals count:', referrals?.length);
+
       const referrerMap = new Map<string, { total: number; signedUp: number; rewarded: number }>();
       referrals?.forEach(ref => {
         const current = referrerMap.get(ref.referrer_id) || { total: 0, signedUp: 0, rewarded: 0 };
