@@ -714,15 +714,14 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                 <TableHead>Email / Phone</TableHead>
                 <SortHeader field="created_at">Date</SortHeader>
                 <SortHeader field="status">Status</SortHeader>
-                {(drillDown === 'pending' || drillDown === 'signed_not_rewarded') && (
-                  <TableHead>Drop-off Reason</TableHead>
-                )}
+                <TableHead>Priority</TableHead>
+                <TableHead>Drop-off</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredDrillData.map(r => {
-                const waLink = getWhatsAppLink(r.referred_phone);
+                const waLink = getWhatsAppLink(r.referred_phone, r.referred_company, r.status);
                 return (
                   <TableRow key={r.id}>
                     <TableCell>
@@ -745,27 +744,28 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                     </TableCell>
                     <TableCell className="text-sm">{format(new Date(r.created_at), 'MMM d, yyyy')}</TableCell>
                     <TableCell>{getStatusBadge(r.status)}</TableCell>
-                    {(drillDown === 'pending' || drillDown === 'signed_not_rewarded') && (
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground italic">
-                          {r.drop_off_reason || '—'}
-                        </span>
-                      </TableCell>
-                    )}
+                    <TableCell>{getRecoveryPriority(r)}</TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground italic">
+                        {getAutoDropOffReason(r)}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-1">
                         {waLink && (
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50" asChild>
-                            <a href={waLink} target="_blank" rel="noopener noreferrer" title="WhatsApp follow-up">
+                            <a href={waLink} target="_blank" rel="noopener noreferrer" title="WhatsApp follow-up (pre-filled)">
                               <MessageCircle className="h-4 w-4" />
                             </a>
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild title="View profile">
-                          <a href={`/admin/user/${r.referred_id}`} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
+                        {r.referred_id && (
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild title="View profile">
+                            <a href={`/admin/user/${r.referred_id}`} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
