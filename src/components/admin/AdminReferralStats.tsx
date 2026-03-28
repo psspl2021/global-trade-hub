@@ -485,9 +485,20 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     if (r.status !== 'pending') return null;
     const hasPhone = r.referred_phone && r.referred_phone !== '—';
     const hasEmail = r.referred_email && r.referred_email !== '—';
+    const daysSince = Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (hasPhone && daysSince <= 2) return <Badge className="bg-red-600 hover:bg-red-700 text-white text-xs gap-1"><Flame className="h-3 w-3" />🔥 Hot</Badge>;
     if (hasPhone) return <Badge className="bg-orange-500 hover:bg-orange-600 text-white text-xs gap-1"><Flame className="h-3 w-3" />High Intent</Badge>;
-    if (hasEmail) return <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground text-xs gap-1"><PhoneCall className="h-3 w-3" />Warm Lead</Badge>;
-    return <Badge variant="outline" className="border-muted-foreground/20 text-muted-foreground/60 text-xs">Cold Lead</Badge>;
+    if (hasEmail && daysSince <= 3) return <Badge variant="outline" className="border-yellow-400 text-yellow-700 text-xs gap-1"><PhoneCall className="h-3 w-3" />🟡 Warm</Badge>;
+    return <Badge variant="outline" className="border-muted-foreground/20 text-muted-foreground/60 text-xs">⚠️ Cold</Badge>;
+  };
+
+  const getRecommendedAction = (r: ReferralDetail) => {
+    const hasPhone = r.referred_phone && r.referred_phone !== '—';
+    if (r.status === 'pending' && hasPhone) return { text: 'Call now', icon: <PhoneCall className="h-3 w-3" />, color: 'text-red-600' };
+    if (r.status === 'pending') return { text: 'Send WhatsApp', icon: <MessageCircle className="h-3 w-3" />, color: 'text-green-600' };
+    if (r.status === 'signed_up') return { text: 'Guide to first order', icon: <Zap className="h-3 w-3" />, color: 'text-blue-600' };
+    if (r.status === 'rewarded') return { text: 'Retain & upsell', icon: <Star className="h-3 w-3" />, color: 'text-amber-600' };
+    return null;
   };
 
   const getAutoDropOffReason = (r: ReferralDetail) => {
@@ -574,13 +585,19 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     const name = referredName || '';
     let message = '';
     if (status === 'pending') {
-      message = encodeURIComponent(`Hi ${name}, you were invited to ProcureSaathi — India's trusted B2B procurement platform.\n\nJoin now to get verified orders & grow your business:\nhttps://procuresaathi.lovable.app/auth\n\nLet me know if you need help!`);
+      message = encodeURIComponent(`Hi ${name},\n\nYou were invited to ProcureSaathi for verified B2B orders.\n\n🚀 Complete signup in 30 sec:\nhttps://procuresaathi.lovable.app/auth\n\n💰 Suppliers are already winning orders here.\n\nLet me know if you want help getting your first order.`);
     } else if (status === 'signed_up') {
-      message = encodeURIComponent(`Hi ${name}, welcome to ProcureSaathi! 🎉\n\nYou're all set — browse open requirements and submit your first quote to start winning orders.\n\nhttps://procuresaathi.lovable.app`);
+      message = encodeURIComponent(`Hi ${name}, welcome to ProcureSaathi! 🎉\n\nYou're all set — browse open requirements and submit your first quote to start winning orders.\n\n📋 View open RFQs: https://procuresaathi.lovable.app\n\nNeed help? I'll guide you to your first order.`);
     } else {
-      message = encodeURIComponent(`Hi ${name}, checking in from ProcureSaathi. How's your experience so far?`);
+      message = encodeURIComponent(`Hi ${name}, checking in from ProcureSaathi. How's your experience so far?\n\nLet me know if you need anything to win more orders! 🚀`);
     }
     return `https://wa.me/${number}?text=${message}`;
+  };
+
+  const getCallLink = (phone: string) => {
+    if (!phone || phone === '—') return null;
+    const cleaned = phone.replace(/[^0-9+]/g, '');
+    return `tel:${cleaned.startsWith('+') ? cleaned : '+91' + cleaned}`;
   };
 
   const renderDrillDown = () => {
@@ -623,23 +640,48 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
             ))}
           </div>
 
-          {/* Lost Money Trigger */}
-          {(stats?.pending || 0) > 0 && (
-            <Card className="border-red-200 bg-red-50/50">
-              <CardContent className="pt-4 pb-4">
-                <h4 className="font-semibold text-sm text-red-800 mb-1 flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" /> Potential Revenue at Risk
-                </h4>
-                <p className="text-2xl font-bold text-red-700 flex items-center gap-1">
-                  <IndianRupee className="h-5 w-5" />
-                  {((stats?.pending || 0) * 5000).toLocaleString('en-IN')}
-                  <span className="text-sm font-normal text-red-600 ml-2">
-                    est. from {stats?.pending} pending suppliers (avg ₹5,000 commission each)
-                  </span>
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {/* Focus Today Banner */}
+          {(stats?.pending || 0) > 0 && (() => {
+            const paidCommissions = pendingCommissions.filter(c => c.status === 'paid' || c.status === 'pending');
+            const avgCommission = paidCommissions.length > 0
+              ? paidCommissions.reduce((sum, c) => sum + c.commission_amount, 0) / paidCommissions.length
+              : 3000;
+            const lostRevenue = (stats?.pending || 0) * avgCommission;
+            const hotLeadsCount = referralDetails.filter(r => {
+              const hasPhone = r.referred_phone && r.referred_phone !== '—';
+              const days = Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
+              return r.status === 'pending' && hasPhone && days <= 2;
+            }).length;
+            return (
+              <>
+                <Card className="border-primary/30 bg-primary/5">
+                  <CardContent className="pt-4 pb-4">
+                    <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                      🎯 Focus today: Contact {Math.min(hotLeadsCount || 5, stats?.pending || 5)} high-intent suppliers to unlock
+                      <span className="text-base font-bold flex items-center">
+                        <IndianRupee className="h-4 w-4" />{Math.round(lostRevenue * 0.3).toLocaleString('en-IN')}
+                      </span>
+                      revenue
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="border-red-200 bg-red-50/50">
+                  <CardContent className="pt-4 pb-4">
+                    <h4 className="font-semibold text-sm text-red-800 mb-1 flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" /> Potential Revenue at Risk
+                    </h4>
+                    <p className="text-2xl font-bold text-red-700 flex items-center gap-1">
+                      <IndianRupee className="h-5 w-5" />
+                      {Math.round(lostRevenue).toLocaleString('en-IN')}
+                      <span className="text-sm font-normal text-red-600 ml-2">
+                        est. from {stats?.pending} pending suppliers (avg ₹{Math.round(avgCommission).toLocaleString('en-IN')} commission)
+                      </span>
+                    </p>
+                  </CardContent>
+                </Card>
+              </>
+            );
+          })()}
 
           {/* Drop-off insights */}
           <Card className="border-amber-200 bg-amber-50/50">
@@ -733,6 +775,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                 <SortHeader field="created_at">Date</SortHeader>
                 <SortHeader field="status">Status</SortHeader>
                 <TableHead>Priority</TableHead>
+                <TableHead>Next Action</TableHead>
                 <TableHead>Drop-off</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
               </TableRow>
@@ -740,6 +783,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
             <TableBody>
               {filteredDrillData.map(r => {
                 const waLink = getWhatsAppLink(r.referred_phone, r.referred_company, r.status);
+                const callLink = getCallLink(r.referred_phone);
+                const action = getRecommendedAction(r);
                 return (
                   <TableRow key={r.id}>
                     <TableCell>
@@ -764,15 +809,29 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                     <TableCell>{getStatusBadge(r.status)}</TableCell>
                     <TableCell>{getRecoveryPriority(r)}</TableCell>
                     <TableCell>
+                      {action && (
+                        <span className={`text-xs font-medium flex items-center gap-1 ${action.color}`}>
+                          {action.icon} {action.text}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       <span className="text-xs text-muted-foreground italic">
                         {getAutoDropOffReason(r)}
                       </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-1">
+                        {callLink && (
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50" asChild>
+                            <a href={callLink} title="Call now">
+                              <PhoneCall className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
                         {waLink && (
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50" asChild>
-                            <a href={waLink} target="_blank" rel="noopener noreferrer" title="WhatsApp follow-up (pre-filled)">
+                            <a href={waLink} target="_blank" rel="noopener noreferrer" title="WhatsApp follow-up">
                               <MessageCircle className="h-4 w-4" />
                             </a>
                           </Button>
