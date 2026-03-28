@@ -5725,6 +5725,7 @@ export type Database = {
         Row: {
           created_at: string | null
           device_fingerprint: string | null
+          drop_off_reason: string | null
           fraud_detected: boolean | null
           fraud_reason: string | null
           id: string
@@ -5751,6 +5752,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           device_fingerprint?: string | null
+          drop_off_reason?: string | null
           fraud_detected?: boolean | null
           fraud_reason?: string | null
           id?: string
@@ -5777,6 +5779,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           device_fingerprint?: string | null
+          drop_off_reason?: string | null
           fraud_detected?: boolean | null
           fraud_reason?: string | null
           id?: string
