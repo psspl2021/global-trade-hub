@@ -465,11 +465,11 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" />Invited</Badge>;
       case 'signed_up':
         return <Badge className="bg-blue-500 hover:bg-blue-600"><CheckCircle2 className="h-3 w-3 mr-1" />Signed Up</Badge>;
       case 'rewarded':
-        return <Badge className="bg-green-500 hover:bg-green-600"><Gift className="h-3 w-3 mr-1" />Rewarded</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600"><Gift className="h-3 w-3 mr-1" />Converted</Badge>;
       case 'paid':
         return <Badge className="bg-green-500 hover:bg-green-600"><CheckCircle2 className="h-3 w-3 mr-1" />Paid</Badge>;
       case 'on_hold':
@@ -479,6 +479,25 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const getRecoveryPriority = (r: ReferralDetail) => {
+    if (r.status !== 'pending') return null;
+    const hasPhone = r.referred_phone && r.referred_phone !== '—';
+    const hasEmail = r.referred_email && r.referred_email !== '—';
+    if (hasPhone) return <Badge className="bg-orange-500 hover:bg-orange-600 text-white text-xs gap-1"><Flame className="h-3 w-3" />High Intent</Badge>;
+    if (hasEmail) return <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground text-xs gap-1"><PhoneCall className="h-3 w-3" />Warm Lead</Badge>;
+    return <Badge variant="outline" className="border-muted-foreground/20 text-muted-foreground/60 text-xs">Cold Lead</Badge>;
+  };
+
+  const getAutoDropOffReason = (r: ReferralDetail) => {
+    if (r.drop_off_reason) return r.drop_off_reason;
+    const daysSinceCreated = Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (r.status === 'pending' && daysSinceCreated > 3) return `No signup (${daysSinceCreated}d ago)`;
+    if (r.status === 'signed_up' && daysSinceCreated > 7) return `No activity (${daysSinceCreated}d since invite)`;
+    if (r.status === 'pending') return 'Recently invited';
+    if (r.status === 'signed_up') return 'Active — awaiting order';
+    return '—';
   };
 
   const drillDownTitle: Record<string, string> = {
@@ -548,10 +567,20 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     );
   };
 
-  const getWhatsAppLink = (phone: string) => {
+  const getWhatsAppLink = (phone: string, referredName?: string, status?: string) => {
     if (!phone || phone === '—') return null;
     const cleaned = phone.replace(/[^0-9+]/g, '');
-    return `https://wa.me/${cleaned.startsWith('+') ? cleaned.slice(1) : (cleaned.startsWith('91') ? cleaned : '91' + cleaned)}`;
+    const number = cleaned.startsWith('+') ? cleaned.slice(1) : (cleaned.startsWith('91') ? cleaned : '91' + cleaned);
+    const name = referredName || '';
+    let message = '';
+    if (status === 'pending') {
+      message = encodeURIComponent(`Hi ${name}, you were invited to ProcureSaathi — India's trusted B2B procurement platform.\n\nJoin now to get verified orders & grow your business:\nhttps://procuresaathi.lovable.app/auth\n\nLet me know if you need help!`);
+    } else if (status === 'signed_up') {
+      message = encodeURIComponent(`Hi ${name}, welcome to ProcureSaathi! 🎉\n\nYou're all set — browse open requirements and submit your first quote to start winning orders.\n\nhttps://procuresaathi.lovable.app`);
+    } else {
+      message = encodeURIComponent(`Hi ${name}, checking in from ProcureSaathi. How's your experience so far?`);
+    }
+    return `https://wa.me/${number}?text=${message}`;
   };
 
   const renderDrillDown = () => {
