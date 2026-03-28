@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet, Shield, AlertTriangle, ArrowLeft, Download, ChevronRight, ChevronLeft, MessageCircle, ArrowUpDown, ExternalLink, UserX } from 'lucide-react';
+import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet, Shield, AlertTriangle, ArrowLeft, Download, ChevronRight, ChevronLeft, MessageCircle, ArrowUpDown, ExternalLink, UserX, Flame, Star, Zap, PhoneCall } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { AffiliateAntiFraudDashboard } from './AffiliateAntiFraudDashboard';
@@ -465,11 +465,11 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" />Invited</Badge>;
       case 'signed_up':
         return <Badge className="bg-blue-500 hover:bg-blue-600"><CheckCircle2 className="h-3 w-3 mr-1" />Signed Up</Badge>;
       case 'rewarded':
-        return <Badge className="bg-green-500 hover:bg-green-600"><Gift className="h-3 w-3 mr-1" />Rewarded</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600"><Gift className="h-3 w-3 mr-1" />Converted</Badge>;
       case 'paid':
         return <Badge className="bg-green-500 hover:bg-green-600"><CheckCircle2 className="h-3 w-3 mr-1" />Paid</Badge>;
       case 'on_hold':
@@ -479,6 +479,25 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const getRecoveryPriority = (r: ReferralDetail) => {
+    if (r.status !== 'pending') return null;
+    const hasPhone = r.referred_phone && r.referred_phone !== '—';
+    const hasEmail = r.referred_email && r.referred_email !== '—';
+    if (hasPhone) return <Badge className="bg-orange-500 hover:bg-orange-600 text-white text-xs gap-1"><Flame className="h-3 w-3" />High Intent</Badge>;
+    if (hasEmail) return <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground text-xs gap-1"><PhoneCall className="h-3 w-3" />Warm Lead</Badge>;
+    return <Badge variant="outline" className="border-muted-foreground/20 text-muted-foreground/60 text-xs">Cold Lead</Badge>;
+  };
+
+  const getAutoDropOffReason = (r: ReferralDetail) => {
+    if (r.drop_off_reason) return r.drop_off_reason;
+    const daysSinceCreated = Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (r.status === 'pending' && daysSinceCreated > 3) return `No signup (${daysSinceCreated}d ago)`;
+    if (r.status === 'signed_up' && daysSinceCreated > 7) return `No activity (${daysSinceCreated}d since invite)`;
+    if (r.status === 'pending') return 'Recently invited';
+    if (r.status === 'signed_up') return 'Active — awaiting order';
+    return '—';
   };
 
   const drillDownTitle: Record<string, string> = {
@@ -548,10 +567,20 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
     );
   };
 
-  const getWhatsAppLink = (phone: string) => {
+  const getWhatsAppLink = (phone: string, referredName?: string, status?: string) => {
     if (!phone || phone === '—') return null;
     const cleaned = phone.replace(/[^0-9+]/g, '');
-    return `https://wa.me/${cleaned.startsWith('+') ? cleaned.slice(1) : (cleaned.startsWith('91') ? cleaned : '91' + cleaned)}`;
+    const number = cleaned.startsWith('+') ? cleaned.slice(1) : (cleaned.startsWith('91') ? cleaned : '91' + cleaned);
+    const name = referredName || '';
+    let message = '';
+    if (status === 'pending') {
+      message = encodeURIComponent(`Hi ${name}, you were invited to ProcureSaathi — India's trusted B2B procurement platform.\n\nJoin now to get verified orders & grow your business:\nhttps://procuresaathi.lovable.app/auth\n\nLet me know if you need help!`);
+    } else if (status === 'signed_up') {
+      message = encodeURIComponent(`Hi ${name}, welcome to ProcureSaathi! 🎉\n\nYou're all set — browse open requirements and submit your first quote to start winning orders.\n\nhttps://procuresaathi.lovable.app`);
+    } else {
+      message = encodeURIComponent(`Hi ${name}, checking in from ProcureSaathi. How's your experience so far?`);
+    }
+    return `https://wa.me/${number}?text=${message}`;
   };
 
   const renderDrillDown = () => {
@@ -594,6 +623,24 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
             ))}
           </div>
 
+          {/* Lost Money Trigger */}
+          {(stats?.pending || 0) > 0 && (
+            <Card className="border-red-200 bg-red-50/50">
+              <CardContent className="pt-4 pb-4">
+                <h4 className="font-semibold text-sm text-red-800 mb-1 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" /> Potential Revenue at Risk
+                </h4>
+                <p className="text-2xl font-bold text-red-700 flex items-center gap-1">
+                  <IndianRupee className="h-5 w-5" />
+                  {((stats?.pending || 0) * 5000).toLocaleString('en-IN')}
+                  <span className="text-sm font-normal text-red-600 ml-2">
+                    est. from {stats?.pending} pending suppliers (avg ₹5,000 commission each)
+                  </span>
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Drop-off insights */}
           <Card className="border-amber-200 bg-amber-50/50">
             <CardContent className="pt-4 pb-4">
@@ -602,7 +649,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
               </h4>
               <ul className="space-y-1 text-sm text-amber-700">
                 <li>• {stats?.pending || 0} referrals still pending (not yet signed up)</li>
-                <li>• {(stats?.signedUp || 0) - (stats?.rewarded || 0)} signed up but not yet rewarded</li>
+                <li>• {(stats?.signedUp || 0) - (stats?.rewarded || 0)} signed up but not yet converted</li>
                 <li>• Overall conversion: {stats?.conversionRate.toFixed(1)}%</li>
               </ul>
             </CardContent>
@@ -685,15 +732,14 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                 <TableHead>Email / Phone</TableHead>
                 <SortHeader field="created_at">Date</SortHeader>
                 <SortHeader field="status">Status</SortHeader>
-                {(drillDown === 'pending' || drillDown === 'signed_not_rewarded') && (
-                  <TableHead>Drop-off Reason</TableHead>
-                )}
+                <TableHead>Priority</TableHead>
+                <TableHead>Drop-off</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredDrillData.map(r => {
-                const waLink = getWhatsAppLink(r.referred_phone);
+                const waLink = getWhatsAppLink(r.referred_phone, r.referred_company, r.status);
                 return (
                   <TableRow key={r.id}>
                     <TableCell>
@@ -716,27 +762,28 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                     </TableCell>
                     <TableCell className="text-sm">{format(new Date(r.created_at), 'MMM d, yyyy')}</TableCell>
                     <TableCell>{getStatusBadge(r.status)}</TableCell>
-                    {(drillDown === 'pending' || drillDown === 'signed_not_rewarded') && (
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground italic">
-                          {r.drop_off_reason || '—'}
-                        </span>
-                      </TableCell>
-                    )}
+                    <TableCell>{getRecoveryPriority(r)}</TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground italic">
+                        {getAutoDropOffReason(r)}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-1">
                         {waLink && (
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50" asChild>
-                            <a href={waLink} target="_blank" rel="noopener noreferrer" title="WhatsApp follow-up">
+                            <a href={waLink} target="_blank" rel="noopener noreferrer" title="WhatsApp follow-up (pre-filled)">
                               <MessageCircle className="h-4 w-4" />
                             </a>
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild title="View profile">
-                          <a href={`/admin/user/${r.referred_id}`} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
+                        {r.referred_id && (
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild title="View profile">
+                            <a href={`/admin/user/${r.referred_id}`} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -992,6 +1039,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                       <TableBody>
                         {topReferrers.map((referrer, index) => {
                           const isLowPerformer = referrer.total_referrals >= 5 && referrer.conversion_rate < 10;
+                          const isHighPerformer = referrer.total_referrals >= 3 && referrer.conversion_rate > 30;
+                          const isRevenueDriver = referrer.rewarded >= 3;
                           return (
                             <TableRow key={referrer.referrer_id} className={index < 3 ? 'bg-primary/5' : ''}>
                               <TableCell className="text-center">
@@ -1018,12 +1067,29 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                                 </span>
                               </TableCell>
                               <TableCell className="text-center">
-                                {isLowPerformer && (
-                                  <Badge variant="destructive" className="text-xs gap-1">
-                                    <AlertTriangle className="h-3 w-3" />
-                                    Low
-                                  </Badge>
-                                )}
+                                <div className="flex flex-col items-center gap-1">
+                                  {isHighPerformer && (
+                                    <Badge className="bg-emerald-500 hover:bg-emerald-600 text-xs gap-1">
+                                      <Star className="h-3 w-3" />
+                                      High
+                                    </Badge>
+                                  )}
+                                  {isRevenueDriver && (
+                                    <Badge className="bg-purple-500 hover:bg-purple-600 text-xs gap-1">
+                                      <Zap className="h-3 w-3" />
+                                      Revenue
+                                    </Badge>
+                                  )}
+                                  {isLowPerformer && (
+                                    <Badge variant="destructive" className="text-xs gap-1">
+                                      <AlertTriangle className="h-3 w-3" />
+                                      Low
+                                    </Badge>
+                                  )}
+                                  {!isHighPerformer && !isRevenueDriver && !isLowPerformer && (
+                                    <span className="text-xs text-muted-foreground">—</span>
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           );
