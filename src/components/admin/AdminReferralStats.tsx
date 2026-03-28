@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet, Shield, AlertTriangle, ArrowLeft, Download, ChevronRight, Funnel } from 'lucide-react';
+import { Loader2, Users, Gift, TrendingUp, Trophy, RefreshCw, IndianRupee, CheckCircle2, Clock, Wallet, Shield, AlertTriangle, ArrowLeft, Download, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { AffiliateAntiFraudDashboard } from './AffiliateAntiFraudDashboard';
