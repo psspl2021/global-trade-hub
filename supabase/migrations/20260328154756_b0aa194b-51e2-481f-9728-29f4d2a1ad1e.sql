@@ -1,0 +1,1 @@
+ALTER TABLE public.referrals ADD COLUMN IF NOT EXISTS drop_off_reason TEXT;
