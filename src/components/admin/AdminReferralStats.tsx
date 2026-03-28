@@ -623,6 +623,24 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
             ))}
           </div>
 
+          {/* Lost Money Trigger */}
+          {(stats?.pending || 0) > 0 && (
+            <Card className="border-red-200 bg-red-50/50">
+              <CardContent className="pt-4 pb-4">
+                <h4 className="font-semibold text-sm text-red-800 mb-1 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" /> Potential Revenue at Risk
+                </h4>
+                <p className="text-2xl font-bold text-red-700 flex items-center gap-1">
+                  <IndianRupee className="h-5 w-5" />
+                  {((stats?.pending || 0) * 5000).toLocaleString('en-IN')}
+                  <span className="text-sm font-normal text-red-600 ml-2">
+                    est. from {stats?.pending} pending suppliers (avg ₹5,000 commission each)
+                  </span>
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Drop-off insights */}
           <Card className="border-amber-200 bg-amber-50/50">
             <CardContent className="pt-4 pb-4">
@@ -631,7 +649,7 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
               </h4>
               <ul className="space-y-1 text-sm text-amber-700">
                 <li>• {stats?.pending || 0} referrals still pending (not yet signed up)</li>
-                <li>• {(stats?.signedUp || 0) - (stats?.rewarded || 0)} signed up but not yet rewarded</li>
+                <li>• {(stats?.signedUp || 0) - (stats?.rewarded || 0)} signed up but not yet converted</li>
                 <li>• Overall conversion: {stats?.conversionRate.toFixed(1)}%</li>
               </ul>
             </CardContent>
@@ -1021,6 +1039,8 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                       <TableBody>
                         {topReferrers.map((referrer, index) => {
                           const isLowPerformer = referrer.total_referrals >= 5 && referrer.conversion_rate < 10;
+                          const isHighPerformer = referrer.total_referrals >= 3 && referrer.conversion_rate > 30;
+                          const isRevenueDriver = referrer.rewarded >= 3;
                           return (
                             <TableRow key={referrer.referrer_id} className={index < 3 ? 'bg-primary/5' : ''}>
                               <TableCell className="text-center">
@@ -1047,12 +1067,29 @@ export const AdminReferralStats = ({ open, onOpenChange }: AdminReferralStatsPro
                                 </span>
                               </TableCell>
                               <TableCell className="text-center">
-                                {isLowPerformer && (
-                                  <Badge variant="destructive" className="text-xs gap-1">
-                                    <AlertTriangle className="h-3 w-3" />
-                                    Low
-                                  </Badge>
-                                )}
+                                <div className="flex flex-col items-center gap-1">
+                                  {isHighPerformer && (
+                                    <Badge className="bg-emerald-500 hover:bg-emerald-600 text-xs gap-1">
+                                      <Star className="h-3 w-3" />
+                                      High
+                                    </Badge>
+                                  )}
+                                  {isRevenueDriver && (
+                                    <Badge className="bg-purple-500 hover:bg-purple-600 text-xs gap-1">
+                                      <Zap className="h-3 w-3" />
+                                      Revenue
+                                    </Badge>
+                                  )}
+                                  {isLowPerformer && (
+                                    <Badge variant="destructive" className="text-xs gap-1">
+                                      <AlertTriangle className="h-3 w-3" />
+                                      Low
+                                    </Badge>
+                                  )}
+                                  {!isHighPerformer && !isRevenueDriver && !isLowPerformer && (
+                                    <span className="text-xs text-muted-foreground">—</span>
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           );
