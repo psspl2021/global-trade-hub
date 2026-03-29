@@ -88,6 +88,10 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
   }
 
   try {
+    // FIX #3: Timeout protection — abort if Brevo hangs > 8s
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
     const res = await fetch("https://api.brevo.com/v3/whatsapp/sendMessage", {
       method: "POST",
       headers: {
@@ -99,15 +103,18 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
         recipientNumber: phone,
         text: message,
       }),
+      signal: controller.signal,
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error(`[auto-nudge] Brevo WhatsApp error for ${phone}:`, err);
+    clearTimeout(timeout);
+
+    // FIX #2: Detect silent API failures (200 but error in body)
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.message === 'error' || data?.status === 'failed') {
+      console.error(`[auto-nudge] WhatsApp failed for ${phone}:`, data);
       return false;
     }
-    
-    await res.text();
+
     return true;
   } catch (err) {
     console.error(`[auto-nudge] Failed to send WhatsApp to ${phone}:`, err);
@@ -289,19 +296,17 @@ serve(async (req) => {
     let dailyLimitReached = false;
 
     for (let i = 0; i < eligibleNudges.length; i += BATCH_SIZE) {
-      if (nudgedCount >= MAX_DAILY_NUDGES) {
+      // FIX #1: Slice batch to remaining slots — mathematically prevents overshoot
+      const remainingSlots = MAX_DAILY_NUDGES - nudgedCount;
+      if (remainingSlots <= 0) {
         dailyLimitReached = true;
         break;
       }
 
-      const batch = eligibleNudges.slice(i, i + BATCH_SIZE);
+      const batch = eligibleNudges.slice(i, i + Math.min(BATCH_SIZE, remainingSlots));
 
       const results = await Promise.all(
         batch.map(async ({ candidate, nudge, phone }) => {
-          // FIX #1: Per-item limit check inside batch
-          if (nudgedCount >= MAX_DAILY_NUDGES) {
-            return null;
-          }
 
           let sent = await sendWhatsAppViaBravo(phone, nudge.message);
 
