@@ -104,3 +104,6 @@ verify_jwt = true
 
 [functions.cashfree-auction-credit-webhook]
 verify_jwt = false
+
+[functions.affiliate-auto-nudge]
+verify_jwt = false

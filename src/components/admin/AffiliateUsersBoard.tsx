@@ -16,6 +16,8 @@ interface AffiliateUser {
   phone: string;
   created_at: string;
   last_referral_at: string | null;
+  last_nudged_at: string | null;
+  last_nudge_type: string | null;
   gstin: string | null;
   address: string | null;
   kyc_verified: boolean | null;
@@ -147,9 +149,9 @@ export const AffiliateUsersBoard = () => {
           .from('profiles')
           .select('id, contact_person, company_name, email, phone, created_at, gstin, address, kyc_verified, bank_name, bank_account_number, bank_ifsc_code')
           .in('id', userIds),
-        supabase
+      supabase
           .from('affiliates')
-          .select('user_id, status, joined_at, activated_at, updated_at')
+          .select('user_id, status, joined_at, activated_at, updated_at, last_nudged_at, last_nudge_type')
           .in('user_id', userIds),
         supabase
           .from('affiliate_eligibility')
@@ -193,6 +195,8 @@ export const AffiliateUsersBoard = () => {
           phone: profile?.phone || '—',
           created_at: profile?.created_at || '',
           last_referral_at: stats.lastReferralAt,
+          last_nudged_at: (aff as any)?.last_nudged_at || null,
+          last_nudge_type: (aff as any)?.last_nudge_type || null,
           gstin: profile?.gstin || null,
           address: profile?.address || null,
           kyc_verified: profile?.kyc_verified || null,
@@ -377,15 +381,16 @@ export const AffiliateUsersBoard = () => {
                     <TableHead>Segment</TableHead>
                     <TableHead>Score</TableHead>
                     <TableHead>Contact</TableHead>
-                    <TableHead>Last Active</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>KYC</TableHead>
-                    <TableHead>Documents</TableHead>
-                    <TableHead className="text-center">Referrals</TableHead>
-                    <TableHead className="text-center">Signed Up</TableHead>
-                    <TableHead className="text-center">Rewarded</TableHead>
-                    <TableHead className="text-right">Missed ₹</TableHead>
-                    <TableHead>Action</TableHead>
+                     <TableHead>Last Active</TableHead>
+                     <TableHead>Last Nudged</TableHead>
+                     <TableHead>Status</TableHead>
+                     <TableHead>KYC</TableHead>
+                     <TableHead>Documents</TableHead>
+                     <TableHead className="text-center">Referrals</TableHead>
+                     <TableHead className="text-center">Signed Up</TableHead>
+                     <TableHead className="text-center">Rewarded</TableHead>
+                     <TableHead className="text-right">Missed ₹</TableHead>
+                     <TableHead>Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -430,8 +435,22 @@ export const AffiliateUsersBoard = () => {
                         <TableCell>
                           <div className="flex items-center gap-1.5">
                             <Clock className="h-3 w-3 text-muted-foreground" />
-                            {getLastActive(user)}
+                           {getLastActive(user)}
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {user.last_nudged_at ? (
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-xs">{formatDistanceToNow(new Date(user.last_nudged_at), { addSuffix: true })}</span>
+                              {user.last_nudge_type && (
+                                <Badge variant="outline" className="text-[10px] px-1 py-0 w-fit">
+                                  {user.last_nudge_type === 'activation' ? '🟡 Activate' : user.last_nudge_type === 'conversion_push' ? '🔵 Guide' : '🟢 Scale'}
+                                </Badge>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Never</span>
+                          )}
                         </TableCell>
                         <TableCell>{getStatusBadge(user.affiliate_status)}</TableCell>
                         <TableCell>{getKYCBadge(user.kyc_verified, user.eligibility_kyc)}</TableCell>

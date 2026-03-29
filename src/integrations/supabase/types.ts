@@ -167,6 +167,33 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_nudge_logs: {
+        Row: {
+          affiliate_user_id: string
+          channel: string
+          created_at: string
+          id: string
+          message: string | null
+          nudge_type: string
+        }
+        Insert: {
+          affiliate_user_id: string
+          channel?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          nudge_type: string
+        }
+        Update: {
+          affiliate_user_id?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          nudge_type?: string
+        }
+        Relationships: []
+      }
       affiliates: {
         Row: {
           activated_at: string | null
@@ -175,6 +202,8 @@ export type Database = {
           deactivation_reason: string | null
           id: string
           joined_at: string | null
+          last_nudge_type: string | null
+          last_nudged_at: string | null
           queue_position: number | null
           referral_code: string | null
           status: string
@@ -188,6 +217,8 @@ export type Database = {
           deactivation_reason?: string | null
           id?: string
           joined_at?: string | null
+          last_nudge_type?: string | null
+          last_nudged_at?: string | null
           queue_position?: number | null
           referral_code?: string | null
           status?: string
@@ -201,6 +232,8 @@ export type Database = {
           deactivation_reason?: string | null
           id?: string
           joined_at?: string | null
+          last_nudge_type?: string | null
+          last_nudged_at?: string | null
           queue_position?: number | null
           referral_code?: string | null
           status?: string
