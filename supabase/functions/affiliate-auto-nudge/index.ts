@@ -268,6 +268,7 @@ serve(async (req) => {
             nudge_type: nudge.type,
             channel: sent ? 'whatsapp' : 'whatsapp_failed',
             message: nudge.message,
+            sent_at: new Date().toISOString(),
           });
 
           // Idempotent update: only set cooldown if older than 1 day (prevents race conditions)
@@ -324,6 +325,9 @@ serve(async (req) => {
         skipped_no_phone: skippedNoPhone,
         skipped_duplicate_type: skippedDuplicateType,
         total_affiliates: candidates.length,
+        success_rate: eligibleNudges.length > 0
+          ? Math.round((nudgedCount / eligibleNudges.length) * 100 * 100) / 100
+          : 0,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

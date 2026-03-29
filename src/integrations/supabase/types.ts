@@ -175,6 +175,7 @@ export type Database = {
           id: string
           message: string | null
           nudge_type: string
+          sent_at: string | null
         }
         Insert: {
           affiliate_user_id: string
@@ -183,6 +184,7 @@ export type Database = {
           id?: string
           message?: string | null
           nudge_type: string
+          sent_at?: string | null
         }
         Update: {
           affiliate_user_id?: string
@@ -191,6 +193,7 @@ export type Database = {
           id?: string
           message?: string | null
           nudge_type?: string
+          sent_at?: string | null
         }
         Relationships: []
       }
