@@ -15,10 +15,12 @@ interface NudgeStats {
   nudge_type: string;
   total_sent: number;
   delivered: number;
+  failed: number;
   converted: number;
   conversion_rate: number;
   sent_today: number;
   converted_today: number;
+  failed_today: number;
 }
 
 export function NudgeImpactPanel() {
@@ -53,20 +55,22 @@ export function NudgeImpactPanel() {
     (acc, s) => ({
       sent: acc.sent + (s.total_sent || 0),
       delivered: acc.delivered + (s.delivered || 0),
+      failed: acc.failed + (s.failed || 0),
       converted: acc.converted + (s.converted || 0),
       sentToday: acc.sentToday + (s.sent_today || 0),
       convertedToday: acc.convertedToday + (s.converted_today || 0),
+      failedToday: acc.failedToday + (s.failed_today || 0),
     }),
-    { sent: 0, delivered: 0, converted: 0, sentToday: 0, convertedToday: 0 }
+    { sent: 0, delivered: 0, failed: 0, converted: 0, sentToday: 0, convertedToday: 0, failedToday: 0 }
   );
 
   const overallRate = totals.delivered > 0
     ? Math.round((totals.converted / totals.delivered) * 100)
     : 0;
 
-  // Estimated ₹7,000 per conversion (avg referral commission value)
-  const estimatedRevenue = totals.converted * 7000;
-  const estimatedRevenueToday = totals.convertedToday * 7000;
+  const avgCommission = 5000;
+  const estimatedRevenue = totals.converted * avgCommission;
+  const estimatedRevenueToday = totals.convertedToday * avgCommission;
 
   const nudgeTypeLabel: Record<string, string> = {
     activation: '🚀 Activation',
@@ -111,7 +115,7 @@ export function NudgeImpactPanel() {
       </div>
 
       {/* Top KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card className="bg-card border">
           <CardContent className="pt-4 pb-3 px-4">
             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
@@ -142,6 +146,19 @@ export function NudgeImpactPanel() {
             </div>
             <p className="text-2xl font-bold text-emerald-600">{totals.convertedToday}</p>
             <p className="text-xs text-muted-foreground">{totals.converted} all time</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border">
+          <CardContent className="pt-4 pb-3 px-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <XCircle className="h-3.5 w-3.5" />
+              Failed Today
+            </div>
+            <p className={`text-2xl font-bold ${totals.failedToday > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+              {totals.failedToday}
+            </p>
+            <p className="text-xs text-muted-foreground">{totals.failed} all time</p>
           </CardContent>
         </Card>
 
@@ -186,7 +203,7 @@ export function NudgeImpactPanel() {
                         {nudgeTypeLabel[s.nudge_type] || s.nudge_type}
                       </p>
                       <p className="text-xs opacity-70">
-                        {s.total_sent} sent • {s.delivered} delivered • {s.converted} converted
+                        {s.total_sent} sent • {s.delivered} delivered • {s.failed} failed • {s.converted} converted
                       </p>
                     </div>
                     <div className="text-right">
