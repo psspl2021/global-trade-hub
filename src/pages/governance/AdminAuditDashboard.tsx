@@ -43,7 +43,8 @@ import {
   Globe,
   Monitor,
   Smartphone,
-  Home
+  Home,
+  Zap
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
