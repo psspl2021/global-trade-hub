@@ -253,8 +253,15 @@ export const AffiliateUsersBoard = () => {
                       <div>
                         <p className="font-medium">{user.contact_person}</p>
                         <p className="text-sm text-muted-foreground">{user.company_name}</p>
+                        {user.total_referrals === 0 && (
+                          <p className="text-xs text-warning flex items-center gap-1 mt-1">
+                            <AlertTriangle className="h-3 w-3" />
+                            Not started — hasn't invited any suppliers yet
+                          </p>
+                        )}
                       </div>
                     </TableCell>
+                    <TableCell>{getSegmentBadge(user)}</TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-sm">
