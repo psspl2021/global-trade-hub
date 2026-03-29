@@ -110,7 +110,7 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
       return false;
     }
 
-    return !!data?.messageId || res.ok;
+    return !!data?.messageId || data?.status === 'queued';
   } catch (err) {
     console.error(`[auto-nudge] Failed to send WhatsApp to ${phone}:`, err);
     return false;
@@ -164,34 +164,41 @@ serve(async (req) => {
 
     const userIds = roleRows.map(r => r.user_id);
 
+    // Helper: chunk large arrays for .in() queries (Postgres safe at scale)
+    function chunkArray<T>(arr: T[], size: number): T[][] {
+      const res: T[][] = [];
+      for (let i = 0; i < arr.length; i += size) res.push(arr.slice(i, i + size));
+      return res;
+    }
+
+    async function fetchChunked<T>(table: string, column: string, ids: string[], select: string): Promise<T[]> {
+      const chunks = chunkArray(ids, 500);
+      const results: T[] = [];
+      for (const chunk of chunks) {
+        const { data } = await supabase.from(table).select(select).in(column, chunk);
+        results.push(...((data as T[]) || []));
+      }
+      return results;
+    }
+
     // 2. Fetch profiles, affiliates, referrals, AND recent nudges in parallel
-    const [profilesRes, affiliatesRes, referralsRes, recentNudgesRes] = await Promise.all([
-      supabase
-        .from('profiles')
-        .select('id, contact_person, phone, email')
-        .in('id', userIds),
-      supabase
-        .from('affiliates')
-        .select('user_id, joined_at, last_nudged_at, last_nudge_type')
-        .in('user_id', userIds),
-      supabase
-        .from('referrals')
-        .select('referrer_id, status, created_at')
-        .in('referrer_id', userIds),
-      // FIX #2: Pre-fetch all recent nudges in ONE query (no per-candidate DB hit)
+    const [profiles, affiliatesArr, referrals, recentNudgesData] = await Promise.all([
+      fetchChunked<any>('profiles', 'id', userIds, 'id, contact_person, phone, email'),
+      fetchChunked<any>('affiliates', 'user_id', userIds, 'user_id, joined_at, last_nudged_at, last_nudge_type'),
+      fetchChunked<any>('referrals', 'referrer_id', userIds, 'referrer_id, status, created_at'),
+      // Pre-fetch all recent nudges in ONE query (no per-candidate DB hit)
       supabase
         .from('affiliate_nudge_logs')
         .select('affiliate_user_id, nudge_type')
-        .gte('sent_at', new Date(Date.now() - 86400000).toISOString()),
+        .gte('sent_at', new Date(Date.now() - 86400000).toISOString())
+        .then(r => r.data || []),
     ]);
 
-    const profiles = profilesRes.data || [];
-    const affiliates = affiliatesRes.data || [];
-    const referrals = referralsRes.data || [];
+    const affiliates = affiliatesArr;
 
     // Build recent nudge dedup set
     const recentNudgeSet = new Set(
-      (recentNudgesRes.data || []).map(n => `${n.affiliate_user_id}_${n.nudge_type}`)
+      (recentNudgesData as any[]).map(n => `${n.affiliate_user_id}_${n.nudge_type}`)
     );
 
     // 3. Build referral stats
@@ -272,13 +279,19 @@ serve(async (req) => {
         ? (Date.now() - new Date(candidate.last_referral_at).getTime()) / 86400000
         : 999;
 
+      // Intent score: people close to conversion get priority
+      const intentScore =
+        (candidate.signed_up_referrals > 0 ? 5 : 0) +
+        (candidate.total_referrals >= 3 ? 3 : 0);
+
       const priorityScore =
         (formattedPhone ? 4 : 0) +
         (candidate.rewarded_referrals === 0 ? 3 : 0) +
         (candidate.total_referrals > 0 ? 2 : 0) +
         (candidate.signed_up_referrals > 0 ? 2 : 0) +
         (daysSinceLastReferral >= 3 ? 2 : 0) +
-        (joinedDaysAgo <= 3 ? 1 : 0);
+        (joinedDaysAgo <= 3 ? 1 : 0) +
+        intentScore;
 
       eligibleNudges.push({ candidate, nudge, phone: formattedPhone, priorityScore });
     }
