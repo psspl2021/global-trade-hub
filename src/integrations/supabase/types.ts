@@ -171,6 +171,9 @@ export type Database = {
         Row: {
           affiliate_user_id: string
           channel: string
+          conversion_after_nudge: boolean | null
+          conversion_detected_at: string | null
+          conversion_event_type: string | null
           created_at: string
           id: string
           message: string | null
@@ -180,6 +183,9 @@ export type Database = {
         Insert: {
           affiliate_user_id: string
           channel?: string
+          conversion_after_nudge?: boolean | null
+          conversion_detected_at?: string | null
+          conversion_event_type?: string | null
           created_at?: string
           id?: string
           message?: string | null
@@ -189,6 +195,9 @@ export type Database = {
         Update: {
           affiliate_user_id?: string
           channel?: string
+          conversion_after_nudge?: boolean | null
+          conversion_detected_at?: string | null
+          conversion_event_type?: string | null
           created_at?: string
           id?: string
           message?: string | null
@@ -9367,6 +9376,18 @@ export type Database = {
           },
         ]
       }
+      nudge_impact_analytics: {
+        Row: {
+          conversion_rate: number | null
+          converted: number | null
+          converted_today: number | null
+          delivered: number | null
+          nudge_type: string | null
+          sent_today: number | null
+          total_sent: number | null
+        }
+        Relationships: []
+      }
       profiles_safe: {
         Row: {
           business_type: string | null
@@ -9880,6 +9901,7 @@ export type Database = {
           supplier_strength_score: number
         }[]
       }
+      detect_nudge_conversions: { Args: never; Returns: undefined }
       ensure_buyer_company: { Args: { _user_id: string }; Returns: Json }
       ensure_requirement_item_exists: {
         Args: {
