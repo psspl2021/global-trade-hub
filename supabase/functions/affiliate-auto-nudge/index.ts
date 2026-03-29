@@ -213,11 +213,12 @@ serve(async (req) => {
       };
     });
 
-    // 5. Process nudges
-    let nudgedCount = 0;
+    // 5. Filter eligible candidates
     let skippedCooldown = 0;
     let skippedNoPhone = 0;
-    const nudgeResults: Array<{ user_id: string; type: string; sent: boolean }> = [];
+    let skippedDuplicateType = 0;
+
+    const eligibleNudges: Array<{ candidate: AffiliateNudgeCandidate; nudge: { type: string; message: string }; phone: string }> = [];
 
     for (const candidate of candidates) {
       // Check cooldown
@@ -232,35 +233,60 @@ serve(async (req) => {
       const nudge = getNudgeType(candidate);
       if (!nudge) continue;
 
-      const formattedPhone = candidate.phone ? formatPhone(candidate.phone) : null;
+      // Fix 3: Deduplication — skip if same nudge type as last
+      if (candidate.last_nudge_type === nudge.type) {
+        skippedDuplicateType++;
+        continue;
+      }
 
+      const formattedPhone = candidate.phone ? formatPhone(candidate.phone) : null;
       if (!formattedPhone) {
         skippedNoPhone++;
         continue;
       }
 
-      // Send WhatsApp
-      const sent = await sendWhatsAppViaBravo(formattedPhone, nudge.message);
+      eligibleNudges.push({ candidate, nudge, phone: formattedPhone });
+    }
 
-      // Log nudge regardless of send success (for tracking)
-      await supabase.from('affiliate_nudge_logs').insert({
-        affiliate_user_id: candidate.user_id,
-        nudge_type: nudge.type,
-        channel: sent ? 'whatsapp' : 'whatsapp_failed',
-        message: nudge.message,
-      });
+    // 6. Batch process in chunks of 15 to avoid timeouts
+    const BATCH_SIZE = 15;
+    let nudgedCount = 0;
+    const nudgeResults: Array<{ user_id: string; type: string; sent: boolean }> = [];
 
-      // Update last_nudged_at
-      await supabase
-        .from('affiliates')
-        .update({
-          last_nudged_at: new Date().toISOString(),
-          last_nudge_type: nudge.type,
+    for (let i = 0; i < eligibleNudges.length; i += BATCH_SIZE) {
+      const batch = eligibleNudges.slice(i, i + BATCH_SIZE);
+
+      const results = await Promise.all(
+        batch.map(async ({ candidate, nudge, phone }) => {
+          const sent = await sendWhatsAppViaBravo(phone, nudge.message);
+
+          // Log nudge regardless (for audit trail)
+          await supabase.from('affiliate_nudge_logs').insert({
+            affiliate_user_id: candidate.user_id,
+            nudge_type: nudge.type,
+            channel: sent ? 'whatsapp' : 'whatsapp_failed',
+            message: nudge.message,
+          });
+
+          // Fix 1: Only update cooldown if message was actually sent
+          if (sent) {
+            await supabase
+              .from('affiliates')
+              .update({
+                last_nudged_at: new Date().toISOString(),
+                last_nudge_type: nudge.type,
+              })
+              .eq('user_id', candidate.user_id);
+          }
+
+          return { user_id: candidate.user_id, type: nudge.type, sent };
         })
-        .eq('user_id', candidate.user_id);
+      );
 
-      nudgedCount++;
-      nudgeResults.push({ user_id: candidate.user_id, type: nudge.type, sent });
+      results.forEach(r => {
+        if (r.sent) nudgedCount++;
+        nudgeResults.push(r);
+      });
     }
 
     console.log(`[auto-nudge] Done. Nudged: ${nudgedCount}, Cooldown skipped: ${skippedCooldown}, No phone: ${skippedNoPhone}`);
