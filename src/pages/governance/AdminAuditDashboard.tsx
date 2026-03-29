@@ -71,6 +71,7 @@ import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
 import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
 import { CreditLeadsSummaryCard } from '@/components/admin/CreditLeadsSummaryCard';
 import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
+import { NudgeImpactPanel } from '@/components/admin/NudgeImpactPanel';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
@@ -87,7 +88,8 @@ type AdminView =
   | 'benchmarks'
   | 'ai-blog-gen'
   | 'enterprise'
-  | 'credit-leads';
+  | 'credit-leads'
+  | 'nudge-impact';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
@@ -289,6 +291,7 @@ export default function AdminAuditDashboard() {
       case 'ai-blog-gen': return <AIBlogGenerator />;
       case 'enterprise': return <EnterpriseControlCenter />;
       case 'credit-leads': return <CreditLeadsCard />;
+      case 'nudge-impact': return <NudgeImpactPanel />;
       default: return renderDashboard();
     }
   };
