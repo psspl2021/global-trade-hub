@@ -87,11 +87,9 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
     return false;
   }
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
   try {
-    // FIX #3: Timeout protection — abort if Brevo hangs > 8s
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-
     const res = await fetch("https://api.brevo.com/v3/whatsapp/sendMessage", {
       method: "POST",
       headers: {
@@ -106,19 +104,18 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
       signal: controller.signal,
     });
 
-    clearTimeout(timeout);
-
-    // FIX #2: Detect silent API failures (200 but error in body)
     const data = await res.json().catch(() => null);
     if (!res.ok || data?.message === 'error' || data?.status === 'failed') {
       console.error(`[auto-nudge] WhatsApp failed for ${phone}:`, data);
       return false;
     }
 
-    return true;
+    return !!data?.messageId || res.ok;
   } catch (err) {
     console.error(`[auto-nudge] Failed to send WhatsApp to ${phone}:`, err);
     return false;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
