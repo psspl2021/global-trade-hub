@@ -17,6 +17,7 @@ const corsHeaders = {
  * 
  * Sends WhatsApp via Brevo, logs nudge, updates last_nudged_at.
  * Cooldown: won't re-nudge within 3 days of last nudge.
+ * Daily limit: 150 nudges max per run.
  */
 
 interface AffiliateNudgeCandidate {
@@ -34,6 +35,7 @@ interface AffiliateNudgeCandidate {
 }
 
 const NUDGE_COOLDOWN_DAYS = 3;
+const MAX_DAILY_NUDGES = 150;
 const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
 
 function formatPhone(raw: string): string | null {
@@ -55,7 +57,6 @@ function getNudgeType(candidate: AffiliateNudgeCandidate): { type: string; messa
     ? (now - new Date(candidate.last_referral_at).getTime()) / dayMs
     : 999;
 
-  // Rule 1: Zero referrals, joined >= 2 days ago
   if (candidate.total_referrals === 0 && joinedDaysAgo >= 2) {
     return {
       type: 'activation',
@@ -63,7 +64,6 @@ function getNudgeType(candidate: AffiliateNudgeCandidate): { type: string; messa
     };
   }
 
-  // Rule 2: Has referrals but none rewarded, inactive >= 3 days
   if (candidate.total_referrals > 0 && candidate.rewarded_referrals === 0 && lastActiveDaysAgo >= 3) {
     return {
       type: 'conversion_push',
@@ -71,7 +71,6 @@ function getNudgeType(candidate: AffiliateNudgeCandidate): { type: string; messa
     };
   }
 
-  // Rule 3: Has rewarded referrals but inactive >= 5 days
   if (candidate.rewarded_referrals > 0 && lastActiveDaysAgo >= 5) {
     return {
       type: 'scale_up',
@@ -89,7 +88,6 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
   }
 
   try {
-    // Send via Brevo WhatsApp API
     const res = await fetch("https://api.brevo.com/v3/whatsapp/sendMessage", {
       method: "POST",
       headers: {
@@ -109,7 +107,7 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
       return false;
     }
     
-    await res.text(); // consume response
+    await res.text();
     return true;
   } catch (err) {
     console.error(`[auto-nudge] Failed to send WhatsApp to ${phone}:`, err);
@@ -123,12 +121,10 @@ serve(async (req) => {
   }
 
   try {
-    // Verify cron secret for security
     const cronSecret = Deno.env.get("CRON_SECRET");
     const authHeader = req.headers.get("Authorization");
     
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      // Also allow service role key
       const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
       if (!authHeader?.includes(supabaseAnonKey || "___")) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -145,6 +141,9 @@ serve(async (req) => {
     });
 
     console.log("[auto-nudge] Starting affiliate auto-nudge...");
+
+    // Run conversion detection ONCE at top (not per batch)
+    await supabase.rpc('detect_nudge_conversions');
 
     // 1. Get all affiliate user IDs
     const { data: roleRows, error: roleError } = await supabase
@@ -215,7 +214,7 @@ serve(async (req) => {
       };
     });
 
-    // 5. Filter eligible candidates + priority scoring
+    // 5. Filter eligible candidates + improved priority scoring
     let skippedCooldown = 0;
     let skippedNoPhone = 0;
     let skippedDuplicateType = 0;
@@ -223,7 +222,6 @@ serve(async (req) => {
     const eligibleNudges: Array<{ candidate: AffiliateNudgeCandidate; nudge: { type: string; message: string }; phone: string; priorityScore: number }> = [];
 
     for (const candidate of candidates) {
-      // Check cooldown
       if (candidate.last_nudged_at) {
         const daysSinceNudge = (Date.now() - new Date(candidate.last_nudged_at).getTime()) / 86400000;
         if (daysSinceNudge < NUDGE_COOLDOWN_DAYS) {
@@ -235,7 +233,6 @@ serve(async (req) => {
       const nudge = getNudgeType(candidate);
       if (!nudge) continue;
 
-      // Deduplication — skip if same nudge type as last
       if (candidate.last_nudge_type === nudge.type) {
         skippedDuplicateType++;
         continue;
@@ -247,36 +244,67 @@ serve(async (req) => {
         continue;
       }
 
-      // Priority scoring: higher = nudge first
+      // Improved priority scoring
       const joinedDaysAgo = candidate.joined_at
         ? (Date.now() - new Date(candidate.joined_at).getTime()) / 86400000
         : 999;
+      const daysSinceLastReferral = candidate.last_referral_at
+        ? (Date.now() - new Date(candidate.last_referral_at).getTime()) / 86400000
+        : 999;
+
       const priorityScore =
-        (formattedPhone ? 3 : 0) +
-        (joinedDaysAgo <= 7 ? 2 : 0) +
+        (formattedPhone ? 4 : 0) +                      // reachable = highest
+        (candidate.rewarded_referrals === 0 ? 3 : 0) +  // not earning = push harder
         (candidate.total_referrals > 0 ? 2 : 0) +
-        (candidate.signed_up_referrals > 0 ? 3 : 0);
+        (candidate.signed_up_referrals > 0 ? 2 : 0) +
+        (daysSinceLastReferral >= 3 ? 2 : 0) +          // inactive = priority
+        (joinedDaysAgo <= 3 ? 1 : 0);                   // fresh user boost
 
       eligibleNudges.push({ candidate, nudge, phone: formattedPhone, priorityScore });
     }
 
-    // Sort by priority (highest first) so best leads get nudged first
+    // Sort by priority (highest first)
     eligibleNudges.sort((a, b) => b.priorityScore - a.priorityScore);
 
-    // 6. Run conversion detection before sending new nudges
-    await supabase.rpc('detect_nudge_conversions');
-
-    // 7. Batch process in chunks of 15 to avoid timeouts
+    // 6. Batch process with daily limit + idempotency guard
     const BATCH_SIZE = 15;
     let nudgedCount = 0;
     const nudgeResults: Array<{ user_id: string; type: string; sent: boolean }> = [];
+    let dailyLimitReached = false;
 
     for (let i = 0; i < eligibleNudges.length; i += BATCH_SIZE) {
+      // Hard daily send limit
+      if (nudgedCount >= MAX_DAILY_NUDGES) {
+        console.log('[auto-nudge] Daily limit reached');
+        dailyLimitReached = true;
+        break;
+      }
+
       const batch = eligibleNudges.slice(i, i + BATCH_SIZE);
 
       const results = await Promise.all(
         batch.map(async ({ candidate, nudge, phone }) => {
-          const sent = await sendWhatsAppViaBravo(phone, nudge.message);
+          // Hard idempotency guard — check for duplicate send in last 24hrs
+          const { data: alreadyProcessed } = await supabase
+            .from('affiliate_nudge_logs')
+            .select('id')
+            .eq('affiliate_user_id', candidate.user_id)
+            .eq('nudge_type', nudge.type)
+            .gte('sent_at', new Date(Date.now() - 86400000).toISOString())
+            .limit(1);
+
+          if (alreadyProcessed?.length) {
+            skippedDuplicateType++;
+            return { user_id: candidate.user_id, type: nudge.type, sent: false };
+          }
+
+          let sent = await sendWhatsAppViaBravo(phone, nudge.message);
+
+          // Retry once on failure
+          if (!sent) {
+            await new Promise(res => setTimeout(res, 300));
+            sent = await sendWhatsAppViaBravo(phone, nudge.message);
+          }
 
           // Log nudge regardless (for audit trail)
           await supabase.from('affiliate_nudge_logs').insert({
@@ -287,7 +315,7 @@ serve(async (req) => {
             sent_at: new Date().toISOString(),
           });
 
-          // Idempotent update: only set cooldown if older than 1 day (prevents race conditions)
+          // Idempotent update cooldown
           if (sent) {
             const oneDayAgo = new Date(Date.now() - 86400000).toISOString();
             await supabase
@@ -309,13 +337,25 @@ serve(async (req) => {
         nudgeResults.push(r);
       });
 
-      // Rate-limit pause between batches to avoid Brevo throttling
+      // Rate-limit pause between batches
       if (i + BATCH_SIZE < eligibleNudges.length) {
         await new Promise(res => setTimeout(res, 500));
       }
     }
 
-    console.log(`[auto-nudge] Done. Nudged: ${nudgedCount}, Cooldown: ${skippedCooldown}, No phone: ${skippedNoPhone}, Duplicate type: ${skippedDuplicateType}`);
+    const failedCount = nudgeResults.filter(r => !r.sent).length;
+
+    // Log summary
+    console.log('[auto-nudge summary]', {
+      total_candidates: candidates.length,
+      eligible: eligibleNudges.length,
+      sent: nudgedCount,
+      failed: failedCount,
+      skippedCooldown,
+      skippedNoPhone,
+      skippedDuplicateType,
+      dailyLimitReached,
+    });
 
     // Log to admin activity
     if (nudgedCount > 0) {
@@ -324,9 +364,11 @@ serve(async (req) => {
         admin_id: '00000000-0000-0000-0000-000000000000',
         metadata: {
           nudged: nudgedCount,
+          failed: failedCount,
           skipped_cooldown: skippedCooldown,
           skipped_no_phone: skippedNoPhone,
           skipped_duplicate_type: skippedDuplicateType,
+          daily_limit_reached: dailyLimitReached,
           results: nudgeResults,
           run_at: new Date().toISOString(),
         },
@@ -337,10 +379,12 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         nudged: nudgedCount,
+        failed: failedCount,
         skipped_cooldown: skippedCooldown,
         skipped_no_phone: skippedNoPhone,
         skipped_duplicate_type: skippedDuplicateType,
         total_affiliates: candidates.length,
+        daily_limit_reached: dailyLimitReached,
         success_rate: eligibleNudges.length > 0
           ? Math.round((nudgedCount / eligibleNudges.length) * 100 * 100) / 100
           : 0,
