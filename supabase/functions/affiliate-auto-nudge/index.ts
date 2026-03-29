@@ -110,7 +110,7 @@ async function sendWhatsAppViaBravo(phone: string, message: string): Promise<boo
       return false;
     }
 
-    return !!data?.messageId || res.ok;
+    return !!data?.messageId || data?.status === 'queued';
   } catch (err) {
     console.error(`[auto-nudge] Failed to send WhatsApp to ${phone}:`, err);
     return false;
