@@ -215,12 +215,12 @@ serve(async (req) => {
       };
     });
 
-    // 5. Filter eligible candidates
+    // 5. Filter eligible candidates + priority scoring
     let skippedCooldown = 0;
     let skippedNoPhone = 0;
     let skippedDuplicateType = 0;
 
-    const eligibleNudges: Array<{ candidate: AffiliateNudgeCandidate; nudge: { type: string; message: string }; phone: string }> = [];
+    const eligibleNudges: Array<{ candidate: AffiliateNudgeCandidate; nudge: { type: string; message: string }; phone: string; priorityScore: number }> = [];
 
     for (const candidate of candidates) {
       // Check cooldown
@@ -235,7 +235,7 @@ serve(async (req) => {
       const nudge = getNudgeType(candidate);
       if (!nudge) continue;
 
-      // Fix 3: Deduplication — skip if same nudge type as last
+      // Deduplication — skip if same nudge type as last
       if (candidate.last_nudge_type === nudge.type) {
         skippedDuplicateType++;
         continue;
@@ -247,10 +247,26 @@ serve(async (req) => {
         continue;
       }
 
-      eligibleNudges.push({ candidate, nudge, phone: formattedPhone });
+      // Priority scoring: higher = nudge first
+      const joinedDaysAgo = candidate.joined_at
+        ? (Date.now() - new Date(candidate.joined_at).getTime()) / 86400000
+        : 999;
+      const priorityScore =
+        (formattedPhone ? 3 : 0) +
+        (joinedDaysAgo <= 7 ? 2 : 0) +
+        (candidate.total_referrals > 0 ? 2 : 0) +
+        (candidate.signed_up_referrals > 0 ? 3 : 0);
+
+      eligibleNudges.push({ candidate, nudge, phone: formattedPhone, priorityScore });
     }
 
-    // 6. Batch process in chunks of 15 to avoid timeouts
+    // Sort by priority (highest first) so best leads get nudged first
+    eligibleNudges.sort((a, b) => b.priorityScore - a.priorityScore);
+
+    // 6. Run conversion detection before sending new nudges
+    await supabase.rpc('detect_nudge_conversions');
+
+    // 7. Batch process in chunks of 15 to avoid timeouts
     const BATCH_SIZE = 15;
     let nudgedCount = 0;
     const nudgeResults: Array<{ user_id: string; type: string; sent: boolean }> = [];

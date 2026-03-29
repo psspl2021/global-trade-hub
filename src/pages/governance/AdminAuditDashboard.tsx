@@ -43,7 +43,8 @@ import {
   Globe,
   Monitor,
   Smartphone,
-  Home
+  Home,
+  Zap
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
@@ -71,6 +72,7 @@ import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
 import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
 import { CreditLeadsSummaryCard } from '@/components/admin/CreditLeadsSummaryCard';
 import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
+import { NudgeImpactPanel } from '@/components/admin/NudgeImpactPanel';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
@@ -87,7 +89,8 @@ type AdminView =
   | 'benchmarks'
   | 'ai-blog-gen'
   | 'enterprise'
-  | 'credit-leads';
+  | 'credit-leads'
+  | 'nudge-impact';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
@@ -289,6 +292,7 @@ export default function AdminAuditDashboard() {
       case 'ai-blog-gen': return <AIBlogGenerator />;
       case 'enterprise': return <EnterpriseControlCenter />;
       case 'credit-leads': return <CreditLeadsCard />;
+      case 'nudge-impact': return <NudgeImpactPanel />;
       default: return renderDashboard();
     }
   };
@@ -524,6 +528,17 @@ export default function AdminAuditDashboard() {
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">View referral stats & top referrers leaderboard</p>
             <Button variant="outline" className="w-full" onClick={() => setShowReferrals(true)}><Eye className="h-4 w-4 mr-2" />View Referral Stats</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 8b — Nudge Intelligence */}
+      <div className="grid grid-cols-1 gap-4">
+        <Card className="bg-card border">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Zap className="h-4 w-4 text-yellow-500" />Nudge Intelligence</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">Track affiliate nudge performance, conversions & revenue impact</p>
+            <Button variant="outline" className="w-full" onClick={() => setCurrentView('nudge-impact')}><Zap className="h-4 w-4 mr-2" />Open Nudge Impact Panel</Button>
           </CardContent>
         </Card>
       </div>
