@@ -207,6 +207,7 @@ serve(async (req) => {
         email: profile?.email || '',
         joined_at: aff?.joined_at || null,
         last_nudged_at: aff?.last_nudged_at || null,
+        last_nudge_type: aff?.last_nudge_type || null,
         total_referrals: stats.total,
         signed_up_referrals: stats.signedUp,
         rewarded_referrals: stats.rewarded,
