@@ -16,6 +16,8 @@ interface AffiliateUser {
   phone: string;
   created_at: string;
   last_referral_at: string | null;
+  last_nudged_at: string | null;
+  last_nudge_type: string | null;
   gstin: string | null;
   address: string | null;
   kyc_verified: boolean | null;
@@ -147,9 +149,9 @@ export const AffiliateUsersBoard = () => {
           .from('profiles')
           .select('id, contact_person, company_name, email, phone, created_at, gstin, address, kyc_verified, bank_name, bank_account_number, bank_ifsc_code')
           .in('id', userIds),
-        supabase
+      supabase
           .from('affiliates')
-          .select('user_id, status, joined_at, activated_at, updated_at')
+          .select('user_id, status, joined_at, activated_at, updated_at, last_nudged_at, last_nudge_type')
           .in('user_id', userIds),
         supabase
           .from('affiliate_eligibility')
@@ -193,6 +195,8 @@ export const AffiliateUsersBoard = () => {
           phone: profile?.phone || '—',
           created_at: profile?.created_at || '',
           last_referral_at: stats.lastReferralAt,
+          last_nudged_at: (aff as any)?.last_nudged_at || null,
+          last_nudge_type: (aff as any)?.last_nudge_type || null,
           gstin: profile?.gstin || null,
           address: profile?.address || null,
           kyc_verified: profile?.kyc_verified || null,
