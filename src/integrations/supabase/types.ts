@@ -9385,6 +9385,7 @@ export type Database = {
           effectiveness_score: number | null
           failed: number | null
           failed_today: number | null
+          no_conversion: number | null
           nudge_type: string | null
           sent_today: number | null
           total_sent: number | null
