@@ -25,20 +25,35 @@ interface NudgeStats {
 
 export function NudgeImpactPanel() {
   const [stats, setStats] = useState<NudgeStats[]>([]);
+  const [avgCommission, setAvgCommission] = useState(5000);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { toast } = useToast();
 
   const fetchStats = async () => {
-    const { data, error } = await supabase
-      .from('nudge_impact_analytics')
-      .select('*');
+    // Fetch analytics and dynamic commission in parallel
+    const [analyticsRes, commissionRes] = await Promise.all([
+      supabase.from('nudge_impact_analytics').select('*'),
+      // FIX #5: Dynamic revenue estimation
+      supabase
+        .from('referral_commissions' as any)
+        .select('commission_amount')
+        .limit(50),
+    ]);
 
-    if (error) {
-      console.error('[NudgeImpactPanel] Error:', error);
-      return;
+    if (analyticsRes.error) {
+      console.error('[NudgeImpactPanel] Error:', analyticsRes.error);
+    } else {
+      setStats((analyticsRes.data as unknown as NudgeStats[]) || []);
     }
-    setStats((data as unknown as NudgeStats[]) || []);
+
+    // Calculate dynamic avg commission (fallback to 5000)
+    const commissions = (commissionRes.data as any[]) || [];
+    if (commissions.length > 0) {
+      const avg = commissions.reduce((s: number, c: any) => s + (c.commission_amount || 0), 0) / commissions.length;
+      if (avg > 0) setAvgCommission(Math.round(avg));
+    }
+
     setLoading(false);
     setRefreshing(false);
   };
@@ -68,7 +83,6 @@ export function NudgeImpactPanel() {
     ? Math.round((totals.converted / totals.delivered) * 100)
     : 0;
 
-  const avgCommission = 5000;
   const estimatedRevenue = totals.converted * avgCommission;
   const estimatedRevenueToday = totals.convertedToday * avgCommission;
 

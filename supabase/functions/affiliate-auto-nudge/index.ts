@@ -17,7 +17,7 @@ const corsHeaders = {
  * 
  * Sends WhatsApp via Brevo, logs nudge, updates last_nudged_at.
  * Cooldown: won't re-nudge within 3 days of last nudge.
- * Daily limit: 150 nudges max per run.
+ * Daily limit: 150 nudges max per run (enforced per-item, not per-batch).
  */
 
 interface AffiliateNudgeCandidate {
@@ -142,7 +142,7 @@ serve(async (req) => {
 
     console.log("[auto-nudge] Starting affiliate auto-nudge...");
 
-    // Run conversion detection ONCE at top (not per batch)
+    // Run conversion detection BEFORE processing (catch previous run's conversions)
     await supabase.rpc('detect_nudge_conversions');
 
     // 1. Get all affiliate user IDs
@@ -160,8 +160,8 @@ serve(async (req) => {
 
     const userIds = roleRows.map(r => r.user_id);
 
-    // 2. Fetch profiles, affiliates, referrals in parallel
-    const [profilesRes, affiliatesRes, referralsRes] = await Promise.all([
+    // 2. Fetch profiles, affiliates, referrals, AND recent nudges in parallel
+    const [profilesRes, affiliatesRes, referralsRes, recentNudgesRes] = await Promise.all([
       supabase
         .from('profiles')
         .select('id, contact_person, phone, email')
@@ -174,11 +174,21 @@ serve(async (req) => {
         .from('referrals')
         .select('referrer_id, status, created_at')
         .in('referrer_id', userIds),
+      // FIX #2: Pre-fetch all recent nudges in ONE query (no per-candidate DB hit)
+      supabase
+        .from('affiliate_nudge_logs')
+        .select('affiliate_user_id, nudge_type')
+        .gte('sent_at', new Date(Date.now() - 86400000).toISOString()),
     ]);
 
     const profiles = profilesRes.data || [];
     const affiliates = affiliatesRes.data || [];
     const referrals = referralsRes.data || [];
+
+    // Build recent nudge dedup set
+    const recentNudgeSet = new Set(
+      (recentNudgesRes.data || []).map(n => `${n.affiliate_user_id}_${n.nudge_type}`)
+    );
 
     // 3. Build referral stats
     const refStats = new Map<string, { total: number; signedUp: number; rewarded: number; lastReferralAt: string | null }>();
@@ -233,6 +243,12 @@ serve(async (req) => {
       const nudge = getNudgeType(candidate);
       if (!nudge) continue;
 
+      // FIX #2: Use pre-fetched Set instead of per-candidate DB query
+      if (recentNudgeSet.has(`${candidate.user_id}_${nudge.type}`)) {
+        skippedDuplicateType++;
+        continue;
+      }
+
       if (candidate.last_nudge_type === nudge.type) {
         skippedDuplicateType++;
         continue;
@@ -253,12 +269,12 @@ serve(async (req) => {
         : 999;
 
       const priorityScore =
-        (formattedPhone ? 4 : 0) +                      // reachable = highest
-        (candidate.rewarded_referrals === 0 ? 3 : 0) +  // not earning = push harder
+        (formattedPhone ? 4 : 0) +
+        (candidate.rewarded_referrals === 0 ? 3 : 0) +
         (candidate.total_referrals > 0 ? 2 : 0) +
         (candidate.signed_up_referrals > 0 ? 2 : 0) +
-        (daysSinceLastReferral >= 3 ? 2 : 0) +          // inactive = priority
-        (joinedDaysAgo <= 3 ? 1 : 0);                   // fresh user boost
+        (daysSinceLastReferral >= 3 ? 2 : 0) +
+        (joinedDaysAgo <= 3 ? 1 : 0);
 
       eligibleNudges.push({ candidate, nudge, phone: formattedPhone, priorityScore });
     }
@@ -266,16 +282,14 @@ serve(async (req) => {
     // Sort by priority (highest first)
     eligibleNudges.sort((a, b) => b.priorityScore - a.priorityScore);
 
-    // 6. Batch process with daily limit + idempotency guard
+    // 6. Batch process with per-item daily limit enforcement
     const BATCH_SIZE = 15;
     let nudgedCount = 0;
     const nudgeResults: Array<{ user_id: string; type: string; sent: boolean }> = [];
     let dailyLimitReached = false;
 
     for (let i = 0; i < eligibleNudges.length; i += BATCH_SIZE) {
-      // Hard daily send limit
       if (nudgedCount >= MAX_DAILY_NUDGES) {
-        console.log('[auto-nudge] Daily limit reached');
         dailyLimitReached = true;
         break;
       }
@@ -284,26 +298,20 @@ serve(async (req) => {
 
       const results = await Promise.all(
         batch.map(async ({ candidate, nudge, phone }) => {
-          // Hard idempotency guard — check for duplicate send in last 24hrs
-          const { data: alreadyProcessed } = await supabase
-            .from('affiliate_nudge_logs')
-            .select('id')
-            .eq('affiliate_user_id', candidate.user_id)
-            .eq('nudge_type', nudge.type)
-            .gte('sent_at', new Date(Date.now() - 86400000).toISOString())
-            .limit(1);
-
-          if (alreadyProcessed?.length) {
-            skippedDuplicateType++;
-            return { user_id: candidate.user_id, type: nudge.type, sent: false };
+          // FIX #1: Per-item limit check inside batch
+          if (nudgedCount >= MAX_DAILY_NUDGES) {
+            return null;
           }
 
           let sent = await sendWhatsAppViaBravo(phone, nudge.message);
 
-          // Retry once on failure
+          // FIX #4: Safe retry — only if original definitively failed
           if (!sent) {
             await new Promise(res => setTimeout(res, 300));
-            sent = await sendWhatsAppViaBravo(phone, nudge.message);
+            const retrySent = await sendWhatsAppViaBravo(phone, nudge.message);
+            if (retrySent && !sent) {
+              sent = true;
+            }
           }
 
           // Log nudge regardless (for audit trail)
@@ -332,18 +340,25 @@ serve(async (req) => {
         })
       );
 
+      // FIX #1: Only count results up to the limit
       results.forEach(r => {
-        if (r.sent) nudgedCount++;
+        if (r === null) return;
+        if (r.sent && nudgedCount < MAX_DAILY_NUDGES) {
+          nudgedCount++;
+        }
         nudgeResults.push(r);
       });
 
       // Rate-limit pause between batches
-      if (i + BATCH_SIZE < eligibleNudges.length) {
+      if (i + BATCH_SIZE < eligibleNudges.length && nudgedCount < MAX_DAILY_NUDGES) {
         await new Promise(res => setTimeout(res, 500));
       }
     }
 
     const failedCount = nudgeResults.filter(r => !r.sent).length;
+
+    // FIX #3: Run conversion detection AFTER all sends too (catch edge timing)
+    await supabase.rpc('detect_nudge_conversions');
 
     // Log summary
     console.log('[auto-nudge summary]', {
