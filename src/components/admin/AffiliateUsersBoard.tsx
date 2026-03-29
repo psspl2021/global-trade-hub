@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, RefreshCw, Phone, Mail, Calendar, Shield, CheckCircle2, XCircle, Clock, Download } from 'lucide-react';
+import { Loader2, Users, RefreshCw, Phone, Mail, Calendar, Shield, CheckCircle2, XCircle, Clock, Download, AlertTriangle, MessageSquare } from 'lucide-react';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 interface AffiliateUser {
@@ -159,10 +160,27 @@ export const AffiliateUsersBoard = () => {
     URL.revokeObjectURL(url);
   };
 
+  const getSegmentBadge = (user: AffiliateUser) => {
+    if (user.rewarded_referrals > 0) return <Badge variant="success-soft" className="text-xs gap-1">🟢 Earning</Badge>;
+    if (user.total_referrals > 0) return <Badge variant="primary-soft" className="text-xs gap-1">🔵 Trying</Badge>;
+    return <Badge variant="warning-soft" className="text-xs gap-1">🟡 New</Badge>;
+  };
+
+  const handleNudge = (user: AffiliateUser) => {
+    const message = `Hi ${user.contact_person}, you can start earning by inviting suppliers. Share your link with 5 contacts to unlock your first commission.`;
+    if (user.phone && user.phone !== '—') {
+      const cleanPhone = user.phone.replace(/\D/g, '');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+      navigator.clipboard.writeText(message);
+      toast.success('Nudge message copied to clipboard');
+    }
+  };
+
   const getStatusBadge = (status: string | null) => {
     switch (status) {
-      case 'ACTIVE': return <Badge className="bg-green-500 hover:bg-green-600 text-xs"><CheckCircle2 className="h-3 w-3 mr-1" />Active</Badge>;
-      case 'PENDING': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+      case 'ACTIVE': return <Badge variant="active" className="text-xs"><CheckCircle2 className="h-3 w-3 mr-1" />Active</Badge>;
+      case 'PENDING': return <Badge variant="pending" className="text-xs"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
       case 'WAITLISTED': return <Badge variant="outline" className="text-xs"><Clock className="h-3 w-3 mr-1" />Waitlisted</Badge>;
       default: return <Badge variant="outline" className="text-xs">{status || 'Active'}</Badge>;
     }
@@ -170,7 +188,7 @@ export const AffiliateUsersBoard = () => {
 
   const getKYCBadge = (kyc: boolean | null, eligKyc: boolean | null) => {
     const verified = kyc || eligKyc;
-    if (verified) return <Badge className="bg-green-500 hover:bg-green-600 text-xs gap-1"><Shield className="h-3 w-3" />Verified</Badge>;
+    if (verified) return <Badge variant="success-soft" className="text-xs gap-1"><Shield className="h-3 w-3" />Verified</Badge>;
     return <Badge variant="outline" className="text-xs text-muted-foreground gap-1"><XCircle className="h-3 w-3" />Pending</Badge>;
   };
 
@@ -213,12 +231,16 @@ export const AffiliateUsersBoard = () => {
                 <TableRow>
                   <TableHead>#</TableHead>
                   <TableHead>Name / Company</TableHead>
+                  <TableHead>Segment</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>KYC</TableHead>
                   <TableHead>Documents</TableHead>
                   <TableHead className="text-center">Referrals</TableHead>
+                  <TableHead className="text-center">Signed Up</TableHead>
+                  <TableHead className="text-center">Rewarded</TableHead>
+                  <TableHead>Action</TableHead>
                   <TableHead className="text-center">Signed Up</TableHead>
                   <TableHead className="text-center">Rewarded</TableHead>
                 </TableRow>
@@ -231,8 +253,15 @@ export const AffiliateUsersBoard = () => {
                       <div>
                         <p className="font-medium">{user.contact_person}</p>
                         <p className="text-sm text-muted-foreground">{user.company_name}</p>
+                        {user.total_referrals === 0 && (
+                          <p className="text-xs text-warning flex items-center gap-1 mt-1">
+                            <AlertTriangle className="h-3 w-3" />
+                            Not started — hasn't invited any suppliers yet
+                          </p>
+                        )}
                       </div>
                     </TableCell>
+                    <TableCell>{getSegmentBadge(user)}</TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-sm">
@@ -282,7 +311,15 @@ export const AffiliateUsersBoard = () => {
                       <Badge variant="secondary">{user.signed_up_referrals}</Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge className="bg-green-500 hover:bg-green-600">{user.rewarded_referrals}</Badge>
+                      <Badge variant="success-soft">{user.rewarded_referrals}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.total_referrals === 0 && (
+                        <Button variant="outline" size="sm" onClick={() => handleNudge(user)} className="gap-1 text-xs">
+                          <MessageSquare className="h-3 w-3" />
+                          Send Reminder
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
