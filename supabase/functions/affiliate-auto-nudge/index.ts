@@ -26,6 +26,7 @@ interface AffiliateNudgeCandidate {
   email: string;
   joined_at: string | null;
   last_nudged_at: string | null;
+  last_nudge_type: string | null;
   total_referrals: number;
   signed_up_referrals: number;
   rewarded_referrals: number;
@@ -168,7 +169,7 @@ serve(async (req) => {
         .in('id', userIds),
       supabase
         .from('affiliates')
-        .select('user_id, joined_at, last_nudged_at')
+        .select('user_id, joined_at, last_nudged_at, last_nudge_type')
         .in('user_id', userIds),
       supabase
         .from('referrals')
