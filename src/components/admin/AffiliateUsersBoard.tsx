@@ -231,12 +231,16 @@ export const AffiliateUsersBoard = () => {
                 <TableRow>
                   <TableHead>#</TableHead>
                   <TableHead>Name / Company</TableHead>
+                  <TableHead>Segment</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>KYC</TableHead>
                   <TableHead>Documents</TableHead>
                   <TableHead className="text-center">Referrals</TableHead>
+                  <TableHead className="text-center">Signed Up</TableHead>
+                  <TableHead className="text-center">Rewarded</TableHead>
+                  <TableHead>Action</TableHead>
                   <TableHead className="text-center">Signed Up</TableHead>
                   <TableHead className="text-center">Rewarded</TableHead>
                 </TableRow>
