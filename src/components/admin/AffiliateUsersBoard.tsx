@@ -273,7 +273,12 @@ export const AffiliateUsersBoard = () => {
     const message = getNudgeMessage(user);
     if (user.phone && user.phone !== '—') {
       const cleanPhone = user.phone.replace(/\D/g, '');
-      const number = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+      let number = cleanPhone;
+      if (cleanPhone.startsWith('91') && cleanPhone.length === 12) {
+        number = cleanPhone;
+      } else if (cleanPhone.length === 10) {
+        number = `91${cleanPhone}`;
+      }
       window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
     } else {
       navigator.clipboard.writeText(message);
