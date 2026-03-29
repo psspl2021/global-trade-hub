@@ -26,6 +26,7 @@ interface AffiliateNudgeCandidate {
   email: string;
   joined_at: string | null;
   last_nudged_at: string | null;
+  last_nudge_type: string | null;
   total_referrals: number;
   signed_up_referrals: number;
   rewarded_referrals: number;
@@ -168,7 +169,7 @@ serve(async (req) => {
         .in('id', userIds),
       supabase
         .from('affiliates')
-        .select('user_id, joined_at, last_nudged_at')
+        .select('user_id, joined_at, last_nudged_at, last_nudge_type')
         .in('user_id', userIds),
       supabase
         .from('referrals')
@@ -206,6 +207,7 @@ serve(async (req) => {
         email: profile?.email || '',
         joined_at: aff?.joined_at || null,
         last_nudged_at: aff?.last_nudged_at || null,
+        last_nudge_type: aff?.last_nudge_type || null,
         total_referrals: stats.total,
         signed_up_referrals: stats.signedUp,
         rewarded_referrals: stats.rewarded,
@@ -213,11 +215,12 @@ serve(async (req) => {
       };
     });
 
-    // 5. Process nudges
-    let nudgedCount = 0;
+    // 5. Filter eligible candidates
     let skippedCooldown = 0;
     let skippedNoPhone = 0;
-    const nudgeResults: Array<{ user_id: string; type: string; sent: boolean }> = [];
+    let skippedDuplicateType = 0;
+
+    const eligibleNudges: Array<{ candidate: AffiliateNudgeCandidate; nudge: { type: string; message: string }; phone: string }> = [];
 
     for (const candidate of candidates) {
       // Check cooldown
@@ -232,38 +235,63 @@ serve(async (req) => {
       const nudge = getNudgeType(candidate);
       if (!nudge) continue;
 
-      const formattedPhone = candidate.phone ? formatPhone(candidate.phone) : null;
+      // Fix 3: Deduplication — skip if same nudge type as last
+      if (candidate.last_nudge_type === nudge.type) {
+        skippedDuplicateType++;
+        continue;
+      }
 
+      const formattedPhone = candidate.phone ? formatPhone(candidate.phone) : null;
       if (!formattedPhone) {
         skippedNoPhone++;
         continue;
       }
 
-      // Send WhatsApp
-      const sent = await sendWhatsAppViaBravo(formattedPhone, nudge.message);
-
-      // Log nudge regardless of send success (for tracking)
-      await supabase.from('affiliate_nudge_logs').insert({
-        affiliate_user_id: candidate.user_id,
-        nudge_type: nudge.type,
-        channel: sent ? 'whatsapp' : 'whatsapp_failed',
-        message: nudge.message,
-      });
-
-      // Update last_nudged_at
-      await supabase
-        .from('affiliates')
-        .update({
-          last_nudged_at: new Date().toISOString(),
-          last_nudge_type: nudge.type,
-        })
-        .eq('user_id', candidate.user_id);
-
-      nudgedCount++;
-      nudgeResults.push({ user_id: candidate.user_id, type: nudge.type, sent });
+      eligibleNudges.push({ candidate, nudge, phone: formattedPhone });
     }
 
-    console.log(`[auto-nudge] Done. Nudged: ${nudgedCount}, Cooldown skipped: ${skippedCooldown}, No phone: ${skippedNoPhone}`);
+    // 6. Batch process in chunks of 15 to avoid timeouts
+    const BATCH_SIZE = 15;
+    let nudgedCount = 0;
+    const nudgeResults: Array<{ user_id: string; type: string; sent: boolean }> = [];
+
+    for (let i = 0; i < eligibleNudges.length; i += BATCH_SIZE) {
+      const batch = eligibleNudges.slice(i, i + BATCH_SIZE);
+
+      const results = await Promise.all(
+        batch.map(async ({ candidate, nudge, phone }) => {
+          const sent = await sendWhatsAppViaBravo(phone, nudge.message);
+
+          // Log nudge regardless (for audit trail)
+          await supabase.from('affiliate_nudge_logs').insert({
+            affiliate_user_id: candidate.user_id,
+            nudge_type: nudge.type,
+            channel: sent ? 'whatsapp' : 'whatsapp_failed',
+            message: nudge.message,
+          });
+
+          // Fix 1: Only update cooldown if message was actually sent
+          if (sent) {
+            await supabase
+              .from('affiliates')
+              .update({
+                last_nudged_at: new Date().toISOString(),
+                last_nudge_type: nudge.type,
+              })
+              .eq('user_id', candidate.user_id);
+          }
+
+          return { user_id: candidate.user_id, type: nudge.type, sent };
+        })
+      );
+
+      results.forEach(r => {
+        if (r.sent) nudgedCount++;
+        nudgeResults.push(r);
+      });
+    }
+
+    console.log(`[auto-nudge] Done. Nudged: ${nudgedCount}, Cooldown: ${skippedCooldown}, No phone: ${skippedNoPhone}, Duplicate type: ${skippedDuplicateType}`);
 
     // Log to admin activity
     if (nudgedCount > 0) {
@@ -274,6 +302,7 @@ serve(async (req) => {
           nudged: nudgedCount,
           skipped_cooldown: skippedCooldown,
           skipped_no_phone: skippedNoPhone,
+          skipped_duplicate_type: skippedDuplicateType,
           results: nudgeResults,
           run_at: new Date().toISOString(),
         },
@@ -286,6 +315,7 @@ serve(async (req) => {
         nudged: nudgedCount,
         skipped_cooldown: skippedCooldown,
         skipped_no_phone: skippedNoPhone,
+        skipped_duplicate_type: skippedDuplicateType,
         total_affiliates: candidates.length,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
