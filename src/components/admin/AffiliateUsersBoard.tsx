@@ -381,15 +381,16 @@ export const AffiliateUsersBoard = () => {
                     <TableHead>Segment</TableHead>
                     <TableHead>Score</TableHead>
                     <TableHead>Contact</TableHead>
-                    <TableHead>Last Active</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>KYC</TableHead>
-                    <TableHead>Documents</TableHead>
-                    <TableHead className="text-center">Referrals</TableHead>
-                    <TableHead className="text-center">Signed Up</TableHead>
-                    <TableHead className="text-center">Rewarded</TableHead>
-                    <TableHead className="text-right">Missed ₹</TableHead>
-                    <TableHead>Action</TableHead>
+                     <TableHead>Last Active</TableHead>
+                     <TableHead>Last Nudged</TableHead>
+                     <TableHead>Status</TableHead>
+                     <TableHead>KYC</TableHead>
+                     <TableHead>Documents</TableHead>
+                     <TableHead className="text-center">Referrals</TableHead>
+                     <TableHead className="text-center">Signed Up</TableHead>
+                     <TableHead className="text-center">Rewarded</TableHead>
+                     <TableHead className="text-right">Missed ₹</TableHead>
+                     <TableHead>Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -434,8 +435,22 @@ export const AffiliateUsersBoard = () => {
                         <TableCell>
                           <div className="flex items-center gap-1.5">
                             <Clock className="h-3 w-3 text-muted-foreground" />
-                            {getLastActive(user)}
+                           {getLastActive(user)}
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {user.last_nudged_at ? (
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-xs">{formatDistanceToNow(new Date(user.last_nudged_at), { addSuffix: true })}</span>
+                              {user.last_nudge_type && (
+                                <Badge variant="outline" className="text-[10px] px-1 py-0 w-fit">
+                                  {user.last_nudge_type === 'activation' ? '🟡 Activate' : user.last_nudge_type === 'conversion_push' ? '🔵 Guide' : '🟢 Scale'}
+                                </Badge>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Never</span>
+                          )}
                         </TableCell>
                         <TableCell>{getStatusBadge(user.affiliate_status)}</TableCell>
                         <TableCell>{getKYCBadge(user.kyc_verified, user.eligibility_kyc)}</TableCell>
