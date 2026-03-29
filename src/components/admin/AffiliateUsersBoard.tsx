@@ -273,7 +273,8 @@ export const AffiliateUsersBoard = () => {
     const message = getNudgeMessage(user);
     if (user.phone && user.phone !== '—') {
       const cleanPhone = user.phone.replace(/\D/g, '');
-      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+      const number = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+      window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
     } else {
       navigator.clipboard.writeText(message);
       toast.success('Nudge message copied to clipboard');
