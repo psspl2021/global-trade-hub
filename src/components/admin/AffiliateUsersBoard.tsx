@@ -311,7 +311,15 @@ export const AffiliateUsersBoard = () => {
                       <Badge variant="secondary">{user.signed_up_referrals}</Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge className="bg-green-500 hover:bg-green-600">{user.rewarded_referrals}</Badge>
+                      <Badge variant="success-soft">{user.rewarded_referrals}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.total_referrals === 0 && (
+                        <Button variant="outline" size="sm" onClick={() => handleNudge(user)} className="gap-1 text-xs">
+                          <MessageSquare className="h-3 w-3" />
+                          Send Reminder
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
