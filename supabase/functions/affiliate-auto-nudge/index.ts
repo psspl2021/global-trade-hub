@@ -194,13 +194,11 @@ serve(async (req) => {
         .then(r => r.data || []),
     ]);
 
-    const profiles = profilesRes.data || [];
-    const affiliates = affiliatesRes.data || [];
-    const referrals = referralsRes.data || [];
+    const affiliates = affiliatesArr;
 
     // Build recent nudge dedup set
     const recentNudgeSet = new Set(
-      (recentNudgesRes.data || []).map(n => `${n.affiliate_user_id}_${n.nudge_type}`)
+      (recentNudgesData as any[]).map(n => `${n.affiliate_user_id}_${n.nudge_type}`)
     );
 
     // 3. Build referral stats
