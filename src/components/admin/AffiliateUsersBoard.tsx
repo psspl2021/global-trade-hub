@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, RefreshCw, Phone, Mail, Calendar, Shield, CheckCircle2, XCircle, Clock, Download, AlertTriangle, MessageSquare } from 'lucide-react';
+import { Loader2, Users, RefreshCw, Phone, Mail, Calendar, Shield, CheckCircle2, XCircle, Clock, Download, AlertTriangle, MessageSquare, Zap, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 
 interface AffiliateUser {
   id: string;
@@ -28,7 +28,34 @@ interface AffiliateUser {
   total_referrals: number;
   signed_up_referrals: number;
   rewarded_referrals: number;
+  activation_score: number;
 }
+
+const getActivationScore = (total: number, signedUp: number, rewarded: number) =>
+  (total * 2) + (signedUp * 3) + (rewarded * 5);
+
+const getScoreLabel = (score: number) => {
+  if (score === 0) return { label: 'Inactive', emoji: '❌', variant: 'destructive-soft' as const };
+  if (score <= 5) return { label: 'Starting', emoji: '🟡', variant: 'warning-soft' as const };
+  if (score <= 15) return { label: 'Growing', emoji: '🔵', variant: 'primary-soft' as const };
+  return { label: 'Power', emoji: '🟢', variant: 'success-soft' as const };
+};
+
+const getSegmentPriority = (user: AffiliateUser) => {
+  if (user.total_referrals === 0) return 0; // New → highest priority
+  if (user.rewarded_referrals === 0) return 1; // Trying → medium
+  return 2; // Earning → low
+};
+
+const getNudgeMessage = (user: AffiliateUser) => {
+  if (user.total_referrals === 0) {
+    return `Hi ${user.contact_person}, you can start earning by inviting suppliers. Share your referral link with just 5 contacts to unlock your first commission. It takes 30 seconds!`;
+  }
+  if (user.rewarded_referrals === 0) {
+    return `Hi ${user.contact_person}, you're close! You've invited ${user.total_referrals} supplier(s) — help them complete signup to earn your commission. Guide them through the process!`;
+  }
+  return `Hi ${user.contact_person}, great work earning commissions! Scale this further — invite 10 more suppliers to unlock higher commission tiers and maximize your earnings.`;
+};
 
 export const AffiliateUsersBoard = () => {
   const [users, setUsers] = useState<AffiliateUser[]>([]);
@@ -37,7 +64,6 @@ export const AffiliateUsersBoard = () => {
   const fetchAffiliateUsers = async () => {
     setLoading(true);
     try {
-      // Step 1: Get all affiliate user IDs from user_roles
       const { data: roleRows, error: roleError } = await supabase
         .from('user_roles')
         .select('user_id')
@@ -52,7 +78,6 @@ export const AffiliateUsersBoard = () => {
 
       const userIds = roleRows.map(r => r.user_id);
 
-      // Step 2: Fetch profiles, affiliates registry, eligibility, and referrals in parallel
       const [profilesRes, affiliatesRes, eligibilityRes, referralsRes] = await Promise.all([
         supabase
           .from('profiles')
@@ -60,7 +85,7 @@ export const AffiliateUsersBoard = () => {
           .in('id', userIds),
         supabase
           .from('affiliates')
-          .select('user_id, status, joined_at')
+          .select('user_id, status, joined_at, activated_at, updated_at')
           .in('user_id', userIds),
         supabase
           .from('affiliate_eligibility')
@@ -77,7 +102,6 @@ export const AffiliateUsersBoard = () => {
       const eligibility = eligibilityRes.data || [];
       const referrals = referralsRes.data || [];
 
-      // Build referral stats map
       const refStats = new Map<string, { total: number; signedUp: number; rewarded: number }>();
       referrals.forEach(r => {
         const s = refStats.get(r.referrer_id) || { total: 0, signedUp: 0, rewarded: 0 };
@@ -87,7 +111,6 @@ export const AffiliateUsersBoard = () => {
         refStats.set(r.referrer_id, s);
       });
 
-      // Map to AffiliateUser
       const result: AffiliateUser[] = userIds.map(uid => {
         const profile = profiles.find(p => p.id === uid);
         const aff = affiliates.find(a => a.user_id === uid);
@@ -100,7 +123,7 @@ export const AffiliateUsersBoard = () => {
           company_name: profile?.company_name || '—',
           email: profile?.email || '—',
           phone: profile?.phone || '—',
-          created_at: profile?.created_at || '',
+          created_at: aff?.updated_at || aff?.activated_at || aff?.joined_at || profile?.created_at || '',
           gstin: profile?.gstin || null,
           address: profile?.address || null,
           kyc_verified: profile?.kyc_verified || null,
@@ -114,10 +137,18 @@ export const AffiliateUsersBoard = () => {
           total_referrals: stats.total,
           signed_up_referrals: stats.signedUp,
           rewarded_referrals: stats.rewarded,
+          activation_score: getActivationScore(stats.total, stats.signedUp, stats.rewarded),
         };
       });
 
-      result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      // Sort by priority: New (0 referrals) first, then Trying, then Earning
+      result.sort((a, b) => {
+        const pa = getSegmentPriority(a);
+        const pb = getSegmentPriority(b);
+        if (pa !== pb) return pa - pb;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
       setUsers(result);
     } catch (error) {
       console.error('[AffiliateUsersBoard] Error:', error);
@@ -139,6 +170,7 @@ export const AffiliateUsersBoard = () => {
       Phone: u.phone,
       'Joined At': u.affiliate_joined_at ? format(new Date(u.affiliate_joined_at), 'yyyy-MM-dd') : '—',
       Status: u.affiliate_status || '—',
+      'Activation Score': u.activation_score,
       GSTIN: u.gstin || '—',
       'KYC Verified': u.kyc_verified ? 'Yes' : 'No',
       'Bank Name': u.bank_name || '—',
@@ -167,7 +199,7 @@ export const AffiliateUsersBoard = () => {
   };
 
   const handleNudge = (user: AffiliateUser) => {
-    const message = `Hi ${user.contact_person}, you can start earning by inviting suppliers. Share your link with 5 contacts to unlock your first commission.`;
+    const message = getNudgeMessage(user);
     if (user.phone && user.phone !== '—') {
       const cleanPhone = user.phone.replace(/\D/g, '');
       window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
@@ -175,6 +207,17 @@ export const AffiliateUsersBoard = () => {
       navigator.clipboard.writeText(message);
       toast.success('Nudge message copied to clipboard');
     }
+  };
+
+  const handleNudgeAllInactive = () => {
+    const inactive = users.filter(u => u.total_referrals === 0);
+    if (inactive.length === 0) {
+      toast.info('No inactive affiliates found');
+      return;
+    }
+    const messages = inactive.map(u => `→ ${u.contact_person} (${u.phone || u.email}): ${getNudgeMessage(u)}`).join('\n\n');
+    navigator.clipboard.writeText(messages);
+    toast.success(`Nudge messages for ${inactive.length} inactive affiliates copied to clipboard`);
   };
 
   const getStatusBadge = (status: string | null) => {
@@ -192,6 +235,17 @@ export const AffiliateUsersBoard = () => {
     return <Badge variant="outline" className="text-xs text-muted-foreground gap-1"><XCircle className="h-3 w-3" />Pending</Badge>;
   };
 
+  const getLastActive = (dateStr: string) => {
+    if (!dateStr) return '—';
+    try {
+      return formatDistanceToNow(new Date(dateStr), { addSuffix: true });
+    } catch {
+      return '—';
+    }
+  };
+
+  const inactiveCount = users.filter(u => u.total_referrals === 0).length;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -208,6 +262,12 @@ export const AffiliateUsersBoard = () => {
           Affiliate Users ({users.length})
         </CardTitle>
         <div className="flex gap-2">
+          {inactiveCount > 0 && (
+            <Button variant="warning" size="sm" onClick={handleNudgeAllInactive} className="gap-1">
+              <Zap className="h-4 w-4" />
+              Nudge {inactiveCount} Inactive
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -232,8 +292,9 @@ export const AffiliateUsersBoard = () => {
                   <TableHead>#</TableHead>
                   <TableHead>Name / Company</TableHead>
                   <TableHead>Segment</TableHead>
+                  <TableHead>Score</TableHead>
                   <TableHead>Contact</TableHead>
-                  <TableHead>Joined</TableHead>
+                  <TableHead>Last Active</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>KYC</TableHead>
                   <TableHead>Documents</TableHead>
@@ -241,88 +302,93 @@ export const AffiliateUsersBoard = () => {
                   <TableHead className="text-center">Signed Up</TableHead>
                   <TableHead className="text-center">Rewarded</TableHead>
                   <TableHead>Action</TableHead>
-                  <TableHead className="text-center">Signed Up</TableHead>
-                  <TableHead className="text-center">Rewarded</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user, index) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="text-muted-foreground font-medium">{index + 1}</TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{user.contact_person}</p>
-                        <p className="text-sm text-muted-foreground">{user.company_name}</p>
-                        {user.total_referrals === 0 && (
-                          <p className="text-xs text-warning flex items-center gap-1 mt-1">
-                            <AlertTriangle className="h-3 w-3" />
-                            Not started — hasn't invited any suppliers yet
-                          </p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{getSegmentBadge(user)}</TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <Mail className="h-3 w-3 text-muted-foreground" />
-                          <span className="truncate max-w-[180px]">{user.email}</span>
+                {users.map((user, index) => {
+                  const scoreInfo = getScoreLabel(user.activation_score);
+                  return (
+                    <TableRow key={user.id}>
+                      <TableCell className="text-muted-foreground font-medium">{index + 1}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{user.contact_person}</p>
+                          <p className="text-sm text-muted-foreground">{user.company_name}</p>
+                          {user.total_referrals === 0 && (
+                            <p className="text-xs text-warning flex items-center gap-1 mt-1">
+                              <AlertTriangle className="h-3 w-3" />
+                              Not started — hasn't invited any suppliers yet
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <Phone className="h-3 w-3 text-muted-foreground" />
-                          <span>{user.phone}</span>
+                      </TableCell>
+                      <TableCell>{getSegmentBadge(user)}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col items-start gap-1">
+                          <Badge variant={scoreInfo.variant} className="text-xs gap-1">
+                            {scoreInfo.emoji} {user.activation_score}
+                          </Badge>
+                          <span className="text-[10px] text-muted-foreground">{scoreInfo.label}</span>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5 text-sm">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        {user.affiliate_joined_at
-                          ? format(new Date(user.affiliate_joined_at), 'MMM d, yyyy')
-                          : '—'}
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(user.affiliate_status)}</TableCell>
-                    <TableCell>{getKYCBadge(user.kyc_verified, user.eligibility_kyc)}</TableCell>
-                    <TableCell>
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center gap-1">
-                          <span className="text-muted-foreground">GSTIN:</span>
-                          <span className={user.gstin ? 'font-medium' : 'text-muted-foreground'}>{user.gstin || 'Not provided'}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-muted-foreground">Bank:</span>
-                          <span className={user.bank_name ? 'font-medium' : 'text-muted-foreground'}>
-                            {user.bank_name ? `${user.bank_name} (${user.bank_ifsc_code || '—'})` : 'Not linked'}
-                          </span>
-                        </div>
-                        {user.commission_tier && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">Tier:</span>
-                            <Badge variant="outline" className="text-xs px-1.5 py-0">{user.commission_tier}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <Mail className="h-3 w-3 text-muted-foreground" />
+                            <span className="truncate max-w-[180px]">{user.email}</span>
                           </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="outline">{user.total_referrals}</Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="secondary">{user.signed_up_referrals}</Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="success-soft">{user.rewarded_referrals}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {user.total_referrals === 0 && (
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <Phone className="h-3 w-3 text-muted-foreground" />
+                            <span>{user.phone}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {getLastActive(user.created_at)}
+                        </div>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(user.affiliate_status)}</TableCell>
+                      <TableCell>{getKYCBadge(user.kyc_verified, user.eligibility_kyc)}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex items-center gap-1">
+                            <span className="text-muted-foreground">GSTIN:</span>
+                            <span className={user.gstin ? 'font-medium' : 'text-muted-foreground'}>{user.gstin || 'Not provided'}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-muted-foreground">Bank:</span>
+                            <span className={user.bank_name ? 'font-medium' : 'text-muted-foreground'}>
+                              {user.bank_name ? `${user.bank_name} (${user.bank_ifsc_code || '—'})` : 'Not linked'}
+                            </span>
+                          </div>
+                          {user.commission_tier && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-muted-foreground">Tier:</span>
+                              <Badge variant="outline" className="text-xs px-1.5 py-0">{user.commission_tier}</Badge>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline">{user.total_referrals}</Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary">{user.signed_up_referrals}</Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="success-soft">{user.rewarded_referrals}</Badge>
+                      </TableCell>
+                      <TableCell>
                         <Button variant="outline" size="sm" onClick={() => handleNudge(user)} className="gap-1 text-xs">
                           <MessageSquare className="h-3 w-3" />
-                          Send Reminder
+                          {user.total_referrals === 0 ? 'Activate' : user.rewarded_referrals === 0 ? 'Guide' : 'Scale'}
                         </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
