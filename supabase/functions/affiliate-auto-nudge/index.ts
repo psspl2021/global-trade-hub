@@ -291,7 +291,7 @@ serve(async (req) => {
       });
     }
 
-    console.log(`[auto-nudge] Done. Nudged: ${nudgedCount}, Cooldown skipped: ${skippedCooldown}, No phone: ${skippedNoPhone}`);
+    console.log(`[auto-nudge] Done. Nudged: ${nudgedCount}, Cooldown: ${skippedCooldown}, No phone: ${skippedNoPhone}, Duplicate type: ${skippedDuplicateType}`);
 
     // Log to admin activity
     if (nudgedCount > 0) {
@@ -302,6 +302,7 @@ serve(async (req) => {
           nudged: nudgedCount,
           skipped_cooldown: skippedCooldown,
           skipped_no_phone: skippedNoPhone,
+          skipped_duplicate_type: skippedDuplicateType,
           results: nudgeResults,
           run_at: new Date().toISOString(),
         },
@@ -314,6 +315,7 @@ serve(async (req) => {
         nudged: nudgedCount,
         skipped_cooldown: skippedCooldown,
         skipped_no_phone: skippedNoPhone,
+        skipped_duplicate_type: skippedDuplicateType,
         total_affiliates: candidates.length,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
