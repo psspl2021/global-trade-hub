@@ -160,10 +160,27 @@ export const AffiliateUsersBoard = () => {
     URL.revokeObjectURL(url);
   };
 
+  const getSegmentBadge = (user: AffiliateUser) => {
+    if (user.rewarded_referrals > 0) return <Badge variant="success-soft" className="text-xs gap-1">🟢 Earning</Badge>;
+    if (user.total_referrals > 0) return <Badge variant="primary-soft" className="text-xs gap-1">🔵 Trying</Badge>;
+    return <Badge variant="warning-soft" className="text-xs gap-1">🟡 New</Badge>;
+  };
+
+  const handleNudge = (user: AffiliateUser) => {
+    const message = `Hi ${user.contact_person}, you can start earning by inviting suppliers. Share your link with 5 contacts to unlock your first commission.`;
+    if (user.phone && user.phone !== '—') {
+      const cleanPhone = user.phone.replace(/\D/g, '');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+      navigator.clipboard.writeText(message);
+      toast.success('Nudge message copied to clipboard');
+    }
+  };
+
   const getStatusBadge = (status: string | null) => {
     switch (status) {
-      case 'ACTIVE': return <Badge className="bg-green-500 hover:bg-green-600 text-xs"><CheckCircle2 className="h-3 w-3 mr-1" />Active</Badge>;
-      case 'PENDING': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+      case 'ACTIVE': return <Badge variant="active" className="text-xs"><CheckCircle2 className="h-3 w-3 mr-1" />Active</Badge>;
+      case 'PENDING': return <Badge variant="pending" className="text-xs"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
       case 'WAITLISTED': return <Badge variant="outline" className="text-xs"><Clock className="h-3 w-3 mr-1" />Waitlisted</Badge>;
       default: return <Badge variant="outline" className="text-xs">{status || 'Active'}</Badge>;
     }
@@ -171,7 +188,7 @@ export const AffiliateUsersBoard = () => {
 
   const getKYCBadge = (kyc: boolean | null, eligKyc: boolean | null) => {
     const verified = kyc || eligKyc;
-    if (verified) return <Badge className="bg-green-500 hover:bg-green-600 text-xs gap-1"><Shield className="h-3 w-3" />Verified</Badge>;
+    if (verified) return <Badge variant="success-soft" className="text-xs gap-1"><Shield className="h-3 w-3" />Verified</Badge>;
     return <Badge variant="outline" className="text-xs text-muted-foreground gap-1"><XCircle className="h-3 w-3" />Pending</Badge>;
   };
 
