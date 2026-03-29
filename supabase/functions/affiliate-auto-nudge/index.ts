@@ -270,15 +270,17 @@ serve(async (req) => {
             message: nudge.message,
           });
 
-          // Fix 1: Only update cooldown if message was actually sent
+          // Idempotent update: only set cooldown if older than 1 day (prevents race conditions)
           if (sent) {
+            const oneDayAgo = new Date(Date.now() - 86400000).toISOString();
             await supabase
               .from('affiliates')
               .update({
                 last_nudged_at: new Date().toISOString(),
                 last_nudge_type: nudge.type,
               })
-              .eq('user_id', candidate.user_id);
+              .eq('user_id', candidate.user_id)
+              .or(`last_nudged_at.is.null,last_nudged_at.lt.${oneDayAgo}`);
           }
 
           return { user_id: candidate.user_id, type: nudge.type, sent };
@@ -289,6 +291,11 @@ serve(async (req) => {
         if (r.sent) nudgedCount++;
         nudgeResults.push(r);
       });
+
+      // Rate-limit pause between batches to avoid Brevo throttling
+      if (i + BATCH_SIZE < eligibleNudges.length) {
+        await new Promise(res => setTimeout(res, 500));
+      }
     }
 
     console.log(`[auto-nudge] Done. Nudged: ${nudgedCount}, Cooldown: ${skippedCooldown}, No phone: ${skippedNoPhone}, Duplicate type: ${skippedDuplicateType}`);
