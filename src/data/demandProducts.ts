@@ -1570,12 +1570,21 @@ const compositeProducts: DemandProduct[] = [
 
 // ─── COMBINED EXPORT ────────────────────────────────────────────
 export const demandProducts: DemandProduct[] = [
+  // Existing products
   ...ferrousProducts,
   ...nonFerrousProducts,
   ...polymerProducts,
   ...pipeProducts,
   ...constructionProducts,
   ...compositeProducts,
+  // NEW AUTO-GENERATED PRODUCTS
+  ...constructionNewProducts,
+  ...ferrousNewProducts,
+  ...nonFerrousNewProducts,
+  ...pipeNewProducts,
+  ...fabricationProducts,
+  ...roadSafetyProducts,
+  ...storageProducts,
 ];
 
 export function getDemandProductBySlug(slug: string): DemandProduct | undefined {
