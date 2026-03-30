@@ -1568,7 +1568,6 @@ const compositeProducts: DemandProduct[] = [
   },
 ];
 
-// ─── COMBINED EXPORT ────────────────────────────────────────────
 // (export moved to end of file after all product arrays)
 
 const constructionNewProducts: DemandProduct[] = [
