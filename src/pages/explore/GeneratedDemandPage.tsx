@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { renderSafeAnswer } from '@/utils/safeHtmlRenderer';
 import { Helmet } from 'react-helmet-async';
-import { getDemandProductBySlug, demandProducts, type DemandProduct } from '@/data/demandProducts';
+import { getDemandProductBySlug, demandProducts, getRelatedDemandProducts, type DemandProduct } from '@/data/demandProducts';
 import { generateDemandContent } from '@/utils/demandContentEngine';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
