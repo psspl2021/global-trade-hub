@@ -279,10 +279,10 @@ serve(async (req) => {
         ? (Date.now() - new Date(candidate.last_referral_at).getTime()) / 86400000
         : 999;
 
-      // Intent score: people close to conversion get priority
+      // Dynamic intent score: scales with affiliate activity
       const intentScore =
-        (candidate.signed_up_referrals > 0 ? 5 : 0) +
-        (candidate.total_referrals >= 3 ? 3 : 0);
+        (candidate.signed_up_referrals * 2) +
+        Math.min(candidate.total_referrals, 5);
 
       const priorityScore =
         (formattedPhone ? 4 : 0) +
