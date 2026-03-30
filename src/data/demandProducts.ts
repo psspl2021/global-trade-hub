@@ -9569,6 +9569,7 @@ export const demandProducts: DemandProduct[] = [
   ...fabricationProducts,
   ...roadSafetyProducts,
   ...storageProducts,
+  ...ferrousRetryProducts,
 ];
 
 export function getDemandProductBySlug(slug: string): DemandProduct | undefined {
