@@ -10008,3 +10008,17 @@ export function getDemandProductsByCategory(categorySlug: string): DemandProduct
 export function getAllDemandSlugs(): string[] {
   return demandProducts.map(p => p.slug);
 }
+
+export function getRelatedDemandProducts(
+  currentSlug: string,
+  limit: number = 6
+): DemandProduct[] {
+  const current = demandProducts.find(p => p.slug === currentSlug);
+  if (!current) return [];
+  return demandProducts
+    .filter(p =>
+      p.slug !== currentSlug &&
+      (p.categorySlug === current.categorySlug || p.industrySlug === current.industrySlug)
+    )
+    .slice(0, limit);
+}

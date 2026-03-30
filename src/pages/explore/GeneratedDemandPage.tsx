@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { renderSafeAnswer } from '@/utils/safeHtmlRenderer';
 import { Helmet } from 'react-helmet-async';
-import { getDemandProductBySlug, demandProducts, type DemandProduct } from '@/data/demandProducts';
+import { getDemandProductBySlug, demandProducts, getRelatedDemandProducts, type DemandProduct } from '@/data/demandProducts';
 import { generateDemandContent } from '@/utils/demandContentEngine';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -618,6 +618,31 @@ export default function GeneratedDemandPage() {
 
               {/* ─── FAQ SECTION (ACCORDION) ─────────────────── */}
               <FAQAccordion allFaqs={allFaqs} productName={product.name} />
+
+              {/* ─── RELATED DEMAND PRODUCTS (SAME CATEGORY) ─── */}
+              {(() => {
+                const relatedProducts = getRelatedDemandProducts(product.slug, 6);
+                if (!relatedProducts.length) return null;
+                return (
+                  <section className="mt-10">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">
+                      Related {product.category} Products
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {relatedProducts.map(item => (
+                        <a
+                          key={item.slug}
+                          href={`/demand/${item.slug}`}
+                          className="p-4 border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all group"
+                        >
+                          <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{item.name}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{item.priceRange}</p>
+                        </a>
+                      ))}
+                    </div>
+                  </section>
+                );
+              })()}
 
               {/* ─── CROSS-CATEGORY INTERNAL LINKS ────────────── */}
               {(() => {
