@@ -9554,4 +9554,31 @@ const storageProducts: DemandProduct[] = [
   },
 ];
 
-// ─── UPDATED COMBINED EXPORT ────────────────────────────────────
+// ─── COMBINED EXPORT ────────────────────────────────────
+export const demandProducts: DemandProduct[] = [
+  ...ferrousProducts,
+  ...nonFerrousProducts,
+  ...polymerProducts,
+  ...pipeProducts,
+  ...constructionProducts,
+  ...compositeProducts,
+  ...constructionNewProducts,
+  ...ferrousNewProducts,
+  ...nonFerrousNewProducts,
+  ...pipeNewProducts,
+  ...fabricationProducts,
+  ...roadSafetyProducts,
+  ...storageProducts,
+];
+
+export function getDemandProductBySlug(slug: string): DemandProduct | undefined {
+  return demandProducts.find(p => p.slug === slug);
+}
+
+export function getDemandProductsByCategory(categorySlug: string): DemandProduct[] {
+  return demandProducts.filter(p => p.categorySlug === categorySlug);
+}
+
+export function getAllDemandSlugs(): string[] {
+  return demandProducts.map(p => p.slug);
+}
