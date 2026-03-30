@@ -1589,3 +1589,7991 @@ export function getDemandProductsByCategory(categorySlug: string): DemandProduct
 export function getAllDemandSlugs(): string[] {
   return demandProducts.map(p => p.slug);
 }
+
+// ─── NEW CATEGORIES: AUTO-GENERATED DEMAND PRODUCTS ─────────────
+
+// ─── BUILDING & CONSTRUCTION ───
+const constructionNewProducts: DemandProduct[] = [
+  {
+    slug: 'doors-windows-india',
+    name: 'Doors & Windows',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Doors and windows are essential architectural components providing access, light, ventilation, and security to buildings. They are typically fabricated from materials like wood, UPVC, aluminum, and steel, often incorporating glass panes, and come in various designs such as hinged, sliding, casement, and fixed, selected based on aesthetic, functional, and climatic requirements, impacting a building\'s energy efficiency and structural integrity.',
+    industries: [
+      'Residential Construction',
+      'Commercial Building',
+      'Hospitality',
+      'Healthcare Facilities',
+      'Government Projects'
+    ],
+    grades: [
+      'Solid Wood (Teak, Sal)',
+      'Engineered Wood (Flush Doors)',
+      'UPVC (IS 15510)',
+      'Aluminum (AA 6063)',
+      'Steel (IS 2062 E250)',
+      'Glass (IS 2835 Toughened)',
+      'Fire-Rated (IS 3614 Part 2)'
+    ],
+    specifications: [
+      'Thickness: 30-50 mm (doors), 25-100 mm (frames)',
+      'Material: UPVC, Aluminum, Wood, Steel',
+      'Glazing Type: Single, Double, Triple',
+      'Hardware: SS 304, Zinc Alloy',
+      'Sound Insulation: 25-45 dB'
+    ],
+    standards: [
+      'IS 1003 (Part 1): Timber Door Shutters',
+      'IS 15510: UPVC Windows',
+      'IS 1948: Aluminum Doors, Windows, and Ventilators',
+      'IS 3629: Timber Window and Ventilator Shutters',
+      'IS 4993: Wooden Panel Doors'
+    ],
+    hsnCodes: ['4418.20', '7610.10'],
+    orderSizes: '50-5000 units',
+    importCountries: [
+      'China',
+      'Germany',
+      'Italy',
+      'Malaysia',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india',
+      'galvanized-roofing-india'
+    ],
+    priceRange: '₹2,500-₹75,000 per unit',
+    applications: [
+      'Residential Homes',
+      'Office Buildings',
+      'Shopping Malls',
+      'Hotels',
+      'Hospitals',
+      'Educational Institutions'
+    ],
+    challenges: [
+      'Fluctuating raw material costs (wood, aluminum)',
+      'Need for energy-efficient solutions (thermal breaks)',
+      'Skilled labor availability for installation',
+      'Competition from unorganized sector'
+    ],
+    marketTrend: 'Growing demand for energy-efficient and smart door/window solutions, driven by green building norms and government initiatives like Smart Cities. Increased adoption of UPVC and aluminum over traditional wood due to durability and lower maintenance, alongside a focus on aesthetic customization and security features.'
+  },
+  {
+    slug: 'paints-coatings-india',
+    name: 'Paints & Coatings',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Paints and coatings are liquid or mastic compositions applied to surfaces to provide protection, decoration, or both. They consist of pigments, binders, solvents, and additives, forming a durable film upon drying. These materials offer resistance against corrosion, weathering, abrasion, and chemicals, while also imparting desired aesthetic finishes like gloss, texture, and color, tailored for various substrates and environmental conditions.',
+    industries: [
+      'Residential Construction',
+      'Commercial Building',
+      'Industrial Infrastructure',
+      'Automotive',
+      'Marine'
+    ],
+    grades: [
+      'Interior Emulsion (Acrylic)',
+      'Exterior Emulsion (100% Acrylic)',
+      'Texture Paints',
+      'Enamel Paints (Synthetic)',
+      'Epoxy Coatings (IS 12334)',
+      'Polyurethane Coatings (IS 12431)',
+      'Waterproofing Coatings',
+      'Fire Retardant Paints'
+    ],
+    specifications: [
+      'Coverage: 100-200 sq ft/liter/coat',
+      'Drying Time: 1-4 hours (surface), 4-24 hours (hard)',
+      'VOC Content: <50 g/L to 200 g/L',
+      'Sheen Level: Matt, Eggshell, Silk, Gloss',
+      'Durability: 3-10 years'
+    ],
+    standards: [
+      'IS 15489: Water Thinnable Exterior Emulsion',
+      'IS 165: Synthetic Enamel Paints',
+      'IS 101: Methods of Test for Paints',
+      'IS 13180: Cement Paint, Dry and Ready Mixed',
+      'IS 158: Ready Mixed Paint, Brushing, Finishing, Semi-Gloss, for General Purposes to IS 104'
+    ],
+    hsnCodes: ['3208.20', '3209.10'],
+    orderSizes: '20-5000 liters',
+    importCountries: [
+      'Germany',
+      'USA',
+      'Japan',
+      'Korea',
+      'China',
+      'Belgium'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india',
+      'galvanized-roofing-india'
+    ],
+    priceRange: '₹150-₹1,500 per liter',
+    applications: [
+      'Interior Wall Decoration',
+      'Exterior Weather Protection',
+      'Corrosion Control for Metals',
+      'Floor Coatings',
+      'Wood Finishing',
+      'Waterproofing Damp Areas'
+    ],
+    challenges: [
+      'Environmental regulations on VOC emissions',
+      'Competition from unorganized players',
+      'Seasonality of demand',
+      'Rising raw material costs (titanium dioxide, crude oil derivatives)'
+    ],
+    marketTrend: 'Increasing demand for eco-friendly, low-VOC paints and coatings driven by consumer awareness and regulatory pressures. Growth in protective coatings for industrial infrastructure and anti-corrosion applications. Government initiatives for infrastructure development and the \'Housing for All\' scheme boost residential demand.'
+  },
+  {
+    slug: 'gc-roofing-sheets-india',
+    name: 'GC Roofing Sheets',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Galvanized Corrugated (GC) roofing sheets are cold-rolled steel sheets coated with a layer of zinc, then formed into a corrugated profile. The zinc coating provides excellent corrosion resistance, protecting the steel substrate from rust and extending the sheet\'s lifespan. Their corrugated shape imparts structural rigidity, allowing them to span roof supports effectively while facilitating water runoff, making them suitable for various roofing and siding applications.',
+    industries: [
+      'Rural Housing',
+      'Industrial Sheds',
+      'Agricultural Buildings',
+      'Warehousing',
+      'Temporary Structures'
+    ],
+    grades: [
+      'IS 277: General Purpose (GP), Commercial Quality (CQ)',
+      'IS 277: Deep Drawing Quality (DDQ)',
+      'IS 513: Cold Rolled Low Carbon Steel',
+      'Zinc Coating: Z120, Z180, Z275 (grams/sqm)'
+    ],
+    specifications: [
+      'Thickness: 0.25-0.80 mm',
+      'Width: 760-1220 mm (after corrugation)',
+      'Length: 1.8-7.3 meters (6-24 ft)',
+      'Zinc Coating Mass: 120-275 gsm',
+      'Corrugation Pitch: 75-150 mm'
+    ],
+    standards: [
+      'IS 277: Galvanized Steel Sheets (Plain and Corrugated)',
+      'IS 513: Cold Rolled Low Carbon Steel Sheets',
+      'ASTM A653: Steel Sheet, Zinc-Coated (Galvanized)',
+      'BIS Certification Mark'
+    ],
+    hsnCodes: ['7210.41', '7210.49'],
+    orderSizes: '1-100 tons',
+    importCountries: [
+      'China',
+      'Korea',
+      'Japan',
+      'Vietnam',
+      'Taiwan'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india',
+      'galvanized-roofing-india'
+    ],
+    priceRange: '₹65-₹95 per kg',
+    applications: [
+      'Residential Roofing (rural areas)',
+      'Farm Sheds and Animal Shelters',
+      'Industrial and Warehouse Roofing',
+      'Site Offices/Temporary Structures',
+      'Fencing'
+    ],
+    challenges: [
+      'Susceptibility to damage from strong winds/hail',
+      'Thermal insulation requirements',
+      'Noise generation during rain',
+      'Rusting at cut edges or scratched areas if zinc coating is compromised'
+    ],
+    marketTrend: 'Steady demand from rural construction and agricultural sectors due to cost-effectiveness and ease of installation. Government focus on affordable housing and rural development schemes, like Pradhan Mantri Awas Yojana (PMAY), sustains growth. Competitive pricing remains a key market driver.'
+  },
+  {
+    slug: 'gp-roofing-sheets-india',
+    name: 'GP Roofing Sheets',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Galvanized Plain (GP) roofing sheets are flat, cold-rolled steel sheets uniformly coated with zinc, offering superior corrosion resistance and a smooth, uncorrugated surface. The zinc layer acts as a sacrificial barrier, protecting the base steel from oxidation. These sheets are versatile, often used where aesthetic appeal or specific forming is required, and serve as raw material for further profiling, fabrication, or pre-painting in various construction and industrial applications.',
+    industries: [
+      'Manufacturing (raw material)',
+      'HVAC Ducting',
+      'Automotive (non-structural)',
+      'Appliance Manufacturing',
+      'Construction (flashings, gutters)'
+    ],
+    grades: [
+      'IS 277: General Purpose (GP), Commercial Quality (CQ)',
+      'IS 277: Forming Quality (FQ)',
+      'IS 513: Cold Rolled Low Carbon Steel',
+      'Zinc Coating: Z120, Z180, Z275 (grams/sqm)',
+      'ASTM A653: Structural Quality (SQ)'
+    ],
+    specifications: [
+      'Thickness: 0.20-2.0 mm',
+      'Width: 600-1500 mm',
+      'Length: Coil or cut-to-length sheets (up to 6 meters)',
+      'Zinc Coating Mass: 90-350 gsm',
+      'Surface Finish: Regular Spangle, Minimized Spangle, Skin Passed'
+    ],
+    standards: [
+      'IS 277: Galvanized Steel Sheets (Plain and Corrugated)',
+      'IS 513: Cold Rolled Low Carbon Steel Sheets',
+      'ASTM A653: Steel Sheet, Zinc-Coated (Galvanized)',
+      'EN 10346: Continuously Hot-Dip Coated Steel Flat Products'
+    ],
+    hsnCodes: ['7210.41', '7210.49'],
+    orderSizes: '5-500 tons',
+    importCountries: [
+      'China',
+      'Korea',
+      'Japan',
+      'Taiwan',
+      'Turkey',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'color-coated-roofing-sheets-india',
+      'galvanized-roofing-india'
+    ],
+    priceRange: '₹68-₹98 per kg',
+    applications: [
+      'Ducting and Ventilation Systems',
+      'Industrial Casings and Enclosures',
+      'Roofing Accessories (Flashings, Gutters)',
+      'False Ceilings',
+      'Base Material for Color Coated Sheets',
+      'Fabrication of Small Components'
+    ],
+    challenges: [
+      'Maintaining flatness during processing',
+      'Surface defects can compromise aesthetics',
+      'Price volatility of zinc and steel',
+      'Logistics for wide and heavy coils'
+    ],
+    marketTrend: 'Growing demand as a base material for value-added products like pre-painted sheets and panels. Industrial expansion and infrastructure development drive consumption in HVAC, automotive, and appliance sectors. \'Make in India\' initiative encourages domestic production and utilization.'
+  },
+  {
+    slug: 'color-coated-roofing-sheets-india',
+    name: 'Color Coated Roofing Sheets',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Color-coated roofing sheets are manufactured by pre-treating and coating galvanized or Galvalume® steel sheets with multiple layers of paint, typically polyester or fluorocarbon, in a continuous coil coating process. This enhances aesthetic appeal, provides additional corrosion resistance, and improves durability against weathering and UV radiation. They are available in various profiles and colors, offering a versatile and long-lasting solution for modern architectural roofing and cladding.',
+    industries: [
+      'Residential Construction',
+      'Commercial Building',
+      'Industrial Buildings',
+      'Cold Storage',
+      'Architectural Projects'
+    ],
+    grades: [
+      'Base Steel: IS 277 (Galvanized)',
+      'Base Steel: IS 15961 (Galvalume®)',
+      'Coating Types: SMP (Silicone Modified Polyester), RMP (Regular Modified Polyester), PVDF (Polyvinylidene Fluoride)',
+      'Coating Thickness: 15-25 microns (top), 5-10 microns (back)'
+    ],
+    specifications: [
+      'Thickness: 0.35-0.80 mm',
+      'Effective Width: 900-1070 mm',
+      'Color: RAL shades (e.g., Brick Red, Sky Blue)',
+      'Coating System: 2-coat, 2-bake (typically)',
+      'Zinc/Al-Zn Coating: Z90-Z275 gsm / AZ100-AZ150 gsm'
+    ],
+    standards: [
+      'IS 14246: Pre-Painted Galvanized Steel Sheets',
+      'IS 15961: Hot-dip Aluminium Zinc Alloy Coated Steel',
+      'ASTM A755: Steel Sheet, Metallic Coated by The Hot-Dip Process and Prelacquered',
+      'JIS G3312: Pre-coated Galvanized Steel Sheets and Coils'
+    ],
+    hsnCodes: ['7210.70', '7210.90'],
+    orderSizes: '5-500 tons',
+    importCountries: [
+      'China',
+      'Korea',
+      'Japan',
+      'Taiwan',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'galvanized-roofing-india'
+    ],
+    priceRange: '₹75-₹120 per kg',
+    applications: [
+      'Residential Roofs and Walls',
+      'Commercial Building Cladding',
+      'Industrial Shed Roofing',
+      'Cold Storage Wall Panels',
+      'Pre-Engineered Building (PEB) Components',
+      'Bus Shelters'
+    ],
+    challenges: [
+      'Damage to coating during handling/installation',
+      'UV degradation over long periods (fading)',
+      'Variations in coating quality among manufacturers',
+      'Higher initial cost compared to plain GC sheets'
+    ],
+    marketTrend: 'Strong growth driven by increased focus on aesthetics, durability, and low maintenance in modern construction. Demand from infrastructure projects, industrial expansion, and commercial developments is significant. The PLI Scheme and National Infrastructure Pipeline (NIP) support the growth of the manufacturing sector, increasing demand for industrial roofing.'
+  },
+  {
+    slug: 'galvanized-roofing-india',
+    name: 'Galvanized Roofing',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Galvanized roofing refers to steel sheets that have undergone a hot-dip galvanization process, where they are immersed in a molten zinc bath to obtain a protective zinc coating. This coating serves as a sacrificial layer, corroding preferentially to the steel and thus preventing rust formation. Galvanized roofing offers durable, cost-effective weather protection and is predominantly available in corrugated forms, widely used across residential, agricultural, and light industrial applications due to its longevity and strength.',
+    industries: [
+      'Residential (affordable housing)',
+      'Agricultural',
+      'Industrial Warehousing',
+      'Poultry Farms',
+      'Temporary Shelters'
+    ],
+    grades: [
+      'IS 277: General Purpose (GP), Commercial Quality (CQ)',
+      'IS 513: Cold Rolled Low Carbon Steel',
+      'Zinc Coating: Z120, Z180, Z275 (grams/sqm, minimum)',
+      'ASTM A653: Structural Steel',
+      'EN 10346: Continuously Coated Steel'
+    ],
+    specifications: [
+      'Base Steel Thickness: 0.25-1.00 mm',
+      'Sheet Width: 760-1220 mm (after profiling)',
+      'Length: Up to 12 meters',
+      'Spangle: Regular, Minimized, Zero',
+      'Corrugation Depth: 12-25 mm'
+    ],
+    standards: [
+      'IS 277: Galvanized Steel Sheets (Plain and Corrugated)',
+      'IS 513: Cold Rolled Low Carbon Steel Sheets',
+      'ASTM A653: Steel Sheet, Zinc-Coated (Galvanized)',
+      'BS EN 10143: Continuously Hot-dip Coated Strip and Sheet'
+    ],
+    hsnCodes: ['7210.41', '7210.49'],
+    orderSizes: '1-100 tons',
+    importCountries: [
+      'China',
+      'Korea',
+      'Japan',
+      'Vietnam',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹65-₹95 per kg',
+    applications: [
+      'Residential Roofs (rural/semi-urban)',
+      'Industrial Sheds',
+      'Agricultural Storage Facilities',
+      'Poultry and Dairy Farm Structures',
+      'Boundary Walls'
+    ],
+    challenges: [
+      'Can get very hot under direct sunlight due to conductivity',
+      'Susceptible to denting from heavy impact',
+      'Prone to \'white rust\' if improperly stored or exposed to moisture without ventilation',
+      'Limited aesthetic appeal compared to color-coated options'
+    ],
+    marketTrend: 'Consistent demand from the affordable housing sector and rural infrastructure projects. Increased government expenditure on rural development and initiatives like the Swachh Bharat Abhiyan indirectly supports the demand for robust and economical roofing solutions. Price stability of zinc impacts market dynamics.'
+  },
+  {
+    slug: 'pre-painted-roofing-sheets-india',
+    name: 'Pre-Painted Roofing Sheets',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Pre-painted roofing sheets are a type of color-coated roofing where the base metal, usually galvanized steel or Galvalume®, is cleaned, treated, and painted in a controlled factory environment prior to being formed into various profiles. This multi-layered coating system offers superior corrosion resistance, enhanced aesthetics, and reduced maintenance. The pre-painting process ensures uniform thickness and curing of the paint, leading to a long-lasting and decorative finish suitable for a wide range of building applications.',
+    industries: [
+      'Commercial Construction',
+      'Industrial & Warehousing',
+      'Residential (Premium)',
+      'Infrastructure Projects',
+      'Automotive (Bus Body Panels)'
+    ],
+    grades: [
+      'Base Steel: IS 277 (Galvanized), IS 15961 (Galvalume®)',
+      'Paint Systems: Regular Modified Polyester (RMP), Silicone Modified Polyester (SMP), Polyvinylidene Fluoride (PVDF)',
+      'IS 14246: Pre-Painted Galvanized Steel Sheets',
+      'IS 15961: Hot-dip Aluminium Zinc Alloy Coated Steel',
+      'Zinc Coating: Z120, Z180 gsm / AZ100-AZ150 gsm'
+    ],
+    specifications: [
+      'Overall Thickness: 0.35-0.80 mm',
+      'Coating Thickness: 18-25 microns (top coat), 5-10 microns (back coat)',
+      'Paint Finish: Gloss, Matt, Wrinkle',
+      'Color Range: Wide variety of RAL shades',
+      'Effective Cover Width: 900-1070 mm'
+    ],
+    standards: [
+      'IS 14246: Pre-Painted Galvanized Steel Sheets',
+      'IS 15961: Hot-dip Aluminium Zinc Alloy Coated Steel',
+      'ASTM A755: Steel Sheet, Metallic Coated by The Hot-Dip Process and Prelacquered',
+      'JIS G3312: Pre-coated Galvanized Steel Sheets and Coils',
+      'BIS Certification Mark'
+    ],
+    hsnCodes: ['7210.70', '7210.90'],
+    orderSizes: '5-500 tons',
+    importCountries: [
+      'China',
+      'Korea',
+      'Japan',
+      'Taiwan',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹78-₹130 per kg',
+    applications: [
+      'Architectural Roofing',
+      'Wall Cladding',
+      'False Ceilings',
+      'Insulated Sandwich Panels',
+      'Cold Storage Walls and Roofs',
+      'Building Facades'
+    ],
+    challenges: [
+      'Potential for scratching during transport and installation',
+      'Choice of paint system impacts UV resistance and color retention',
+      'Initial cost can be higher than traditional roofing materials',
+      'Dependence on continuous coil coating infrastructure'
+    ],
+    marketTrend: 'Increasingly preferred for its aesthetic versatility, longevity, and low maintenance, particularly in commercial and industrial projects. The demand is boosted by rapid urbanization, modern architectural trends, and the growth of the pre-engineered building (PEB) sector. Government focus on industrial corridors and \'Smart Cities\' further stimulates demand.'
+  },
+  {
+    slug: 'c-purlins-india',
+    name: 'C Purlins',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'C Purlins are horizontal structural members made from cold-formed galvanized or black steel, shaped in the profile of a \'C\' with or without stiffening lips. They are primarily used as secondary structural components in roofing and wall cladding systems, supporting the roofing sheets or wall panels and transferring loads to the main structural framework. Their lightweight, high strength-to-weight ratio, and ease of installation make them a popular choice in pre-engineered buildings and industrial sheds.',
+    industries: [
+      'Pre-Engineered Buildings (PEB)',
+      'Industrial Sheds',
+      'Warehousing',
+      'Solar Panel Mounting Structures',
+      'Agricultural Buildings'
+    ],
+    grades: [
+      'IS 2062 E250/E350 (Black Steel)',
+      'IS 277 (Galvanized Steel)',
+      'ASTM A653 (Galvanized)',
+      'Yield Strength: 250-350 MPa'
+    ],
+    specifications: [
+      'Web Depth: 100-300 mm',
+      'Flange Width: 50-100 mm',
+      'Lip Size: 15-30 mm',
+      'Thickness: 1.6-3.0 mm',
+      'Length: Up to 10-12 meters (custom cut)'
+    ],
+    standards: [
+      'IS 811: Cold Formed Light Gauge Structural Steel Sections',
+      'IS 2062: Hot Rolled Medium and High Tensile Structural Steel',
+      'ASTM A653: Steel Sheet, Zinc-Coated (Galvanized)',
+      'EN 10346: Continuously Hot-Dip Coated Steel Flat Products'
+    ],
+    hsnCodes: ['7308.90', '7216.61'],
+    orderSizes: '1-50 tons',
+    importCountries: [
+      'China',
+      'Korea',
+      'Turkey',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹60-₹85 per kg',
+    applications: [
+      'Roof Purlins for Metal Sheets',
+      'Wall Girts for Cladding',
+      'Solar Mounting Structures',
+      'False Ceiling Supports',
+      'Mezzanine Floor Supports'
+    ],
+    challenges: [
+      'Design complexity for optimal load bearing',
+      'Corrosion in ungalvanized sections over time',
+      'Transportation of long sections',
+      'Quality control for consistent profiling'
+    ],
+    marketTrend: 'High demand from the rapidly expanding Pre-Engineered Building (PEB) sector due to their efficiency and cost-effectiveness. Increased adoption in solar energy projects for mounting structures. Government\'s push for infrastructure development, industrial corridors, and \'Make in India\' drives demand for factory-made components.'
+  },
+  {
+    slug: 'z-purlins-india',
+    name: 'Z Purlins',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Z Purlins are cold-formed steel sections shaped like the letter \'Z\', typically made from galvanized or black steel. Their unique asymmetrical profile allows them to nest together, creating a continuous beam effect and enabling efficient lapping over supports, which optimizes structural performance and reduces material usage. Widely used as secondary structural elements in roofing and wall systems, Z Purlins support cladding and transfer loads to the main building frame, especially beneficial in structures requiring larger spans.',
+    industries: [
+      'Pre-Engineered Buildings (PEB)',
+      'Industrial Warehousing',
+      'Large Span Roof Structures',
+      'Solar Panel Mounting Structures',
+      'Factory Buildings'
+    ],
+    grades: [
+      'IS 2062 E250/E350 (Black Steel)',
+      'IS 277 (Galvanized Steel)',
+      'ASTM A653 (Galvanized)',
+      'Yield Strength: 250-350 MPa'
+    ],
+    specifications: [
+      'Web Depth: 100-300 mm',
+      'Flange Width: 50-100 mm',
+      'Lip Size: 15-30 mm',
+      'Thickness: 1.6-3.0 mm',
+      'Material: Galvanized or Black Iron'
+    ],
+    standards: [
+      'IS 811: Cold Formed Light Gauge Structural Steel Sections',
+      'IS 2062: Hot Rolled Medium and High Tensile Structural Steel',
+      'ASTM A653: Steel Sheet, Zinc-Coated (Galvanized)',
+      'EN 10346: Continuously Hot-Dip Coated Steel Flat Products'
+    ],
+    hsnCodes: ['7308.90', '7216.61'],
+    orderSizes: '1-50 tons',
+    importCountries: [
+      'China',
+      'Korea',
+      'Turkey',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹62-₹88 per kg',
+    applications: [
+      'Roof Purlins with Lapping',
+      'Heavy Duty Wall Girts',
+      'Structural Supports for Industrial Equipment',
+      'Solar Farm Frameworks',
+      'Mezzanine Deck Supports'
+    ],
+    challenges: [
+      'Precise fabrication required for effective lapping',
+      'Potential for local buckling if not designed correctly',
+      'Corrosion management (galvanization is key)',
+      'Logistical challenges for custom long lengths'
+    ],
+    marketTrend: 'Strong demand from the expanding Pre-Engineered Building (PEB) sector, especially for projects requiring large clear spans in industrial and warehousing applications. Increased use in solar power projects for robust and efficient module mounting. Government\'s National Infrastructure Pipeline and industrial development initiatives continue to drive the market.'
+  },
+  {
+    slug: 'monopoles-india',
+    name: 'Monopoles',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Monopoles are tall, slender, single-pole structures typically made from tapered steel sections, used primarily for mounting telecommunication antennas, street lighting, or utility lines. They are designed to be aesthetically less intrusive than traditional lattice towers, requiring a smaller footprint and offering easier installation. Monopoles provide robust support for various equipment at elevation, ensuring optimal signal propagation or illumination while blending into urban and suburban landscapes.',
+    industries: [
+      'Telecommunications',
+      'Street Lighting',
+      'Power Transmission',
+      'Smart City Infrastructure',
+      'Traffic Management'
+    ],
+    grades: [
+      'IS 2062 E250/E350/E410 (Structural Steel)',
+      'ASTM A572 Grade 50/65 (High Strength Low Alloy Steel)',
+      'Galvanization: Hot-dip (IS 4759)',
+      'IS 800: General Construction in Steel'
+    ],
+    specifications: [
+      'Height: 15-60 meters',
+      'Base Diameter: 500-1500 mm',
+      'Top Diameter: 200-500 mm',
+      'Wall Thickness: 6-12 mm',
+      'Finish: Hot-dip galvanized'
+    ],
+    standards: [
+      'IS 800: Code of Practice for General Construction in Steel',
+      'IS 4759: Hot Dip Galvanizing of Structural Steel',
+      'TIA/EIA-222: Structural Standards for Antenna Supporting Structures',
+      'ASTM A123: Zinc (Hot-Dip Galvanized) Coatings on Iron and Steel Products'
+    ],
+    hsnCodes: ['7308.20', '7308.90'],
+    orderSizes: '1-50 units',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Germany',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹1,50,000-₹15,00,000 per unit',
+    applications: [
+      'Cellular Tower (4G/5G)',
+      'Street Light Poles',
+      'Transmission Line Supports',
+      'CCTV Camera Poles',
+      'Traffic Signal Poles',
+      'WiFi Hotspot Infrastructure'
+    ],
+    challenges: [
+      'Complex foundation design due to tall slender structure',
+      'Logistics for transport and erection of large sections',
+      'Wind load considerations and vibration mitigation',
+      'Aesthetic integration with urban environment'
+    ],
+    marketTrend: 'Robust demand driven by the rapid expansion of 5G telecom networks and the \'Digital India\' initiative. Significant growth from \'Smart City\' projects for integrated street lighting, CCTV, and communication infrastructure. Government focus on modernizing power transmission and distribution lines also contributes to steady orders.'
+  },
+  {
+    slug: 'transmission-poles-india',
+    name: 'Transmission Poles',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Transmission poles are critical infrastructure components made typically from steel, concrete, or wood, designed to support overhead power lines for electricity transmission and distribution. They are engineered to withstand significant wind loads, ice accumulation, and seismic forces while maintaining structural integrity to ensure reliable power delivery across vast distances, from generation plants to substations and ultimately to consumers. Their design incorporates specific height, strength, and insulation requirements to safely carry high-voltage electrical conductors.',
+    industries: [
+      'Power Transmission & Distribution',
+      'Infrastructure Development',
+      'Renewable Energy',
+      'Urban Electrification',
+      'Rural Electrification'
+    ],
+    grades: [
+      'IS 2062 E250BR (Steel)',
+      'IS 277 (Steel)',
+      'IS 1678 (Concrete)',
+      'ASTM A36 (Steel)',
+      'ASTM A572 Grade 50 (Steel)',
+      'PCC Poles 8m',
+      'PCC Poles 9m',
+      'PCC Poles 11m',
+      'PCC Poles 13m'
+    ],
+    specifications: [
+      'Height: 8m-30m',
+      'Load Bearing Capacity: 100 kg-1000 kg',
+      'Material Thickness: 3mm-10mm (Steel)',
+      'Corrosion Protection: Hot-dip Galvanized (100-120 microns)',
+      'Deflection under Load: 0.5%-1.5%'
+    ],
+    standards: [
+      'IS 2713: Specification for Tubular Steel Poles',
+      'IS 1678: Specification for Pre-stressed Concrete Poles for Overhead Power Traction',
+      'IS 2062: Steel for general structural purposes',
+      'BIS 875 (Part 3): Design Loads (Wind)',
+      'IEC 60810: Lamps for Road Vehicles - Performance Requirements'
+    ],
+    hsnCodes: ['7308.90.90', '8504.90.90'],
+    orderSizes: '50 units-5000 units',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Vietnam',
+      'Germany',
+      'Indonesia',
+      'Turkey',
+      'Malaysia'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹7,500-₹75,000 per unit',
+    applications: [
+      'High Voltage Transmission Lines',
+      'Rural Electrification Projects',
+      'Urban Distribution Networks',
+      'Renewable Energy Project Connections',
+      'Street Lighting Support',
+      'Railway Electrification'
+    ],
+    challenges: [
+      'Logistical challenges for remote installations',
+      'Ensuring consistent material quality across large orders',
+      'Compliance with varying state and central regulations',
+      'Managing raw material price volatility (steel, cement)'
+    ],
+    marketTrend: 'The market for transmission poles in India is experiencing steady growth, driven by increasing electricity demand and significant government investment in infrastructure under schemes like the National Infrastructure Pipeline (NIP) and the Smart Cities Mission. There\'s a particular focus on upgrading aging grid infrastructure and expanding renewable energy integration. The push for \'Har Ghar Bijli\' continues to fuel demand for distribution-level poles.'
+  },
+  {
+    slug: 'telecom-monopoles-india',
+    name: 'Telecom Monopoles',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Telecom monopoles are single-pole structures, typically made of steel, engineered to support cellular antennas, microwave dishes, and other telecommunication equipment. They are designed for minimal visual impact compared to lattice towers, making them suitable for urban and aesthetically sensitive areas, while providing robust support against environmental loads like wind and seismic activity. Their modular design allows for varying heights and equipment capacities, crucial for expanding wireless network coverage and capacity, including 5G deployments.',
+    industries: [
+      'Telecommunications',
+      'Infrastructure Development',
+      'Urban Planning',
+      'Smart Cities',
+      'Internet Service Providers'
+    ],
+    grades: [
+      'IS 2062 E350BO (Steel)',
+      'ASTM A572 Grade 65 (Steel)',
+      'ASTM A500 Grade C (Structural Tubing)',
+      'IS 4923 YST 310 (Hollow Sections)',
+      'IS 800 (Code of Practice for General Construction in Steel)',
+      'Monopole Standard 20m',
+      'Monopole Standard 30m',
+      'Monopole Standard 40m'
+    ],
+    specifications: [
+      'Height: 15m-60m',
+      'Antenna Capacity: 3-12 antennas',
+      'Wind Speed Resistance: Upto 180 km/h',
+      'Galvanization Thickness: 100-120 microns',
+      'Deflection: <1 degree at max wind load'
+    ],
+    standards: [
+      'IS 875 (Part 3): Design Loads (Wind)',
+      'IS 802 (Part 1/Sec 1): Code of Practice for Use of Structural Steel in Overhead Transmission Line Towers',
+      'TIA/EIA-222-G/H: Structural Standard for Antenna Supporting Structures and Antennas',
+      'BIS 1367: Technical Supply Conditions for Fasteners',
+      'IEC 60950: Information Technology Equipment - Safety'
+    ],
+    hsnCodes: ['7308.20.19', '7308.90.90'],
+    orderSizes: '10 units-500 units',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Malaysia',
+      'Germany',
+      'USA',
+      'Turkey',
+      'UAE'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹1,50,000-₹8,00,000 per unit',
+    applications: [
+      '4G/5G Cellular Base Stations',
+      'Microwave Link Support',
+      'Radio Broadcasting',
+      'Security Surveillance Systems (CCTV)',
+      'WiFi Hotspot Deployment',
+      'Smart City Infrastructure'
+    ],
+    challenges: [
+      'Obtaining necessary regulatory approvals and clearances',
+      'Logistics and installation in densely populated urban areas',
+      'Ensuring stability and wind resistance in diverse terrains',
+      'Managing aesthetics and public acceptance of new tower installations'
+    ],
+    marketTrend: 'The telecom monopole market in India is witnessing substantial growth, primarily driven by the rapid expansion of 5G networks and ongoing efforts to improve rural broadband connectivity. Government initiatives like the National Digital Communications Policy and Smart Cities Mission are key demand drivers. There\'s an increasing preference for these aesthetically pleasing structures in urban settings, balancing utility with visual integration.'
+  },
+  {
+    slug: 'tata-wiron-products-india',
+    name: 'Tata Wiron Products',
+    category: 'Building & Construction',
+    categorySlug: 'construction',
+    industrySlug: 'construction',
+    subIndustrySlug: 'building-materials',
+    definition: 'Tata Wiron refers to a range of high-quality wired products manufactured by Tata Steel, encompassing diverse categories like galvanized wires, barbed wires, chainlink fences, and nails. These products are made from robust steel and undergo specific processing, such as hot-dip galvanization, to enhance their durability, corrosion resistance, and strength. They are essential for a multitude of applications across construction, agriculture, and various industrial sectors, providing reliable solutions for fencing, reinforcement, and fastening purposes.',
+    industries: [
+      'Building & Construction',
+      'Agriculture',
+      'Infrastructure Development',
+      'Security & Fencing',
+      'Telecommunications'
+    ],
+    grades: [
+      'IS 280 (Mild Steel Wires)',
+      'IS 278 (Galvanized Steel Wires)',
+      'ASTM A121 (Barbed Wire)',
+      'ASTM A392 (Chain Link Fence)',
+      'IS 7215 (Mild Steel Wire for General Purposes)',
+      'HB Wire',
+      'MS Wire',
+      'GI Wire',
+      'Binding Wire'
+    ],
+    specifications: [
+      'Wire Diameter: 0.9 mm-6.0 mm',
+      'Zinc Coating: 40-275 gsm (Galvanized)',
+      'Tensile Strength: 340-550 N/mm²',
+      'Coil Weight: 25 kg-1000 kg',
+      'Barb Spacing: 75 mm-100 mm (Barbed Wire)'
+    ],
+    standards: [
+      'IS 280: Mild Steel Wire for General Engineering Purposes',
+      'IS 278: Galvanized Steel Barbed Wire for Fencing',
+      'IS 14887: Chain Link Fence',
+      'IS 15637: Steel Wire for Concrete Reinforcement',
+      'BIS 277: Hot-Dipped Galvanized Steel Sheets and Coils'
+    ],
+    hsnCodes: ['7217.10.00', '7314.41.00'],
+    orderSizes: '50 kg-50,000 kg',
+    importCountries: [
+      'China',
+      'Vietnam',
+      'Indonesia',
+      'South Korea',
+      'Russia',
+      'Malaysia',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'doors-windows-india',
+      'paints-coatings-india',
+      'gc-roofing-sheets-india',
+      'gp-roofing-sheets-india',
+      'color-coated-roofing-sheets-india'
+    ],
+    priceRange: '₹65-₹120 per kg',
+    applications: [
+      'Perimeter Fencing (Commercial/Industrial)',
+      'Agricultural Fencing',
+      'Concrete Reinforcement (Binding Wire)',
+      'Security Barriers',
+      'Gabion Mesh Construction',
+      'Vineyards and Orchards'
+    ],
+    challenges: [
+      'Intense competition from unorganized sector suppliers',
+      'Managing fluctuating steel input costs impacting profitability',
+      'Ensuring anti-corrosion properties in diverse climatic zones',
+      'Distribution network efficiency in remote agricultural areas'
+    ],
+    marketTrend: 'The market for Tata Wiron products in India is characterized by consistent demand driven by ongoing infrastructure expansion, growth in real estate, and agricultural requirements. Government focus on rural development, border security, and smart city infrastructure indirectly stimulates demand for fencing and construction-related wire products. The \'Make in India\' and PLI schemes also support domestic manufacturers like Tata Steel.'
+  },
+];
+
+// ─── METALS - FERROUS ───
+const ferrousNewProducts: DemandProduct[] = [
+  {
+    slug: 'foundry-grade-pig-iron-india',
+    name: 'Foundry Grade Pig Iron',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Foundry Grade Pig Iron is an intermediate product of iron manufacturing, produced by smelting iron ore in a blast furnace. It is characterized by its high carbon content (typically 3.5-4.5%) and varying amounts of silicon, manganese, phosphorus, and sulfur, which dictate its suitability for specific foundry applications. This iron is subsequently remelted with scrap and other alloys to produce cast iron components.',
+    industries: [
+      'Automotive',
+      'Foundries',
+      'Heavy Machinery',
+      'Agricultural Equipment',
+      'Railway',
+      'Pipes and Fittings'
+    ],
+    grades: [
+      'IS 284:2018 Grade S1',
+      'IS 284:2018 Grade S2',
+      'IS 284:2018 Grade S3',
+      'ASTM A43',
+      'ASTM A48',
+      'Ductile Iron Grade',
+      'Malleable Iron Grade'
+    ],
+    specifications: [
+      'Carbon Content: 3.5-4.5%',
+      'Silicon Content: 1.0-3.0%',
+      'Manganese Content: 0.5-1.5%',
+      'Phosphorus Content: 0.05-0.15%',
+      'Sulfur Content: 0.01-0.05%'
+    ],
+    standards: [
+      'IS 284:2018 (Pig Iron for Foundry)',
+      'ASTM A43 (Foundry Pig Iron)',
+      'ISO 9443 (Pig irons - Guidelines for purchasers)',
+      'BIS Certification',
+      'NABL Accredited Lab Testing'
+    ],
+    hsnCodes: ['72011000'],
+    orderSizes: '100-5000 Metric Tons',
+    importCountries: [
+      'Ukraine',
+      'Russia',
+      'Brazil',
+      'South Africa',
+      'China',
+      'Australia',
+      'Sweden'
+    ],
+    relatedSlugs: [
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india',
+      'hrpo-india'
+    ],
+    priceRange: '₹40,000-60,000 per Metric Ton',
+    applications: [
+      'Automotive Engine Blocks',
+      'Machine Tool Castings',
+      'Pumps and Valve Bodies',
+      'Agricultural Implement Castings',
+      'Railway Brake Drums',
+      'Counterweights'
+    ],
+    challenges: [
+      'Volatility in raw material prices (iron ore, coking coal)',
+      'Energy costs for blast furnace operations',
+      'Environmental regulations on emissions',
+      'Logistical challenges for bulk material transport'
+    ],
+    marketTrend: 'Demand for foundry grade pig iron is closely linked to the growth of the manufacturing and infrastructure sectors. The \'Make in India\' initiative, coupled with investments in automotive and heavy machinery, is expected to maintain a steady demand. Focus on quality and specific alloy compositions is increasing, driven by advanced manufacturing processes.'
+  },
+  {
+    slug: 'cold-rolled-gp-sheets-india',
+    name: 'Cold Rolled GP Sheets',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Cold Rolled Galvanized Plain (GP) Sheets are steel sheets that have undergone cold rolling to achieve precise thickness and surface finish, followed by hot-dip galvanization to apply a protective zinc coating. This coating provides excellent corrosion resistance, making the sheets suitable for applications requiring durability and a clean appearance. They are typically used in environments exposed to moisture and moderate corrosive elements.',
+    industries: [
+      'Construction',
+      'Automotive',
+      'Appliances',
+      'HVAC',
+      'Electrical Enclosures',
+      'Furniture'
+    ],
+    grades: [
+      'IS 277:2018 Grade D',
+      'IS 277:2018 Grade L',
+      'ASTM A653 CS Type A',
+      'JIS G3302 SGCC',
+      'EN 10346 DX51D',
+      'CQ (Commercial Quality)',
+      'DQ (Drawing Quality)'
+    ],
+    specifications: [
+      'Thickness: 0.30mm-2.00mm',
+      'Width: 900mm-1500mm',
+      'Zinc Coating: Z80-Z275 gsm',
+      'Tensile Strength: 270-450 MPa',
+      'Yield Strength: 210-350 MPa'
+    ],
+    standards: [
+      'IS 277:2018 (Galvanized Steel Sheets)',
+      'ASTM A653 (Steel Sheet, Zinc-Coated by the Hot-Dip Process)',
+      'JIS G3302 (Hot-dip zinc-coated steel sheets and coils)',
+      'EN 10346 (Continuously hot-dip coated steel flat products)',
+      'BIS Certification'
+    ],
+    hsnCodes: ['72104900'],
+    orderSizes: '5-500 Metric Tons',
+    importCountries: [
+      'South Korea',
+      'Japan',
+      'China',
+      'Vietnam',
+      'Turkey',
+      'Taiwan',
+      'Malaysia'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india',
+      'hrpo-india'
+    ],
+    priceRange: '₹70,000-95,000 per Metric Ton',
+    applications: [
+      'Roofing and Cladding',
+      'Ducting Systems',
+      'White Goods (refrigerators, washing machines)',
+      'Automotive Body Panels (non-exposed)',
+      'Electrical Panels',
+      'Grain Silos'
+    ],
+    challenges: [
+      'Fluctuations in zinc and steel raw material prices',
+      'Maintaining uniform coating thickness',
+      'Competition from imported cheaper alternatives',
+      'Environmental concerns regarding galvanization processes'
+    ],
+    marketTrend: 'The infrastructure push, particularly under the \'Smart Cities\' mission and affordable housing schemes, drives consistent demand for GP sheets in construction. The automotive and appliance sectors also contribute significantly. Domestic manufacturers benefit from policies promoting local production, though competition from international players remains a factor.'
+  },
+  {
+    slug: 'cold-rolled-annealed-coils-india',
+    name: 'Cold Rolled Annealed Coils',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Cold Rolled Annealed (CRA) Coils are steel coils that have undergone cold rolling to achieve precise dimensions and surface finish, followed by an annealing process. Annealing involves heating the steel to a specific temperature and then slowly cooling it, which reduces hardness, improves ductility, and refines the grain structure. This process makes the material highly formable and suitable for deep drawing and complex shaping operations.',
+    industries: [
+      'Automotive',
+      'Appliances',
+      'Electrical',
+      'Deep Drawing',
+      'Precision Stamping',
+      'Furniture'
+    ],
+    grades: [
+      'IS 513:2008 CR1',
+      'IS 513:2008 CR2',
+      'IS 513:2008 CR3',
+      'ASTM A1008/A1008M CS Type B',
+      'JIS G3141 SPCC',
+      'EN 10130 DC01',
+      'DQSK (Deep Drawing Quality Special Killed)'
+    ],
+    specifications: [
+      'Thickness: 0.30mm-3.00mm',
+      'Width: 600mm-1800mm',
+      'Tensile Strength: 270-410 MPa',
+      'Yield Strength: 140-280 MPa',
+      'Elongation: >30%'
+    ],
+    standards: [
+      'IS 513:2008 (Cold Rolled Low Carbon Steel Sheets and Coils)',
+      'ASTM A1008/A1008M (Steel, Sheet, Cold-Rolled, Carbon, Structural)',
+      'JIS G3141 (Cold-reduced carbon steel sheets and strip)',
+      'EN 10130 (Cold rolled flat products of low carbon steel)',
+      'BIS Certification'
+    ],
+    hsnCodes: ['72091710', '72091810'],
+    orderSizes: '10-1000 Metric Tons',
+    importCountries: [
+      'South Korea',
+      'Japan',
+      'China',
+      'Vietnam',
+      'Taiwan',
+      'Russia',
+      'Germany'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india',
+      'hrpo-india'
+    ],
+    priceRange: '₹65,000-85,000 per Metric Ton',
+    applications: [
+      'Automotive Exposed Panels',
+      'Refrigerator Outer Bodies',
+      'Washing Machine Casings',
+      'Deep Drawn Components',
+      'Pre-painted Steel Substrate',
+      'Furniture Components'
+    ],
+    challenges: [
+      'Maintaining uniform mechanical properties after annealing',
+      'Surface quality control to prevent defects',
+      'Energy consumption during the annealing process',
+      'Managing inventory due to specific grade requirements'
+    ],
+    marketTrend: 'The automotive sector, particularly with the push for localization and electric vehicle manufacturing, is a key driver for CRA coils. The appliance industry, driven by rising consumer demand and PLI schemes, also contributes significantly. Consistency in quality and adherence to strict specifications are paramount for buyers in these industries.'
+  },
+  {
+    slug: 'full-hard-cold-rolled-coils-india',
+    name: 'Full Hard Cold Rolled Coils',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Full Hard Cold Rolled (FHCR) Coils are steel coils that have undergone cold rolling without subsequent annealing. This process significantly increases the material\'s strength and hardness while reducing its ductility. Characterized by a bright, smooth finish and tight dimensional tolerances, FHCR coils are typically used in applications where high strength is required and where further forming or deep drawing is not extensive. They often serve as a substrate for galvanizing or painting.',
+    industries: [
+      'Construction',
+      'Automotive (non-exposed parts)',
+      'Steel Furniture',
+      'Pipemaking (for smaller diameters)',
+      'Electrical Appliances',
+      'Storage Racks'
+    ],
+    grades: [
+      'IS 513:2008 CR0',
+      'ASTM A1008/A1008M HR',
+      'JIS G3141 SPCC-1C (without annealing)',
+      'EN 10130 DC01 (as-rolled)',
+      'Commercial Quality',
+      'High Strength Low Alloy (HSLA)'
+    ],
+    specifications: [
+      'Thickness: 0.20mm-2.00mm',
+      'Width: 600mm-1500mm',
+      'Tensile Strength: 350-550 MPa',
+      'Yield Strength: 300-480 MPa',
+      'Hardness: HRB 70-95'
+    ],
+    standards: [
+      'IS 513:2008 (Cold Rolled Low Carbon Steel Sheets and Coils)',
+      'ASTM A1008/A1008M (Steel, Sheet, Cold-Rolled, Carbon, Structural)',
+      'JIS G3141 (Cold-reduced carbon steel sheets and strip)',
+      'EN 10130 (Cold rolled flat products of low carbon steel)',
+      'BIS Certification'
+    ],
+    hsnCodes: ['72091710', '72091810'],
+    orderSizes: '10-1000 Metric Tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Vietnam',
+      'Taiwan',
+      'Russia',
+      'Thailand'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'hr-plates-india',
+      'hrpo-india'
+    ],
+    priceRange: '₹60,000-78,000 per Metric Ton',
+    applications: [
+      'Substrate for Galvanizing',
+      'Pre-painted Steel Applications',
+      'Rolling Shutters',
+      'Steel Furniture Structurals',
+      'Conduit Pipes',
+      'Trays and Panels'
+    ],
+    challenges: [
+      'Limited formability restricts application range',
+      'Higher internal stresses, risking spring back',
+      'Surface defects like orange peel can be prominent',
+      'Requires careful handling due to hardness'
+    ],
+    marketTrend: 'FHCR coils are primarily used as feedstock for galvanized or color-coated products, making their demand linked to industries like construction, pre-engineered buildings, and appliances. Government initiatives like the National Infrastructure Pipeline and Housing for All drive a steady requirement. The emphasis on cost-effectiveness and timely supply is crucial in this segment.'
+  },
+  {
+    slug: 'hr-plates-india',
+    name: 'HR Plates',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Hot Rolled (HR) Plates are flat steel products produced by rolling steel at high temperatures, typically above 1,000°C. This process allows the steel to be easily shaped and results in a product with a rougher surface finish and looser dimensional tolerances compared to cold-rolled products. HR Plates are known for their strength, weldability, and impact resistance, making them ideal for heavy structural applications where precision is less critical than robustness.',
+    industries: [
+      'Construction',
+      'Shipbuilding',
+      'Heavy Fabrication',
+      'Pressure Vessels',
+      'Bridges',
+      'Mining Equipment'
+    ],
+    grades: [
+      'IS 2062:2011 E250BR',
+      'IS 2062:2011 E350BR',
+      'ASTM A36',
+      'ASTM A572 Grade 50',
+      'EN 10025 S275JR',
+      'IS 2062:2011 E410BR',
+      'Boiler Quality (BQ) Grades'
+    ],
+    specifications: [
+      'Thickness: 5mm-150mm',
+      'Width: 1500mm-3000mm',
+      'Length: 6000mm-12000mm',
+      'Tensile Strength: 410-600 MPa',
+      'Yield Strength: 250-450 MPa'
+    ],
+    standards: [
+      'IS 2062:2011 (Hot Rolled Medium and High Tensile Structural Steel)',
+      'ASTM A36 (Standard Specification for Carbon Structural Steel)',
+      'ASTM A572 (High-Strength Low-Alloy Columbium-Vanadium Structural Steel)',
+      'EN 10025 (Hot rolled products of structural steels)',
+      'BIS Certification and IBR Approved'
+    ],
+    hsnCodes: ['72085110', '72085200'],
+    orderSizes: '5-5000 Metric Tons',
+    importCountries: [
+      'Japan',
+      'South Korea',
+      'China',
+      'Russia',
+      'Ukraine',
+      'Germany',
+      'Brazil'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hrpo-india'
+    ],
+    priceRange: '₹60,000-85,000 per Metric Ton',
+    applications: [
+      'Building Structures',
+      'Ship Hulls',
+      'Storage Tanks',
+      'Railway Wagons',
+      'Bridge Girders',
+      'Offshore Platforms'
+    ],
+    challenges: [
+      'Price volatility of iron ore and coking coal',
+      'Logistical costs for heavy and large plates',
+      'Ensuring consistent mechanical properties across thick sections',
+      'Competition from imported plates with aggressive pricing'
+    ],
+    marketTrend: 'HR Plates are foundational to India\'s infrastructure development, with strong demand driven by government spending on highways, ports, railways, and industrial corridors under the National Infrastructure Pipeline. The shipbuilding and heavy equipment manufacturing sectors also contribute. Focus on higher strength-to-weight ratio plates and specialized grades is increasing.'
+  },
+  {
+    slug: 'hrpo-india',
+    name: 'HRPO',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Hot Rolled Pickled and Oiled (HRPO) steel is hot-rolled steel that has undergone an additional processing step called pickling, which removes mill scale and surface impurities using acid. Following pickling, a thin layer of oil is applied to prevent rust during storage and transportation. This process results in a cleaner, smoother surface than standard hot-rolled steel, improving its suitability for subsequent cold forming, welding, and painting operations.',
+    industries: [
+      'Automotive',
+      'Tube & Pipe Manufacturing',
+      'Heavy Fabrication',
+      'Agricultural Equipment',
+      'Industrial Racking',
+      'Construction Equipment'
+    ],
+    grades: [
+      'IS 10748:2004 HR1',
+      'IS 10748:2004 HR2',
+      'ASTM A1011 CS Type B',
+      'JIS G3131 SPHC',
+      'EN 10111 DD11',
+      'CQ (Commercial Quality)',
+      'DQ (Drawing Quality)'
+    ],
+    specifications: [
+      'Thickness: 1.6mm-12.0mm',
+      'Width: 900mm-2000mm',
+      'Surface Finish: Clean, scale-free, oiled',
+      'Tensile Strength: 300-500 MPa',
+      'Yield Strength: 200-380 MPa'
+    ],
+    standards: [
+      'IS 10748:2004 (Hot rolled carbon steel sheet and strip for cold forming)',
+      'ASTM A1011 (Steel, Sheet and Strip, Hot-Rolled, Carbon, Commercial)',
+      'JIS G3131 (Hot-rolled mild steel plates, sheets and strip)',
+      'EN 10111 (Hot rolled uncoated low carbon steel flat products)',
+      'BIS Certification'
+    ],
+    hsnCodes: ['72083900'],
+    orderSizes: '50-2000 Metric Tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Russia',
+      'Ukraine',
+      'Taiwan',
+      'Thailand'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹62,000-80,000 per Metric Ton',
+    applications: [
+      'Automotive Chassis Components',
+      'Pipe and Tube Mills feedstock',
+      'Agricultural Implement Frames',
+      'Pressure Vessel Components',
+      'Heavy Duty Storage Racks',
+      'Construction Equipment Parts'
+    ],
+    challenges: [
+      'Disposal of acidic waste from pickling process',
+      'Maintaining consistent oil coating for rust prevention',
+      'Energy costs for heating and pickling',
+      'Competition from alternative surface preparation methods'
+    ],
+    marketTrend: 'HRPO demand is robust, fueled by the growth in automotive manufacturing, particularly the push for localization and \'Make in India\' components. The tube and pipe industry, serving both infrastructure and industrial sectors, is also a significant consumer. Regulatory focus on environmental compliance in pickling operations is increasing, prompting cleaner production methods.'
+  },
+  {
+    slug: 'gp-sheets-india',
+    name: 'GP Sheets',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Galvanized Plain (GP) Sheets are steel sheets that have undergone hot-dip galvanization, where they are immersed in a molten zinc bath to acquire a protective coating. This process imparts excellent corrosion resistance to the steel, making it durable in various environmental conditions. GP sheets are widely used in construction and manufacturing for applications requiring both structural integrity and protection against rust.',
+    industries: [
+      'Construction',
+      'Automotive',
+      'Appliances',
+      'HVAC',
+      'Electrical',
+      'Solar Energy'
+    ],
+    grades: [
+      'IS 277:2018 Grade D',
+      'IS 277:2018 Grade L',
+      'ASTM A653 CS Type A',
+      'JIS G3302 SGCC',
+      'EN 10346 DX51D',
+      'CQ (Commercial Quality)',
+      'DQ (Drawing Quality)'
+    ],
+    specifications: [
+      'Thickness: 0.30mm-2.00mm',
+      'Width: 900mm-1500mm',
+      'Zinc Coating: Z80-Z275 gsm',
+      'Tensile Strength: 270-450 MPa',
+      'Yield Strength: 210-350 MPa'
+    ],
+    standards: [
+      'IS 277:2018 (Galvanized Steel Sheets)',
+      'ASTM A653 (Steel Sheet, Zinc-Coated by the Hot-Dip Process)',
+      'JIS G3302 (Hot-dip zinc-coated steel sheets and coils)',
+      'EN 10346 (Continuously hot-dip coated steel flat products)',
+      'BIS Certification'
+    ],
+    hsnCodes: ['72104900'],
+    orderSizes: '5-500 Metric Tons',
+    importCountries: [
+      'South Korea',
+      'Japan',
+      'China',
+      'Vietnam',
+      'Turkey',
+      'Taiwan',
+      'Malaysia'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹70,000-95,000 per Metric Ton',
+    applications: [
+      'Roofing and Wall Cladding',
+      'Ductwork for HVAC',
+      'Appliance Casings',
+      'Automotive Parts (non-exposed)',
+      'Electrical Cabinets',
+      'Solar Panel Mounts'
+    ],
+    challenges: [
+      'Volatility in zinc market prices affecting production costs',
+      'Ensuring consistent zinc coating thickness and adhesion',
+      'Environmental impact of galvanization processes',
+      'Competition from pre-painted galvanized steel'
+    ],
+    marketTrend: 'The ‘Housing for All’ initiative and significant infrastructure development continue to drive demand for GP sheets. The growth of the appliance sector and solar energy projects further boosts consumption. Policies aimed at boosting domestic manufacturing (PLI schemes) are favorable, though quality and price remain key competitive factors.'
+  },
+  {
+    slug: 'gc-sheets-india',
+    name: 'GC Sheets',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Galvanized Corrugated (GC) Sheets are galvanized steel sheets that have been cold-formed into a corrugated pattern. The corrugation process enhances the sheet\'s strength, rigidity, and spanning capability, making it highly suitable for structural applications, particularly in roofing and walling. The galvanized coating provides exceptional protection against rust and corrosion, ensuring a long service life in outdoor environments.',
+    industries: [
+      'Construction',
+      'Rural Housing',
+      'Warehousing',
+      'Temporary Shelters',
+      'Agricultural Buildings',
+      'Fencing'
+    ],
+    grades: [
+      'IS 277:2018 Grade D',
+      'IS 277:2018 Grade L',
+      'ASTM A653 CS Type B',
+      'JIS G3302 SGCH',
+      'EN 10346 S280GD',
+      'Commercial Quality (CQ)',
+      'Structural Grade'
+    ],
+    specifications: [
+      'Thickness: 0.30mm-0.80mm',
+      'Width (effective): 760mm-1000mm',
+      'Zinc Coating: Z120-Z275 gsm',
+      'Corrugation Depth: 12-25mm',
+      'Tensile Strength: 300-550 MPa'
+    ],
+    standards: [
+      'IS 277:2018 (Galvanized Steel Sheets)',
+      'ASTM A653 (Steel Sheet, Zinc-Coated by the Hot-Dip Process)',
+      'JIS G3302 (Hot-dip zinc-coated steel sheets and coils)',
+      'EN 10346 (Continuously hot-dip coated steel flat products)',
+      'BIS Certification'
+    ],
+    hsnCodes: ['72104100'],
+    orderSizes: '5-300 Metric Tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Vietnam',
+      'Turkey',
+      'Malaysia',
+      'Indonesia',
+      'Taiwan'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹75,000-1,00,000 per Metric Ton',
+    applications: [
+      'Residential Roofing',
+      'Industrial Sheds',
+      'Farm Buildings',
+      'Boundary Walls',
+      'Temporary Site Offices',
+      'Shelters for disasters'
+    ],
+    challenges: [
+      'Ensuring consistent corrugation profiles and dimensions',
+      'Managing raw material (GP coil) price fluctuations',
+      'Transport damage susceptibility due to handling',
+      'Competition from other roofing materials like asbestos cement sheets'
+    ],
+    marketTrend: 'GC sheets are a staple in the affordable housing segment and rural development programs, driven by government initiatives like \'Pradhan Mantri Awas Yojana\'. Demand from warehousing and industrial shed construction is also significant. The ease of installation and cost-effectiveness ensure sustained market presence, with a growing focus on higher zinc coatings for extended life.'
+  },
+  {
+    slug: 'steel-pipes-india',
+    name: 'Steel Pipes',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Steel pipes are hollow cylindrical sections of steel used for conveying liquids, gases, and fine solids, or for various structural applications. They are manufactured through different processes including Electric Resistance Welding (ERW), Seamless, and Submerged Arc Welding (SAW), each offering distinct properties suited for specific pressure, temperature, and corrosive environments. Their strength, durability, and versatility make them indispensable in modern infrastructure.',
+    industries: [
+      'Oil & Gas',
+      'Water Supply',
+      'Construction',
+      'Automotive',
+      'Agriculture',
+      'HVAC'
+    ],
+    grades: [
+      'IS 1239 (Part 1):2004 Light',
+      'IS 1239 (Part 1):2004 Medium',
+      'IS 1239 (Part 1):2004 Heavy',
+      'ASTM A53 Grade A/B (ERW/Seamless)',
+      'API 5L Grade B/X42/X52',
+      'IS 3589:2016 Grade Fe 330/Fe 410',
+      'ASTM A106 Grade B/C (Seamless)'
+    ],
+    specifications: [
+      'Outer Diameter: 1/2 inch to 24 inches (ERW)',
+      'Wall Thickness: 2mm-100mm (Seamless)',
+      'Length: 6 meters to 12 meters',
+      'Hydrostatic Test Pressure: As per standard',
+      'Material: Carbon Steel, Alloy Steel'
+    ],
+    standards: [
+      'IS 1239 (Part 1):2004 (Mild Steel Tubes, Tubulars)',
+      'IS 3589:2016 (Steel Pipes for Water and Sewage)',
+      'ASTM A53 (Pipe, Steel, Black and Hot-Dipped, Zinc-Coated)',
+      'API 5L (Specification for Line Pipe)',
+      'BIS Certification and IBR Approved'
+    ],
+    hsnCodes: ['73063090', '73041910'],
+    orderSizes: '1-1000 Metric Tons',
+    importCountries: [
+      'China',
+      'Japan',
+      'South Korea',
+      'Germany',
+      'Turkey',
+      'Ukraine',
+      'UAE'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹70,000-1,20,000 per Metric Ton',
+    applications: [
+      'Water Pipelines',
+      'Gas Distribution Networks',
+      'Structural Columns',
+      'Conduit for Electrical Cables',
+      'Boiler Tubes',
+      'Irrigation Systems'
+    ],
+    challenges: [
+      'Ensuring weld integrity and dimensional accuracy',
+      'Corrosion prevention during service life',
+      'Logistical challenges for large diameter and long pipes',
+      'Intense competition from domestic and international suppliers'
+    ],
+    marketTrend: 'Massive investment in water infrastructure projects like \'Jal Jeevan Mission\' and expansion of oil & gas pipelines under the National Gas Grid significantly drive demand for steel pipes. The construction sector\'s growth and urbanization also contribute. There is a growing preference for corrosion-resistant coatings and higher-grade materials for critical applications.'
+  },
+  {
+    slug: 'spiral-welded-pipes-india',
+    name: 'Spiral Welded Pipes',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Spiral Welded Pipes, also known as Helical Submerged Arc Welded (HSAW) pipes, are large diameter steel pipes produced by spirally coiling a steel strip and then welding the adjoining edges together using a submerged arc welding process. This manufacturing method allows for the production of very large diameter pipes (typically 24 inches and above) with excellent structural integrity suitable for high-pressure fluid conveyance over long distances. They are known for cost-effectiveness in large diameters.',
+    industries: [
+      'Oil & Gas Pipelines',
+      'Water Transmission',
+      'Sewerage Systems',
+      'Hydroelectric Projects',
+      'Offshore Structures',
+      'Infrastructure Projects'
+    ],
+    grades: [
+      'IS 3589:2016 Grade Fe 330',
+      'IS 3589:2016 Grade Fe 410',
+      'API 5L Grade B',
+      'API 5L Grade X42',
+      'API 5L Grade X52',
+      'ASTM A139 Grade B',
+      'EN 10217-5'
+    ],
+    specifications: [
+      'Outer Diameter: 24 inches to 120 inches',
+      'Wall Thickness: 6mm-25mm',
+      'Length: 6 meters to 18 meters',
+      'Pressure Rating: Up to 1500 psi (design dependent)',
+      'Steel Grade: As per API 5L or IS 3589'
+    ],
+    standards: [
+      'IS 3589:2016 (Steel Pipes for Water and Sewage)',
+      'API 5L (Specification for Line Pipe)',
+      'ASTM A139 (Electric-Fusion (ARC)-Welded Steel Pipe (NPS 4 and Over))',
+      'ISO 3183 (Petroleum and natural gas industries-steel pipe for pipelines)',
+      'BIS Certification and PESO Approved'
+    ],
+    hsnCodes: ['73061919'],
+    orderSizes: '100-10000 Metric Tons',
+    importCountries: [
+      'China',
+      'Turkey',
+      'South Korea',
+      'Russia',
+      'Malaysia',
+      'Indonesia',
+      'UAE'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹65,000-95,000 per Metric Ton',
+    applications: [
+      'Crude Oil Pipelines',
+      'Natural Gas Pipelines',
+      'Large Diameter Water Supply Lines',
+      'Irrigation and Drainage Projects',
+      'Structural Piles',
+      'Industrial Effluent Disposal'
+    ],
+    challenges: [
+      'Ensuring consistent weld quality over long spiral seams',
+      'Logistical challenges in transporting large diameter pipes',
+      'Volatility in Hot Rolled Coil (HRC) feedstock prices',
+      'Strict regulatory compliance for pipeline safety in critical sectors'
+    ],
+    marketTrend: 'The expansion of India\'s oil and gas pipeline infrastructure and the implementation of large-scale water supply schemes under \'Jal Jeevan Mission\' are key drivers for HSAW pipes. The National Infrastructure Pipeline allocates significant funds for such projects. Domestic manufacturing is boosted by PLI schemes, emphasizing scale and quality for critical infrastructure.'
+  },
+  {
+    slug: 'tmt-bars-fe-500-india',
+    name: 'TMT Bars Fe-500',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Thermo-Mechanically Treated (TMT) bars Fe-500 are high-strength reinforcement bars widely used in construction. Produced through a specialized manufacturing process involving hot rolling, quenching, and tempering, they exhibit excellent tensile strength and ductility. The Fe-500 grade signifies a minimum yield strength of 500 N/mm², making them suitable for general construction, residential buildings, and infrastructure projects requiring moderate structural loads. Their ribbed surface ensures superior bonding with concrete, preventing slippage and enhancing the overall structural integrity.',
+    industries: [
+      'Construction',
+      'Real Estate',
+      'Infrastructure Development',
+      'Residential Building',
+      'Industrial Construction',
+      'Bridge Building'
+    ],
+    grades: [
+      'Fe 500 IS 1786',
+      'Fe 500D IS 1786 (for comparison)',
+      'Fe 415 IS 1786 (for comparison)',
+      'ASTM A615 Grade 75 (equivalent)',
+      'BS 4449 Grade B500B (equivalent)',
+      'JIS G3112 SD490 (equivalent)',
+      'DIN 488 B500B (equivalent)',
+      'EN 10080 B500B (equivalent)'
+    ],
+    specifications: [
+      'Yield Strength: 500-550 N/mm²',
+      'Tensile Strength: 565-620 N/mm²',
+      'Elongation: 14-18%',
+      'Carbon Equivalent (CE): 0.40-0.45%',
+      'Standard Length: 6-12 meters'
+    ],
+    standards: [
+      'IS 1786:2008 (Reaffirmed 2018)',
+      'BIS Certification (mandatory in India)',
+      'ASTM A615/A615M',
+      'BS 4449',
+      'ISO 6935-2'
+    ],
+    hsnCodes: ['7214.20', '7214.99'],
+    orderSizes: '10-500000 kg',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Turkey',
+      'Ukraine',
+      'Russia',
+      'Malaysia'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹45-55 per kg',
+    applications: [
+      'Residential buildings',
+      'Commercial complexes',
+      'Bridges and flyovers',
+      'Industrial structures',
+      'Roads and highways',
+      'Dams and canals'
+    ],
+    challenges: [
+      'Volatility in raw material (iron ore, coking coal) prices',
+      'Intense competition from organized and unorganized sectors',
+      'Logistical challenges for transportation to remote sites',
+      'Quality consistency across different manufacturers'
+    ],
+    marketTrend: 'The demand for TMT bars Fe-500 remains robust, driven by extensive government investment in infrastructure projects under the National Infrastructure Pipeline (NIP) and the push for \'Housing for All\'. Urbanization and the growth of smart cities are also contributing factors. Manufacturers are focusing on energy efficiency in production and adopting sustainable practices to meet regulatory expectations.'
+  },
+  {
+    slug: 'tmt-bars-fe-500d-india',
+    name: 'TMT Bars Fe-500D',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'TMT Bars Fe-500D are advanced high-strength deformed steel bars with superior ductility compared to standard Fe-500 grades. The \'D\' denotes enhanced ductility, achieved through stricter control over the chemical composition, particularly lower carbon and sulphur content, and optimized thermomechanical treatment. This results in significantly higher elongation and bendability, making them ideal for seismic zones and structures requiring greater earthquake resistance and energy absorption without brittle fracture. Their yield strength is a minimum of 500 N/mm².',
+    industries: [
+      'Seismic Zone Construction',
+      'High-Rise Buildings',
+      'Infrastructure Development',
+      'Bridge Construction',
+      'Nuclear Power Plants',
+      'Residential & Commercial Construction'
+    ],
+    grades: [
+      'Fe 500D IS 1786',
+      'Fe 500S (equivalent in some regions)',
+      'ASTM A706 Grade 60 (equivalent for seismic applications)',
+      'BS 4449 Grade B500C (equivalent)',
+      'JIS G3112 SD490 with low carbon (equivalent)',
+      'EN 10080 B500C (equivalent)',
+      'IS 1786:2008 Grade Fe 500D'
+    ],
+    specifications: [
+      'Yield Strength: 500-550 N/mm²',
+      'Tensile Strength: 585-645 N/mm²',
+      'Elongation: 16-20%',
+      'Carbon Equivalent (CE): Max 0.42%',
+      'Sulphur + Phosphorus: Max 0.075%'
+    ],
+    standards: [
+      'IS 1786:2008 (Reaffirmed 2018) \'D\' category',
+      'BIS Certification',
+      'ASTM A706/A706M',
+      'BS 4449',
+      'ISO 6935-2'
+    ],
+    hsnCodes: ['7214.20', '7214.99'],
+    orderSizes: '10-250000 kg',
+    importCountries: [
+      'Germany',
+      'Japan',
+      'South Korea',
+      'Austria',
+      'Finland',
+      'Sweden',
+      'China'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹48-58 per kg',
+    applications: [
+      'Earthquake-resistant structures',
+      'High-rise buildings in seismic zones',
+      'Critical infrastructure projects',
+      'Heavy load bearing structures',
+      'Bridges and tunnels',
+      'Foundations and retaining walls'
+    ],
+    challenges: [
+      'Higher production costs due to stringent chemical control',
+      'Limited availability from smaller manufacturers',
+      'Need for specialized testing and quality assurance',
+      'Educating end-users on the specific benefits over regular TMT'
+    ],
+    marketTrend: 'The demand for Fe-500D TMT bars is steadily increasing, particularly in seismic-prone regions of India. Government regulations mandating earthquake-resistant designs for critical infrastructure and multi-story buildings, coupled with growing awareness among builders, are key drivers. The focus on safety and durability in construction under the Smart Cities mission is further boosting this segment.'
+  },
+  {
+    slug: 'tmt-bars-fe-550-india',
+    name: 'TMT Bars Fe-550',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'TMT Bars Fe-550 are high-strength reinforcement bars offering a minimum yield strength of 550 N/mm². They are manufactured using the same thermo-mechanical treatment process as other TMT grades, but with a specific chemical composition and rolling parameters to achieve enhanced strength. Fe-550 bars are typically used in large-scale infrastructure projects, commercial buildings, and industrial structures where higher load-bearing capacity and reduced steel consumption are desired without compromising ductility. They provide a cost-effective solution for structural designs.',
+    industries: [
+      'Large-Scale Infrastructure',
+      'Commercial Building',
+      'Industrial Construction',
+      'High-Rise Construction',
+      'Bridge & Elevated Corridor Projects',
+      'Prestressed Concrete Applications'
+    ],
+    grades: [
+      'Fe 550 IS 1786',
+      'Fe 550D IS 1786 (for comparison)',
+      'Fe 415 IS 1786 (for comparison)',
+      'ASTM A615 Grade 80 (equivalent)',
+      'BS 4449 Grade B500B/B550B (equivalent)',
+      'DIN 488 B550B (equivalent)',
+      'EN 10080 B550B (equivalent)',
+      'AS/NZS 4671 500E (equivalent)'
+    ],
+    specifications: [
+      'Yield Strength: 550-600 N/mm²',
+      'Tensile Strength: 600-660 N/mm²',
+      'Elongation: 12-16%',
+      'Carbon Equivalent (CE): 0.42-0.47%',
+      'Standard Length: 6-12 meters'
+    ],
+    standards: [
+      'IS 1786:2008 (Reaffirmed 2018)',
+      'BIS Certification',
+      'ASTM A615/A615M',
+      'BS 4449',
+      'ISO 6935-2'
+    ],
+    hsnCodes: ['7214.20', '7214.99'],
+    orderSizes: '50-500000 kg',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Turkey',
+      'GCC countries',
+      'Ukraine',
+      'Russia'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹46-56 per kg',
+    applications: [
+      'High-rise commercial buildings',
+      'Long-span bridges',
+      'Industrial structures and factories',
+      'Ports and maritime structures',
+      'Metro and railway infrastructure',
+      'Large foundations and basements'
+    ],
+    challenges: [
+      'Potential for reduced ductility compared to \'D\' grades if not specified',
+      'Requires careful quality control during concrete pouring to ensure alignment',
+      'Competition from lower-grade, cheaper alternatives in some regions',
+      'Availability in smaller diameters can be limited from certain suppliers'
+    ],
+    marketTrend: 'The market for TMT Fe-550 bars continues to grow, fueled by ambitious infrastructure and commercial development projects across India. The government\'s push for more efficient and durable construction practices, aligning with initiatives like the \'Make in India\' and \'Smart Cities\' programs, drives demand for higher strength steel. Engineers increasingly specify Fe-550 to optimize designs and reduce material consumption, offering cost efficiencies.'
+  },
+  {
+    slug: 'tmt-bars-fe-550d-india',
+    name: 'TMT Bars Fe-550D',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'TMT Bars Fe-550D are premium reinforcement bars combining high strength with enhanced ductility. The \'D\' suffix indicates superior bendability and elongation properties, achieved through precise control over the chemical composition, especially low levels of carbon, sulfur, and phosphorus, coupled with an advanced thermomechanical treatment process. With a minimum yield strength of 550 N/mm², these bars are extensively used in earthquake-prone areas, critical infrastructure, and structures demanding both high load-bearing capacity and resilience against dynamic forces. They ensure maximum safety and structural integrity.',
+    industries: [
+      'Seismic Construction',
+      'Critical Infrastructure',
+      'High-Rise Commercial & Residential',
+      'Bridge Development',
+      'Power Plants (Thermal & Nuclear)',
+      'Industrial Facilities'
+    ],
+    grades: [
+      'Fe 550D IS 1786',
+      'Fe 500D IS 1786 (for comparison)',
+      'ASTM A706 Grade 80 (equivalent for seismic applications)',
+      'BS 4449 Grade B550C (equivalent)',
+      'EN 10080 B550C (equivalent)',
+      'JIS G3112 SD590 with low carbon (equivalent)',
+      'CSA G30.18-09 Grade 500R (equivalent)'
+    ],
+    specifications: [
+      'Yield Strength: 550-600 N/mm²',
+      'Tensile Strength: 630-690 N/mm²',
+      'Elongation: 14-18%',
+      'Carbon Equivalent (CE): Max 0.42%',
+      'Sulphur + Phosphorus: Max 0.070%'
+    ],
+    standards: [
+      'IS 1786:2008 (Reaffirmed 2018) \'D\' category',
+      'BIS Certification',
+      'ASTM A706/A706M',
+      'BS 4449',
+      'ISO 6935-2'
+    ],
+    hsnCodes: ['7214.20', '7214.99'],
+    orderSizes: '50-250000 kg',
+    importCountries: [
+      'Germany',
+      'Japan',
+      'South Korea',
+      'Finland',
+      'Austria',
+      'Sweden',
+      'Luxembourg'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹49-59 per kg',
+    applications: [
+      'Earthquake-resistant buildings',
+      'Long-span bridges and viaducts',
+      'Heavy industrial foundations',
+      'Metro rail projects',
+      'Marine structures and jetties',
+      'High-story residential and commercial towers'
+    ],
+    challenges: [
+      'Higher premium over standard Fe-550 due to specialized production',
+      'Requires advanced quality assurance and testing facilities',
+      'Limited number of domestic manufacturers meeting all \'D\' grade specifications',
+      'Ensuring proper handling and bending techniques on site to preserve ductility'
+    ],
+    marketTrend: 'The demand for TMT Fe-550D bars is experiencing significant growth driven by increasing awareness of seismic hazards and stricter building codes in India. The government\'s thrust on resilient infrastructure, including projects under the Smart Cities and National Infrastructure Pipeline, fuels the need for high-strength, high-ductility steel. Adoption by leading construction firms for critical projects is expanding its market footprint.'
+  },
+  {
+    slug: 'tmt-bars-fe-600-india',
+    name: 'TMT Bars Fe-600',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'TMT Bars Fe-600 represent the highest grade of TMT reinforcement steel currently available for mainstream construction, offering a minimum yield strength of 600 N/mm². This superior strength is achieved through advanced alloy design and a precise thermo-mechanical treatment process, enabling significant reduction in steel consumption for large structures. They are specifically engineered for highly stressed concrete structures, such as long-span bridges, shear walls in skyscrapers, and special structures where high strength is paramount for design efficiency and material optimization. Fe-600 bars lead to lighter, more economical, and durable constructions.',
+    industries: [
+      'Mega Infrastructure Projects',
+      'High-Rise Construction (Super-tall)',
+      'Bridge Construction (Long Span)',
+      'Nuclear & Thermal Power Plants',
+      'Heavy Industrial Facilities',
+      'Special Architectural Structures'
+    ],
+    grades: [
+      'Fe 600 IS 1786',
+      'Fe 550D IS 1786 (for comparison)',
+      'ASTM A615 Grade 100+ (equivalent)',
+      'BS 4449 Grade B600B (equivalent)',
+      'EN 10080 B600B (equivalent)',
+      'JIS G3112 SD600 (equivalent)',
+      'AS/NZS 4671 600E (equivalent)'
+    ],
+    specifications: [
+      'Yield Strength: 600-660 N/mm²',
+      'Tensile Strength: 660-720 N/mm²',
+      'Elongation: 10-14%',
+      'Carbon Equivalent (CE): Max 0.45%',
+      'Sulphur + Phosphorus: Max 0.080%'
+    ],
+    standards: [
+      'IS 1786:2008 (Reaffirmed 2018)',
+      'BIS Certification',
+      'ASTM A615/A615M',
+      'BS 4449',
+      'ISO 6935-2'
+    ],
+    hsnCodes: ['7214.20', '7214.99'],
+    orderSizes: '100-200000 kg',
+    importCountries: [
+      'Japan',
+      'Germany',
+      'South Korea',
+      'Austria',
+      'Sweden',
+      'Finland',
+      'Luxembourg'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹52-65 per kg',
+    applications: [
+      'Skyscrapers and high-rise structures',
+      'Long-span, cable-stayed bridges',
+      'Large industrial factories and warehouses',
+      'Heavy-duty concrete foundations',
+      'Prestressed concrete applications',
+      'Nuclear reactor containment structures'
+    ],
+    challenges: [
+      'Higher cost compared to lower grades of TMT bars',
+      'Requires specialized engineering design and detailing expertise',
+      'Limited number of approved manufacturers and suppliers',
+      'Careful site handling to prevent damage and ensure proper detailing'
+    ],
+    marketTrend: 'The market for TMT Fe-600 bars, though niche, is expanding in India as ambitious mega-infrastructure and high-rise projects gain momentum. The drive for sustainable construction and optimized material use, in line with government policies like the National Infrastructure Pipeline and emphasis on world-class infrastructure (PLI scheme), is pushing demand. This segment benefits from a focus on engineering excellence and cost-efficiency in large-scale ventures.'
+  },
+  {
+    slug: 'seqr-tmt-bars-india',
+    name: 'SeQR TMT Bars',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'SeQR TMT Bars are a specialized category of TMT reinforcement bars designed for advanced corrosion resistance, making them ideal for structures exposed to aggressive environments. These bars incorporate specific metallurgical modifications, such as controlled chemical composition including higher copper/chromium content or specialized surface coatings (often fusion-bonded epoxy), during the thermo-mechanical treatment process. They offer enhanced durability against chlorides and sulfates, preventing premature degradation of concrete structures. SeQR bars maintain the excellent mechanical properties of standard TMT bars while significantly extending the service life of structures in coastal areas, underground applications, and industrial environments.',
+    industries: [
+      'Coastal Construction',
+      'Marine Structures',
+      'Underground Infrastructure',
+      'Chemical Processing Plants',
+      'Smart City Infrastructure',
+      'Waste Water Treatment Plants'
+    ],
+    grades: [
+      'Fe 500 HRS IS 1786',
+      'Fe 550 HRS IS 1786',
+      'Fe 500D (CRS) as per IS 1786',
+      'ASTM A1035 (Corrosion-Resistant Steel)',
+      'BS 4449 Grade B500CR (equivalent)',
+      'EN 10080 CR (equivalent)',
+      'IRS M-40 (for marine applications)'
+    ],
+    specifications: [
+      'Yield Strength: 500-550 N/mm² (typically)',
+      'Tensile Strength: 565-620 N/mm² (typically)',
+      'Elongation: 14-18% (typically)',
+      'Corrosion Resistance: High (e.g., as per ASTM G109 salt spray)',
+      'Copper Content: 0.15-0.30% (for some grades)'
+    ],
+    standards: [
+      'IS 1786:2008 Grade Fe 500 HRS or Fe 550 HRS (where \'HRS\' denotes High Resistance to Sulphates & Chlorides)',
+      'BIS Certification',
+      'ASTM A1035/A1035M',
+      'As per specific manufacturer\'s proprietary standard, adhering to IS 1786 norms',
+      'ISO 6935-2 with corrosion resistance enhancements'
+    ],
+    hsnCodes: ['7214.20', '7214.91'],
+    orderSizes: '50-200000 kg',
+    importCountries: [
+      'Japan',
+      'Germany',
+      'South Korea',
+      'Sweden',
+      'Norway',
+      'Finland',
+      'USA'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹55-75 per kg',
+    applications: [
+      'Coastal buildings and jetties',
+      'Bridges over estuaries and rivers',
+      'Underground drainage systems',
+      'Industrial structures with chemical exposure',
+      'Basements and foundations in saline soil',
+      'Effluent treatment plants'
+    ],
+    challenges: [
+      'Higher material cost compared to standard TMT bars',
+      'Requires careful handling to maintain any surface coatings',
+      'Educating stakeholders on long-term benefits vs. upfront cost',
+      'Limited availability in very small diameters or specialized lengths'
+    ],
+    marketTrend: 'The market for SeQR (Corrosion Resistant) TMT bars is growing significantly in India, driven by the expansion of coastal infrastructure, smart city development, and increasing awareness of structural longevity. Government mandates for durable construction materials in specific environments, coupled with a focus on \'asset life cycle costing\', are boosting demand. Manufacturers are investing in advanced metallurgy to meet these specialized requirements, aligning with the National Infrastructure Pipeline\'s emphasis on sustainable and resilient projects.'
+  },
+  {
+    slug: 'earthquake-resistant-tmt-india',
+    name: 'Earthquake Resistant TMT',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Earthquake Resistant TMT bars are specifically engineered with superior ductility and fatigue resistance to withstand seismic forces without brittle fracture. These bars adhere to strict chemical composition controls, particularly lower carbon, sulfur, and phosphorus content, alongside precise thermomechanical treatment. The enhanced ductility allows the bars to stretch and absorb significant energy during an earthquake, preventing sudden structural collapse and providing crucial warning time. Typically, \'D\' grades (e.g., Fe-500D, Fe-550D) fall into this category, offering a higher percentage of elongation and superior bendability compared to standard TMT grades, thereby enhancing the overall seismic performance of concrete structures, especially in high seismic zones.',
+    industries: [
+      'Seismic Zone Construction',
+      'High-Rise Residential & Commercial',
+      'Critical Infrastructure (Hospitals, Schools)',
+      'Bridge Construction & Repair',
+      'Power Generation Facilities',
+      'Smart City Development'
+    ],
+    grades: [
+      'Fe 500D IS 1786',
+      'Fe 550D IS 1786',
+      'Fe 415D IS 1786 (for smaller structures)',
+      'ASTM A706 (Standard Specification for Low-Alloy Steel Deformed and Plain Bars for Concrete Reinforcement)',
+      'BS 4449 Grade B500C',
+      'JIS G3112 SD490D/SD590D',
+      'EN 10080 B500C'
+    ],
+    specifications: [
+      'Yield Strength: 500-550 N/mm² (min.)',
+      'Tensile Strength: 585-645 N/mm² (min.)',
+      'Elongation: 16-20% (min.)',
+      'Carbon Equivalent (CE): Max 0.42%',
+      'Sulphur + Phosphorus: Max 0.075%'
+    ],
+    standards: [
+      'IS 1786:2008 (Reaffirmed 2018) \'D\' category',
+      'BIS Certification (mandatory as per IS 1786)',
+      'ASTM A706/A706M',
+      'National Building Code of India (NBC) specific recommendations for seismic zones',
+      'ISO 6935-2 with enhanced ductility requirements'
+    ],
+    hsnCodes: ['7214.20', '7214.99'],
+    orderSizes: '10-250000 kg',
+    importCountries: [
+      'Japan',
+      'South Korea',
+      'Germany',
+      'Austria',
+      'Finland',
+      'Sweden',
+      'USA'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹48-59 per kg',
+    applications: [
+      'High-rise buildings in seismic zones III, IV, and V',
+      'Hospitals, schools, and emergency facilities',
+      'Critical government buildings',
+      'Bridges and flyovers',
+      'Metro rail and underground tunnels',
+      'Industrial chimneys and silos'
+    ],
+    challenges: [
+      'Higher cost compared to standard TMT bars',
+      'Stringent quality control necessary during manufacturing and on-site',
+      'Requires skilled labor for proper bending and placement',
+      'Limited awareness among smaller builders and individual home owners'
+    ],
+    marketTrend: 'The market for Earthquake Resistant TMT bars is experiencing significant expansion in India, driven by stricter building codes, increased awareness of seismic risks, and the government\'s push for resilient infrastructure. The National Disaster Management Authority\'s guidelines and the focus on safety in \'Smart Cities\' projects are pivotal. There is a growing preference for \'D\' grades, signaling a shift towards higher safety standards in construction across seismic-prone regions.'
+  },
+  {
+    slug: 'wire-rods-india',
+    name: 'Wire Rods',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Wire rods are hot-rolled, semi-finished steel products with a circular cross-section, typically ranging from 5.5 mm to 16 mm in diameter. They are produced by rolling billets through successive stands at high temperatures and then coiled into specified sizes. Wire rods serve as the primary raw material for various downstream industries, undergoing further processing such as drawing, annealing, and coating to be transformed into finished wire products. Their properties are defined by carbon content, influencing their suitability for different applications from general-purpose wires to high-strength cables. They are essential for a wide array of industrial and construction uses.',
+    industries: [
+      'Wire Drawing',
+      'Fastener Manufacturing',
+      'Welding Electrode Manufacturing',
+      'Spring Manufacturing',
+      'Cable Industry',
+      'Mesh and Netting Production'
+    ],
+    grades: [
+      'SAE 1006 (Low Carbon)',
+      'SAE 1008 (Low Carbon)',
+      'SAE 1010 (Mild Carbon)',
+      'SAE 1018 (Medium Carbon)',
+      'IS 2062:2011 (Structural Steel - relevant for some applications)',
+      'IS 7887:1992 (Low Carbon Steel Wire Rods)',
+      'IS 432:1982 (Weldable Structural Steel - for some grades)',
+      'ASTM A510 (General Requirements for Wire Rods)'
+    ],
+    specifications: [
+      'Diameter: 5.5 mm - 16 mm',
+      'Tensile Strength: 300-900 N/mm² (depending on grade)',
+      'Carbon Content: 0.05-0.85% (depending on grade)',
+      'Coil Weight: 1-2.5 tons',
+      'Ovality: Max 0.8 mm (deviation from true roundness)'
+    ],
+    standards: [
+      'IS 7887:1992 (Low Carbon Steel Wire Rods)',
+      'IS 2062:2011 (Hot Rolled Structural Steel)',
+      'ASTM A510/A510M',
+      'JIS G3503 (Carbon Steel Wire Rods)',
+      'DIN EN 10016 (Non-alloy steel wire rods for drawing and/or cold rolling)'
+    ],
+    hsnCodes: ['7213.91', '7213.99'],
+    orderSizes: '5-1000 tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Russia',
+      'Ukraine',
+      'Indonesia',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹40-55 per kg',
+    applications: [
+      'Drawing into various wires (fencing, nails)',
+      'Manufacturing of nuts, bolts, and fasteners',
+      'Production of welding electrodes',
+      'Reinforcement for concrete (cold drawn wire)',
+      'Springs and automotive components',
+      'Tire cords and cables'
+    ],
+    challenges: [
+      'Price volatility due to raw material and global supply fluctuations',
+      'Maintaining consistent quality for specialized drawing applications',
+      'Competition from imported cheaper alternatives',
+      'Logistical costs for bulk transportation across regions'
+    ],
+    marketTrend: 'The wire rod market in India is driven by growth in the infrastructure, automotive, and construction sectors. Government initiatives like \'Make in India\' and the Production Linked Incentive (PLI) scheme are encouraging domestic manufacturing of wire products. However, global trade dynamics and duties on steel imports continue to influence pricing and supply. The increasing demand for galvanized wires and fasteners is a positive trend.'
+  },
+  {
+    slug: 'high-carbon-wire-rods-india',
+    name: 'High Carbon Wire Rods',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'High Carbon Wire Rods are hot-rolled steel rods with a carbon content generally ranging from 0.45% to 0.90%, and sometimes higher. This elevated carbon level imparts higher strength, hardness, and wear resistance compared to their low or medium carbon counterparts. They are typically produced from specialized steel grades through a controlled rolling and cooling process to achieve specific microstructures for subsequent cold drawing and heat treatment. High carbon wire rods are primarily used for manufacturing high-strength wires, springs, cables, and other demanding applications where superior mechanical properties and fatigue resistance are critical. They form the backbone of industries requiring robust and durable wire products.',
+    industries: [
+      'Spring Manufacturing',
+      'Wire Rope & Cable Industry',
+      'Automotive Components',
+      'Tyre Manufacturing (Tyre Bead Wire)',
+      'Prestressed Concrete Industry',
+      'Mechanical Fasteners (High Strength)'
+    ],
+    grades: [
+      'SAE 1045',
+      'SAE 1060',
+      'SAE 1070',
+      'SAE 1080',
+      'IS 280:2006 (Carbon Steel Wire for Ropes and Springs)',
+      'IS 4454 (Part 1):1975 (Carbon Steel Wire for Springs)',
+      'JIS G3506 (High Carbon Steel Wire Rods)',
+      'DIN EN 10016-4 (Non-alloy steel wire rods for drawing and/or cold rolling - special grades)'
+    ],
+    specifications: [
+      'Diameter: 5.5 mm - 14 mm',
+      'Carbon Content: 0.45-0.90%',
+      'Tensile Strength: 650-1200 N/mm² (as rolled)',
+      'Coil Weight: 1-2.5 tons',
+      'Microstructure: Controlled pearlite (desired for drawing)'
+    ],
+    standards: [
+      'IS 280:2006 (Steel for Ropes)',
+      'IS 4454 (Part 1, 2, 3, 4) (Spring Steels)',
+      'ASTM A510/A510M (High Carbon Grades)',
+      'JIS G3506',
+      'DIN EN 10016-4'
+    ],
+    hsnCodes: ['7213.91', '7213.20'],
+    orderSizes: '10-500 tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Russia',
+      'Taiwan',
+      'Turkey',
+      'Germany'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹48-65 per kg',
+    applications: [
+      'Springs (automotive, industrial)',
+      'Tyre bead wire and tire cord',
+      'Wire ropes and cables for elevators/cranes',
+      'Prestressed concrete wires',
+      'High-strength fasteners and bolts',
+      'Saw wires and abrasive wires'
+    ],
+    challenges: [
+      'Requires precise control during manufacturing to avoid defects',
+      'More difficult to draw than low carbon grades, requires specific machinery',
+      'Impact of alloy additions on cost and availability',
+      'Vulnerability to global steel price fluctuations'
+    ],
+    marketTrend: 'The market for high carbon wire rods in India is driven by the expansion of the automotive sector, infrastructure development, and growing demand for high-performance engineered products. The \'Aatmanirbhar Bharat\' vision is encouraging domestic production, though specialized grades still rely on imports. Demand for value-added products like pre-stressing steel and tire cord is a significant growth area, supporting the \'Make in India\' initiative within manufacturing.'
+  },
+  {
+    slug: 'low-carbon-wire-rods-india',
+    name: 'Low Carbon Wire Rods',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Low Carbon Wire Rods are hot-rolled steel rods characterized by a relatively low carbon content, typically ranging from 0.05% to 0.25%. This low carbon level provides excellent formability, ductility, and weldability, making them highly versatile for various cold-forming and drawing applications. They are produced through a controlled rolling process, ensuring a uniform and clean surface finish essential for subsequent processing into finished wire products. Low carbon wire rods serve as a foundational material for general engineering purposes, including the manufacturing of binding wires, nails, mesh, and mild steel fasteners where ease of processing and cost-effectiveness are key considerations.',
+    industries: [
+      'Wire Drawing (General Purpose)',
+      'Construction (Binding Wire, Nails)',
+      'Fastener Manufacturing (Mild Steel)',
+      'Welding Industry (Electrodes)',
+      'Mesh and Fencing',
+      'Agricultural Tools and Components'
+    ],
+    grades: [
+      'SAE 1006',
+      'SAE 1008',
+      'SAE 1010',
+      'IS 7887:1992 (Low Carbon Steel Wire Rods)',
+      'IS 2062:2011 (as base material for some applications)',
+      'ASTM A510 (Low Carbon Grades)',
+      'JIS G3503 (Low Carbon Steel Wire Rods)',
+      'DIN EN 10016-2 (Non-alloy steel wire rods for drawing and/or cold rolling)'
+    ],
+    specifications: [
+      'Diameter: 5.5 mm - 16 mm',
+      'Carbon Content: 0.05-0.25%',
+      'Tensile Strength: 300-450 N/mm² (as rolled)',
+      'Coil Weight: 1-2.5 tons',
+      'Surface Quality: Smooth, free from seams and cracks'
+    ],
+    standards: [
+      'IS 7887:1992 (Reaffirmed 2018)',
+      'BIS Certification',
+      'ASTM A510/A510M',
+      'JIS G3503',
+      'DIN EN 10016-2'
+    ],
+    hsnCodes: ['7213.91', '7213.99'],
+    orderSizes: '5-2000 tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Russia',
+      'Ukraine',
+      'Indonesia',
+      'Vietnam',
+      'Malaysia'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹40-52 per kg',
+    applications: [
+      'General-purpose binding wires',
+      'Nails and screws manufacturing',
+      'Wire mesh and fencing',
+      'Manufacturing of welding electrodes',
+      'Cold heading applications (rivets, bolts)',
+      'Galvanized wire production'
+    ],
+    challenges: [
+      'Intense price competition, especially from imports',
+      'Vulnerability to fluctuations in iron ore and coking coal prices',
+      'Maintaining consistent quality for high-speed drawing lines',
+      'Logistical bottlenecks for reaching smaller, regional processors'
+    ],
+    marketTrend: 'The market for low carbon wire rods in India is driven by robust construction activity, rural infrastructure development, and the growth of ancillary manufacturing industries. Government focus on affordable housing, roads, and agricultural infrastructure under schemes like PMGSY provides steady demand. While domestic production is substantial, global price dynamics and anti-dumping policies for imports play a crucial role in market stability. Continued innovation in downstream wire products drives demand for specific grades.'
+  },
+  {
+    slug: 'crane-rails-india',
+    name: 'Crane Rails',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Crane rails are specialized heavy-duty steel sections designed to support and guide overhead cranes, gantry cranes, and other material handling equipment. These rails are characterized by their robust profiles, high strength, and resistance to wear and tear, ensuring safe and efficient movement of heavy loads in industrial environments. They typically feature a wide base for stability and a flat, smooth head for optimal wheel contact, minimizing friction and maximizing load distribution.',
+    industries: [
+      'Steel Manufacturing',
+      'Shipbuilding',
+      'Heavy Engineering',
+      'Port Operations',
+      'Construction',
+      'Automotive Assembly'
+    ],
+    grades: [
+      'CR A73',
+      'CR B73',
+      'DIN 536 A45',
+      'DIN 536 A55',
+      'DIN 536 A65',
+      'IS 3443:2004 Gr. 880 (U)',
+      'IS 3443:2004 Gr. 900 (U)'
+    ],
+    specifications: [
+      'Tensile Strength: 700-1000 N/mm²',
+      'Yield Strength: 400-700 N/mm²',
+      'Hardness (Brinell): 200-300 HB',
+      'Carbon Content: 0.5-0.8%',
+      'Rail Length: 6-12 meters'
+    ],
+    standards: [
+      'DIN 536',
+      'IS 3443:2004',
+      'ASTM A759',
+      'BS 11',
+      'JIS E 1101'
+    ],
+    hsnCodes: ['7302.10'],
+    orderSizes: '10 - 5000 Tons',
+    importCountries: [
+      'Germany',
+      'China',
+      'Japan',
+      'Spain',
+      'UK',
+      'France',
+      'Italy'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹65,000 - ₹95,000 per Ton',
+    applications: [
+      'Overhead travelling cranes',
+      'Gantry cranes',
+      'Ship-to-shore cranes',
+      'Container handling equipment',
+      'Heavy industrial workshops',
+      'Steel rolling mills'
+    ],
+    challenges: [
+      'Accurate alignment during installation',
+      'Wear and fatigue resistance in high-stress environments',
+      'Corrosion prevention in outdoor applications',
+      'Availability of specialized fastening systems'
+    ],
+    marketTrend: 'The market for crane rails is stable, driven by sustained industrial growth and infrastructure development, particularly in port expansions and manufacturing sectors. Government initiatives like the National Infrastructure Pipeline (NIP) are bolstering demand for heavy material handling solutions. Investment in modernizing existing industrial facilities also contributes to a consistent need for replacement and upgrade of crane rail systems.'
+  },
+  {
+    slug: 'fish-plates-india',
+    name: 'Fish Plates',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Fish plates, also known as joint bars or splice bars, are metal bars used to connect two railway track rails together at their ends. They are designed with precise bolt holes that align with corresponding holes in the rail ends, ensuring a secure and stable connection that maintains gauge and provides continuity for the rolling stock. These plates are crucial for distributing the load evenly across the rail joint, preventing buckling and providing structural integrity to the railway track.',
+    industries: [
+      'Railway Construction',
+      'Mining',
+      'Heavy Engineering',
+      'Metro Rail Projects',
+      'Port Logistics'
+    ],
+    grades: [
+      'IS 2062 Gr. E250',
+      'IS 2062 Gr. E350',
+      'ASTM A36',
+      'ASTM A572 Gr. 50',
+      'EN 10025 S275JR',
+      'UIC 860-0 B_1002'
+    ],
+    specifications: [
+      'Tensile Strength: 410-600 N/mm²',
+      'Yield Strength: 250-350 N/mm²',
+      'Elongation: 20-25%',
+      'Hardness (Brinell): 120-180 HB',
+      'Hole Diameter Tolerance: ±0.5 mm'
+    ],
+    standards: [
+      'IS 2062',
+      'IRS T-1',
+      'UIC 860-0',
+      'ASTM A36',
+      'BS EN 10025'
+    ],
+    hsnCodes: ['7302.40'],
+    orderSizes: '500 - 50,000 Pieces',
+    importCountries: [
+      'China',
+      'France',
+      'Germany',
+      'Japan',
+      'Russia',
+      'USA'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹70 - ₹250 per piece (depending on rail section)',
+    applications: [
+      'Joining railway tracks',
+      'Repairing broken rail sections',
+      'Temporary track installations',
+      'Switch and crossing assemblies',
+      'Securing turnout components'
+    ],
+    challenges: [
+      'Corrosion in humid or saline environments',
+      'Fatigue crack propagation under repeated loading',
+      'Ensuring proper fit and bolt tension during installation',
+      'Availability of specific profiles for older rail sections'
+    ],
+    marketTrend: 'The market for fish plates is directly influenced by railway network expansion and maintenance activities. India\'s extensive railway modernization programs, including dedicated freight corridors and high-speed rail projects, are driving consistent demand. The focus on improving track safety and reducing maintenance costs also sustains the need for high-quality, durable fish plates.'
+  },
+  {
+    slug: 'railway-track-components-india',
+    name: 'Railway Track Components',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Railway track components encompass a wide array of specialized parts that collectively form a railway track system. These include rails, sleepers (ties), fastenings (e.g., clips, bolts, baseplates), ballast, and various other accessories essential for guiding trains, supporting loads, and maintaining track stability. Each component plays a critical role in distributing the weight of rolling stock, absorbing vibrations, and ensuring the safe and smooth movement of trains over a long operational lifespan.',
+    industries: [
+      'Railway Construction',
+      'Civil Engineering',
+      'Mining',
+      'Metro Rail',
+      'Port Operations',
+      'Public Transportation'
+    ],
+    grades: [
+      'IS 2062 Gr. E250',
+      'IS 2062 Gr. E350',
+      'IS 3443',
+      'IRS-T1',
+      'UIC 860-0',
+      'ASTM A36',
+      'ASTM A572 Gr. 50'
+    ],
+    specifications: [
+      'Tensile Strength: 410-880 N/mm² (component dependent)',
+      'Yield Strength: 250-700 N/mm² (component dependent)',
+      'Hardness (Brinell): 120-280 HB',
+      'Dimensional Tolerances: As per relevant IRS/UIC standards',
+      'Fatigue Life: Designed for specific load cycles'
+    ],
+    standards: [
+      'IRS Specifications (Various T-series)',
+      'IS 2062',
+      'IS 3443',
+      'UIC Codes (e.g., 860-0, 861-1)',
+      'ASTM (various)',
+      'BS EN (various)'
+    ],
+    hsnCodes: [
+      '7302.10',
+      '7302.30',
+      '7302.40',
+      '7302.90'
+    ],
+    orderSizes: 'Project-based, ranging from small batches to multi-ton consignments',
+    importCountries: [
+      'China',
+      'Japan',
+      'Germany',
+      'France',
+      'UK',
+      'USA',
+      'Russia'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹50 - ₹150,000 per component (highly variable)',
+    applications: [
+      'Construction of new railway lines',
+      'Maintenance and repair of existing tracks',
+      'Upgrading heavy haul lines',
+      'Metro and light rail systems',
+      'Industrial sidings',
+      'Turnouts and crossovers'
+    ],
+    challenges: [
+      'Ensuring compatibility between diverse components',
+      'Logistics for large-scale procurement and delivery',
+      'Resistance to harsh environmental conditions',
+      'Adherence to stringent safety and quality standards'
+    ],
+    marketTrend: 'The market for railway track components is experiencing robust growth driven by significant investments in both passenger and freight rail infrastructure in India. Initiatives like the National Rail Plan 2030 and increased allocation for railway development under the Union Budget are creating substantial demand. The emphasis on higher speeds and greater axle loads also necessitates the use of advanced, durable components.'
+  },
+  {
+    slug: '60-kg-rails-india',
+    name: '60 Kg Rails',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: '60 Kg rails are heavy-duty railway tracks with a nominal weight of 60 kilograms per linear meter, signifying their robust cross-sectional area and high strength. These rails are designed for main lines, high-speed corridors, and heavy haul freight routes where high axle loads, frequent traffic, and increased speeds are common. Their substantial mass and profile are engineered to provide enhanced stability, reduce track deformation, and extend the lifespan of the railway infrastructure under demanding operational conditions.',
+    industries: [
+      'Railway Construction',
+      'High-Speed Rail',
+      'Heavy Haul Rail',
+      'Metro Rail Projects',
+      'Freight Logistics'
+    ],
+    grades: [
+      '90 UTS (UIC 60)',
+      '1080 MPa (IRS-T12)',
+      'R260 (EN 13674-1)',
+      'R350HT (EN 13674-1)',
+      'Grade 880 (IS 3845:2007)',
+      'Grade 1080 (IS 3845:2007)'
+    ],
+    specifications: [
+      'Weight per meter: 60.34 kg',
+      'Tensile Strength: 880-1200 N/mm²',
+      'Hardness (Brinell): 260-390 HB',
+      'Material: Carbon Manganese Steel',
+      'Length: 13-26 meters (standard)'
+    ],
+    standards: [
+      'UIC 860-0 V',
+      'IRS T-12',
+      'IS 3845:2007',
+      'EN 13674-1',
+      'ASTM A1'
+    ],
+    hsnCodes: ['7302.10'],
+    orderSizes: '100 - 20,000 Tons',
+    importCountries: [
+      'Japan',
+      'China',
+      'Germany',
+      'France',
+      'Russia',
+      'Poland',
+      'USA'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹65,000 - ₹90,000 per Ton',
+    applications: [
+      'Mainline passenger routes',
+      'High-speed rail corridors',
+      'Dedicated freight corridors',
+      'Metro rail networks',
+      'Heavy industrial railways',
+      'Junction and yard lines'
+    ],
+    challenges: [
+      'Precise welding techniques for continuous welded rail',
+      'Thermal expansion and contraction management',
+      'Wear and rolling contact fatigue management',
+      'Logistics for transportation of long rail sections'
+    ],
+    marketTrend: 'The demand for 60 Kg rails is robust, driven by India\'s ambitious railway expansion and modernization projects, especially the Dedicated Freight Corridors (DFCs) and new high-speed rail lines. The government\'s focus on increasing train speeds and carrying capacity, supported by the National Rail Plan, ensures a consistent and growing market. \'Make in India\' initiatives are encouraging domestic production, but imports supplement specific quality requirements.'
+  },
+  {
+    slug: '52-kg-rails-india',
+    name: '52 Kg Rails',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: '52 Kg rails are standard railway tracks with a nominal weight of 52 kilograms per linear meter, making them a common choice for secondary main lines, branch lines, and industrial sidings. They offer a good balance of strength and cost-effectiveness for moderate traffic volumes and axle loads. While lighter than 60 Kg rails, they are engineered to provide adequate support and durability, ensuring reliable operation for a variety of railway applications across different operational conditions.',
+    industries: [
+      'Railway Construction',
+      'Mining',
+      'Industrial Logistics',
+      'Port Infrastructure',
+      'Sugar Mills',
+      'Thermal Power Plants'
+    ],
+    grades: [
+      '72 UTS (IRS-T12)',
+      '90 UTS (IRS-T12)',
+      'R260 (EN 13674-1)',
+      'Grade 720 (IS 3845:2007)',
+      'Grade 880 (IS 3845:2007)'
+    ],
+    specifications: [
+      'Weight per meter: 51.89 kg',
+      'Tensile Strength: 720-1080 N/mm²',
+      'Hardness (Brinell): 220-300 HB',
+      'Material: Carbon Manganese Steel',
+      'Length: 13 meters (standard)'
+    ],
+    standards: [
+      'IRS T-12',
+      'IS 3845:2007',
+      'UIC 860-0 V',
+      'EN 13674-1',
+      'ASTM A1'
+    ],
+    hsnCodes: ['7302.10'],
+    orderSizes: '50 - 10,000 Tons',
+    importCountries: [
+      'China',
+      'Russia',
+      'Poland',
+      'Ukraine',
+      'Turkey',
+      'Japan'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹60,000 - ₹85,000 per Ton',
+    applications: [
+      'Branch lines',
+      'Secondary mainlines',
+      'Industrial sidings and corridors',
+      'Port and yard tracks',
+      'Mining railways',
+      'Private railway networks'
+    ],
+    challenges: [
+      'Susceptibility to wear in high-traffic areas if not properly maintained',
+      'Flexibility requirements for curved sections',
+      'Corrosion management in specific environments',
+      'Ensuring proper track geometry and alignment'
+    ],
+    marketTrend: 'The market for 52 Kg rails remains steady, primarily driven by maintenance and upgrade projects on existing railway lines and the development of industrial sidings. While new mainlines increasingly adopt 60 Kg rails, the extensive network of secondary lines and private industrial railways in India ensures continuous demand. The Push to ensure last-mile connectivity for industries also contributes to its sustained requirement.'
+  },
+  {
+    slug: 'head-hardened-rails-india',
+    name: 'Head Hardened Rails',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Head hardened rails are railway tracks that undergo a specialized heat treatment process, typically involving controlled quenching and tempering of the railhead. This process significantly enhances the hardness, wear resistance, and rolling contact fatigue life of the railhead, while maintaining the toughness of the web and foot. These rails are essential for high-stress applications such as tight curves, steep gradients, heavy haul lines, and high-speed corridors, where conventional rails would experience premature wear and damage.',
+    industries: [
+      'Heavy Haul Rail',
+      'High-Speed Rail',
+      'Metro Rail Projects',
+      'Mining Railways',
+      'Urban Transit Systems'
+    ],
+    grades: [
+      'UIC 900A',
+      'UIC 1100',
+      'UIC 1200',
+      'R350HT (EN 13674-1)',
+      'R370CrHT (EN 13674-1)',
+      'Grade 1080HH (IS 3845:2007)'
+    ],
+    specifications: [
+      'Tensile Strength: 1080-1400 N/mm²',
+      'Head Hardness (Brinell): 300-390 HB',
+      'Pearlite Content: >90%',
+      'Decarburization Depth: <0.5 mm',
+      'Straightness Tolerance: ±0.1 mm/m'
+    ],
+    standards: [
+      'UIC 860-0 Rev. 5',
+      'EN 13674-1',
+      'IS 3845:2007 (for HH grades)',
+      'IRS T-12 (for HH grades)',
+      'ASTM A1'
+    ],
+    hsnCodes: ['7302.10'],
+    orderSizes: '50 - 15,000 Tons',
+    importCountries: [
+      'Japan',
+      'Austria',
+      'Germany',
+      'France',
+      'China',
+      'Spain',
+      'Poland'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹80,000 - ₹120,000 per Ton',
+    applications: [
+      'Sharp curves on mainline tracks',
+      'Heavy haul freight lines',
+      'High-speed rail corridors',
+      'Metro rail systems',
+      'Turnouts and crossings',
+      'Sections with steep gradients'
+    ],
+    challenges: [
+      'Higher initial cost compared to conventional rails',
+      'Specialized welding procedures required',
+      'Susceptibility to hydrogen embrittlement if not manufactured correctly',
+      'Requires precise installation and maintenance practices'
+    ],
+    marketTrend: 'The market for head hardened rails is experiencing significant growth in India, driven by the increasing emphasis on higher speeds, heavier axle loads, and reduced maintenance costs for railway infrastructure. Projects like dedicated freight corridors, new metro lines, and high-speed rail corridors are specifically opting for HH rails. The \'Smart Cities Mission\' also indirectly contributes by demanding robust urban transport infrastructure, enhancing demand for these specialised rails.'
+  },
+  {
+    slug: 'railway-wheels-india',
+    name: 'Railway Wheels',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Railway wheels are critical components of rolling stock, designed to support the weight of the train and guide it along the railway tracks. They are typically made from high-strength forged or cast steel, featuring a coned tread and a flanged rim. The wheel\'s design ensures a precise interface with the rail, distributing loads, providing traction, and enabling smooth negotiation of curves. Their durability, wear resistance, and fatigue strength are paramount for operational safety and longevity.',
+    industries: [
+      'Railways (Locomotives, Wagons, Coaches)',
+      'Metro Rail',
+      'Mining & Industrial Locomotives',
+      'Heavy Engineering',
+      'Defence Railways'
+    ],
+    grades: [
+      'IRS R-19 (Class A, B, C)',
+      'AAR M-107/M-208 (Class B, C, D)',
+      'EN 13262 (ER7, ER8, ER9)',
+      'ASTM A504 (Class B, C, D)',
+      'BS 5892-3 (Grade R7, R8, R9)'
+    ],
+    specifications: [
+      'Tensile Strength: 700-1100 N/mm²',
+      'Yield Strength: 400-800 N/mm²',
+      'Rim Hardness (Brinell): 200-350 HB',
+      'Carbon Content: 0.5-0.8%',
+      'Diameter: 650-1070 mm (Locomotive), 840-915 mm (Wagon/Coach)'
+    ],
+    standards: [
+      'IRS R-19',
+      'AAR M-107/M-208',
+      'EN 13262',
+      'IS 10398:1982',
+      'ASTM A504',
+      'UIC 810-1'
+    ],
+    hsnCodes: ['8607.19'],
+    orderSizes: '100 - 50,000 Wheels',
+    importCountries: [
+      'Ukraine',
+      'China',
+      'Russia',
+      'Germany',
+      'Czech Republic',
+      'Poland',
+      'Japan'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹70,000 - ₹2,50,000 per wheel',
+    applications: [
+      'Locomotives (diesel/electric)',
+      'Coaching stock (passenger)',
+      'Freight wagons',
+      'Metro train sets',
+      'Tramways',
+      'Industrial rail vehicles'
+    ],
+    challenges: [
+      'Rolling contact fatigue and wear of the tread',
+      'Thermal cracking due to braking',
+      'Internal stress management during manufacturing',
+      'Ensuring precise geometric profiles for safe operation'
+    ],
+    marketTrend: 'The market for railway wheels in India is robust, driven by the expansion of railway networks, increase in rolling stock production under \'Make in India\' and modernization programs. The continued focus on dedicated freight corridors and metro rail expansion across cities significantly contributes to demand. The Production Linked Incentive (PLI) scheme for rolling stock manufacturing could further boost domestic demand and production.'
+  },
+  {
+    slug: 'railway-axles-india',
+    name: 'Railway Axles',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Railway axles are cylindrical steel shafts designed to connect a pair of wheels, forming a wheelset, and transmit the weight of the rolling stock to the wheels and then to the rails. These crucial components are made from high-strength forged steel, engineered to withstand immense static and dynamic loads, repeated fatigue stresses, and torsional forces. The integrity of the axle is paramount for rail safety, requiring precise manufacturing, excellent fatigue resistance, and robust material properties.',
+    industries: [
+      'Railways (Locomotives, Wagons, Coaches)',
+      'Metro Rail',
+      'Mining Locomotives',
+      'Heavy Engineering',
+      'Integrated Steel Plants'
+    ],
+    grades: [
+      'IRS R-16 (Class A, B, C)',
+      'AAR M-101 (Class B, C, D)',
+      'EN 13261 (A1N, A2N, AZN)',
+      'ASTM A21 (Class B, C, D)',
+      'BS 5892-2 (Grade A, B, C)'
+    ],
+    specifications: [
+      'Tensile Strength: 500-800 N/mm²',
+      'Yield Strength: 250-500 N/mm²',
+      'Elongation: 18-25%',
+      'Impact Strength (Charpy): >27 J at -20°C',
+      'Diameter: 130-230 mm (standard)'
+    ],
+    standards: [
+      'IRS R-16',
+      'AAR M-101',
+      'EN 13261',
+      'IS 10343',
+      'ASTM A21',
+      'UIC 811-1'
+    ],
+    hsnCodes: ['8607.19'],
+    orderSizes: '50 - 20,000 Axles',
+    importCountries: [
+      'Ukraine',
+      'China',
+      'Russia',
+      'France',
+      'Germany',
+      'Czech Republic',
+      'Japan'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹1,00,000 - ₹3,50,000 per axle',
+    applications: [
+      'Locomotives and electric multiple units',
+      'Passenger coaches',
+      'Freight wagons',
+      'Metro rail coaches',
+      'Industrial rolling stock',
+      'Tram bogies'
+    ],
+    challenges: [
+      'Fatigue crack initiation and propagation',
+      'Corrosion under service conditions',
+      'Maintaining concentricity and surface finish',
+      'Non-destructive testing for hidden defects'
+    ],
+    marketTrend: 'The market for railway axles is driven by the expansion and modernization of India\'s railway infrastructure, including new rolling stock procurement for both passenger and freight segments. The push towards indigenous manufacturing of high-quality components for these critical applications is strong, aligned with \'Make in India\'. Investments in metro projects across various cities also contribute to sustained demand for robust and reliable axles.'
+  },
+  {
+    slug: 'wheel-sets-india',
+    name: 'Wheel Sets',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Wheel sets are integral assemblies in railway rolling stock, comprising two railway wheels firmly pressed onto a dedicated railway axle. This integrated unit is designed to provide stable guidance of the train on the tracks, transmit vertical and lateral forces, and facilitate smooth movement through curves. The precise fit of the wheels onto the axle, along with the metallurgical properties of both components, ensures critical safety, performance, and durability under varying operational conditions.',
+    industries: [
+      'Railways (Locomotives, Wagons, Coaches)',
+      'Metro Rail',
+      'Mining & Heavy Engineering',
+      'Urban Transit Systems',
+      'Defence Railways'
+    ],
+    grades: [
+      'IRS R-19 (Wheels) + IRS R-16 (Axles)',
+      'AAR M-107/M-208 (Wheels) + AAR M-101 (Axles)',
+      'EN 13260 (Integrated Wheelset Standard)',
+      'ASTM A504 (Wheels) + ASTM A21 (Axles)',
+      'UIC 813-1 (Integrated Wheelset Standard)'
+    ],
+    specifications: [
+      'Nominal wheel diameter: 650-1070 mm',
+      'Axle Journal Diameter: 130-230 mm',
+      'Wheel Pressing Force: As per standard for specified diameter',
+      'Axle Material: Carbon steel (e.g., C30, C40)',
+      'Wheel Material: High Carbon Steel (e.g., Gr A, B, C)'
+    ],
+    standards: [
+      'IRS R-19 & IRS R-16',
+      'AAR M-107/M-208 & M-101',
+      'EN 13260',
+      'IS 10398 & IS 10343',
+      'UIC 813-1',
+      'ASTM A551'
+    ],
+    hsnCodes: ['8607.19'],
+    orderSizes: '50 - 15,000 Wheel Sets',
+    importCountries: [
+      'Ukraine',
+      'China',
+      'Russia',
+      'Germany',
+      'Czech Republic',
+      'France',
+      'Japan'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹1,80,000 - ₹5,50,000 per wheel set',
+    applications: [
+      'Bogies for locomotives',
+      'Underframes of passenger coaches',
+      'Freight wagon assemblies',
+      'Metro train bogies',
+      'Tram and light rail vehicles',
+      'Industrial shuttle trains'
+    ],
+    challenges: [
+      'Critical interference fit between wheel and axle',
+      'Cumulative fatigue life of both components',
+      'Vibration and noise reduction',
+      'In-service inspection and maintenance for safety'
+    ],
+    marketTrend: 'The market for railway wheel sets is driven by comprehensive railway modernization and expansion plans across India. With significant investment in new rolling stock for both high-speed and conventional lines, and the ongoing development of metro rail networks, demand remains high. The Indian government\'s push for advanced manufacturing capabilities for railways under the National Policy on Capital Goods also directly supports this sector.'
+  },
+  {
+    slug: 'forged-wheels-india',
+    name: 'Forged Wheels',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Forged wheels are railway wheels manufactured through a hot forging process, where steel billets are shaped under immense pressure and heat. This process refines the grain structure of the steel, eliminating internal defects and voids, resulting in superior mechanical properties compared to cast wheels. Forged wheels exhibit exceptional strength, toughness, fatigue resistance, and wear resistance, making them the preferred choice for high-speed trains, heavy haul locomotives, and other demanding railway applications requiring maximum reliability and safety.',
+    industries: [
+      'High-Speed Rail',
+      'Heavy Haul Rail',
+      'Metro Rail',
+      'Locomotive Manufacturing',
+      'Passenger Coach Manufacturing',
+      'Freight Wagon Manufacturing'
+    ],
+    grades: [
+      'IRS R-19 (Class C)',
+      'AAR M-107/M-208 (Class D)',
+      'EN 13262 (ER9)',
+      'ASTM A504 (Class D)',
+      'UIC 810-1 (Class R8, R9)'
+    ],
+    specifications: [
+      'Tensile Strength: >880-1100 N/mm²',
+      'Rim Hardness (Brinell): 260-350 HB',
+      'Toughness: High (Charpy >20 J at -40°C)',
+      'Grain Structure: Fine and uniform',
+      'Fatigue Life: Superior to cast wheels'
+    ],
+    standards: [
+      'IRS R-19 (Forged)',
+      'AAR M-107/M-208',
+      'EN 13262',
+      'IS 10398 (Forged)',
+      'ASTM A504',
+      'UIC 810-1'
+    ],
+    hsnCodes: ['8607.19'],
+    orderSizes: '50 - 10,000 Wheels',
+    importCountries: [
+      'Ukraine',
+      'Germany',
+      'Russia',
+      'Japan',
+      'China',
+      'Czech Republic',
+      'Italy'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹85,000 - ₹3,00,000 per wheel',
+    applications: [
+      'High-speed passenger trains (Bullet Trains)',
+      'Heavy haul locomotives and wagons',
+      'Metro train sets with high operational demands',
+      'High-axle load freight wagons',
+      'Special purpose railway vehicles',
+      'Electric Multiple Units (EMUs)'
+    ],
+    challenges: [
+      'Higher manufacturing costs compared to casting',
+      'Complex forging process requiring specialized equipment',
+      'Precise heat treatment for optimal properties',
+      'Demand for consistent quality and defect-free material'
+    ],
+    marketTrend: 'The market for forged wheels in India is rapidly expanding, driven by the rollout of high-speed rail projects and the increasing modernization of the railway fleet. The focus on enhanced safety, higher speeds, and increased freight capacity necessitates the use of premium-quality forged wheels. The \'Make in India\' initiative is pushing for domestic manufacturing capabilities for such critical components, reducing reliance on imports for these advanced applications.'
+  },
+  {
+    slug: 'stainless-steel-sheets-india',
+    name: 'Stainless Steel Sheets',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Stainless steel sheets are flat, thin products made from various stainless steel alloys, primarily used for their corrosion resistance, strength, and aesthetic appeal. They are typically produced by hot or cold rolling processes, followed by annealing and pickling. Their versatility in size, finish, and grade makes them indispensable across a wide spectrum of industrial and consumer applications, offering durability and low maintenance.',
+    industries: [
+      'Architecture & Construction',
+      'Food Processing',
+      'Chemical & Petrochemical',
+      'Automotive',
+      'Medical Equipment',
+      'Home Appliances'
+    ],
+    grades: [
+      'SS 304 (IS 6911)',
+      'SS 316 (ASTM A240)',
+      'SS 201 (IS 15748)',
+      'SS 430 (ASTM A240)',
+      'SS 304L (ASTM A240)',
+      'SS 316L (ASTM A240)',
+      'SS 904L (ASTM A240)',
+      'SS 310S (ASTM A240)',
+      'SS 2205 (ASTM A240)',
+      'SS 409L (ASTM A240)'
+    ],
+    specifications: [
+      'Thickness: 0.3 mm - 6.0 mm',
+      'Width: 1000 mm - 2000 mm',
+      'Length: 2000 mm - 6000 mm',
+      'Surface Finish: 2B, BA, No.4, HL'
+    ],
+    standards: [
+      'ASTM A240',
+      'IS 6911',
+      'EN 10088-2',
+      'JIS G4305',
+      'ISO 9445'
+    ],
+    hsnCodes: ['72192100', '72193200'],
+    orderSizes: '500 kg - 100 MT',
+    importCountries: [
+      'South Korea',
+      'Indonesia',
+      'Malaysia',
+      'Taiwan',
+      'Japan',
+      'China',
+      'Germany'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹220 - ₹450 per kg',
+    applications: [
+      'Kitchen sinks & utensils',
+      'Architectural cladding',
+      'Chemical storage tanks',
+      'Automotive exhaust systems',
+      'Heat exchangers',
+      'Surgical instruments'
+    ],
+    challenges: [
+      'Fluctuating raw material (Nickel, Chromium) prices',
+      'Competition from imported material',
+      'Disposal of industrial waste from manufacturing'
+    ],
+    marketTrend: 'Demand for stainless steel sheets is growing steadily, propelled by infrastructure development and expansion in food processing and automotive sectors. Government initiatives like Make in India and NIP are driving domestic consumption and production capacity. The emphasis on hygiene and durability in various industries also contributes to sustained market expansion.'
+  },
+  {
+    slug: 'stainless-steel-coils-india',
+    name: 'Stainless Steel Coils',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Stainless steel coils are semi-finished products obtained by continuous hot or cold rolling of stainless steel, forming long, wound strips. These coils serve as the primary input material for various downstream processing, including cutting into sheets, slitting into narrower strips, or forming into tubes and pipes. Their form factor allows for efficient transportation and subsequent fabrication into a multitude of end products requiring corrosion resistance and strength.',
+    industries: [
+      'Automotive',
+      'Construction',
+      'Consumer Goods',
+      'Electrical Appliances',
+      'HVAC',
+      'Industrial Fabrication'
+    ],
+    grades: [
+      'SS 304 (IS 6911)',
+      'SS 316 (ASTM A240)',
+      'SS 201 (IS 15748)',
+      'SS 430 (ASTM A240)',
+      'SS 304L (ASTM A240)',
+      'SS 316L (ASTM A240)',
+      'SS 409L (ASTM A240)',
+      'SS 2205 (ASTM A240)',
+      'SS 309S (ASTM A240)',
+      'SS 321 (ASTM A240)'
+    ],
+    specifications: [
+      'Thickness: 0.1 mm - 12.0 mm',
+      'Width: 600 mm - 2000 mm',
+      'Coil ID: 508 mm or 610 mm',
+      'Surface Finish: 2B, BA, No.1, No.4'
+    ],
+    standards: [
+      'ASTM A240',
+      'IS 6911',
+      'EN 10088-2',
+      'JIS G4305',
+      'ISO 9445'
+    ],
+    hsnCodes: ['72192100', '72193200'],
+    orderSizes: '1 MT - 150 MT',
+    importCountries: [
+      'Taiwan',
+      'Indonesia',
+      'Vietnam',
+      'South Korea',
+      'China',
+      'Germany',
+      'Japan'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹210 - ₹430 per kg',
+    applications: [
+      'Pipe & Tube manufacturing',
+      'Pressing & stamping activities',
+      'Roll forming sections',
+      'Transformer casings',
+      'Food processing equipment panels',
+      'Solar panel frames'
+    ],
+    challenges: [
+      'Variability in international commodity prices',
+      'Logistics and handling of heavy coils',
+      'Quality consistency across different batches'
+    ],
+    marketTrend: 'The market for stainless steel coils is experiencing robust growth driven by demand from downstream industries like automotive and white goods manufacturing. Public infrastructure projects under the National Infrastructure Pipeline (NIP) are also creating significant demand. Initiatives to boost domestic manufacturing capacity coupled with strategic exports are shaping market dynamics.'
+  },
+  {
+    slug: 'stainless-steel-plates-india',
+    name: 'Stainless Steel Plates',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Stainless steel plates are thick, flat rolled products with a thickness typically greater than 6 mm, offering superior strength, corrosion resistance, and heat resistance. They are manufactured through hot rolling, followed by various heat treatments and finishing processes. These plates are crucial for heavy-duty applications where structural integrity, high load-bearing capacity, and resistance to harsh environments are paramount, often serving as primary structural components.',
+    industries: [
+      'Heavy Fabrication',
+      'Shipbuilding',
+      'Oil & Gas',
+      'Power Generation',
+      'Defence',
+      'Cement & Mining'
+    ],
+    grades: [
+      'SS 304 (IS 6911)',
+      'SS 316L (ASTM A240)',
+      'SS 2205 (ASTM A240)',
+      'SS 321 (ASTM A240)',
+      'SS 304H (ASTM A240)',
+      'SS 310S (ASTM A240)',
+      'SS 904L (ASTM A240)',
+      'SS 410 (ASTM A240)',
+      'SS 347 (ASTM A240)',
+      'SS S31803 (ASTM A240)'
+    ],
+    specifications: [
+      'Thickness: 6.0 mm - 100.0 mm',
+      'Width: 1500 mm - 3500 mm',
+      'Length: 3000 mm - 12000 mm',
+      'Surface Finish: No.1, Hot Rolled Annealed & Pickled'
+    ],
+    standards: [
+      'ASTM A240',
+      'IS 6911',
+      'ASME SA240',
+      'EN 10088-2',
+      'JIS G4304'
+    ],
+    hsnCodes: ['72191100', '72191200'],
+    orderSizes: '1 MT - 200 MT',
+    importCountries: [
+      'Japan',
+      'South Korea',
+      'Germany',
+      'Finland',
+      'Sweden',
+      'Belgium',
+      'China'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹250 - ₹550 per kg',
+    applications: [
+      'Pressure vessels',
+      'Storage tanks',
+      'Ship hulls & decks',
+      'Industrial machinery frameworks',
+      'Bridge components',
+      'Nuclear power plant structures'
+    ],
+    challenges: [
+      'High capital investment for production facilities',
+      'Impact of anti-dumping duties on imports',
+      'Compliance with stringent industry-specific certifications'
+    ],
+    marketTrend: 'Demand for stainless steel plates is driven by expansion in heavy engineering, oil & gas, and infrastructure sectors. Large-scale government projects in defence and power generation are key demand drivers. The focus on reliable and long-lasting materials in critical infrastructure under the National Infrastructure Pipeline continues to bolster market growth.'
+  },
+  {
+    slug: 'stainless-steel-bars-india',
+    name: 'Stainless Steel Bars',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Stainless steel bars are elongated, solid forms of stainless steel, ranging from round, square, hexagonal, to flat cross-sections. They are produced through hot rolling, cold drawing, or forging processes, offering excellent machinability, strength, and corrosion resistance. These bars are fundamental semi-finished products used for manufacturing components, fasteners, and structural elements that demand high performance and durability in corrosive environments.',
+    industries: [
+      'Machining & Fabrication',
+      'Automotive',
+      'Aerospace',
+      'Fasteners',
+      'Medical Implants',
+      'Pump & Valve Industry'
+    ],
+    grades: [
+      'SS 304 (IS 6603)',
+      'SS 316 (ASTM A276)',
+      'SS 410 (ASTM A276)',
+      'SS 420 (ASTM A276)',
+      'SS 303 (ASTM A582)',
+      'SS 431 (ASTM A276)',
+      'SS 17-4PH (ASTM A564)',
+      'SS 304L (ASTM A276)',
+      'SS 316L (ASTM A276)',
+      'SS 630 (ASTM A564)'
+    ],
+    specifications: [
+      'Diameter (Round): 3 mm - 300 mm',
+      'Length: 2000 mm - 6000 mm (custom lengths available)',
+      'Tolerance: h9, h11, cold drawn/hot rolled',
+      'Surface Finish: Bright, Black, Peeled'
+    ],
+    standards: [
+      'ASTM A276',
+      'IS 6603',
+      'EN 10088-3',
+      'JIS G4303',
+      'BS 970'
+    ],
+    hsnCodes: ['72221111', '72222010'],
+    orderSizes: '100 kg - 50 MT',
+    importCountries: [
+      'Taiwan',
+      'China',
+      'Spain',
+      'Italy',
+      'Japan',
+      'Germany',
+      'UK'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹280 - ₹600 per kg',
+    applications: [
+      'Pump shafts & impellers',
+      'Valve components',
+      'Machine parts',
+      'Bolts, nuts & fasteners',
+      'Surgical instruments',
+      'Marine hardware'
+    ],
+    challenges: [
+      'Ensuring consistent mechanical properties across different batches',
+      'Demand fluctuations from SME fabricators',
+      'High machining costs for complex parts'
+    ],
+    marketTrend: 'The market for stainless steel bars is experiencing steady growth, driven by expansion in the automotive, manufacturing, and general engineering sectors. The push for indigenous manufacturing under \'Atmanirbhar Bharat\' is increasing local procurement. Modernization of infrastructure also fuels demand for durable components produced from these bars.'
+  },
+  {
+    slug: 'austenitic-stainless-steel-india',
+    name: 'Austenitic Stainless Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Austenitic stainless steels are the most common type of stainless steel, characterized by their face-centered cubic crystal structure (austenite), excellent corrosion resistance, non-magnetic properties, and good formability. They are typically alloyed with high levels of chromium, nickel, and sometimes molybdenum or nitrogen. Their superior ductility and weldability make them suitable for a vast array of applications, particularly where formability and resistance to moderate corrosive environments are key requirements.',
+    industries: [
+      'Food & Beverage',
+      'Chemical Processing',
+      'Architectural',
+      'Medical Devices',
+      'Consumer Goods',
+      'Pharmaceutical'
+    ],
+    grades: [
+      'SS 304 (IS 6911)',
+      'SS 316 (ASTM A240)',
+      'SS 304L (ASTM A240)',
+      'SS 316L (ASTM A240)',
+      'SS 321 (ASTM A240)',
+      'SS 310S (ASTM A240)',
+      'SS 904L (ASTM A240)',
+      'SS 201 (IS 15748)',
+      'SS 317L (ASTM A240)',
+      'SS 347 (ASTM A240)'
+    ],
+    specifications: [
+      'Chromium Content: 16% - 26%',
+      'Nickel Content: 6% - 22%',
+      'Yield Strength: 200 MPa - 350 MPa',
+      'Elongation: >40%'
+    ],
+    standards: [
+      'ASTM A240',
+      'IS 6911',
+      'EN 10088-1',
+      'JIS G4305',
+      'BS 1449'
+    ],
+    hsnCodes: ['72192200', '72202021'],
+    orderSizes: '100 kg - 100 MT',
+    importCountries: [
+      'South Korea',
+      'Indonesia',
+      'Japan',
+      'China',
+      'Taiwan',
+      'Germany',
+      'USA'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹220 - ₹600 per kg',
+    applications: [
+      'Kitchen appliances & utensils',
+      'Chemical storage tanks',
+      'Heat exchangers',
+      'Architectural trim',
+      'Textile machinery components',
+      'Cryogenic applications'
+    ],
+    challenges: [
+      'Vulnerability to stress corrosion cracking in specific environments',
+      'Higher raw material costs due to nickel content',
+      'Sensitization during welding if carbon content is not controlled'
+    ],
+    marketTrend: 'The market for austenitic stainless steel is consistently robust, driven by health sector expansion, increasing demand for food-grade equipment, and growing urban infrastructure. The \'Smart Cities Mission\' and \'Swachh Bharat Abhiyan\' contribute to increased usage in public utilities. Their versatility ensures continued relevance across diverse segments.'
+  },
+  {
+    slug: 'ferritic-stainless-steel-india',
+    name: 'Ferritic Stainless Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Ferritic stainless steels are a class of stainless steels characterized by their body-centered cubic (BCC) crystal structure, which makes them magnetic and generally resistant to stress corrosion cracking. They contain chromium as the primary alloying element (10.5% to 27%) and very low carbon content, with minimal or no nickel. These steels offer good ductility and formability, and are generally more cost-effective than austenitic grades, making them attractive for non-critical, interior, and less aggressive corrosive environments.',
+    industries: [
+      'Automotive Exhausts',
+      'Kitchenware',
+      'Home Appliances',
+      'Industrial Furnaces',
+      'Indoor Architectural',
+      'Heat Treatment Equipment'
+    ],
+    grades: [
+      'SS 430 (IS 15748)',
+      'SS 409L (ASTM A240)',
+      'SS 439 (ASTM A240)',
+      'SS 441 (ASTM A240)',
+      'SS 444 (ASTM A240)',
+      'SS 409 (ASTM A240)',
+      'SS 436 (ASTM A240)',
+      'SS 405 (ASTM A240)',
+      'SS 4003 (ASTM A240)',
+      'SS 430Ti (ASTM A240)'
+    ],
+    specifications: [
+      'Chromium Content: 10.5% - 27%',
+      'Nickel Content: <0.75%',
+      'Tensile Strength: 400 MPa - 600 MPa',
+      'Thermal Expansion: Lower than austenitic'
+    ],
+    standards: [
+      'ASTM A240',
+      'IS 15748',
+      'EN 10088-1',
+      'JIS G4305',
+      'GOST 5632'
+    ],
+    hsnCodes: ['72192300', '72202029'],
+    orderSizes: '500 kg - 70 MT',
+    importCountries: [
+      'China',
+      'Indonesia',
+      'Brazil',
+      'Japan',
+      'South Korea',
+      'USA',
+      'Germany'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹150 - ₹280 per kg',
+    applications: [
+      'Automotive exhaust systems',
+      'Washing machine tubs',
+      'Dishwasher interiors',
+      'Cooking utensils',
+      'Industrial heat exchangers',
+      'Ornamental trim'
+    ],
+    challenges: [
+      'Lower corrosion resistance compared to austenitic grades',
+      'Reduced weldability, especially in thicker sections',
+      'Risk of 475°C embrittlement with prolonged exposure to elevated temperatures'
+    ],
+    marketTrend: 'The market for ferritic stainless steel is experiencing growth, particularly in the automotive and home appliance sectors due to its cost-effectiveness and magnetic properties. The Indian auto industry\'s push for vehicle electrification and BS-VI compliance boosts demand. Affordability also makes it attractive for mass-market consumer products.'
+  },
+  {
+    slug: 'duplex-stainless-steel-india',
+    name: 'Duplex Stainless Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Duplex stainless steels are advanced alloys characterized by a mixed microstructure of approximately equal proportions of austenite and ferrite phases, providing a unique combination of high strength and excellent corrosion resistance. Their enhanced resistance to stress corrosion cracking and pitting corrosion surpasses that of conventional austenitic grades. These properties make them highly desirable for demanding applications in aggressive environments where both mechanical integrity and corrosion protection are critical.',
+    industries: [
+      'Oil & Gas',
+      'Chemical Tankers',
+      'Desalination Plants',
+      'Pulp & Paper',
+      'Marine Engineering',
+      'Structural Engineering'
+    ],
+    grades: [
+      'UNS S31803 (ASTM A240)',
+      'UNS S32205 (ASTM A240)',
+      'UNS S32750 (ASTM A240)',
+      'UNS S32760 (ASTM A240)',
+      'UNS S32550 (ASTM A240)',
+      'UNS S39274 (ASTM A240)',
+      'UNS S32304 (ASTM A240)',
+      'UNS S82441 (ASTM A240)',
+      'UNS S32101 (ASTM A240)',
+      'UNS J92205 (ASTM A890)'
+    ],
+    specifications: [
+      'Chromium Content: 21% - 28%',
+      'Nickel Content: 4.5% - 8%',
+      'Yield Strength: 450 MPa - 800 MPa',
+      'PREN (Pitting Resistance Equivalent Number): >32'
+    ],
+    standards: [
+      'ASTM A240',
+      'ASTM A790',
+      'EN 1.4462',
+      'NACE MR0175',
+      'API spec 5L'
+    ],
+    hsnCodes: ['72191400', '72221999'],
+    orderSizes: '50 kg - 50 MT',
+    importCountries: [
+      'Sweden',
+      'USA',
+      'Finland',
+      'Germany',
+      'France',
+      'Japan',
+      'South Korea'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹450 - ₹900 per kg',
+    applications: [
+      'Offshore oil platforms',
+      'Chemical process piping',
+      'Heat exchangers',
+      'Desalination plant components',
+      'Bridge structural elements',
+      'Storage tanks for chemicals'
+    ],
+    challenges: [
+      'Precise control during welding to maintain phase balance',
+      'Higher raw material cost due to nickel and molybdenum content',
+      'Limited suppliers for specialized grades and forms'
+    ],
+    marketTrend: 'The market for duplex stainless steel is experiencing significant expansion, driven by the oil and gas sector\'s demand for high-performance materials in challenging environments. Indian infrastructure projects, especially in coastal regions and chemical industries, are also increasing uptake. The focus on long-lasting, low-maintenance assets under \'Sagarmala\' project further fuels demand.'
+  },
+  {
+    slug: 'electrical-steel-sheets-india',
+    name: 'Electrical Steel Sheets',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Electrical steel sheets, also known as silicon steel or transformer steel, are specialized ferrous alloys engineered for specific magnetic properties, primarily high magnetic permeability and low core loss. They contain varying silicon content (up to 4.5%) which increases electrical resistivity and reduces eddy current losses. These sheets are essential for constructing efficient magnetic cores in electrical devices, minimizing energy wastage and enhancing performance.',
+    industries: [
+      'Power Transformers',
+      'Electric Motors',
+      'Generators',
+      'Switchgear',
+      'Home Appliances',
+      'Renewable Energy'
+    ],
+    grades: [
+      'M3 (ASTM A677)',
+      'M4 (ASTM A677)',
+      'M5 (ASTM A677)',
+      'M6 (ASTM A677)',
+      '35W230 (IS 3024)',
+      '50W400 (IEC 60404-8-4)',
+      '27G130 (JIS C2550)',
+      '30Q130 (JIS C2552)',
+      'NOES 0.35 mm',
+      'CRNO M19'
+    ],
+    specifications: [
+      'Silicon Content: 0.5% - 4.5%',
+      'Thickness: 0.23 mm - 0.65 mm',
+      'Core Loss (P1.7/50): 1.5 - 6.0 W/kg',
+      'Permeability: High (typically >10,000)'
+    ],
+    standards: [
+      'ASTM A677',
+      'IS 3024',
+      'IEC 60404-8-4',
+      'JIS C2552',
+      'BS EN 10106'
+    ],
+    hsnCodes: ['72251100', '72261100'],
+    orderSizes: '5 MT - 200 MT',
+    importCountries: [
+      'Japan',
+      'South Korea',
+      'Germany',
+      'USA',
+      'China',
+      'Russia',
+      'France'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹120 - ₹280 per kg',
+    applications: [
+      'Transformer cores',
+      'Motor laminations',
+      'Generator cores',
+      'Reactor cores',
+      'Chokes',
+      'Magnetic shields'
+    ],
+    challenges: [
+      'Maintaining consistent grain orientation for optimal magnetic properties',
+      'High energy consumption during manufacturing',
+      'Susceptibility to damage from mechanical stress affecting magnetic performance'
+    ],
+    marketTrend: 'Demand for electrical steel sheets is robust, driven by extensive investment in power infrastructure and the growth of the electric vehicle (EV) market. Government initiatives for renewable energy and \'Make in India\' for electrical equipment are pivotal drivers. The push for energy efficiency in motor and transformer manufacturing provides sustained market stimulus.'
+  },
+  {
+    slug: 'crgo-cold-rolled-grain-oriented-steel-india',
+    name: 'CRGO (Cold Rolled Grain Oriented) Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'CRGO steel is a highly specialized electrical steel characterized by its unique grain orientation, achieved through a meticulously controlled cold rolling process and subsequent high-temperature annealing. This anisotropic property ensures that the magnetic grains are aligned in the rolling direction, significantly enhancing magnetic permeability and drastically reducing core losses, particularly in applications where the magnetic flux is predominantly in one direction. It is indispensable for high-efficiency transformers.',
+    industries: [
+      'Power Transformers',
+      'Distribution Transformers',
+      'High Voltage Equipment',
+      'Renewable Energy (Wind & Solar)',
+      'Railway Electrification',
+      'Large Generators'
+    ],
+    grades: [
+      'M3',
+      'M4',
+      'M5',
+      'M6',
+      '23Z95',
+      '27Z100',
+      '30Z110',
+      '23P090',
+      '0.23 mm HI-B',
+      '0.27 mm HI-B'
+    ],
+    specifications: [
+      'Thickness: 0.23 mm - 0.35 mm',
+      'Core Loss (P1.7/50): 0.9 - 1.8 W/kg',
+      'Magnetic Induction (B800): Typically >1.8 Tesla',
+      'Grain Orientation: Highly uniform'
+    ],
+    standards: [
+      'ASTM A876',
+      'IS 3024',
+      'IEC 60404-8-7',
+      'JIS C2553',
+      'EN 10107'
+    ],
+    hsnCodes: ['72251100', '72261100'],
+    orderSizes: '1 MT - 100 MT',
+    importCountries: [
+      'Japan',
+      'South Korea',
+      'USA',
+      'Germany',
+      'China',
+      'Russia',
+      'Austria'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹300 - ₹550 per kg',
+    applications: [
+      'Power transformer cores',
+      'Distribution transformer cores',
+      'High-efficiency chokes',
+      'Large industrial motors',
+      'Generator laminations',
+      'Rectifier cores'
+    ],
+    challenges: [
+      'High manufacturing complexity and cost',
+      'Limited global production capacity',
+      'Susceptibility to performance degradation from improper handling and fabrication'
+    ],
+    marketTrend: 'The CRGO steel market is experiencing strong demand from the power sector, driven by expansion of electricity grids and emphasis on energy-efficient transformers. Indian government\'s impetus on \'Power for All\' and \'National Smart Grid Mission\' directly translates into increased need for CRGO. Domestic production capacity is growing but still relies on significant imports.'
+  },
+  {
+    slug: 'crngo-cold-rolled-non-grain-oriented-steel-india',
+    name: 'CRNGO (Cold Rolled Non-Grain Oriented) Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'CRNGO steel is a type of electrical steel characterized by its non-oriented magnetic properties, meaning the magnetic grains are randomly distributed. It is produced through cold rolling and annealing, but without the specific grain-orientation process. While offering lower magnetic permeability and higher core losses compared to CRGO, it provides isotropic magnetic properties, making it suitable for applications where magnetic flux operates in multiple directions. CRNGO is often more cost-effective and easier to process.',
+    industries: [
+      'Electric Motors',
+      'Generators',
+      'Ballasts',
+      'Small Transformers',
+      'Home Appliances',
+      'Automotive (EV motors)'
+    ],
+    grades: [
+      'M15 (ASTM A677)',
+      'M19 (ASTM A677)',
+      'M27 (ASTM A677)',
+      'M36 (ASTM A677)',
+      '50C400 (IEC 60404-8-8)',
+      '65C500 (IEC 60404-8-8)',
+      '800-50A (JIS C2552)',
+      'CRNO 470',
+      'CRNO 600',
+      'CRNO 500'
+    ],
+    specifications: [
+      'Thickness: 0.35 mm - 1.0 mm',
+      'Core Loss (P1.5/50): 3.0 - 10.0 W/kg',
+      'Magnetic Induction (B50): 1.5 - 1.7 Tesla',
+      'Silicon Content: 0.5% - 3.5%'
+    ],
+    standards: [
+      'ASTM A677',
+      'IS 648',
+      'IEC 60404-8-8',
+      'JIS C2552',
+      'DIN EN 10106'
+    ],
+    hsnCodes: ['72251900', '72261900'],
+    orderSizes: '5 MT - 150 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Taiwan',
+      'Japan',
+      'Germany',
+      'USA',
+      'Brazil'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹80 - ₹180 per kg',
+    applications: [
+      'Electric motor laminations',
+      'Generator cores',
+      'Ballast cores',
+      'Small power transformers',
+      'Relay cores',
+      'Home appliance motors'
+    ],
+    challenges: [
+      'Balancing magnetic performance with cost-effectiveness',
+      'Availability of consistent quality raw materials (hot rolled coils)',
+      'Competition from imported material from larger production hubs'
+    ],
+    marketTrend: 'The CRNGO steel market is experiencing consistent growth, largely fueled by aggressive growth in the electric motor and domestic appliance sectors. The government’s Production Linked Incentive (PLI) schemes for manufacturing and increased focus on efficient electrical machinery under \'Atmanirbhar Bharat\' are significant drivers for indigenous consumption. The burgeoning EV sector is also a strong emerging demand source.'
+  },
+  {
+    slug: 'silicon-steel-india',
+    name: 'Silicon Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Silicon steel, also known as electrical steel, is a soft magnetic alloy primarily composed of iron with silicon content ranging from 0.5% to 6.5%. Its key characteristics include high magnetic permeability, low core loss (hysteresis and eddy current losses), and high electrical resistivity. These properties make it ideal for applications involving alternating magnetic fields, where energy efficiency and minimal heat generation are crucial.',
+    industries: [
+      'Power Generation',
+      'Electrical Transformers',
+      'Electric Motors',
+      'Electronics',
+      'Renewable Energy',
+      'Automotive'
+    ],
+    grades: [
+      'M3',
+      'M4',
+      'M5',
+      'M6',
+      '35W230',
+      '27G135',
+      'IS 648:2006',
+      'ASTM A677',
+      'ASTM A876',
+      'IS 3024:2006'
+    ],
+    specifications: [
+      'Silicon Content: 0.5-6.5%',
+      'Thickness: 0.23-0.65 mm',
+      'Core Loss: 0.9-2.5 W/kg (at 1.5T, 50Hz)',
+      'Permeability: 5000-20000 µH/m',
+      'Yield Strength: 250-450 MPa'
+    ],
+    standards: [
+      'IS 648:2006',
+      'ASTM A677',
+      'ASTM A876',
+      'IEC 60404-8-7',
+      'JIS C2550'
+    ],
+    hsnCodes: ['7225.11', '7226.11'],
+    orderSizes: '5-500 MT',
+    importCountries: [
+      'South Korea',
+      'Japan',
+      'China',
+      'Germany',
+      'USA',
+      'Taiwan',
+      'Russia'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹150-350 per kg',
+    applications: [
+      'Transformer Cores',
+      'Electric Motor Laminations',
+      'Generator Stator Cores',
+      'Inductors',
+      'Relays',
+      'Magnetic Shields'
+    ],
+    challenges: [
+      'Raw material price volatility affecting cost.',
+      'Ensuring consistent magnetic properties across batches.',
+      'High import dependence for specialized grades.',
+      'Energy-intensive manufacturing process.'
+    ],
+    marketTrend: 'Demand for silicon steel is rising due to increased focus on energy efficiency in electrical equipment and the growth of renewable energy infrastructure. Government initiatives like the PLI scheme for electronics and electrical goods are further boosting domestic manufacturing and consumption, driving innovation in advanced grades.'
+  },
+  {
+    slug: 'transformer-grade-steel-india',
+    name: 'Transformer Grade Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Transformer grade steel, a specific type of silicon steel, is engineered for optimal performance in power transformers. It is characterized by extremely low core losses, high magnetic saturation, and excellent permeability, crucial for efficient energy conversion and minimal heat generation. These properties are achieved through precise control of silicon content, grain orientation (for grain-oriented electrical steel - GOES), and advanced processing techniques.',
+    industries: [
+      'Power Transmission & Distribution',
+      'Electrical Transformers',
+      'Power Generation',
+      'Renewable Energy',
+      'Railways'
+    ],
+    grades: [
+      '23ZDMH',
+      '27ZDMH',
+      '30Q120',
+      '20P085',
+      'CRGO M4',
+      'CRGO M5',
+      'IS 3024:2006',
+      'ASTM A876',
+      'IS 648:2006 (GOES)',
+      'BIS 1060 (Part 1):1994'
+    ],
+    specifications: [
+      'Silicon Content: 2.8-3.5%',
+      'Thickness: 0.23-0.35 mm',
+      'Core Loss: 0.8-1.5 W/kg (at 1.7T, 50Hz)',
+      'Magnetic Induction: 1.7-1.9 Tesla',
+      'Grain Orientation: Highly Preferred'
+    ],
+    standards: [
+      'IS 3024:2006',
+      'ASTM A876',
+      'IEC 60404-8-7',
+      'JIS C2550',
+      'BIS 1060'
+    ],
+    hsnCodes: ['7225.11', '7226.11'],
+    orderSizes: '10-1000 MT',
+    importCountries: [
+      'Japan',
+      'South Korea',
+      'Germany',
+      'USA',
+      'China',
+      'Russia',
+      'France'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹200-450 per kg',
+    applications: [
+      'Power Transformer Cores',
+      'Distribution Transformer Cores',
+      'Voltage Regulators',
+      'Current Transformers',
+      'Reactors',
+      'Inductive Devices'
+    ],
+    challenges: [
+      'High cost due to specialized manufacturing processes.',
+      'Limited domestic production of high-grade CRGO.',
+      'Vulnerability to global supply chain disruptions.',
+      'Need for advanced magnetic property testing facilities.'
+    ],
+    marketTrend: 'The expansion of India\'s power grid, driven by increasing electricity demand and Smart Cities Mission, fuels demand for transformer grade steel. Policy support for local manufacturing of transformers and a push for energy-efficient products are creating a robust market, despite significant reliance on imported high-grade materials.'
+  },
+  {
+    slug: 'motor-grade-steel-india',
+    name: 'Motor Grade Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Motor grade steel, also known as non-grain oriented electrical steel (NGOES), is an iron-silicon alloy specifically designed for electric motors and generators. Unlike GOES, it exhibits isotropic magnetic properties, meaning its magnetic characteristics are uniform in all directions, which is beneficial for rotating magnetic fields. It offers good magnetic permeability and relatively low core losses, contributing to motor efficiency and reduced power consumption.',
+    industries: [
+      'Electric Motors',
+      'Automotive',
+      'Appliances',
+      'Industrial Machinery',
+      'HVAC',
+      'Consumer Electronics'
+    ],
+    grades: [
+      '50CS1300',
+      '65CS650',
+      '80CS550',
+      'NO20',
+      'NO27',
+      'NO35',
+      'BIS 1060 (Part 2):1994',
+      'ASTM A677',
+      'IS 3024:2006 (NGOES)',
+      'EN 10106'
+    ],
+    specifications: [
+      'Silicon Content: 0.5-3.0%',
+      'Thickness: 0.35-0.65 mm',
+      'Core Loss: 2.0-6.0 W/kg (at 1.5T, 50Hz)',
+      'Tensile Strength: 300-500 MPa',
+      'Surface Insulation: C3 to C6 Coating'
+    ],
+    standards: [
+      'IS 3024:2006',
+      'ASTM A677',
+      'IEC 60404-8-2',
+      'JIS C2552',
+      'BIS 1060'
+    ],
+    hsnCodes: ['7225.19', '7226.19'],
+    orderSizes: '10-200 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Germany',
+      'Taiwan',
+      'Russia',
+      'France'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹120-280 per kg',
+    applications: [
+      'Motor Stators',
+      'Motor Rotors',
+      'Generators',
+      'Ballasts',
+      'Small Transformers',
+      'Relays'
+    ],
+    challenges: [
+      'Demand for higher performance grades for EV motors.',
+      'Balancing cost and quality for diverse motor applications.',
+      'Compliance with stringent energy efficiency norms.',
+      'Availability of advanced coating technologies.'
+    ],
+    marketTrend: 'The burgeoning electric vehicle (EV) sector and the \'Make in India\' initiative are significant drivers for motor grade steel. The shift towards energy-efficient appliances and industrial motors also boosts demand, pushing for continuous improvement in magnetic properties and surface finishes to reduce energy consumption.'
+  },
+  {
+    slug: 'steel-sheets-india',
+    name: 'Steel Sheets',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Steel sheets are flat, thin pieces of steel, typically produced through hot rolling or cold rolling processes, forming various thicknesses and finishes. They are a fundamental material in manufacturing, offering high strength, formability, and versatility. Available in numerous grades, such as mild steel, high-strength low-alloy (HSLA) steel, and stainless steel, they cater to a vast array of structural, automotive, and appliance applications.',
+    industries: [
+      'Automotive',
+      'Construction',
+      'Appliances',
+      'Fabrication',
+      'Shipbuilding',
+      'Industrial Equipment'
+    ],
+    grades: [
+      'IS 2062 E250',
+      'IS 2062 E350',
+      'ASTM A36',
+      'JIS G3101 SS400',
+      'EN 10025 S235JR',
+      'SAE 1008',
+      'IS 513',
+      'ASTM A1008',
+      'CRCA Commercial Grade'
+    ],
+    specifications: [
+      'Thickness: 0.3-50 mm',
+      'Width: 600-2500 mm',
+      'Length: Coil or cut-to-length 1000-12000 mm',
+      'Yield Strength: 250-700 MPa',
+      'Tensile Strength: 400-850 MPa'
+    ],
+    standards: [
+      'IS 2062',
+      'IS 513',
+      'ASTM A36',
+      'JIS G3101',
+      'EN 10025'
+    ],
+    hsnCodes: ['7208.51', '7209.16'],
+    orderSizes: '1-1000 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Russia',
+      'Taiwan',
+      'Germany',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹60-120 per kg',
+    applications: [
+      'Car Body Panels',
+      'Structural Components',
+      'Refrigerators',
+      'Washing Machines',
+      'Storage Tanks',
+      'Ductwork'
+    ],
+    challenges: [
+      'Fluctuations in coking coal and iron ore prices.',
+      'Managing complex inventory for diverse grades and sizes.',
+      'Meeting stringent quality requirements for automotive sector.',
+      'Competition from imported cheaper alternatives.'
+    ],
+    marketTrend: 'The infrastructure push under the National Infrastructure Pipeline (NIP) and growth in the automotive sector are key drivers. Demand for pre-coated and highly formable steel sheets is increasing, driven by aesthetic and functional requirements, alongside a strong emphasis on domestic production and quality control.'
+  },
+  {
+    slug: 'steel-bars-rods-india',
+    name: 'Steel Bars & Rods',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Steel bars and rods are essential long steel products, typically solid, with various cross-sectional shapes (round, square, flat, hexagonal). They are manufactured by hot rolling or cold drawing steel billets. These products provide structural integrity, mechanical strength, and reinforcement, making them indispensable in construction, manufacturing, and engineering applications. They come in plain, deformed, or threaded forms depending on the intended use.',
+    industries: [
+      'Construction',
+      'Infrastructure',
+      'Manufacturing',
+      'Automotive',
+      'Forging',
+      'Fasteners'
+    ],
+    grades: [
+      'IS 1786 Fe 500D',
+      'IS 1786 Fe 550D',
+      'ASTM A615 Grade 60',
+      'SAE 1018',
+      'SAE 1045',
+      'EN 10025 S355',
+      'IS 2062 E250',
+      'BIS 2830',
+      'BIS 432 (Part-1)'
+    ],
+    specifications: [
+      'Diameter: 6-100 mm',
+      'Length: 6-12 meters (standard)',
+      'Yield Strength: 415-600 MPa',
+      'Tensile Strength: 500-700 MPa',
+      'Elongation: 12-18%'
+    ],
+    standards: [
+      'IS 1786',
+      'IS 2062',
+      'ASTM A615',
+      'JIS G3112',
+      'EN 10025'
+    ],
+    hsnCodes: ['7214.20', '7214.99'],
+    orderSizes: '1-500 MT',
+    importCountries: [
+      'China',
+      'Japan',
+      'Russia',
+      'Turkey',
+      'South Korea',
+      'Ukraine',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹55-90 per kg',
+    applications: [
+      'Reinforcement in Concrete (Rebars)',
+      'Structural Frameworks',
+      'Machined Components',
+      'Fasteners (Bolts, Nuts)',
+      'Automotive Parts',
+      'Grating and Fencing'
+    ],
+    challenges: [
+      'Price fluctuations due to raw material costs and demand-supply.',
+      'Logistical challenges for heavy and long products.',
+      'Meeting strict quality and testing requirements for infrastructure.',
+      'Competition from unorganized sector in smaller grades.'
+    ],
+    marketTrend: 'India\'s booming construction and infrastructure sectors, spurred by government projects like the Pradhan Mantri Awas Yojana and NIP, are driving strong demand. There\'s a growing preference for higher grade (Fe550D, Fe600) seismic-resistant rebars, pushing manufacturers towards advanced thermomechanical treatment (TMT) processes.'
+  },
+  {
+    slug: 'iron-castings-india',
+    name: 'Iron Castings',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Iron castings are metal objects produced by pouring molten iron into a mold, allowing it to solidify into a desired shape. This manufacturing process allows for complex geometries and produces parts with excellent compressive strength, good wear resistance, and damping properties. Common types include grey iron, ductile iron, and malleable iron, each offering specific mechanical properties suitable for diverse engineering applications.',
+    industries: [
+      'Automotive',
+      'Heavy Machinery',
+      'Pumps & Valves',
+      'Railways',
+      'Agrícultura',
+      'Construction'
+    ],
+    grades: [
+      'IS 210 FG 200',
+      'IS 210 FG 250',
+      'IS 1865 SG 400/15',
+      'IS 1865 SG 500/7',
+      'ASTM A48 Class 30',
+      'ASTM A536 Grade 60-40-18',
+      'EN 1561 EN-GJL-250',
+      'EN 1563 EN-GJS-500-7'
+    ],
+    specifications: [
+      'Tensile Strength: 200-700 MPa',
+      'Hardness: 180-250 BHN',
+      'Elongation: 0.5-22% (Ductile Iron)',
+      'Wall Thickness: 3-50 mm',
+      'Weight: 0.1 kg - 10 MT'
+    ],
+    standards: [
+      'IS 210',
+      'IS 1865',
+      'ASTM A48',
+      'ASTM A536',
+      'EN 1561'
+    ],
+    hsnCodes: ['7325.10', '7325.99'],
+    orderSizes: '0.1 kg - 100 MT (per order)',
+    importCountries: [
+      'China',
+      'Germany',
+      'USA',
+      'Japan',
+      'Italy',
+      'Turkey',
+      'South Korea'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹80-250 per kg',
+    applications: [
+      'Engine Blocks',
+      'Gearboxes',
+      'Pump Casings',
+      'Valve Bodies',
+      'Manhole Covers',
+      'Brake Drums'
+    ],
+    challenges: [
+      'Maintaining dimensional accuracy and surface finish.',
+      'Controlling metallurgical properties for specific applications.',
+      'High energy consumption in foundry operations.',
+      'Environmental compliance for emissions and waste management.'
+    ],
+    marketTrend: 'The \'Make in India\' initiative and growth in the automotive, agricultural, and infrastructure sectors are sustaining demand for iron castings. Automation in foundries and a shift towards precision castings with improved mechanical properties are key trends. The demand for lightweight and higher-strength ductile iron castings is particularly robust.'
+  },
+  {
+    slug: 'alloy-steel-india',
+    name: 'Alloy Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Alloy steel is a type of steel that is alloyed with a variety of elements, such as manganese, nickel, chromium, molybdenum, vanadium, silicon, and boron, in total amounts between 1.0% and 50% by weight. These alloying elements modify the steel\'s properties, enhancing strength, hardness, wear resistance, toughness, and corrosion resistance beyond what can be achieved with plain carbon steel. The specific choice of alloying elements dictates its final application.',
+    industries: [
+      'Automotive',
+      'Aerospace',
+      'Oil & Gas',
+      'Tooling',
+      'Defense',
+      'Heavy Engineering'
+    ],
+    grades: [
+      'AISI 4140',
+      'AISI 4340',
+      'EN 19 (50CrV4)',
+      'EN 24 (34CrNiMo6)',
+      'IS 1570 (Part 5) 40Cr1',
+      'IS 1570 (Part 5) 30Mn2',
+      'ASTM A335 P11',
+      'JIS SCM440'
+    ],
+    specifications: [
+      'Tensile Strength: 700-1500 MPa',
+      'Hardness: 200-600 HB',
+      'Impact Strength: 50-150 J',
+      'Corrosion Resistance: Improved',
+      'Heat Treatment Response: Excellent'
+    ],
+    standards: [
+      'AISI/SAE',
+      'ASTM',
+      'EN',
+      'JIS',
+      'IS 1570'
+    ],
+    hsnCodes: ['7225.40', '7228.30'],
+    orderSizes: '1-200 MT',
+    importCountries: [
+      'China',
+      'Japan',
+      'Germany',
+      'USA',
+      'South Korea',
+      'Sweden',
+      'France'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹120-400 per kg',
+    applications: [
+      'Gears',
+      'Shafts',
+      'Connecting Rods',
+      'High-Pressure Pipes',
+      'Aircraft Landing Gear',
+      'Cutting Tools'
+    ],
+    challenges: [
+      'Precise control over alloying element compositions.',
+      'Complex heat treatment processes required.',
+      'High raw material costs (e.g., nickel, molybdenum).',
+      'Difficulty in machining higher strength grades.'
+    ],
+    marketTrend: 'The demand for high-performance alloy steels is increasing, driven by sectors like defense, aerospace, and energy infrastructure. Indigenous manufacturing under initiatives like \'Atmanirbhar Bharat\' is promoting domestic production, while continuous research focuses on developing new grades with improved properties for critical applications.'
+  },
+  {
+    slug: 'tool-steel-india',
+    name: 'Tool Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Tool steels are a group of alloy steels specifically designed for manufacturing tools, dies, and molds, often subjected to extreme conditions. They are characterized by exceptional hardness, wear resistance, toughness, and often the ability to retain these properties at elevated temperatures (hot hardness). Their performance is highly dependent on their specific chemical composition and meticulous heat treatment processes.',
+    industries: [
+      'Die & Mold Manufacturing',
+      'Automotive',
+      'Metalworking',
+      'Plastics Processing',
+      'Forging',
+      'Medical'
+    ],
+    grades: [
+      'D2 (High Carbon, High Chromium)',
+      'H13 (Hot Work)',
+      'M2 (High Speed Steel)',
+      'P20 (Plastic Mold)',
+      'O1 (Oil Hardening)',
+      'AISI S7 (Shock Resisting)',
+      'IS 10795 SKD11',
+      'IS 10795 SKH9'
+    ],
+    specifications: [
+      'Hardness: 58-65 HRC (after heat treat)',
+      'Wear Resistance: High',
+      'Toughness: Good to Excellent',
+      'Hot Hardness: Up to 600°C',
+      'Compressive Strength: 2000-3000 MPa'
+    ],
+    standards: [
+      'AISI/SAE',
+      'ASTM A681',
+      'DIN EN ISO 4957',
+      'JIS G4404',
+      'IS 10795'
+    ],
+    hsnCodes: ['7228.30', '7228.40'],
+    orderSizes: '0.1-50 MT',
+    importCountries: [
+      'Germany',
+      'Sweden',
+      'Japan',
+      'USA',
+      'Austria',
+      'China',
+      'Czech Republic'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹300-1500 per kg',
+    applications: [
+      'Cutting Tools (Drills, Mills)',
+      'Forging Dies',
+      'Plastic Molds',
+      'Punching Dies',
+      'Extrusion Dies',
+      'Hot Work Tooling'
+    ],
+    challenges: [
+      'Extreme sensitivity to heat treatment parameters.',
+      'High material cost for specialized grades.',
+      'Demand for complex geometries requiring advanced machining.',
+      'Global competition in tool and die manufacturing.'
+    ],
+    marketTrend: 'Growth in the Indian manufacturing sector, particularly automotive and capital goods, is driving the demand for specialized tool steels. Emphasis on precision and high-performance tooling for new product development, coupled with a push for \'Make in India\' in defense and aerospace, is fostering domestic expertise and utilization.'
+  },
+  {
+    slug: 'scrap-india',
+    name: 'Scrap',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Scrap refers to discarded or reclaimed metallic materials that are reprocessed from end-of-life products or manufacturing waste. It serves as a crucial secondary raw material for steelmaking and casting, significantly reducing the need for virgin iron ore, coking coal, and energy. Ferrous scrap, primarily iron and steel, is categorized by type (e.g., heavy melting scrap, turning, shredded) and purity, directly impacting its value and application.',
+    industries: [
+      'Steel Mills',
+      'Foundries',
+      'Recycling Industry',
+      'Shipbreaking',
+      'Automotive Recycling',
+      'Construction Demolition'
+    ],
+    grades: [
+      'HMS 1 (Heavy Melting Scrap)',
+      'HMS 2 (Heavy Melting Scrap)',
+      'Shredded Scrap ISRI 210-211',
+      'P&S (Plates & Structurals)',
+      'Busheling (Bale of new production steel)',
+      'Cast Iron Scrap',
+      'Turnings (Machine shop waste)',
+      'IS 11847 Part 2'
+    ],
+    specifications: [
+      'Density: 0.5-1.5 MT/m³ (depending on type)',
+      'Contamination Level: <0.5% non-metallic',
+      'Nickel Content: <0.1% (for carbon steel applications)',
+      'Copper Content: <0.2% (critical for quality)',
+      'Size: Defined by grade (e.g., 50x50 cm max for HMS)'
+    ],
+    standards: [
+      'ISRI (Institute of Scrap Recycling Industries)',
+      'IS 11847',
+      'ASTM E1506',
+      'Bureau of Indian Standards norms'
+    ],
+    hsnCodes: ['7204.41', '7204.49'],
+    orderSizes: '1-10,000 MT',
+    importCountries: [
+      'USA',
+      'UK',
+      'UAE',
+      'Netherlands',
+      'Japan',
+      'Australia',
+      'Canada'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹35-45 per kg',
+    applications: [
+      'Electric Arc Furnace (EAF) Steelmaking',
+      'Induction Furnace Steelmaking',
+      'Foundry Remelting',
+      'Blast Furnace Charge (minor component)'
+    ],
+    challenges: [
+      'Price volatility influenced by global supply and demand.',
+      'Quality and contamination control of purchased scrap.',
+      'Logistical costs for collection and transport.',
+      'Compliance with environmental regulations for processing.'
+    ],
+    marketTrend: 'India is a net importer of ferrous scrap, with growing demand from EAF and induction furnaces. The government\'s National Steel Policy aims to increase scrap usage to promote sustainability and reduce carbon footprint. The development of organized scrap collection and processing centers is a major trend.'
+  },
+  {
+    slug: 'iron-ore-india',
+    name: 'Iron Ore',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Iron ore is a mineral rock from which metallic iron can be economically extracted. It is the primary raw material for steel production globally, typically containing iron oxides like hematite (Fe2O3) or magnetite (Fe3O4). The quality of iron ore is determined by its iron content, gangue minerals, and impurity levels, which directly influence the steelmaking process and the final properties of the steel produced.',
+    industries: [
+      'Steel Production',
+      'Pig Iron Manufacturing',
+      'Direct Reduced Iron (DRI) Production',
+      'Foundries'
+    ],
+    grades: [
+      'Fines (Fe 60-63%)',
+      'Lumps (Fe 63-65%)',
+      'Pellets (Fe 65% +)',
+      'Sinter Feed',
+      'Hematite Ore',
+      'Magnetite Ore',
+      'IS 10022',
+      'IS 14811'
+    ],
+    specifications: [
+      'Iron Content (Fe): 58-68%',
+      'Silica (SiO2): 2-8%',
+      'Alumina (Al2O3): 1-5%',
+      'Phosphorus (P): 0.05-0.15%',
+      'Sulphur (S): <0.05%',
+      'Moisture: 2-10%'
+    ],
+    standards: [
+      'IS 10022',
+      'IS 14811',
+      'ISO 3081',
+      'ASTM E246',
+      'National Mineral Policy (India)'
+    ],
+    hsnCodes: ['2601.11', '2601.12'],
+    orderSizes: '1,000-100,000 MT',
+    importCountries: [
+      'Australia',
+      'Brazil',
+      'South Africa',
+      'Canada',
+      'Ukraine',
+      'Russia',
+      'Sweden'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹7,000-12,000 per MT (FOB price variable)',
+    applications: [
+      'Blast Furnace Feedstock',
+      'Direct Reduced Iron (DRI) Plants',
+      'Sintering Plants',
+      'Pellet Plants',
+      'Pig Iron Production'
+    ],
+    challenges: [
+      'Global price volatility and geopolitical factors.',
+      'Environmental impact of mining and refining.',
+      'Logistical hurdles for bulk transport (rail, sea).',
+      'Fluctuating domestic demand tied to steel industry cycles.'
+    ],
+    marketTrend: 'India is a major producer and consumer of iron ore. The National Steel Policy aims to increase steel production, thereby driving sustained demand for iron ore. There\'s a growing emphasis on value addition through pelletization and beneficiation to use lower-grade fines and improve blast furnace efficiency.'
+  },
+  {
+    slug: 'ht-strands-india',
+    name: 'HT Strands',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'High Tensile (HT) Strands are high-strength steel wires twisted together to form a strand, primarily used as prestressing tendons in concrete structures. They exhibit excellent tensile strength and fatigue resistance, essential for applications requiring durable and crack-resistant concrete. The manufacturing process involves cold drawing and stress-relieving to achieve the desired mechanical properties and maintain dimensional stability under load.',
+    industries: [
+      'Construction',
+      'Infrastructure Development',
+      'Precast Concrete Manufacturing',
+      'Bridge Building',
+      'Nuclear Power Plants',
+      'Hydroelectric Projects'
+    ],
+    grades: [
+      'IS 14268 Part 2: 1995 Grade 1770',
+      'IS 14268 Part 2: 1995 Grade 1960',
+      'ASTM A416/A416M Grade 250K',
+      'ASTM A416/A416M Grade 270K',
+      'EN 10138-3 Class 1770',
+      'EN 10138-3 Class 1860'
+    ],
+    specifications: [
+      'Nominal Diameter: 9.3mm - 18.0mm',
+      'Tensile Strength: 1770 MPa - 1960 MPa',
+      'Elongation at Break: 3.5% - 5.0%',
+      'Minimum Breaking Load: 90 KN - 300 KN',
+      'Relaxation at 1000 hours: Max 2.5%'
+    ],
+    standards: [
+      'IS 14268',
+      'ASTM A416/A416M',
+      'EN 10138-3',
+      'BS 5896',
+      'ISO 6934-2'
+    ],
+    hsnCodes: ['73121010'],
+    orderSizes: '1 MT - 1000 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Germany',
+      'Japan',
+      'Belgium',
+      'Turkey',
+      'France'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹80,000 - ₹120,000 per MT',
+    applications: [
+      'Prestressed Concrete Bridges',
+      'Precast Girders',
+      'High-rise Building Slabs',
+      'Containment Structures for Nuclear Power',
+      'Railway Sleepers',
+      'Silos and Storage Tanks'
+    ],
+    challenges: [
+      'Fluctuations in raw material (wire rod) prices',
+      'Maintaining consistent quality and high tensile strength',
+      'Logistical challenges for large coil deliveries',
+      'Intense competition from domestic and international suppliers'
+    ],
+    marketTrend: 'The demand for HT strands is being driven by significant infrastructure development projects in India, including new expressways, railway networks, and smart city initiatives. Government push through policies like the National Infrastructure Pipeline is fostering investment. Manufacturers are focusing on advanced manufacturing techniques to meet stringent quality and performance requirements.'
+  },
+  {
+    slug: 'lrpc-india',
+    name: 'LRPC',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Low Relaxation Prestressed Concrete (LRPC) strands are high-strength steel strands specifically engineered for prestressing concrete elements. They are characterized by their minimal stress relaxation over time, ensuring sustained prestressing forces in civil structures. The low relaxation property, achieved through specific thermal treatment processes, enhances the longevity and structural integrity of prestressed concrete components by reducing long-term prestress losses.',
+    industries: [
+      'Construction',
+      'Infrastructure',
+      'Precast Manufacturing',
+      'Road and Bridge Building',
+      'Railway Infrastructure',
+      'Real Estate'
+    ],
+    grades: [
+      'IS 14268 Grade 270K',
+      'ASTM A416/A416M Grade 270K',
+      'BS EN 10138-3:2009 LR',
+      'AS/NZS 4672:2006 LR',
+      'JIS G3137 SWPR7LR Type A',
+      'ISO 6934-2 Grade 270K'
+    ],
+    specifications: [
+      'Nominal Diameter: 9.3mm - 15.7mm',
+      'Tensile Strength: 1860 MPa - 1960 MPa',
+      'Relaxation at 1000 hours: Max 2.5%',
+      '0.2% Proof Stress: Min 90% of UTS',
+      'Elongation at Break: Min 3.5%'
+    ],
+    standards: [
+      'IS 14268',
+      'ASTM A416/A416M',
+      'EN 10138-3',
+      'BS 5896',
+      'JIS G3536'
+    ],
+    hsnCodes: ['73121010'],
+    orderSizes: '5 MT - 750 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Taiwan',
+      'Belgium',
+      'Germany',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹85,000 - ₹125,000 per MT',
+    applications: [
+      'Long Span Bridges',
+      'Pre-tensioned Girders',
+      'Post-tensioned Slabs',
+      'Concrete Railway Sleepers',
+      'Large Storage Silos',
+      'Nuclear Reactor Structures'
+    ],
+    challenges: [
+      'Strict quality control for relaxation properties',
+      'High capital investment for sophisticated manufacturing lines',
+      'Impact of global steel price volatility on production costs',
+      'Need for specialized testing and certification processes'
+    ],
+    marketTrend: 'The LRPC strand market in India is expanding due to increased adoption in large-scale infrastructure projects requiring durable and long-lasting concrete solutions. Government initiatives like the \'Housing for All\' scheme and dedicated freight corridors are boosting demand. The PLI scheme for specialty steel production could further support domestic manufacturing capabilities, reducing reliance on imports.'
+  },
+  {
+    slug: 'pc-strand-india',
+    name: 'PC Strand',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'PC (Prestressed Concrete) Strand refers to high-strength steel wires twisted into a helical shape, designed to impart compressive stresses into concrete members. This prestressing enhances the concrete\'s load-carrying capacity and prevents cracking, leading to more efficient and durable structures. The high tensile strength and controlled elongation properties are critical for maintaining the intended prestressing force throughout the structure\'s service life, making it a fundamental component in modern construction.',
+    industries: [
+      'Construction',
+      'Civil Engineering',
+      'Building Materials',
+      'Infrastructure Development',
+      'Road Construction',
+      'Precast Industry'
+    ],
+    grades: [
+      'IS 14268 Part 2: 1995 Grade 1770',
+      'IS 14268 Part 2: 1995 Grade 1960',
+      'ASTM A416/A416M Grade 270',
+      'BS 5896:1980 Type 2',
+      'EN 10138-3 Class 1860',
+      'JIS G3137 SWPR7A'
+    ],
+    specifications: [
+      'Nominal Diameter: 9.3mm - 15.2mm',
+      'Characteristic Tensile Strength: 1770 MPa - 1960 MPa',
+      'Minimum Breaking Load: 90 kN - 260 kN',
+      'Elongation at Failure: Min 3.5%',
+      'Relaxation at 1000 hours: Max 2.5% (Low Relaxation)'
+    ],
+    standards: [
+      'IS 14268',
+      'ASTM A416/A416M',
+      'EN 10138',
+      'BS 5896',
+      'ISO 6934'
+    ],
+    hsnCodes: ['73121010', '73121090'],
+    orderSizes: '3 MT - 800 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Germany',
+      'Taiwan',
+      'Belgium',
+      'Thailand'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹78,000 - ₹120,000 per MT',
+    applications: [
+      'Prestressed Concrete Sleepers',
+      'Precast Concrete Pipes',
+      'Building Slabs and Beams',
+      'Bridge Girders',
+      'Ground Anchors',
+      'Post-tensioned Floor Systems'
+    ],
+    challenges: [
+      'Ensuring uniform properties across long lengths',
+      'Protection from corrosion during transport and storage',
+      'High setup costs for specialized drawing and stranding machinery',
+      'Adherence to strict national and international quality norms'
+    ],
+    marketTrend: 'The PC strand market in India is experiencing robust growth driven by the government\'s ambitious infrastructure development agenda, including major investments in roadways, urban infrastructure, and affordable housing. Growing urbanization and the adoption of advanced construction techniques are sustaining demand. Increased use in precast concrete elements contributes significantly to this trend.'
+  },
+  {
+    slug: 'prestressing-steel-india',
+    name: 'Prestressing Steel',
+    category: 'Metals - Ferrous (Steel, Iron)',
+    categorySlug: 'metals-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'ferrous',
+    definition: 'Prestressing steel encompasses high-strength steel wires, bars, or strands used to induce compressive stress in concrete structures prior to their service load application. This technique, known as prestressing, significantly improves the concrete\'s resistance to tensile forces, reduces cracking, and enhances its overall structural performance and durability. The specific metallurgy and manufacturing processes ensure high tensile strength, excellent fatigue resistance, and controlled relaxation characteristics.',
+    industries: [
+      'Construction',
+      'Infrastructure',
+      'Civil Engineering',
+      'Precast Concrete',
+      'Transportation',
+      'Energy Sector'
+    ],
+    grades: [
+      'IS 14268 Part 2:1995 (for strands)',
+      'IS 13620 (for indented wires)',
+      'ASTM A722/A722M (for bars)',
+      'ASTM A421/A421M (for wires)',
+      'EN 10138 (for wires, bars, strands)',
+      'JIS G3109 (for wires)'
+    ],
+    specifications: [
+      'Nominal Diameter: 5mm (wire) - 36mm (bar)',
+      'Characteristic Tensile Strength: 1470 MPa - 1960 MPa',
+      '0.1% or 0.2% Proof Stress: Min 80% - 90% of UTS',
+      'Breaking Elongation: Min 3% - 8%',
+      'Relaxation at 1000 hours: Max 2.5% (for LR types)'
+    ],
+    standards: [
+      'IS 14268',
+      'ASTM A416/A416M',
+      'EN 10138',
+      'BS 5896',
+      'ISO 6934',
+      'IS 13620'
+    ],
+    hsnCodes: ['72292000', '73121010'],
+    orderSizes: '2 MT - 1200 MT',
+    importCountries: [
+      'China',
+      'Germany',
+      'South Korea',
+      'Japan',
+      'Italy',
+      'France',
+      'Spain'
+    ],
+    relatedSlugs: [
+      'foundry-grade-pig-iron-india',
+      'cold-rolled-gp-sheets-india',
+      'cold-rolled-annealed-coils-india',
+      'full-hard-cold-rolled-coils-india',
+      'hr-plates-india'
+    ],
+    priceRange: '₹75,000 - ₹150,000 per MT',
+    applications: [
+      'Prestressed Concrete Bridges',
+      'High-rise Building Foundations',
+      'Nuclear Power Plant Containment Vessels',
+      'Precast Concrete Elements',
+      'Railway Sleepers',
+      'Dams and Port Structures'
+    ],
+    challenges: [
+      'Corrosion susceptibility if not properly protected',
+      'Precise installation and tensioning procedures required',
+      'Maintaining ductility and strength throughout production',
+      'Compliance with varying global engineering specifications'
+    ],
+    marketTrend: 'The market for prestressing steel in India is significantly influenced by government policies aimed at boosting infrastructure and urban development, such as the Smart Cities Mission and dedicated industrial corridors. The focus on constructing durable, long-life assets is increasing the adoption of prestressed concrete solutions. Growing awareness about cost-effectiveness and structural efficiency also contributes to its steady demand growth.'
+  },
+];
+
+// ─── NON-FERROUS METALS ───
+const nonFerrousNewProducts: DemandProduct[] = [
+  {
+    slug: 'copper-products-india',
+    name: 'Copper Products',
+    category: 'Metals - Non-Ferrous',
+    categorySlug: 'metals-non-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'non-ferrous',
+    definition: 'Copper products encompass a wide range of materials manufactured from pure copper or its alloys, known for their excellent electrical and thermal conductivity, corrosion resistance, and malleability. These products are processed into various forms such as sheets, plates, tubes, wires, and rods, catering to diverse industrial applications. Their high ductility allows for easy fabrication into complex shapes, making them indispensable in numerous sectors. The unparalled electrical conductivity of copper ensures efficient energy transmission.',
+    industries: [
+      'Electrical & Electronics',
+      'Construction',
+      'Automotive',
+      'Renewable Energy',
+      'Telecommunications',
+      'Plumbing'
+    ],
+    grades: [
+      'Electrolytic Tough Pitch (ETP) Copper C11000/CW004A',
+      'Deoxidized High Phosphorus (DHP) Copper C12200/CW024A',
+      'Oxygen-Free High Conductivity (OFHC) Copper C10200/CW008A',
+      'C10100 (Oxygen-Free Electronic)',
+      'IS 191 (Copper)',
+      'IS 1897 (Wrought Copper and Copper Alloys)'
+    ],
+    specifications: [
+      'Purity: 99.9% - 99.99%',
+      'Electrical Conductivity: 95 - 101% IACS',
+      'Tensile Strength: 200 - 400 MPa',
+      'Hardness (HV): 40 - 120',
+      'Density: 8.9 - 8.94 g/cm³'
+    ],
+    standards: [
+      'ASTM B152 (Copper Sheet, Strip, Plate)',
+      'ASTM B88 (Seamless Copper Water Tube)',
+      'IS 191 (Specification for Copper)',
+      'IS 613 (Copper Rods and Bars for Electrical Purposes)',
+      'BIS IS 14003 (Copper and Copper Alloys - Terminology)'
+    ],
+    hsnCodes: ['7407', '7403'],
+    orderSizes: '100 kg - 10000 MT',
+    importCountries: [
+      'Chile',
+      'Australia',
+      'Indonesia',
+      'Japan',
+      'Zambia',
+      'Peru',
+      'Congo'
+    ],
+    relatedSlugs: [
+      'aluminium-products-india',
+      'brass-products-india',
+      'zinc-products-india',
+      'lead-products-india',
+      'titanium-products-india'
+    ],
+    priceRange: '₹650 - ₹950 per kg',
+    applications: [
+      'Electrical wiring and cables',
+      'Heat exchangers and radiators',
+      'Plumbing pipes and fittings',
+      'Architectural cladding',
+      'Busbars and connectors',
+      'Printed Circuit Boards (PCBs)'
+    ],
+    challenges: [
+      'Volatility in raw material prices',
+      'Environmental regulations on mining and smelting',
+      'Competition from alternative materials like aluminum for certain uses',
+      'Ensuring sustainable sourcing practices'
+    ],
+    marketTrend: 'The demand for copper products in India is driven by infrastructure development under the Smart Cities Mission and increased adoption of electric vehicles, boosting the electrical and electronics sectors. India\'s emphasis on renewable energy projects, particularly solar, further escalates copper consumption for wiring and components. Government initiatives like the National Infrastructure Pipeline (NIP) also underpin sustained growth in demand across construction and power transmission.'
+  },
+  {
+    slug: 'aluminium-products-india',
+    name: 'Aluminium Products',
+    category: 'Metals - Non-Ferrous',
+    categorySlug: 'metals-non-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'non-ferrous',
+    definition: 'Aluminium products refer to a diverse range of materials fabricated from aluminum, a lightweight, corrosion-resistant, and highly ductile metal. Available in various forms such as sheets, plates, extrusions, foils, and castings, these products leverage aluminum\'s high strength-to-weight ratio and excellent thermal conductivity. Its non-toxic nature and recyclability make it a preferred material in sustainable applications, offering versatility across numerous industrial and consumer-oriented sectors. The material\'s ease of alloying further extends its application spectrum.',
+    industries: [
+      'Automotive',
+      'Aerospace',
+      'Construction',
+      'Packaging',
+      'Electrical',
+      'Consumer Goods'
+    ],
+    grades: [
+      'Alloy 6061 (T6 Temper)',
+      'Alloy 7075 (T6 Temper)',
+      'Alloy 5083 (H116/H321 Temper)',
+      'Alloy 1100',
+      'IS 733 (Wrought Aluminium and Aluminium Alloy Bars, Rods and Sections)',
+      'IS 737 (Wrought Aluminium and Aluminium Alloy Plate, Sheet and Strip)'
+    ],
+    specifications: [
+      'Tensile Strength: 90 - 570 MPa',
+      'Yield Strength: 35 - 500 MPa',
+      'Elongation: 3 - 25%',
+      'Density: 2.7 - 2.8 g/cm³',
+      'Thermal Conductivity: 160 - 240 W/m.K'
+    ],
+    standards: [
+      'ASTM B209 (Aluminum and Aluminum-Alloy Sheet and Plate)',
+      'ASTM B221 (Aluminum and Aluminum-Alloy Extruded Bars, Rods, Wire, Shapes)',
+      'IS 733 (Aluminium and Aluminium Alloy Bars, Rods and Sections)',
+      'IS 737 (Aluminium and Aluminium Alloy Plate, Sheet and Strip)',
+      'BIS IS 1285 (Wrought Aluminium and Aluminium Alloy Cold Rolled Plates Sheet and Strip)'
+    ],
+    hsnCodes: ['7606', '7604'],
+    orderSizes: '50 kg - 5000 MT',
+    importCountries: [
+      'UAE',
+      'China',
+      'Bahrain',
+      'Canada',
+      'Russia',
+      'Norway',
+      'Australia'
+    ],
+    relatedSlugs: [
+      'copper-products-india',
+      'brass-products-india',
+      'zinc-products-india',
+      'lead-products-india',
+      'titanium-products-india'
+    ],
+    priceRange: '₹200 - ₹450 per kg',
+    applications: [
+      'Aircraft structures',
+      'Vehicle body panels and engine parts',
+      'Window frames and architectural elements',
+      'Food and beverage packaging',
+      'Electrical conductors and busbars',
+      'Heat sinks'
+    ],
+    challenges: [
+      'High energy consumption in primary production',
+      'Dependency on bauxite imports',
+      'Competition from steel in certain construction applications',
+      'Managing scrap collection and recycling efficiently'
+    ],
+    marketTrend: 'India\'s aluminium product market is driven by increasing demand in the automotive sector, especially with the push for lightweighting for fuel efficiency, and by a buoyant construction industry. Government initiatives like the \'Make in India\' campaign and the Production Linked Incentive (PLI) scheme for advanced chemistry cell batteries further stimulate demand within the electric vehicle ecosystem. The growth of smart cities also contributes to the use of aluminium in architectural and infrastructure projects.'
+  },
+  {
+    slug: 'brass-products-india',
+    name: 'Brass Products',
+    category: 'Metals - Non-Ferrous',
+    categorySlug: 'metals-non-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'non-ferrous',
+    definition: 'Brass products are alloys primarily composed of copper and zinc, valued for their appealing golden-yellow appearance, machinability, and good corrosion resistance. The varied proportions of copper and zinc lead to different brass types, each with specific mechanical and physical properties. These products are extensively used in manufacturing components requiring fine detail, aesthetic appeal, and resistance to wear, finding applications in plumbing, electrical, and decorative industries. Their acoustic properties are also highly regarded.',
+    industries: [
+      'Plumbing & Sanitary',
+      'Musical Instruments',
+      'Electrical Appliances',
+      'Decorative & Hardware',
+      'Automotive',
+      'Marine'
+    ],
+    grades: [
+      'Cartridge Brass (70/30) C26000',
+      'Yellow Brass (65/35) C27000',
+      'Naval Brass (60/40) C46400',
+      'Free-Machining Brass C36000',
+      'IS 319 (Free Machining Brass Rods and Sections)',
+      'IS 410 (Sheet and Strip for the Manufacture of Utensils)'
+    ],
+    specifications: [
+      'Copper Content: 58 - 90%',
+      'Zinc Content: 10 - 42%',
+      'Tensile Strength: 300 - 600 MPa',
+      'Hardness (HV): 80 - 150',
+      'Density: 8.4 - 8.7 g/cm³'
+    ],
+    standards: [
+      'ASTM B36 (Brass Plate, Sheet, Strip, and Rolled Bar)',
+      'ASTM B135 (Seamless Brass Tube)',
+      'IS 319 (Free Machining Brass Rods and Sections)',
+      'IS 407 (Brass Ingots and Castings)',
+      'BIS IS 1264 (Brass, Naval Brass & Leaded Naval Brass Bars for Machining)'
+    ],
+    hsnCodes: ['7409', '7407'],
+    orderSizes: '50 kg - 500 MT',
+    importCountries: [
+      'Germany',
+      'China',
+      'USA',
+      'South Korea',
+      'UK',
+      'Taiwan',
+      'Italy'
+    ],
+    relatedSlugs: [
+      'copper-products-india',
+      'aluminium-products-india',
+      'zinc-products-india',
+      'lead-products-india',
+      'titanium-products-india'
+    ],
+    priceRange: '₹450 - ₹750 per kg',
+    applications: [
+      'Plumbing fixtures and fittings',
+      'Musical instruments (e.g., trumpets, trombones)',
+      'Electrical connectors and switchgear',
+      'Decorative hardware',
+      'Fasteners and gears',
+      'Ammunition casings'
+    ],
+    challenges: [
+      'Fluctuations in copper and zinc prices',
+      'Lead content restrictions in certain applications (e.g., potable water)',
+      'Competition from other alloys for specific functions',
+      'Ensuring consistent alloy composition for specialized uses'
+    ],
+    marketTrend: 'The market for brass products in India is steadily growing, driven by the expanding plumbing and sanitary ware industry, fueled by urbanization and housing projects. Demand also comes from the electrical sector for components and connectors. The \'Smart Cities\' initiative and the focus on improving domestic manufacturing capabilities are contributing factors to this stable market. However, price volatility of raw materials remains a concern for manufacturers.'
+  },
+  {
+    slug: 'zinc-products-india',
+    name: 'Zinc Products',
+    category: 'Metals - Non-Ferrous',
+    categorySlug: 'metals-non-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'non-ferrous',
+    definition: 'Zinc products encompass materials made from elemental zinc or its alloys, primarily utilized for galvanizing, die-casting, and as a component in various alloys like brass. Known for its excellent corrosion resistance when applied as a coating and its low melting point, zinc is easily cast into complex shapes. It plays a critical role in protecting steel from rust and is essential in battery manufacturing. Its versatility makes it invaluable across heavy industries and consumer goods alike.',
+    industries: [
+      'Construction',
+      'Automotive',
+      'Battery Manufacturing',
+      'Galvanizing',
+      'Die-Casting',
+      'Chemical'
+    ],
+    grades: [
+      'Special High Grade (SHG) Zinc 99.995%',
+      'High Grade (HG) Zinc 99.95%',
+      'Prime Western (PW) Zinc 98.7%',
+      'Zinc Die Casting Alloys (e.g., Zamak 3, Zamak 5)',
+      'IS 4202 (Zinc Plate)',
+      'IS 209 (Zinc Ingots for Galvanizing)'
+    ],
+    specifications: [
+      'Purity: 98.7% - 99.995%',
+      'Melting Point: 419.5 °C',
+      'Boiling Point: 907 °C',
+      'Density: 7.14 g/cm³',
+      'Hardness (HV): 30 - 45'
+    ],
+    standards: [
+      'ASTM B6 (Zinc)',
+      'ASTM B86 (Zinc Alloy Die Castings)',
+      'IS 209 (Zinc Ingots)',
+      'IS 13229 (Zinc for Galvanizing)',
+      'BIS IS 4933 (Zinc and Zinc Alloys - Terminology)'
+    ],
+    hsnCodes: ['7901', '7907'],
+    orderSizes: '1 MT - 5000 MT',
+    importCountries: [
+      'Australia',
+      'China',
+      'Peru',
+      'South Korea',
+      'Kazakhstan',
+      'Canada',
+      'Netherlands'
+    ],
+    relatedSlugs: [
+      'copper-products-india',
+      'aluminium-products-india',
+      'brass-products-india',
+      'lead-products-india',
+      'titanium-products-india'
+    ],
+    priceRange: '₹250 - ₹380 per kg',
+    applications: [
+      'Galvanized steel sheets and structures',
+      'Die-cast components for automotive and appliances',
+      'Alloying element in brass and bronze',
+      'Zinc-carbon and alkaline batteries',
+      'Sacrificial anodes for corrosion protection',
+      'Pharmaceuticals and pigments'
+    ],
+    challenges: [
+      'Global price volatility influenced by supply and demand',
+      'Environmental impact of zinc mining and processing',
+      'Competition from alternative corrosion protection methods',
+      'Ensuring consistent quality for critical applications like galvanizing'
+    ],
+    marketTrend: 'The market for zinc products in India is primarily driven by the steel industry\'s demand for galvanization, which is boosted by infrastructure and construction projects under the NIP. Increased automotive production and the growth of renewable energy projects (requiring galvanized structures) also contribute significantly. The \'Make in India\' push for manufacturing further promotes the use of zinc die-cast components in various sectors, indicating stable growth.'
+  },
+  {
+    slug: 'lead-products-india',
+    name: 'Lead Products',
+    category: 'Metals - Non-Ferrous',
+    categorySlug: 'metals-non-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'non-ferrous',
+    definition: 'Lead products are materials derived from elemental lead, characterized by their high density, malleability, low melting point, and excellent corrosion resistance. Primarily used in battery manufacturing, radiation shielding, and as an alloying agent, lead\'s unique properties make it suitable for specialized applications where heavy weight or protective barriers are required. Despite environmental concerns, its specific functionalities remain critical in various industrial sectors, often with stringent handling and recycling protocols.',
+    industries: [
+      'Battery Manufacturing',
+      'Construction',
+      'Radiation Shielding',
+      'Ammunition',
+      'Chemical Plants',
+      'Recycling'
+    ],
+    grades: [
+      'Refined Lead 99.97% minimum',
+      'Antimonial Lead (e.g., 2-6% Antimony)',
+      'Calcium Lead Alloys',
+      'Chemical Lead',
+      'IS 27 (Lead Ingots for General Purposes)',
+      'IS 11470 (Lead and Lead Alloys - Sheet and Strip)'
+    ],
+    specifications: [
+      'Purity: 99.9 - 99.99%',
+      'Density: 11.34 g/cm³',
+      'Melting Point: 327.5 °C',
+      'Hardness (BHN): 3 - 30',
+      'Tensile Strength: 12 - 20 MPa'
+    ],
+    standards: [
+      'ASTM B29 (Refined Lead)',
+      'ASTM B749 (Lead and Lead Alloy Strip, Sheet, and Plate)',
+      'IS 27 (Lead Ingots for General Purposes)',
+      'IS 398 (Lead Acid Storage Batteries)',
+      'BIS IS 15470 (Lead and Lead Alloys - Terminology)'
+    ],
+    hsnCodes: ['7801', '7806'],
+    orderSizes: '1 MT - 2000 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'UAE',
+      'Australia',
+      'USA',
+      'Mexico',
+      'UK'
+    ],
+    relatedSlugs: [
+      'copper-products-india',
+      'aluminium-products-india',
+      'brass-products-india',
+      'zinc-products-india',
+      'titanium-products-india'
+    ],
+    priceRange: '₹190 - ₹280 per kg',
+    applications: [
+      'Lead-acid batteries',
+      'Radiation shielding (X-ray rooms, nuclear facilities)',
+      'Cable sheathing',
+      'Ammunition and weights',
+      'Soundproofing materials',
+      'Corrosion-resistant linings for chemical tanks'
+    ],
+    challenges: [
+      'Strict environmental and health regulations due to toxicity',
+      'Volatile raw material prices',
+      'Competition from alternative battery technologies',
+      'High costs of lead recycling and hazardous waste management'
+    ],
+    marketTrend: 'The Indian market for lead products is strongly dominated by the lead-acid battery industry, which continues to see demand from automotive (replacements and new vehicles) and inverter segments. While there\'s a global shift towards lithium-ion, lead-acid batteries remain cost-effective for many applications. However, increasing environmental scrutiny and the push for safe recycling practices are significant factors influencing the industry. Infrastructural growth also supports demand for some niche applications.'
+  },
+  {
+    slug: 'titanium-products-india',
+    name: 'Titanium Products',
+    category: 'Metals - Non-Ferrous',
+    categorySlug: 'metals-non-ferrous',
+    industrySlug: 'metals',
+    subIndustrySlug: 'non-ferrous',
+    definition: 'Titanium products are materials manufactured from titanium and its alloys, renowned for their exceptional strength-to-weight ratio, superior corrosion resistance, and biocompatibility. Available in various forms, including sheets, rods, wires, and complex fabricated components, these products are instrumental in industries demanding high performance under extreme conditions. Their unique properties make them indispensable in applications where both lightness and durability are paramount, often replacing heavier, less resilient metals.',
+    industries: [
+      'Aerospace',
+      'Medical Implants',
+      'Chemical Processing',
+      'Marine',
+      'Automotive (High-Performance)',
+      'Sports Equipment'
+    ],
+    grades: [
+      'Commercially Pure Titanium Grade 1, 2, 3, 4',
+      'Titanium Alloy Grade 5 (Ti-6Al-4V)',
+      'Titanium Alloy Grade 7 (Ti-0.15Pd)',
+      'Titanium Alloy Grade 9 (Ti-3Al-2.5V)',
+      'ASTM B348 (Titanium and Titanium Alloy Bars and Billets)',
+      'IS 2005 (Titanium and Titanium Alloys - General Requirements)'
+    ],
+    specifications: [
+      'Tensile Strength: 240 - 1100+ MPa',
+      'Density: 4.51 g/cm³',
+      'Melting Point: 1668 °C',
+      'Corrosion Resistance: Excellent in oxidizing environments',
+      'Elongation: 10 - 25%'
+    ],
+    standards: [
+      'ASTM B265 (Titanium and Titanium Alloy Strip, Sheet, and Plate)',
+      'ASTM F136 (Ti-6Al-4V ELI for Surgical Implant Applications)',
+      'IS 2005 (Titanium and Titanium Alloys - General Requirements)',
+      'ISO 5832-2 (Implants for Surgery - Pure Titanium)',
+      'BIS IS 1395 (Titanium and Titanium Alloys - Forgings)'
+    ],
+    hsnCodes: ['8108', '810810'],
+    orderSizes: '10 kg - 50 MT',
+    importCountries: [
+      'USA',
+      'Japan',
+      'China',
+      'Russia',
+      'Germany',
+      'UK',
+      'France'
+    ],
+    relatedSlugs: [
+      'copper-products-india',
+      'aluminium-products-india',
+      'brass-products-india',
+      'zinc-products-india',
+      'lead-products-india'
+    ],
+    priceRange: '₹1500 - ₹8000 per kg (depending on grade/form)',
+    applications: [
+      'Aircraft structural components and engine parts',
+      'Surgical implants and prosthetics',
+      'Chemical processing equipment (heat exchangers, tanks)',
+      'Marine components (submarines, propellers)',
+      'High-performance automotive parts (exhausts, connecting rods)',
+      'Sporting goods (golf clubs, bike frames)'
+    ],
+    challenges: [
+      'High cost of extraction and processing',
+      'Difficulties in machining and welding',
+      'Limited domestic production and reliance on imports',
+      'Niche market applications requiring specialized expertise'
+    ],
+    marketTrend: 'The market for titanium products in India is expanding, notably within the aerospace and defense sectors, driven by \'Make in India\' and indigenous manufacturing initiatives. The medical implant industry also presents growing demand due to advancements in healthcare infrastructure. While still a niche, high-value segment, domestic capacity expansion and government support for high-tech manufacturing are slowly reducing import reliance and bolstering local production capabilities.'
+  },
+];
+
+// ─── PIPES & TUBES ───
+const pipeNewProducts: DemandProduct[] = [
+  {
+    slug: 'copper-tubes-india',
+    name: 'Copper Tubes',
+    category: 'Pipes & Tubes',
+    categorySlug: 'pipes-tubes',
+    industrySlug: 'pipes',
+    subIndustrySlug: 'industrial-pipes',
+    definition: 'Copper tubes are seamless or welded metal conduits made from pure copper or copper alloys, primarily used for conveying fluids or gases in various applications. They are known for their excellent thermal conductivity, corrosion resistance, and ductility, making them suitable for refrigeration, air conditioning, and plumbing systems. These tubes can be supplied in straight lengths or coils, and often come in annealed or hard-drawn tempers.',
+    industries: [
+      'HVAC & Refrigeration',
+      'Plumbing & Sanitation',
+      'Automotive',
+      'Electrical & Electronics',
+      'Healthcare',
+      'Solar Water Heating'
+    ],
+    grades: [
+      'C12200 (DHP Copper)',
+      'C11000 (ETP Copper)',
+      'C10200 (OFHC Copper)',
+      'C1220R (Annealed)',
+      'C70600 (Cupro-Nickel)',
+      'C26000 (Cartridge Brass)'
+    ],
+    specifications: [
+      'Outer Diameter: 6 mm - 108 mm',
+      'Wall Thickness: 0.5 mm - 5 mm',
+      'Length: 3 m - 6 m (straight), 15 m - 50 m (coils)',
+      'Tensile Strength: 200 MPa - 300 MPa',
+      'Elongation: 30% - 50%'
+    ],
+    standards: [
+      'ASTM B88',
+      'IS 2501',
+      'EN 1057',
+      'ASTM B68',
+      'BIS 1972'
+    ],
+    hsnCodes: ['74111000'],
+    orderSizes: '100 kg - 50,000 kg',
+    importCountries: [
+      'China',
+      'Japan',
+      'South Korea',
+      'Malaysia',
+      'Germany',
+      'USA',
+      'Thailand'
+    ],
+    relatedSlugs: [
+      'hollow-sections-india',
+      'heat-exchanger-tubes-india',
+      'line-pipes-india',
+      'casing-pipes-india',
+      'galvanized-pipes-india'
+    ],
+    priceRange: '₹650 - ₹950 per kg',
+    applications: [
+      'Refrigeration lines',
+      'Air conditioning systems',
+      'Potable water supply',
+      'Medical gas lines',
+      'Automotive brake lines',
+      'Heat exchangers'
+    ],
+    challenges: [
+      'Volatility in copper raw material prices',
+      'High susceptibility to theft due to scrap value',
+      'Risk of galvanic corrosion when combined with other metals',
+      'Installation requires skilled labor for brazing'
+    ],
+    marketTrend: 'The demand for copper tubes is driven by the burgeoning HVAC-R sector and infrastructure development under initiatives like Smart Cities and the National Infrastructure Pipeline. Growing urbanisation and an increasing focus on energy-efficient cooling solutions in residential and commercial buildings further bolster this growth. The shift towards sustainable building practices is also creating opportunities for copper in eco-friendly plumbing systems.'
+  },
+  {
+    slug: 'hollow-sections-india',
+    name: 'Hollow Sections',
+    category: 'Pipes & Tubes',
+    categorySlug: 'pipes-tubes',
+    industrySlug: 'pipes',
+    subIndustrySlug: 'industrial-pipes',
+    definition: 'Hollow sections are cold-formed or hot-finished structural steel products with a hollow, enclosed cross-section, commonly square, rectangular, or circular. They offer excellent strength-to-weight ratio, making them efficient for load-bearing applications in construction and engineering. These sections contribute to aesthetic appeal in architectural designs and simplify fabrication due to their uniform properties and clean lines.',
+    industries: [
+      'Construction & Infrastructure',
+      'Automotive',
+      'Material Handling',
+      'Agricultural Equipment',
+      'Furniture & Fixtures',
+      'Renewable Energy'
+    ],
+    grades: [
+      'IS 4923 YST 210',
+      'IS 4923 YST 240',
+      'IS 4923 YST 310',
+      'ASTM A500 Grade B',
+      'EN 10219 S355JR',
+      'ASTM A500 Grade C',
+      'EN 10210 S355NH'
+    ],
+    specifications: [
+      'Side Length/Diameter: 20 mm - 400 mm',
+      'Wall Thickness: 1.5 mm - 16 mm',
+      'Length: 6 m - 12 m',
+      'Yield Strength: 210 MPa - 355 MPa',
+      'Tensile Strength: 340 MPa - 520 MPa'
+    ],
+    standards: [
+      'IS 4923',
+      'ASTM A500',
+      'EN 10219',
+      'EN 10210',
+      'BIS 9070'
+    ],
+    hsnCodes: ['73066100'],
+    orderSizes: '5 MT - 1000 MT',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Turkey',
+      'Ukraine',
+      'Japan',
+      'Germany',
+      'Russia'
+    ],
+    relatedSlugs: [
+      'copper-tubes-india',
+      'heat-exchanger-tubes-india',
+      'line-pipes-india',
+      'casing-pipes-india',
+      'galvanized-pipes-india'
+    ],
+    priceRange: '₹55 - ₹85 per kg',
+    applications: [
+      'Building frameworks and trusses',
+      'Bus and truck chassis',
+      'Conveyor systems',
+      'Storage racks and shelving',
+      'Signage structures',
+      'Bridge components'
+    ],
+    challenges: [
+      'Requires careful welding procedures to maintain structural integrity',
+      'Internal surface corrosion protection can be difficult',
+      'Limited aesthetic flexibility compared to solid sections in some designs',
+      'Fluctuations in steel raw material costs impact pricing'
+    ],
+    marketTrend: 'The market for hollow sections is significantly bolstered by the robust growth in infrastructure development under government programs like the National Infrastructure Pipeline and Housing for All. Increased construction activity in commercial and industrial sectors, alongside the burgeoning automotive and manufacturing industries, sustains demand. Emphasis on pre-fabricated and modular construction also provides a steady growth trajectory for these versatile structural components.'
+  },
+  {
+    slug: 'heat-exchanger-tubes-india',
+    name: 'Heat Exchanger Tubes',
+    category: 'Pipes & Tubes',
+    categorySlug: 'pipes-tubes',
+    industrySlug: 'pipes',
+    subIndustrySlug: 'industrial-pipes',
+    definition: 'Heat exchanger tubes are precision-engineered pipes designed to efficiently transfer thermal energy between two fluids without direct contact. They come in various materials, including copper, stainless steel, and nickel alloys, selected based on fluid corrosivity, temperature, and pressure requirements. These tubes are often seamless or welded, with smooth or finned surfaces to optimize heat transfer efficiency in demanding industrial applications.',
+    industries: [
+      'Power Generation',
+      'Petrochemical & Refinery',
+      'Chemical Processing',
+      'HVAC & Refrigeration',
+      'Oil & Gas',
+      'Food & Beverage'
+    ],
+    grades: [
+      'ASTM A213 T22 (Alloy Steel)',
+      'ASTM A269 TP304/304L (Stainless Steel)',
+      'ASTM B111 C70600 (Cupro-Nickel)',
+      'ASTM B338 Grade 2 (Titanium)',
+      'IS 1972 (Carbon Steel)',
+      'ASTM A213 TP347H (Stainless Steel)',
+      'ASTM B407 (Incoloy 800)'
+    ],
+    specifications: [
+      'Outer Diameter: 6.35 mm - 101.6 mm',
+      'Wall Thickness: 0.7 mm - 4 mm',
+      'Length: U-bent or straight up to 18 m',
+      'Surface Finish: Ra < 0.8 µm',
+      'Pressure Rating: Up to 20 MPa'
+    ],
+    standards: [
+      'ASTM A213',
+      'ASTM A269',
+      'ASTM B111',
+      'IS 1972 (for carbon steel)',
+      'TEMA (Tubular Exchanger Manufacturers Association)'
+    ],
+    hsnCodes: ['73043110', '74112100'],
+    orderSizes: '500 kg - 50,000 kg',
+    importCountries: [
+      'Germany',
+      'Japan',
+      'South Korea',
+      'USA',
+      'China',
+      'Italy',
+      'Sweden'
+    ],
+    relatedSlugs: [
+      'copper-tubes-india',
+      'hollow-sections-india',
+      'line-pipes-india',
+      'casing-pipes-india',
+      'galvanized-pipes-india'
+    ],
+    priceRange: '₹400 - ₹3000 per kg (material dependent)',
+    applications: [
+      'Boilers and condensers',
+      'Oil and gas coolers',
+      'Chemical reactors',
+      'HVAC chillers',
+      'Refrigeration systems',
+      'Steam generators'
+    ],
+    challenges: [
+      'Fouling and scaling can reduce efficiency over time',
+      'Material selection is critical to resist corrosion and erosion',
+      'Manufacturing requires high precision and quality control',
+      'High upfront cost for specialized alloy tubes'
+    ],
+    marketTrend: 'The market for heat exchanger tubes is driven by the expansion of power generation capacity, particularly in thermal and nuclear sectors, and the growing demand from oil refineries and petrochemical plants in India. Increased investment in energy efficiency and process optimization across various manufacturing industries under the Make in India initiative further contributes to demand. The focus on reducing carbon footprint and improving industrial process efficiency is steadily boosting the adoption of advanced heat exchange technologies.'
+  },
+  {
+    slug: 'line-pipes-india',
+    name: 'Line Pipes',
+    category: 'Pipes & Tubes',
+    categorySlug: 'pipes-tubes',
+    industrySlug: 'pipes',
+    subIndustrySlug: 'industrial-pipes',
+    definition: 'Line pipes are robust steel pipes used for long-distance transportation of fluids such as crude oil, natural gas, refined petroleum products, and water. They are designed to withstand high pressures and harsh environmental conditions, manufactured to stringent specifications for wall thickness, diameter, and material strength. These pipes are typically seamless or welded (ERW, LSAW, HSAW) and often coated for corrosion protection, ensuring safe and efficient transfer across vast distances.',
+    industries: [
+      'Oil & Gas',
+      'Water Infrastructure',
+      'Petrochemical',
+      'Mining',
+      'Thermal Power Plants',
+      'Fertilizer Plants'
+    ],
+    grades: [
+      'API 5L Grade B',
+      'API 5L X42',
+      'API 5L X52',
+      'API 5L X60',
+      'API 5L X65',
+      'API 5L X70',
+      'IS 3589 Fe 410'
+    ],
+    specifications: [
+      'Outer Diameter: 60.3 mm - 1422 mm',
+      'Wall Thickness: 3.2 mm - 30 mm',
+      'Length: 6 m - 12 m (single random, double random)',
+      'Yield Strength: 245 MPa - 485 MPa',
+      'Impact Toughness: -20°C Test'
+    ],
+    standards: [
+      'API 5L',
+      'IS 3589',
+      'ISO 3183',
+      'DNV-OS-F101',
+      'EN 10208'
+    ],
+    hsnCodes: ['73041910', '73051111'],
+    orderSizes: '100 MT - 10,000 MT',
+    importCountries: [
+      'China',
+      'Russia',
+      'Japan',
+      'South Korea',
+      'Germany',
+      'USA',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'copper-tubes-india',
+      'hollow-sections-india',
+      'heat-exchanger-tubes-india',
+      'casing-pipes-india',
+      'galvanized-pipes-india'
+    ],
+    priceRange: '₹70 - ₹120 per kg',
+    applications: [
+      'Oil and gas pipelines',
+      'Water transmission networks',
+      'Slurry pipelines in mining',
+      'Hydrogen transportation (emerging)',
+      'CO2 capture and transport',
+      'Industrial process piping'
+    ],
+    challenges: [
+      'High capital investment for pipeline projects',
+      'Environmental and land acquisition challenges for new routes',
+      'Risk of corrosion and external damage requiring robust coatings',
+      'Stringent quality control and third-party inspections are mandatory'
+    ],
+    marketTrend: 'The line pipe market is significantly boosted by India\'s expanding natural gas grid under the National Gas Grid mission and increased investment in crude oil and product pipelines to meet growing energy demands. Government initiatives for infrastructure development and ensuring energy security are key drivers. The focus on urban and rural water supply projects further enhances demand for water transmission lines. Policy support for renewable energy and hydrogen transport infrastructure also signals future growth.'
+  },
+  {
+    slug: 'casing-pipes-india',
+    name: 'Casing Pipes',
+    category: 'Pipes & Tubes',
+    categorySlug: 'pipes-tubes',
+    industrySlug: 'pipes',
+    subIndustrySlug: 'industrial-pipes',
+    definition: 'Casing pipes are large-diameter, heavy-duty steel pipes primarily used to line subterranean boreholes, particularly in oil, gas, and water well drilling operations. They serve to stabilize the wellbore, prevent contamination from surrounding formations, and provide a conduit for production. Manufactured to specific API standards, these pipes are crucial for well integrity, typically joined by threaded and coupled connections to withstand extreme conditions downhole.',
+    industries: [
+      'Oil & Gas Exploration',
+      'Groundwater & Irrigation',
+      'Geothermal Drilling',
+      'Mining',
+      'Water Treatment',
+      'Construction (Piling)'
+    ],
+    grades: [
+      'API 5CT J55',
+      'API 5CT K55',
+      'API 5CT N80',
+      'API 5CT L80',
+      'API 5CT P110',
+      'IS 12818 (for water wells)',
+      'IS 4270 (for water wells)'
+    ],
+    specifications: [
+      'Outer Diameter: 114.3 mm - 508 mm',
+      'Wall Thickness: 5.2 mm - 16 mm',
+      'Length: R1 (4.88-7.62m), R2 (7.62-10.36m), R3 (>10.36m)',
+      'Yield Strength: 379 MPa - 758 MPa',
+      'Connection Type: BTC, LTC, STC (Buttress, Long Thread, Short Thread)'
+    ],
+    standards: [
+      'API 5CT',
+      'IS 12818',
+      'IS 4270',
+      'ISO 11960',
+      'BIS 5CT'
+    ],
+    hsnCodes: ['73042910', '73042990'],
+    orderSizes: '50 MT - 5,000 MT',
+    importCountries: [
+      'China',
+      'Russia',
+      'USA',
+      'Mexico',
+      'South Korea',
+      'Japan',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'copper-tubes-india',
+      'hollow-sections-india',
+      'heat-exchanger-tubes-india',
+      'line-pipes-india',
+      'galvanized-pipes-india'
+    ],
+    priceRange: '₹80 - ₹150 per kg',
+    applications: [
+      'Oil and gas well completion',
+      'Deep water well drilling',
+      'Geothermal well construction',
+      'Submersible pump installations',
+      'Vertical pipe piling',
+      'Exploration boreholes'
+    ],
+    challenges: [
+      'Requires high material toughness and dimensional accuracy',
+      'Corrosion from downhole fluids and gases is a major concern',
+      'Logistics for heavy and long pipe sections to remote locations',
+      'High cost due to specialized manufacturing and alloy grades'
+    ],
+    marketTrend: 'The casing pipe market is directly tied to the upstream oil and gas exploration and production (E&P) activities. India\'s focus on increasing domestic crude oil and natural gas production to reduce import dependence, coupled with ongoing investment in groundwater extraction for agriculture and urban supply, drives demand. Government policies supporting energy security and water resource management are key market enablers. Demand for these pipes is also seen in geological surveys and mineral exploration.'
+  },
+  {
+    slug: 'galvanized-pipes-india',
+    name: 'Galvanized Pipes',
+    category: 'Pipes & Tubes',
+    categorySlug: 'pipes-tubes',
+    industrySlug: 'pipes',
+    subIndustrySlug: 'industrial-pipes',
+    definition: 'Galvanized pipes are steel pipes that have been coated with a protective layer of zinc through a hot-dip galvanizing process. This zinc coating acts as a sacrificial layer, providing superior corrosion resistance against rust and environmental elements, significantly extending the pipe\'s service life compared to plain steel pipes. They are commonly used for conveying water, gas, and other fluids in applications where corrosion protection is paramount.',
+    industries: [
+      'Plumbing & Sanitation',
+      'Agriculture',
+      'Fencing & Railings',
+      'Construction',
+      'Water Supply',
+      'Horticulture'
+    ],
+    grades: [
+      'IS 1239 (Part 1) Light',
+      'IS 1239 (Part 1) Medium',
+      'IS 1239 (Part 1) Heavy',
+      'ASTM A53 Type F/E/S',
+      'EN 10255 (L, M, H Series)',
+      'JIS G3442 SGP'
+    ],
+    specifications: [
+      'Outer Diameter: 15 mm - 150 mm',
+      'Wall Thickness: 1.8 mm - 5.4 mm',
+      'Length: 6 m standard (up to 12m available)',
+      'Zinc Coating: 60 µm - 100 µm',
+      'Yield Strength: 200 MPa - 275 MPa'
+    ],
+    standards: [
+      'IS 1239 (Part 1)',
+      'IS 4736',
+      'ASTM A53',
+      'EN 10255',
+      'BIS 1972'
+    ],
+    hsnCodes: ['73063090'],
+    orderSizes: '5 MT - 1000 MT',
+    importCountries: [
+      'China',
+      'Turkey',
+      'Ukraine',
+      'South Korea',
+      'Malaysia',
+      'Vietnam',
+      'Japan'
+    ],
+    relatedSlugs: [
+      'copper-tubes-india',
+      'hollow-sections-india',
+      'heat-exchanger-tubes-india',
+      'line-pipes-india',
+      'casing-pipes-india'
+    ],
+    priceRange: '₹65 - ₹95 per kg',
+    applications: [
+      'Domestic water plumbing',
+      'Agricultural irrigation systems',
+      'Scaffolding and temporary structures',
+      'Protective conduits for electrical wiring',
+      'Perimeter fencing posts',
+      'Fire fighting systems (sprinklers)'
+    ],
+    challenges: [
+      'Internal scaling can lead to reduced water flow over time',
+      'Welding requires special care to prevent zinc fume inhalation',
+      'Zinc coating can be damaged by abrasive handling or rough cutting',
+      'Less aesthetic for exposed modern architectural applications'
+    ],
+    marketTrend: 'The market for galvanized pipes is significantly driven by robust construction activity, particularly in residential and commercial sectors, and extensive government initiatives for safe drinking water supply under schemes like Jal Jeevan Mission. Demand from the agricultural sector for irrigation and from infrastructure projects for scaffolding and structural applications also contributes. The focus on durable and maintenance-free building solutions continues to support steady growth. The NIP\'s push for urban infrastructure development further solidifies demand.'
+  },
+];
+
+// ─── STEEL FABRICATION & STRUCTURES ───
+const fabricationProducts: DemandProduct[] = [
+  {
+    slug: 'ms-structures-india',
+    name: 'MS Structures',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'MS Structures refer to Mild Steel fabricated components and assemblies used as load-bearing frameworks or support systems in construction and industrial applications. These structures are typically manufactured from hot-rolled or cold-formed mild steel sections like beams, columns, angles, and channels, then cut, welded, and bolted together to form robust and durable frameworks capable of supporting heavy loads and resisting environmental stresses.',
+    industries: [
+      'Construction',
+      'Infrastructure',
+      'Manufacturing',
+      'Warehousing',
+      'Power & Energy',
+      'Oil & Gas'
+    ],
+    grades: [
+      'IS 2062 E250BR',
+      'IS 2062 E250BO',
+      'IS 2062 E350BR',
+      'ASTM A36',
+      'ASTM A572 Grade 50',
+      'JIS G3101 SS400'
+    ],
+    specifications: [
+      'Thickness: 3mm-50mm',
+      'Section Height: 100mm-1000mm',
+      'Yield Strength: 250-350 MPa',
+      'Tensile Strength: 410-510 MPa',
+      'Surface Finish: Mill Finish, Galvanized, Painted'
+    ],
+    standards: [
+      'IS 800: General construction in steel',
+      'IS 2062: Steel for general structural purposes',
+      'ASTM A36: Structural Carbon Steel',
+      'BS EN 10025: Hot rolled structural steel',
+      'IS 1363: Hexagon head bolts, screws and nuts'
+    ],
+    hsnCodes: ['73089090'],
+    orderSizes: '1-5000 Tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Germany',
+      'UAE',
+      'Turkey',
+      'Taiwan'
+    ],
+    relatedSlugs: [
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india',
+      'steel-gratings-india'
+    ],
+    priceRange: '₹60,000-₹90,000 per ton',
+    applications: [
+      'Building frameworks',
+      'Industrial sheds',
+      'Warehouses',
+      'Bridges',
+      'Transmission towers',
+      'Material handling structures'
+    ],
+    challenges: [
+      'Corrosion prevention and maintenance',
+      'Skilled labor availability for fabrication and erection',
+      'Logistics for large and heavy components',
+      'Fluctuating raw material (steel) prices'
+    ],
+    marketTrend: 'Demand for MS Structures is robust, driven by NIP and Smart Cities initiatives. Government focus on infrastructure development, including roads, bridges, and industrial corridors, significantly boosts the market. The warehousing and logistics sectors also contribute to sustained growth, with an emphasis on prefabricated and modular solutions.'
+  },
+  {
+    slug: 'steel-ducting-india',
+    name: 'Steel Ducting',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Steel ducting refers to fabricated conduit systems typically made from galvanized, mild, or stainless steel, designed to convey air, fumes, sawdust, or other particulate matter in industrial ventilation and exhaust systems. These systems are crucial for maintaining air quality, controlling temperature, and preventing the accumulation of hazardous substances in various operational environments. Fabrication involves forming, welding, and sealing steel sheets into various shapes like circular, rectangular, or spiral.',
+    industries: [
+      'HVAC',
+      'Automotive',
+      'Pharmaceuticals',
+      'Chemical',
+      'Food & Beverage',
+      'Mining'
+    ],
+    grades: [
+      'IS 277 (Galvanized Steel)',
+      'IS 513 (Cold Rolled Steel)',
+      'ASTM A653 (Galvanized Steel)',
+      'ASTM A240 Grade 304',
+      'ASTM A240 Grade 316L',
+      'IS 2062 E250BO'
+    ],
+    specifications: [
+      'Material Thickness: 0.8mm-5.0mm',
+      'Standard Diameter: 100mm-1500mm',
+      'Air Tightness Class: A, B, C',
+      'Pressure Rating: -2000 Pa to +2000 Pa',
+      'Surface Finish: Galvanized, Powder Coated, Mill Finish'
+    ],
+    standards: [
+      'SMACNA HVAC Duct Construction Standards',
+      'ASHRAE 193: Method of Test for Ducts',
+      'IS 655: Code of practice for design of ventilation systems',
+      'DW 144: Specification for Sheet Metal Ductwork',
+      'IS 3804: Code of practice for industrial ventilation'
+    ],
+    hsnCodes: ['73089090', '73269099'],
+    orderSizes: '1-500 meters',
+    importCountries: [
+      'China',
+      'UAE',
+      'Germany',
+      'Italy',
+      'South Korea',
+      'Malaysia'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india',
+      'steel-gratings-india'
+    ],
+    priceRange: '₹300-₹3,000 per meter',
+    applications: [
+      'Industrial ventilation systems',
+      'Fume extraction',
+      'Dust collection',
+      'HVAC systems in commercial buildings',
+      'Exhaust systems in manufacturing plants',
+      'Pneumatic conveying'
+    ],
+    challenges: [
+      'Ensuring air-tightness and structural integrity',
+      'Corrosion resistance in aggressive environments',
+      'Noise mitigation for airflow',
+      'Custom fabrication for complex layouts'
+    ],
+    marketTrend: 'The market for steel ducting is driven by industrial expansion, particularly in manufacturing and infrastructure. Stricter environmental norms and a focus on occupational health and safety in factories are propelling demand for efficient ventilation systems. The \'Make in India\' initiative encourages domestic production, aiming to reduce reliance on imports and improve supply chain resilience.'
+  },
+  {
+    slug: 'profiled-sheets-india',
+    name: 'Profiled Sheets',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Profiled sheets, also known as corrugated or trapezoidal sheets, are cold-formed steel sheets with specific geometric profiles, offering enhanced structural strength and rigidity compared to flat sheets. They are primarily used for roofing, cladding, and decking applications in buildings, providing weather protection, aesthetic appeal, and structural support. Common materials include galvanized steel, galvalume, or pre-painted galvanized iron (PPGI), ensuring durability and corrosion resistance.',
+    industries: [
+      'Construction',
+      'Warehousing',
+      'Industrial',
+      'Agriculture',
+      'Infrastructure',
+      'Solar Power'
+    ],
+    grades: [
+      'IS 277 (Galvanized Steel)',
+      'ASTM A653 (Galvanized Steel)',
+      'ASTM A792 (Galvalume)',
+      'JIS G3302 (Galvanized Steel)',
+      'IS 14246 (PPGI)',
+      'IS 15961 (Pre-coated Metal)'
+    ],
+    specifications: [
+      'Thickness: 0.3mm-1.2mm',
+      'Effective Cover Width: 750mm-1100mm',
+      'Profile Height: 18mm-45mm',
+      'Coating Weight: Z120 - Z275 (GSM)',
+      'Color: RAL shades'
+    ],
+    standards: [
+      'IS 277: Galvanized steel sheets and strips (for roofing)',
+      'IS 14246: Pre-coated galvanized steel sheets',
+      'ASTM A653: Steel sheet, zinc-coated (galvanized)',
+      'ASTM A792: Steel sheet, 55% Al-Zn alloy-coated',
+      'AS/NZS 2728: Pre-finished/pre-painted sheet metal products'
+    ],
+    hsnCodes: ['73089090', '73083000'],
+    orderSizes: '50-10,000 sq ft',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Malaysia',
+      'Vietnam',
+      'Turkey',
+      'Taiwan',
+      'Indonesia'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'perforated-sheets-india',
+      'cable-trays-india',
+      'steel-gratings-india'
+    ],
+    priceRange: '₹70-₹180 per sq ft',
+    applications: [
+      'Industrial roofing',
+      'Wall cladding',
+      'False ceilings',
+      'Decking in multi-story buildings',
+      'Agricultural shelters',
+      'Solar panel mounting structures'
+    ],
+    challenges: [
+      'Ensuring proper installation to prevent leaks',
+      'Transport and handling of large, thin sheets',
+      'Heat insulation in hot climates',
+      'Color fading in harsh sunlight'
+    ],
+    marketTrend: 'The market for profiled sheets is experiencing significant growth due to rapid industrialization, expansion of manufacturing facilities, and the development of modern warehousing infrastructure under schemes like PLI and NIP. The ease of installation, cost-effectiveness, and availability in various colors make them a preferred choice for large-span constructions. Demand is also rising from the affordable housing segment.'
+  },
+  {
+    slug: 'perforated-sheets-india',
+    name: 'Perforated Sheets',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Perforated sheets are metal sheets (steel, stainless steel, aluminum) that have been mechanically punched with a pattern of holes. These holes can be round, square, slotted, or decorative, and their size and spacing vary based on application. Perforated sheets are valued for their ability to allow passage of light, air, liquids, or sound, while simultaneously offering strength, aesthetics, and filtering capabilities across a wide range of industrial and architectural uses.',
+    industries: [
+      'Architecture',
+      'Filtration',
+      'Acoustics',
+      'Automotive',
+      'Food Processing',
+      'Agriculture'
+    ],
+    grades: [
+      'IS 513 (Cold Rolled Steel)',
+      'IS 2062 (Mild Steel)',
+      'ASTM A240 Grade 304',
+      'ASTM A240 Grade 316',
+      'ASTM B209 (Aluminum)',
+      'JIS G3141 SPCC'
+    ],
+    specifications: [
+      'Material Thickness: 0.5mm-10mm',
+      'Hole Diameter: 1mm-50mm',
+      'Open Area: 20%-60%',
+      'Pattern: Staggered, Straight, Decorative',
+      'Sheet Size: Up to 1.5m x 6m'
+    ],
+    standards: [
+      'ASTM E2016: Standard Test Method for Perforated Metal',
+      'ISO 7806: Perforated metal sheets definition',
+      'DIN 24041: Perforated plates for sieves',
+      'IS 655: Code of practice for design of ventilation systems',
+      'IS 1570 (Part 1): Steel for general engineering purposes'
+    ],
+    hsnCodes: ['73145000', '73269099'],
+    orderSizes: '1-100 sheets',
+    importCountries: [
+      'China',
+      'Germany',
+      'South Korea',
+      'Italy',
+      'Taiwan',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'cable-trays-india',
+      'steel-gratings-india'
+    ],
+    priceRange: '₹200-₹1,500 per sq ft',
+    applications: [
+      'Architectural facades',
+      'Sun screens',
+      'Acoustic panels',
+      'Grain dryers',
+      'Filter screens',
+      'Ventilation grilles'
+    ],
+    challenges: [
+      'Maintaining flatness during perforation',
+      'Achieving consistent hole patterns',
+      'Customization for unique designs',
+      'Cost-effectiveness for small batches'
+    ],
+    marketTrend: 'The demand for perforated sheets is growing due to their versatility in architectural, industrial, and acoustic applications. The push for aesthetically pleasing and functional building designs in urban development projects, along with increased focus on industrial filtration and sound dampening, drives market expansion. Emerging applications in renewable energy and waste management also contribute to sustained growth. The \'Smart City\' initiative boosts demand for innovative building materials.'
+  },
+  {
+    slug: 'cable-trays-india',
+    name: 'Cable Trays',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Cable trays are structures designed to support and protect insulated electrical cables, wires, and pneumatic or hydraulic lines used for power distribution, control, and communication. They provide an organized system for cable management, improving routing efficiency, reducing clutter, and facilitating maintenance. Typically manufactured from galvanized steel, stainless steel, or aluminum, they come in various types such as ladder, perforated, solid bottom, or wire mesh to suit different load capacities and environmental conditions.',
+    industries: [
+      'Electrical',
+      'Construction',
+      'IT & Data Centers',
+      'Industrial',
+      'Power & Energy',
+      'Oil & Gas'
+    ],
+    grades: [
+      'IS 277 (Galvanized Steel)',
+      'IS 2062 (Mild Steel)',
+      'ASTM A653 (Galvanized Steel)',
+      'ASTM A240 Grade 304',
+      'ASTM A240 Grade 316L',
+      'ISO 8089 (Hot-dip galvanized coating)'
+    ],
+    specifications: [
+      'Width: 50mm-1000mm',
+      'Side Rail Height: 25mm-150mm',
+      'Material Thickness: 1.0mm-3.0mm',
+      'Surface Finish: Hot-dip Galvanized, Pre-Galvanized, Epoxy Coated',
+      'Load Capacity: 20-200 kg/meter'
+    ],
+    standards: [
+      'NEMA VE 1: Metal Cable Tray Systems',
+      'IS 8081: Code of practice for installation of cable trays',
+      'IEC 61537: Cable management systems - Cable tray systems',
+      'BS EN 61537: Cable management systems - Cable tray systems',
+      'IS 2062: Steel for general structural purposes'
+    ],
+    hsnCodes: ['73089090', '73269099'],
+    orderSizes: '1-10,000 meters',
+    importCountries: [
+      'China',
+      'UAE',
+      'Germany',
+      'Italy',
+      'South Korea',
+      'Turkey',
+      'France'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'steel-gratings-india'
+    ],
+    priceRange: '₹150-₹800 per meter',
+    applications: [
+      'Industrial cable routing',
+      'Commercial building wiring',
+      'Data center cable management',
+      'Power plant electrical systems',
+      'Road and rail infrastructure',
+      'Solar farm cabling'
+    ],
+    challenges: [
+      'Ensuring proper grounding and electrical safety',
+      'Capacity management for growing cable loads',
+      'Corrosion resistance in outdoor or harsh environments',
+      'Custom fabrication for complex installations'
+    ],
+    marketTrend: 'The market for cable trays in India is experiencing strong growth, fueled by rapid industrialization, infrastructure development under the NIP, and expansion of data centers. Increased demand for organized and safe electrical installations in commercial and residential projects, coupled with the rollout of 5G networks, sustains market momentum. The push for smart manufacturing and automation further drives the need for efficient cable management solutions.'
+  },
+  {
+    slug: 'steel-gratings-india',
+    name: 'Steel Gratings',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Steel gratings are open-grid structures made by welding or interlocking steel bearing bars and cross bars, forming a robust and lightweight panel. They are primarily used for flooring, platforms, stair treads, and drainage covers, offering excellent load-bearing capacity, slip resistance, and ventilation. Available in mild steel, galvanized steel, or stainless steel, gratings are essential for industrial safety and functionality in areas requiring high strength, open-area flow, and easy maintenance.',
+    industries: [
+      'Industrial',
+      'Infrastructure',
+      'Oil & Gas',
+      'Power & Energy',
+      'Waste Management',
+      'Marine'
+    ],
+    grades: [
+      'IS 2062 E250BR',
+      'IS 2062 E350BR',
+      'ASTM A36',
+      'ASTM A240 Grade 304',
+      'ASTM A240 Grade 316',
+      'BS EN 10025 S235JR'
+    ],
+    specifications: [
+      'Bar Spacing: 30x100mm, 40x100mm',
+      'Bearing Bar Size: 25x3mm to 60x5mm',
+      'Surface Finish: Mill Finish, Hot-dip Galvanized, Painted',
+      'Edge Type: Banded, Unbanded',
+      'Load Capacity: 2-10 tons/sqm'
+    ],
+    standards: [
+      'ANSI/NAAMM MBG 531: Metal Bar Grating Manual',
+      'BS 4592-1: Industrial type flooring and stair treads',
+      'IS 2062: Steel for general structural purposes',
+      'ASTM A123: Zinc (Hot-Dip Galvanized) Coatings',
+      'ISO 1461: Hot-dip galvanized coatings'
+    ],
+    hsnCodes: ['73144900', '73089090'],
+    orderSizes: '1-1000 sq meters',
+    importCountries: [
+      'China',
+      'Malaysia',
+      'UAE',
+      'Germany',
+      'South Korea',
+      'Taiwan',
+      'Indonesia'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹150-₹800 per sq ft',
+    applications: [
+      'Industrial flooring',
+      'Platform walkways',
+      'Stair treads',
+      'Drainage covers',
+      'Mezzanines',
+      'Security screens'
+    ],
+    challenges: [
+      'Ensuring anti-slip properties, especially when wet',
+      'Corrosion resistance in demanding environments',
+      'Accurate fabrication for custom fit',
+      'Heavy weight for transport and handling'
+    ],
+    marketTrend: 'The market for steel gratings is buoyant, propelled by ongoing infrastructure projects, expansion of manufacturing facilities, and strict industrial safety regulations. Increased investment in power plants, oil & gas refineries, and urban drainage systems under government initiatives boosts demand. The need for durable, low-maintenance, and safe flooring solutions in industrial settings ensures consistent market growth, complemented by \'Make in India\' sourcing preferences.'
+  },
+  {
+    slug: 'railings-india',
+    name: 'Railings',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Railings are safety barriers or handholds typically fabricated from steel (mild steel, stainless steel) which are installed along edges of staircases, balconies, elevated platforms, and open areas to prevent falls and provide support. They consist of vertical posts, horizontal rails, and infill panels or balusters. Railings prioritize safety while also contributing significantly to architectural aesthetics, often incorporating various designs, finishes, and material combinations to suit specific functional and visual requirements.',
+    industries: [
+      'Construction',
+      'Architecture',
+      'Infrastructure',
+      'Commercial',
+      'Residential',
+      'Hospitality'
+    ],
+    grades: [
+      'IS 2062 E250BR',
+      'ASTM A240 Grade 304',
+      'ASTM A240 Grade 316',
+      'IS 513 Cold Rolled Steel',
+      'ASTM A500 Grade B',
+      'JIS G3446 STKR400'
+    ],
+    specifications: [
+      'Height: 900mm-1200mm (As per standard)',
+      'Material Thickness: 1.5mm-5.0mm',
+      'Finish: Polished, Brushed, Powder Coated, Painted',
+      'Infill Type: Bar, Glass, Wire Mesh, Perforated',
+      'Load Bearing: 0.75-1.5 kN/m'
+    ],
+    standards: [
+      'IS 15053: Guidelines for the design and construction of steel stairs',
+      'NBC 2016: National Building Code of India (Safety Regulations)',
+      'BS EN 1090: Execution of steel structures',
+      'ASTM E985: Standard Test Methods for Load Tests of Glass Railing Systems',
+      'OHSA 1910.29: Fall protection systems'
+    ],
+    hsnCodes: ['73089090'],
+    orderSizes: '1-1000 linear meters',
+    importCountries: [
+      'China',
+      'Italy',
+      'Germany',
+      'Turkey',
+      'Spain',
+      'Taiwan',
+      'UAE'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹400-₹3,000 per linear ft',
+    applications: [
+      'Staircases',
+      'Balconies',
+      'Terraces',
+      'Mezzanines',
+      'Industrial platforms',
+      'Public access areas'
+    ],
+    challenges: [
+      'Adherence to strict safety codes and regulations',
+      'Corrosion resistance for outdoor installations',
+      'Achieving seamless and aesthetic welds',
+      'Custom fabrication for unique architectural designs'
+    ],
+    marketTrend: 'The market for railings is experiencing steady growth, driven by expansion in residential and commercial construction, adherence to safety regulations (NBC 2016), and increasing demand for aesthetically appealing architectural elements. Infrastructure projects, including metro stations and flyovers, also contribute to demand. The focus on high-quality and durable materials, particularly stainless steel, is a key trend, aligning with the rising aspirations for modern and safe spaces in urban centers.'
+  },
+  {
+    slug: 'walkways-india',
+    name: 'Walkways',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Walkways are elevated or ground-level pathways, typically constructed from steel, installed within industrial plants, commercial buildings, or outdoor settings to provide safe pedestrian access between different areas, especially over obstacles or hazardous zones. These structures usually incorporate steel gratings or checkered plates for flooring, along with handrails and toe plates for safety. They serve as essential access routes for maintenance, inspection, and operational staff, improving safety and efficiency.',
+    industries: [
+      'Industrial',
+      'Oil & Gas',
+      'Power & Energy',
+      'Mining',
+      'Logistics',
+      'Chemical'
+    ],
+    grades: [
+      'IS 2062 E250BR',
+      'IS 2062 E350BR',
+      'ASTM A36',
+      'ASTM A572 Grade 50',
+      'ASTM A240 Grade 304',
+      'JIS G3101 SS400'
+    ],
+    specifications: [
+      'Width: 600mm-1500mm',
+      'Load Capacity: 250-500 kg/sqm (distributed)',
+      'Material: Mild Steel, Galvanized Steel, Stainless Steel',
+      'Finish: Hot-dip Galvanized, Painted',
+      'Flooring: Steel Grating, Checkered Plate'
+    ],
+    standards: [
+      'IS 800: General construction in steel',
+      'IS 2062: Steel for general structural purposes',
+      'ANSI/NAAMM MBG 531: Metal Bar Grating Manual',
+      'OSHA 1910.25: Stairways',
+      'NBC 2016: National Building Code of India (Safety aspects)'
+    ],
+    hsnCodes: ['73089090'],
+    orderSizes: '1-1000 linear meters',
+    importCountries: [
+      'China',
+      'UAE',
+      'Germany',
+      'South Korea',
+      'Malaysia',
+      'Turkey',
+      'Taiwan'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹800-₹2,500 per linear ft',
+    applications: [
+      'Industrial plant access',
+      'Machinery maintenance access',
+      'Pipe rack walkways',
+      'Conveyor system access',
+      'Building roof access',
+      'Bridge maintenance access'
+    ],
+    challenges: [
+      'Ensuring structural stability and load-bearing capacity',
+      'Corrosion protection in harsh environments',
+      'Compliance with safety standards (guardrails, toe boards)',
+      'Modular design for easier installation and future expansion'
+    ],
+    marketTrend: 'The market for industrial walkways is expanding due to stringent safety regulations and the surge in manufacturing and infrastructure projects. The NIP and PLI schemes are driving new factory setups and expansions, leading to increased demand for safe and efficient access solutions. Growing awareness about occupational health and safety in industrial settings further propels the adoption of well-designed steel walkways, supporting India\'s industrial growth.'
+  },
+  {
+    slug: 'flanges-india',
+    name: 'Flanges',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Flanges are disc-shaped or ring-shaped components used to connect pipes, valves, pumps, and other equipment in a piping system, creating a non-permanent, bolted connection. They are typically fabricated from carbon steel, stainless steel, or alloy steel through forging or casting. Flanges facilitate maintenance, inspection, and modification of piping systems, ensuring leak-proof connections under various pressure and temperature conditions through the use of gaskets and bolts.',
+    industries: [
+      'Oil & Gas',
+      'Chemical',
+      'Petrochemicals',
+      'Power & Energy',
+      'Water Treatment',
+      'Manufacturing'
+    ],
+    grades: [
+      'ASTM A105 (Carbon Steel)',
+      'ASTM A182 F304L (Stainless Steel)',
+      'ASTM A182 F316L (Stainless Steel)',
+      'IS 2062 E250BR',
+      'ASTM A350 LF2 (Low Temperature Carbon Steel)',
+      'ASTM A694 F65 (High Yield Carbon Steel)'
+    ],
+    specifications: [
+      'Size: 1/2 inch to 60 inch',
+      'Pressure Class: 150#, 300#, 600#, 900#, 1500#, 2500#',
+      'Facing Type: Raised Face (RF), Flat Face (FF), Ring Type Joint (RTJ)',
+      'Type: Weld Neck, Slip-On, Blind, Socket Weld, Threaded, Lap Joint',
+      'Material: Carbon Steel, Stainless Steel, Alloy Steel'
+    ],
+    standards: [
+      'ASME B16.5: Pipe Flanges and Flanged Fittings',
+      'ASME B16.47: Large Diameter Steel Flanges',
+      'IS 2062: Steel for general structural purposes',
+      'MSS SP-44: Steel Pipeline Flanges',
+      'API 6A: Wellhead and Christmas Tree Equipment'
+    ],
+    hsnCodes: ['73079100', '73079390'],
+    orderSizes: '1-10,000 pieces',
+    importCountries: [
+      'China',
+      'Italy',
+      'Germany',
+      'South Korea',
+      'Japan',
+      'USA',
+      'Taiwan'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹100-₹50,000 per piece (size dependent)',
+    applications: [
+      'Pipeline connections',
+      'Valve installations',
+      'Pump connections',
+      'Heat exchanger connections',
+      'Pressure vessel connections',
+      'Instrumentation connections'
+    ],
+    challenges: [
+      'Ensuring proper sealing and leak prevention',
+      'Correct material selection for corrosive environments',
+      'Precision machining for accurate dimensions',
+      'Maintaining stock for a wide range of sizes and ratings'
+    ],
+    marketTrend: 'The market for flanges in India is significantly driven by the expansion of the oil & gas, petrochemical, and power generation sectors. Investments in new refineries, power plants, and chemical processing units, along with infrastructure development under the NIP, fuel steady demand. The focus on replacing aging infrastructure and ensuring operational safety in existing plants also contributes to sustained growth. Quality and adherence to international standards are paramount.'
+  },
+  {
+    slug: 'platforms-india',
+    name: 'Platforms',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Platforms are elevated flat surfaces, constructed primarily from steel, providing safe and accessible working areas for personnel, machinery, or equipment in industrial, commercial, and public environments. They are typically supported by structural steel frameworks and feature flooring made of steel gratings, checkered plates, or ribbed sheets, often equipped with handrails, toe plates, and stairways for safe access. Platforms are customized to specific load requirements and operational needs, enhancing safety and efficiency.',
+    industries: [
+      'Industrial',
+      'Manufacturing',
+      'Warehousing',
+      'Infrastructure',
+      'Oil & Gas',
+      'Power & Energy'
+    ],
+    grades: [
+      'IS 2062 E250BR',
+      'IS 2062 E350BR',
+      'ASTM A36',
+      'ASTM A572 Grade 50',
+      'JIS G3101 SS400',
+      'IS 513 (Cold Rolled Steel)'
+    ],
+    specifications: [
+      'Load Capacity: 250kg/sqm to 2000kg/sqm',
+      'Height: 1 meter to 20 meters',
+      'Material: Mild Steel, Galvanized Steel, Stainless Steel',
+      'Finish: Hot-dip Galvanized, Painted, Powder Coated',
+      'Access: Stairways, Ladders, Ramps'
+    ],
+    standards: [
+      'IS 800: General construction in steel',
+      'IS 2062: Steel for general structural purposes',
+      'NBC 2016: National Building Code of India (Safety aspects)',
+      'OSHA 1910.23: Guarding floor and wall openings',
+      'BS EN 1090: Execution of steel structures'
+    ],
+    hsnCodes: ['73089090'],
+    orderSizes: '1-500 square meters',
+    importCountries: [
+      'China',
+      'UAE',
+      'Germany',
+      'South Korea',
+      'Malaysia',
+      'Turkey',
+      'Taiwan'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹1,000-₹4,000 per sq ft',
+    applications: [
+      'Machine operation platforms',
+      'Maintenance access platforms',
+      'Mezzanine floors',
+      'Loading docks',
+      'Observation platforms',
+      'Stage risers'
+    ],
+    challenges: [
+      'Ensuring structural integrity and stability under dynamic loads',
+      'Adherence to fall protection and safety standards',
+      'Modular design for scalability and relocation',
+      'Ease of assembly and dismantling for temporary structures'
+    ],
+    marketTrend: 'The market for steel platforms is witnessing significant growth, driven by industrial expansion, particularly in manufacturing and warehousing sectors. The government\'s focus on \'Make in India\' and the PLI scheme encourages factory setups, boosting demand for safe and efficient working access. Rising awareness of workplace safety and the need for organized operational spaces in diverse industries contribute to a robust market outlook, aligning with India\'s industrial policy push.'
+  },
+  {
+    slug: 'ladders-india',
+    name: 'Ladders',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Steel ladders are vertical or inclined structures consisting of two side rails joined at intervals by rungs or steps, primarily used to access elevated areas. They are fabricated from various steel grades to provide strength, stability, and corrosion resistance, essential for industrial, construction, and maintenance applications. Designs range from fixed cage ladders for rooftop access to portable single or double-rung models, adhering to strict safety and ergonomic standards for user protection.',
+    industries: [
+      'Construction',
+      'Manufacturing',
+      'Oil & Gas',
+      'Power Generation',
+      'Warehousing',
+      'Marine'
+    ],
+    grades: [
+      'IS 2062 E250BR',
+      'IS 2062 E350BR',
+      'ASTM A36',
+      'ASTM A572 Grade 50',
+      'AISI 304',
+      'AISI 316',
+      'IS 4923 Fe 460',
+      'IS 800 (for design considerations)'
+    ],
+    specifications: [
+      'Height: 1.5m-30m',
+      'Rung Spacing: 250mm-300mm',
+      'Load Capacity: 150kg-300kg',
+      'Material Thickness: 3mm-8mm',
+      'Surface Finish: Hot-dip Galvanized, Painted, Powder Coated'
+    ],
+    standards: [
+      'IS 10699 (Fixed Ladders)',
+      'IS 3696 Part 1 & 2 (Scaffolds and Ladders)',
+      'OSHA 1910.23 (General Requirements)',
+      'ISO 14122-4 (Fixed Ladders)',
+      'EN 131 (Portable Ladders)'
+    ],
+    hsnCodes: ['7308.90.90'],
+    orderSizes: '5 units-500 units',
+    importCountries: [
+      'China',
+      'Germany',
+      'USA',
+      'South Korea',
+      'Italy',
+      'Turkey',
+      'Brazil'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹2,500-₹75,000 per unit',
+    applications: [
+      'Rooftop access for buildings',
+      'Maintenance platforms in factories',
+      'Access to mezzanines and elevated storage',
+      'Confined space entry in tanks',
+      'Emergency exits in industrial facilities',
+      'Ship and offshore vessel access'
+    ],
+    challenges: [
+      'Ensuring compliance with diverse safety standards',
+      'Corrosion resistance in harsh environments',
+      'Logistics for oversized fabricated units',
+      'Accurate load bearing capacity calculation'
+    ],
+    marketTrend: 'Demand for industrial ladders is driven by infrastructure development under initiatives like Smart Cities and the National Infrastructure Pipeline. Manufacturers are focusing on modular designs and advanced coatings for enhanced durability and safety. Integration with automated systems in warehouses is also leading to innovation in access solutions.'
+  },
+  {
+    slug: 'staircases-india',
+    name: 'Staircases',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Steel staircases are permanent structures providing vertical circulation between different levels within buildings or industrial facilities. They are engineered from structural steel components like beams, channels, and plates, offering superior strength, fire resistance, and design flexibility compared to other materials. Common types include straight run, L-shaped, U-shaped, and spiral stairs, all designed to meet specific architectural, ergonomic, and safety requirements, often incorporating non-slip treads and handrails.',
+    industries: [
+      'Commercial & Residential Construction',
+      'Industrial & Manufacturing',
+      'Public Infrastructure',
+      'Retail & Hospitality',
+      'Education',
+      'Healthcare'
+    ],
+    grades: [
+      'IS 2062 E250GR',
+      'IS 2062 E350GR',
+      'ASTM A36',
+      'ASTM A500 Grade B',
+      'AISI 304 (for aesthetic/corrosion resistance)',
+      'IS 4923 Fe 410 (for pipe sections)',
+      'IS 800 (for structural design)',
+      'IS 808 (dimensions for hot rolled steel sections)'
+    ],
+    specifications: [
+      'Rise: 150mm-200mm',
+      'Run: 250mm-300mm',
+      'Width: 900mm-2000mm',
+      'Finish: Powder Coated, Painted, Galvanized, Etched',
+      'Load Bearing: 5.0 kN/m² - 10.0 kN/m²'
+    ],
+    standards: [
+      'IS 800 (Code of Practice for General Construction in Steel)',
+      'National Building Code 2016 (Part 4 Fire Safety, Part 7 Construction Materials)',
+      'ISO 14122-3 (Means of access to machinery)',
+      'ASTM E84 (Surface Burning Characteristics)',
+      'BS 5395 (Stairs, Ladders and Walkways)'
+    ],
+    hsnCodes: ['7308.90.90'],
+    orderSizes: '1 unit-100 units',
+    importCountries: [
+      'China',
+      'Germany',
+      'Italy',
+      'USA',
+      'Spain',
+      'South Korea',
+      'Taiwan'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹15,000-₹5,00,000 per unit',
+    applications: [
+      'Internal and external building access',
+      'Emergency exits in multi-storey buildings',
+      'Access to elevated machinery platforms',
+      'Architectural statements in commercial spaces',
+      'Industrial plant personnel access',
+      'Public access in metro stations and flyovers'
+    ],
+    challenges: [
+      'Achieving precise architectural aesthetics',
+      'Ensuring fire safety and egress compliance',
+      'Complex on-site assembly and installation',
+      'Compliance with varying building codes'
+    ],
+    marketTrend: 'The demand for pre-fabricated steel staircases is growing due to faster installation times and cost-effectiveness in large construction projects. Smart City initiatives are pushing for integrated, functional, and aesthetically pleasing public access structures. The PLI Scheme for steel is also encouraging domestic manufacturing capacity and quality improvements for structural components.'
+  },
+  {
+    slug: 'support-structures-india',
+    name: 'Support Structures',
+    category: 'Steel Fabrication & Structures',
+    categorySlug: 'steel-fabrication',
+    industrySlug: 'fabrication',
+    subIndustrySlug: 'steel-structures',
+    definition: 'Steel support structures refer to a broad category of fabricated steel frameworks designed to bear and distribute loads, providing stability and foundational support for various equipment, platforms, pipelines, and building elements. These include columns, beams, trusses, braces, and custom-engineered frames, crucial for maintaining the integrity and functionality of industrial facilities, infrastructure projects, and building complexes. They are meticulously designed and fabricated to withstand specific static and dynamic loads, seismic forces, and environmental conditions.',
+    industries: [
+      'Oil & Gas',
+      'Power Generation',
+      'Chemical Processing',
+      'Infrastructure',
+      'Mining',
+      'Renewable Energy',
+      'Telecommunications'
+    ],
+    grades: [
+      'IS 2062 E250B',
+      'IS 2062 E350C',
+      'ASTM A36',
+      'ASTM A572 Grade 50',
+      'IS 4923 Fe 460',
+      'IS 1161 YSt 210',
+      'IS 800 (for design principles)',
+      'IS 2062 (for structural steel)'
+    ],
+    specifications: [
+      'Section Type: I-beam, H-beam, Channel, Angle, RHS, SHS',
+      'Length: 0.5m-30m segments',
+      'Load Capacity: 10 kN-10,000 kN',
+      'Surface Treatment: Hot-dip Galvanized, Epoxy Coated, Primer Painted',
+      'Connection Type: Welded, Bolted'
+    ],
+    standards: [
+      'IS 800 (Code of Practice for General Construction in Steel)',
+      'BIS 1984 (Specification for Steel Structures)',
+      'ASTM A6 (General Requirements for Rolled Structural Steel Bars)',
+      'EN 1090-2 (Execution of Steel Structures)',
+      'ISO 12944 (Corrosion Protection by Paint Systems)'
+    ],
+    hsnCodes: ['7308.90.90', '7308.40.00'],
+    orderSizes: '1 Ton-5000 Tons',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Japan',
+      'Germany',
+      'USA',
+      'Turkey',
+      'Vietnam'
+    ],
+    relatedSlugs: [
+      'ms-structures-india',
+      'steel-ducting-india',
+      'profiled-sheets-india',
+      'perforated-sheets-india',
+      'cable-trays-india'
+    ],
+    priceRange: '₹60,000-₹90,000 per Ton',
+    applications: [
+      'Pipe racks in refineries and chemical plants',
+      'Equipment skids and platforms',
+      'Support for conveyors in material handling',
+      'Solar panel mounting structures',
+      'Telecommunication towers and masts',
+      'Foundation supports for heavy machinery'
+    ],
+    challenges: [
+      'Design optimization for complex load cases',
+      'Corrosion protection in aggressive environments',
+      'Adherence to seismic design codes',
+      'Logistical challenges for large, heavy components'
+    ],
+    marketTrend: 'The growth in capital expenditure across manufacturing and infrastructure sectors, driven by government policies like the National Infrastructure Pipeline, is fueling demand for robust steel support structures. There\'s an increasing emphasis on modular construction and pre-engineered solutions to reduce project timelines. Technological advancements in design software and fabrication techniques are enhancing efficiency and precision.'
+  },
+];
+
+// ─── ROAD SAFETY & INFRASTRUCTURE ───
+const roadSafetyProducts: DemandProduct[] = [
+  {
+    slug: 'crash-barriers-india',
+    name: 'Crash Barriers',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Crash barriers are passive safety devices engineered to prevent vehicles from leaving the roadway or crossing into opposing traffic lanes, thereby minimizing the severity of accidents. They are typically made from steel, concrete, or often a combination thereof, designed to absorb kinetic energy upon impact and safely redirect errant vehicles. Their strategic placement on highways, expressways, and hazardous road sections is critical for mitigating accident fatalities and injuries, aligning with India\'s National Infrastructure Pipeline\'s emphasis on road safety upgrades.',
+    industries: [
+      'Road Construction',
+      'Highway Development',
+      'Urban Infrastructure',
+      'Automotive Safety',
+      'Civil Engineering'
+    ],
+    grades: [
+      'W-beam Steel (IS 16778)',
+      'Thrie-beam Steel (IS 16778)',
+      'Concrete New Jersey Barrier (IRC:SP:084)',
+      'Wire Rope Safety Barrier (IRC:SP:085)',
+      'High Containment Barrier (EN 1317-2)',
+      'Low Containment Barrier (EN 1317-2)'
+    ],
+    specifications: [
+      'Barrier Height: 0.7m-1.2m',
+      'Material Thickness: 2.67mm-4.0mm',
+      'Post Spacing: 1.5m-4.0m',
+      'Deflection During Impact: 0.5m-2.5m'
+    ],
+    standards: [
+      'IS 16778:2018 (Steel Crash Barriers)',
+      'IRC:SP:084-2019 (Concrete Crash Barriers)',
+      'IRC:SP:085-2019 (Wire Rope Barriers)',
+      'EN 1317 (European Standard)',
+      'AASHTO M 180 (USA Standard)'
+    ],
+    hsnCodes: ['73089090'],
+    orderSizes: '100 meters - 10,000+ meters',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Germany',
+      'USA',
+      'Turkey',
+      'Italy'
+    ],
+    relatedSlugs: [
+      'guardrails-india',
+      'road-studs-india',
+      'traffic-cones-india',
+      'bollards-india',
+      'traffic-signs-india'
+    ],
+    priceRange: '₹2,500-₹8,000 per meter',
+    applications: [
+      'National Highways',
+      'State Highways',
+      'Expressways',
+      'Mountain Roads',
+      'Bridge Approaches',
+      'High-risk Curves'
+    ],
+    challenges: [
+      'High upfront installation costs',
+      'Regular maintenance requirement post-impact',
+      'Logistics for large-scale deployment',
+      'Ensuring proper anchorage for various soil conditions'
+    ],
+    marketTrend: 'The market for crash barriers in India is experiencing steady growth, driven by aggressive infrastructure development targets under schemes like the Bharatmala Pariyojana and increased focus on road safety regulations. Innovations in material science and modular prefabrication techniques are improving installation efficiency and overall barrier performance, contributing to broader adoption on critical road networks across the country.'
+  },
+  {
+    slug: 'guardrails-india',
+    name: 'Guardrails',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Guardrails are protective barriers, often made of steel or timber, installed along the sides of roads, bridges, and other structures to prevent vehicles from veering off course or into dangerous areas. They are designed to absorb and redirect the kinetic energy of an impacting vehicle, reducing the severity of accidents and protecting occupants. While similar to crash barriers, guardrails typically serve to demarcate road boundaries and offer a lower level of containment compared to more robust crash barrier systems.',
+    industries: [
+      'Road Construction',
+      'Civil Engineering',
+      'Landscaping',
+      'Bridge Construction',
+      'Public Safety'
+    ],
+    grades: [
+      'W-beam Galvanized Steel (IS 16778)',
+      'Thrie-beam Galvanized Steel (IS 16778)',
+      'Timber Guardrails (IRC:SP:083)',
+      'Cable Guardrails (IRC:SP:085)',
+      'Semi-rigid Guardrail (EN 1317-2)',
+      'Flexible Guardrail (EN 1317-2)'
+    ],
+    specifications: [
+      'Beam Thickness: 2.67mm-3.17mm',
+      'Galvanization: 550 gm/m² - 610 gm/m²',
+      'Post Length: 1.5m-2.2m',
+      'Overall Height: 600mm-800mm'
+    ],
+    standards: [
+      'IS 16778:2018 (Steel Guardrails)',
+      'IRC:SP:083-2019 (Timber Guardrails)',
+      'IRC:SP:085-2019 (Cable Barrier Systems)',
+      'EN 1317 (European Standard)',
+      'AASHTO M 180 (USA Standard)'
+    ],
+    hsnCodes: ['73089090'],
+    orderSizes: '50 meters - 5,000+ meters',
+    importCountries: [
+      'China',
+      'South Korea',
+      'Germany',
+      'Turkey',
+      'USA'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'road-studs-india',
+      'traffic-cones-india',
+      'bollards-india',
+      'traffic-signs-india'
+    ],
+    priceRange: '₹1,800-₹5,500 per meter',
+    applications: [
+      'Rural Roads',
+      'Urban Arterials',
+      'Residential Areas',
+      'Bridge Parapets',
+      'Embankments',
+      'Parking Lots'
+    ],
+    challenges: [
+      'Corrosion in coastal or high-humidity areas',
+      'Aesthetics in urban environments',
+      'Damage from minor impacts requiring repair',
+      'Installation complexity on uneven terrain'
+    ],
+    marketTrend: 'The Indian market for guardrails is robust, propelled by a strong emphasis on maintaining and upgrading existing road networks under central and state government initiatives. The demand for durable, galvanized steel guardrails is particularly high, driven by their longevity and minimal maintenance requirements. Adoption of modular systems is also increasing to expedite project timelines.'
+  },
+  {
+    slug: 'road-studs-india',
+    name: 'Road Studs',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Road studs are reflective or illuminated markers embedded in the road surface to enhance visibility and delineate traffic lanes, especially during nighttime or adverse weather conditions. They serve as crucial navigational aids for drivers, providing advanced warning of curves, intersections, and changes in road alignment. Categorized by their material (aluminum, plastic) and illumination method (reflective, solar-powered LED), road studs significantly contribute to reducing nighttime accidents on Indian roads by improving driver perception and reaction time.',
+    industries: [
+      'Road Construction',
+      'Traffic Management',
+      'Urban Planning',
+      'Automotive Safety',
+      'Civil Engineering'
+    ],
+    grades: [
+      'Aluminum Reflector (IS 12891)',
+      'Plastic Reflector (IS 12891)',
+      'Solar LED Stud (IRC:67)',
+      'Cat\'s Eye (BS 873)',
+      'Raised Pavement Marker Type I (ASTM D4280)',
+      'Raised Pavement Marker Type II (ASTM D4280)'
+    ],
+    specifications: [
+      'Compressive Strength: >15 tons',
+      'Reflectivity: >300 mcd/lux',
+      'Working Temperature: -20°C to +70°C',
+      'Visibility Distance: >200 meters'
+    ],
+    standards: [
+      'IS 12891:1990 (Plastic Road Studs)',
+      'IRC:67-2012 (Traffic Signs Guidelines)',
+      'ASTM D4280 (Standard Specification for Nonreflective Raised Pavement Markers)',
+      'BS EN 1463 (Road Marking Materials)',
+      'CE Certified'
+    ],
+    hsnCodes: ['39269099', '76169990'],
+    orderSizes: '50 units - 10,000+ units',
+    importCountries: [
+      'China',
+      'Taiwan',
+      'South Korea',
+      'Germany',
+      'USA'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'guardrails-india',
+      'traffic-cones-india',
+      'bollards-india',
+      'traffic-signs-india'
+    ],
+    priceRange: '₹150-₹800 per piece',
+    applications: [
+      'Highway Delineation',
+      'Median Openings',
+      'Hazardous Curves',
+      'Pedestrian Crossings',
+      'Tunnels',
+      'Airport Runways'
+    ],
+    challenges: [
+      'Damage from heavy vehicle traffic',
+      'Accumulation of dirt reducing reflectivity',
+      'Battery life degradation for solar studs',
+      'Ensuring proper adhesion to road surface'
+    ],
+    marketTrend: 'The demand for road studs in India is steadily rising, driven by increased public and government focus on road safety and improved nighttime visibility. The adoption of solar-powered LED studs is gaining traction, particularly for remote highways and areas with unreliable power. Smart Cities initiatives are also promoting sophisticated road marking solutions, including intelligent studs, to enhance urban traffic management.'
+  },
+  {
+    slug: 'traffic-cones-india',
+    name: 'Traffic Cones',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Traffic cones are portable, typically conical-shaped markers made from durable, brightly colored plastic (often PVC or EVA) with reflective bands, used to temporarily redirect traffic, warn of hazards, or delineate work zones. They are lightweight, stackable for easy storage, and designed to provide high visibility in various lighting conditions. Their primary function is to enhance safety for both motorists and workers by clearly indicating temporary changes or obstacles on roadways, construction sites, and public events.',
+    industries: [
+      'Road Construction',
+      'Traffic Management',
+      'Event Management',
+      'Utility Services',
+      'Logistics'
+    ],
+    grades: [
+      'PVC Cone (IRC:SP:55)',
+      'EVA Cone (IRC:SP:55)',
+      'Recycled Plastic Cone',
+      'Reflective Sleeve Type A',
+      'Reflective Sleeve Type B',
+      'Cone with Base Weight'
+    ],
+    specifications: [
+      'Height: 450mm-1000mm',
+      'Base Size: 250mm x 250mm to 400mm x 400mm',
+      'Weight: 0.8kg-6.0kg',
+      'Reflective Sheeting: High Intensity Grade'
+    ],
+    standards: [
+      'IRC:SP:55-2014 (Road Traffic Safety Management)',
+      'MoRTH Specifications (Ministry of Road Transport and Highways)',
+      'BIS Approved Materials (for reflectivity)',
+      'EN 13422 (European Standard)',
+      'ANSI/ASME A10.4 (USA Standard)'
+    ],
+    hsnCodes: ['39269099'],
+    orderSizes: '20 units - 5,000+ units',
+    importCountries: [
+      'China',
+      'Malaysia',
+      'Taiwan',
+      'UAE'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'guardrails-india',
+      'road-studs-india',
+      'bollards-india',
+      'traffic-signs-india'
+    ],
+    priceRange: '₹180-₹600 per piece',
+    applications: [
+      'Construction Zones',
+      'Road Diversions',
+      'Accident Sites',
+      'Event Parking',
+      'Utility Work',
+      'Emergency Lane Closures'
+    ],
+    challenges: [
+      'Prone to being knocked over by wind or vehicles',
+      'Fading of color/reflectivity over time',
+      'Theft or vandalism in public spaces',
+      'Storage and transportation logistics for large quantities'
+    ],
+    marketTrend: 'The Indian market for traffic cones is stable, driven by continuous infrastructure projects, urban development, and stringent safety norms for temporary work zones. Manufacturers are increasingly focusing on cones made from recycled materials and those with enhanced UV resistance for longer outdoor life. Demand is consistently high from government contractors and event management companies.'
+  },
+  {
+    slug: 'bollards-india',
+    name: 'Bollards',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Bollards are short, sturdy, vertical posts used to control or direct traffic, protect pedestrians and property, or delineate public spaces. They can be fixed, removable, retractable, or crash-rated, and are typically made from steel, concrete, or polymer. Their primary purpose is to provide physical barriers against unauthorized vehicle access or impact, enhancing security and safety in urban environments and critical infrastructure zones. The deployment of bollards is increasingly relevant in India\'s \'Smart Cities\' initiative for pedestrian-friendly urban planning.',
+    industries: [
+      'Urban Development',
+      'Security',
+      'Traffic Management',
+      'Civil Engineering',
+      'Architectural Landscaping'
+    ],
+    grades: [
+      'Steel Fixed Bollard (IS 2062)',
+      'Concrete Decorative Bollard (IS 456)',
+      'Flexible Polymer Bollard',
+      'Automatic Retractable Bollard (EN 1317-3)',
+      'Crash-Rated K4/K8/K12 Bollard (ASTM F2656)',
+      'LED Illuminated Bollard'
+    ],
+    specifications: [
+      'Height: 700mm-1200mm',
+      'Diameter: 100mm-300mm',
+      'Material Thickness: 3mm-10mm (for steel)',
+      'Impact Resistance: Up to 150KN'
+    ],
+    standards: [
+      'IS 2062 (Steel for Bollards)',
+      'IS 456 (Concrete for Bollards)',
+      'ASTM F2656 (Crash Test Standard)',
+      'CPNI/PAS 68 (UK Security Standard)',
+      'EN 1317-3 (Vehicle Restraint Systems)',
+      'IRC:SP:103 (Urban Road Planning Guidelines)'
+    ],
+    hsnCodes: ['73089090', '68109900'],
+    orderSizes: '5 units - 1,000+ units',
+    importCountries: [
+      'China',
+      'Europe (Italy, UK)',
+      'USA',
+      'Australia'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'guardrails-india',
+      'road-studs-india',
+      'traffic-cones-india',
+      'traffic-signs-india'
+    ],
+    priceRange: '₹1,500-₹45,000 per piece',
+    applications: [
+      'Pedestrian Zones',
+      'Building Entrances',
+      'Parks and Plazas',
+      'High-Security Areas',
+      'Traffic Calming',
+      'Parking Management'
+    ],
+    challenges: [
+      'High installation cost for crash-rated types',
+      'Maintenance of retractable mechanisms',
+      'Aesthetics integration into urban design',
+      'Ensuring proper visibility and warning for drivers'
+    ],
+    marketTrend: 'The bollard market in India is expanding, driven by increasing focus on urban beautification, pedestrian safety, and security infrastructure in smart cities. Demand for both decorative and high-security, crash-rated bollards is on the rise as public spaces and critical infrastructure require enhanced protection. Indian manufacturers are innovating with smarter, aesthetically appealing and durable solutions.'
+  },
+  {
+    slug: 'traffic-signs-india',
+    name: 'Traffic Signs',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Traffic signs are visual devices displaying symbols, words, or images, erected along roadsides or overhead, to provide drivers with regulatory, warning, or guidance information. They are crucial for maintaining traffic flow, preventing accidents, and ensuring road user safety. Made from reflective sheeting on aluminum or steel substrates, these signs must adhere to strict international and national standards for legibility, durability, and retroreflectivity, aligning with the Ministry of Road Transport and Highways\' mandate for standardized road signage across India.',
+    industries: [
+      'Road Construction',
+      'Traffic Management',
+      'Urban Development',
+      'Public Safety',
+      'Civil Engineering'
+    ],
+    grades: [
+      'Engineering Grade Reflective (Type I)',
+      'High Intensity Prismatic (Type III/IV)',
+      'Diamond Grade VIP (Type VIII/IX)',
+      'Aluminum Substrate (IS 737)',
+      'Galvanized Steel Substrate (IS 2062)',
+      'Retroreflective Sheeting (IS 6245)'
+    ],
+    specifications: [
+      'Sheeting Durability: 7-12 years',
+      'Aluminum Thickness: 2mm-3mm',
+      'Retroreflectivity: As per IRC:67-2012 classification',
+      'Wind Load Resistance: As per design calculations'
+    ],
+    standards: [
+      'IRC:67-2012 (Code of Practice for Road Signs)',
+      'MoRTH Specifications (Section 800 - Traffic Signs)',
+      'IS 6245 (Retroreflective Sheeting)',
+      'ASTM D4956 (Reflective Sheeting for Traffic Control)',
+      'EN 12899-1 (Fixed Vertical Road Traffic Signs)'
+    ],
+    hsnCodes: ['83100090', '76169990'],
+    orderSizes: '10 units - 5,000+ units',
+    importCountries: [
+      'China',
+      'USA (3M)',
+      'Germany (Avery Dennison)',
+      'Japan',
+      'South Korea'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'guardrails-india',
+      'road-studs-india',
+      'traffic-cones-india',
+      'bollards-india'
+    ],
+    priceRange: '₹800-₹15,000 per piece (depending on size/type)',
+    applications: [
+      'National Highways',
+      'Urban Roads',
+      'Industrial Zones',
+      'Construction Sites',
+      'Parking Facilities',
+      'Rural Road Networks'
+    ],
+    challenges: [
+      'Vandalism and theft',
+      'Fading of reflective material over time',
+      'Ensuring proper visibility and placement',
+      'Compliance with evolving standards and specifications'
+    ],
+    marketTrend: 'The market for traffic signs in India is experiencing consistent growth, driven by ambitious highway expansion projects (Bharatmala Pariyojana) and renewed focus on upgrading existing road infrastructure. There is a rising demand for high-performance reflective materials and digitally-integrated smart signs, particularly in urban corridors, enhancing traffic management and real-time information dissemination.'
+  },
+  {
+    slug: 'road-marking-materials-india',
+    name: 'Road Marking Materials',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Road marking materials are specialized paints, thermoplastics, or preformed tapes applied to road surfaces to provide visual guidance and regulatory information to drivers and pedestrians. These markings define lanes, indicate turning movements, highlight pedestrian crossings, and warn of hazards. Key properties include durability, retroreflectivity, and skid resistance, which are crucial for enhancing road safety, particularly at night and in wet conditions. Adherence to BIS and IRC standards is critical for performance and longevity in India\'s diverse climatic conditions.',
+    industries: [
+      'Road Construction',
+      'Traffic Management',
+      'Urban Infrastructure',
+      'Airport Infrastructure',
+      'Civil Engineering'
+    ],
+    grades: [
+      'Thermoplastic Paint (IS 16423)',
+      'Cold Plastic/MMA (IS 16423)',
+      'Waterborne Paint (IS 16423)',
+      'Preformed Thermoplastic Tape',
+      'Solvent-based Paint (IS 16423)',
+      'Glass Beads (IS 20040)'
+    ],
+    specifications: [
+      'Retroreflectivity: >150 mcd/m2/lux (initial)',
+      'Skid Resistance: >45 BPN',
+      'Drying Time: <20 minutes (thermoplastic)',
+      'Film Thickness: 1.5mm-3.0mm (thermoplastic)'
+    ],
+    standards: [
+      'IS 16423:2015 (Thermoplastic Road Marking Materials)',
+      'IRC:35-2015 (Code of Practice for Road Markings)',
+      'IS 20040:2021 (Glass Beads for Road Markings)',
+      'EN 1436 (Road Marking Materials - Performance for Road Users)',
+      'ASTM D4797 (Standard Test Method for Thermoplastic)'
+    ],
+    hsnCodes: ['32089090', '39079990'],
+    orderSizes: '100 kg - 100+ tons',
+    importCountries: [
+      'China',
+      'USA',
+      'Germany',
+      'Japan',
+      'South Korea'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'guardrails-india',
+      'road-studs-india',
+      'traffic-cones-india',
+      'bollards-india'
+    ],
+    priceRange: '₹50-₹250 per kg (material only)',
+    applications: [
+      'Highways',
+      'City Roads',
+      'Parking Lots',
+      'Airports',
+      'Industrial Areas',
+      'Pedestrian Crossings'
+    ],
+    challenges: [
+      'Degradation due to heavy traffic and weather',
+      'Inconsistent application quality',
+      'Adhesion issues on certain road surfaces',
+      'Environmental impact of certain solvent-based paints'
+    ],
+    marketTrend: 'The road marking materials market in India is expanding rapidly, driven by extensive road network development under schemes like the National Infrastructure Pipeline and increased traffic safety awareness. There is a strong shift towards durable, highly retroreflective, and environmentally friendly materials like thermoplastic and cold plastic. Smart city initiatives are also promoting advanced, long-lasting markings.'
+  },
+  {
+    slug: 'street-light-poles-india',
+    name: 'Street Light Poles',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Street light poles are structural supports, typically made of galvanized steel, aluminum, or concrete, designed to elevate and position luminaires for public lighting. They are essential for illuminating roads, pathways, public spaces, and industrial areas, enhancing visibility, safety, and security during nighttime hours. Key considerations include height, material strength, aesthetic design, and resistance to environmental factors. The \'Smart Cities Mission\' in India extensively promotes energy-efficient LED lighting supported by robust, smart-enabled poles.',
+    industries: [
+      'Urban Development',
+      'Electrical Infrastructure',
+      'Civil Engineering',
+      'Road Construction',
+      'Public Utilities'
+    ],
+    grades: [
+      'Hot Dip Galvanized Steel (IS 2062 Gr. A)',
+      'Aluminum Alloy (IS 2704)',
+      'Prestressed Concrete (IS 1678)',
+      'Octagonal Tapered Pole',
+      'Conical Tapered Pole',
+      'High Mast Pole (IS 875)'
+    ],
+    specifications: [
+      'Height: 3m-12m (Street Light), 15m-30m (High Mast)',
+      'Base Plate Thickness: 10mm-25mm',
+      'Shaft Thickness: 3mm-8mm',
+      'Wind Load Resistance: Up to 200 km/hr'
+    ],
+    standards: [
+      'IS 2062:2011 (Structural Steel)',
+      'IS 1678:1978 (Poles for Overhead Power Traction)',
+      'IS 875 (Part 3):1987 (Wind Loads)',
+      'ASTM A123 (Hot-Dip Galvanizing)',
+      'IES RP-8-14 (Roadway Lighting)'
+    ],
+    hsnCodes: ['73089090', '76109090'],
+    orderSizes: '5 units - 2,000+ units',
+    importCountries: [
+      'China',
+      'UAE',
+      'Germany',
+      'Turkey',
+      'South Korea'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'guardrails-india',
+      'road-studs-india',
+      'traffic-cones-india',
+      'bollards-india'
+    ],
+    priceRange: '₹5,000-₹45,000 per pole (standard height)',
+    applications: [
+      'Highways',
+      'Urban Streets',
+      'Public Parks',
+      'Industrial Estates',
+      'Residential Colonies',
+      'Bridge Lighting'
+    ],
+    challenges: [
+      'Corrosion in coastal environments',
+      'Damage from vehicle collisions',
+      'Ensuring stability in high wind zones',
+      'Integration with smart city technologies'
+    ],
+    marketTrend: 'The market for street light poles in India is experiencing significant growth, primarily fueled by the \'Smart Cities Mission\' and various state-level urban development and rural electrification projects. There\'s a strong demand for galvanized steel poles with integrated smart features, such as IoT sensors and CCTV, facilitating adaptive lighting and improved urban management. The \'Make in India\' initiative is encouraging domestic manufacturing capabilities.'
+  },
+  {
+    slug: 'drainage-systems-india',
+    name: 'Drainage Systems',
+    category: 'Road Safety & Infrastructure',
+    categorySlug: 'road-safety',
+    industrySlug: 'infrastructure',
+    subIndustrySlug: 'road-safety',
+    definition: 'Drainage systems for roads and infrastructure comprise a network of components designed to effectively collect, channel, and discharge surface runoff and subsurface water away from the road surface and subgrade. These systems include drains, culverts, catch basins, gratings, and pipes, primarily constructed from concrete, HDPE, or PVC. Their critical role is to prevent water accumulation, which can cause hydroplaning, erosion, and structural damage to roads, thereby ensuring road longevity and traffic safety. Proper drainage is a fundamental aspect of resilient infrastructure development under schemes like Bharatmala Pariyojana.',
+    industries: [
+      'Road Construction',
+      'Civil Engineering',
+      'Urban Planning',
+      'Water Management',
+      'Infrastructure Development'
+    ],
+    grades: [
+      'Precast Concrete Drains (IS 456)',
+      'HDPE Drainage Pipes (IS 4984)',
+      'PVC Drainage Pipes (IS 4985)',
+      'Cast Iron Gratings (IS 1729)',
+      'RCC Culvert Pipes (IS 458)',
+      'Geo-composite Drains (ASTM D7270)'
+    ],
+    specifications: [
+      'Pipe Diameter: 100mm-1200mm',
+      'Concrete Compressive Strength: M30-M40',
+      'Grating Load Class: A15-D400 (EN 124)',
+      'Flow Rate Capacity: Varies by design'
+    ],
+    standards: [
+      'IRC:SP:42-2014 (Road Drainage Guidelines)',
+      'IS 458:2003 (Concrete Pipes)',
+      'IS 4984:1995 (HDPE Pipes)',
+      'IS 4985:1994 (PVC Pipes)',
+      'EN 124 (Gullies and Manhole Tops)'
+    ],
+    hsnCodes: ['68109100', '39172310', '73251000'],
+    orderSizes: '10 meters - 5,000+ meters',
+    importCountries: [
+      'China',
+      'Germany',
+      'USA',
+      'UAE',
+      'Spain'
+    ],
+    relatedSlugs: [
+      'crash-barriers-india',
+      'guardrails-india',
+      'road-studs-india',
+      'traffic-cones-india',
+      'bollards-india'
+    ],
+    priceRange: '₹500-₹15,000 per meter (depending on type/size)',
+    applications: [
+      'Highways',
+      'Urban Roads',
+      'Industrial Parks',
+      'Railway Lines',
+      'Airports',
+      'Residential Areas'
+    ],
+    challenges: [
+      'Clogging from debris and silt',
+      'Damage from heavy vehicle loads',
+      'Ensuring proper gradient and outflow points',
+      'Integration with existing municipal drainage networks'
+    ],
+    marketTrend: 'The market for road drainage systems in India is witnessing robust growth due to extensive investment in road infrastructure projects and heightened awareness of climate change impacts. There\'s a rising demand for advanced, durable, and highly efficient drainage solutions, including precast systems and geosynthetic materials, to manage increasing rainfall intensities and ensure long-term road resilience. Focus on sustainable urban drainage systems (SUDS) is also gaining traction.'
+  },
+];
+
+// ─── INDUSTRIAL STORAGE & TANKS ───
+const storageProducts: DemandProduct[] = [
+  {
+    slug: 'storage-tanks-india',
+    name: 'Storage Tanks',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Industrial storage tanks are large containers designed for the bulk storage of liquids, gases, or dry bulk materials. They are typically constructed from materials like steel, concrete, or plastics, and are essential components in various industries for holding raw materials, intermediate products, or finished goods. Their design considers material properties, pressure requirements, and environmental regulations.',
+    industries: [
+      'Petrochemical',
+      'Chemical Processing',
+      'Oil & Gas',
+      'Food & Beverage',
+      'Pharmaceuticals',
+      'Water Treatment'
+    ],
+    grades: [
+      'Carbon Steel IS 2062 Gr. A/B/E250',
+      'Stainless Steel ASTM A240 304/316',
+      'FRP ASTM D4097',
+      'HDPE ASTM D1248',
+      'Concrete IS 456 M25/M30',
+      'Duplex Stainless Steel UNS S31803',
+      'Aluminum ASTM B209 5083'
+    ],
+    specifications: [
+      'Capacity: 1,000 L - 5,000,000 L',
+      'Operating Pressure: 0 - 15 barg',
+      'Temperature Range: -40°C to 200°C',
+      'Material Thickness: 5 mm - 50 mm',
+      'Corrosion Allowance: 1.5 mm - 3 mm'
+    ],
+    standards: [
+      'API 650 (Welded Tanks for Oil Storage)',
+      'IS 803 (Code of Practice for Design & Fabrication of Steel Pipes & Tanks)',
+      'ASME BPV Code Section VIII (Pressure Vessels)',
+      'UL 142 (Steel Aboveground Tanks)',
+      'AWWA D100 (Welded Carbon Steel Tanks)'
+    ],
+    hsnCodes: ['73090010', '84798999'],
+    orderSizes: '1 unit - 100+ units',
+    importCountries: [
+      'Germany',
+      'USA',
+      'China',
+      'South Korea',
+      'Japan',
+      'Italy',
+      'Netherlands'
+    ],
+    relatedSlugs: [
+      'silos-india',
+      'conveyors-india',
+      'water-tanks-india',
+      'ss-tanks-india',
+      'fire-water-tanks-india'
+    ],
+    priceRange: '₹50,000 - ₹5,00,00,000 per unit',
+    applications: [
+      'Crude oil storage',
+      'Chemical feedstock retention',
+      'Drinking water reservoirs',
+      'Food processing ingredient storage',
+      'Industrial waste collection',
+      'Fuel storage in power plants'
+    ],
+    challenges: [
+      'Corrosion and material degradation',
+      'Leak detection and environmental compliance',
+      'Spatial constraints for large installations',
+      'Pressure and temperature management'
+    ],
+    marketTrend: 'The market for industrial storage tanks in India is growing, driven by expanding manufacturing sectors and infrastructure development. Policy thrusts like the National Infrastructure Pipeline (NIP) and the Make in India initiative are encouraging domestic production and consumption. Enhanced focus on safety and environmental regulations is also shaping demand for advanced tank technologies.'
+  },
+  {
+    slug: 'silos-india',
+    name: 'Silos',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Silos are large, typically cylindrical structures used for the bulk storage of granular materials such as grains, cement, coal, or fertilizers. They are designed for efficient loading and unloading, often employing pneumatic or mechanical conveying systems. Silos protect materials from environmental degradation and enable systematic inventory management in industries requiring high-volume dry material handling.',
+    industries: [
+      'Agriculture',
+      'Cement',
+      'Food Processing',
+      'Mining',
+      'Chemicals',
+      'Plastics'
+    ],
+    grades: [
+      'Mild Steel IS 2062 Gr. E250',
+      'Galvanized Steel ASTM A653 G90',
+      'Stainless Steel ASTM A240 304L/316L',
+      'Fiberglass Reinforced Polymer (FRP) ASTM D3299',
+      'High-Density Polyethylene (HDPE) ASTM D3350',
+      'Concrete IS 456 M35',
+      'Corrugated Steel ASTM A792'
+    ],
+    specifications: [
+      'Capacity: 10 MT - 10,000+ MT',
+      'Diameter: 2 m - 30 m',
+      'Height: 5 m - 60 m',
+      'Material Discharge Rate: 10 TPH - 500 TPH',
+      'Internal Pressure: Up to 0.5 barg'
+    ],
+    standards: [
+      'IS 4995 (Criteria for Design of Reinforced Concrete Bins, Silos and Bunkers)',
+      'ANSI/ASAE EP433 (Agricultural Storage Structures)',
+      'EN 1991-4 (Eurocode 1: Actions on structures - Silos and tanks)',
+      'ACI 313 (Design and Construction of Concrete Silos and Stacking Tubes)',
+      'OSHA 1910.272 (Grain Handling Facilities)'
+    ],
+    hsnCodes: ['73090090', '84798999'],
+    orderSizes: '1 unit - 50 units',
+    importCountries: [
+      'USA',
+      'Germany',
+      'Canada',
+      'China',
+      'Italy',
+      'Turkey',
+      'Brazil'
+    ],
+    relatedSlugs: [
+      'storage-tanks-india',
+      'conveyors-india',
+      'water-tanks-india',
+      'ss-tanks-india',
+      'fire-water-tanks-india'
+    ],
+    priceRange: '₹1,50,000 - ₹2,00,00,000 per unit',
+    applications: [
+      'Grain storage in agriculture',
+      'Cement storage at construction sites',
+      'Flour storage in bakeries',
+      'Coal storage in power plants',
+      'Plastic pellet storage for manufacturing',
+      'Fertilizer storage for chemical plants'
+    ],
+    challenges: [
+      'Material bridging and rat-holing',
+      'Dust explosion risks with certain materials',
+      'Moisture ingress and material spoilage',
+      'Structural integrity under dynamic loads'
+    ],
+    marketTrend: 'The Indian silo market is expanding, spurred by modernization in agriculture and the growth of cement and construction sectors. Government initiatives like the National Food Security Act and increased investment in food processing units are driving demand for advanced storage solutions. Automation in material handling is also a key market influence.'
+  },
+  {
+    slug: 'conveyors-india',
+    name: 'Conveyors',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Conveyors are mechanical handling systems used to move materials, products, or goods from one location to another within an industrial facility. They come in various types, including belt, roller, screw, and chain conveyors, each suited for different material types, capacities, and distances. Conveyors enhance efficiency, reduce manual labor, and improve safety in material transport operations.',
+    industries: [
+      'Mining',
+      'Manufacturing',
+      'Logistics & Warehousing',
+      'Food & Beverage',
+      'Automotive',
+      'E-commerce'
+    ],
+    grades: [
+      'Carbon Steel IS 2062 Gr. E250',
+      'Stainless Steel ASTM A240 304',
+      'Food Grade PVC/PU Belting',
+      'Rubber EP/NN Belting IS 1891',
+      'UHMW-PE (Ultra-high-molecular-weight polyethylene) ASTM D4020',
+      'High-tensile Steel IS 1030',
+      'Aluminum Alloys 6061-T6'
+    ],
+    specifications: [
+      'Belt Width: 300 mm - 2000 mm',
+      'Conveying Capacity: 5 TPH - 5000 TPH',
+      'Speed: 0.1 m/s - 5 m/s',
+      'Belt Type: Flat, Troughed, Sidewall',
+      'Motor Power: 0.75 kW - 200 kW'
+    ],
+    standards: [
+      'IS 1891 (Conveyor Belting - Specification)',
+      'IS 11592 (Code of practice for selection of belt conveyors)',
+      'ISO 340 (Conveyor Belts - Fire Retardant)',
+      'DIN 22101 (Continuous mechanical handling equipment; belt conveyors)',
+      'CEMA (Conveyor Equipment Manufacturers Association)'
+    ],
+    hsnCodes: ['84283300', '84283900'],
+    orderSizes: '1 unit - 100+ units',
+    importCountries: [
+      'Germany',
+      'China',
+      'Japan',
+      'USA',
+      'Italy',
+      'France',
+      'South Korea'
+    ],
+    relatedSlugs: [
+      'storage-tanks-india',
+      'silos-india',
+      'water-tanks-india',
+      'ss-tanks-india',
+      'fire-water-tanks-india'
+    ],
+    priceRange: '₹25,000 - ₹5,00,00,000 per unit',
+    applications: [
+      'Material handling in mines',
+      'Assembly line production in factories',
+      'Parcel sorting in logistics hubs',
+      'Food product packaging lines',
+      'Grain transfer at agricultural processing units',
+      'Waste material transport in recycling plants'
+    ],
+    challenges: [
+      'Belt wear and tear',
+      'Jamming and blockages',
+      'Energy consumption optimization',
+      'Integration with existing systems'
+    ],
+    marketTrend: 'The Indian conveyor market is experiencing robust growth, driven by expansion in manufacturing, e-commerce, and logistics sectors. Government initiatives like the PLI scheme for manufacturing and increased investment in infrastructure are boosting demand. The trend towards automation and Industry 4.0 also fuels the adoption of advanced conveyor systems.'
+  },
+  {
+    slug: 'water-tanks-india',
+    name: 'Water Tanks',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Water tanks are containers designed to store water for various purposes, including potable water, fire suppression, industrial processes, and irrigation. They are constructed from materials like plastic (HDPE, LLDPE), fiberglass, concrete, or steel, and are selected based on capacity, application, and environmental factors. Their design must ensure water quality and structural integrity.',
+    industries: [
+      'Residential & Commercial',
+      'Municipal Water Supply',
+      'Agriculture',
+      'Fire Fighting',
+      'Industrial Manufacturing',
+      'Hospitality'
+    ],
+    grades: [
+      'HDPE/LLDPE IS 12701',
+      'FRP (Fiberglass Reinforced Plastic) ASTM D4097',
+      'Stainless Steel ASTM A240 304/316',
+      'Carbon Steel IS 2062 Gr. E250',
+      'Prestressed Concrete IS 1343',
+      'Galvanized Iron IS 277',
+      'Polypropylene (PP) ASTM D4101'
+    ],
+    specifications: [
+      'Capacity: 100 L - 10,000,000 L',
+      'Material Type: Food-grade plastic, Steel, Concrete',
+      'Temperature Range: 0°C to 60°C',
+      'Inlet/Outlet Size: 1/2 inch - 12 inch',
+      'UV Resistance: Yes (for outdoor use)'
+    ],
+    standards: [
+      'IS 12701 (Plastics water storage tanks - Specification)',
+      'IS 456 (Plain and Reinforced Concrete - Code of Practice)',
+      'AWWA D100 (Welded Carbon Steel Tanks for Water Storage)',
+      'BIS for Potable Water Storage (IS 10910, IS 4462)',
+      'NFPA 22 (Water Tanks for Private Fire Protection)'
+    ],
+    hsnCodes: ['39251000', '73090010'],
+    orderSizes: '1 unit - 500+ units',
+    importCountries: [
+      'China',
+      'USA',
+      'Germany',
+      'UAE',
+      'Italy',
+      'Turkey',
+      'Malaysia'
+    ],
+    relatedSlugs: [
+      'storage-tanks-india',
+      'silos-india',
+      'conveyors-india',
+      'ss-tanks-india',
+      'fire-water-tanks-india'
+    ],
+    priceRange: '₹2,000 - ₹2,00,00,000 per unit',
+    applications: [
+      'Potable water supply for homes',
+      'Firefighting water reserves',
+      'Irrigation water storage in farms',
+      'Rainwater harvesting systems',
+      'Boiler feed water storage in industries',
+      'Chemical dilution in water treatment plants'
+    ],
+    challenges: [
+      'Algae growth and bacterial contamination',
+      'Leakage and structural failure',
+      'UV degradation for outdoor plastic tanks',
+      'Installation space and foundation requirements'
+    ],
+    marketTrend: 'The Indian water tank market is experiencing consistent growth, fueled by rapid urbanization, smart city initiatives, and increasing awareness of public health. Government programs like \'Har Ghar Jal\' and updated building codes for water storage are significant drivers. There\'s a growing preference for durable and food-grade materials.'
+  },
+  {
+    slug: 'ss-tanks-india',
+    name: 'SS Tanks',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Stainless steel (SS) tanks are storage vessels fabricated from various grades of stainless steel, primarily for storing liquids or gases that require high levels of cleanliness, corrosion resistance, or specific temperature control. They are widely used in critical applications where hygiene, chemical inertness, and durability are paramount, offering a non-reactive and easy-to-clean storage solution.',
+    industries: [
+      'Food & Beverage',
+      'Pharmaceuticals',
+      'Chemical Processing',
+      'Dairy',
+      'Biotechnology',
+      'Cosmetics'
+    ],
+    grades: [
+      'SS 304 (UNS S30400) ASTM A240',
+      'SS 316L (UNS S31603) ASTM A240',
+      'SS 316 (UNS S31600) ASTM A240',
+      'SS 304L (UNS S30403) ASTM A240',
+      'SS 409 (UNS S40900) ASTM A240',
+      'Duplex SS (UNS S31803) ASTM A240',
+      'Super Duplex SS (UNS S32750) ASTM A240'
+    ],
+    specifications: [
+      'Capacity: 50 L - 500,000 L',
+      'Surface Finish: Ra 0.2 µm - Ra 0.8 µm (internal)',
+      'Operating Pressure: Atmospheric to 10 barg',
+      'Temperature Range: -10°C to 150°C',
+      'Agitator Type: Anchor, Propeller, Turbine'
+    ],
+    standards: [
+      'ASME BPV Code Section VIII (Pressure Vessels)',
+      'IS 2825 (Code for Unfired Pressure Vessels)',
+      '3-A Sanitary Standards (Dairy/Food applications)',
+      'EU PED (Pressure Equipment Directive)',
+      'ASTM A240 (Heat-Resisting Chromium and Chromium-Nickel Stainless Steel Plate, Sheet, and Strip for Pressure Vessels)'
+    ],
+    hsnCodes: ['73090010', '84198910'],
+    orderSizes: '1 unit - 200 units',
+    importCountries: [
+      'Germany',
+      'Italy',
+      'USA',
+      'China',
+      'South Korea',
+      'Denmark',
+      'Sweden'
+    ],
+    relatedSlugs: [
+      'storage-tanks-india',
+      'silos-india',
+      'conveyors-india',
+      'water-tanks-india',
+      'fire-water-tanks-india'
+    ],
+    priceRange: '₹15,000 - ₹3,00,00,000 per unit',
+    applications: [
+      'Milk storage and processing',
+      'Pharmaceutical ingredient mixing',
+      'Chemical reaction vessels',
+      'Wine and beer fermentation',
+      'Cosmetics ingredient blending',
+      'High-purity water storage'
+    ],
+    challenges: [
+      'High initial capital cost',
+      'Susceptibility to crevice corrosion',
+      'Welding quality and passivation requirements',
+      'Demand for specialized cleaning protocols'
+    ],
+    marketTrend: 'The market for SS tanks in India is experiencing steady growth, fueled by the expansion of the food & beverage, pharmaceutical, and chemical industries. Strict regulatory standards for hygiene and product quality are driving demand for stainless steel solutions. The \'Make in India\' initiative encourages domestic manufacturing of these specialized tanks.'
+  },
+  {
+    slug: 'fire-water-tanks-india',
+    name: 'Fire Water Tanks',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Fire water tanks are dedicated storage vessels designed to provide a reliable and readily available supply of water for fire suppression systems. These tanks are critical components of fire protection infrastructure, ensuring that sprinklers, hydrants, and other fire extinguishing equipment have adequate water pressure and volume during emergencies. They must meet stringent safety and capacity standards.',
+    industries: [
+      'Commercial Buildings',
+      'Industrial Plants',
+      'Residential Complexes',
+      'Warehouses & Logistics',
+      'Healthcare Facilities',
+      'Data Centers'
+    ],
+    grades: [
+      'Carbon Steel IS 2062 Gr. E250',
+      'Galvanized Steel ASTM A653 G90',
+      'FRP (Fiberglass Reinforced Plastic) ASTM D4097',
+      'Concrete IS 456 M25',
+      'Low Alloy Steel ASTM A572 Gr. 50',
+      'Stainless Steel ASTM A240 304',
+      'Bolted Steel EN 10025-2 S235JRG2'
+    ],
+    specifications: [
+      'Capacity: 50,000 L - 5,000,000 L',
+      'Design Life: 20 - 50 years',
+      'Lining Material: Epoxy, Bituminous, HDPE',
+      'Filling Rate: As per NFPA/TAC',
+      'Connection Sizes: 4 inch - 10 inch'
+    ],
+    standards: [
+      'NFPA 22 (Water Tanks for Private Fire Protection)',
+      'TAC (Tariff Advisory Committee, India) Norms',
+      'IS 13612 (Recommendations for Fire Fighting Installations)',
+      'API 650 (Welded Tanks for Oil Storage - adaptable for fire water)',
+      'AWWA D100 (Welded Carbon Steel Tanks)'
+    ],
+    hsnCodes: ['73090010', '84249000'],
+    orderSizes: '1 unit - 10 units',
+    importCountries: [
+      'USA',
+      'UK',
+      'Germany',
+      'China',
+      'UAE',
+      'Australia',
+      'Turkey'
+    ],
+    relatedSlugs: [
+      'storage-tanks-india',
+      'silos-india',
+      'conveyors-india',
+      'water-tanks-india',
+      'ss-tanks-india'
+    ],
+    priceRange: '₹1,00,000 - ₹1,50,00,000 per unit',
+    applications: [
+      'Providing water for sprinkler systems',
+      'Supplying water to fire hydrants',
+      'Maintaining water pressure for fire pumps',
+      'Emergency water reserve for industrial fires',
+      'Backup water supply for critical infrastructure',
+      'Residential complex fire safety'
+    ],
+    challenges: [
+      'Corrosion and leakage over time',
+      'Maintaining required water levels and quality',
+      'Compliance with evolving fire safety regulations',
+      'Space requirements for large tanks'
+    ],
+    marketTrend: 'The Indian fire water tank market is witnessing strong growth due to increasingly stringent fire safety regulations and rapid industrial and urban development. The emphasis on high-rise buildings and industrial safety mandates robust fire protection infrastructure. Smart Cities Mission and NIP also promote investment in such critical safety assets.'
+  },
+  {
+    slug: 'bio-digester-tanks-india',
+    name: 'Bio Digester Tanks',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Bio digester tanks are anaerobic reactors designed to break down organic waste materials such as agricultural waste, animal manure, or food waste, into biogas (primarily methane and carbon dioxide) and digestate. These tanks play a crucial role in waste management, renewable energy production, and nutrient recovery, offering an environmentally friendly solution for organic waste processing.',
+    industries: [
+      'Agriculture',
+      'Waste Management',
+      'Municipal Solid Waste',
+      'Food Processing',
+      'Breweries',
+      'Pulp & Paper'
+    ],
+    grades: [
+      'HDPE Liner (High-density polyethylene) ASTM D1248',
+      'GRP/FRP (Glass Reinforced Plastic) BS EN 13121',
+      'Mild Steel IS 2062 Gr. E250 (Epoxy coated)',
+      'Stainless Steel ASTM A240 316L',
+      'Reinforced Concrete IS 456 M30',
+      'Glass-Fused-to-Steel (GFS) Coating ISO 28765',
+      'Polypropylene (PP) ISO 1133'
+    ],
+    specifications: [
+      'Capacity: 1 m³ - 10,000+ m³',
+      'Biogas Yield: 0.5 - 1 m³ biogas/kg COD removed',
+      'Retention Time: 20 - 60 days',
+      'Operating Temperature: Mesophilic (25-40°C), Thermophilic (50-60°C)',
+      'Mixing Type: Mechanical, Hydraulic, Gas Recirculation'
+    ],
+    standards: [
+      'IS 15073 (Biogas Plant - Design and construction of fixed dome type)',
+      'ISO 28765 (Enamelled articles - Glass-lined apparatus for process plants)',
+      'BIS for Biogas components (e.g., IS 8746 for biogas stoves)',
+      'European Committee for Standardization - Biogas standards (e.g., EN 16733)',
+      'ASTM for Polymer materials as liners'
+    ],
+    hsnCodes: ['84198990', '39251000'],
+    orderSizes: '1 unit - 20 units',
+    importCountries: [
+      'Germany',
+      'Denmark',
+      'China',
+      'Italy',
+      'USA',
+      'Austria',
+      'Netherlands'
+    ],
+    relatedSlugs: [
+      'storage-tanks-india',
+      'silos-india',
+      'conveyors-india',
+      'water-tanks-india',
+      'ss-tanks-india'
+    ],
+    priceRange: '₹50,000 - ₹5,00,00,000 per unit',
+    applications: [
+      'Decentralized power generation from animal waste',
+      'Waste-to-energy projects for municipalities',
+      'Organic waste treatment in food factories',
+      'Fertilizer production from digestate',
+      'Biogas production for cooking fuel',
+      'Industrial wastewater treatment'
+    ],
+    challenges: [
+      'Fluctuating feedstock availability and quality',
+      'Optimization of biogas production and utilization',
+      'Corrosion from H2S in biogas',
+      'High initial investment and maintenance'
+    ],
+    marketTrend: 'The bio digester tank market in India is experiencing significant expansion, driven by government focus on renewable energy, waste management, and sustainable agriculture. Schemes like the SATAT initiative for Compressed Biogas (CBG) and the Swachh Bharat Abhiyan are providing major impetus. There\'s a growing demand for cost-effective and scalable solutions.'
+  },
+  {
+    slug: 'bolted-steel-tanks-india',
+    name: 'Bolted Steel Tanks',
+    category: 'Industrial Storage & Tanks',
+    categorySlug: 'industrial-storage',
+    industrySlug: 'storage',
+    subIndustrySlug: 'tanks-silos',
+    definition: 'Bolted steel tanks are modular storage containers constructed from pre-engineered steel panels that are bolted together on site. They are often coated (e.g., glass-fused-to-steel, epoxy) for enhanced corrosion resistance, making them suitable for a wide range of liquids, including water, wastewater, and certain chemicals. Their modular design allows for rapid installation, easy expansion, and relocation.',
+    industries: [
+      'Water & Wastewater Treatment',
+      'Fire Protection',
+      'Agriculture',
+      'Oil & Gas',
+      'Industrial Processing',
+      'Municipal Utilities'
+    ],
+    grades: [
+      'Glass-Fused-to-Steel (GFS/Enamel) ISO 28765',
+      'Epoxy Coated Steel (FBE, Liquid Epoxy) API RP 5L2',
+      'Galvanized Steel ASTM A653 G90',
+      'Stainless Steel ASTM A240 304/316',
+      'Carbon Steel IS 2062 Gr. E250',
+      'Polymer Coated Steel (e.g., PVC/PE)',
+      'Aluminum Alloys 6061-T6'
+    ],
+    specifications: [
+      'Capacity: 20 m³ - 25,000+ m³',
+      'Diameter: 3 m - 60 m',
+      'Height: 3 m - 30 m',
+      'Coating Thickness: 0.25 mm - 0.75 mm',
+      'Bolt Material: Stainless Steel Grade A4'
+    ],
+    standards: [
+      'AWWA D103 (Factory-Coated Bolted Steel Tanks for Water Storage)',
+      'ISO 28765 (Enamel - Glass-lined apparatus for process plants - Factory applied to steel)',
+      'NFPA 22 (Water Tanks for Private Fire Protection)',
+      'IS 4995 (Criteria for Design of Reinforced Concrete Bins, Silos and Bunkers - adaptable for foundation)',
+      'ASCE 7 (Minimum Design Loads for Buildings and Other Structures)'
+    ],
+    hsnCodes: ['73090010', '73102990'],
+    orderSizes: '1 unit - 20 units',
+    importCountries: [
+      'USA',
+      'China',
+      'UK',
+      'Germany',
+      'Australia',
+      'South Africa',
+      'Israel'
+    ],
+    relatedSlugs: [
+      'storage-tanks-india',
+      'silos-india',
+      'conveyors-india',
+      'water-tanks-india',
+      'ss-tanks-india'
+    ],
+    priceRange: '₹3,00,000 - ₹3,00,00,000 per unit',
+    applications: [
+      'Potable water reservoirs',
+      'Wastewater treatment equalization basins',
+      'Fire water storage in industrial parks',
+      'Agricultural irrigation water storage',
+      'Oil field fluid storage',
+      'Digester tanks in biogas plants'
+    ],
+    challenges: [
+      'Proper sealing and leak prevention',
+      'Coating integrity against chemicals and abrasion',
+      'Foundation stability requirements',
+      'Corrosion around bolt connections'
+    ],
+    marketTrend: 'The bolted steel tank market in India is experiencing rapid growth, primarily driven by the expansion of water and wastewater treatment infrastructure and industrial development. The ease of installation, modularity, and corrosion resistance of these tanks align well with the fast-paced project requirements of Smart Cities and the Jal Jeevan Mission. Demand is high for durable and low-maintenance solutions.'
+  },
+];
+
+// ─── UPDATED COMBINED EXPORT ────────────────────────────────────
