@@ -10020,5 +10020,11 @@ export function getRelatedDemandProducts(
       p.slug !== currentSlug &&
       (p.categorySlug === current.categorySlug || p.industrySlug === current.industrySlug)
     )
+    .sort((a, b) => {
+      const score = (p: DemandProduct) =>
+        (p.categorySlug === current.categorySlug ? 2 : 0) +
+        (p.industrySlug === current.industrySlug ? 1 : 0);
+      return score(b) - score(a);
+    })
     .slice(0, limit);
 }
