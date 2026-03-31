@@ -655,13 +655,8 @@ export default function DemandAuthorityPage() {
         const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
         const decayFactor = (lastSeen: number) => Math.exp(-(now - lastSeen) / SEVEN_DAYS_MS);
 
-        type SlugEntry = { count: number; lastSeen: number };
-        const toSlugEntry = (v: unknown): SlugEntry => {
-          if (typeof v === 'number') return { count: v, lastSeen: 0 };
-          if (v && typeof v === 'object' && 'count' in v) return v as SlugEntry;
-          return { count: 0, lastSeen: 0 };
-        };
         const stored: Record<string, SlugEntry | number> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
+        const safePrev = toSlugEntry(stored[normalizedSlug]);
         const safePrev = toSlugEntry(stored[normalizedSlug]);
         stored[normalizedSlug] = Object.freeze({
           count: safePrev.count + 1,
