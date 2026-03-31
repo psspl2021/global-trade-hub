@@ -644,7 +644,12 @@ export default function DemandAuthorityPage() {
   if (!product) {
     if (!_missingSlugs.has(slug)) {
       _missingSlugs.add(slug);
-      console.warn('[DemandAuthorityPage] Missing slug:', slug);
+      const path = typeof window !== 'undefined' ? window.location.pathname : 'server';
+      console.warn('[DemandAuthorityPage][MISSING_SLUG]', {
+        slug,
+        path,
+        timestamp: new Date().toISOString(),
+      });
     }
     return <Navigate to="/demand" replace />;
   }
