@@ -642,25 +642,30 @@ export default function DemandAuthorityPage() {
   const product = getProductBySlug(slug);
   
   if (!product) {
-    const count = (_missingSlugCounts.get(slug) || 0) + 1;
-    _missingSlugCounts.set(slug, count);
+    const normalizedSlug = slug.toLowerCase().trim();
+    const count = (_missingSlugCounts.get(normalizedSlug) || 0) + 1;
+    _missingSlugCounts.set(normalizedSlug, count);
 
-    // Persist across sessions via localStorage (capped at 200 entries, with recency)
+    // Persist across sessions via localStorage (capped at 200 entries, with recency + decay)
     if (typeof window !== 'undefined') {
       try {
         const MAX_ENTRIES = 200;
+        const now = Date.now();
+        const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+        const decayFactor = (lastSeen: number) => Math.exp(-(now - lastSeen) / SEVEN_DAYS_MS);
+
         const stored: Record<string, { count: number; lastSeen: number }> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
-        const prev = stored[slug];
-        stored[slug] = {
+        const prev = stored[normalizedSlug];
+        stored[normalizedSlug] = {
           count: (prev?.count || 0) + 1,
-          lastSeen: Date.now(),
+          lastSeen: now,
         };
         const entries = Object.entries(stored);
         if (entries.length > MAX_ENTRIES) {
-          // Evict by composite score: frequency × 2 + recency
+          // Evict by decay-weighted score: frequency × 2 × decay(recency)
           entries.sort((a, b) => {
-            const scoreA = a[1].count * 2 + a[1].lastSeen / 1e10;
-            const scoreB = b[1].count * 2 + b[1].lastSeen / 1e10;
+            const scoreA = a[1].count * 2 * decayFactor(a[1].lastSeen);
+            const scoreB = b[1].count * 2 * decayFactor(b[1].lastSeen);
             return scoreA - scoreB;
           });
           const trimmed = Object.fromEntries(entries.slice(-MAX_ENTRIES));
