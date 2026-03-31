@@ -630,13 +630,15 @@ export default function DemandAuthorityPage() {
   const [showRFQ, setShowRFQ] = useState(false);
 
   if (!slug) return <Navigate to="/demand" replace />;
-  
+
+  // PRIMARY: Check demandProducts first (single source of truth for SEO pages)
+  const generated = getDemandProductBySlug(slug);
+  if (generated) return <GeneratedDemandPage />;
+
+  // SECONDARY: Fall back to legacy rich product pages
   const product = getProductBySlug(slug);
   
-  // Fallback to generated demand page if not in rich product list
   if (!product) {
-    const generated = getDemandProductBySlug(slug);
-    if (generated) return <GeneratedDemandPage />;
     return <Navigate to="/demand" replace />;
   }
 
