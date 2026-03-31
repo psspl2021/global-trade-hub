@@ -645,12 +645,20 @@ export default function DemandAuthorityPage() {
     const count = (_missingSlugCounts.get(slug) || 0) + 1;
     _missingSlugCounts.set(slug, count);
 
-    // Persist across sessions via localStorage
+    // Persist across sessions via localStorage (capped at 200 entries)
     if (typeof window !== 'undefined') {
       try {
-        const stored = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
+        const MAX_ENTRIES = 200;
+        const stored: Record<string, number> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
         stored[slug] = (stored[slug] || 0) + 1;
-        localStorage.setItem('ps_missing_slugs', JSON.stringify(stored));
+        const entries = Object.entries(stored);
+        if (entries.length > MAX_ENTRIES) {
+          entries.sort((a, b) => (a[1] as number) - (b[1] as number));
+          const trimmed = Object.fromEntries(entries.slice(-MAX_ENTRIES));
+          localStorage.setItem('ps_missing_slugs', JSON.stringify(trimmed));
+        } else {
+          localStorage.setItem('ps_missing_slugs', JSON.stringify(stored));
+        }
       } catch { /* storage full or unavailable */ }
     }
 
