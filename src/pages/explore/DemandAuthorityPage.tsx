@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
+import { toSlugEntry, type SlugEntry } from '@/utils/missingSlugs';
 import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
 import CommercialCTA from '@/components/seo/CommercialCTA';
 import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
