@@ -655,16 +655,17 @@ export default function DemandAuthorityPage() {
         const decayFactor = (lastSeen: number) => Math.exp(-(now - lastSeen) / SEVEN_DAYS_MS);
 
         type SlugEntry = { count: number; lastSeen: number };
+        const toSlugEntry = (v: unknown): SlugEntry => {
+          if (typeof v === 'number') return { count: v, lastSeen: 0 };
+          if (v && typeof v === 'object' && 'count' in v) return v as SlugEntry;
+          return { count: 0, lastSeen: 0 };
+        };
         const stored: Record<string, SlugEntry | number> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
-        const raw = stored[normalizedSlug];
-        const safePrev: SlugEntry =
-          raw && typeof raw === 'object' && 'count' in raw
-            ? raw as SlugEntry
-            : { count: typeof raw === 'number' ? raw : 0, lastSeen: 0 };
-        stored[normalizedSlug] = {
+        const safePrev = toSlugEntry(stored[normalizedSlug]);
+        stored[normalizedSlug] = Object.freeze({
           count: safePrev.count + 1,
           lastSeen: now,
-        };
+        });
         const entries = Object.entries(stored);
         if (entries.length > MAX_ENTRIES) {
           // Evict by decay-weighted score: frequency × 2 × decay(recency)
