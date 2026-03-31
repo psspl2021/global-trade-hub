@@ -3,7 +3,13 @@
  * Used by admin dashboards to identify high-demand SEO gaps.
  */
 
-type SlugEntry = { count: number; lastSeen: number };
+export type SlugEntry = { count: number; lastSeen: number };
+
+export function toSlugEntry(v: unknown): SlugEntry {
+  if (typeof v === 'number') return { count: v, lastSeen: 0 };
+  if (v && typeof v === 'object' && 'count' in v) return v as SlugEntry;
+  return { count: 0, lastSeen: 0 };
+}
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
   Metals: ['steel', 'tmt', 'iron', 'aluminium', 'copper', 'zinc', 'brass', 'alloy'],
