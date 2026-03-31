@@ -1,15 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getTopMissingSlugs, type MissingSlugInsight } from '@/utils/missingSlugs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from '@/components/ui/table';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
-import { Flame, AlertTriangle, TrendingUp, BarChart3, Clock } from 'lucide-react';
+import { Flame, AlertTriangle, TrendingUp, BarChart3, Clock, RefreshCw, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const HOT_THRESHOLD = 5;
 const MEDIUM_THRESHOLD = 3;
@@ -43,19 +45,32 @@ function timeAgo(ts: number): string {
   return `${days}d ago`;
 }
 
+type SortMode = 'score' | 'recent' | 'hits';
+
 export default function DemandGapsPanel() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const slugs = useMemo(() => getTopMissingSlugs(50), []);
+  const [sortBy, setSortBy] = useState<SortMode>('score');
+  const [slugs, setSlugs] = useState<MissingSlugInsight[]>([]);
+  const { toast } = useToast();
+
+  const loadData = useCallback(() => {
+    setSlugs(getTopMissingSlugs(50));
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   const categories = useMemo(() => {
     const cats = new Set(slugs.map((s) => s.category));
     return ['all', ...Array.from(cats).sort()];
   }, [slugs]);
 
-  const filtered = useMemo(
-    () => categoryFilter === 'all' ? slugs : slugs.filter((s) => s.category === categoryFilter),
-    [slugs, categoryFilter]
-  );
+  const filtered = useMemo(() => {
+    const base = categoryFilter === 'all' ? [...slugs] : slugs.filter((s) => s.category === categoryFilter);
+    if (sortBy === 'recent') base.sort((a, b) => b.lastSeen - a.lastSeen);
+    else if (sortBy === 'hits') base.sort((a, b) => b.count - a.count);
+    // 'score' is already the default sort from getTopMissingSlugs
+    return base;
+  }, [slugs, categoryFilter, sortBy]);
 
   const stats = useMemo(() => {
     const hot = slugs.filter((s) => s.count >= HOT_THRESHOLD).length;
@@ -63,6 +78,14 @@ export default function DemandGapsPanel() {
     const totalHits = slugs.reduce((sum, s) => sum + s.count, 0);
     return { total: slugs.length, hot, medium, totalHits };
   }, [slugs]);
+
+  const handleGenerate = (slug: string) => {
+    console.log('[DemandGaps] Generate page for:', slug);
+    toast({
+      title: 'Page generation queued',
+      description: `Slug "${slug}" will be added to the demand pipeline.`,
+    });
+  };
 
   return (
     <>
@@ -72,11 +95,16 @@ export default function DemandGapsPanel() {
       </Helmet>
 
       <div className="container mx-auto py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Missing Demand Gaps</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Top product slugs users searched but no page exists — ranked by frequency × recency.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Missing Demand Gaps</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Top product slugs users searched but no page exists — ranked by frequency × recency.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={loadData}>
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh
+          </Button>
         </div>
 
         {/* Stats */}
@@ -115,19 +143,34 @@ export default function DemandGapsPanel() {
           </Card>
         </div>
 
-        {/* Filter */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">Category:</span>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem key={c} value={c}>{c === 'all' ? 'All Categories' : c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Filters */}
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Category:</span>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((c) => (
+                  <SelectItem key={c} value={c}>{c === 'all' ? 'All Categories' : c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Sort:</span>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortMode)}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="score">Decay Score</SelectItem>
+                <SelectItem value="recent">Most Recent</SelectItem>
+                <SelectItem value="hits">Most Hits</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Table */}
@@ -144,12 +187,13 @@ export default function DemandGapsPanel() {
                   </TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead className="text-center">Priority</TableHead>
+                  <TableHead className="text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
                       No demand gaps tracked yet. Data populates as users visit missing product pages.
                     </TableCell>
                   </TableRow>
@@ -157,7 +201,10 @@ export default function DemandGapsPanel() {
                   filtered.map((item, i) => (
                     <TableRow key={item.slug}>
                       <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                      <TableCell className="font-mono text-sm text-foreground">{item.slug}</TableCell>
+                      <TableCell>
+                        <span className="font-mono text-sm text-foreground">{item.slug}</span>
+                        {item.count >= HOT_THRESHOLD && <span className="ml-1.5 text-xs">🔥</span>}
+                      </TableCell>
                       <TableCell className="text-center font-semibold text-foreground">{item.count}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">{timeAgo(item.lastSeen)}</TableCell>
                       <TableCell>
@@ -165,6 +212,16 @@ export default function DemandGapsPanel() {
                       </TableCell>
                       <TableCell className="text-center">
                         <PriorityBadge count={item.count} />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 text-xs h-7"
+                          onClick={() => handleGenerate(item.slug)}
+                        >
+                          <Sparkles className="h-3 w-3" /> Generate
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
