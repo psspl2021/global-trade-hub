@@ -49,8 +49,11 @@ export function getTopMissingSlugs(limit = 10): MissingSlugInsight[] {
         };
       })
       .sort((a, b) => {
-        const scoreA = a.count * 2 + a.lastSeen / 1e10;
-        const scoreB = b.count * 2 + b.lastSeen / 1e10;
+        const now = Date.now();
+        const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+        const decay = (lastSeen: number) => Math.exp(-(now - lastSeen) / SEVEN_DAYS_MS);
+        const scoreA = a.count * 2 * decay(a.lastSeen);
+        const scoreB = b.count * 2 * decay(b.lastSeen);
         return scoreB - scoreA;
       })
       .slice(0, limit);
