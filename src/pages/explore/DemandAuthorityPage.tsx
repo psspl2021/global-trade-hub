@@ -657,7 +657,6 @@ export default function DemandAuthorityPage() {
 
         const stored: Record<string, SlugEntry | number> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
         const safePrev = toSlugEntry(stored[normalizedSlug]);
-        const safePrev = toSlugEntry(stored[normalizedSlug]);
         stored[normalizedSlug] = Object.freeze({
           count: safePrev.count + 1,
           lastSeen: now,
