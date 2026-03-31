@@ -654,19 +654,25 @@ export default function DemandAuthorityPage() {
         const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
         const decayFactor = (lastSeen: number) => Math.exp(-(now - lastSeen) / SEVEN_DAYS_MS);
 
-        const stored: Record<string, { count: number; lastSeen: number }> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
-        const prev = stored[normalizedSlug];
+        type SlugEntry = { count: number; lastSeen: number };
+        const stored: Record<string, SlugEntry | number> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
+        const raw = stored[normalizedSlug];
+        const safePrev: SlugEntry =
+          raw && typeof raw === 'object' && 'count' in raw
+            ? raw as SlugEntry
+            : { count: typeof raw === 'number' ? raw : 0, lastSeen: 0 };
         stored[normalizedSlug] = {
-          count: (prev?.count || 0) + 1,
+          count: safePrev.count + 1,
           lastSeen: now,
         };
         const entries = Object.entries(stored);
         if (entries.length > MAX_ENTRIES) {
           // Evict by decay-weighted score: frequency × 2 × decay(recency)
+          const toEntry = (v: SlugEntry | number): SlugEntry =>
+            typeof v === 'number' ? { count: v, lastSeen: 0 } : v;
           entries.sort((a, b) => {
-            const scoreA = a[1].count * 2 * decayFactor(a[1].lastSeen);
-            const scoreB = b[1].count * 2 * decayFactor(b[1].lastSeen);
-            return scoreA - scoreB;
+            const ea = toEntry(a[1]), eb = toEntry(b[1]);
+            return ea.count * 2 * decayFactor(ea.lastSeen) - eb.count * 2 * decayFactor(eb.lastSeen);
           });
           const trimmed = Object.fromEntries(entries.slice(-MAX_ENTRIES));
           localStorage.setItem('ps_missing_slugs', JSON.stringify(trimmed));
