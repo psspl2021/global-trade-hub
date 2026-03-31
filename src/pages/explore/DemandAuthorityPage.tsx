@@ -625,8 +625,8 @@ function CTASection({ onOpenRFQ }: { onOpenRFQ: () => void }) {
   );
 }
 
-// Track missing slugs once to avoid log spam
-const _missingSlugs = new Set<string>();
+// Track missing slugs with hit counts for demand sensing
+const _missingSlugCounts = new Map<string, number>();
 
 export default function DemandAuthorityPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -642,10 +642,16 @@ export default function DemandAuthorityPage() {
   const product = getProductBySlug(slug);
   
   if (!product) {
-    if (!_missingSlugs.has(slug)) {
-      _missingSlugs.add(slug);
+    const count = (_missingSlugCounts.get(slug) || 0) + 1;
+    _missingSlugCounts.set(slug, count);
+    if (count === 1) {
       const path = typeof window !== 'undefined' ? window.location.pathname : 'server';
-      const referrer = typeof document !== 'undefined' ? document.referrer : 'unknown';
+      let referrer = 'direct';
+      try {
+        if (typeof document !== 'undefined' && document.referrer) {
+          referrer = new URL(document.referrer).hostname;
+        }
+      } catch { /* malformed referrer */ }
       console.warn('[DemandAuthorityPage][MISSING_SLUG]', {
         slug,
         path,
