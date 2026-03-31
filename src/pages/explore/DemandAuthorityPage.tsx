@@ -645,15 +645,24 @@ export default function DemandAuthorityPage() {
     const count = (_missingSlugCounts.get(slug) || 0) + 1;
     _missingSlugCounts.set(slug, count);
 
-    // Persist across sessions via localStorage (capped at 200 entries)
+    // Persist across sessions via localStorage (capped at 200 entries, with recency)
     if (typeof window !== 'undefined') {
       try {
         const MAX_ENTRIES = 200;
-        const stored: Record<string, number> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
-        stored[slug] = (stored[slug] || 0) + 1;
+        const stored: Record<string, { count: number; lastSeen: number }> = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
+        const prev = stored[slug];
+        stored[slug] = {
+          count: (prev?.count || 0) + 1,
+          lastSeen: Date.now(),
+        };
         const entries = Object.entries(stored);
         if (entries.length > MAX_ENTRIES) {
-          entries.sort((a, b) => (a[1] as number) - (b[1] as number));
+          // Evict by composite score: frequency × 2 + recency
+          entries.sort((a, b) => {
+            const scoreA = a[1].count * 2 + a[1].lastSeen / 1e10;
+            const scoreB = b[1].count * 2 + b[1].lastSeen / 1e10;
+            return scoreA - scoreB;
+          });
           const trimmed = Object.fromEntries(entries.slice(-MAX_ENTRIES));
           localStorage.setItem('ps_missing_slugs', JSON.stringify(trimmed));
         } else {
