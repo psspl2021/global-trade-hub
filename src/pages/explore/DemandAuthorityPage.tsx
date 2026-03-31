@@ -644,6 +644,16 @@ export default function DemandAuthorityPage() {
   if (!product) {
     const count = (_missingSlugCounts.get(slug) || 0) + 1;
     _missingSlugCounts.set(slug, count);
+
+    // Persist across sessions via localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
+        stored[slug] = (stored[slug] || 0) + 1;
+        localStorage.setItem('ps_missing_slugs', JSON.stringify(stored));
+      } catch { /* storage full or unavailable */ }
+    }
+
     if (count === 1) {
       const path = typeof window !== 'undefined' ? window.location.pathname : 'server';
       let referrer = 'direct';
@@ -660,6 +670,11 @@ export default function DemandAuthorityPage() {
         timestamp: new Date().toISOString(),
       });
     }
+
+    if (count === 3) {
+      console.warn('[DemandAuthorityPage][HIGH_DEMAND_MISSING]', slug);
+    }
+
     return <Navigate to="/demand" replace />;
   }
 
