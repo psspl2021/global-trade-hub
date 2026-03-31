@@ -645,9 +645,12 @@ export default function DemandAuthorityPage() {
     if (!_missingSlugs.has(slug)) {
       _missingSlugs.add(slug);
       const path = typeof window !== 'undefined' ? window.location.pathname : 'server';
+      const referrer = typeof document !== 'undefined' ? document.referrer : 'unknown';
       console.warn('[DemandAuthorityPage][MISSING_SLUG]', {
         slug,
         path,
+        referrer,
+        env: import.meta.env.MODE,
         timestamp: new Date().toISOString(),
       });
     }
