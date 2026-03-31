@@ -625,6 +625,9 @@ function CTASection({ onOpenRFQ }: { onOpenRFQ: () => void }) {
   );
 }
 
+// Track missing slugs once to avoid log spam
+const _missingSlugs = new Set<string>();
+
 export default function DemandAuthorityPage() {
   const { slug } = useParams<{ slug: string }>();
   const [showRFQ, setShowRFQ] = useState(false);
@@ -639,7 +642,10 @@ export default function DemandAuthorityPage() {
   const product = getProductBySlug(slug);
   
   if (!product) {
-    console.warn('[DemandAuthorityPage] Slug not found in any data source:', slug);
+    if (!_missingSlugs.has(slug)) {
+      _missingSlugs.add(slug);
+      console.warn('[DemandAuthorityPage] Missing slug:', slug);
+    }
     return <Navigate to="/demand" replace />;
   }
 
