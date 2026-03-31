@@ -668,10 +668,11 @@ export default function DemandAuthorityPage() {
         const entries = Object.entries(stored);
         if (entries.length > MAX_ENTRIES) {
           // Evict by decay-weighted score: frequency × 2 × decay(recency)
+          const toEntry = (v: SlugEntry | number): SlugEntry =>
+            typeof v === 'number' ? { count: v, lastSeen: 0 } : v;
           entries.sort((a, b) => {
-            const scoreA = a[1].count * 2 * decayFactor(a[1].lastSeen);
-            const scoreB = b[1].count * 2 * decayFactor(b[1].lastSeen);
-            return scoreA - scoreB;
+            const ea = toEntry(a[1]), eb = toEntry(b[1]);
+            return ea.count * 2 * decayFactor(ea.lastSeen) - eb.count * 2 * decayFactor(eb.lastSeen);
           });
           const trimmed = Object.fromEntries(entries.slice(-MAX_ENTRIES));
           localStorage.setItem('ps_missing_slugs', JSON.stringify(trimmed));
