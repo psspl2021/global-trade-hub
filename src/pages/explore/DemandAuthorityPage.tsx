@@ -639,6 +639,7 @@ export default function DemandAuthorityPage() {
   const product = getProductBySlug(slug);
   
   if (!product) {
+    console.warn('[DemandAuthorityPage] Slug not found in any data source:', slug);
     return <Navigate to="/demand" replace />;
   }
 
