@@ -10,8 +10,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
-import { Flame, AlertTriangle, TrendingUp, BarChart3, Clock, RefreshCw, Sparkles } from 'lucide-react';
+import { Flame, AlertTriangle, TrendingUp, BarChart3, Clock, RefreshCw, Sparkles, Loader2, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const HOT_THRESHOLD = 5;
 const MEDIUM_THRESHOLD = 3;
@@ -79,12 +80,42 @@ export default function DemandGapsPanel() {
     return { total: slugs.length, hot, medium, totalHits };
   }, [slugs]);
 
-  const handleGenerate = (slug: string) => {
-    console.log('[DemandGaps] Generate page for:', slug);
-    toast({
-      title: 'Page generation queued',
-      description: `Slug "${slug}" will be added to the demand pipeline.`,
-    });
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [generated, setGenerated] = useState<Set<string>>(new Set());
+
+  const handleGenerate = async (slug: string) => {
+    if (generating) return;
+    setGenerating(slug);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-demand-page', {
+        body: { slug },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setGenerated(prev => new Set(prev).add(slug));
+      setSlugs(prev => prev.filter(s => s.slug !== slug));
+
+      // Clean from localStorage
+      try {
+        const stored = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
+        delete stored[slug];
+        localStorage.setItem('ps_missing_slugs', JSON.stringify(stored));
+      } catch { /* ignore */ }
+
+      toast({
+        title: 'Page generated 🚀',
+        description: `"${data?.name || slug}" is now live at /demand/${slug}`,
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Generation failed',
+        description: err.message || 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setGenerating(null);
+    }
   };
 
   return (
@@ -214,14 +245,25 @@ export default function DemandGapsPanel() {
                         <PriorityBadge count={item.count} />
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1 text-xs h-7"
-                          onClick={() => handleGenerate(item.slug)}
-                        >
-                          <Sparkles className="h-3 w-3" /> Generate
-                        </Button>
+                        {generated.has(item.slug) ? (
+                          <Badge variant="outline" className="gap-1 text-xs text-green-600">
+                            <CheckCircle className="h-3 w-3" /> Live
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-1 text-xs h-7"
+                            onClick={() => handleGenerate(item.slug)}
+                            disabled={generating === item.slug}
+                          >
+                            {generating === item.slug ? (
+                              <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
+                            ) : (
+                              <><Sparkles className="h-3 w-3" /> Generate</>
+                            )}
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

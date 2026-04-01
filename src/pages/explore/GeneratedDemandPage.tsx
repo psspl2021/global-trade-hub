@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { renderSafeAnswer } from '@/utils/safeHtmlRenderer';
 import { Helmet } from 'react-helmet-async';
 import { getDemandProductBySlug, demandProducts, getRelatedDemandProducts, type DemandProduct } from '@/data/demandProducts';
+import { useDemandProduct } from '@/hooks/useDemandProduct';
 import { generateDemandContent } from '@/utils/demandContentEngine';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -153,7 +154,15 @@ export default function GeneratedDemandPage() {
   const { slug } = useParams<{ slug: string }>();
   const [rfqOpen, setRfqOpen] = useState(false);
 
-  const product = slug ? getDemandProductBySlug(slug) : undefined;
+  const { product, isLoading } = useDemandProduct(slug);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
   if (!product) return null;
 
   const content = generateDemandContent(product);

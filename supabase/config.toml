@@ -107,3 +107,6 @@ verify_jwt = false
 
 [functions.affiliate-auto-nudge]
 verify_jwt = false
+
+[functions.generate-demand-page]
+verify_jwt = false

@@ -1,5 +1,6 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { toSlugEntry, type SlugEntry } from '@/utils/missingSlugs';
+import { useDemandProduct } from '@/hooks/useDemandProduct';
 import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
 import CommercialCTA from '@/components/seo/CommercialCTA';
 import BuyerTrustSection from '@/components/seo/BuyerTrustSection';
@@ -632,12 +633,19 @@ const _missingSlugCounts = new Map<string, number>();
 export default function DemandAuthorityPage() {
   const { slug } = useParams<{ slug: string }>();
   const [showRFQ, setShowRFQ] = useState(false);
+  const { product: demandProduct, isLoading: demandLoading } = useDemandProduct(slug);
 
   if (!slug) return <Navigate to="/demand" replace />;
 
-  // PRIMARY: Check demandProducts first (single source of truth for SEO pages)
-  const generated = getDemandProductBySlug(slug);
-  if (generated) return <GeneratedDemandPage />;
+  // PRIMARY: Check demandProducts (static + DB generated)
+  if (demandLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+  if (demandProduct) return <GeneratedDemandPage />;
 
   // SECONDARY: Fall back to legacy rich product pages
   const product = getProductBySlug(slug);
