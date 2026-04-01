@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { toSlugEntry, type SlugEntry } from '@/utils/missingSlugs';
 import { useDemandProduct } from '@/hooks/useDemandProduct';
 import IntentKeywordSection from '@/components/seo/IntentKeywordSection';
