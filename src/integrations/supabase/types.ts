@@ -2636,6 +2636,39 @@ export type Database = {
         }
         Relationships: []
       }
+      demand_gaps: {
+        Row: {
+          category: string | null
+          count: number
+          created_at: string
+          last_seen: string
+          score: number
+          slug: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          count?: number
+          created_at?: string
+          last_seen?: string
+          score?: number
+          slug: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          count?: number
+          created_at?: string
+          last_seen?: string
+          score?: number
+          slug?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       demand_generated: {
         Row: {
           applications: string[] | null
@@ -10426,6 +10459,10 @@ export type Database = {
         Returns: undefined
       }
       update_lane_sla_statuses: { Args: never; Returns: undefined }
+      upsert_demand_gap: {
+        Args: { p_category?: string; p_slug: string }
+        Returns: undefined
+      }
       validate_referral_eligibility: {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: boolean
