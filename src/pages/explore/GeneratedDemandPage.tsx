@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { trackDemandPageView, trackDemandRFQClick } from '@/utils/demandPageAnalytics';
 import { renderSafeAnswer } from '@/utils/safeHtmlRenderer';
 import { Helmet } from 'react-helmet-async';
 import { getDemandProductBySlug, demandProducts, getRelatedDemandProducts, type DemandProduct } from '@/data/demandProducts';
@@ -156,6 +157,18 @@ export default function GeneratedDemandPage() {
 
   const { product, isLoading } = useDemandProduct(slug);
 
+  // Analytics: track page view once per slug per session
+  useEffect(() => {
+    if (slug && !isLoading && product) {
+      trackDemandPageView(slug);
+    }
+  }, [slug, isLoading, product]);
+
+  const handleRFQOpen = useCallback(() => {
+    if (slug) trackDemandRFQClick(slug);
+    setRfqOpen(true);
+  }, [slug]);
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -260,7 +273,7 @@ export default function GeneratedDemandPage() {
                 </p>
 
                 <div className="flex flex-wrap gap-3">
-                  <Button size="lg" onClick={() => setRfqOpen(true)} className="gap-2 text-lg px-8 py-6">
+                  <Button size="lg" onClick={handleRFQOpen} className="gap-2 text-lg px-8 py-6">
                     Get Verified Supplier Quotes <ArrowRight className="h-5 w-5" />
                   </Button>
                   <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
@@ -612,7 +625,7 @@ export default function GeneratedDemandPage() {
               <CommercialCTA
                 productName={product.name}
                 recentRFQs={content.demandSignals.recentRfqs}
-                onOpenRFQ={() => setRfqOpen(true)}
+                onOpenRFQ={handleRFQOpen}
               />
 
               {/* ─── BREADCRUMB HIERARCHY ─────────────────────────── */}

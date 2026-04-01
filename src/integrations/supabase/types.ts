@@ -3071,6 +3071,36 @@ export type Database = {
         }
         Relationships: []
       }
+      demand_page_analytics: {
+        Row: {
+          country_code: string | null
+          created_at: string
+          event_type: string
+          id: string
+          referrer: string | null
+          session_id: string | null
+          slug: string
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          referrer?: string | null
+          session_id?: string | null
+          slug: string
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          referrer?: string | null
+          session_id?: string | null
+          slug?: string
+        }
+        Relationships: []
+      }
       demo_requests: {
         Row: {
           company_name: string | null
@@ -9414,6 +9444,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      demand_page_performance: {
+        Row: {
+          conversion_rate: number | null
+          last_activity_at: string | null
+          rfq_clicks: number | null
+          slug: string | null
+          unique_visitors: number | null
+          views: number | null
+        }
+        Relationships: []
       }
       logistics_bids_with_display_date: {
         Row: {
