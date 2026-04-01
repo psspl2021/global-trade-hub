@@ -80,12 +80,42 @@ export default function DemandGapsPanel() {
     return { total: slugs.length, hot, medium, totalHits };
   }, [slugs]);
 
-  const handleGenerate = (slug: string) => {
-    console.log('[DemandGaps] Generate page for:', slug);
-    toast({
-      title: 'Page generation queued',
-      description: `Slug "${slug}" will be added to the demand pipeline.`,
-    });
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [generated, setGenerated] = useState<Set<string>>(new Set());
+
+  const handleGenerate = async (slug: string) => {
+    if (generating) return;
+    setGenerating(slug);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-demand-page', {
+        body: { slug },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setGenerated(prev => new Set(prev).add(slug));
+      setSlugs(prev => prev.filter(s => s.slug !== slug));
+
+      // Clean from localStorage
+      try {
+        const stored = JSON.parse(localStorage.getItem('ps_missing_slugs') || '{}');
+        delete stored[slug];
+        localStorage.setItem('ps_missing_slugs', JSON.stringify(stored));
+      } catch { /* ignore */ }
+
+      toast({
+        title: 'Page generated 🚀',
+        description: `"${data?.name || slug}" is now live at /demand/${slug}`,
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Generation failed',
+        description: err.message || 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setGenerating(null);
+    }
   };
 
   return (
