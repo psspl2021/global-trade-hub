@@ -157,6 +157,18 @@ export default function GeneratedDemandPage() {
 
   const { product, isLoading } = useDemandProduct(slug);
 
+  // Analytics: track page view once per slug per session
+  useEffect(() => {
+    if (slug && !isLoading && product) {
+      trackDemandPageView(slug);
+    }
+  }, [slug, isLoading, product]);
+
+  const handleRFQOpen = useCallback(() => {
+    if (slug) trackDemandRFQClick(slug);
+    setRfqOpen(true);
+  }, [slug]);
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
