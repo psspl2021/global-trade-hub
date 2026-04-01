@@ -245,14 +245,25 @@ export default function DemandGapsPanel() {
                         <PriorityBadge count={item.count} />
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1 text-xs h-7"
-                          onClick={() => handleGenerate(item.slug)}
-                        >
-                          <Sparkles className="h-3 w-3" /> Generate
-                        </Button>
+                        {generated.has(item.slug) ? (
+                          <Badge variant="outline" className="gap-1 text-xs text-green-600">
+                            <CheckCircle className="h-3 w-3" /> Live
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-1 text-xs h-7"
+                            onClick={() => handleGenerate(item.slug)}
+                            disabled={generating === item.slug}
+                          >
+                            {generating === item.slug ? (
+                              <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
+                            ) : (
+                              <><Sparkles className="h-3 w-3" /> Generate</>
+                            )}
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
