@@ -154,7 +154,15 @@ export default function GeneratedDemandPage() {
   const { slug } = useParams<{ slug: string }>();
   const [rfqOpen, setRfqOpen] = useState(false);
 
-  const product = slug ? getDemandProductBySlug(slug) : undefined;
+  const { product, isLoading } = useDemandProduct(slug);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
   if (!product) return null;
 
   const content = generateDemandContent(product);
