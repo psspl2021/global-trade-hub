@@ -10,8 +10,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
-import { Flame, AlertTriangle, TrendingUp, BarChart3, Clock, RefreshCw, Sparkles } from 'lucide-react';
+import { Flame, AlertTriangle, TrendingUp, BarChart3, Clock, RefreshCw, Sparkles, Loader2, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const HOT_THRESHOLD = 5;
 const MEDIUM_THRESHOLD = 3;
