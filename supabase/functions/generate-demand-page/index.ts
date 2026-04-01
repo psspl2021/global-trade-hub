@@ -187,7 +187,26 @@ Keep all data specific to the Indian B2B procurement context. Use realistic pric
       .neq("slug", slug)
       .limit(5);
 
-    const relatedSlugs = (relatedPages || []).map((r: { slug: string }) => r.slug);
+    const categorySlugs = (relatedPages || []).map((r: { slug: string }) => r.slug);
+
+    // Auto-boost: inject top-performing slugs (by conversion rate) into related links
+    let boostSlugs: string[] = [];
+    try {
+      const { data: topPerformers } = await adminSupabase
+        .from("demand_page_performance")
+        .select("slug")
+        .gt("views", 50)
+        .gt("conversion_rate", 2)
+        .order("conversion_rate", { ascending: false })
+        .limit(3);
+      boostSlugs = (topPerformers || [])
+        .map((r: { slug: string }) => r.slug)
+        .filter((s: string) => s !== slug && !categorySlugs.includes(s));
+    } catch {
+      console.log("[generate-demand-page] Boost query skipped (view may not exist yet)");
+    }
+
+    const relatedSlugs = [...categorySlugs, ...boostSlugs].slice(0, 8);
 
     // Insert into DB
     const { error: insertError } = await adminSupabase.from("demand_generated").insert({

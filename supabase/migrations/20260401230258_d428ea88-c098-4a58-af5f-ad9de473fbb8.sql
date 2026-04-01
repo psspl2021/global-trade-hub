@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS idx_analytics_slug_event ON public.demand_page_analytics (slug, event_type);
+CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON public.demand_page_analytics (created_at DESC);
