@@ -219,6 +219,28 @@ Keep all data specific to the Indian B2B procurement context. Use realistic pric
       throw new Error(`DB insert failed: ${insertError.message}`);
     }
 
+    // Reverse linking: add this new slug to related pages' related_slugs
+    if (relatedSlugs.length > 0) {
+      for (const relSlug of relatedSlugs) {
+        const { data: relPage } = await adminSupabase
+          .from("demand_generated")
+          .select("related_slugs")
+          .eq("slug", relSlug)
+          .maybeSingle();
+
+        if (relPage) {
+          const existing: string[] = relPage.related_slugs || [];
+          if (!existing.includes(slug)) {
+            const updated = [...existing, slug].slice(0, 10); // cap at 10
+            await adminSupabase
+              .from("demand_generated")
+              .update({ related_slugs: updated })
+              .eq("slug", relSlug);
+          }
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, slug, name }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
