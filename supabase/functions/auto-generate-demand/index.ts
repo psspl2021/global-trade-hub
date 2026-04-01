@@ -13,10 +13,13 @@ serve(async (req) => {
   }
 
   try {
-    // Verify CRON_SECRET for internal automation only
-    const cronSecret = Deno.env.get("CRON_SECRET");
+    // Verify auth: accept CRON_SECRET or service role key
     const authHeader = req.headers.get("Authorization");
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    const token = authHeader?.replace("Bearer ", "") || "";
+    const cronSecret = Deno.env.get("CRON_SECRET");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (token !== cronSecret && token !== serviceRoleKey) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
