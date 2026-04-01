@@ -625,7 +625,7 @@ export default function GeneratedDemandPage() {
               <CommercialCTA
                 productName={product.name}
                 recentRFQs={content.demandSignals.recentRfqs}
-                onOpenRFQ={() => setRfqOpen(true)}
+                onOpenRFQ={handleRFQOpen}
               />
 
               {/* ─── BREADCRUMB HIERARCHY ─────────────────────────── */}
