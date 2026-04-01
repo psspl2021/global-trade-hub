@@ -628,17 +628,36 @@ export default function GeneratedDemandPage() {
               {/* ─── FAQ SECTION (ACCORDION) ─────────────────── */}
               <FAQAccordion allFaqs={allFaqs} productName={product.name} />
 
-              {/* ─── RELATED DEMAND PRODUCTS (SAME CATEGORY) ─── */}
+              {/* ─── RELATED DEMAND PRODUCTS (SAME CATEGORY or DB-linked) ─── */}
               {(() => {
-                const relatedProducts = getRelatedDemandProducts(product.slug, 6);
-                if (!relatedProducts.length) return null;
+                const staticRelated = getRelatedDemandProducts(product.slug, 6);
+                // For DB-generated pages, use relatedSlugs from the DB
+                const dbRelatedSlugs = (product as any).relatedSlugs || [];
+                const dbRelated = dbRelatedSlugs
+                  .map((s: string) => getDemandProductBySlug(s))
+                  .filter(Boolean) as DemandProduct[];
+                // Merge: DB links first, then static, deduplicated
+                const seen = new Set<string>();
+                const mergedRelated: DemandProduct[] = [];
+                for (const item of [...dbRelated, ...staticRelated]) {
+                  if (!seen.has(item.slug) && item.slug !== product.slug) {
+                    seen.add(item.slug);
+                    mergedRelated.push(item);
+                  }
+                  if (mergedRelated.length >= 6) break;
+                }
+                // If DB slugs exist but aren't in static taxonomy, render as simple links
+                const unmappedDbSlugs = dbRelatedSlugs.filter(
+                  (s: string) => s !== product.slug && !seen.has(s)
+                );
+                if (!mergedRelated.length && !unmappedDbSlugs.length) return null;
                 return (
                   <section className="mt-10">
                     <h2 className="text-lg font-semibold text-foreground mb-4">
                       Related {product.category} Products
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {relatedProducts.map(item => (
+                      {mergedRelated.map(item => (
                         <a
                           key={item.slug}
                           href={`/demand/${item.slug}`}
@@ -646,6 +665,17 @@ export default function GeneratedDemandPage() {
                         >
                           <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{item.name}</p>
                           <p className="text-xs text-muted-foreground mt-1">{item.priceRange}</p>
+                        </a>
+                      ))}
+                      {unmappedDbSlugs.slice(0, 6 - mergedRelated.length).map((s: string) => (
+                        <a
+                          key={s}
+                          href={`/demand/${s}`}
+                          className="p-4 border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all group"
+                        >
+                          <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                            {s.replace(/-suppliers-india$/, '').replace(/-suppliers$/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                          </p>
                         </a>
                       ))}
                     </div>
