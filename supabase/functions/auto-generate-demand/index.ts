@@ -54,17 +54,30 @@ serve(async (req) => {
     let generated = 0;
     const results: Array<{ slug: string; status: string }> = [];
 
-    for (const gap of gaps) {
-      const slug = gap.slug;
+    // 1b. Fetch failed pages eligible for retry (6h cooldown)
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
+    const { data: failedPages } = await supabase
+      .from("demand_generated")
+      .select("slug")
+      .eq("status", "failed")
+      .lt("updated_at", sixHoursAgo)
+      .limit(2);
 
-      // 2. Skip if already exists in demand_generated
+    const retryQueue = (failedPages || []).map(f => ({ slug: f.slug, isRetry: true }));
+    const newQueue = gaps.map(g => ({ slug: g.slug, category: g.category, isRetry: false }));
+    const queue = [...retryQueue, ...newQueue];
+
+    for (const item of queue) {
+      const slug = item.slug;
+
+      // 2. Skip if already exists and not failed (collision guard)
       const { data: exists } = await supabase
         .from("demand_generated")
-        .select("id")
+        .select("id, status")
         .eq("slug", slug)
         .maybeSingle();
 
-      if (exists) {
+      if (exists && exists.status !== "failed") {
         results.push({ slug, status: "already_exists" });
         continue;
       }
