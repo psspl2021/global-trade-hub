@@ -2636,6 +2636,87 @@ export type Database = {
         }
         Relationships: []
       }
+      demand_generated: {
+        Row: {
+          applications: string[] | null
+          category: string | null
+          category_slug: string | null
+          challenges: string[] | null
+          created_at: string
+          definition: string | null
+          generated_by: string | null
+          grades: string[] | null
+          hsn_codes: string[] | null
+          id: string
+          import_countries: string[] | null
+          industries: string[] | null
+          industry_slug: string | null
+          market_trend: string | null
+          name: string
+          order_sizes: string | null
+          price_range: string | null
+          related_slugs: string[] | null
+          slug: string
+          specifications: string[] | null
+          standards: string[] | null
+          status: string
+          sub_industry_slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          applications?: string[] | null
+          category?: string | null
+          category_slug?: string | null
+          challenges?: string[] | null
+          created_at?: string
+          definition?: string | null
+          generated_by?: string | null
+          grades?: string[] | null
+          hsn_codes?: string[] | null
+          id?: string
+          import_countries?: string[] | null
+          industries?: string[] | null
+          industry_slug?: string | null
+          market_trend?: string | null
+          name: string
+          order_sizes?: string | null
+          price_range?: string | null
+          related_slugs?: string[] | null
+          slug: string
+          specifications?: string[] | null
+          standards?: string[] | null
+          status?: string
+          sub_industry_slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          applications?: string[] | null
+          category?: string | null
+          category_slug?: string | null
+          challenges?: string[] | null
+          created_at?: string
+          definition?: string | null
+          generated_by?: string | null
+          grades?: string[] | null
+          hsn_codes?: string[] | null
+          id?: string
+          import_countries?: string[] | null
+          industries?: string[] | null
+          industry_slug?: string | null
+          market_trend?: string | null
+          name?: string
+          order_sizes?: string | null
+          price_range?: string | null
+          related_slugs?: string[] | null
+          slug?: string
+          specifications?: string[] | null
+          standards?: string[] | null
+          status?: string
+          sub_industry_slug?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       demand_intelligence_settings: {
         Row: {
           admin_review_min_score: number | null
