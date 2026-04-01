@@ -698,10 +698,10 @@ export default function DemandAuthorityPage() {
           if (['chemical', 'acid', 'resin'].some(k => lower.includes(k))) return 'Chemicals';
           return 'Other';
         })();
-        supabase.rpc('upsert_demand_gap', {
+        supabase.rpc('upsert_demand_gap' as any, {
           p_slug: normalizedSlug,
           p_category: inferredCategory,
-        }).then(() => {}).catch(() => {});
+        } as any);
       } catch { /* non-blocking */ }
     }
 
