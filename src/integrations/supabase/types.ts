@@ -2689,6 +2689,7 @@ export type Database = {
           order_sizes: string | null
           price_range: string | null
           related_slugs: string[] | null
+          retry_count: number | null
           slug: string
           specifications: string[] | null
           standards: string[] | null
@@ -2715,6 +2716,7 @@ export type Database = {
           order_sizes?: string | null
           price_range?: string | null
           related_slugs?: string[] | null
+          retry_count?: number | null
           slug: string
           specifications?: string[] | null
           standards?: string[] | null
@@ -2741,6 +2743,7 @@ export type Database = {
           order_sizes?: string | null
           price_range?: string | null
           related_slugs?: string[] | null
+          retry_count?: number | null
           slug?: string
           specifications?: string[] | null
           standards?: string[] | null
