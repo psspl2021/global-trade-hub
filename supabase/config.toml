@@ -110,3 +110,6 @@ verify_jwt = false
 
 [functions.generate-demand-page]
 verify_jwt = false
+
+[functions.auto-generate-demand]
+verify_jwt = false

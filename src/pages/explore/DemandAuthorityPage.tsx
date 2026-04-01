@@ -684,6 +684,24 @@ export default function DemandAuthorityPage() {
           localStorage.setItem('ps_missing_slugs', JSON.stringify(stored));
         }
       } catch { /* storage full or unavailable */ }
+
+      // Sync to server-side demand_gaps table for cron automation
+      try {
+        const inferredCategory = (() => {
+          const lower = normalizedSlug;
+          if (['steel', 'tmt', 'iron'].some(k => lower.includes(k))) return 'Metals';
+          if (['aluminium', 'copper', 'zinc', 'brass'].some(k => lower.includes(k))) return 'Metals';
+          if (['pipe', 'tube', 'valve', 'flange'].some(k => lower.includes(k))) return 'Pipes';
+          if (['cement', 'concrete', 'roof', 'brick'].some(k => lower.includes(k))) return 'Construction';
+          if (['wire', 'cable', 'switch', 'panel'].some(k => lower.includes(k))) return 'Electrical';
+          if (['chemical', 'acid', 'resin'].some(k => lower.includes(k))) return 'Chemicals';
+          return 'Other';
+        })();
+        supabase.rpc('upsert_demand_gap', {
+          p_slug: normalizedSlug,
+          p_category: inferredCategory,
+        }).then(() => {}).catch(() => {});
+      } catch { /* non-blocking */ }
     }
 
     if (count === 1) {
