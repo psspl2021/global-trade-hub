@@ -73,7 +73,7 @@ serve(async (req) => {
       // 2. Skip if already exists and not failed (collision guard)
       const { data: exists } = await supabase
         .from("demand_generated")
-        .select("id, status")
+        .select("id, status, retry_count")
         .eq("slug", slug)
         .maybeSingle();
 
@@ -82,11 +82,17 @@ serve(async (req) => {
         continue;
       }
 
+      // 2b. Cap retries at 3
+      if (exists?.status === "failed" && (exists.retry_count ?? 0) >= 3) {
+        results.push({ slug, status: "max_retries_exceeded" });
+        continue;
+      }
+
       // 3. Insert as pending (or reset failed → pending for retries)
-      if (item.isRetry) {
+      if (item.isRetry || (exists?.status === "failed")) {
         await supabase
           .from("demand_generated")
-          .update({ status: "pending", updated_at: new Date().toISOString() })
+          .update({ status: "pending", retry_count: (exists?.retry_count ?? 0) + 1, updated_at: new Date().toISOString() })
           .eq("slug", slug);
       } else {
         const name = slug
