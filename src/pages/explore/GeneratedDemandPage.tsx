@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { trackDemandPageView, trackDemandRFQClick } from '@/utils/demandPageAnalytics';
 import { renderSafeAnswer } from '@/utils/safeHtmlRenderer';
 import { Helmet } from 'react-helmet-async';
 import { getDemandProductBySlug, demandProducts, getRelatedDemandProducts, type DemandProduct } from '@/data/demandProducts';
