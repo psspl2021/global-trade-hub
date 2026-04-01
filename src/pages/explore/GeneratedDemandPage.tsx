@@ -273,7 +273,7 @@ export default function GeneratedDemandPage() {
                 </p>
 
                 <div className="flex flex-wrap gap-3">
-                  <Button size="lg" onClick={() => setRfqOpen(true)} className="gap-2 text-lg px-8 py-6">
+                  <Button size="lg" onClick={handleRFQOpen} className="gap-2 text-lg px-8 py-6">
                     Get Verified Supplier Quotes <ArrowRight className="h-5 w-5" />
                   </Button>
                   <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
