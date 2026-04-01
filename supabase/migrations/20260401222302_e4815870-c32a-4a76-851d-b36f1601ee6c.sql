@@ -1,0 +1,1 @@
+ALTER TABLE public.demand_generated ADD COLUMN IF NOT EXISTS related_slugs text[] DEFAULT '{}';

@@ -178,6 +178,17 @@ Keep all data specific to the Indian B2B procurement context. Use realistic pric
       throw new Error("Failed to parse AI taxonomy JSON");
     }
 
+    // Fetch related slugs from same category for internal linking
+    const { data: relatedPages } = await adminSupabase
+      .from("demand_generated")
+      .select("slug")
+      .eq("category", category)
+      .eq("status", "active")
+      .neq("slug", slug)
+      .limit(5);
+
+    const relatedSlugs = (relatedPages || []).map((r: { slug: string }) => r.slug);
+
     // Insert into DB
     const { error: insertError } = await adminSupabase.from("demand_generated").insert({
       slug,
@@ -198,6 +209,7 @@ Keep all data specific to the Indian B2B procurement context. Use realistic pric
       applications: parsed.applications || [],
       challenges: parsed.challenges || [],
       market_trend: parsed.marketTrend || "",
+      related_slugs: relatedSlugs,
       status: "active",
       generated_by: "ai",
     });
