@@ -11,7 +11,7 @@
  * - NO auto-redirect to Control Tower
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
