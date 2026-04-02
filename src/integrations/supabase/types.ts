@@ -9897,6 +9897,7 @@ export type Database = {
         Returns: Json
       }
       auto_expire_requirements: { Args: never; Returns: undefined }
+      boost_category_links: { Args: { max_links?: number }; Returns: number }
       boost_internal_links: {
         Args: { boost_slugs: string[]; max_links?: number }
         Returns: undefined
@@ -10061,6 +10062,7 @@ export type Database = {
         Args: { bid_id: string; coverage_percent?: number; req_id: string }
         Returns: string
       }
+      decay_boosts: { Args: { max_links?: number }; Returns: undefined }
       detect_export_buyers: {
         Args: {
           p_country_from?: string
