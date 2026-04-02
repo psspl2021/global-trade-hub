@@ -90,7 +90,8 @@ type AdminView =
   | 'ai-blog-gen'
   | 'enterprise'
   | 'credit-leads'
-  | 'nudge-impact';
+  | 'nudge-impact'
+  | 'seo-revenue';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
