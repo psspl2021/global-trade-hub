@@ -247,14 +247,13 @@ const BotAwareRouter = () => {
         {/* Enterprise Control Center: admin only */}
         <Route path="/enterprise" element={<EnterpriseControlCenterPage />} />
         
-        {/* SEO Monitoring Dashboard */}
-        <Route path="/admin/seo-monitor" element={<AdminSEOMonitor />} />
-        <Route path="/admin/seo-revenue" element={<SeoRevenueDashboard />} />
-        <Route path="/admin/revenue" element={<RevenueDashboard />} />
-        <Route path="/admin/seo-intelligence" element={<AdminIntelligenceDashboard />} />
-        <Route path="/admin/seo-dashboard" element={<SEODashboard />} />
-        <Route path="/admin/demand-gaps" element={<DemandGapsPanel />} />
-        
+        {/* Legacy admin sub-routes - redirect to main admin dashboard */}
+        <Route path="/admin/seo-monitor" element={<Navigate to="/admin" replace />} />
+        <Route path="/admin/seo-revenue" element={<Navigate to="/admin" replace />} />
+        <Route path="/admin/revenue" element={<Navigate to="/admin" replace />} />
+        <Route path="/admin/seo-intelligence" element={<Navigate to="/admin" replace />} />
+        <Route path="/admin/seo-dashboard" element={<Navigate to="/admin" replace />} />
+        <Route path="/admin/demand-gaps" element={<Navigate to="/admin" replace />} />
         
         {/* Legacy routes - redirect to new structure */}
         <Route path="/management-dashboard" element={<Navigate to="/management" replace />} />
