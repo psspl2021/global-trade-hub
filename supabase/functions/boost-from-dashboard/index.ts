@@ -22,7 +22,28 @@ Deno.serve(async (req: Request) => {
   );
 
   try {
-    // 1. Fetch top 5 performers from revenue dashboard
+    // 1. Decay old boosts first (randomize to prevent stagnation)
+    const { error: decayErr } = await supabase.rpc("decay_boosts", {
+      max_links: 10,
+    });
+    if (decayErr) {
+      console.warn("[boost] Decay warning:", decayErr.message);
+    } else {
+      console.log("[boost] Decayed old boosts");
+    }
+
+    // 2. Apply category-aware boosting (inject category-specific winners)
+    const { data: catCount, error: catErr } = await supabase.rpc(
+      "boost_category_links",
+      { max_links: 10 }
+    );
+    if (catErr) {
+      console.warn("[boost] Category boost warning:", catErr.message);
+    } else {
+      console.log(`[boost] Category-boosted ${catCount} categories`);
+    }
+
+    // 3. Also inject global top 5 winners as before (cross-category authority)
     const { data: winners, error: fetchErr } = await supabase
       .from("demand_revenue_dashboard")
       .select("slug, revenue_score")
@@ -33,32 +54,32 @@ Deno.serve(async (req: Request) => {
 
     const boostSlugs = (winners || []).map((w: { slug: string }) => w.slug);
 
-    if (boostSlugs.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "No winners to boost yet" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (boostSlugs.length > 0) {
+      const { error: rpcErr } = await supabase.rpc("boost_internal_links", {
+        boost_slugs: boostSlugs,
+        max_links: 10,
+      });
+      if (rpcErr) throw rpcErr;
+      console.log(`[boost] Global top ${boostSlugs.length} winners:`, boostSlugs);
     }
 
-    // 2. Apply boost via RPC
-    const { error: rpcErr } = await supabase.rpc("boost_internal_links", {
-      boost_slugs: boostSlugs,
-      max_links: 10,
-    });
-
-    if (rpcErr) throw rpcErr;
-
-    console.log(`[boost] Injected ${boostSlugs.length} winners:`, boostSlugs);
-
     return new Response(
-      JSON.stringify({ success: true, boosted: boostSlugs }),
+      JSON.stringify({
+        success: true,
+        decayed: true,
+        categories_boosted: catCount ?? 0,
+        global_boosted: boostSlugs,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     console.error("[boost] Error:", err);
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
   }
 });
