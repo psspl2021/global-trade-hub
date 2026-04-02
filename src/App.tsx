@@ -250,6 +250,7 @@ const BotAwareRouter = () => {
         {/* SEO Monitoring Dashboard */}
         <Route path="/admin/seo-monitor" element={<AdminSEOMonitor />} />
         <Route path="/admin/seo-revenue" element={<SeoRevenueDashboard />} />
+        <Route path="/admin/revenue" element={<RevenueDashboard />} />
         <Route path="/admin/seo-intelligence" element={<AdminIntelligenceDashboard />} />
         <Route path="/admin/seo-dashboard" element={<SEODashboard />} />
         <Route path="/admin/demand-gaps" element={<DemandGapsPanel />} />
