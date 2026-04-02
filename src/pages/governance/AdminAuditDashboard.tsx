@@ -73,7 +73,7 @@ import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
 import { CreditLeadsSummaryCard } from '@/components/admin/CreditLeadsSummaryCard';
 import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
 import { NudgeImpactPanel } from '@/components/admin/NudgeImpactPanel';
-import { SeoRevenueView } from '@/components/admin/SeoRevenueView';
+import RevenueDashboardView from '@/components/admin/RevenueDashboardView';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
