@@ -77,6 +77,13 @@ import RevenueDashboardView from '@/components/admin/RevenueDashboardView';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
+import { lazy, Suspense } from 'react';
+
+const AdminSEOMonitor = lazy(() => import('@/pages/AdminSEOMonitor'));
+const SeoRevenueDashboard = lazy(() => import('@/pages/admin/SeoRevenueDashboard'));
+const AdminIntelligenceDashboard = lazy(() => import('@/pages/admin/AdminIntelligenceDashboard'));
+const SEODashboard = lazy(() => import('@/pages/admin/SEODashboard'));
+const DemandGapsPanel = lazy(() => import('@/pages/admin/DemandGapsPanel'));
 
 type AdminView = 
   | 'dashboard' 
@@ -92,7 +99,12 @@ type AdminView =
   | 'enterprise'
   | 'credit-leads'
   | 'nudge-impact'
-  | 'seo-revenue';
+  | 'seo-revenue'
+  | 'seo-monitor'
+  | 'seo-rev-dashboard'
+  | 'seo-intelligence'
+  | 'seo-dashboard'
+  | 'demand-gaps';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
