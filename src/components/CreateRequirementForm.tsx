@@ -293,7 +293,7 @@ export function CreateRequirementForm({
         .eq('buyer_id', userId)
         .eq('product_category', primaryCategory)
         .eq('delivery_location', data.delivery_location)
-        .in('status', ['active', 'expired'])
+        .eq('status', 'active')
         .or('buyer_closure_status.is.null,buyer_closure_status.eq.open');
 
       // Also match on destination_state so same category with different locations is allowed
