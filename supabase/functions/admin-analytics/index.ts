@@ -42,14 +42,13 @@ serve(async (req) => {
     // Check if user is admin using service role
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
     
-    const { data: adminRole, error: roleError } = await serviceClient
+    const { data: adminRoles, error: roleError } = await serviceClient
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
+      .in("role", ["admin", "ps_admin"]);
 
-    if (roleError || !adminRole) {
+    if (roleError || !adminRoles || adminRoles.length === 0) {
       return new Response(JSON.stringify({ error: "Admin access required" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
