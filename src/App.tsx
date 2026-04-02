@@ -113,6 +113,7 @@ const ControlTowerPage = lazy(() => import("./pages/ControlTower"));
 const EnterpriseControlCenterPage = lazy(() => import("./pages/EnterpriseControlCenter"));
 const AdminSEOMonitor = lazy(() => import("./pages/AdminSEOMonitor"));
 const SeoRevenueDashboard = lazy(() => import("./pages/admin/SeoRevenueDashboard"));
+const RevenueDashboard = lazy(() => import("./pages/admin/RevenueDashboard"));
 const AdminIntelligenceDashboard = lazy(() => import("./pages/admin/AdminIntelligenceDashboard"));
 const SEODashboard = lazy(() => import("./pages/admin/SEODashboard"));
 const DemandGapsPanel = lazy(() => import("./pages/admin/DemandGapsPanel"));
@@ -249,6 +250,7 @@ const BotAwareRouter = () => {
         {/* SEO Monitoring Dashboard */}
         <Route path="/admin/seo-monitor" element={<AdminSEOMonitor />} />
         <Route path="/admin/seo-revenue" element={<SeoRevenueDashboard />} />
+        <Route path="/admin/revenue" element={<RevenueDashboard />} />
         <Route path="/admin/seo-intelligence" element={<AdminIntelligenceDashboard />} />
         <Route path="/admin/seo-dashboard" element={<SEODashboard />} />
         <Route path="/admin/demand-gaps" element={<DemandGapsPanel />} />
