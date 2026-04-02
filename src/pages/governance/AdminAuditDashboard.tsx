@@ -548,7 +548,7 @@ export default function AdminAuditDashboard() {
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="h-4 w-4" />Revenue Dashboard<Badge className="bg-white/20 text-white text-xs">LIVE</Badge></CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-emerald-200">Top revenue pages, conversion rates & autonomous boost engine status</p>
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => navigate('/admin/revenue')}><TrendingUp className="h-4 w-4 mr-2" />Open Revenue Dashboard</Button>
+            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setCurrentView('seo-revenue')}><TrendingUp className="h-4 w-4 mr-2" />Open Revenue Dashboard</Button>
           </CardContent>
         </Card>
       </div>
