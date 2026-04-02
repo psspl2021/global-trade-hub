@@ -9897,6 +9897,10 @@ export type Database = {
         Returns: Json
       }
       auto_expire_requirements: { Args: never; Returns: undefined }
+      boost_internal_links: {
+        Args: { boost_slugs: string[]; max_links?: number }
+        Returns: undefined
+      }
       buyer_procurement_savings: {
         Args: never
         Returns: {
