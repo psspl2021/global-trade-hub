@@ -295,6 +295,7 @@ export default function AdminAuditDashboard() {
       case 'enterprise': return <EnterpriseControlCenter />;
       case 'credit-leads': return <CreditLeadsCard />;
       case 'nudge-impact': return <NudgeImpactPanel />;
+      case 'seo-revenue': return <SeoRevenueView />;
       default: return renderDashboard();
     }
   };
