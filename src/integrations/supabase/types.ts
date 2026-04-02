@@ -9456,6 +9456,18 @@ export type Database = {
         }
         Relationships: []
       }
+      demand_revenue_dashboard: {
+        Row: {
+          conversion_rate: number | null
+          last_activity_at: string | null
+          revenue_score: number | null
+          rfq_clicks: number | null
+          slug: string | null
+          unique_visitors: number | null
+          views: number | null
+        }
+        Relationships: []
+      }
       logistics_bids_with_display_date: {
         Row: {
           awarded_at: string | null
