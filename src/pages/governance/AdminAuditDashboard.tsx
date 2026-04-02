@@ -77,7 +77,7 @@ import RevenueDashboardView from '@/components/admin/RevenueDashboardView';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
-import { lazy, Suspense } from 'react';
+
 
 const AdminSEOMonitor = lazy(() => import('@/pages/AdminSEOMonitor'));
 const SeoRevenueDashboard = lazy(() => import('@/pages/admin/SeoRevenueDashboard'));
