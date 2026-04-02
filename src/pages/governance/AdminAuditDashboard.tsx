@@ -532,13 +532,20 @@ export default function AdminAuditDashboard() {
         </Card>
       </div>
 
-      {/* Row 8b — Nudge Intelligence */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Row 8b — Nudge + Revenue Intelligence */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="bg-card border">
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Zap className="h-4 w-4 text-yellow-500" />Nudge Intelligence</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">Track affiliate nudge performance, conversions & revenue impact</p>
             <Button variant="outline" className="w-full" onClick={() => setCurrentView('nudge-impact')}><Zap className="h-4 w-4 mr-2" />Open Nudge Impact Panel</Button>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-emerald-950 to-emerald-900 text-white border-0">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="h-4 w-4" />Revenue Dashboard<Badge className="bg-white/20 text-white text-xs">LIVE</Badge></CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-emerald-200">Top revenue pages, conversion rates & autonomous boost engine status</p>
+            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => navigate('/admin/revenue')}><TrendingUp className="h-4 w-4 mr-2" />Open Revenue Dashboard</Button>
           </CardContent>
         </Card>
       </div>
