@@ -72,10 +72,22 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
     );
   }
 
-  // Separate live auctions for supplier priority view
-  const liveAuctions = auctions.filter(a => a.status === 'live');
-  const scheduledAuctions = auctions.filter(a => a.status === 'scheduled');
-  const completedAuctions = auctions.filter(a => a.status === 'completed' || a.status === 'cancelled');
+  // Compute effective status based on time
+  const getEffectiveStatus = (a: ReverseAuction) => {
+    if (a.status === 'cancelled' || a.status === 'completed') return a.status;
+    const now = new Date();
+    if (a.auction_end && new Date(a.auction_end) <= now) return 'completed';
+    if (a.auction_start && new Date(a.auction_start) <= now) return 'live';
+    return 'scheduled';
+  };
+
+  // Separate auctions by effective status
+  const liveAuctions = auctions.filter(a => getEffectiveStatus(a) === 'live');
+  const scheduledAuctions = auctions.filter(a => getEffectiveStatus(a) === 'scheduled');
+  const completedAuctions = auctions.filter(a => {
+    const s = getEffectiveStatus(a);
+    return s === 'completed' || s === 'cancelled';
+  });
 
   return (
     <div className="space-y-4">
