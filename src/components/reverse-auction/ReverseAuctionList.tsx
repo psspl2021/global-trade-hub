@@ -274,7 +274,7 @@ function AuctionCard({
               {auction.category} • {auction.quantity} {auction.unit}
             </p>
           </div>
-          <AuctionStatusBadge status={auction.status} />
+          <AuctionStatusBadge status={effectiveStatus} />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
