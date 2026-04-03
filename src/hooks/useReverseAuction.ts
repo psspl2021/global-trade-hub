@@ -1,10 +1,12 @@
 /**
  * Hook for reverse auction operations
+ * Enterprise-grade: Anti-sniping, audit logging, ranked bids
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { logAuctionEvent } from '@/utils/auctionAuditLogger';
 
 export interface ReverseAuction {
   id: string;
@@ -41,6 +43,11 @@ export interface ReverseAuctionBid {
   created_at: string;
 }
 
+/** Ranked bid with L1/L2/L3 rank */
+export interface RankedBid extends ReverseAuctionBid {
+  rank: number;
+}
+
 export interface CreateAuctionInput {
   title: string;
   product_slug: string;
@@ -58,6 +65,24 @@ export interface CreateAuctionInput {
   invited_suppliers?: { id: string; email?: string; manual?: boolean }[];
 }
 
+/** Returns bids sorted by price with rank (L1=1, L2=2, etc.) */
+export function getRankedBids(bids: ReverseAuctionBid[]): RankedBid[] {
+  if (bids.length === 0) return [];
+  
+  // Group by supplier, keep best (lowest) bid per supplier
+  const bestBySupplier = new Map<string, ReverseAuctionBid>();
+  for (const bid of bids) {
+    const existing = bestBySupplier.get(bid.supplier_id);
+    if (!existing || bid.bid_price < existing.bid_price) {
+      bestBySupplier.set(bid.supplier_id, bid);
+    }
+  }
+
+  return Array.from(bestBySupplier.values())
+    .sort((a, b) => a.bid_price - b.bid_price)
+    .map((bid, index) => ({ ...bid, rank: index + 1 }));
+}
+
 export function useReverseAuction(supplierMode: boolean = false) {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
@@ -68,7 +93,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
     setIsLoading(true);
     try {
       if (supplierMode) {
-        // Supplier: only fetch auctions they're invited to
         const { data: invites, error: invErr } = await supabase
           .from('reverse_auction_suppliers')
           .select('auction_id')
@@ -89,7 +113,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
         if (error) throw error;
         setAuctions((data as unknown as ReverseAuction[]) || []);
       } else {
-        // Buyer: fetch all auctions
         const { data, error } = await supabase
           .from('reverse_auctions')
           .select('*')
@@ -135,17 +158,25 @@ export function useReverseAuction(supplierMode: boolean = false) {
 
       if (error) throw error;
 
-      // Invite suppliers with dedup, email guarantee, and source tracking
       const auctionId = (auction as any).id;
+
+      // Audit log
+      logAuctionEvent({
+        auction_id: auctionId,
+        event_type: 'AUCTION_CREATED',
+        actor_id: user.id,
+        actor_role: 'buyer',
+        metadata: { title: input.title, starting_price: input.starting_price },
+      });
+
+      // Invite suppliers with dedup, email guarantee, and source tracking
       const allInvites = input.invited_suppliers || [];
       
       if (allInvites.length > 0 && auction) {
-        // Step 1: Deduplicate by email or id
         const uniqueInvites = Array.from(
           new Map(allInvites.map(s => [s.email || s.id, s])).values()
         );
 
-        // Step 2: For platform suppliers, fetch their email from profiles
         const platformIds = uniqueInvites.filter(s => !s.manual).map(s => s.id);
         let profileEmails: Record<string, string> = {};
         if (platformIds.length > 0) {
@@ -158,7 +189,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
           }
         }
 
-        // Step 3: Build invites with guaranteed email and source tracking
         const invites = uniqueInvites.map(s => ({
           auction_id: auctionId,
           supplier_id: s.manual ? null : s.id,
@@ -173,7 +203,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
           .insert(invites as any);
         if (inviteError) console.error('Error inviting suppliers:', inviteError);
 
-        // Step 4: Send email invitations to all suppliers with emails
         const product = input.product_slug.replace(/_/g, ', ').replace(/-/g, ' ');
         const quantity = `${input.quantity} ${input.unit}`;
         const auctionLink = `https://www.procuresaathi.com/reverse-auction/${auctionId}`;
@@ -193,7 +222,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
               },
             });
             if (!emailErr) {
-              // Update invite_status to 'sent'
               await supabase
                 .from('reverse_auction_suppliers')
                 .update({ invite_status: 'sent' } as any)
@@ -205,7 +233,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
           }
         }
       } else if (input.invited_supplier_ids.length > 0 && auction) {
-        // Legacy: invited_supplier_ids only
         const invites = input.invited_supplier_ids.map(sid => ({
           auction_id: auctionId,
           supplier_id: sid,
@@ -228,12 +255,14 @@ export function useReverseAuction(supplierMode: boolean = false) {
   };
 
   const startAuction = async (auctionId: string) => {
+    if (!user) return;
     try {
       const { error } = await supabase
         .from('reverse_auctions')
         .update({ status: 'live', auction_start: new Date().toISOString() } as any)
         .eq('id', auctionId);
       if (error) throw error;
+      logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_STARTED', actor_id: user.id, actor_role: 'buyer' });
       toast.success('Auction is now LIVE!');
       fetchAuctions();
     } catch (err: any) {
@@ -270,12 +299,14 @@ export function useReverseAuction(supplierMode: boolean = false) {
   };
 
   const cancelAuction = async (auctionId: string) => {
+    if (!user) return;
     try {
       const { error } = await supabase
         .from('reverse_auctions')
         .update({ status: 'cancelled' } as any)
         .eq('id', auctionId);
       if (error) throw error;
+      logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_CANCELLED', actor_id: user.id, actor_role: 'buyer' });
       toast.success('Auction cancelled.');
       fetchAuctions();
     } catch (err: any) {
@@ -284,8 +315,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
   };
 
   const completeAuction = async (auctionId: string) => {
+    if (!user) return;
     try {
-      // Find lowest bid
       const { data: bids, error: bidError } = await supabase
         .from('reverse_auction_bids')
         .select('*')
@@ -300,11 +331,20 @@ export function useReverseAuction(supplierMode: boolean = false) {
         updates.winner_supplier_id = bids[0].supplier_id;
         updates.winning_price = bids[0].bid_price;
 
-        // Mark winning bid
         await supabase
           .from('reverse_auction_bids')
           .update({ is_winning: true } as any)
           .eq('id', bids[0].id);
+
+        logAuctionEvent({
+          auction_id: auctionId,
+          event_type: 'WINNER_AWARDED',
+          actor_id: user.id,
+          actor_role: 'buyer',
+          bid_id: bids[0].id,
+          bid_amount: bids[0].bid_price,
+          metadata: { winner_supplier_id: bids[0].supplier_id },
+        });
       }
 
       const { error } = await supabase
@@ -313,6 +353,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
         .eq('id', auctionId);
 
       if (error) throw error;
+      logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_COMPLETED', actor_id: user.id, actor_role: 'buyer' });
       toast.success('Auction completed!');
       fetchAuctions();
     } catch (err: any) {
@@ -320,7 +361,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   };
 
-  // Lightweight status update (no edit count, no toast)
   const updateAuctionStatus = async (auctionId: string, newStatus: string) => {
     try {
       await supabase
@@ -334,12 +374,14 @@ export function useReverseAuction(supplierMode: boolean = false) {
   };
 
   const republishAuction = async (auctionId: string) => {
+    if (!user) return;
     try {
       const { error } = await supabase
         .from('reverse_auctions')
         .update({ status: 'scheduled', winner_supplier_id: null, winning_bid: null, winning_price: null } as any)
         .eq('id', auctionId);
       if (error) throw error;
+      logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_REPUBLISHED', actor_id: user.id, actor_role: 'buyer' });
       toast.success('Auction republished successfully.');
       fetchAuctions();
     } catch (err: any) {
@@ -347,9 +389,43 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   };
 
+  // Analytics computed from auctions
+  const analytics = useMemo(() => {
+    const live = auctions.filter(a => {
+      if (a.status === 'cancelled' || a.status === 'completed') return false;
+      const now = new Date();
+      if (a.auction_end && new Date(a.auction_end) <= now) return false;
+      if (a.auction_start && new Date(a.auction_start) <= now) return true;
+      return false;
+    });
+
+    const completed = auctions.filter(a => a.status === 'completed');
+    
+    let totalSavings = 0;
+    let totalSavingsPct = 0;
+    let savingsCount = 0;
+    
+    for (const a of completed) {
+      if (a.winning_price && a.starting_price && a.winning_price < a.starting_price) {
+        totalSavings += (a.starting_price - a.winning_price) * a.quantity;
+        totalSavingsPct += ((a.starting_price - a.winning_price) / a.starting_price) * 100;
+        savingsCount++;
+      }
+    }
+
+    return {
+      totalAuctions: auctions.length,
+      liveCount: live.length,
+      completedCount: completed.length,
+      totalSavings,
+      avgBidReduction: savingsCount > 0 ? totalSavingsPct / savingsCount : 0,
+    };
+  }, [auctions]);
+
   return {
     auctions,
     isLoading,
+    analytics,
     createAuction,
     startAuction,
     updateAuction,
@@ -388,31 +464,21 @@ export function useReverseAuctionBids(auctionId: string | null) {
     fetchBids();
   }, [fetchBids]);
 
-  // Realtime subscription for live bid updates (INSERT + UPDATE)
+  // Realtime subscription for live bid updates
   useEffect(() => {
     if (!auctionId) return;
     const channel = supabase
       .channel(`auction-bids-${auctionId}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'reverse_auction_bids',
-          filter: `auction_id=eq.${auctionId}`,
-        },
+        { event: 'INSERT', schema: 'public', table: 'reverse_auction_bids', filter: `auction_id=eq.${auctionId}` },
         (payload) => {
           setBids((prev) => [payload.new as unknown as ReverseAuctionBid, ...prev]);
         }
       )
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'reverse_auction_bids',
-          filter: `auction_id=eq.${auctionId}`,
-        },
+        { event: 'UPDATE', schema: 'public', table: 'reverse_auction_bids', filter: `auction_id=eq.${auctionId}` },
         (payload) => {
           const updated = payload.new as unknown as ReverseAuctionBid;
           setBids((prev) => prev.map(b => b.id === updated.id ? updated : b));
@@ -420,21 +486,21 @@ export function useReverseAuctionBids(auctionId: string | null) {
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [auctionId]);
 
-  const placeBid = async (supplierId: string, bidPrice: number) => {
+  const placeBid = async (supplierId: string, bidPrice: number, auctionData?: ReverseAuction) => {
     if (!auctionId) return false;
     try {
-      const { error } = await supabase
+      const { data: newBid, error } = await supabase
         .from('reverse_auction_bids')
         .insert({
           auction_id: auctionId,
           supplier_id: supplierId,
           bid_price: bidPrice,
-        } as any);
+        } as any)
+        .select()
+        .single();
       if (error) throw error;
 
       // Update current price on auction
@@ -442,6 +508,43 @@ export function useReverseAuctionBids(auctionId: string | null) {
         .from('reverse_auctions')
         .update({ current_price: bidPrice, updated_at: new Date().toISOString() } as any)
         .eq('id', auctionId);
+
+      // Anti-sniping: extend auction if bid placed in last threshold seconds
+      if (auctionData?.auction_end) {
+        const endTime = new Date(auctionData.auction_end);
+        const now = new Date();
+        const remainingSeconds = (endTime.getTime() - now.getTime()) / 1000;
+        const threshold = auctionData.anti_snipe_threshold_seconds || 60;
+        const extension = auctionData.anti_snipe_seconds || 120;
+
+        if (remainingSeconds > 0 && remainingSeconds < threshold) {
+          const newEnd = new Date(endTime.getTime() + extension * 1000).toISOString();
+          await supabase
+            .from('reverse_auctions')
+            .update({ auction_end: newEnd, updated_at: new Date().toISOString() } as any)
+            .eq('id', auctionId);
+
+          logAuctionEvent({
+            auction_id: auctionId,
+            event_type: 'ANTI_SNIPE_TRIGGERED',
+            actor_id: supplierId,
+            actor_role: 'system',
+            metadata: { old_end: auctionData.auction_end, new_end: newEnd, extension_seconds: extension },
+          });
+
+          toast.info(`⏰ Anti-snipe: Auction extended by ${Math.floor(extension / 60)} minutes`);
+        }
+      }
+
+      // Audit log
+      logAuctionEvent({
+        auction_id: auctionId,
+        event_type: 'BID_PLACED',
+        actor_id: supplierId,
+        actor_role: 'supplier',
+        bid_id: (newBid as any)?.id,
+        bid_amount: bidPrice,
+      });
 
       toast.success('Bid placed successfully!');
       return true;
@@ -451,7 +554,7 @@ export function useReverseAuctionBids(auctionId: string | null) {
     }
   };
 
-  const editBid = async (bidId: string, newPrice: number, currentEditCount: number) => {
+  const editBid = async (bidId: string, newPrice: number, currentEditCount: number, supplierId?: string) => {
     if (!auctionId) return false;
     if (currentEditCount >= 2) {
       toast.error('Maximum 2 edits allowed per bid');
@@ -467,13 +570,24 @@ export function useReverseAuctionBids(auctionId: string | null) {
         .eq('id', bidId);
       if (error) throw error;
 
-      // Update current price on auction if this is the new lowest
       await supabase
         .from('reverse_auctions')
         .update({ current_price: newPrice, updated_at: new Date().toISOString() } as any)
         .eq('id', auctionId);
 
-      // Refresh bids
+      // Audit log
+      if (supplierId) {
+        logAuctionEvent({
+          auction_id: auctionId,
+          event_type: 'BID_EDITED',
+          actor_id: supplierId,
+          actor_role: 'supplier',
+          bid_id: bidId,
+          bid_amount: newPrice,
+          metadata: { edit_number: currentEditCount + 1 },
+        });
+      }
+
       fetchBids();
       toast.success(`Bid updated! (${currentEditCount + 1}/2 edits used)`);
       return true;
