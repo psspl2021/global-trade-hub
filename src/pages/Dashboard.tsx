@@ -413,7 +413,7 @@ const Dashboard = () => {
                   <ReverseAuctionDashboard isSupplier={false} />
                 </div>
               </>
-            )
+            )}
 
             {/* Referral Section for Buyers */}
             {user && <ReferralSection userId={user.id} role="buyer" />}
