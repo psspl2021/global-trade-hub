@@ -184,12 +184,13 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
         starting_price: Number(editForm.starting_price),
         quantity: Number(editForm.quantity),
         unit: editForm.unit,
+        product_slug: editForm.product_slug,
         reserve_price: editForm.reserve_price ? Number(editForm.reserve_price) : null,
       };
-      const success = await updateAuction(auction.id, updates);
+      const success = await updateAuction(auction.id, updates, buyerEditCount);
       if (success) {
         setShowEditDialog(false);
-        onBack(); // refresh auction list
+        onBack();
       }
     } finally {
       setIsSaving(false);
