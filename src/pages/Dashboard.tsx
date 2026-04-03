@@ -29,7 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -66,8 +66,7 @@ import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard'
 import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
-import { BuyerProcurementCenter } from '@/components/dashboard/BuyerProcurementCenter';
-import { SupplierProcurementCenter } from '@/components/dashboard/SupplierProcurementCenter';
+import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -303,7 +302,43 @@ const Dashboard = () => {
             )}
 
             {/* Quick Actions Grid */}
-            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Forward RFQ
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Post requirements and receive competitive supplier quotes
+                  </p>
+                  <Button className="w-full" onClick={() => setShowRequirementForm(true)}>
+                    Post RFQ
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gavel className="h-5 w-5" />
+                    Reverse Auction
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Run live reverse auctions and maximize savings
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => {
+                    document.getElementById('buyer-reverse-auction')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    View Auctions
+                  </Button>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -371,8 +406,13 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Unified Procurement Center — Forward RFQ + Reverse Auction */}
-            {user && <BuyerProcurementCenter userId={user.id} refreshKey={refreshKey} />}
+            {/* Forward RFQ List */}
+            {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
+
+            {/* Reverse Auction Section */}
+            <div id="buyer-reverse-auction">
+              <ReverseAuctionDashboard isSupplier={false} />
+            </div>
             
             {/* Logistics Requirements List */}
             {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
@@ -790,9 +830,56 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Unified Procurement Center — Bids + Reverse Auctions */}
-            <div className="mt-4">
-              {user && <SupplierProcurementCenter userId={user.id} />}
+            {/* Procurement Cards — Bids + Reverse Auctions */}
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    My Bids & Quotes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    View and manage your submitted bids and quotes
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => {
+                    document.getElementById('supplier-bids-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    View Bids
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gavel className="h-5 w-5" />
+                    Reverse Auctions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Participate in live reverse auctions and win deals
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => {
+                    document.getElementById('supplier-reverse-auction')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    View Auctions
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Bids & Accepted Bids */}
+            <div id="supplier-bids-section" className="space-y-4 mt-4">
+              {user && <SupplierMyBids userId={user.id} />}
+              {user && <SupplierAcceptedBids userId={user.id} />}
+            </div>
+
+            {/* Reverse Auction Section */}
+            <div id="supplier-reverse-auction" className="mt-4">
+              <ReverseAuctionDashboard isSupplier={true} />
             </div>
 
             {/* Compact cards grid for Subscription, Email, Platform Invoices */}
