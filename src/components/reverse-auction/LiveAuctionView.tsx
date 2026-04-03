@@ -220,60 +220,85 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) <= maxAllowedBid;
 
   // Reusable bid panel content
-  const bidPanelContent = isSupplier && isLive ? (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Gavel className="w-5 h-5 text-primary" />
-        <h3 className="font-semibold">Place Your Bid</h3>
-      </div>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <AlertTriangle className="w-3 h-3 text-amber-600" />
-        Must be below {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
-      </div>
-      {/* Quick Bid Buttons */}
-      <div className="flex gap-2 flex-wrap">
-        {[1, 2, 3].map((step) => {
-          const quick = currentLowest * (1 - (minBidStep * step));
-          return (
-            <button
-              key={step}
-              onClick={() => { setBidPrice(Math.floor(quick).toString()); setBidError(''); }}
-              className="text-xs border border-border px-2 py-1 rounded-md hover:bg-muted transition-colors"
-            >
-              -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(quick))})
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-          <Input
-            type="number"
-            inputMode="numeric"
-            className="pl-8"
-            placeholder={`Max ${Math.floor(maxAllowedBid)}`}
-            value={bidPrice}
-            onChange={e => { setBidPrice(e.target.value); setBidError(''); }}
-            onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}
-          />
+  const bidPanelContent = isSupplier ? (
+    isLive ? (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Gavel className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold">Place Your Bid</h3>
         </div>
-        <Button
-          onClick={handlePlaceBid}
-          disabled={!isValidBid || isPlacing}
-          className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
-        >
-          {isPlacing ? 'Placing...' : '🚀 Bid'}
-        </Button>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <AlertTriangle className="w-3 h-3 text-amber-600" />
+          Must be below {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
+        </div>
+        {/* Quick Bid Buttons */}
+        <div className="flex gap-2 flex-wrap">
+          {[1, 2, 3].map((step) => {
+            const quick = currentLowest * (1 - (minBidStep * step));
+            return (
+              <button
+                key={step}
+                onClick={() => { setBidPrice(Math.floor(quick).toString()); setBidError(''); }}
+                className="text-xs border border-border px-2 py-1 rounded-md hover:bg-muted transition-colors"
+              >
+                -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(quick))})
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+            <Input
+              type="number"
+              inputMode="numeric"
+              className="pl-8"
+              placeholder={`Max ${Math.floor(maxAllowedBid)}`}
+              value={bidPrice}
+              onChange={e => { setBidPrice(e.target.value); setBidError(''); }}
+              onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}
+            />
+          </div>
+          <Button
+            onClick={handlePlaceBid}
+            disabled={!isValidBid || isPlacing}
+          >
+            {isPlacing ? 'Placing...' : '🚀 Bid'}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Suggested: {formatCurrency(Math.floor(maxAllowedBid))}
+        </p>
+        {bidError && (
+          <p className="text-xs text-destructive font-medium">{bidError}</p>
+        )}
+        {/* Multiple bids info */}
+        <p className="text-xs text-muted-foreground border-t border-border pt-2">
+          💡 You can place multiple bids. Each bid can be edited up to 2 times.
+        </p>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Suggested: {formatCurrency(Math.floor(maxAllowedBid))}
-      </p>
-      {/* Error feedback */}
-      {bidError && (
-        <p className="text-xs text-destructive font-medium">{bidError}</p>
-      )}
-    </div>
+    ) : auction.status === 'scheduled' ? (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Clock className="w-5 h-5 text-blue-600" />
+          <h3 className="font-semibold">Auction Not Started</h3>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-[0.625rem] p-3 text-sm space-y-2">
+          <p className="text-blue-800 font-medium">Prepare your best quote</p>
+          <div className="space-y-1 text-blue-700 text-xs">
+            <p>📦 Product: {auction.product_slug?.replace(/_/g, ', ').replace(/-/g, ' ')}</p>
+            <p>📏 Quantity: {auction.quantity} {auction.unit}</p>
+            <p>💰 Starting Price: {formatCurrency(auction.starting_price)}/{auction.unit}</p>
+            {auction.auction_start && (
+              <p>🕐 Starts: {new Date(auction.auction_start).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+            )}
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Bidding opens when the buyer starts the auction. You'll be able to place competitive bids in real time.
+        </p>
+      </div>
+    ) : null
   ) : null;
 
   return (
