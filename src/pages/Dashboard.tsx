@@ -67,6 +67,7 @@ import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
 import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
+import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -74,6 +75,7 @@ const Dashboard = () => {
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
+  const [showForwardRFQ, setShowForwardRFQ] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
@@ -278,144 +280,140 @@ const Dashboard = () => {
 
         {/* Buyer roles: buyer, buyer_purchaser, purchaser + management roles - OPERATIONAL DASHBOARD */}
         {isBuyerRole && (
-          <div className="space-y-4 sm:space-y-6">
+           <div className="space-y-4 sm:space-y-6">
             {/* Governance Banner */}
             <div className="bg-sky-600 text-white py-2 px-4 rounded-lg">
               <p className="text-sm text-center font-medium">
                 This is an execution dashboard. Savings are tracked by AI. Incentives are declared by management.
               </p>
             </div>
-            {/* AI-Powered RFQ Generator - Hero Section */}
-            <AIRFQGenerator 
-              onRFQGenerated={(rfq) => {
-                setAIGeneratedRFQ(rfq);
-                setShowRequirementForm(true);
-              }}
-            />
 
-            {/* Unified Discovery Hub: AI Inventory (LEFT) + Manual RFQ (RIGHT) */}
-            {user && (
-              <BuyerDiscoveryHub 
-                userId={user.id} 
+            {/* Forward RFQ Center (full sub-page) */}
+            {showForwardRFQ ? (
+              <ForwardRFQCenter
+                userId={user!.id}
+                refreshKey={refreshKey}
+                logisticsRequirementsKey={logisticsRequirementsKey}
+                onBack={() => setShowForwardRFQ(false)}
                 onOpenManualRFQ={() => setShowRequirementForm(true)}
+                onRFQGenerated={(rfq) => {
+                  setAIGeneratedRFQ(rfq);
+                  setShowRequirementForm(true);
+                }}
               />
+            ) : (
+              <>
+                {/* Quick Actions Grid */}
+                <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowForwardRFQ(true)}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Forward RFQ
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Post requirements and receive competitive supplier quotes
+                      </p>
+                      <Button className="w-full">
+                        Post RFQ
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Gavel className="h-5 w-5" />
+                        Reverse Auction
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Run live reverse auctions and maximize savings
+                      </p>
+                      <Button variant="outline" className="w-full" onClick={() => {
+                        document.getElementById('buyer-reverse-auction')?.scrollIntoView({ behavior: 'smooth' });
+                      }}>
+                        View Auctions
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Truck className="h-5 w-5" />
+                        Book Transport
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Post logistics requirement and get competitive quotes
+                      </p>
+                      <Button className="w-full" onClick={() => setShowLogisticsRequirementForm(true)}>
+                        Post Logistics Need
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Package className="h-5 w-5" />
+                        Browse Products
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Search supplier products with live stock updates
+                      </p>
+                      <Button variant="outline" className="w-full" onClick={() => setShowLiveStock(true)}>
+                        Browse Stock
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Package className="h-5 w-5" />
+                        CRM & Inventory
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Manage inventory, invoices & purchase orders
+                      </p>
+                      <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5" />
+                        Track Shipments
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Track your logistics shipments in real-time
+                      </p>
+                      <Button variant="outline" className="w-full" onClick={() => setShowCustomerShipmentTracking(true)}>
+                        Track Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Reverse Auction Section */}
+                <div id="buyer-reverse-auction">
+                  <ReverseAuctionDashboard isSupplier={false} />
+                </div>
+              </>
             )}
-
-            {/* Quick Actions Grid */}
-            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Forward RFQ
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Post requirements and receive competitive supplier quotes
-                  </p>
-                  <Button className="w-full" onClick={() => setShowRequirementForm(true)}>
-                    Post RFQ
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Gavel className="h-5 w-5" />
-                    Reverse Auction
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Run live reverse auctions and maximize savings
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => {
-                    document.getElementById('buyer-reverse-auction')?.scrollIntoView({ behavior: 'smooth' });
-                  }}>
-                    View Auctions
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Truck className="h-5 w-5" />
-                    Book Transport
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Post logistics requirement and get competitive quotes
-                  </p>
-                  <Button className="w-full" onClick={() => setShowLogisticsRequirementForm(true)}>
-                    Post Logistics Need
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="h-5 w-5" />
-                    Browse Products
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Search supplier products with live stock updates
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowLiveStock(true)}>
-                    Browse Stock
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="h-5 w-5" />
-                    CRM & Inventory
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Manage inventory, invoices & purchase orders
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Track Shipments
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Track your logistics shipments in real-time
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => setShowCustomerShipmentTracking(true)}>
-                    Track Now
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Forward RFQ List */}
-            {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
-
-            {/* Reverse Auction Section */}
-            <div id="buyer-reverse-auction">
-              <ReverseAuctionDashboard isSupplier={false} />
-            </div>
-            
-            {/* Logistics Requirements List */}
-            {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
 
             {/* Referral Section for Buyers */}
             {user && <ReferralSection userId={user.id} role="buyer" />}
