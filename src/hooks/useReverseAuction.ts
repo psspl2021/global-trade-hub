@@ -501,7 +501,14 @@ export function useReverseAuctionBids(auctionId: string | null) {
         } as any)
         .select()
         .single();
-      if (error) throw error;
+      if (error) {
+        // Handle rate-limit error from DB trigger
+        if (error.message?.includes('Rate limit')) {
+          toast.error('Too fast! Please wait 2 seconds between bids.');
+          return false;
+        }
+        throw error;
+      }
 
       // Update current price on auction
       await supabase
@@ -509,8 +516,8 @@ export function useReverseAuctionBids(auctionId: string | null) {
         .update({ current_price: bidPrice, updated_at: new Date().toISOString() } as any)
         .eq('id', auctionId);
 
-      // Anti-sniping is now handled server-side via DB trigger (handle_anti_snipe)
-      // No client-side extension logic needed — prevents race conditions & manipulation
+      // Anti-sniping + fraud detection handled server-side via DB triggers
+      // No client-side logic needed — prevents race conditions & manipulation
 
       // Audit log
       logAuctionEvent({
@@ -525,7 +532,8 @@ export function useReverseAuctionBids(auctionId: string | null) {
       toast.success('Bid placed successfully!');
       return true;
     } catch (err: any) {
-      toast.error('Failed to place bid: ' + err.message);
+      const msg = err.message || 'Failed to place bid';
+      if (!msg.includes('Too fast')) toast.error('Failed to place bid: ' + msg);
       return false;
     }
   };
