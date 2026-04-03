@@ -379,14 +379,45 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   };
 
-  const republishAuction = async (auctionId: string) => {
+  const republishAuction = async (auctionId: string, newSchedule?: {
+    auction_start: string;
+    auction_end: string;
+    starting_price?: number;
+    quantity?: number;
+    unit?: string;
+  }) => {
     if (!user) return;
     try {
+      const updates: any = {
+        status: 'scheduled',
+        winner_supplier_id: null,
+        winning_bid: null,
+        winning_price: null,
+        current_price: null,
+        buyer_edit_count: 0,
+      };
+      if (newSchedule) {
+        updates.auction_start = newSchedule.auction_start;
+        updates.auction_end = newSchedule.auction_end;
+        if (newSchedule.starting_price) {
+          updates.starting_price = newSchedule.starting_price;
+          updates.current_price = newSchedule.starting_price;
+        }
+        if (newSchedule.quantity) updates.quantity = newSchedule.quantity;
+        if (newSchedule.unit) updates.unit = newSchedule.unit;
+      }
       const { error } = await supabase
         .from('reverse_auctions')
-        .update({ status: 'scheduled', winner_supplier_id: null, winning_bid: null, winning_price: null } as any)
+        .update(updates)
         .eq('id', auctionId);
       if (error) throw error;
+
+      // Clear old bids
+      await supabase
+        .from('reverse_auction_bids')
+        .delete()
+        .eq('auction_id', auctionId);
+
       logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_REPUBLISHED', actor_id: user.id, actor_role: 'buyer' });
       toast.success('Auction republished successfully.');
       fetchAuctions();
