@@ -169,6 +169,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
     action: 'reopen' | 'extend';
   } | null>(null);
   const [newDeadline, setNewDeadline] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRequirements();
