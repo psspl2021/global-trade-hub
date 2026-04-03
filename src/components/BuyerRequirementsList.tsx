@@ -684,6 +684,17 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                               Close Permanently
                             </DropdownMenuItem>
                           )}
+
+                          {/* Delete - available when no accepted bids */}
+                          {!req.has_accepted_bid && getEffectiveState(req) !== 'awarded' && (
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteConfirmId(req.id)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Requirement
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
