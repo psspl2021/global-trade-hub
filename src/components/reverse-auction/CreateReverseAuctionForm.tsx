@@ -305,8 +305,24 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
     const validItems = items.filter(i => i.product.trim() && i.quantity.trim());
 
-    if (!auctionTitle || validItems.length === 0 || !category || !startDate || !startTime) {
-      toast.error('Please fill all required fields and add at least one product.');
+    // Auto-generate title if missing
+    let finalTitle = auctionTitle;
+    if (!finalTitle && validItems.length > 0 && category) {
+      finalTitle = generateAuctionTitle(
+        validItems.map(i => ({ product: i.product, quantity: i.quantity, unit: i.unit })),
+        category
+      );
+      setAuctionTitle(finalTitle);
+    }
+
+    if (!finalTitle || validItems.length === 0 || !category || !startDate || !startTime) {
+      const missing: string[] = [];
+      if (!finalTitle) missing.push('auction title');
+      if (validItems.length === 0) missing.push('at least one product');
+      if (!category) missing.push('category');
+      if (!startDate) missing.push('start date');
+      if (!startTime) missing.push('start time');
+      toast.error(`Please fill: ${missing.join(', ')}.`);
       return;
     }
 
@@ -351,24 +367,54 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setIsSubmitting(true);
 
     try {
-      // Step 1: Record payment (mark as paid via credit)
-      const { data: payment, error: payError } = await supabase
+      // Step 1: Record payment — reuse orphaned payment if exists, otherwise insert
+      let paymentId: string;
+      
+      const { data: existingPayment } = await supabase
         .from('auction_payments')
-        .insert({
-          buyer_id: user!.id,
-          transaction_type: transactionType,
-          base_fee: auctionFee.base,
-          gst: auctionFee.gst,
-          total_amount: auctionFee.total,
-          payment_status: 'paid',
-        } as any)
-        .select()
-        .single();
+        .select('id')
+        .eq('buyer_id', user!.id)
+        .is('auction_id', null)
+        .eq('payment_status', 'paid' as any)
+        .maybeSingle();
 
-      if (payError) {
-        toast.error('Auction payment failed: ' + payError.message);
-        setIsSubmitting(false);
-        return;
+      if (existingPayment) {
+        // Reuse the orphaned payment from a previous failed attempt
+        const { error: updateErr } = await supabase
+          .from('auction_payments')
+          .update({
+            transaction_type: transactionType,
+            base_fee: auctionFee.base,
+            gst: auctionFee.gst,
+            total_amount: auctionFee.total,
+          } as any)
+          .eq('id', (existingPayment as any).id);
+        if (updateErr) {
+          toast.error('Auction payment failed: ' + updateErr.message);
+          setIsSubmitting(false);
+          return;
+        }
+        paymentId = (existingPayment as any).id;
+      } else {
+        const { data: payment, error: payError } = await supabase
+          .from('auction_payments')
+          .insert({
+            buyer_id: user!.id,
+            transaction_type: transactionType,
+            base_fee: auctionFee.base,
+            gst: auctionFee.gst,
+            total_amount: auctionFee.total,
+            payment_status: 'paid',
+          } as any)
+          .select()
+          .single();
+
+        if (payError) {
+          toast.error('Auction payment failed: ' + payError.message);
+          setIsSubmitting(false);
+          return;
+        }
+        paymentId = (payment as any).id;
       }
 
       // Build product slug from all items
@@ -408,11 +454,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           toast.error('Credit deduction failed. Please contact support.');
         }
 
-        if (payment) {
+        if (paymentId) {
           await supabase
             .from('auction_payments')
             .update({ auction_id: (result as any).id } as any)
-            .eq('id', (payment as any).id);
+            .eq('id', paymentId);
         }
 
         setOpen(false);
