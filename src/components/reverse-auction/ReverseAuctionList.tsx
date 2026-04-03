@@ -244,9 +244,17 @@ function AuctionCard({
   cancelAuction: (id: string) => void;
   completeAuction: (id: string) => void;
 }) {
-  const isLive = auction.status === 'live';
-  const isScheduled = auction.status === 'scheduled';
-  const isCompleted = auction.status === 'completed';
+  // Compute effective status based on time
+  const effectiveStatus = (() => {
+    if (auction.status === 'cancelled' || auction.status === 'completed') return auction.status;
+    const now = new Date();
+    if (auction.auction_end && new Date(auction.auction_end) <= now) return 'completed';
+    if (auction.auction_start && new Date(auction.auction_start) <= now) return 'live';
+    return 'scheduled';
+  })();
+  const isLive = effectiveStatus === 'live';
+  const isScheduled = effectiveStatus === 'scheduled';
+  const isCompleted = effectiveStatus === 'completed';
   const savings = auction.current_price && auction.starting_price
     ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
     : 0;
