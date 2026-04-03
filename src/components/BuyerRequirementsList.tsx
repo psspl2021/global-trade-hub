@@ -33,7 +33,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter, ChevronLeft, ChevronRight, XCircle, RotateCcw, Clock, Share2 } from 'lucide-react';
+import { Loader2, Eye, Calendar, MapPin, Package, Edit2, Trophy, ListOrdered, User, Truck, MoreVertical, Filter, ChevronLeft, ChevronRight, XCircle, RotateCcw, Clock, Share2, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
@@ -159,6 +169,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
     action: 'reopen' | 'extend';
   } | null>(null);
   const [newDeadline, setNewDeadline] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRequirements();
@@ -406,6 +417,29 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
     }
   };
 
+  // Delete requirement and its related items
+  const handleDeleteRequirement = async (requirementId: string) => {
+    try {
+      // Delete requirement_items first (foreign key)
+      await supabase.from('requirement_items').delete().eq('requirement_id', requirementId);
+      
+      const { error } = await supabase
+        .from('requirements')
+        .delete()
+        .eq('id', requirementId)
+        .eq('buyer_id', userId);
+
+      if (error) throw error;
+
+      toast.success('Requirement deleted successfully');
+      setDeleteConfirmId(null);
+      fetchRequirements();
+    } catch (error: any) {
+      if (import.meta.env.DEV) console.error('Error deleting requirement:', error);
+      toast.error('Failed to delete requirement. It may have associated bids.');
+    }
+  };
+
   // Get effective state badge
   const getEffectiveStateBadge = (req: Requirement) => {
     const effectiveState = getEffectiveState(req);
@@ -650,6 +684,17 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                               Close Permanently
                             </DropdownMenuItem>
                           )}
+
+                          {/* Delete - available when no accepted bids */}
+                          {!req.has_accepted_bid && getEffectiveState(req) !== 'awarded' && (
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteConfirmId(req.id)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Requirement
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -690,6 +735,27 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Requirement</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this requirement? This action cannot be undone and will remove all associated line items.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteConfirmId && handleDeleteRequirement(deleteConfirmId)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bids Dialog */}
       <Dialog open={!!selectedRequirement} onOpenChange={() => setSelectedRequirement(null)}>
