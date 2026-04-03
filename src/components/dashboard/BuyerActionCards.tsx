@@ -65,12 +65,22 @@ export function BuyerActionCards({
           .eq('status', 'active'),
       ]);
 
-      // Count quotes received across buyer's requirements
-      const { count: quotesCount } = await supabase
-        .from('bids')
-        .select('id, requirements!inner(buyer_id)', { count: 'exact', head: true })
-        .eq('requirements.buyer_id', userId)
-        .eq('status', 'pending');
+      // Count quotes: get buyer's requirement IDs first, then count bids
+      const { data: reqIds } = await supabase
+        .from('requirements')
+        .select('id')
+        .eq('buyer_id', userId);
+      
+      let quotesCount = 0;
+      if (reqIds && reqIds.length > 0) {
+        const ids = reqIds.map(r => r.id);
+        const { count } = await supabase
+          .from('bids')
+          .select('id', { count: 'exact', head: true })
+          .in('requirement_id', ids)
+          .eq('status', 'pending');
+        quotesCount = count || 0;
+      }
 
       const auctions = auctionRes.data || [];
       const liveCount = auctions.filter((a: any) => a.status === 'live').length;
