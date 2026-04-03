@@ -1,5 +1,5 @@
 /**
- * Reverse Auction Dashboard — Entry point for buyer reverse auction management
+ * Reverse Auction Dashboard — Entry point for buyer/supplier reverse auction management
  */
 import { useState } from 'react';
 import { ReverseAuctionList } from './ReverseAuctionList';
@@ -27,6 +27,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     <ReverseAuctionList
       onSelectAuction={setSelectedAuction}
       isBuyer={!isSupplier}
+      isSupplier={isSupplier}
     />
   );
 }
