@@ -6,9 +6,9 @@ import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, IndianRupee, Users, Timer } from 'lucide-react';
+import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, IndianRupee, Users, Timer, RefreshCw } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
-import { formatDistanceToNow, isPast, format, differenceInSeconds } from 'date-fns';
+import { formatDistanceToNow, isPast, format, differenceInSeconds, isToday } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
@@ -46,7 +46,7 @@ interface ReverseAuctionListProps {
 }
 
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier = false }: ReverseAuctionListProps) {
-  const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction(isSupplier);
+  const { auctions, isLoading, startAuction, cancelAuction, completeAuction, republishAuction, refetch } = useReverseAuction(isSupplier);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const creditsRef = useRef<HTMLDivElement>(null);
@@ -163,6 +163,7 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                     startAuction={startAuction}
                     cancelAuction={cancelAuction}
                     completeAuction={completeAuction}
+                    republishAuction={republishAuction}
                   />
                 ))}
               </div>
@@ -189,6 +190,7 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                     startAuction={startAuction}
                     cancelAuction={cancelAuction}
                     completeAuction={completeAuction}
+                    republishAuction={republishAuction}
                   />
                 ))}
               </div>
@@ -215,6 +217,7 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                     startAuction={startAuction}
                     cancelAuction={cancelAuction}
                     completeAuction={completeAuction}
+                    republishAuction={republishAuction}
                   />
                 ))}
               </div>
@@ -235,6 +238,7 @@ function AuctionCard({
   startAuction,
   cancelAuction,
   completeAuction,
+  republishAuction,
 }: {
   auction: ReverseAuction;
   isSupplier: boolean;
@@ -243,6 +247,7 @@ function AuctionCard({
   startAuction: (id: string) => void;
   cancelAuction: (id: string) => void;
   completeAuction: (id: string) => void;
+  republishAuction: (id: string) => void;
 }) {
   // Compute effective status based on time
   const effectiveStatus = (() => {
@@ -255,6 +260,8 @@ function AuctionCard({
   const isLive = effectiveStatus === 'live';
   const isScheduled = effectiveStatus === 'scheduled';
   const isCompleted = effectiveStatus === 'completed';
+  const isCancelled = effectiveStatus === 'cancelled';
+  const canRepublish = isBuyer && isCancelled && isToday(new Date(auction.updated_at));
   const savings = auction.current_price && auction.starting_price
     ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
     : 0;
@@ -353,6 +360,11 @@ function AuctionCard({
             {isLive && (
               <Button size="sm" variant="destructive" onClick={() => completeAuction(auction.id)}>
                 End & Award
+              </Button>
+            )}
+            {canRepublish && (
+              <Button size="sm" variant="outline" onClick={() => republishAuction(auction.id)} className="gap-1">
+                <RefreshCw className="w-3 h-3" /> Republish
               </Button>
             )}
           </div>
