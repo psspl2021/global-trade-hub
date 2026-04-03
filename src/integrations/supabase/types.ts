@@ -6435,6 +6435,42 @@ export type Database = {
           },
         ]
       }
+      reverse_auction_audit_logs: {
+        Row: {
+          actor_id: string
+          actor_role: string
+          auction_id: string
+          bid_amount: number | null
+          bid_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          actor_id: string
+          actor_role?: string
+          auction_id: string
+          bid_amount?: number | null
+          bid_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          actor_id?: string
+          actor_role?: string
+          auction_id?: string
+          bid_amount?: number | null
+          bid_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       reverse_auction_bids: {
         Row: {
           auction_id: string
