@@ -350,7 +350,17 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
                     {auction.category} • {auction.quantity} {auction.unit} • {auction.product_slug}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-2">
+                  {canEdit && (
+                    <>
+                      <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
+                        <Pencil className="w-3 h-3" /> Edit
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => setShowCancelDialog(true)} className="gap-1">
+                        <XCircle className="w-3 h-3" /> Withdraw
+                      </Button>
+                    </>
+                  )}
                   {isLive && (
                     <Badge className="bg-emerald-600 text-white animate-pulse text-lg px-3 py-1">
                       🔴 LIVE
