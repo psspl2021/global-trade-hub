@@ -1103,6 +1103,45 @@ export type Database = {
           },
         ]
       }
+      auction_fraud_flags: {
+        Row: {
+          auction_id: string
+          created_at: string
+          details: Json | null
+          flag_type: string
+          id: string
+          is_resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          supplier_id: string | null
+        }
+        Insert: {
+          auction_id: string
+          created_at?: string
+          details?: Json | null
+          flag_type: string
+          id?: string
+          is_resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          supplier_id?: string | null
+        }
+        Update: {
+          auction_id?: string
+          created_at?: string
+          details?: Json | null
+          flag_type?: string
+          id?: string
+          is_resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          supplier_id?: string | null
+        }
+        Relationships: []
+      }
       auction_payments: {
         Row: {
           auction_id: string | null
@@ -9938,6 +9977,7 @@ export type Database = {
         Args: { p_requirement_id: string }
         Returns: Json
       }
+      auto_award_expired_auctions: { Args: never; Returns: number }
       auto_expire_requirements: { Args: never; Returns: undefined }
       boost_category_links: { Args: { max_links?: number }; Returns: number }
       boost_internal_links: {
