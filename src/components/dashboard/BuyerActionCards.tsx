@@ -78,7 +78,7 @@ export function BuyerActionCards({
           .from('bids')
           .select('id', { count: 'exact', head: true })
           .in('requirement_id', ids)
-          .eq('status', 'pending');
+          .in('status', ['pending', 'submitted', 'under_review']);
         quotesCount = count || 0;
       }
 
