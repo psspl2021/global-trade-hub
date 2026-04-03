@@ -272,19 +272,19 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const auctionFee = useMemo(() => getAuctionFee(transactionType, buyerAuctionCount), [transactionType, buyerAuctionCount]);
 
   // ── Buyer Auction Credits ──
-  const [buyerCredits, setBuyerCredits] = useState<{ id: string; total: number; used: number } | null>(null);
+  const [buyerCredits, setBuyerCredits] = useState<{ id: string; total: number; used: number; isTrial: boolean } | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const fetchCredits = async () => {
       const { data } = await supabase
         .from('buyer_auction_credits')
-        .select('id, total_credits, used_credits')
+        .select('id, total_credits, used_credits, plan_id')
         .eq('buyer_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
-      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits });
+      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits, isTrial: !(data as any).plan_id && (data as any).total_credits === 5 });
     };
     fetchCredits();
   }, [user]);
@@ -781,19 +781,36 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Wallet className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-medium text-foreground">Auction Credits</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {buyerCredits.isTrial ? '🎁 Free Trial Pack' : 'Auction Credits'}
+                    </span>
                   </div>
-                  <Badge variant={hasCredits ? 'secondary' : 'destructive'}>
-                    {remainingCredits} remaining
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {buyerCredits.isTrial && (
+                      <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700">
+                        Trial · Free
+                      </Badge>
+                    )}
+                    <Badge variant={hasCredits ? 'secondary' : 'destructive'}>
+                      {remainingCredits} remaining
+                    </Badge>
+                  </div>
                 </div>
+                {buyerCredits.isTrial && hasCredits && (
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    You have <strong>{remainingCredits} free trial auction(s)</strong> left. Once used, choose a plan to continue.{' '}
+                    <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium text-primary hover:text-primary/80">
+                      View Plans
+                    </button>
+                  </p>
+                )}
                 {!hasCredits && (
                   <p className="text-xs text-destructive mt-1">
-                    No credits available.{' '}
+                    {buyerCredits.isTrial ? 'Your free trial is over! ' : 'No credits available. '}
                     <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium hover:text-destructive/80">
-                      Buy Credits Now
+                      Choose a Plan
                     </button>{' '}
-                    to create auctions.
+                    to continue creating auctions.
                   </p>
                 )}
               </CardContent>
