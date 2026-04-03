@@ -47,12 +47,15 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const canEdit = isBuyer && (auction.status === 'scheduled' || auction.status === 'live');
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const buyerEditCount = (auction as any).buyer_edit_count || 0;
+  const canEditAuction = canEdit && buyerEditCount < 2;
   const [editForm, setEditForm] = useState({
     title: auction.title,
     starting_price: auction.starting_price,
     reserve_price: auction.reserve_price || '',
     quantity: auction.quantity,
     unit: auction.unit,
+    product_slug: auction.product_slug,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [editingBidId, setEditingBidId] = useState<string | null>(null);
