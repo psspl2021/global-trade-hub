@@ -46,7 +46,7 @@ interface ReverseAuctionListProps {
 }
 
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier = false }: ReverseAuctionListProps) {
-  const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction(isSupplier);
+  const { auctions, isLoading, startAuction, cancelAuction, completeAuction, republishAuction, refetch } = useReverseAuction(isSupplier);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const creditsRef = useRef<HTMLDivElement>(null);
