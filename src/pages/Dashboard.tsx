@@ -795,6 +795,52 @@ const Dashboard = () => {
               {user && <SupplierProcurementCenter userId={user.id} />}
             </div>
 
+            {/* Compact cards grid for Subscription, Email, Platform Invoices */}
+            <div className="grid gap-2 grid-cols-3 mt-4">
+              <Card className="p-3">
+                <div className="flex items-center gap-1 mb-1">
+                  <Star className="h-3 w-3 text-amber-500" />
+                  <p className="text-xs font-medium">Subscription</p>
+                </div>
+                {subscription?.is_early_adopter && (
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-1 py-0 mb-1">
+                    EARLY ADOPTER
+                  </Badge>
+                )}
+                <p className="text-[10px] text-muted-foreground mb-1">
+                  {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
+                </p>
+                <Progress 
+                  value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                  className="h-1 mb-2" 
+                />
+                <PremiumPackPurchase
+                  userId={user?.id || ''}
+                  userEmail={user?.email || ''}
+                  userPhone={user?.user_metadata?.phone || ''}
+                  userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                  userType="supplier"
+                  hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
+                />
+              </Card>
+
+              <SupplierEmailQuotaCard />
+
+              <Card className="p-3">
+                <div className="flex items-center gap-1 mb-1">
+                  <Receipt className="h-3 w-3" />
+                  <p className="text-xs font-medium">Platform Invoices</p>
+                </div>
+                <p className="text-[10px] text-muted-foreground mb-2">WhatsApp: +91 8368127357</p>
+                <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
+                  View
+                </Button>
+              </Card>
+            </div>
+
+            {/* Referral Section for Suppliers */}
+            {user && <ReferralSection userId={user.id} role="supplier" />}
+
             {user && (
               <>
                 <SupplierCatalog open={showCatalog} onOpenChange={setShowCatalog} userId={user.id} />
