@@ -217,6 +217,7 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                     startAuction={startAuction}
                     cancelAuction={cancelAuction}
                     completeAuction={completeAuction}
+                    republishAuction={republishAuction}
                   />
                 ))}
               </div>
