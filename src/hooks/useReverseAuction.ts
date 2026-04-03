@@ -331,7 +331,7 @@ export function useReverseAuctionBids(auctionId: string | null) {
     fetchBids();
   }, [fetchBids]);
 
-  // Realtime subscription for live bid updates
+  // Realtime subscription for live bid updates (INSERT + UPDATE)
   useEffect(() => {
     if (!auctionId) return;
     const channel = supabase
@@ -346,6 +346,19 @@ export function useReverseAuctionBids(auctionId: string | null) {
         },
         (payload) => {
           setBids((prev) => [payload.new as unknown as ReverseAuctionBid, ...prev]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'reverse_auction_bids',
+          filter: `auction_id=eq.${auctionId}`,
+        },
+        (payload) => {
+          const updated = payload.new as unknown as ReverseAuctionBid;
+          setBids((prev) => prev.map(b => b.id === updated.id ? updated : b));
         }
       )
       .subscribe();
