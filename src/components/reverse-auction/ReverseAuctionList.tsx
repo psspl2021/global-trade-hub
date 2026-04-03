@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, IndianRupee, Users, Timer, RefreshCw } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
-import { formatDistanceToNow, isPast, format, differenceInSeconds } from 'date-fns';
+import { formatDistanceToNow, isPast, format, differenceInSeconds, isToday } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
