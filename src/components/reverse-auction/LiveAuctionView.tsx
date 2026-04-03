@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle } from 'lucide-react';
 import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 
 interface LiveAuctionViewProps {
