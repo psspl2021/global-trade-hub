@@ -333,6 +333,20 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   };
 
+  const republishAuction = async (auctionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('reverse_auctions')
+        .update({ status: 'scheduled', winner_supplier_id: null, winning_bid: null, winning_price: null } as any)
+        .eq('id', auctionId);
+      if (error) throw error;
+      toast.success('Auction republished successfully.');
+      fetchAuctions();
+    } catch (err: any) {
+      toast.error('Failed to republish auction: ' + err.message);
+    }
+  };
+
   return {
     auctions,
     isLoading,
@@ -342,6 +356,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
     updateAuctionStatus,
     cancelAuction,
     completeAuction,
+    republishAuction,
     refetch: fetchAuctions,
   };
 }
