@@ -111,10 +111,11 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             {/* Auction Credits Badge */}
-            {remainingCredits !== null && (
+             {remainingCredits !== null && (
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${remainingCredits <= 2 ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
                 <Coins className="h-4 w-4" />
                 <span>{remainingCredits} Credits</span>
+                {isTrial && <span className="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded">Trial</span>}
                 {remainingCredits <= 2 && (
                   <span className="text-xs">⚠ Low</span>
                 )}
