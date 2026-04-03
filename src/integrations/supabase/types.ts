@@ -6440,6 +6440,7 @@ export type Database = {
           auction_id: string
           bid_price: number
           created_at: string
+          edit_count: number
           id: string
           is_winning: boolean
           supplier_id: string
@@ -6448,6 +6449,7 @@ export type Database = {
           auction_id: string
           bid_price: number
           created_at?: string
+          edit_count?: number
           id?: string
           is_winning?: boolean
           supplier_id: string
@@ -6456,6 +6458,7 @@ export type Database = {
           auction_id?: string
           bid_price?: number
           created_at?: string
+          edit_count?: number
           id?: string
           is_winning?: boolean
           supplier_id?: string
