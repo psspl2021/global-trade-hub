@@ -217,6 +217,29 @@ export function useReverseAuction() {
     }
   };
 
+  const updateAuction = async (auctionId: string, updates: {
+    title?: string;
+    starting_price?: number;
+    reserve_price?: number | null;
+    quantity?: number;
+    unit?: string;
+    auction_end?: string;
+  }) => {
+    try {
+      const { error } = await supabase
+        .from('reverse_auctions')
+        .update({ ...updates, updated_at: new Date().toISOString() } as any)
+        .eq('id', auctionId);
+      if (error) throw error;
+      toast.success('Auction updated successfully!');
+      fetchAuctions();
+      return true;
+    } catch (err: any) {
+      toast.error('Failed to update auction: ' + err.message);
+      return false;
+    }
+  };
+
   const cancelAuction = async (auctionId: string) => {
     try {
       const { error } = await supabase
