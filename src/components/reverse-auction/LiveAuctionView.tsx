@@ -415,6 +415,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </div>
           )}
 
+          {/* 🔥 Competition Pressure Strip */}
+          <div className="mt-2 flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/60 border border-border text-xs font-medium">
+              <Users className="w-3.5 h-3.5 text-primary" />
+              <span className="text-foreground">{activeBidders} supplier{activeBidders !== 1 ? 's' : ''} active</span>
+            </div>
+            {recentBidCount > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-xs font-medium text-amber-800 animate-pulse">
+                <Zap className="w-3.5 h-3.5" />
+                {recentBidCount} bid{recentBidCount !== 1 ? 's' : ''} in last 30s
+              </div>
+            )}
+          </div>
+
           {/* Winning / Losing feedback strip */}
           {isSupplier && myRank !== null && (
             <div className={`mt-2 rounded-md px-3 py-1.5 text-sm font-medium flex items-center gap-2 ${
@@ -433,6 +447,15 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                   Outbid — reduce your price to win
                 </>
               )}
+            </div>
+          )}
+
+          {/* 🎯 Win Probability Indicator */}
+          {isSupplier && winProbability && (
+            <div className={`mt-2 rounded-md px-3 py-1.5 text-xs font-medium flex items-center gap-2 border ${winProbability.bg}`}>
+              <Target className="w-3.5 h-3.5" />
+              <span>{winProbability.icon}</span>
+              <span className={winProbability.color}>{winProbability.label}</span>
             </div>
           )}
         </div>
