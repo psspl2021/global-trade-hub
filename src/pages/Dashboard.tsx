@@ -302,7 +302,43 @@ const Dashboard = () => {
             )}
 
             {/* Quick Actions Grid */}
-            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Forward RFQ
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Post requirements and receive competitive supplier quotes
+                  </p>
+                  <Button className="w-full" onClick={() => setShowRequirementForm(true)}>
+                    Post RFQ
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gavel className="h-5 w-5" />
+                    Reverse Auction
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Run live reverse auctions and maximize savings
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => {
+                    document.getElementById('buyer-reverse-auction')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    View Auctions
+                  </Button>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -370,8 +406,13 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Unified Procurement Center — Forward RFQ + Reverse Auction */}
-            {user && <BuyerProcurementCenter userId={user.id} refreshKey={refreshKey} />}
+            {/* Forward RFQ List */}
+            {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
+
+            {/* Reverse Auction Section */}
+            <div id="buyer-reverse-auction">
+              <ReverseAuctionDashboard isSupplier={false} />
+            </div>
             
             {/* Logistics Requirements List */}
             {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
