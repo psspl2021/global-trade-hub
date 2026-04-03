@@ -546,6 +546,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </CardContent>
           </Card>
 
+          {/* 📊 SAVINGS DASHBOARD — for completed auctions */}
+          {(effectiveStatus === 'completed') && (
+            <AuctionSavingsDashboard auction={auction} bids={bids} />
+          )}
+
           {/* 🏆 LIVE LEADERBOARD — L1/L2/L3 Rankings */}
           {rankedBids.length > 0 && (
             <Card className="border-primary/20">
