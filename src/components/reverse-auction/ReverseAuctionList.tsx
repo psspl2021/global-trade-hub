@@ -91,41 +91,6 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-[0.625rem] bg-primary shadow-md">
-            <Gavel className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold tracking-tight">
-              {isSupplier ? 'Reverse Auctions — Your Invitations' : 'Reverse Auctions'}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {isSupplier
-                ? 'Bid competitively on live auctions to win orders'
-                : 'Price discovery through competitive reverse bidding'}
-            </p>
-          </div>
-        </div>
-        {isBuyer && (
-          <Button
-            className="gap-2"
-            onClick={() => navigate('/buyer/create-reverse-auction')}
-          >
-            <Gavel className="w-4 h-4" />
-            Create Reverse Auction
-          </Button>
-        )}
-      </div>
-
-      {/* Auction Credits Purchase (Buyer only) */}
-      {isBuyer && (
-        <div ref={creditsRef}>
-          <AuctionCreditsPurchase onCreditsUpdated={refetch} />
-        </div>
-      )}
-
       {/* No auctions */}
       {auctions.length === 0 ? (
         <Card className="rounded-[0.625rem]">

@@ -322,8 +322,8 @@ const Dashboard = () => {
                 />
              )}
 
-            {/* Referral Section for Buyers */}
-            {user && <ReferralSection userId={user.id} role="buyer" />}
+            {/* Referral Section for Buyers — hide when in sub-pages */}
+            {user && !showForwardRFQ && !showReverseAuction && <ReferralSection userId={user.id} role="buyer" />}
             
             {user && (
               <>

@@ -582,7 +582,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
 
         {/* RIGHT: Leaderboard */}
-        <div className="w-80 shrink-0 rounded-[0.625rem] border bg-card p-4 shadow-sm">
+        <div className="w-full lg:w-80 shrink-0 rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <h3 className="font-semibold mb-3 text-foreground flex items-center gap-2">
             <Medal className="w-4 h-4 text-amber-500" />
             Leaderboard
