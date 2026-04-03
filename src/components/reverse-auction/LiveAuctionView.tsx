@@ -358,9 +358,13 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
                 <div className="flex items-center gap-2">
                   {canEdit && (
                     <>
-                      <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
-                        <Pencil className="w-3 h-3" /> Edit
-                      </Button>
+                      {canEditAuction ? (
+                        <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
+                          <Pencil className="w-3 h-3" /> Edit ({2 - buyerEditCount} left)
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">Max edits used</span>
+                      )}
                       <Button variant="destructive" size="sm" onClick={() => setShowCancelDialog(true)} className="gap-1">
                         <XCircle className="w-3 h-3" /> Withdraw
                       </Button>
