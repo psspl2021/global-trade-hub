@@ -351,6 +351,14 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setIsSubmitting(true);
 
     try {
+      // Step 0: Clean up any orphaned payments from previous failed attempts
+      await supabase
+        .from('auction_payments')
+        .delete()
+        .eq('buyer_id', user!.id)
+        .is('auction_id', null)
+        .eq('payment_status', 'paid' as any);
+
       // Step 1: Record payment (mark as paid via credit)
       const { data: payment, error: payError } = await supabase
         .from('auction_payments')
