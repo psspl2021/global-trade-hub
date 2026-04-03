@@ -296,6 +296,7 @@ export function useReverseAuction() {
     isLoading,
     createAuction,
     startAuction,
+    updateAuction,
     cancelAuction,
     completeAuction,
     refetch: fetchAuctions,
