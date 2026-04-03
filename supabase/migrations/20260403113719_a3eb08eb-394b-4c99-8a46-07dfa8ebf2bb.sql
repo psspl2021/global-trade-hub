@@ -1,0 +1,1 @@
+ALTER TABLE public.reverse_auctions ADD COLUMN IF NOT EXISTS buyer_edit_count integer NOT NULL DEFAULT 0;
