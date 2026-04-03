@@ -72,10 +72,22 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
     );
   }
 
-  // Separate live auctions for supplier priority view
-  const liveAuctions = auctions.filter(a => a.status === 'live');
-  const scheduledAuctions = auctions.filter(a => a.status === 'scheduled');
-  const completedAuctions = auctions.filter(a => a.status === 'completed' || a.status === 'cancelled');
+  // Compute effective status based on time
+  const getEffectiveStatus = (a: ReverseAuction) => {
+    if (a.status === 'cancelled' || a.status === 'completed') return a.status;
+    const now = new Date();
+    if (a.auction_end && new Date(a.auction_end) <= now) return 'completed';
+    if (a.auction_start && new Date(a.auction_start) <= now) return 'live';
+    return 'scheduled';
+  };
+
+  // Separate auctions by effective status
+  const liveAuctions = auctions.filter(a => getEffectiveStatus(a) === 'live');
+  const scheduledAuctions = auctions.filter(a => getEffectiveStatus(a) === 'scheduled');
+  const completedAuctions = auctions.filter(a => {
+    const s = getEffectiveStatus(a);
+    return s === 'completed' || s === 'cancelled';
+  });
 
   return (
     <div className="space-y-4">
@@ -232,9 +244,17 @@ function AuctionCard({
   cancelAuction: (id: string) => void;
   completeAuction: (id: string) => void;
 }) {
-  const isLive = auction.status === 'live';
-  const isScheduled = auction.status === 'scheduled';
-  const isCompleted = auction.status === 'completed';
+  // Compute effective status based on time
+  const effectiveStatus = (() => {
+    if (auction.status === 'cancelled' || auction.status === 'completed') return auction.status;
+    const now = new Date();
+    if (auction.auction_end && new Date(auction.auction_end) <= now) return 'completed';
+    if (auction.auction_start && new Date(auction.auction_start) <= now) return 'live';
+    return 'scheduled';
+  })();
+  const isLive = effectiveStatus === 'live';
+  const isScheduled = effectiveStatus === 'scheduled';
+  const isCompleted = effectiveStatus === 'completed';
   const savings = auction.current_price && auction.starting_price
     ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
     : 0;
@@ -254,7 +274,7 @@ function AuctionCard({
               {auction.category} • {auction.quantity} {auction.unit}
             </p>
           </div>
-          <AuctionStatusBadge status={auction.status} />
+          <AuctionStatusBadge status={effectiveStatus} />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">

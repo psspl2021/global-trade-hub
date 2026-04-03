@@ -320,12 +320,26 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   };
 
+  // Lightweight status update (no edit count, no toast)
+  const updateAuctionStatus = async (auctionId: string, newStatus: string) => {
+    try {
+      await supabase
+        .from('reverse_auctions')
+        .update({ status: newStatus, updated_at: new Date().toISOString() } as any)
+        .eq('id', auctionId);
+      fetchAuctions();
+    } catch (err) {
+      console.error('Failed to auto-update auction status:', err);
+    }
+  };
+
   return {
     auctions,
     isLoading,
     createAuction,
     startAuction,
     updateAuction,
+    updateAuctionStatus,
     cancelAuction,
     completeAuction,
     refetch: fetchAuctions,
