@@ -1,6 +1,6 @@
 /**
  * Live Reverse Auction View — Real-time bidding interface
- * Used by both buyers (monitor + edit/cancel) and suppliers (place bids)
+ * Enterprise: L1/L2/L3 Leaderboard, Anti-sniping, Audit logging, Mobile sticky bid
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle } from 'lucide-react';
-import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid } from '@/hooks/useReverseAuction';
+import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle, Medal, Timer } from 'lucide-react';
+import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid, getRankedBids } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
@@ -29,12 +29,17 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
 }
 
+const RANK_CONFIG: Record<number, { label: string; color: string; bg: string; icon: string }> = {
+  1: { label: 'L1', color: 'text-emerald-700', bg: 'bg-emerald-100 border-emerald-300', icon: '🥇' },
+  2: { label: 'L2', color: 'text-blue-700', bg: 'bg-blue-100 border-blue-300', icon: '🥈' },
+  3: { label: 'L3', color: 'text-amber-700', bg: 'bg-amber-100 border-amber-300', icon: '🥉' },
+};
+
 export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = false }: LiveAuctionViewProps) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  // Live auction state — subscribes to real-time changes
   const [auction, setAuction] = useState<ReverseAuction>(initialAuction);
 
   // Real-time subscription on the auction record itself
@@ -43,22 +48,15 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       .channel(`auction-detail-${initialAuction.id}`)
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'reverse_auctions',
-          filter: `id=eq.${initialAuction.id}`,
-        },
+        { event: 'UPDATE', schema: 'public', table: 'reverse_auctions', filter: `id=eq.${initialAuction.id}` },
         (payload) => {
           setAuction(prev => ({ ...prev, ...(payload.new as any) }));
         }
       )
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [initialAuction.id]);
 
-  // Compute effective status based on DB status + actual time
   const effectiveStatus = useMemo(() => {
     if (auction.status === 'cancelled' || auction.status === 'completed') return auction.status;
     const now = new Date();
@@ -67,12 +65,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     return 'scheduled';
   }, [auction.status, auction.auction_start, auction.auction_end]);
 
-  // Auto-update DB status when time transitions happen
   const { updateAuctionStatus } = useReverseAuction();
 
   useEffect(() => {
     if (effectiveStatus !== auction.status && (effectiveStatus === 'live' || effectiveStatus === 'completed')) {
-      // Fire and forget — update DB status to match time-based reality
       if (effectiveStatus === 'live' && auction.status === 'scheduled') {
         updateAuctionStatus(auction.id, 'live');
       } else if (effectiveStatus === 'completed' && auction.status === 'live') {
@@ -91,7 +87,6 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const prevRankRef = useRef<number | null>(null);
   const lastOutbidRef = useRef(0);
 
-  // Buyer edit/cancel state
   const isBuyer = user?.id === auction.buyer_id;
   const canEdit = isBuyer && (effectiveStatus === 'scheduled' || effectiveStatus === 'live');
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -120,19 +115,16 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const minBidStep = auction.minimum_bid_step_pct / 100;
   const maxAllowedBid = currentLowest * (1 - minBidStep);
   const totalSavings = ((auction.starting_price - currentLowest) / auction.starting_price * 100);
-
-  // Reverse auctions use prepaid credits — no percentage markup on bid price
   const buyerPrice = currentLowest;
 
-  // Supplier rank calculation
+  // Ranked leaderboard
+  const rankedBids = useMemo(() => getRankedBids(bids), [bids]);
+
   const myRank = useMemo(() => {
     if (!user || !isSupplier || bids.length === 0) return null;
-    const sortedPrices = [...new Set(bids.map(b => b.bid_price))].sort((a, b) => a - b);
-    const myBids = bids.filter(b => b.supplier_id === user.id);
-    if (myBids.length === 0) return null;
-    const myBestPrice = Math.min(...myBids.map(b => b.bid_price));
-    return sortedPrices.indexOf(myBestPrice) + 1;
-  }, [bids, user, isSupplier]);
+    const ranked = rankedBids.find(b => b.supplier_id === user.id);
+    return ranked?.rank ?? null;
+  }, [rankedBids, user, isSupplier, bids.length]);
 
   const myBestBid = useMemo(() => {
     if (!user || bids.length === 0) return null;
@@ -142,6 +134,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   }, [bids, user]);
 
   const isWinning = myRank === 1;
+
+  // Anti-snipe indicator
+  const isAntiSnipeZone = useMemo(() => {
+    if (!auction.auction_end || !isLive) return false;
+    const secs = differenceInSeconds(new Date(auction.auction_end), new Date());
+    const threshold = auction.anti_snipe_threshold_seconds || 60;
+    return secs > 0 && secs < threshold;
+  }, [auction.auction_end, isLive, auction.anti_snipe_threshold_seconds, timeLeft]);
 
   // Outbid alert
   useEffect(() => {
@@ -187,32 +187,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const handlePlaceBid = async () => {
     if (isPlacing) return;
-    if (!isLive) {
-      setBidError('Auction has ended');
-      return;
-    }
+    if (!isLive) { setBidError('Auction has ended'); return; }
     setBidError('');
     if (!user) return;
-    if (!bidPrice) {
-      setBidError('Enter a bid amount');
-      return;
-    }
+    if (!bidPrice) { setBidError('Enter a bid amount'); return; }
     const price = parseFloat(bidPrice);
-    if (isNaN(price) || price <= 0) {
-      setBidError('Enter a valid amount');
-      return;
-    }
-    if (price >= currentLowest) {
-      setBidError('Bid must be LOWER than current L1');
-      return;
-    }
+    if (isNaN(price) || price <= 0) { setBidError('Enter a valid amount'); return; }
+    if (price >= currentLowest) { setBidError('Bid must be LOWER than current L1'); return; }
     if (price > maxAllowedBid) {
       setBidError(`Max allowed: ${formatCurrency(maxAllowedBid)} (min ${auction.minimum_bid_step_pct}% step)`);
       return;
     }
     setIsPlacing(true);
     try {
-      await placeBid(user.id, price);
+      await placeBid(user.id, price, auction);
       setBidPrice(Math.floor(maxAllowedBid).toString());
       toast({
         title: "Bid placed 🚀",
@@ -224,7 +212,6 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     }
   };
 
-  // Buyer: save auction edits
   const handleSaveEdit = async () => {
     setIsSaving(true);
     try {
@@ -237,25 +224,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         reserve_price: editForm.reserve_price ? Number(editForm.reserve_price) : null,
       };
       const success = await updateAuction(auction.id, updates, buyerEditCount);
-      if (success) {
-        setShowEditDialog(false);
-        onBack();
-      }
-    } finally {
-      setIsSaving(false);
-    }
+      if (success) { setShowEditDialog(false); onBack(); }
+    } finally { setIsSaving(false); }
   };
 
-  // Buyer: cancel/withdraw auction
   const handleCancelAuction = async () => {
     setIsSaving(true);
     try {
       await cancelAuction(auction.id);
       setShowCancelDialog(false);
       onBack();
-    } finally {
-      setIsSaving(false);
-    }
+    } finally { setIsSaving(false); }
   };
 
   const urgencyColor = useMemo(() => {
@@ -308,20 +287,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}
             />
           </div>
-          <Button
-            onClick={handlePlaceBid}
-            disabled={!isValidBid || isPlacing}
-          >
+          <Button onClick={handlePlaceBid} disabled={!isValidBid || isPlacing}>
             {isPlacing ? 'Placing...' : '🚀 Bid'}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
           Suggested: {formatCurrency(Math.floor(maxAllowedBid))}
         </p>
-        {bidError && (
-          <p className="text-xs text-destructive font-medium">{bidError}</p>
-        )}
-        {/* Multiple bids info */}
+        {bidError && <p className="text-xs text-destructive font-medium">{bidError}</p>}
         <p className="text-xs text-muted-foreground border-t border-border pt-2">
           💡 You can place multiple bids. Each bid can be edited up to 2 times.
         </p>
@@ -407,6 +380,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               </p>
             </div>
           </div>
+
+          {/* Anti-snipe indicator */}
+          {isAntiSnipeZone && (
+            <div className="mt-2 rounded-md px-3 py-1.5 text-xs font-medium flex items-center gap-2 bg-amber-50 text-amber-800 border border-amber-200 animate-pulse">
+              <Timer className="w-3.5 h-3.5" />
+              Anti-snipe zone — bids will extend the auction by {Math.floor((auction.anti_snipe_seconds || 120) / 60)} min
+            </div>
+          )}
 
           {/* Winning / Losing feedback strip */}
           {isSupplier && myRank !== null && (
@@ -511,6 +492,68 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </CardContent>
           </Card>
 
+          {/* 🏆 LIVE LEADERBOARD — L1/L2/L3 Rankings */}
+          {rankedBids.length > 0 && (
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Medal className="w-4 h-4 text-amber-500" />
+                  Supplier Leaderboard
+                  {isLive && <Badge variant="outline" className="text-xs ml-auto animate-pulse border-emerald-300 text-emerald-700">Live Rankings</Badge>}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {rankedBids.slice(0, 10).map((bid) => {
+                    const rankConfig = RANK_CONFIG[bid.rank];
+                    const isMine = user && bid.supplier_id === user.id;
+                    return (
+                      <div
+                        key={bid.supplier_id}
+                        className={`flex items-center justify-between p-2.5 rounded-[0.625rem] border transition-all ${
+                          rankConfig
+                            ? rankConfig.bg
+                            : 'bg-muted/30 border-border'
+                        } ${isMine ? 'ring-2 ring-primary/30' : ''}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5">
+                            {rankConfig ? (
+                              <span className="text-lg">{rankConfig.icon}</span>
+                            ) : (
+                              <span className="text-sm font-bold text-muted-foreground w-6 text-center">#{bid.rank}</span>
+                            )}
+                            {rankConfig && (
+                              <Badge className={`text-xs font-bold ${rankConfig.bg} ${rankConfig.color} border`}>
+                                {rankConfig.label}
+                              </Badge>
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-sm font-mono text-muted-foreground">
+                              PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
+                            </span>
+                            {isMine && (
+                              <Badge variant="outline" className="ml-2 text-xs border-primary text-primary">You</Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-bold text-sm ${rankConfig ? rankConfig.color : ''}`}>
+                            {formatCurrency(bid.bid_price)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {((auction.starting_price - bid.bid_price) / auction.starting_price * 100).toFixed(1)}% off
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Bid History */}
           <Card>
             <CardHeader className="pb-2">
@@ -528,9 +571,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                     const isMine = user && bid.supplier_id === user.id;
                     const canEditBid = isMine && isLive && (bid.edit_count || 0) < 2;
                     const isEditingThis = editingBidId === bid.id;
+                    // Find this bid's rank
+                    const bidRank = rankedBids.find(r => r.supplier_id === bid.supplier_id && r.bid_price === bid.bid_price)?.rank;
                     return (
                       <div key={bid.id} className={`p-2 rounded-md text-sm ${
-                        idx === 0
+                        bidRank === 1
                           ? 'bg-emerald-50 border border-emerald-200'
                           : isMine
                             ? 'bg-primary/5 border border-primary/20'
@@ -538,7 +583,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                       }`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            {idx === 0 && <Badge className="bg-emerald-600 text-white text-xs">L1</Badge>}
+                            {bidRank && bidRank <= 3 && (
+                              <Badge className={`text-xs font-bold ${RANK_CONFIG[bidRank]?.bg} ${RANK_CONFIG[bidRank]?.color} border`}>
+                                {RANK_CONFIG[bidRank]?.label}
+                              </Badge>
+                            )}
                             {isMine && <Badge variant="outline" className="text-xs border-primary text-primary">You</Badge>}
                             <span className="text-muted-foreground font-mono text-xs">
                               PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
@@ -546,7 +595,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                           </div>
                           <div className="flex items-center gap-2">
                             <span className={`font-semibold ${
-                              idx === 0 ? 'text-emerald-700' : isMine ? 'text-primary' : ''
+                              bidRank === 1 ? 'text-emerald-700' : isMine ? 'text-primary' : ''
                             }`}>
                               {formatCurrency(bid.bid_price)}
                             </span>
@@ -585,7 +634,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                               className="h-8 text-xs"
                               disabled={!editBidPrice || Number(editBidPrice) <= 0}
                               onClick={async () => {
-                                const success = await editBid(bid.id, Number(editBidPrice), bid.edit_count || 0);
+                                const success = await editBid(bid.id, Number(editBidPrice), bid.edit_count || 0, user?.id);
                                 if (success) setEditingBidId(null);
                               }}
                             >
@@ -613,9 +662,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         )}
       </div>
 
-      {/* 📱 MOBILE → Fixed bottom bid panel */}
+      {/* 📱 MOBILE → Fixed bottom sticky bid panel (full-width) */}
       {isMobile && bidPanelContent && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-2xl">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-2xl safe-area-inset-bottom">
           <div
             className="flex items-center justify-between p-3 cursor-pointer border-b"
             onClick={() => setShowBidPanel(p => !p)}
@@ -623,13 +672,16 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             <div className="flex items-center gap-2">
               <Gavel className="w-5 h-5 text-primary" />
               <h3 className="font-semibold text-sm">Place Your Bid</h3>
+              {isAntiSnipeZone && (
+                <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 animate-pulse">⏰ Anti-snipe</Badge>
+              )}
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               {showBidPanel ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
             </Button>
           </div>
           {showBidPanel && (
-            <div className="p-4 pt-2">
+            <div className="p-4 pt-2 pb-6">
               {bidPanelContent}
             </div>
           )}
