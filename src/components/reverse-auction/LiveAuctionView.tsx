@@ -3,6 +3,7 @@
  * Enterprise: L1/L2/L3 Leaderboard, Anti-sniping, Audit logging, Mobile sticky bid
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { AuctionResultExport } from './AuctionResultExport';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
