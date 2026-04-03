@@ -367,32 +367,54 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setIsSubmitting(true);
 
     try {
-      // Step 0: Clean up any orphaned payments from previous failed attempts
-      await supabase
+      // Step 1: Record payment — reuse orphaned payment if exists, otherwise insert
+      let paymentId: string;
+      
+      const { data: existingPayment } = await supabase
         .from('auction_payments')
-        .delete()
+        .select('id')
         .eq('buyer_id', user!.id)
         .is('auction_id', null)
-        .eq('payment_status', 'paid' as any);
+        .eq('payment_status', 'paid' as any)
+        .maybeSingle();
 
-      // Step 1: Record payment (mark as paid via credit)
-      const { data: payment, error: payError } = await supabase
-        .from('auction_payments')
-        .insert({
-          buyer_id: user!.id,
-          transaction_type: transactionType,
-          base_fee: auctionFee.base,
-          gst: auctionFee.gst,
-          total_amount: auctionFee.total,
-          payment_status: 'paid',
-        } as any)
-        .select()
-        .single();
+      if (existingPayment) {
+        // Reuse the orphaned payment from a previous failed attempt
+        const { error: updateErr } = await supabase
+          .from('auction_payments')
+          .update({
+            transaction_type: transactionType,
+            base_fee: auctionFee.base,
+            gst: auctionFee.gst,
+            total_amount: auctionFee.total,
+          } as any)
+          .eq('id', (existingPayment as any).id);
+        if (updateErr) {
+          toast.error('Auction payment failed: ' + updateErr.message);
+          setIsSubmitting(false);
+          return;
+        }
+        paymentId = (existingPayment as any).id;
+      } else {
+        const { data: payment, error: payError } = await supabase
+          .from('auction_payments')
+          .insert({
+            buyer_id: user!.id,
+            transaction_type: transactionType,
+            base_fee: auctionFee.base,
+            gst: auctionFee.gst,
+            total_amount: auctionFee.total,
+            payment_status: 'paid',
+          } as any)
+          .select()
+          .single();
 
-      if (payError) {
-        toast.error('Auction payment failed: ' + payError.message);
-        setIsSubmitting(false);
-        return;
+        if (payError) {
+          toast.error('Auction payment failed: ' + payError.message);
+          setIsSubmitting(false);
+          return;
+        }
+        paymentId = (payment as any).id;
       }
 
       // Build product slug from all items
