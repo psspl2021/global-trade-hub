@@ -86,7 +86,7 @@ export function BuyerActionCards({
       const liveCount = auctions.filter((a: any) => a.status === 'live').length;
       const totalSavings = auctions
         .filter((a: any) => a.current_price && a.starting_price && a.current_price < a.starting_price)
-        .reduce((sum: number, a: any) => sum + (a.starting_price - a.current_price), 0);
+        .reduce((sum: number, a: any) => sum + (a.starting_price - a.current_price) * (a.quantity || 1), 0);
 
       setMetrics({
         openRFQs: rfqRes.count || 0,
