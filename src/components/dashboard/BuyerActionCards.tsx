@@ -25,7 +25,6 @@ interface LiveMetrics {
   liveAuctions: number;
   auctionSavings: number;
   pendingLogistics: number;
-  activeShipments: number;
 }
 
 export function BuyerActionCards({
@@ -43,46 +42,41 @@ export function BuyerActionCards({
     liveAuctions: 0,
     auctionSavings: 0,
     pendingLogistics: 0,
-    activeShipments: 0,
   });
 
   useEffect(() => {
     if (!userId) return;
 
     const fetchMetrics = async () => {
-      const [rfqRes, bidsRes, auctionRes, logisticsRes] = await Promise.all([
+      const [rfqRes, auctionRes, logisticsRes] = await Promise.all([
         supabase
           .from('requirements')
           .select('id', { count: 'exact', head: true })
           .eq('buyer_id', userId)
-          .in('status', ['open', 'submitted', 'in_review']),
-        supabase
-          .from('bids')
-          .select('id', { count: 'exact', head: true })
-          .in('status', ['submitted', 'under_review'])
-          .eq('requirement_id', userId), // will be joined properly
+          .eq('status', 'active'),
         supabase
           .from('reverse_auctions')
-          .select('id, status, start_price, current_lowest_bid')
+          .select('id, status, starting_price, current_price')
           .eq('buyer_id', userId),
         supabase
           .from('logistics_requirements')
-          .select('id, status', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('buyer_id', userId)
-          .in('status', ['open', 'submitted']),
+          .eq('status', 'active'),
       ]);
 
-      // Count quotes received across all buyer's requirements
+      // Count quotes received across buyer's requirements
       const { count: quotesCount } = await supabase
         .from('bids')
         .select('id, requirements!inner(buyer_id)', { count: 'exact', head: true })
-        .eq('requirements.buyer_id', userId);
+        .eq('requirements.buyer_id', userId)
+        .eq('status', 'pending');
 
       const auctions = auctionRes.data || [];
-      const liveCount = auctions.filter(a => a.status === 'live').length;
+      const liveCount = auctions.filter((a: any) => a.status === 'live').length;
       const totalSavings = auctions
-        .filter(a => a.current_lowest_bid && a.start_price)
-        .reduce((sum, a) => sum + (a.start_price - (a.current_lowest_bid || a.start_price)), 0);
+        .filter((a: any) => a.current_price && a.starting_price && a.current_price < a.starting_price)
+        .reduce((sum: number, a: any) => sum + (a.starting_price - a.current_price), 0);
 
       setMetrics({
         openRFQs: rfqRes.count || 0,
@@ -90,7 +84,6 @@ export function BuyerActionCards({
         liveAuctions: liveCount,
         auctionSavings: totalSavings,
         pendingLogistics: logisticsRes.count || 0,
-        activeShipments: 0,
       });
     };
 
@@ -110,7 +103,7 @@ export function BuyerActionCards({
       icon: FileText,
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
-      badge: metrics.openRFQs > 0 ? { label: `${metrics.openRFQs} OPEN`, variant: 'default' as const } : null,
+      badge: metrics.openRFQs > 0 ? { label: `${metrics.openRFQs} ACTIVE`, variant: 'default' as const } : null,
       metrics: metrics.totalQuotes > 0 ? `${metrics.totalQuotes} quotes received` : null,
       primaryCTA: { label: 'Post RFQ', onClick: onForwardRFQ },
       secondaryCTA: { label: 'View RFQs', onClick: onForwardRFQ },
@@ -138,7 +131,7 @@ export function BuyerActionCards({
       icon: Truck,
       iconBg: 'bg-amber-500/10',
       iconColor: 'text-amber-600',
-      badge: metrics.pendingLogistics > 0 ? { label: `${metrics.pendingLogistics} PENDING`, variant: 'secondary' as const } : null,
+      badge: metrics.pendingLogistics > 0 ? { label: `${metrics.pendingLogistics} ACTIVE`, variant: 'secondary' as const } : null,
       metrics: null,
       primaryCTA: { label: 'Post Logistics Need', onClick: onBookTransport },
       secondaryCTA: null,
@@ -205,7 +198,7 @@ export function BuyerActionCards({
                   variant={card.badge.variant}
                   className={`text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider ${
                     card.badge.label === 'LIVE'
-                      ? 'bg-red-100 text-red-700 border-red-200 animate-pulse'
+                      ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse'
                       : ''
                   }`}
                 >
@@ -222,7 +215,7 @@ export function BuyerActionCards({
             {/* Live Metrics */}
             {card.metrics && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4 bg-muted/50 rounded-md px-2.5 py-1.5">
-                <TrendingUp className="w-3 h-3 text-emerald-500" />
+                <TrendingUp className="w-3 h-3 text-primary" />
                 <span>{card.metrics}</span>
               </div>
             )}
