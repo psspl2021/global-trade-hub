@@ -367,54 +367,57 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setIsSubmitting(true);
 
     try {
-      // Step 1: Record payment — reuse orphaned payment if exists, otherwise insert
-      let paymentId: string;
-      
-      const { data: existingPayment } = await supabase
-        .from('auction_payments')
-        .select('id')
-        .eq('buyer_id', user!.id)
-        .is('auction_id', null)
-        .eq('payment_status', 'paid' as any)
-        .maybeSingle();
+      const isTrial = buyerCredits?.isTrial && remainingCredits > 0;
+      let paymentId: string | null = null;
 
-      if (existingPayment) {
-        // Reuse the orphaned payment from a previous failed attempt
-        const { error: updateErr } = await supabase
+      // Trial users skip payment — only paid plan users need payment records
+      if (!isTrial) {
+        // Record payment — reuse orphaned payment if exists, otherwise insert
+        const { data: existingPayment } = await supabase
           .from('auction_payments')
-          .update({
-            transaction_type: transactionType,
-            base_fee: auctionFee.base,
-            gst: auctionFee.gst,
-            total_amount: auctionFee.total,
-          } as any)
-          .eq('id', (existingPayment as any).id);
-        if (updateErr) {
-          toast.error('Auction payment failed: ' + updateErr.message);
-          setIsSubmitting(false);
-          return;
-        }
-        paymentId = (existingPayment as any).id;
-      } else {
-        const { data: payment, error: payError } = await supabase
-          .from('auction_payments')
-          .insert({
-            buyer_id: user!.id,
-            transaction_type: transactionType,
-            base_fee: auctionFee.base,
-            gst: auctionFee.gst,
-            total_amount: auctionFee.total,
-            payment_status: 'paid',
-          } as any)
-          .select()
-          .single();
+          .select('id')
+          .eq('buyer_id', user!.id)
+          .is('auction_id', null)
+          .eq('payment_status', 'paid' as any)
+          .maybeSingle();
 
-        if (payError) {
-          toast.error('Auction payment failed: ' + payError.message);
-          setIsSubmitting(false);
-          return;
+        if (existingPayment) {
+          const { error: updateErr } = await supabase
+            .from('auction_payments')
+            .update({
+              transaction_type: transactionType,
+              base_fee: auctionFee.base,
+              gst: auctionFee.gst,
+              total_amount: auctionFee.total,
+            } as any)
+            .eq('id', (existingPayment as any).id);
+          if (updateErr) {
+            toast.error('Auction payment failed: ' + updateErr.message);
+            setIsSubmitting(false);
+            return;
+          }
+          paymentId = (existingPayment as any).id;
+        } else {
+          const { data: payment, error: payError } = await supabase
+            .from('auction_payments')
+            .insert({
+              buyer_id: user!.id,
+              transaction_type: transactionType,
+              base_fee: auctionFee.base,
+              gst: auctionFee.gst,
+              total_amount: auctionFee.total,
+              payment_status: 'paid',
+            } as any)
+            .select()
+            .single();
+
+          if (payError) {
+            toast.error('Auction payment failed: ' + payError.message);
+            setIsSubmitting(false);
+            return;
+          }
+          paymentId = (payment as any).id;
         }
-        paymentId = (payment as any).id;
       }
 
       // Build product slug from all items
