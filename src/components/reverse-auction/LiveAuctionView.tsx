@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { AuctionResultExport } from './AuctionResultExport';
+import { AuctionSavingsDashboard } from './AuctionSavingsDashboard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -544,6 +545,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               </div>
             </CardContent>
           </Card>
+
+          {/* 📊 SAVINGS DASHBOARD — for completed auctions */}
+          {(effectiveStatus === 'completed') && (
+            <AuctionSavingsDashboard auction={auction} bids={bids} />
+          )}
 
           {/* 🏆 LIVE LEADERBOARD — L1/L2/L3 Rankings */}
           {rankedBids.length > 0 && (
