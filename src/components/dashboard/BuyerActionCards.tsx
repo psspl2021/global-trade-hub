@@ -56,7 +56,7 @@ export function BuyerActionCards({
 
       const auctionRes = await supabase
         .from('reverse_auctions')
-        .select('id, status, starting_price, current_price')
+        .select('id, status, starting_price, current_price, quantity')
         .eq('buyer_id', userId);
 
       const logisticsRes: { count: number | null } = await (supabase as any)
