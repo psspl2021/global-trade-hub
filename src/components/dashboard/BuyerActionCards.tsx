@@ -48,21 +48,21 @@ export function BuyerActionCards({
     if (!userId) return;
 
     const fetchMetrics = async () => {
-      const [rfqRes, auctionRes, logisticsRes] = await Promise.all([
-        supabase
-          .from('requirements')
-          .select('id', { count: 'exact', head: true })
-          .eq('buyer_id', userId)
-          .eq('status', 'active'),
-        supabase
-          .from('reverse_auctions')
-          .select('id, status, starting_price, current_price')
-          .eq('buyer_id', userId),
-        supabase
-          .from('logistics_requirements')
-          .select('id', { count: 'exact', head: true })
-          .eq('buyer_id', userId)
-          .eq('status', 'active' as any),
+      const rfqRes = await supabase
+        .from('requirements')
+        .select('id', { count: 'exact', head: true })
+        .eq('buyer_id', userId)
+        .eq('status', 'active');
+
+      const auctionRes = await supabase
+        .from('reverse_auctions')
+        .select('id, status, starting_price, current_price')
+        .eq('buyer_id', userId);
+
+      const logisticsRes = await (supabase
+        .from('logistics_requirements')
+        .select('id', { count: 'exact', head: true })
+        .eq('buyer_id', userId) as any).eq('status', 'active');
       ]);
 
       // Count quotes: get buyer's requirement IDs first, then count bids
