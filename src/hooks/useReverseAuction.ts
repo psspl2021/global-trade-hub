@@ -509,32 +509,8 @@ export function useReverseAuctionBids(auctionId: string | null) {
         .update({ current_price: bidPrice, updated_at: new Date().toISOString() } as any)
         .eq('id', auctionId);
 
-      // Anti-sniping: extend auction if bid placed in last threshold seconds
-      if (auctionData?.auction_end) {
-        const endTime = new Date(auctionData.auction_end);
-        const now = new Date();
-        const remainingSeconds = (endTime.getTime() - now.getTime()) / 1000;
-        const threshold = auctionData.anti_snipe_threshold_seconds || 60;
-        const extension = auctionData.anti_snipe_seconds || 120;
-
-        if (remainingSeconds > 0 && remainingSeconds < threshold) {
-          const newEnd = new Date(endTime.getTime() + extension * 1000).toISOString();
-          await supabase
-            .from('reverse_auctions')
-            .update({ auction_end: newEnd, updated_at: new Date().toISOString() } as any)
-            .eq('id', auctionId);
-
-          logAuctionEvent({
-            auction_id: auctionId,
-            event_type: 'ANTI_SNIPE_TRIGGERED',
-            actor_id: supplierId,
-            actor_role: 'system',
-            metadata: { old_end: auctionData.auction_end, new_end: newEnd, extension_seconds: extension },
-          });
-
-          toast.info(`⏰ Anti-snipe: Auction extended by ${Math.floor(extension / 60)} minutes`);
-        }
-      }
+      // Anti-sniping is now handled server-side via DB trigger (handle_anti_snipe)
+      // No client-side extension logic needed — prevents race conditions & manipulation
 
       // Audit log
       logAuctionEvent({
