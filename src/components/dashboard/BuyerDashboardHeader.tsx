@@ -55,18 +55,20 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
   const isCurrentViewVerified = managementView ? isRoleVerified(managementView) : false;
 
   const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
+  const [isTrial, setIsTrial] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     const fetchCredits = async () => {
       const { data } = await supabase
         .from('buyer_auction_credits')
-        .select('total_credits, used_credits')
+        .select('total_credits, used_credits, plan_id')
         .eq('buyer_id', user.id)
         .limit(1)
         .single();
       if (data) {
         setRemainingCredits(data.total_credits - data.used_credits);
+        setIsTrial(!data.plan_id && data.total_credits === 5);
       }
     };
     fetchCredits();
