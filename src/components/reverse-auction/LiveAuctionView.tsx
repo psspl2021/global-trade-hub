@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle, Medal, Timer } from 'lucide-react';
+import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle, Medal, Timer, Users, Zap, Target } from 'lucide-react';
 import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid, getRankedBids } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -117,8 +117,23 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const totalSavings = ((auction.starting_price - currentLowest) / auction.starting_price * 100);
   const buyerPrice = currentLowest;
 
+  // Smart bid suggestion (step-based, not random)
+  const smartSuggestion = useMemo(() => {
+    return Math.floor(currentLowest * (1 - auction.minimum_bid_step_pct / 100));
+  }, [currentLowest, auction.minimum_bid_step_pct]);
+
   // Ranked leaderboard
   const rankedBids = useMemo(() => getRankedBids(bids), [bids]);
+
+  // Competition pressure metrics
+  const activeBidders = useMemo(() => {
+    return new Set(bids.map(b => b.supplier_id)).size;
+  }, [bids]);
+
+  const recentBidCount = useMemo(() => {
+    const thirtySecsAgo = Date.now() - 30000;
+    return bids.filter(b => new Date(b.created_at).getTime() > thirtySecsAgo).length;
+  }, [bids, timeLeft]); // timeLeft as dep to recompute every second
 
   const myRank = useMemo(() => {
     if (!user || !isSupplier || bids.length === 0) return null;
@@ -134,6 +149,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   }, [bids, user]);
 
   const isWinning = myRank === 1;
+
+  // Win probability indicator
+  const winProbability = useMemo(() => {
+    if (!myRank || !isSupplier) return null;
+    if (myRank === 1) return { label: 'High chance of winning', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: '🏆' };
+    if (myRank === 2) {
+      const gap = myBestBid && currentLowest ? myBestBid - currentLowest : 0;
+      return { label: `Close — reduce by ${formatCurrency(gap)} to win`, color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200', icon: '🎯' };
+    }
+    return { label: 'Low — aggressive bid needed', color: 'text-destructive', bg: 'bg-destructive/5 border-destructive/20', icon: '⚡' };
+  }, [myRank, isSupplier, myBestBid, currentLowest]);
 
   // Anti-snipe indicator
   const isAntiSnipeZone = useMemo(() => {
@@ -292,7 +318,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Suggested: {formatCurrency(Math.floor(maxAllowedBid))}
+          💡 Smart suggestion: <button onClick={() => { setBidPrice(smartSuggestion.toString()); setBidError(''); }} className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80">{formatCurrency(smartSuggestion)}</button>
         </p>
         {bidError && <p className="text-xs text-destructive font-medium">{bidError}</p>}
         <p className="text-xs text-muted-foreground border-t border-border pt-2">
@@ -389,6 +415,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </div>
           )}
 
+          {/* 🔥 Competition Pressure Strip */}
+          <div className="mt-2 flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/60 border border-border text-xs font-medium">
+              <Users className="w-3.5 h-3.5 text-primary" />
+              <span className="text-foreground">{activeBidders} supplier{activeBidders !== 1 ? 's' : ''} active</span>
+            </div>
+            {recentBidCount > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-xs font-medium text-amber-800 animate-pulse">
+                <Zap className="w-3.5 h-3.5" />
+                {recentBidCount} bid{recentBidCount !== 1 ? 's' : ''} in last 30s
+              </div>
+            )}
+          </div>
+
           {/* Winning / Losing feedback strip */}
           {isSupplier && myRank !== null && (
             <div className={`mt-2 rounded-md px-3 py-1.5 text-sm font-medium flex items-center gap-2 ${
@@ -407,6 +447,15 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                   Outbid — reduce your price to win
                 </>
               )}
+            </div>
+          )}
+
+          {/* 🎯 Win Probability Indicator */}
+          {isSupplier && winProbability && (
+            <div className={`mt-2 rounded-md px-3 py-1.5 text-xs font-medium flex items-center gap-2 border ${winProbability.bg}`}>
+              <Target className="w-3.5 h-3.5" />
+              <span>{winProbability.icon}</span>
+              <span className={winProbability.color}>{winProbability.label}</span>
             </div>
           )}
         </div>
