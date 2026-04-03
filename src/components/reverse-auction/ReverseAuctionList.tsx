@@ -359,6 +359,11 @@ function AuctionCard({
                 End & Award
               </Button>
             )}
+            {canRepublish && (
+              <Button size="sm" variant="outline" onClick={() => republishAuction(auction.id)} className="gap-1">
+                <RefreshCw className="w-3 h-3" /> Republish
+              </Button>
+            )}
           </div>
         )}
 
