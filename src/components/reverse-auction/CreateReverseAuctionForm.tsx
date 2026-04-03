@@ -272,19 +272,19 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const auctionFee = useMemo(() => getAuctionFee(transactionType, buyerAuctionCount), [transactionType, buyerAuctionCount]);
 
   // ── Buyer Auction Credits ──
-  const [buyerCredits, setBuyerCredits] = useState<{ id: string; total: number; used: number } | null>(null);
+  const [buyerCredits, setBuyerCredits] = useState<{ id: string; total: number; used: number; isTrial: boolean } | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const fetchCredits = async () => {
       const { data } = await supabase
         .from('buyer_auction_credits')
-        .select('id, total_credits, used_credits')
+        .select('id, total_credits, used_credits, plan_id')
         .eq('buyer_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
-      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits });
+      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits, isTrial: !(data as any).plan_id && (data as any).total_credits === 5 });
     };
     fetchCredits();
   }, [user]);
