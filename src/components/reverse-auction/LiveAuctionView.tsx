@@ -1,6 +1,6 @@
 /**
  * Live Reverse Auction View — Real-time bidding interface
- * Used by both buyers (monitor) and suppliers (place bids)
+ * Used by both buyers (monitor + edit/cancel) and suppliers (place bids)
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -10,8 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp } from 'lucide-react';
-import { useReverseAuctionBids, ReverseAuction, ReverseAuctionBid } from '@/hooks/useReverseAuction';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle } from 'lucide-react';
+import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 
@@ -31,6 +33,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { bids, placeBid } = useReverseAuctionBids(auction.id);
+  const { updateAuction, cancelAuction } = useReverseAuction();
   const [bidPrice, setBidPrice] = useState('');
   const [bidError, setBidError] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
@@ -38,6 +41,20 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const [showBidPanel, setShowBidPanel] = useState(true);
   const prevRankRef = useRef<number | null>(null);
   const lastOutbidRef = useRef(0);
+
+  // Buyer edit/cancel state
+  const isBuyer = user?.id === auction.buyer_id;
+  const canEdit = isBuyer && (auction.status === 'scheduled' || auction.status === 'live');
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: auction.title,
+    starting_price: auction.starting_price,
+    reserve_price: auction.reserve_price || '',
+    quantity: auction.quantity,
+    unit: auction.unit,
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const isLive = auction.status === 'live';
 
