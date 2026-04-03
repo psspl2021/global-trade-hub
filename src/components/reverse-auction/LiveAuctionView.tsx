@@ -1,6 +1,6 @@
 /**
  * Live Reverse Auction View — Real-time bidding interface
- * Used by both buyers (monitor) and suppliers (place bids)
+ * Used by both buyers (monitor + edit/cancel) and suppliers (place bids)
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -10,8 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp } from 'lucide-react';
-import { useReverseAuctionBids, ReverseAuction, ReverseAuctionBid } from '@/hooks/useReverseAuction';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle } from 'lucide-react';
+import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 
@@ -31,6 +33,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { bids, placeBid } = useReverseAuctionBids(auction.id);
+  const { updateAuction, cancelAuction } = useReverseAuction();
   const [bidPrice, setBidPrice] = useState('');
   const [bidError, setBidError] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
@@ -38,6 +41,20 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const [showBidPanel, setShowBidPanel] = useState(true);
   const prevRankRef = useRef<number | null>(null);
   const lastOutbidRef = useRef(0);
+
+  // Buyer edit/cancel state
+  const isBuyer = user?.id === auction.buyer_id;
+  const canEdit = isBuyer && (auction.status === 'scheduled' || auction.status === 'live');
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: auction.title,
+    starting_price: auction.starting_price,
+    reserve_price: auction.reserve_price || '',
+    quantity: auction.quantity,
+    unit: auction.unit,
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const isLive = auction.status === 'live';
 
@@ -150,6 +167,39 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
       document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
     } finally {
       setIsPlacing(false);
+    }
+  };
+
+  // Buyer: save auction edits
+  const handleSaveEdit = async () => {
+    setIsSaving(true);
+    try {
+      const updates: any = {
+        title: editForm.title,
+        starting_price: Number(editForm.starting_price),
+        quantity: Number(editForm.quantity),
+        unit: editForm.unit,
+        reserve_price: editForm.reserve_price ? Number(editForm.reserve_price) : null,
+      };
+      const success = await updateAuction(auction.id, updates);
+      if (success) {
+        setShowEditDialog(false);
+        onBack(); // refresh auction list
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Buyer: cancel/withdraw auction
+  const handleCancelAuction = async () => {
+    setIsSaving(true);
+    try {
+      await cancelAuction(auction.id);
+      setShowCancelDialog(false);
+      onBack();
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -300,7 +350,17 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
                     {auction.category} • {auction.quantity} {auction.unit} • {auction.product_slug}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-2">
+                  {canEdit && (
+                    <>
+                      <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
+                        <Pencil className="w-3 h-3" /> Edit
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => setShowCancelDialog(true)} className="gap-1">
+                        <XCircle className="w-3 h-3" /> Withdraw
+                      </Button>
+                    </>
+                  )}
                   {isLive && (
                     <Badge className="bg-emerald-600 text-white animate-pulse text-lg px-3 py-1">
                       🔴 LIVE
@@ -430,6 +490,67 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
           )}
         </div>
       )}
+
+      {/* Edit Auction Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Auction</DialogTitle>
+            <DialogDescription>Update auction details. Changes apply immediately.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Title</Label>
+              <Input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Starting Price (₹)</Label>
+                <Input type="number" value={editForm.starting_price} onChange={e => setEditForm(f => ({ ...f, starting_price: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Reserve Price (₹)</Label>
+                <Input type="number" value={editForm.reserve_price} onChange={e => setEditForm(f => ({ ...f, reserve_price: e.target.value }))} placeholder="Optional" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Quantity</Label>
+                <Input type="number" value={editForm.quantity} onChange={e => setEditForm(f => ({ ...f, quantity: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Unit</Label>
+                <Input value={editForm.unit} onChange={e => setEditForm(f => ({ ...f, unit: e.target.value }))} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveEdit} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel/Withdraw Auction Dialog */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Withdraw Auction</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to withdraw this auction? This action cannot be undone.
+              {bids.length > 0 && ` There are ${bids.length} existing bids that will be void.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCancelDialog(false)}>Keep Auction</Button>
+            <Button variant="destructive" onClick={handleCancelAuction} disabled={isSaving}>
+              {isSaving ? 'Withdrawing...' : 'Yes, Withdraw'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
