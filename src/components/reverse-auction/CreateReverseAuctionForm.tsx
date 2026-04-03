@@ -454,11 +454,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           toast.error('Credit deduction failed. Please contact support.');
         }
 
-        if (payment) {
+        if (paymentId) {
           await supabase
             .from('auction_payments')
             .update({ auction_id: (result as any).id } as any)
-            .eq('id', (payment as any).id);
+            .eq('id', paymentId);
         }
 
         setOpen(false);
