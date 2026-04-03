@@ -366,10 +366,13 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   return (
     <div className="space-y-4 pb-20">
-      {/* Back button */}
-      <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
-        <ArrowLeft className="w-4 h-4" /> Back to Auctions
-      </Button>
+      {/* Back button + Export */}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
+          <ArrowLeft className="w-4 h-4" /> Back to Auctions
+        </Button>
+        {isBuyer && <AuctionResultExport auction={auction} bids={bids} />}
+      </div>
 
       {/* 🔥 STICKY LIVE STRIP */}
       {isLive && (
