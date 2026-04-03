@@ -2,15 +2,13 @@
  * Reverse Auction List — Shows auctions for buyer or supplier
  * Suppliers see only auctions they're invited to, with bid-oriented UI
  */
-import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, IndianRupee, Users, Timer, RefreshCw } from 'lucide-react';
+import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, Timer, RefreshCw } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
-import { formatDistanceToNow, isPast, format, differenceInSeconds, isToday } from 'date-fns';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
+import { formatDistanceToNow, isPast, format, isToday } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -48,21 +46,6 @@ interface ReverseAuctionListProps {
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier = false }: ReverseAuctionListProps) {
   const { auctions, isLoading, startAuction, cancelAuction, completeAuction, republishAuction, refetch } = useReverseAuction(isSupplier);
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const creditsRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to credits purchase when buy_credits=true
-  useEffect(() => {
-    if (searchParams.get('buy_credits') === 'true' && creditsRef.current) {
-      creditsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const el = creditsRef.current;
-      el.classList.add('ring-2', 'ring-primary', 'transition-all', 'duration-300');
-      setTimeout(() => el?.classList.remove('ring-2', 'ring-primary'), 2000);
-      const params = new URLSearchParams(searchParams);
-      params.delete('buy_credits');
-      setSearchParams(params, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
 
   if (isLoading) {
     return (
@@ -91,41 +74,6 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-[0.625rem] bg-primary shadow-md">
-            <Gavel className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold tracking-tight">
-              {isSupplier ? 'Reverse Auctions — Your Invitations' : 'Reverse Auctions'}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {isSupplier
-                ? 'Bid competitively on live auctions to win orders'
-                : 'Price discovery through competitive reverse bidding'}
-            </p>
-          </div>
-        </div>
-        {isBuyer && (
-          <Button
-            className="gap-2"
-            onClick={() => navigate('/buyer/create-reverse-auction')}
-          >
-            <Gavel className="w-4 h-4" />
-            Create Reverse Auction
-          </Button>
-        )}
-      </div>
-
-      {/* Auction Credits Purchase (Buyer only) */}
-      {isBuyer && (
-        <div ref={creditsRef}>
-          <AuctionCreditsPurchase onCreditsUpdated={refetch} />
-        </div>
-      )}
-
       {/* No auctions */}
       {auctions.length === 0 ? (
         <Card className="rounded-[0.625rem]">
