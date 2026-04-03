@@ -50,9 +50,8 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const maxAllowedBid = currentLowest * (1 - minBidStep);
   const totalSavings = ((auction.starting_price - currentLowest) / auction.starting_price * 100);
 
-  // Platform fee calculation
-  const platformFeePct = auction.transaction_type === 'domestic' ? 0.005 : 0.01;
-  const buyerPrice = currentLowest * (1 + platformFeePct);
+  // Reverse auctions use prepaid credits — no percentage markup on bid price
+  const buyerPrice = currentLowest;
 
   // Supplier rank calculation
   const myRank = useMemo(() => {
