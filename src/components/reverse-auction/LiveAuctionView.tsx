@@ -332,7 +332,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
                   </div>
                 </div>
                 <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                  <p className="text-xs text-blue-700">Buyer Price (incl. fee)</p>
+                  <p className="text-xs text-blue-700">Buyer Price</p>
                   <p className="text-lg font-bold text-blue-800">{formatCurrency(buyerPrice)}<span className="text-xs text-muted-foreground">/{auction.unit}</span></p>
                 </div>
               </div>
