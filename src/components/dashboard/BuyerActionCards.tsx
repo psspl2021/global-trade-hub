@@ -62,7 +62,7 @@ export function BuyerActionCards({
           .from('logistics_requirements')
           .select('id', { count: 'exact', head: true })
           .eq('buyer_id', userId)
-          .eq('status', 'active'),
+          .eq('status', 'active' as any),
       ]);
 
       // Count quotes: get buyer's requirement IDs first, then count bids
