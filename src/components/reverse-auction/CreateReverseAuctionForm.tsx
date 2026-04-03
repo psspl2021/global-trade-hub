@@ -305,8 +305,24 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
     const validItems = items.filter(i => i.product.trim() && i.quantity.trim());
 
-    if (!auctionTitle || validItems.length === 0 || !category || !startDate || !startTime) {
-      toast.error('Please fill all required fields and add at least one product.');
+    // Auto-generate title if missing
+    let finalTitle = auctionTitle;
+    if (!finalTitle && validItems.length > 0 && category) {
+      finalTitle = generateAuctionTitle(
+        validItems.map(i => ({ product: i.product, quantity: i.quantity, unit: i.unit })),
+        category
+      );
+      setAuctionTitle(finalTitle);
+    }
+
+    if (!finalTitle || validItems.length === 0 || !category || !startDate || !startTime) {
+      const missing: string[] = [];
+      if (!finalTitle) missing.push('auction title');
+      if (validItems.length === 0) missing.push('at least one product');
+      if (!category) missing.push('category');
+      if (!startDate) missing.push('start date');
+      if (!startTime) missing.push('start time');
+      toast.error(`Please fill: ${missing.join(', ')}.`);
       return;
     }
 
