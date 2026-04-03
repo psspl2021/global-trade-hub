@@ -417,6 +417,29 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
     }
   };
 
+  // Delete requirement and its related items
+  const handleDeleteRequirement = async (requirementId: string) => {
+    try {
+      // Delete requirement_items first (foreign key)
+      await supabase.from('requirement_items').delete().eq('requirement_id', requirementId);
+      
+      const { error } = await supabase
+        .from('requirements')
+        .delete()
+        .eq('id', requirementId)
+        .eq('buyer_id', userId);
+
+      if (error) throw error;
+
+      toast.success('Requirement deleted successfully');
+      setDeleteConfirmId(null);
+      fetchRequirements();
+    } catch (error: any) {
+      if (import.meta.env.DEV) console.error('Error deleting requirement:', error);
+      toast.error('Failed to delete requirement. It may have associated bids.');
+    }
+  };
+
   // Get effective state badge
   const getEffectiveStateBadge = (req: Requirement) => {
     const effectiveState = getEffectiveState(req);
