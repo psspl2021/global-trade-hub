@@ -63,7 +63,6 @@ export function BuyerActionCards({
         .from('logistics_requirements')
         .select('id', { count: 'exact', head: true })
         .eq('buyer_id', userId) as any).eq('status', 'active');
-      ]);
 
       // Count quotes: get buyer's requirement IDs first, then count bids
       const { data: reqIds } = await supabase
