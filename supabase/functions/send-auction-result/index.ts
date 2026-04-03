@@ -282,6 +282,8 @@ serve(async (req) => {
                       </table>
                     </div>
 
+                    ${savingsBlock}
+
                     <p style="color: #374151; font-size: 14px;">
                       You can now proceed with order finalization. The winning supplier has been notified and is awaiting your confirmation.
                     </p>
