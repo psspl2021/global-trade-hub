@@ -490,6 +490,67 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
           )}
         </div>
       )}
+
+      {/* Edit Auction Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Auction</DialogTitle>
+            <DialogDescription>Update auction details. Changes apply immediately.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Title</Label>
+              <Input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Starting Price (₹)</Label>
+                <Input type="number" value={editForm.starting_price} onChange={e => setEditForm(f => ({ ...f, starting_price: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Reserve Price (₹)</Label>
+                <Input type="number" value={editForm.reserve_price} onChange={e => setEditForm(f => ({ ...f, reserve_price: e.target.value }))} placeholder="Optional" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Quantity</Label>
+                <Input type="number" value={editForm.quantity} onChange={e => setEditForm(f => ({ ...f, quantity: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Unit</Label>
+                <Input value={editForm.unit} onChange={e => setEditForm(f => ({ ...f, unit: e.target.value }))} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveEdit} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel/Withdraw Auction Dialog */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Withdraw Auction</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to withdraw this auction? This action cannot be undone.
+              {bids.length > 0 && ` There are ${bids.length} existing bids that will be void.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCancelDialog(false)}>Keep Auction</Button>
+            <Button variant="destructive" onClick={handleCancelAuction} disabled={isSaving}>
+              {isSaving ? 'Withdrawing...' : 'Yes, Withdraw'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
