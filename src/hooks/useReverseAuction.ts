@@ -354,7 +354,13 @@ export function useReverseAuction(supplierMode: boolean = false) {
 
       if (error) throw error;
       logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_COMPLETED', actor_id: user.id, actor_role: 'buyer' });
-      toast.success('Auction completed!');
+
+      // Send winner/loser/buyer notification emails
+      supabase.functions.invoke('send-auction-result', {
+        body: { auction_id: auctionId },
+      }).catch(err => console.error('Failed to send auction result emails:', err));
+
+      toast.success('Auction completed! Winner notified.');
       fetchAuctions();
     } catch (err: any) {
       toast.error('Failed to complete auction: ' + err.message);
