@@ -32,7 +32,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const { bids, placeBid } = useReverseAuctionBids(auction.id);
+  const { bids, placeBid, editBid } = useReverseAuctionBids(auction.id);
   const { updateAuction, cancelAuction } = useReverseAuction();
   const [bidPrice, setBidPrice] = useState('');
   const [bidError, setBidError] = useState('');
@@ -55,6 +55,8 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     unit: auction.unit,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [editingBidId, setEditingBidId] = useState<string | null>(null);
+  const [editBidPrice, setEditBidPrice] = useState('');
 
   const isLive = auction.status === 'live';
 
@@ -423,34 +425,76 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                   {bids.map((bid, idx) => {
                     const isMine = user && bid.supplier_id === user.id;
+                    const canEditBid = isMine && isLive && (bid.edit_count || 0) < 2;
+                    const isEditingThis = editingBidId === bid.id;
                     return (
-                      <div
-                        key={bid.id}
-                        className={`flex items-center justify-between p-2 rounded-md text-sm ${
-                          idx === 0
-                            ? 'bg-emerald-50 border border-emerald-200'
-                            : isMine
-                              ? 'bg-primary/5 border border-primary/20'
-                              : 'bg-muted/30'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {idx === 0 && <Badge className="bg-emerald-600 text-white text-xs">L1</Badge>}
-                          {isMine && <Badge variant="outline" className="text-xs border-primary text-primary">You</Badge>}
-                          <span className="text-muted-foreground font-mono text-xs">
-                            PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
-                          </span>
+                      <div key={bid.id} className={`p-2 rounded-md text-sm ${
+                        idx === 0
+                          ? 'bg-emerald-50 border border-emerald-200'
+                          : isMine
+                            ? 'bg-primary/5 border border-primary/20'
+                            : 'bg-muted/30'
+                      }`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {idx === 0 && <Badge className="bg-emerald-600 text-white text-xs">L1</Badge>}
+                            {isMine && <Badge variant="outline" className="text-xs border-primary text-primary">You</Badge>}
+                            <span className="text-muted-foreground font-mono text-xs">
+                              PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`font-semibold ${
+                              idx === 0 ? 'text-emerald-700' : isMine ? 'text-primary' : ''
+                            }`}>
+                              {formatCurrency(bid.bid_price)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true })}
+                            </span>
+                            {canEditBid && !isEditingThis && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs gap-1"
+                                onClick={() => { setEditingBidId(bid.id); setEditBidPrice(bid.bid_price.toString()); }}
+                              >
+                                <Pencil className="w-3 h-3" /> Edit ({2 - (bid.edit_count || 0)} left)
+                              </Button>
+                            )}
+                            {isMine && (bid.edit_count || 0) >= 2 && (
+                              <span className="text-xs text-muted-foreground italic">Max edits used</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className={`font-semibold ${
-                            idx === 0 ? 'text-emerald-700' : isMine ? 'text-primary' : ''
-                          }`}>
-                            {formatCurrency(bid.bid_price)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true })}
-                          </span>
-                        </div>
+                        {isEditingThis && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <div className="relative flex-1">
+                              <IndianRupee className="w-3 h-3 absolute left-2 top-2.5 text-muted-foreground" />
+                              <Input
+                                type="number"
+                                className="h-8 pl-6 text-sm"
+                                value={editBidPrice}
+                                onChange={e => setEditBidPrice(e.target.value)}
+                                autoFocus
+                              />
+                            </div>
+                            <Button
+                              size="sm"
+                              className="h-8 text-xs"
+                              disabled={!editBidPrice || Number(editBidPrice) <= 0}
+                              onClick={async () => {
+                                const success = await editBid(bid.id, Number(editBidPrice), bid.edit_count || 0);
+                                if (success) setEditingBidId(null);
+                              }}
+                            >
+                              Save
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setEditingBidId(null)}>
+                              Cancel
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

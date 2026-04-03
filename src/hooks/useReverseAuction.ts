@@ -37,6 +37,7 @@ export interface ReverseAuctionBid {
   supplier_id: string;
   bid_price: number;
   is_winning: boolean;
+  edit_count: number;
   created_at: string;
 }
 
@@ -330,7 +331,7 @@ export function useReverseAuctionBids(auctionId: string | null) {
     fetchBids();
   }, [fetchBids]);
 
-  // Realtime subscription for live bid updates
+  // Realtime subscription for live bid updates (INSERT + UPDATE)
   useEffect(() => {
     if (!auctionId) return;
     const channel = supabase
@@ -345,6 +346,19 @@ export function useReverseAuctionBids(auctionId: string | null) {
         },
         (payload) => {
           setBids((prev) => [payload.new as unknown as ReverseAuctionBid, ...prev]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'reverse_auction_bids',
+          filter: `auction_id=eq.${auctionId}`,
+        },
+        (payload) => {
+          const updated = payload.new as unknown as ReverseAuctionBid;
+          setBids((prev) => prev.map(b => b.id === updated.id ? updated : b));
         }
       )
       .subscribe();
@@ -380,5 +394,37 @@ export function useReverseAuctionBids(auctionId: string | null) {
     }
   };
 
-  return { bids, isLoading, placeBid, refetch: fetchBids };
+  const editBid = async (bidId: string, newPrice: number, currentEditCount: number) => {
+    if (!auctionId) return false;
+    if (currentEditCount >= 2) {
+      toast.error('Maximum 2 edits allowed per bid');
+      return false;
+    }
+    try {
+      const { error } = await supabase
+        .from('reverse_auction_bids')
+        .update({
+          bid_price: newPrice,
+          edit_count: currentEditCount + 1,
+        } as any)
+        .eq('id', bidId);
+      if (error) throw error;
+
+      // Update current price on auction if this is the new lowest
+      await supabase
+        .from('reverse_auctions')
+        .update({ current_price: newPrice, updated_at: new Date().toISOString() } as any)
+        .eq('id', auctionId);
+
+      // Refresh bids
+      fetchBids();
+      toast.success(`Bid updated! (${currentEditCount + 1}/2 edits used)`);
+      return true;
+    } catch (err: any) {
+      toast.error('Failed to edit bid: ' + err.message);
+      return false;
+    }
+  };
+
+  return { bids, isLoading, placeBid, editBid, refetch: fetchBids };
 }
