@@ -302,119 +302,119 @@ const Dashboard = () => {
                   setShowRequirementForm(true);
                 }}
               />
-            ) : (
-              <>
-                {/* Quick Actions Grid */}
-                <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowForwardRFQ(true)}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <FileText className="h-5 w-5" />
-                        Forward RFQ
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Post requirements and receive competitive supplier quotes
-                      </p>
-                      <Button className="w-full">
-                        Post RFQ
-                      </Button>
-                    </CardContent>
-                  </Card>
+             ) : showReverseAuction ? (
+               <div className="space-y-4">
+                 <Button variant="ghost" size="sm" onClick={() => setShowReverseAuction(false)} className="gap-2">
+                   <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                 </Button>
+                 <ReverseAuctionDashboard isSupplier={false} />
+               </div>
+             ) : (
+               <>
+                 {/* Quick Actions Grid */}
+                 <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                   <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowForwardRFQ(true)}>
+                     <CardHeader>
+                       <CardTitle className="flex items-center gap-2">
+                         <FileText className="h-5 w-5" />
+                         Forward RFQ
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <p className="text-sm text-muted-foreground mb-4">
+                         Post requirements and receive competitive supplier quotes
+                       </p>
+                       <Button className="w-full">
+                         Post RFQ
+                       </Button>
+                     </CardContent>
+                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Gavel className="h-5 w-5" />
-                        Reverse Auction
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Run live reverse auctions and maximize savings
-                      </p>
-                      <Button variant="outline" className="w-full" onClick={() => {
-                        document.getElementById('buyer-reverse-auction')?.scrollIntoView({ behavior: 'smooth' });
-                      }}>
-                        View Auctions
-                      </Button>
-                    </CardContent>
-                  </Card>
+                   <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowReverseAuction(true)}>
+                     <CardHeader>
+                       <CardTitle className="flex items-center gap-2">
+                         <Gavel className="h-5 w-5" />
+                         Reverse Auction
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <p className="text-sm text-muted-foreground mb-4">
+                         Run live reverse auctions and maximize savings
+                       </p>
+                       <Button variant="outline" className="w-full">
+                         View Auctions
+                       </Button>
+                     </CardContent>
+                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Truck className="h-5 w-5" />
-                        Book Transport
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Post logistics requirement and get competitive quotes
-                      </p>
-                      <Button className="w-full" onClick={() => setShowLogisticsRequirementForm(true)}>
-                        Post Logistics Need
-                      </Button>
-                    </CardContent>
-                  </Card>
+                   <Card>
+                     <CardHeader>
+                       <CardTitle className="flex items-center gap-2">
+                         <Truck className="h-5 w-5" />
+                         Book Transport
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <p className="text-sm text-muted-foreground mb-4">
+                         Post logistics requirement and get competitive quotes
+                       </p>
+                       <Button className="w-full" onClick={() => setShowLogisticsRequirementForm(true)}>
+                         Post Logistics Need
+                       </Button>
+                     </CardContent>
+                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Package className="h-5 w-5" />
-                        Browse Products
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Search supplier products with live stock updates
-                      </p>
-                      <Button variant="outline" className="w-full" onClick={() => setShowLiveStock(true)}>
-                        Browse Stock
-                      </Button>
-                    </CardContent>
-                  </Card>
+                   <Card>
+                     <CardHeader>
+                       <CardTitle className="flex items-center gap-2">
+                         <Package className="h-5 w-5" />
+                         Browse Products
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <p className="text-sm text-muted-foreground mb-4">
+                         Search supplier products with live stock updates
+                       </p>
+                       <Button variant="outline" className="w-full" onClick={() => setShowLiveStock(true)}>
+                         Browse Stock
+                       </Button>
+                     </CardContent>
+                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Package className="h-5 w-5" />
-                        CRM & Inventory
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Manage inventory, invoices & purchase orders
-                      </p>
-                      <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
-                    </CardContent>
-                  </Card>
+                   <Card>
+                     <CardHeader>
+                       <CardTitle className="flex items-center gap-2">
+                         <Package className="h-5 w-5" />
+                         CRM & Inventory
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <p className="text-sm text-muted-foreground mb-4">
+                         Manage inventory, invoices & purchase orders
+                       </p>
+                       <Button variant="outline" className="w-full" onClick={() => setShowCRM(true)}>Open CRM</Button>
+                     </CardContent>
+                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5" />
-                        Track Shipments
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Track your logistics shipments in real-time
-                      </p>
-                      <Button variant="outline" className="w-full" onClick={() => setShowCustomerShipmentTracking(true)}>
-                        Track Now
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Reverse Auction Section */}
-                <div id="buyer-reverse-auction">
-                  <ReverseAuctionDashboard isSupplier={false} />
-                </div>
-              </>
-            )}
+                   <Card>
+                     <CardHeader>
+                       <CardTitle className="flex items-center gap-2">
+                         <MapPin className="h-5 w-5" />
+                         Track Shipments
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <p className="text-sm text-muted-foreground mb-4">
+                         Track your logistics shipments in real-time
+                       </p>
+                       <Button variant="outline" className="w-full" onClick={() => setShowCustomerShipmentTracking(true)}>
+                         Track Now
+                       </Button>
+                     </CardContent>
+                   </Card>
+                 </div>
+               </>
+             )}
 
             {/* Referral Section for Buyers */}
             {user && <ReferralSection userId={user.id} role="buyer" />}
