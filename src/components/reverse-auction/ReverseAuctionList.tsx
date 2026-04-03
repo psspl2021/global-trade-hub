@@ -238,6 +238,7 @@ function AuctionCard({
   startAuction,
   cancelAuction,
   completeAuction,
+  republishAuction,
 }: {
   auction: ReverseAuction;
   isSupplier: boolean;
@@ -246,6 +247,7 @@ function AuctionCard({
   startAuction: (id: string) => void;
   cancelAuction: (id: string) => void;
   completeAuction: (id: string) => void;
+  republishAuction: (id: string) => void;
 }) {
   // Compute effective status based on time
   const effectiveStatus = (() => {
