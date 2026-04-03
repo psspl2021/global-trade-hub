@@ -68,6 +68,7 @@ import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
 import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
+import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 
 const Dashboard = () => {
   const navigate = useNavigate();
