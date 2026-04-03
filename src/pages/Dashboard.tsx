@@ -66,7 +66,8 @@ import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard'
 import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
-import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
+import { BuyerProcurementCenter } from '@/components/dashboard/BuyerProcurementCenter';
+import { SupplierProcurementCenter } from '@/components/dashboard/SupplierProcurementCenter';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -370,11 +371,8 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Reverse Auction Section */}
-            <ReverseAuctionDashboard isSupplier={false} />
-
-            {/* Requirements List with Bid Details */}
-            {user && <BuyerRequirementsList key={refreshKey} userId={user.id} />}
+            {/* Unified Procurement Center — Forward RFQ + Reverse Auction */}
+            {user && <BuyerProcurementCenter userId={user.id} refreshKey={refreshKey} />}
             
             {/* Logistics Requirements List */}
             {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
@@ -792,9 +790,9 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Reverse Auctions (Supplier View) */}
+            {/* Unified Procurement Center — Bids + Reverse Auctions */}
             <div className="mt-4">
-              <ReverseAuctionDashboard isSupplier={true} />
+              {user && <SupplierProcurementCenter userId={user.id} />}
             </div>
 
             {/* Compact cards grid for Subscription, Email, Platform Invoices */}
@@ -842,12 +840,6 @@ const Dashboard = () => {
 
             {/* Referral Section for Suppliers */}
             {user && <ReferralSection userId={user.id} role="supplier" />}
-
-            {/* My Bids Section - Shows all bids with breakdown and re-bid */}
-            {user && <SupplierMyBids userId={user.id} />}
-
-            {/* Accepted Bids Section */}
-            {user && <SupplierAcceptedBids userId={user.id} />}
 
             {user && (
               <>
