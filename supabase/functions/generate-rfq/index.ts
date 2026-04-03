@@ -110,17 +110,18 @@ Trade types: import, export, domestic_india`;
                   },
                   items: {
                     type: "array",
+                    minItems: 1,
                     items: {
                       type: "object",
                       properties: {
-                        item_name: { type: "string", description: "Name of the item" },
-                        description: { type: "string", description: "Item specifications" },
-                        quantity: { type: "number", description: "Estimated quantity" },
+                        item_name: { type: "string", description: "Name of the specific product/SKU" },
+                        description: { type: "string", description: "Detailed item specifications including size, grade, thickness etc." },
+                        quantity: { type: "number", description: "Quantity for THIS specific item" },
                         unit: { type: "string", description: "Unit from available list" }
                       },
                       required: ["item_name", "description", "quantity", "unit"]
                     },
-                    description: "List of items to procure"
+                    description: "IMPORTANT: Each distinct product/SKU mentioned by the user MUST be a separate entry. Never combine different products into one item."
                   },
                   trade_type: {
                     type: "string",
