@@ -464,9 +464,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                       🔴 LIVE
                     </Badge>
                   )}
-                  {!isLive && auction.status === 'completed' && (
+                  {effectiveStatus === 'completed' && (
                     <Badge className="bg-primary text-primary-foreground px-3 py-1">
                       Completed
+                    </Badge>
+                  )}
+                  {effectiveStatus === 'cancelled' && (
+                    <Badge variant="destructive" className="px-3 py-1">
+                      ⊘ Cancelled
                     </Badge>
                   )}
                 </div>
