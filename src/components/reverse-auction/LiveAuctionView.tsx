@@ -3,6 +3,7 @@
  * Enterprise: L1/L2/L3 Leaderboard, Anti-sniping, Audit logging, Mobile sticky bid
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { AuctionResultExport } from './AuctionResultExport';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -365,10 +366,13 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   return (
     <div className="space-y-4 pb-20">
-      {/* Back button */}
-      <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
-        <ArrowLeft className="w-4 h-4" /> Back to Auctions
-      </Button>
+      {/* Back button + Export */}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
+          <ArrowLeft className="w-4 h-4" /> Back to Auctions
+        </Button>
+        {isBuyer && <AuctionResultExport auction={auction} bids={bids} />}
+      </div>
 
       {/* 🔥 STICKY LIVE STRIP */}
       {isLive && (

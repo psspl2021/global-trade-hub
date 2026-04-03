@@ -110,6 +110,23 @@ serve(async (req) => {
     const currency = auction.currency || 'INR';
     const currencySymbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : currency;
 
+    // Savings calculation
+    const startingPrice = auction.starting_price || 0;
+    const savingsPerUnit = startingPrice > 0 ? startingPrice - winnerBid.bid_price : 0;
+    const savingsPct = startingPrice > 0 ? ((savingsPerUnit / startingPrice) * 100).toFixed(1) : '0';
+    const totalSaved = savingsPerUnit * (auction.quantity || 1);
+    const totalSavedFormatted = new Intl.NumberFormat('en-IN').format(totalSaved);
+    const savingsBlock = startingPrice > 0 ? `
+      <div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #6ee7b7; border-radius: 8px; padding: 16px; margin: 20px 0;">
+        <h3 style="color: #065f46; margin: 0 0 8px 0; font-size: 16px;">💰 Savings Summary</h3>
+        <table style="width: 100%; font-size: 14px; color: #374151;">
+          <tr><td style="padding: 4px 0;">Starting Price:</td><td style="text-align:right;">${currencySymbol}${new Intl.NumberFormat('en-IN').format(startingPrice)}</td></tr>
+          <tr><td style="padding: 4px 0;">Winning Price:</td><td style="text-align:right; color: #16a34a; font-weight: 700;">${currencySymbol}${new Intl.NumberFormat('en-IN').format(winnerBid.bid_price)}</td></tr>
+          <tr><td style="padding: 4px 0; border-top: 1px solid #a7f3d0; font-weight: 700;">Total Saved:</td><td style="text-align:right; border-top: 1px solid #a7f3d0; color: #059669; font-weight: 700; font-size: 16px;">${currencySymbol}${totalSavedFormatted} (${savingsPct}%)</td></tr>
+        </table>
+      </div>
+    ` : '';
+
     const emailResults: string[] = [];
 
     // 1. Send winner notification
@@ -264,6 +281,8 @@ serve(async (req) => {
                         <tr><td style="padding: 4px 0; font-weight: 600;">Total Bids Received:</td><td>${bids.length}</td></tr>
                       </table>
                     </div>
+
+                    ${savingsBlock}
 
                     <p style="color: #374151; font-size: 14px;">
                       You can now proceed with order finalization. The winning supplier has been notified and is awaiting your confirmation.
