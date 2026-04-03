@@ -37,6 +37,7 @@ export interface ReverseAuctionBid {
   supplier_id: string;
   bid_price: number;
   is_winning: boolean;
+  edit_count: number;
   created_at: string;
 }
 
