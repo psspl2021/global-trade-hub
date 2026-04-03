@@ -28,10 +28,58 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
 }
 
-export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuctionViewProps) {
+export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = false }: LiveAuctionViewProps) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { toast } = useToast();
+
+  // Live auction state — subscribes to real-time changes
+  const [auction, setAuction] = useState<ReverseAuction>(initialAuction);
+
+  // Real-time subscription on the auction record itself
+  useEffect(() => {
+    const channel = supabase
+      .channel(`auction-detail-${initialAuction.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'reverse_auctions',
+          filter: `id=eq.${initialAuction.id}`,
+        },
+        (payload) => {
+          setAuction(prev => ({ ...prev, ...(payload.new as any) }));
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [initialAuction.id]);
+
+  // Compute effective status based on DB status + actual time
+  const effectiveStatus = useMemo(() => {
+    if (auction.status === 'cancelled' || auction.status === 'completed') return auction.status;
+    const now = new Date();
+    if (auction.auction_end && new Date(auction.auction_end) <= now) return 'completed';
+    if (auction.auction_start && new Date(auction.auction_start) <= now) return 'live';
+    return 'scheduled';
+  }, [auction.status, auction.auction_start, auction.auction_end]);
+
+  // Auto-update DB status when time transitions happen
+  const { updateAuctionStatus } = useReverseAuction();
+
+  useEffect(() => {
+    if (effectiveStatus !== auction.status && (effectiveStatus === 'live' || effectiveStatus === 'completed')) {
+      // Fire and forget — update DB status to match time-based reality
+      if (effectiveStatus === 'live' && auction.status === 'scheduled') {
+        updateAuctionStatus(auction.id, 'live');
+      } else if (effectiveStatus === 'completed' && auction.status === 'live') {
+        updateAuctionStatus(auction.id, 'completed');
+      }
+    }
+  }, [effectiveStatus, auction.status, auction.id]);
+
   const { bids, placeBid, editBid } = useReverseAuctionBids(auction.id);
   const { updateAuction, cancelAuction } = useReverseAuction();
   const [bidPrice, setBidPrice] = useState('');
@@ -44,7 +92,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
 
   // Buyer edit/cancel state
   const isBuyer = user?.id === auction.buyer_id;
-  const canEdit = isBuyer && (auction.status === 'scheduled' || auction.status === 'live');
+  const canEdit = isBuyer && (effectiveStatus === 'scheduled' || effectiveStatus === 'live');
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const buyerEditCount = (auction as any).buyer_edit_count || 0;
@@ -61,7 +109,7 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const [editingBidId, setEditingBidId] = useState<string | null>(null);
   const [editBidPrice, setEditBidPrice] = useState('');
 
-  const isLive = auction.status === 'live';
+  const isLive = effectiveStatus === 'live';
 
   const currentLowest = useMemo(() => {
     if (bids.length === 0) return auction.starting_price;
