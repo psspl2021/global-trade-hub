@@ -75,7 +75,8 @@ const Dashboard = () => {
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
-  const [showForwardRFQ, setShowForwardRFQ] = useState(false);
+   const [showForwardRFQ, setShowForwardRFQ] = useState(false);
+   const [showReverseAuction, setShowReverseAuction] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
