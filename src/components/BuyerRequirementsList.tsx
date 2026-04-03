@@ -736,6 +736,27 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
         </CardContent>
       </Card>
 
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Requirement</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this requirement? This action cannot be undone and will remove all associated line items.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteConfirmId && handleDeleteRequirement(deleteConfirmId)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Bids Dialog */}
       <Dialog open={!!selectedRequirement} onOpenChange={() => setSelectedRequirement(null)}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
