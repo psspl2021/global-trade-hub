@@ -224,15 +224,20 @@ export function useReverseAuction() {
     reserve_price?: number | null;
     quantity?: number;
     unit?: string;
+    product_slug?: string;
     auction_end?: string;
-  }) => {
+  }, currentEditCount: number = 0) => {
+    if (currentEditCount >= 2) {
+      toast.error('Maximum 2 edits allowed per auction');
+      return false;
+    }
     try {
       const { error } = await supabase
         .from('reverse_auctions')
-        .update({ ...updates, updated_at: new Date().toISOString() } as any)
+        .update({ ...updates, buyer_edit_count: currentEditCount + 1, updated_at: new Date().toISOString() } as any)
         .eq('id', auctionId);
       if (error) throw error;
-      toast.success('Auction updated successfully!');
+      toast.success(`Auction updated! (${currentEditCount + 1}/2 edits used)`);
       fetchAuctions();
       return true;
     } catch (err: any) {

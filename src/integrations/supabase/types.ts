@@ -6532,6 +6532,7 @@ export type Database = {
           anti_snipe_threshold_seconds: number
           auction_end: string | null
           auction_start: string | null
+          buyer_edit_count: number
           buyer_id: string
           category: string
           created_at: string
@@ -6558,6 +6559,7 @@ export type Database = {
           anti_snipe_threshold_seconds?: number
           auction_end?: string | null
           auction_start?: string | null
+          buyer_edit_count?: number
           buyer_id: string
           category?: string
           created_at?: string
@@ -6584,6 +6586,7 @@ export type Database = {
           anti_snipe_threshold_seconds?: number
           auction_end?: string | null
           auction_start?: string | null
+          buyer_edit_count?: number
           buyer_id?: string
           category?: string
           created_at?: string

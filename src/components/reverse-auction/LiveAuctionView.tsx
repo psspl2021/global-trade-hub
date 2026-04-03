@@ -47,12 +47,15 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
   const canEdit = isBuyer && (auction.status === 'scheduled' || auction.status === 'live');
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const buyerEditCount = (auction as any).buyer_edit_count || 0;
+  const canEditAuction = canEdit && buyerEditCount < 2;
   const [editForm, setEditForm] = useState({
     title: auction.title,
     starting_price: auction.starting_price,
     reserve_price: auction.reserve_price || '',
     quantity: auction.quantity,
     unit: auction.unit,
+    product_slug: auction.product_slug,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [editingBidId, setEditingBidId] = useState<string | null>(null);
@@ -181,12 +184,13 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
         starting_price: Number(editForm.starting_price),
         quantity: Number(editForm.quantity),
         unit: editForm.unit,
+        product_slug: editForm.product_slug,
         reserve_price: editForm.reserve_price ? Number(editForm.reserve_price) : null,
       };
-      const success = await updateAuction(auction.id, updates);
+      const success = await updateAuction(auction.id, updates, buyerEditCount);
       if (success) {
         setShowEditDialog(false);
-        onBack(); // refresh auction list
+        onBack();
       }
     } finally {
       setIsSaving(false);
@@ -355,9 +359,13 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
                 <div className="flex items-center gap-2">
                   {canEdit && (
                     <>
-                      <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
-                        <Pencil className="w-3 h-3" /> Edit
-                      </Button>
+                      {canEditAuction ? (
+                        <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
+                          <Pencil className="w-3 h-3" /> Edit ({2 - buyerEditCount} left)
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">Max edits used</span>
+                      )}
                       <Button variant="destructive" size="sm" onClick={() => setShowCancelDialog(true)} className="gap-1">
                         <XCircle className="w-3 h-3" /> Withdraw
                       </Button>
@@ -546,6 +554,10 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
             <div>
               <Label>Title</Label>
               <Input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} />
+            </div>
+            <div>
+              <Label>Product SKU</Label>
+              <Input value={editForm.product_slug} onChange={e => setEditForm(f => ({ ...f, product_slug: e.target.value }))} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
