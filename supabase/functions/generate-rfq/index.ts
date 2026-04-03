@@ -85,7 +85,7 @@ Trade types: import, export, domestic_india`;
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate a structured RFQ for this requirement: "${description}"` }
+          { role: "user", content: `Generate a structured RFQ for this requirement. IMPORTANT: Extract EVERY product/item mentioned as a separate entry in the items array. Do NOT merge different products into one item.\n\nUser requirement: "${description}"` }
         ],
         tools: [
           {
