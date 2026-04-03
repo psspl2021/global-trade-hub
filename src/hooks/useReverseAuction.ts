@@ -58,7 +58,7 @@ export interface CreateAuctionInput {
   invited_suppliers?: { id: string; email?: string; manual?: boolean }[];
 }
 
-export function useReverseAuction() {
+export function useReverseAuction(supplierMode: boolean = false) {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,19 +67,42 @@ export function useReverseAuction() {
     if (!user) return;
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('reverse_auctions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setAuctions((data as unknown as ReverseAuction[]) || []);
+      if (supplierMode) {
+        // Supplier: only fetch auctions they're invited to
+        const { data: invites, error: invErr } = await supabase
+          .from('reverse_auction_suppliers')
+          .select('auction_id')
+          .or(`supplier_id.eq.${user.id},supplier_email.eq.${user.email}`);
+        if (invErr) throw invErr;
+        const auctionIds = (invites || []).map((i: any) => i.auction_id);
+        if (auctionIds.length === 0) {
+          setAuctions([]);
+          setIsLoading(false);
+          return;
+        }
+        const { data, error } = await supabase
+          .from('reverse_auctions')
+          .select('*')
+          .in('id', auctionIds)
+          .in('status', ['scheduled', 'live', 'completed'])
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        setAuctions((data as unknown as ReverseAuction[]) || []);
+      } else {
+        // Buyer: fetch all auctions
+        const { data, error } = await supabase
+          .from('reverse_auctions')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        setAuctions((data as unknown as ReverseAuction[]) || []);
+      }
     } catch (err: any) {
       console.error('Error fetching reverse auctions:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, supplierMode]);
 
   useEffect(() => {
     fetchAuctions();

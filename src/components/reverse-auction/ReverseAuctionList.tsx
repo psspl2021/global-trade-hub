@@ -1,13 +1,14 @@
 /**
- * Reverse Auction List — Shows all auctions for the current user (buyer or supplier)
+ * Reverse Auction List — Shows auctions for buyer or supplier
+ * Suppliers see only auctions they're invited to, with bid-oriented UI
  */
 import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play } from 'lucide-react';
+import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, IndianRupee, Users, Timer } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
-import { formatDistanceToNow, isPast, format } from 'date-fns';
+import { formatDistanceToNow, isPast, format, differenceInSeconds } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
@@ -41,10 +42,11 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
 interface ReverseAuctionListProps {
   onSelectAuction?: (auction: ReverseAuction) => void;
   isBuyer?: boolean;
+  isSupplier?: boolean;
 }
 
-export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseAuctionListProps) {
-  const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction();
+export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier = false }: ReverseAuctionListProps) {
+  const { auctions, isLoading, startAuction, cancelAuction, completeAuction, refetch } = useReverseAuction(isSupplier);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const creditsRef = useRef<HTMLDivElement>(null);
@@ -53,11 +55,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
   useEffect(() => {
     if (searchParams.get('buy_credits') === 'true' && creditsRef.current) {
       creditsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Highlight effect with smooth transition
       const el = creditsRef.current;
       el.classList.add('ring-2', 'ring-primary', 'transition-all', 'duration-300');
       setTimeout(() => el?.classList.remove('ring-2', 'ring-primary'), 2000);
-      // Clean URL — safe copy, no mutation
       const params = new URLSearchParams(searchParams);
       params.delete('buy_credits');
       setSearchParams(params, { replace: true });
@@ -72,22 +72,33 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
     );
   }
 
+  // Separate live auctions for supplier priority view
+  const liveAuctions = auctions.filter(a => a.status === 'live');
+  const scheduledAuctions = auctions.filter(a => a.status === 'scheduled');
+  const completedAuctions = auctions.filter(a => a.status === 'completed' || a.status === 'cancelled');
+
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 shadow-md">
-            <Gavel className="w-5 h-5 text-white" />
+          <div className="p-2 rounded-[0.625rem] bg-primary shadow-md">
+            <Gavel className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-bold tracking-tight">Reverse Auctions</h2>
-            <p className="text-xs text-muted-foreground">Price discovery through competitive reverse bidding</p>
+            <h2 className="text-lg font-bold tracking-tight">
+              {isSupplier ? 'Reverse Auctions — Your Invitations' : 'Reverse Auctions'}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {isSupplier
+                ? 'Bid competitively on live auctions to win orders'
+                : 'Price discovery through competitive reverse bidding'}
+            </p>
           </div>
         </div>
         {isBuyer && (
           <Button
-            className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
+            className="gap-2"
             onClick={() => navigate('/buyer/create-reverse-auction')}
           >
             <Gavel className="w-4 h-4" />
@@ -103,113 +114,245 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true }: ReverseA
         </div>
       )}
 
-      {/* Auction Cards */}
+      {/* No auctions */}
       {auctions.length === 0 ? (
-        <Card>
+        <Card className="rounded-[0.625rem]">
           <CardContent className="py-12 text-center">
             <Gavel className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
-            <p className="text-muted-foreground font-medium">No reverse auctions yet</p>
+            <p className="text-muted-foreground font-medium">
+              {isSupplier ? 'No auction invitations yet' : 'No reverse auctions yet'}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              {isBuyer ? 'Create your first reverse auction to discover the best prices' : 'No auctions available at this time'}
+              {isSupplier
+                ? 'When buyers invite you to reverse auctions, they will appear here'
+                : 'Create your first reverse auction to discover the best prices'}
             </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {auctions.map(auction => {
-            const isLive = auction.status === 'live';
-            const isScheduled = auction.status === 'scheduled';
-            const isCompleted = auction.status === 'completed';
-            const savings = auction.current_price && auction.starting_price
-              ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
-              : 0;
+        <div className="space-y-6">
+          {/* 🔴 LIVE Auctions — Priority for Suppliers */}
+          {liveAuctions.length > 0 && (
+            <div className="space-y-3">
+              {isSupplier && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-700">Live — Bid Now</h3>
+                </div>
+              )}
+              <div className="grid gap-4 md:grid-cols-2">
+                {liveAuctions.map(auction => (
+                  <AuctionCard
+                    key={auction.id}
+                    auction={auction}
+                    isSupplier={isSupplier}
+                    isBuyer={isBuyer}
+                    onSelect={onSelectAuction}
+                    startAuction={startAuction}
+                    cancelAuction={cancelAuction}
+                    completeAuction={completeAuction}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-            return (
-              <Card
-                key={auction.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${isLive ? 'border-emerald-300 ring-1 ring-emerald-200' : ''}`}
-                onClick={() => onSelectAuction?.(auction)}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-base">{auction.title}</CardTitle>
-                    <AuctionStatusBadge status={auction.status} />
-                  </div>
-                  <p className="text-sm text-muted-foreground">{auction.category} • {auction.quantity} {auction.unit}</p>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div>
-                      <p className="text-muted-foreground text-xs">Start Price</p>
-                      <p className="font-semibold">{formatCurrency(auction.starting_price, auction.currency)}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Current</p>
-                      <p className="font-semibold text-emerald-700">
-                        {formatCurrency(auction.current_price, auction.currency)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Savings</p>
-                      <div className="flex items-center gap-1">
-                        <TrendingDown className="w-3 h-3 text-emerald-600" />
-                        <p className="font-semibold text-emerald-700">{savings.toFixed(1)}%</p>
-                      </div>
-                    </div>
-                  </div>
+          {/* ⏰ Scheduled Auctions */}
+          {scheduledAuctions.length > 0 && (
+            <div className="space-y-3">
+              {isSupplier && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-3 h-3 text-blue-600" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700">Upcoming</h3>
+                </div>
+              )}
+              <div className="grid gap-4 md:grid-cols-2">
+                {scheduledAuctions.map(auction => (
+                  <AuctionCard
+                    key={auction.id}
+                    auction={auction}
+                    isSupplier={isSupplier}
+                    isBuyer={isBuyer}
+                    onSelect={onSelectAuction}
+                    startAuction={startAuction}
+                    cancelAuction={cancelAuction}
+                    completeAuction={completeAuction}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-                  {/* Timing */}
-                  {auction.auction_end && (
-                    <p className="text-xs text-muted-foreground">
-                      {isLive ? (
-                        isPast(new Date(auction.auction_end))
-                          ? 'Auction ended'
-                          : `Ends ${formatDistanceToNow(new Date(auction.auction_end), { addSuffix: true })}`
-                      ) : isCompleted ? (
-                        `Completed ${format(new Date(auction.auction_end), 'dd MMM yyyy')}`
-                      ) : (
-                        `Starts ${format(new Date(auction.auction_start || ''), 'dd MMM yyyy HH:mm')}`
-                      )}
-                    </p>
-                  )}
-
-                  {/* Invite Analytics (Buyer only) */}
-                  {isBuyer && <AuctionInviteAnalytics auctionId={auction.id} />}
-
-                  {/* Buyer Actions */}
-                  {isBuyer && (
-                    <div className="flex gap-2 pt-1" onClick={e => e.stopPropagation()}>
-                      {isScheduled && (
-                        <>
-                          <Button size="sm" variant="default" onClick={() => startAuction(auction.id)}>
-                            <Play className="w-3 h-3 mr-1" /> Go Live
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
-                        </>
-                      )}
-                      {isLive && (
-                        <Button size="sm" variant="destructive" onClick={() => completeAuction(auction.id)}>
-                          End & Award
-                        </Button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Winner */}
-                  {isCompleted && auction.winning_price && (
-                    <div className="bg-emerald-50 border border-emerald-200 rounded-md p-2 text-sm">
-                      <div className="flex items-center gap-1 text-emerald-800 font-medium">
-                        <Trophy className="w-3 h-3" />
-                        Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
+          {/* ✅ Completed/Cancelled */}
+          {completedAuctions.length > 0 && (
+            <div className="space-y-3">
+              {isSupplier && (
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-3 h-3 text-muted-foreground" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Past Auctions</h3>
+                </div>
+              )}
+              <div className="grid gap-4 md:grid-cols-2">
+                {completedAuctions.map(auction => (
+                  <AuctionCard
+                    key={auction.id}
+                    auction={auction}
+                    isSupplier={isSupplier}
+                    isBuyer={isBuyer}
+                    onSelect={onSelectAuction}
+                    startAuction={startAuction}
+                    cancelAuction={cancelAuction}
+                    completeAuction={completeAuction}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+/* ─── Individual Auction Card ─── */
+function AuctionCard({
+  auction,
+  isSupplier,
+  isBuyer,
+  onSelect,
+  startAuction,
+  cancelAuction,
+  completeAuction,
+}: {
+  auction: ReverseAuction;
+  isSupplier: boolean;
+  isBuyer: boolean;
+  onSelect?: (auction: ReverseAuction) => void;
+  startAuction: (id: string) => void;
+  cancelAuction: (id: string) => void;
+  completeAuction: (id: string) => void;
+}) {
+  const isLive = auction.status === 'live';
+  const isScheduled = auction.status === 'scheduled';
+  const isCompleted = auction.status === 'completed';
+  const savings = auction.current_price && auction.starting_price
+    ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
+    : 0;
+
+  return (
+    <Card
+      className={`cursor-pointer transition-all hover:shadow-md rounded-[0.625rem] ${
+        isLive ? 'border-emerald-400 ring-2 ring-emerald-100 shadow-md' : ''
+      }`}
+      onClick={() => onSelect?.(auction)}
+    >
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-base font-bold truncate">{auction.title}</CardTitle>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {auction.category} • {auction.quantity} {auction.unit}
+            </p>
+          </div>
+          <AuctionStatusBadge status={auction.status} />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* Price metrics */}
+        <div className="grid grid-cols-3 gap-2 text-sm">
+          <div className="bg-muted/50 rounded-[0.625rem] p-2">
+            <p className="text-muted-foreground text-xs">Start Price</p>
+            <p className="font-bold">{formatCurrency(auction.starting_price, auction.currency)}</p>
+          </div>
+          <div className={`rounded-[0.625rem] p-2 ${isLive ? 'bg-emerald-50 border border-emerald-200' : 'bg-muted/50'}`}>
+            <p className="text-muted-foreground text-xs">Current</p>
+            <p className="font-bold text-emerald-700">
+              {formatCurrency(auction.current_price, auction.currency)}
+            </p>
+          </div>
+          <div className="bg-muted/50 rounded-[0.625rem] p-2">
+            <p className="text-muted-foreground text-xs">Savings</p>
+            <div className="flex items-center gap-1">
+              <TrendingDown className="w-3 h-3 text-emerald-600" />
+              <p className="font-bold text-emerald-700">{savings.toFixed(1)}%</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Timing */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Timer className="w-3 h-3" />
+          {isLive ? (
+            auction.auction_end && !isPast(new Date(auction.auction_end))
+              ? <span className="font-medium text-emerald-700">Ends {formatDistanceToNow(new Date(auction.auction_end), { addSuffix: true })}</span>
+              : <span className="text-destructive font-medium">Auction ended</span>
+          ) : isCompleted ? (
+            <span>Completed {auction.auction_end ? format(new Date(auction.auction_end), 'dd MMM yyyy') : ''}</span>
+          ) : (
+            <span>Starts {auction.auction_start ? format(new Date(auction.auction_start), 'dd MMM yyyy HH:mm') : '—'}</span>
+          )}
+        </div>
+
+        {/* Supplier CTA */}
+        {isSupplier && isLive && (
+          <Button
+            className="w-full gap-2 font-semibold"
+            size="sm"
+            onClick={(e) => { e.stopPropagation(); onSelect?.(auction); }}
+          >
+            <Gavel className="w-4 h-4" />
+            Place Your Bid
+            <ArrowRight className="w-3 h-3" />
+          </Button>
+        )}
+
+        {isSupplier && isScheduled && (
+          <div className="bg-blue-50 border border-blue-200 rounded-[0.625rem] p-2.5 text-sm">
+            <p className="font-medium text-blue-800 text-xs">You're invited to bid</p>
+            <p className="text-blue-600 text-xs mt-0.5">
+              Auction starts {auction.auction_start ? format(new Date(auction.auction_start), 'dd MMM yyyy, hh:mm a') : 'soon'}. 
+              Prepare your best price.
+            </p>
+          </div>
+        )}
+
+        {/* Invite Analytics (Buyer only) */}
+        {isBuyer && <AuctionInviteAnalytics auctionId={auction.id} />}
+
+        {/* Buyer Actions */}
+        {isBuyer && (
+          <div className="flex gap-2 pt-1" onClick={e => e.stopPropagation()}>
+            {isScheduled && (
+              <>
+                <Button size="sm" variant="default" onClick={() => startAuction(auction.id)}>
+                  <Play className="w-3 h-3 mr-1" /> Go Live
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
+              </>
+            )}
+            {isLive && (
+              <Button size="sm" variant="destructive" onClick={() => completeAuction(auction.id)}>
+                End & Award
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Winner */}
+        {isCompleted && auction.winning_price && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2 text-sm">
+            <div className="flex items-center gap-1 text-emerald-800 font-medium">
+              <Trophy className="w-3 h-3" />
+              Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
+              {isSupplier && auction.winner_supplier_id && (
+                <Badge variant="outline" className="ml-auto text-xs">
+                  {auction.winner_supplier_id ? 'Result' : ''}
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
