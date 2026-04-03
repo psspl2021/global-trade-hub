@@ -170,6 +170,39 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     }
   };
 
+  // Buyer: save auction edits
+  const handleSaveEdit = async () => {
+    setIsSaving(true);
+    try {
+      const updates: any = {
+        title: editForm.title,
+        starting_price: Number(editForm.starting_price),
+        quantity: Number(editForm.quantity),
+        unit: editForm.unit,
+        reserve_price: editForm.reserve_price ? Number(editForm.reserve_price) : null,
+      };
+      const success = await updateAuction(auction.id, updates);
+      if (success) {
+        setShowEditDialog(false);
+        onBack(); // refresh auction list
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Buyer: cancel/withdraw auction
+  const handleCancelAuction = async () => {
+    setIsSaving(true);
+    try {
+      await cancelAuction(auction.id);
+      setShowCancelDialog(false);
+      onBack();
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const urgencyColor = useMemo(() => {
     if (!auction.auction_end || !isLive) return '';
     const secs = differenceInSeconds(new Date(auction.auction_end), new Date());
