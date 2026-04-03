@@ -55,6 +55,8 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
     unit: auction.unit,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [editingBidId, setEditingBidId] = useState<string | null>(null);
+  const [editBidPrice, setEditBidPrice] = useState('');
 
   const isLive = auction.status === 'live';
 
