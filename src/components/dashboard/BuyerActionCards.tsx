@@ -98,6 +98,8 @@ export function BuyerActionCards({
     };
 
     fetchMetrics();
+    const interval = setInterval(fetchMetrics, 15000);
+    return () => clearInterval(interval);
   }, [userId]);
 
   const formatCurrency = (val: number) => {
