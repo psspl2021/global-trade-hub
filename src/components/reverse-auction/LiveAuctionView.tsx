@@ -555,6 +555,10 @@ export function LiveAuctionView({ auction, onBack, isSupplier = false }: LiveAuc
               <Label>Title</Label>
               <Input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} />
             </div>
+            <div>
+              <Label>Product SKU</Label>
+              <Input value={editForm.product_slug} onChange={e => setEditForm(f => ({ ...f, product_slug: e.target.value }))} />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Starting Price (₹)</Label>
