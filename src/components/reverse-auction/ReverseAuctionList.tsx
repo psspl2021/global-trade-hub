@@ -257,6 +257,9 @@ function AuctionCard({
     if (auction.auction_start && new Date(auction.auction_start) <= now) return 'live';
     return 'scheduled';
   })();
+  const isLive = effectiveStatus === 'live';
+  const isScheduled = effectiveStatus === 'scheduled';
+  const isCompleted = effectiveStatus === 'completed';
   const isCancelled = effectiveStatus === 'cancelled';
   const canRepublish = isBuyer && isCancelled && isToday(new Date(auction.updated_at));
   const savings = auction.current_price && auction.starting_price
