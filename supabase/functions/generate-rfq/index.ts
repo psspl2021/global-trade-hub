@@ -28,15 +28,23 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert B2B procurement assistant. Your job is to convert natural language sourcing requirements into structured RFQ (Request for Quotation) data.
 
-Given a user's description of what they need to procure, extract and generate:
-1. A professional title for the requirement
-2. A detailed description with specifications
-3. The most appropriate product category
-4. Estimated quantity and unit
-5. Suggested trade type (import/export/domestic)
-6. Recommended quality standards
-7. Any certifications that might be required
-8. Standard payment terms suggestion
+CRITICAL RULES:
+1. Extract EVERY SINGLE item/product mentioned in the description as a SEPARATE entry in the items array.
+2. If the user mentions "hr coil 5mm 40 ton, hr plates 10mm 40 tons" — that is TWO separate items, not one.
+3. NEVER merge or combine different products into a single item. Each distinct product/SKU/specification MUST be its own item.
+4. Pay close attention to commas, "and", line breaks, or any separator that indicates multiple products.
+5. Each item must have its own quantity and unit as specified by the user.
+
+Given a user's description, extract and generate:
+- A professional title covering ALL items mentioned
+- A detailed description with specifications for ALL items
+- The most appropriate product category
+- ALL items as separate entries with their individual quantities
+- Suggested trade type (import/export/domestic)
+- Recommended quality standards
+- Any certifications that might be required
+- Standard payment terms suggestion
+- Delivery location if mentioned
 
 Categories available:
 - Auto Vehicle & Accessories
@@ -77,7 +85,7 @@ Trade types: import, export, domestic_india`;
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate a structured RFQ for this requirement: "${description}"` }
+          { role: "user", content: `Generate a structured RFQ for this requirement. IMPORTANT: Extract EVERY product/item mentioned as a separate entry in the items array. Do NOT merge different products into one item.\n\nUser requirement: "${description}"` }
         ],
         tools: [
           {
@@ -102,17 +110,18 @@ Trade types: import, export, domestic_india`;
                   },
                   items: {
                     type: "array",
+                    minItems: 1,
                     items: {
                       type: "object",
                       properties: {
-                        item_name: { type: "string", description: "Name of the item" },
-                        description: { type: "string", description: "Item specifications" },
-                        quantity: { type: "number", description: "Estimated quantity" },
+                        item_name: { type: "string", description: "Name of the specific product/SKU" },
+                        description: { type: "string", description: "Detailed item specifications including size, grade, thickness etc." },
+                        quantity: { type: "number", description: "Quantity for THIS specific item" },
                         unit: { type: "string", description: "Unit from available list" }
                       },
                       required: ["item_name", "description", "quantity", "unit"]
                     },
-                    description: "List of items to procure"
+                    description: "IMPORTANT: Each distinct product/SKU mentioned by the user MUST be a separate entry. Never combine different products into one item."
                   },
                   trade_type: {
                     type: "string",

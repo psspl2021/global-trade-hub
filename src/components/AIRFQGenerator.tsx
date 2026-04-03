@@ -86,16 +86,6 @@ export function AIRFQGenerator({ onRFQGenerated }: AIRFQGeneratorProps) {
 
   return (
     <div className="space-y-6">
-      {/* Hero Section */}
-      <div className="text-center space-y-3">
-        <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-          Post Your RFQ. Get Multiple Quotes.
-        </h2>
-        <p className="text-muted-foreground">
-          Connect with verified Indian suppliers in minutes. Free, fast, and secure.
-        </p>
-      </div>
-
       {/* AI Generator Card */}
       <Card className="border-primary/20 shadow-lg">
         <CardHeader className="text-center pb-2">
