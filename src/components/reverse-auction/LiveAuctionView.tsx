@@ -117,8 +117,23 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const totalSavings = ((auction.starting_price - currentLowest) / auction.starting_price * 100);
   const buyerPrice = currentLowest;
 
+  // Smart bid suggestion (step-based, not random)
+  const smartSuggestion = useMemo(() => {
+    return Math.floor(currentLowest * (1 - auction.minimum_bid_step_pct / 100));
+  }, [currentLowest, auction.minimum_bid_step_pct]);
+
   // Ranked leaderboard
   const rankedBids = useMemo(() => getRankedBids(bids), [bids]);
+
+  // Competition pressure metrics
+  const activeBidders = useMemo(() => {
+    return new Set(bids.map(b => b.supplier_id)).size;
+  }, [bids]);
+
+  const recentBidCount = useMemo(() => {
+    const thirtySecsAgo = Date.now() - 30000;
+    return bids.filter(b => new Date(b.created_at).getTime() > thirtySecsAgo).length;
+  }, [bids, timeLeft]); // timeLeft as dep to recompute every second
 
   const myRank = useMemo(() => {
     if (!user || !isSupplier || bids.length === 0) return null;
@@ -134,6 +149,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   }, [bids, user]);
 
   const isWinning = myRank === 1;
+
+  // Win probability indicator
+  const winProbability = useMemo(() => {
+    if (!myRank || !isSupplier) return null;
+    if (myRank === 1) return { label: 'High chance of winning', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: '🏆' };
+    if (myRank === 2) {
+      const gap = myBestBid && currentLowest ? myBestBid - currentLowest : 0;
+      return { label: `Close — reduce by ${formatCurrency(gap)} to win`, color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200', icon: '🎯' };
+    }
+    return { label: 'Low — aggressive bid needed', color: 'text-destructive', bg: 'bg-destructive/5 border-destructive/20', icon: '⚡' };
+  }, [myRank, isSupplier, myBestBid, currentLowest]);
 
   // Anti-snipe indicator
   const isAntiSnipeZone = useMemo(() => {
