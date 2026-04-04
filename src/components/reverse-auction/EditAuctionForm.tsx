@@ -1,7 +1,7 @@
 /**
  * Edit Auction Form — Full RFQ-style edit with line items + supplier management
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { generateAuctionTitle } from '@/utils/generateAuctionTitle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
