@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReverseAuctionList } from './ReverseAuctionList';
 import { LiveAuctionView } from './LiveAuctionView';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
+import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { Button } from '@/components/ui/button';
 import { Gavel, Sparkles } from 'lucide-react';
