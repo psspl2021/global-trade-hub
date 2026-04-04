@@ -583,6 +583,45 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
   const formContent = (
     <div className="space-y-4 py-2">
+          {/* ── AI-Assisted RFQ Input ── */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-4 pb-3 space-y-3">
+              <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                <Sparkles className="w-4 h-4 text-primary" />
+                AI-Assisted Requirement (Optional)
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Describe your needs in plain text — AI will auto-fill products, quantities, category & specs below.
+              </p>
+              <Textarea
+                placeholder="Example: I need 30 MT HR Coil IS2062 E250 and 25 MT HR Plates 10mm, delivery to Pune within 20 days. BIS certified with mill TC."
+                value={aiDescription}
+                onChange={(e) => setAiDescription(e.target.value)}
+                className="min-h-[80px] text-sm bg-background"
+                maxLength={2000}
+              />
+              <Button
+                type="button"
+                onClick={handleAiGenerate}
+                disabled={isAiGenerating || aiDescription.trim().length < 10}
+                className="w-full gap-2"
+                variant="default"
+              >
+                {isAiGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    AI is structuring your auction...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Generate Auction from Description
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* ── AI Generated Title (Feature #1) ── */}
           <div>
             <Label className="flex items-center gap-1.5">
