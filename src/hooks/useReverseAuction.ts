@@ -171,6 +171,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
           payment_terms: input.payment_terms || null,
           certifications: input.certifications || null,
           quality_standards: input.quality_standards || null,
+          deadline: input.deadline || null,
         } as any)
         .select()
         .single();
