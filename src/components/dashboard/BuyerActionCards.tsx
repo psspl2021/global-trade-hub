@@ -41,7 +41,8 @@ export function BuyerActionCards({
     openRFQs: 0,
     totalQuotes: 0,
     liveAuctions: 0,
-    auctionSavings: 0,
+    liveSavings: 0,
+    realizedSavings: 0,
     pendingLogistics: 0,
   });
 
