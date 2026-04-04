@@ -372,23 +372,9 @@ function AuctionCard({
     ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
     : 0;
 
-  const handleRepublish = () => {
-    if (!repStartDate || !repStartTime) {
-      return;
-    }
-    const start = new Date(`${repStartDate}T${repStartTime}`);
-    if (start < new Date()) {
-      return;
-    }
-    const end = new Date(start.getTime() + repDuration * 60 * 1000);
-    republishAuction(auction.id, {
-      auction_start: start.toISOString(),
-      auction_end: end.toISOString(),
-      starting_price: parseFloat(repStartingPrice) || undefined,
-      quantity: parseFloat(repQuantity) || undefined,
-      unit: repUnit,
-    });
-    setShowRepublishDialog(false);
+  const handleUpdated = () => {
+    // Trigger parent refetch after edit
+    republishAuction(auction.id);
   };
 
   return (
