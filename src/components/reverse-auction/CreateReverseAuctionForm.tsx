@@ -899,13 +899,24 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           </div>
 
 
+          {/* Auto-calculated Starting Price (Total Order Value) */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="startPrice">Starting Price (per {primaryUnit}) *</Label>
+              <Label htmlFor="startPrice">Starting Price (Total Order Value) *</Label>
               <div className="relative">
                 <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-                <Input id="startPrice" type="number" className="pl-8" placeholder="61000" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} />
+                <Input id="startPrice" type="number" className="pl-8" placeholder="Auto-calculated or enter manually" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} />
               </div>
+              {items.some(i => i.price && i.quantity) && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Calculated from line items: ₹{items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0).toLocaleString('en-IN')}
+                  {startingPrice !== String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)) && (
+                    <button type="button" onClick={() => setStartingPrice(String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)))} className="ml-2 text-primary hover:underline">
+                      Use calculated price
+                    </button>
+                  )}
+                </p>
+              )}
             </div>
             <div>
               <Label htmlFor="reservePrice">Reserve Price (optional)</Label>
