@@ -324,6 +324,20 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
       toast.error('At least one product item is required');
       return;
     }
+    const invalidPrice = validItems.some(i => !i.price || Number(i.price) <= 0);
+    if (invalidPrice) {
+      toast.error('Each line item must have a valid price.');
+      return;
+    }
+    const invalidQty = validItems.some(i => Number(i.quantity) <= 0);
+    if (invalidQty) {
+      toast.error('Each line item must have a quantity greater than 0.');
+      return;
+    }
+    if (calculatedTotal <= 0) {
+      toast.error('Starting price must be greater than 0. Check your line item prices.');
+      return;
+    }
     setIsSaving(true);
     try {
       const totalQty = validItems.reduce((sum, i) => sum + parseFloat(i.quantity || '0'), 0);
@@ -331,7 +345,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
 
       const result = await updateAuction(auction.id, {
         title: title || undefined,
-        starting_price: startingPrice ? parseFloat(startingPrice) : undefined,
+        starting_price: calculatedTotal,
         quantity: totalQty,
         unit: validItems[0].unit,
         product_slug: slug,

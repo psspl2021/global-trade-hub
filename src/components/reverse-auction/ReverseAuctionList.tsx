@@ -184,7 +184,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   {sf.label}
                   {sf.value !== 'all' && (
                     <span className="ml-1 opacity-70">
-                      {auctions.filter(a => getEffectiveStatus(a) === sf.value).length}
+                      {sf.value === 'cancelled'
+                        ? auctions.filter(a => a.status === 'cancelled').length
+                        : auctions.filter(a => getEffectiveStatus(a) === sf.value).length}
                     </span>
                   )}
                 </button>

@@ -555,7 +555,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         category,
         quantity: totalQty,
         unit: validItems[0].unit,
-        starting_price: parseFloat(startingPrice),
+        starting_price: calculatedTotal,
         reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
         auction_start: start.toISOString(),
         auction_end: auctionEnd.toISOString(),
