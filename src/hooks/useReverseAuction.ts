@@ -72,7 +72,7 @@ export interface CreateAuctionInput {
   payment_terms?: string;
   certifications?: string;
   quality_standards?: string;
-  line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string }[];
+  line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string; unit_price?: number }[];
   deadline?: string;
 }
 
