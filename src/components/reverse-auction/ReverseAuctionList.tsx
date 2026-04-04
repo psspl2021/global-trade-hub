@@ -2,7 +2,7 @@
  * Reverse Auction List — Shows auctions for buyer or supplier
  * Suppliers see only auctions they're invited to, with bid-oriented UI
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, Timer, RefreshCw, Pencil } from 'lucide-react';
+import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, Timer, RefreshCw, Pencil, Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format, isToday } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
