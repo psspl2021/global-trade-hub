@@ -162,6 +162,14 @@ export function useReverseAuction(supplierMode: boolean = false) {
           auction_end: input.auction_end,
           transaction_type: input.transaction_type || 'domestic',
           status: 'scheduled',
+          description: input.description || null,
+          rfq_type: input.rfq_type || 'domestic',
+          destination_country: input.destination_country || 'India',
+          destination_state: input.destination_state || null,
+          delivery_address: input.delivery_address || null,
+          payment_terms: input.payment_terms || null,
+          certifications: input.certifications || null,
+          quality_standards: input.quality_standards || null,
         } as any)
         .select()
         .single();
@@ -169,6 +177,18 @@ export function useReverseAuction(supplierMode: boolean = false) {
       if (error) throw error;
 
       const auctionId = (auction as any).id;
+
+      // Insert line items if provided
+      if (input.line_items && input.line_items.length > 0) {
+        const lineItems = input.line_items.map(li => ({
+          auction_id: auctionId,
+          product_name: li.product_name,
+          quantity: li.quantity,
+          unit: li.unit,
+          category: input.category,
+        }));
+        await supabase.from('reverse_auction_items').insert(lineItems as any);
+      }
 
       // Audit log
       logAuctionEvent({
