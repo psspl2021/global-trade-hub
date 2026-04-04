@@ -137,6 +137,18 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     loadData();
   }, [open, auction.id]);
 
+  // Auto-title from items
+  useEffect(() => {
+    const generated = generateAuctionTitle(
+      items.map(i => ({ product: i.product_name, quantity: i.quantity, unit: i.unit, category: i.category || auction.category })),
+      (auction as any).transaction_type || 'domestic'
+    );
+    setAutoTitle(generated);
+    if (!isManualTitle && generated && title === initialTitleRef.current) {
+      setTitle(generated);
+    }
+  }, [items, auction.category, isManualTitle]);
+
   const addItem = () => setItems(prev => [...prev, { product_name: '', category: '', quantity: '', unit: 'MT', description: '' }]);
   const removeItem = (i: number) => { if (items.length > 1) setItems(prev => prev.filter((_, idx) => idx !== i)); };
   const updateItem = (i: number, key: keyof LineItem, value: string) => {
