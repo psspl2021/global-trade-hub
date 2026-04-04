@@ -494,6 +494,13 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setInvitedSuppliers([]);
     setSupplierSearch('');
     setAuctionTitle('');
+    setDescription('');
+    setDestinationCountry('India');
+    setDestinationState('');
+    setDeliveryAddress('');
+    setPaymentTerms('');
+    setCertifications('');
+    setQualityStandards('');
   };
 
   const today = new Date().toISOString().split('T')[0];
