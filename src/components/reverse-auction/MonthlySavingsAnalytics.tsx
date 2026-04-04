@@ -153,6 +153,26 @@ export function MonthlySavingsAnalytics() {
 
   return (
     <div className="space-y-4">
+      {/* Savings Narrative */}
+      {totalSavings > 0 && (
+        <div className="rounded-lg border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 px-4 py-3">
+          <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+            You saved <span className="font-bold">{formatCompact(totalSavings)}</span> over the last 6 months across{' '}
+            <span className="font-bold">{completedCount} auctions</span>
+            {bestMonth && bestMonth.savings > 0 && (
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {' '}· Best month: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
+              </span>
+            )}
+            {savingsEfficiency > 0 && (
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {' '}· Savings efficiency: {savingsEfficiency.toFixed(1)}%
+              </span>
+            )}
+          </p>
+        </div>
+      )}
+
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div>
