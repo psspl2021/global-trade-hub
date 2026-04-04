@@ -6597,6 +6597,7 @@ export type Database = {
           invite_status: string
           invited_at: string
           invited_by: string | null
+          is_active: boolean
           joined: boolean
           joined_at: string | null
           supplier_company_name: string | null
@@ -6611,6 +6612,7 @@ export type Database = {
           invite_status?: string
           invited_at?: string
           invited_by?: string | null
+          is_active?: boolean
           joined?: boolean
           joined_at?: string | null
           supplier_company_name?: string | null
@@ -6625,6 +6627,7 @@ export type Database = {
           invite_status?: string
           invited_at?: string
           invited_by?: string | null
+          is_active?: boolean
           joined?: boolean
           joined_at?: string | null
           supplier_company_name?: string | null
