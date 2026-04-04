@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReverseAuctionList } from './ReverseAuctionList';
 import { LiveAuctionView } from './LiveAuctionView';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
+import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { Button } from '@/components/ui/button';
 import { Gavel, Sparkles } from 'lucide-react';
@@ -58,6 +59,9 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
           onCreditsUpdated={() => setCreditsKey(k => k + 1)}
         />
       )}
+
+      {/* Monthly Savings Analytics (buyer only) */}
+      {!isSupplier && <MonthlySavingsAnalytics />}
 
       {/* Auction List */}
       <ReverseAuctionList

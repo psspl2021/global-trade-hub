@@ -122,15 +122,26 @@ export function BuyerActionCards({
     return `₹${Math.round(val)}`;
   };
 
-  const cards = [
+  const cards: {
+    title: string;
+    description: string;
+    icon: typeof FileText;
+    iconBg: string;
+    iconColor: string;
+    badge: { label: string; variant: 'default' | 'destructive' | 'secondary' } | null;
+    metrics: ReactNode;
+    primaryCTA: { label: string; onClick: () => void };
+    secondaryCTA: { label: string; onClick: () => void } | null;
+    onClick: () => void;
+  }[] = [
     {
       title: 'Forward RFQ',
       description: 'Post requirements & receive competitive supplier quotes',
       icon: FileText,
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
-      badge: metrics.openRFQs > 0 ? { label: `${metrics.openRFQs} ACTIVE`, variant: 'default' as const } : null,
-      metrics: metrics.totalQuotes > 0 ? `${metrics.totalQuotes} quotes received` : null,
+      badge: metrics.openRFQs > 0 ? { label: `${metrics.openRFQs} ACTIVE`, variant: 'default' } : null,
+      metrics: metrics.totalQuotes > 0 ? <span>{metrics.totalQuotes} quotes received</span> : null,
       primaryCTA: { label: 'Post RFQ', onClick: onForwardRFQ },
       secondaryCTA: { label: 'View RFQs', onClick: onForwardRFQ },
       onClick: onForwardRFQ,
@@ -141,9 +152,8 @@ export function BuyerActionCards({
       icon: Gavel,
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-600',
-      badge: metrics.liveAuctions > 0 ? { label: 'LIVE', variant: 'destructive' as const } : null,
-      metrics: (metrics.liveSavings > 0 || metrics.realizedSavings > 0 || metrics.liveAuctions > 0) ? 'custom-auction' : null,
-      customMetrics: (metrics.liveSavings > 0 || metrics.realizedSavings > 0 || metrics.liveAuctions > 0) ? (
+      badge: metrics.liveAuctions > 0 ? { label: 'LIVE', variant: 'destructive' } : null,
+      metrics: (metrics.liveSavings > 0 || metrics.realizedSavings > 0 || metrics.liveAuctions > 0) ? (
         <div className="flex items-center gap-3 flex-wrap">
           {metrics.liveAuctions > 0 && (
             <span className="text-xs font-medium text-foreground">{metrics.liveAuctions} active</span>
@@ -257,7 +267,7 @@ export function BuyerActionCards({
             {card.metrics && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4 bg-muted/50 rounded-md px-2.5 py-1.5">
                 <TrendingUp className="w-3 h-3 text-primary shrink-0" />
-                {(card as any).customMetrics ? (card as any).customMetrics : <span>{card.metrics}</span>}
+                {card.metrics}
               </div>
             )}
           </div>
