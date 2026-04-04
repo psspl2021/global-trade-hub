@@ -88,22 +88,24 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
 
-  // Server-side refetch when filters change (debounced search)
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  // Debounce ALL filters together (400ms)
+  const [debouncedFilters, setDebouncedFilters] = useState({ search: '', status: 'all', category: 'all', sortBy: 'latest' });
   
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    const timer = setTimeout(() => {
+      setDebouncedFilters({ search: searchQuery, status: statusFilter, category: categoryFilter, sortBy });
+    }, 400);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, statusFilter, categoryFilter, sortBy]);
 
   useEffect(() => {
     refetch({ 
-      status: statusFilter, 
-      category: categoryFilter, 
-      search: debouncedSearch || undefined, 
-      sortBy 
+      status: debouncedFilters.status, 
+      category: debouncedFilters.category, 
+      search: debouncedFilters.search || undefined, 
+      sortBy: debouncedFilters.sortBy 
     });
-  }, [statusFilter, categoryFilter, debouncedSearch, sortBy, refetch]);
+  }, [debouncedFilters, refetch]);
 
   // Compute effective status based on time (client-side for grouping)
   const getEffectiveStatus = (a: ReverseAuction) => {
