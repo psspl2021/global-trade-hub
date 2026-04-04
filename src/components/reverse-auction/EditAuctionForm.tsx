@@ -1,7 +1,7 @@
 /**
  * Edit Auction Form — Full RFQ-style edit with line items + supplier management
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { generateAuctionTitle } from '@/utils/generateAuctionTitle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -233,6 +233,9 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     loadData();
   }, [open, auction.id]);
 
+  // Auto-calculated total order value from line items
+  const calculatedTotal = useMemo(() => items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.price || 0)), 0), [items]);
+
   // Auto-title from items
   useEffect(() => {
     const generated = generateAuctionTitle(
@@ -324,6 +327,20 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
       toast.error('At least one product item is required');
       return;
     }
+    const invalidPrice = validItems.some(i => !i.price || Number(i.price) <= 0);
+    if (invalidPrice) {
+      toast.error('Each line item must have a valid price.');
+      return;
+    }
+    const invalidQty = validItems.some(i => Number(i.quantity) <= 0);
+    if (invalidQty) {
+      toast.error('Each line item must have a quantity greater than 0.');
+      return;
+    }
+    if (calculatedTotal <= 0) {
+      toast.error('Starting price must be greater than 0. Check your line item prices.');
+      return;
+    }
     setIsSaving(true);
     try {
       const totalQty = validItems.reduce((sum, i) => sum + parseFloat(i.quantity || '0'), 0);
@@ -331,7 +348,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
 
       const result = await updateAuction(auction.id, {
         title: title || undefined,
-        starting_price: startingPrice ? parseFloat(startingPrice) : undefined,
+        starting_price: calculatedTotal,
         quantity: totalQty,
         unit: validItems[0].unit,
         product_slug: slug,
@@ -528,20 +545,15 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
               <Textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1" />
             </div>
 
-            {/* Starting Price */}
+            {/* Starting Price — Auto-calculated */}
             <div>
-              <Label>Starting Price (₹ Total Order Value)</Label>
-              <Input type="number" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} className="mt-1" />
-              {items.some(i => i.price && i.quantity) && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  💡 Calculated from items: ₹{items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0).toLocaleString('en-IN')}
-                  {startingPrice !== String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)) && (
-                    <button type="button" onClick={() => setStartingPrice(String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)))} className="ml-2 text-primary hover:underline">
-                      Use calculated price
-                    </button>
-                  )}
-                </p>
-              )}
+              <Label>Starting Price (₹ Total Order Value) — Auto-calculated 🔒</Label>
+              <Input type="number" value={calculatedTotal || ''} disabled className="mt-1 bg-muted/50 font-semibold" />
+              <p className="text-xs text-muted-foreground mt-1">
+                {calculatedTotal > 0
+                  ? `✅ Sum of ${items.filter(i => i.price && i.quantity).length} line items = ₹${calculatedTotal.toLocaleString('en-IN')}`
+                  : '⚠️ Add price & quantity to line items to auto-calculate'}
+              </p>
             </div>
 
             {/* ─── Delivery & RFQ Details ─── */}

@@ -363,6 +363,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setInvitedSuppliers(prev => prev.filter(s => s.id !== id));
   };
 
+  // Auto-calculated total order value from line items
+  const calculatedTotal = useMemo(() => items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.price || 0)), 0), [items]);
+
   // AI suggested pricing (based on first item)
   const primaryProduct = items[0]?.product || '';
   const primaryUnit = items[0]?.unit || 'MT';
@@ -443,8 +446,20 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    if (!startingPrice || parseFloat(startingPrice) <= 0) {
-      toast.error('Starting price is required for reverse auctions.');
+    // Validate each item has valid price & quantity
+    const invalidPrice = validItems.some(i => !i.price || Number(i.price) <= 0);
+    if (invalidPrice) {
+      toast.error('Each line item must have a valid price.');
+      return;
+    }
+    const invalidQty = validItems.some(i => Number(i.quantity) <= 0);
+    if (invalidQty) {
+      toast.error('Each line item must have a quantity greater than 0.');
+      return;
+    }
+
+    if (calculatedTotal <= 0) {
+      toast.error('Starting price must be greater than 0. Check your line item prices.');
       return;
     }
 
@@ -454,7 +469,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    if (reservePrice && parseFloat(reservePrice) >= parseFloat(startingPrice)) {
+    if (reservePrice && parseFloat(reservePrice) >= calculatedTotal) {
       toast.error('Reserve price must be lower than the starting price.');
       return;
     }
@@ -543,7 +558,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         category,
         quantity: totalQty,
         unit: validItems[0].unit,
-        starting_price: parseFloat(startingPrice),
+        starting_price: calculatedTotal,
         reserve_price: reservePrice ? parseFloat(reservePrice) : undefined,
         auction_start: start.toISOString(),
         auction_end: auctionEnd.toISOString(),
@@ -903,21 +918,16 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           {/* Auto-calculated Starting Price (Total Order Value) */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="startPrice">Starting Price (Total Order Value) *</Label>
+              <Label htmlFor="startPrice">Starting Price (Total Order Value) — Auto-calculated 🔒</Label>
               <div className="relative">
                 <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-                <Input id="startPrice" type="number" className="pl-8" placeholder="Auto-calculated or enter manually" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} />
+                <Input id="startPrice" type="number" className="pl-8 bg-muted/50 font-semibold" value={calculatedTotal || ''} disabled />
               </div>
-              {items.some(i => i.price && i.quantity) && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  💡 Calculated from line items: ₹{items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0).toLocaleString('en-IN')}
-                  {startingPrice !== String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)) && (
-                    <button type="button" onClick={() => setStartingPrice(String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)))} className="ml-2 text-primary hover:underline">
-                      Use calculated price
-                    </button>
-                  )}
-                </p>
-              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                {calculatedTotal > 0
+                  ? `✅ Sum of ${items.filter(i => i.price && i.quantity).length} line items = ₹${calculatedTotal.toLocaleString('en-IN')}`
+                  : '⚠️ Add price & quantity to line items to auto-calculate'}
+              </p>
             </div>
             <div>
               <Label htmlFor="reservePrice">Reserve Price (optional)</Label>
@@ -927,32 +937,6 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
               </div>
             </div>
           </div>
-
-          {/* AI Suggested Price */}
-          {suggestedPrice && benchmarkPrice && (
-            <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
-              <CardContent className="py-3">
-                <div className="flex items-start gap-2">
-                  <TrendingUp className="w-4 h-4 text-blue-600 mt-0.5" />
-                  <div className="text-sm text-blue-800 dark:text-blue-200">
-                    <p className="font-medium">AI Pricing Intelligence</p>
-                    <p className="text-xs mt-1">
-                      Market benchmark: {formatINR(benchmarkPrice)} • Suggested starting price: <strong>{formatINR(suggestedPrice)}</strong>
-                    </p>
-                    <Button
-                      type="button"
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0 text-xs text-blue-700 dark:text-blue-300 mt-1"
-                      onClick={() => setStartingPrice(String(suggestedPrice))}
-                    >
-                      Use suggested price
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Start Date & Time */}
           <div className="grid grid-cols-2 gap-4">
