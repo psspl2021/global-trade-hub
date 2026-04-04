@@ -266,13 +266,17 @@ export function MonthlySavingsAnalytics() {
                   radius={[4, 4, 0, 0]}
                   maxBarSize={48}
                 >
-                  {monthlyData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.savings > 0 ? 'hsl(142, 76%, 36%)' : 'hsl(var(--muted))'}
-                      fillOpacity={entry.savings > 0 ? 0.85 : 0.3}
-                    />
-                  ))}
+                  {monthlyData.map((entry, index) => {
+                    const isLatest = index === monthlyData.length - 1;
+                    const isBest = bestMonth && entry.month === bestMonth.month && entry.savings > 0;
+                    return (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.savings > 0 ? 'hsl(142, 76%, 36%)' : 'hsl(var(--muted))'}
+                        fillOpacity={isLatest || isBest ? 1 : entry.savings > 0 ? 0.55 : 0.3}
+                      />
+                    );
+                  })}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
