@@ -56,6 +56,9 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
   const { updateAuction } = useReverseAuction();
 
   const [title, setTitle] = useState('');
+  const [isManualTitle, setIsManualTitle] = useState(false);
+  const [autoTitle, setAutoTitle] = useState('');
+  const initialTitleRef = useRef('');
   const [description, setDescription] = useState('');
   const [startingPrice, setStartingPrice] = useState('');
   const [quantity, setQuantity] = useState('');
