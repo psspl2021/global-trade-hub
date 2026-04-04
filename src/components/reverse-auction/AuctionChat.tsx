@@ -2,15 +2,14 @@
  * Auction Chat & Negotiation Panel
  * WhatsApp-style real-time chat with counter-offer support
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  MessageSquare, Send, IndianRupee, Check, X, Clock,
-  ArrowRightLeft, ChevronDown, ChevronUp,
+  MessageSquare, Send, IndianRupee, Check, X,
+  ArrowRightLeft, ChevronDown, ChevronUp, Zap,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +26,7 @@ interface AuctionMessage {
   message_type: 'text' | 'counter_offer' | 'system';
   counter_price: number | null;
   is_read: boolean;
+  seen_by_buyer: boolean;
   created_at: string;
 }
 
@@ -48,13 +48,14 @@ interface AuctionChatProps {
   buyerId: string;
   isBuyer: boolean;
   isLive: boolean;
+  currentL1?: number | null;
 }
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
 }
 
-export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChatProps) {
+export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: AuctionChatProps) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<AuctionMessage[]>([]);
   const [counterOffers, setCounterOffers] = useState<CounterOffer[]>([]);
@@ -64,6 +65,7 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
   const [isSending, setIsSending] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastSentRef = useRef(0);
 
   const fetchMessages = useCallback(async () => {
     const { data } = await supabase
@@ -88,6 +90,22 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
     fetchCounterOffers();
   }, [fetchMessages, fetchCounterOffers]);
 
+  // Mark messages as seen by buyer when chat is open
+  useEffect(() => {
+    if (!isBuyer || !isExpanded || messages.length === 0) return;
+    const unseenIds = messages
+      .filter(m => m.sender_role === 'supplier' && !m.seen_by_buyer)
+      .map(m => m.id);
+    if (unseenIds.length > 0) {
+      supabase
+        .from('auction_messages')
+        .update({ seen_by_buyer: true } as any)
+        .eq('auction_id', auctionId)
+        .eq('sender_role', 'supplier')
+        .then();
+    }
+  }, [isBuyer, isExpanded, messages, auctionId]);
+
   // Realtime
   useAuctionRealtime(auctionId, {
     onMessage: (msg) => {
@@ -106,8 +124,23 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
     }
   }, [messages]);
 
+  // Smart counter suggestions
+  const counterSuggestions = useMemo(() => {
+    if (!currentL1 || currentL1 <= 0) return [];
+    return [
+      { label: 'Beat L1 by 3%', price: Math.floor(currentL1 * 0.97) },
+      { label: 'Beat L1 by 5%', price: Math.floor(currentL1 * 0.95) },
+    ];
+  }, [currentL1]);
+
   const sendMessage = async () => {
     if (!input.trim() || !user || isSending) return;
+    // Rate limit: 1 msg per second
+    if (Date.now() - lastSentRef.current < 1000) {
+      toast.error('Slow down — wait a moment');
+      return;
+    }
+    lastSentRef.current = Date.now();
     setIsSending(true);
     try {
       const { error } = await supabase.from('auction_messages').insert({
@@ -119,7 +152,7 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
       } as any);
       if (error) throw error;
       setInput('');
-    } catch (err: any) {
+    } catch {
       toast.error('Failed to send message');
     } finally {
       setIsSending(false);
@@ -133,12 +166,17 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
       toast.error('Enter a valid price');
       return;
     }
+    if (Date.now() - lastSentRef.current < 1000) {
+      toast.error('Slow down — wait a moment');
+      return;
+    }
+    lastSentRef.current = Date.now();
     setIsSending(true);
     try {
-      // Insert counter offer
+      // Insert counter offer — FIX: correct supplier_id assignment
       await supabase.from('auction_counter_offers').insert({
         auction_id: auctionId,
-        supplier_id: isBuyer ? user.id : user.id,
+        supplier_id: isBuyer ? '' : user.id,  // Only supplier sets their ID
         buyer_id: buyerId,
         counter_price: price,
         status: 'pending',
@@ -157,7 +195,7 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
       setCounterPrice('');
       setShowCounter(false);
       toast.success('Counter offer sent!');
-    } catch (err: any) {
+    } catch {
       toast.error('Failed to send counter offer');
     } finally {
       setIsSending(false);
@@ -206,7 +244,10 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
               <Badge variant="secondary" className="text-xs">{messages.length}</Badge>
             )}
             {pendingOffers.length > 0 && (
-              <Badge className="bg-amber-500 text-white text-xs animate-pulse">
+              <span className="animate-pulse text-destructive text-lg leading-none">●</span>
+            )}
+            {pendingOffers.length > 0 && (
+              <Badge className="bg-amber-500 text-white text-xs">
                 {pendingOffers.length} pending
               </Badge>
             )}
@@ -318,6 +359,14 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
             )}
           </div>
 
+          {/* Supplier L1 status */}
+          {!isBuyer && isLive && currentL1 && (
+            <div className="text-xs text-muted-foreground flex items-center gap-1.5 px-1">
+              <Zap className="w-3 h-3 text-amber-500" />
+              Current L1: {formatCurrency(currentL1)}
+            </div>
+          )}
+
           {/* Input area */}
           {isLive && (
             <div className="space-y-2">
@@ -349,30 +398,45 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive }: AuctionChat
                 )}
               </div>
 
-              {/* Counter offer input */}
+              {/* Counter offer input with smart suggestions */}
               {showCounter && !isBuyer && (
-                <div className="flex gap-2 items-center rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 p-2">
-                  <ArrowRightLeft className="w-4 h-4 text-amber-600 shrink-0" />
-                  <div className="relative flex-1">
-                    <IndianRupee className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      placeholder="Your counter price"
-                      value={counterPrice}
-                      onChange={(e) => setCounterPrice(e.target.value)}
-                      className="pl-7 h-9"
-                      min="0"
-                      step="0.01"
-                    />
+                <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 p-2">
+                  {counterSuggestions.length > 0 && (
+                    <div className="flex gap-2 flex-wrap">
+                      {counterSuggestions.map((s) => (
+                        <button
+                          key={s.label}
+                          onClick={() => setCounterPrice(String(s.price))}
+                          className="text-xs border border-border bg-background px-2 py-1 rounded-md hover:bg-muted transition-colors"
+                        >
+                          ⚡ {s.label} ({formatCurrency(s.price)})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2 items-center">
+                    <ArrowRightLeft className="w-4 h-4 text-amber-600 shrink-0" />
+                    <div className="relative flex-1">
+                      <IndianRupee className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-muted-foreground" />
+                      <Input
+                        type="number"
+                        placeholder="Your counter price"
+                        value={counterPrice}
+                        onChange={(e) => setCounterPrice(e.target.value)}
+                        className="pl-7 h-9"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={sendCounterOffer}
+                      disabled={!counterPrice || isSending}
+                      className="gap-1"
+                    >
+                      <Send className="w-3 h-3" /> Send
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={sendCounterOffer}
-                    disabled={!counterPrice || isSending}
-                    className="gap-1"
-                  >
-                    <Send className="w-3 h-3" /> Send Offer
-                  </Button>
                 </div>
               )}
             </div>
