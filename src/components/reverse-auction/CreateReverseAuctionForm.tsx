@@ -615,7 +615,86 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             </Select>
           </div>
 
-          {/* Pricing */}
+          {/* Description */}
+          <div>
+            <Label htmlFor="auctionDesc">Description / Specifications</Label>
+            <textarea
+              id="auctionDesc"
+              className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
+              placeholder="Describe requirements, specifications, quality expectations..."
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+            />
+          </div>
+
+          {/* RFQ Details Section */}
+          <div className="space-y-3 pt-2 border-t">
+            <Label className="text-sm font-semibold flex items-center gap-1.5">
+              🌍 Delivery & RFQ Details
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Destination Country</Label>
+                <Input
+                  value={destinationCountry}
+                  onChange={e => setDestinationCountry(e.target.value)}
+                  placeholder="India"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Destination State</Label>
+                <Input
+                  value={destinationState}
+                  onChange={e => setDestinationState(e.target.value)}
+                  placeholder="e.g. Maharashtra"
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Delivery Address</Label>
+              <Input
+                value={deliveryAddress}
+                onChange={e => setDeliveryAddress(e.target.value)}
+                placeholder="Warehouse / factory delivery address"
+              />
+            </div>
+          </div>
+
+          {/* Commercial Terms Section */}
+          <div className="space-y-3 pt-2 border-t">
+            <Label className="text-sm font-semibold flex items-center gap-1.5">
+              📜 Commercial Terms
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Payment Terms</Label>
+                <Input
+                  value={paymentTerms}
+                  onChange={e => setPaymentTerms(e.target.value)}
+                  placeholder="e.g. 30 days credit"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Certifications Required</Label>
+                <Input
+                  value={certifications}
+                  onChange={e => setCertifications(e.target.value)}
+                  placeholder="e.g. ISO 9001, BIS"
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Quality Standards</Label>
+              <Input
+                value={qualityStandards}
+                onChange={e => setQualityStandards(e.target.value)}
+                placeholder="e.g. IS2062 Grade E250"
+              />
+            </div>
+          </div>
+
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="startPrice">Starting Price (per {primaryUnit}) *</Label>
