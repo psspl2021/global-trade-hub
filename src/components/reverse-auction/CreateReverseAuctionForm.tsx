@@ -692,48 +692,94 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
   const today = new Date().toISOString().split('T')[0];
 
+  const invitedIds = useMemo(() => new Set(invitedSuppliers.filter(s => !s.manual).map(s => s.id)), [invitedSuppliers]);
+
   const formContent = (
     <div className="space-y-4 py-2">
-          {/* ── AI-Assisted RFQ Input ── */}
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="pt-4 pb-3 space-y-3">
-              <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <Sparkles className="w-4 h-4 text-primary" />
-                AI-Assisted Requirement (Optional)
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Describe your needs in plain text — AI will auto-fill products, quantities, category & specs below.
-              </p>
-              <Textarea
-                placeholder="Example: I need 30 MT HR Coil IS2062 E250 and 25 MT HR Plates 10mm, delivery to Pune within 20 days. BIS certified with mill TC."
-                value={aiDescription}
-                onChange={(e) => setAiDescription(e.target.value)}
-                className="min-h-[80px] text-sm bg-background"
-                maxLength={2000}
-              />
-              <Button
-                type="button"
-                onClick={handleAiGenerate}
-                disabled={isAiGenerating || aiDescription.trim().length < 10}
-                className="w-full gap-2"
-                variant="default"
+          {/* ── Wizard Stepper ── */}
+          <div className="flex items-center justify-between mb-2">
+            {WIZARD_STEPS.map((step, i) => (
+              <button
+                key={step}
+                onClick={() => setWizardStep(i)}
+                className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full transition-colors ${
+                  i === wizardStep
+                    ? 'bg-primary text-primary-foreground'
+                    : i < wizardStep
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                      : 'bg-muted text-muted-foreground'
+                }`}
               >
-                {isAiGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    AI is structuring your auction...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Generate Auction from Description
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+                {i < wizardStep ? <Check className="w-3 h-3" /> : <span className="w-4 text-center">{i + 1}</span>}
+                <span className="hidden sm:inline">{step}</span>
+              </button>
+            ))}
+          </div>
 
-          {/* ── AI Generated Title (Feature #1) ── */}
+          {/* ── STEP 0: AI Input ── */}
+          {wizardStep === 0 && (
+            <>
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="pt-4 pb-3 space-y-3">
+                  <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    AI-Assisted Requirement
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Describe your needs in plain text — AI will auto-fill products, quantities, category & specs.
+                  </p>
+                  <Textarea
+                    placeholder="Example: I need 30 MT HR Coil IS2062 E250 and 25 MT HR Plates 10mm, delivery to Pune within 20 days."
+                    value={aiDescription}
+                    onChange={(e) => setAiDescription(e.target.value)}
+                    className="min-h-[80px] text-sm bg-background"
+                    maxLength={2000}
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleAiGenerate}
+                    disabled={isAiGenerating || aiDescription.trim().length < 10}
+                    className="w-full gap-2"
+                  >
+                    {isAiGenerating ? (
+                      <><Loader2 className="h-4 w-4 animate-spin" /> AI is structuring your auction...</>
+                    ) : (
+                      <><Sparkles className="h-4 w-4" /> Generate Auction from Description</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* AI Preview */}
+              {aiPreviewData && (
+                <AiRfqPreview
+                  items={aiPreviewData.items}
+                  category={aiPreviewData.category}
+                  title={aiPreviewData.title}
+                  description={aiPreviewData.description}
+                  qualityStandards={aiPreviewData.qualityStandards}
+                  certifications={aiPreviewData.certifications}
+                  paymentTerms={aiPreviewData.paymentTerms}
+                  onApply={applyAiPreview}
+                  onCancel={() => setAiPreviewData(null)}
+                />
+              )}
+
+              {/* Industry Templates */}
+              <RfqTemplateSelector category={category} onApplyTemplate={handleApplyTemplate} />
+
+              <div className="flex justify-end">
+                <Button onClick={() => setWizardStep(1)} className="gap-1">
+                  Next: Review Items <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* ── STEP 1: Review Items ── */}
+          {wizardStep === 1 && (
+            <>
+          {/* AI Generated Title */}
           <div>
             <Label className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
