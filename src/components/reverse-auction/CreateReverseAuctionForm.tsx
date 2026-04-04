@@ -363,6 +363,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     setInvitedSuppliers(prev => prev.filter(s => s.id !== id));
   };
 
+  // Auto-calculated total order value from line items
+  const calculatedTotal = useMemo(() => items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.price || 0)), 0), [items]);
+
   // AI suggested pricing (based on first item)
   const primaryProduct = items[0]?.product || '';
   const primaryUnit = items[0]?.unit || 'MT';
