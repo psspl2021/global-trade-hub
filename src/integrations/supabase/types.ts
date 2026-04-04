@@ -6548,6 +6548,47 @@ export type Database = {
           },
         ]
       }
+      reverse_auction_items: {
+        Row: {
+          auction_id: string
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          product_name: string
+          quantity: number
+          unit: string
+        }
+        Insert: {
+          auction_id: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          product_name: string
+          quantity?: number
+          unit?: string
+        }
+        Update: {
+          auction_id?: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          product_name?: string
+          quantity?: number
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reverse_auction_items_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reverse_auction_suppliers: {
         Row: {
           auction_id: string
@@ -6610,15 +6651,23 @@ export type Database = {
           buyer_edit_count: number
           buyer_id: string
           category: string
+          certifications: string | null
           created_at: string
           currency: string
           current_price: number | null
+          delivery_address: string | null
+          description: string | null
+          destination_country: string | null
+          destination_state: string | null
           id: string
           minimum_bid_step_pct: number
+          payment_terms: string | null
           product_slug: string
+          quality_standards: string | null
           quantity: number
           reserve_price: number | null
           result_notified: boolean | null
+          rfq_type: string | null
           starting_price: number
           status: string
           title: string
@@ -6637,15 +6686,23 @@ export type Database = {
           buyer_edit_count?: number
           buyer_id: string
           category?: string
+          certifications?: string | null
           created_at?: string
           currency?: string
           current_price?: number | null
+          delivery_address?: string | null
+          description?: string | null
+          destination_country?: string | null
+          destination_state?: string | null
           id?: string
           minimum_bid_step_pct?: number
+          payment_terms?: string | null
           product_slug: string
+          quality_standards?: string | null
           quantity: number
           reserve_price?: number | null
           result_notified?: boolean | null
+          rfq_type?: string | null
           starting_price: number
           status?: string
           title: string
@@ -6664,15 +6721,23 @@ export type Database = {
           buyer_edit_count?: number
           buyer_id?: string
           category?: string
+          certifications?: string | null
           created_at?: string
           currency?: string
           current_price?: number | null
+          delivery_address?: string | null
+          description?: string | null
+          destination_country?: string | null
+          destination_state?: string | null
           id?: string
           minimum_bid_step_pct?: number
+          payment_terms?: string | null
           product_slug?: string
+          quality_standards?: string | null
           quantity?: number
           reserve_price?: number | null
           result_notified?: boolean | null
+          rfq_type?: string | null
           starting_price?: number
           status?: string
           title?: string
