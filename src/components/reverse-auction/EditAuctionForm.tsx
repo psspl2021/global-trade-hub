@@ -245,7 +245,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     }
   }, [items, auction.category, isManualTitle]);
 
-  const addItem = () => setItems(prev => [...prev, { product_name: '', category: '', quantity: '', unit: 'MT', description: '' }]);
+  const addItem = () => setItems(prev => [...prev, { product_name: '', category: '', quantity: '', unit: 'MT', price: '', description: '' }]);
   const removeItem = (i: number) => { if (items.length > 1) setItems(prev => prev.filter((_, idx) => idx !== i)); };
   const updateItem = (i: number, key: keyof LineItem, value: string) => {
     setItems(prev => prev.map((item, idx) => idx === i ? { ...item, [key]: value } : item));
