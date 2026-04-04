@@ -574,45 +574,53 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             </Label>
             <div className="space-y-2">
               {items.map((item, i) => (
-                <div key={i} className="grid grid-cols-[1fr_100px_90px_32px] gap-2 items-end">
-                  <div>
-                    {i === 0 && <span className="text-xs text-muted-foreground">Product</span>}
-                    <Input
-                      placeholder="e.g. HR Coil IS2062"
-                      value={item.product}
-                      onChange={e => updateItem(i, 'product', e.target.value)}
-                    />
+                <div key={i} className="space-y-1.5 p-2.5 rounded-lg border border-border/50 bg-muted/20">
+                  <div className="grid grid-cols-[1fr_100px_90px_32px] gap-2 items-end">
+                    <div>
+                      {i === 0 && <span className="text-xs text-muted-foreground">Product</span>}
+                      <Input
+                        placeholder="e.g. HR Coil IS2062"
+                        value={item.product}
+                        onChange={e => updateItem(i, 'product', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      {i === 0 && <span className="text-xs text-muted-foreground">Qty</span>}
+                      <Input
+                        type="number"
+                        placeholder="500"
+                        value={item.quantity}
+                        onChange={e => updateItem(i, 'quantity', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      {i === 0 && <span className="text-xs text-muted-foreground">Unit</span>}
+                      <Select value={item.unit} onValueChange={v => updateItem(i, 'unit', v)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {UNIT_OPTIONS.map(u => (
+                            <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9"
+                      disabled={items.length <= 1}
+                      onClick={() => removeItem(i)}
+                    >
+                      <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    </Button>
                   </div>
-                  <div>
-                    {i === 0 && <span className="text-xs text-muted-foreground">Qty</span>}
-                    <Input
-                      type="number"
-                      placeholder="500"
-                      value={item.quantity}
-                      onChange={e => updateItem(i, 'quantity', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    {i === 0 && <span className="text-xs text-muted-foreground">Unit</span>}
-                    <Select value={item.unit} onValueChange={v => updateItem(i, 'unit', v)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {UNIT_OPTIONS.map(u => (
-                          <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    disabled={items.length <= 1}
-                    onClick={() => removeItem(i)}
-                  >
-                    <Trash2 className="w-4 h-4 text-muted-foreground" />
-                  </Button>
+                  <Input
+                    placeholder="Product description / specs (optional)"
+                    value={item.description || ''}
+                    onChange={e => updateItem(i, 'description', e.target.value)}
+                    className="text-xs h-8"
+                  />
                 </div>
               ))}
             </div>
