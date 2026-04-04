@@ -2,7 +2,7 @@
  * Enterprise-grade Buyer Action Cards
  * Live metrics from DB, status badges, micro-CTAs
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -142,13 +142,26 @@ export function BuyerActionCards({
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-600',
       badge: metrics.liveAuctions > 0 ? { label: 'LIVE', variant: 'destructive' as const } : null,
-      metrics: (() => {
-        const parts: string[] = [];
-        if (metrics.liveAuctions > 0) parts.push(`${metrics.liveAuctions} active`);
-        if (metrics.liveSavings > 0) parts.push(`Live: ${formatCurrency(metrics.liveSavings)}`);
-        if (metrics.realizedSavings > 0) parts.push(`Realized: ${formatCurrency(metrics.realizedSavings)}`);
-        return parts.length > 0 ? parts.join(' • ') : null;
-      })(),
+      metrics: (metrics.liveSavings > 0 || metrics.realizedSavings > 0 || metrics.liveAuctions > 0) ? 'custom-auction' : null,
+      customMetrics: (metrics.liveSavings > 0 || metrics.realizedSavings > 0 || metrics.liveAuctions > 0) ? (
+        <div className="flex items-center gap-3 flex-wrap">
+          {metrics.liveAuctions > 0 && (
+            <span className="text-xs font-medium text-foreground">{metrics.liveAuctions} active</span>
+          )}
+          {metrics.liveSavings > 0 && (
+            <div className="flex flex-col">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Live</span>
+              <span className="text-sm font-semibold text-emerald-600">{formatCurrency(metrics.liveSavings)} ↑</span>
+            </div>
+          )}
+          {metrics.realizedSavings > 0 && (
+            <div className="flex flex-col">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Realized</span>
+              <span className="text-sm font-semibold text-primary">{formatCurrency(metrics.realizedSavings)} ✓</span>
+            </div>
+          )}
+        </div>
+      ) : null,
       primaryCTA: { label: 'Create Auction', onClick: onReverseAuction },
       secondaryCTA: { label: 'View Auctions', onClick: onReverseAuction },
       onClick: onReverseAuction,
@@ -243,8 +256,8 @@ export function BuyerActionCards({
             {/* Live Metrics */}
             {card.metrics && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4 bg-muted/50 rounded-md px-2.5 py-1.5">
-                <TrendingUp className="w-3 h-3 text-primary" />
-                <span>{card.metrics}</span>
+                <TrendingUp className="w-3 h-3 text-primary shrink-0" />
+                {(card as any).customMetrics ? (card as any).customMetrics : <span>{card.metrics}</span>}
               </div>
             )}
           </div>
