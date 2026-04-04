@@ -6510,6 +6510,51 @@ export type Database = {
         }
         Relationships: []
       }
+      reverse_auction_bid_items: {
+        Row: {
+          auction_item_id: string
+          bid_id: string
+          created_at: string | null
+          id: string
+          line_total: number
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          auction_item_id: string
+          bid_id: string
+          created_at?: string | null
+          id?: string
+          line_total: number
+          quantity: number
+          unit_price: number
+        }
+        Update: {
+          auction_item_id?: string
+          bid_id?: string
+          created_at?: string | null
+          id?: string
+          line_total?: number
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reverse_auction_bid_items_auction_item_id_fkey"
+            columns: ["auction_item_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auction_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reverse_auction_bid_items_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auction_bids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reverse_auction_bids: {
         Row: {
           auction_id: string
@@ -6983,6 +7028,51 @@ export type Database = {
           product_slug?: string
           rfq_count?: number | null
           top_industries?: string[] | null
+        }
+        Relationships: []
+      }
+      rfq_templates: {
+        Row: {
+          category: string
+          certifications: string | null
+          created_at: string | null
+          default_items: Json
+          default_specs: Json | null
+          id: string
+          is_active: boolean | null
+          payment_terms: string | null
+          quality_standards: string | null
+          sort_order: number | null
+          template_name: string
+          unit: string | null
+        }
+        Insert: {
+          category: string
+          certifications?: string | null
+          created_at?: string | null
+          default_items?: Json
+          default_specs?: Json | null
+          id?: string
+          is_active?: boolean | null
+          payment_terms?: string | null
+          quality_standards?: string | null
+          sort_order?: number | null
+          template_name: string
+          unit?: string | null
+        }
+        Update: {
+          category?: string
+          certifications?: string | null
+          created_at?: string | null
+          default_items?: Json
+          default_specs?: Json | null
+          id?: string
+          is_active?: boolean | null
+          payment_terms?: string | null
+          quality_standards?: string | null
+          sort_order?: number | null
+          template_name?: string
+          unit?: string | null
         }
         Relationships: []
       }
@@ -7788,6 +7878,51 @@ export type Database = {
           supplier_id?: string
           webhook_events?: string[] | null
           webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      supplier_auction_stats: {
+        Row: {
+          avg_bid_delta: number | null
+          avg_price_competitiveness: number | null
+          category: string
+          created_at: string | null
+          id: string
+          last_participated_at: string | null
+          supplier_id: string
+          total_bid_value: number | null
+          total_participations: number | null
+          total_wins: number | null
+          updated_at: string | null
+          win_rate: number | null
+        }
+        Insert: {
+          avg_bid_delta?: number | null
+          avg_price_competitiveness?: number | null
+          category: string
+          created_at?: string | null
+          id?: string
+          last_participated_at?: string | null
+          supplier_id: string
+          total_bid_value?: number | null
+          total_participations?: number | null
+          total_wins?: number | null
+          updated_at?: string | null
+          win_rate?: number | null
+        }
+        Update: {
+          avg_bid_delta?: number | null
+          avg_price_competitiveness?: number | null
+          category?: string
+          created_at?: string | null
+          id?: string
+          last_participated_at?: string | null
+          supplier_id?: string
+          total_bid_value?: number | null
+          total_participations?: number | null
+          total_wins?: number | null
+          updated_at?: string | null
+          win_rate?: number | null
         }
         Relationships: []
       }

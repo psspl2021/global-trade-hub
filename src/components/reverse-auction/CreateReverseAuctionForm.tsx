@@ -1,10 +1,11 @@
 /**
- * Create Reverse Auction Form — Enterprise Edition
+ * Create Reverse Auction Form — Enterprise Edition with Wizard UX
  * Features:
  * 1) AI-generated title from multi-line items
  * 2) Multiple product line items (+ Add Product)
- * 3) Supplier search + manual add supplier
- * 4) First 5 domestic auctions → 50% fee discount
+ * 3) Supplier search + manual add supplier + AI recommendations
+ * 4) Industry templates + Historical price intelligence
+ * 5) Guided wizard: AI Input → Review Items → Suppliers → Pricing → Launch
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -16,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt, UserPlus, Trash2, Package, Wallet } from 'lucide-react';
+import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt, UserPlus, Trash2, Package, Wallet, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useReverseAuction, CreateAuctionInput } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +27,10 @@ import { getAuctionFee, formatINR } from '@/utils/auctionPricing';
 import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuctionTitle';
 import { parseAuctionTitle } from '@/utils/parseAuctionTitle';
 import { useAuth } from '@/hooks/useAuth';
+import { SupplierRecommendationPanel } from './SupplierRecommendationPanel';
+import { PriceIntelligencePanel } from './PriceIntelligencePanel';
+import { RfqTemplateSelector } from './RfqTemplateSelector';
+import { AiRfqPreview } from './AiRfqPreview';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
@@ -76,6 +81,19 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const navigateToCredits = useNavigate();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [wizardStep, setWizardStep] = useState(0);
+  const WIZARD_STEPS = ['AI Input', 'Review Items', 'Suppliers', 'Pricing & Details', 'Launch'];
+
+  // AI Preview state
+  const [aiPreviewData, setAiPreviewData] = useState<{
+    items: AuctionLineItem[];
+    category?: string;
+    title?: string;
+    description?: string;
+    qualityStandards?: string;
+    certifications?: string;
+    paymentTerms?: string;
+  } | null>(null);
 
   // ── Multi Line Items (Feature #2) ──
   const [items, setItems] = useState<AuctionLineItem[]>([
@@ -150,29 +168,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       };
       const normalizeUnit = (u: string) => UNIT_MAP[u?.toLowerCase()?.trim()] || 'MT';
 
-      // Confirm before overwriting existing items
-      const hasExistingItems = items.some(i => i.product.trim() !== '');
-      if (hasExistingItems) {
-        const confirmReplace = window.confirm(
-          'This will replace your current items with AI-generated ones. Continue?'
-        );
-        if (!confirmReplace) {
-          setIsAiGenerating(false);
-          return;
-        }
-      }
-
-      // Map AI output to form state
-      if (rfq.items?.length > 0) {
-        setItems(rfq.items.map((it: any) => ({
-          product: it.item_name || '',
-          quantity: String(it.quantity || ''),
-          unit: normalizeUnit(it.unit || ''),
-          description: it.description || '',
-        })));
-      }
-
-      // Smart category detection via keyword matching
+      // Smart category detection
       const CATEGORY_KEYWORDS: Record<string, string[]> = {
         "Metals - Ferrous": ["steel", "hr", "cr", "coil", "plate", "tmt", "rebar", "billet", "slab", "iron", "ferrous"],
         "Metals - Non Ferrous": ["aluminium", "aluminum", "copper", "brass", "zinc", "nickel", "tin", "lead"],
@@ -183,30 +179,40 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         "Textiles & Fibers": ["textile", "cotton", "fabric", "yarn", "fiber", "fibre"],
         "Paper & Packaging": ["paper", "cardboard", "packaging", "corrugated", "carton"],
       };
+
+      let detectedCategory: string | undefined;
       if (rfq.category) {
         const text = (rfq.category + ' ' + (rfq.items?.map((i: any) => i.item_name).join(' ') || '')).toLowerCase();
         let detected: string | null = null;
         for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
           if (keywords.some(k => text.includes(k))) { detected = cat; break; }
         }
-        const matched = detected
+        detectedCategory = detected
           ? CATEGORIES.find(c => c === detected)
           : CATEGORIES.find(c => c.toLowerCase().includes(rfq.category.toLowerCase().split(' ')[0]));
-        if (matched) setCategory(matched);
       }
-      if (rfq.trade_type) {
-        const tradeMap: Record<string, string> = { domestic_india: 'domestic', import: 'import', export: 'export' };
-        setTransactionType(tradeMap[rfq.trade_type] || 'domestic');
-      }
-      // Keep auto-title mode so smart title keeps updating with item changes
-      if (rfq.title) { setAuctionTitle(rfq.title); setIsManualTitle(false); }
-      if (rfq.description) setDescription(rfq.description);
-      if (rfq.delivery_location) setDeliveryAddress(rfq.delivery_location);
-      if (rfq.quality_standards) setQualityStandards(rfq.quality_standards);
-      if (rfq.certifications_required) setCertifications(rfq.certifications_required);
-      if (rfq.payment_terms) setPaymentTerms(rfq.payment_terms);
 
-      toast.success(`AI generated ${rfq.items?.length || 0} line items! Review & adjust below.`);
+      const parsedItems: AuctionLineItem[] = rfq.items?.length > 0
+        ? rfq.items.map((it: any) => ({
+            product: it.item_name || '',
+            quantity: String(it.quantity || ''),
+            unit: normalizeUnit(it.unit || ''),
+            description: it.description || '',
+          }))
+        : [];
+
+      // Show AI Preview instead of directly applying
+      setAiPreviewData({
+        items: parsedItems,
+        category: detectedCategory,
+        title: rfq.title,
+        description: rfq.description,
+        qualityStandards: rfq.quality_standards,
+        certifications: rfq.certifications_required,
+        paymentTerms: rfq.payment_terms,
+      });
+
+      toast.success(`AI parsed ${parsedItems.length} items. Review before applying.`);
     } catch (err: any) {
       console.error('AI RFQ error:', err);
       toast.error(err.message || 'Failed to generate. Please try again.');
@@ -214,6 +220,41 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       setIsAiGenerating(false);
     }
   }, [aiDescription]);
+
+  // Apply AI preview to form
+  const applyAiPreview = useCallback(() => {
+    if (!aiPreviewData) return;
+    if (aiPreviewData.items.length > 0) setItems(aiPreviewData.items);
+    if (aiPreviewData.category) setCategory(aiPreviewData.category);
+    if (aiPreviewData.title) { setAuctionTitle(aiPreviewData.title); setIsManualTitle(false); }
+    if (aiPreviewData.description) setDescription(aiPreviewData.description);
+    if (aiPreviewData.qualityStandards) setQualityStandards(aiPreviewData.qualityStandards);
+    if (aiPreviewData.certifications) setCertifications(aiPreviewData.certifications);
+    if (aiPreviewData.paymentTerms) setPaymentTerms(aiPreviewData.paymentTerms);
+    setAiPreviewData(null);
+    setWizardStep(1); // Move to Review Items step
+    toast.success('Applied to form!');
+  }, [aiPreviewData]);
+
+  // Apply template
+  const handleApplyTemplate = useCallback((template: any) => {
+    const hasExistingItems = items.some(i => i.product.trim() !== '');
+    if (hasExistingItems && !window.confirm('Replace current items with template?')) return;
+    
+    setItems(template.default_items.map((it: any) => ({
+      product: it.product_name || '',
+      quantity: String(it.quantity || ''),
+      unit: it.unit || 'MT',
+      description: it.description || '',
+      price: '',
+    })));
+    if (template.category) setCategory(template.category);
+    if (template.quality_standards) setQualityStandards(template.quality_standards);
+    if (template.certifications) setCertifications(template.certifications);
+    if (template.payment_terms) setPaymentTerms(template.payment_terms);
+    setWizardStep(1);
+    toast.success(`Template "${template.template_name}" applied!`);
+  }, [items]);
 
   useEffect(() => {
     const generated = generateAuctionTitle(
@@ -651,8 +692,22 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
   const today = new Date().toISOString().split('T')[0];
 
+  const invitedIds = useMemo(() => new Set(invitedSuppliers.filter(s => !s.manual).map(s => s.id)), [invitedSuppliers]);
+
   const formContent = (
     <div className="space-y-4 py-2">
+          {/* ── Wizard Progress ── */}
+          <div className="flex items-center gap-1 mb-2 overflow-x-auto">
+            {WIZARD_STEPS.map((step, i) => (
+              <div key={step} className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full shrink-0 ${
+                i <= 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+              }`}>
+                <span className="w-4 text-center">{i + 1}</span>
+                <span className="hidden sm:inline">{step}</span>
+              </div>
+            ))}
+          </div>
+
           {/* ── AI-Assisted RFQ Input ── */}
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="pt-4 pb-3 space-y-3">
@@ -661,10 +716,10 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 AI-Assisted Requirement (Optional)
               </Label>
               <p className="text-xs text-muted-foreground">
-                Describe your needs in plain text — AI will auto-fill products, quantities, category & specs below.
+                Describe your needs in plain text — AI will auto-fill products, quantities, category & specs.
               </p>
               <Textarea
-                placeholder="Example: I need 30 MT HR Coil IS2062 E250 and 25 MT HR Plates 10mm, delivery to Pune within 20 days. BIS certified with mill TC."
+                placeholder="Example: I need 30 MT HR Coil IS2062 E250 and 25 MT HR Plates 10mm, delivery to Pune within 20 days."
                 value={aiDescription}
                 onChange={(e) => setAiDescription(e.target.value)}
                 className="min-h-[80px] text-sm bg-background"
@@ -675,24 +730,35 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 onClick={handleAiGenerate}
                 disabled={isAiGenerating || aiDescription.trim().length < 10}
                 className="w-full gap-2"
-                variant="default"
               >
                 {isAiGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    AI is structuring your auction...
-                  </>
+                  <><Loader2 className="h-4 w-4 animate-spin" /> AI is structuring your auction...</>
                 ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Generate Auction from Description
-                  </>
+                  <><Sparkles className="h-4 w-4" /> Generate Auction from Description</>
                 )}
               </Button>
             </CardContent>
           </Card>
 
-          {/* ── AI Generated Title (Feature #1) ── */}
+          {/* AI Preview Before Apply */}
+          {aiPreviewData && (
+            <AiRfqPreview
+              items={aiPreviewData.items}
+              category={aiPreviewData.category}
+              title={aiPreviewData.title}
+              description={aiPreviewData.description}
+              qualityStandards={aiPreviewData.qualityStandards}
+              certifications={aiPreviewData.certifications}
+              paymentTerms={aiPreviewData.paymentTerms}
+              onApply={applyAiPreview}
+              onCancel={() => setAiPreviewData(null)}
+            />
+          )}
+
+          {/* ── Industry Templates ── */}
+          <RfqTemplateSelector category={category} onApplyTemplate={handleApplyTemplate} />
+
+          {/* ── AI Generated Title ── */}
           <div>
             <Label className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -1043,6 +1109,18 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           )}
 
           {/* ── Supplier Search & Manual Add (Feature #3) ── */}
+          {/* ── AI Supplier Recommendations ── */}
+          {category && (
+            <SupplierRecommendationPanel
+              category={category}
+              onAddSupplier={(s) => addSupplier({ ...s, email: s.email || undefined } as any)}
+              invitedIds={invitedIds}
+            />
+          )}
+
+          {/* ── Price Intelligence ── */}
+          {category && <PriceIntelligencePanel category={category} />}
+
           <div>
             <Label className="flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5" />
