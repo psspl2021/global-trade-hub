@@ -643,6 +643,13 @@ function AuctionCard({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Full Edit Dialog */}
+      <EditAuctionForm
+        auction={auction}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+      />
     </>
   );
 }
