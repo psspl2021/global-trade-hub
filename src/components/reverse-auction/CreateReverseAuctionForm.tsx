@@ -723,7 +723,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             <div className="space-y-2">
               {items.map((item, i) => (
                 <div key={i} className="space-y-1.5 p-2.5 rounded-lg border border-border/50 bg-muted/20">
-                  <div className="grid grid-cols-[1fr_100px_90px_32px] gap-2 items-end">
+                  <div className="grid grid-cols-[1fr_80px_80px_100px_32px] gap-2 items-end">
                     <div>
                       {i === 0 && <span className="text-xs text-muted-foreground">Product</span>}
                       <Input
@@ -752,6 +752,15 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                         </SelectContent>
                       </Select>
                     </div>
+                    <div>
+                      {i === 0 && <span className="text-xs text-muted-foreground">Price (₹)</span>}
+                      <Input
+                        type="number"
+                        placeholder="61000"
+                        value={item.price || ''}
+                        onChange={e => updateItem(i, 'price', e.target.value)}
+                      />
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"
@@ -769,6 +778,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                     onChange={e => updateItem(i, 'description', e.target.value)}
                     className="text-xs h-8"
                   />
+                  {item.quantity && item.price && (
+                    <p className="text-xs text-muted-foreground text-right">
+                      Line total: ₹{(parseFloat(item.quantity || '0') * parseFloat(item.price || '0')).toLocaleString('en-IN')}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
