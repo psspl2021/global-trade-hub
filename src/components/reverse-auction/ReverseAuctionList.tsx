@@ -511,118 +511,12 @@ function AuctionCard({
         </CardContent>
       </Card>
 
-      {/* Edit & Republish Dialog */}
-      <Dialog open={showRepublishDialog} onOpenChange={setShowRepublishDialog}>
-        <DialogContent className="max-w-md" onClick={e => e.stopPropagation()}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 text-primary" />
-              Edit & Republish Auction
-            </DialogTitle>
-            <DialogDescription>
-              Update schedule and details. All previous bids will be cleared.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            {/* Auction Title (read-only) */}
-            <div>
-              <Label className="text-xs text-muted-foreground">Auction</Label>
-              <p className="text-sm font-medium">{auction.title}</p>
-              <p className="text-xs text-muted-foreground">{auction.category} • {auction.product_slug?.replace(/_/g, ', ').replace(/-/g, ' ')}</p>
-            </div>
-
-            {/* Starting Price */}
-            <div>
-              <Label htmlFor="rep-price">Starting Price (₹ per {repUnit})</Label>
-              <Input
-                id="rep-price"
-                type="number"
-                value={repStartingPrice}
-                onChange={e => setRepStartingPrice(e.target.value)}
-                placeholder="e.g. 63000"
-              />
-            </div>
-
-            {/* Quantity & Unit */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="rep-qty">Quantity</Label>
-                <Input
-                  id="rep-qty"
-                  type="number"
-                  value={repQuantity}
-                  onChange={e => setRepQuantity(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label>Unit</Label>
-                <Select value={repUnit} onValueChange={setRepUnit}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MT">MT</SelectItem>
-                    <SelectItem value="KG">KG</SelectItem>
-                    <SelectItem value="Pcs">Pieces</SelectItem>
-                    <SelectItem value="Ltrs">Litres</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Schedule */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="rep-date">Start Date</Label>
-                <Input
-                  id="rep-date"
-                  type="date"
-                  value={repStartDate}
-                  onChange={e => setRepStartDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                />
-              </div>
-              <div>
-                <Label htmlFor="rep-time">Start Time</Label>
-                <Input
-                  id="rep-time"
-                  type="time"
-                  value={repStartTime}
-                  onChange={e => setRepStartTime(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label>Duration</Label>
-              <Select value={String(repDuration)} onValueChange={v => setRepDuration(Number(v))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {DURATION_OPTIONS.map(d => (
-                    <SelectItem key={d.value} value={String(d.value)}>{d.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowRepublishDialog(false)}>Cancel</Button>
-            <Button
-              onClick={handleRepublish}
-              disabled={!repStartDate || !repStartTime}
-              className="gap-1"
-            >
-              <RefreshCw className="w-3 h-3" /> Republish Auction
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Full Edit Dialog */}
       <EditAuctionForm
         auction={auction}
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
+        onUpdated={handleUpdated}
       />
     </>
   );
