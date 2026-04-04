@@ -205,6 +205,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           category: it.category || '',
           quantity: String(it.quantity || ''),
           unit: it.unit || 'MT',
+          price: String(it.unit_price || ''),
           description: it.description || '',
         })));
       } else {
