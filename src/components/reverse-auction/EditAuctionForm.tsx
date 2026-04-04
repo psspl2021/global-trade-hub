@@ -162,7 +162,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           quantity: parseFloat(i.quantity || '0'),
           unit: i.unit,
           description: i.description || undefined,
-          category: auction.category,
+          category: i.category || auction.category,
         })),
       }, editCount);
 
