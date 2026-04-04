@@ -7,10 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, Timer, RefreshCw, Pencil, Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
+import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, Timer, Pencil, Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format, isToday } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -43,13 +41,6 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
   }).format(value);
 }
 
-const DURATION_OPTIONS = [
-  { label: '15 minutes', value: 15 },
-  { label: '30 minutes', value: 30 },
-  { label: '1 hour', value: 60 },
-  { label: '2 hours', value: 120 },
-  { label: '24 hours', value: 1440 },
-];
 
 interface ReverseAuctionListProps {
   onSelectAuction?: (auction: ReverseAuction) => void;
@@ -353,14 +344,7 @@ function AuctionCard({
   completeAuction: (id: string) => void;
   republishAuction: (id: string, newSchedule?: any) => void;
 }) {
-  const [showRepublishDialog, setShowRepublishDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [repStartDate, setRepStartDate] = useState('');
-  const [repStartTime, setRepStartTime] = useState('');
-  const [repDuration, setRepDuration] = useState(30);
-  const [repStartingPrice, setRepStartingPrice] = useState(String(auction.starting_price || ''));
-  const [repQuantity, setRepQuantity] = useState(String(auction.quantity || ''));
-  const [repUnit, setRepUnit] = useState(auction.unit || 'MT');
 
   // Compute effective status based on time
   const effectiveStatus = (() => {
@@ -379,23 +363,9 @@ function AuctionCard({
     ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
     : 0;
 
-  const handleRepublish = () => {
-    if (!repStartDate || !repStartTime) {
-      return;
-    }
-    const start = new Date(`${repStartDate}T${repStartTime}`);
-    if (start < new Date()) {
-      return;
-    }
-    const end = new Date(start.getTime() + repDuration * 60 * 1000);
-    republishAuction(auction.id, {
-      auction_start: start.toISOString(),
-      auction_end: end.toISOString(),
-      starting_price: parseFloat(repStartingPrice) || undefined,
-      quantity: parseFloat(repQuantity) || undefined,
-      unit: repUnit,
-    });
-    setShowRepublishDialog(false);
+  const handleUpdated = () => {
+    // Trigger parent refetch after edit
+    republishAuction(auction.id);
   };
 
   return (
@@ -506,7 +476,7 @@ function AuctionCard({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setShowRepublishDialog(true)}
+                  onClick={() => setShowEditDialog(true)}
                   className="gap-1"
                 >
                   <Pencil className="w-3 h-3" /> Edit & Republish
@@ -532,118 +502,12 @@ function AuctionCard({
         </CardContent>
       </Card>
 
-      {/* Edit & Republish Dialog */}
-      <Dialog open={showRepublishDialog} onOpenChange={setShowRepublishDialog}>
-        <DialogContent className="max-w-md" onClick={e => e.stopPropagation()}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 text-primary" />
-              Edit & Republish Auction
-            </DialogTitle>
-            <DialogDescription>
-              Update schedule and details. All previous bids will be cleared.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            {/* Auction Title (read-only) */}
-            <div>
-              <Label className="text-xs text-muted-foreground">Auction</Label>
-              <p className="text-sm font-medium">{auction.title}</p>
-              <p className="text-xs text-muted-foreground">{auction.category} • {auction.product_slug?.replace(/_/g, ', ').replace(/-/g, ' ')}</p>
-            </div>
-
-            {/* Starting Price */}
-            <div>
-              <Label htmlFor="rep-price">Starting Price (₹ per {repUnit})</Label>
-              <Input
-                id="rep-price"
-                type="number"
-                value={repStartingPrice}
-                onChange={e => setRepStartingPrice(e.target.value)}
-                placeholder="e.g. 63000"
-              />
-            </div>
-
-            {/* Quantity & Unit */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="rep-qty">Quantity</Label>
-                <Input
-                  id="rep-qty"
-                  type="number"
-                  value={repQuantity}
-                  onChange={e => setRepQuantity(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label>Unit</Label>
-                <Select value={repUnit} onValueChange={setRepUnit}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MT">MT</SelectItem>
-                    <SelectItem value="KG">KG</SelectItem>
-                    <SelectItem value="Pcs">Pieces</SelectItem>
-                    <SelectItem value="Ltrs">Litres</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Schedule */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="rep-date">Start Date</Label>
-                <Input
-                  id="rep-date"
-                  type="date"
-                  value={repStartDate}
-                  onChange={e => setRepStartDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                />
-              </div>
-              <div>
-                <Label htmlFor="rep-time">Start Time</Label>
-                <Input
-                  id="rep-time"
-                  type="time"
-                  value={repStartTime}
-                  onChange={e => setRepStartTime(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label>Duration</Label>
-              <Select value={String(repDuration)} onValueChange={v => setRepDuration(Number(v))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {DURATION_OPTIONS.map(d => (
-                    <SelectItem key={d.value} value={String(d.value)}>{d.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowRepublishDialog(false)}>Cancel</Button>
-            <Button
-              onClick={handleRepublish}
-              disabled={!repStartDate || !repStartTime}
-              className="gap-1"
-            >
-              <RefreshCw className="w-3 h-3" /> Republish Auction
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Full Edit Dialog */}
       <EditAuctionForm
         auction={auction}
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
+        onUpdated={handleUpdated}
       />
     </>
   );
