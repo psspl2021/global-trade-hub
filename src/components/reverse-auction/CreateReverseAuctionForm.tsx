@@ -714,7 +714,17 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                   onChange={e => setCertifications(e.target.value)}
                   placeholder="e.g. ISO 9001, BIS"
                 />
-              </div>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Procurement Deadline</Label>
+              <Input
+                type="date"
+                value={deadline}
+                onChange={e => setDeadline(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                placeholder="When do you need delivery?"
+              />
+            </div>
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Quality Standards</Label>
