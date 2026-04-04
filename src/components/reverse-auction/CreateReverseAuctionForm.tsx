@@ -1109,6 +1109,18 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           )}
 
           {/* ── Supplier Search & Manual Add (Feature #3) ── */}
+          {/* ── AI Supplier Recommendations ── */}
+          {category && (
+            <SupplierRecommendationPanel
+              category={category}
+              onAddSupplier={(s) => addSupplier({ ...s, email: s.email || undefined } as any)}
+              invitedIds={invitedIds}
+            />
+          )}
+
+          {/* ── Price Intelligence ── */}
+          {category && <PriceIntelligencePanel category={category} />}
+
           <div>
             <Label className="flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5" />
