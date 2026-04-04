@@ -139,12 +139,23 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       const rfq = data?.rfq;
       if (!rfq) throw new Error('Invalid AI response');
 
+      // Robust unit normalization
+      const UNIT_MAP: Record<string, string> = {
+        tons: 'MT', ton: 'MT', tonnes: 'MT', mt: 'MT',
+        kilograms: 'KG', kilogram: 'KG', kg: 'KG', kgs: 'KG',
+        pieces: 'Pcs', piece: 'Pcs', nos: 'Pcs', pcs: 'Pcs',
+        liters: 'Ltrs', liter: 'Ltrs', litres: 'Ltrs', ltrs: 'Ltrs',
+        meters: 'Meters', meter: 'Meters', sets: 'Sets', set: 'Sets',
+        cartons: 'Cartons', carton: 'Cartons', boxes: 'Boxes', box: 'Boxes',
+      };
+      const normalizeUnit = (u: string) => UNIT_MAP[u?.toLowerCase()?.trim()] || 'MT';
+
       // Map AI output to form state
       if (rfq.items?.length > 0) {
         setItems(rfq.items.map((it: any) => ({
           product: it.item_name || '',
           quantity: String(it.quantity || ''),
-          unit: it.unit === 'Tons' ? 'MT' : it.unit === 'Kilograms' ? 'KG' : it.unit === 'Pieces' ? 'Pcs' : it.unit === 'Liters' ? 'Ltrs' : it.unit || 'MT',
+          unit: normalizeUnit(it.unit || ''),
           description: it.description || '',
         })));
       }
@@ -156,7 +167,8 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         const tradeMap: Record<string, string> = { domestic_india: 'domestic', import: 'import', export: 'export' };
         setTransactionType(tradeMap[rfq.trade_type] || 'domestic');
       }
-      if (rfq.title) { setAuctionTitle(rfq.title); setIsManualTitle(true); }
+      // Keep auto-title mode so smart title keeps updating with item changes
+      if (rfq.title) { setAuctionTitle(rfq.title); setIsManualTitle(false); }
       if (rfq.description) setDescription(rfq.description);
       if (rfq.delivery_location) setDeliveryAddress(rfq.delivery_location);
       if (rfq.quality_standards) setQualityStandards(rfq.quality_standards);
