@@ -1020,6 +1020,53 @@ export type Database = {
           },
         ]
       }
+      auction_counter_offers: {
+        Row: {
+          auction_id: string
+          buyer_id: string
+          counter_price: number
+          created_at: string
+          id: string
+          original_bid_price: number | null
+          responded_at: string | null
+          response_message: string | null
+          status: string
+          supplier_id: string
+        }
+        Insert: {
+          auction_id: string
+          buyer_id: string
+          counter_price: number
+          created_at?: string
+          id?: string
+          original_bid_price?: number | null
+          responded_at?: string | null
+          response_message?: string | null
+          status?: string
+          supplier_id: string
+        }
+        Update: {
+          auction_id?: string
+          buyer_id?: string
+          counter_price?: number
+          created_at?: string
+          id?: string
+          original_bid_price?: number | null
+          responded_at?: string | null
+          response_message?: string | null
+          status?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_counter_offers_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auction_credit_payments: {
         Row: {
           amount: number
@@ -1141,6 +1188,50 @@ export type Database = {
           supplier_id?: string | null
         }
         Relationships: []
+      }
+      auction_messages: {
+        Row: {
+          auction_id: string
+          counter_price: number | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          message_type: string
+          sender_id: string
+          sender_role: string
+        }
+        Insert: {
+          auction_id: string
+          counter_price?: number | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          message_type?: string
+          sender_id: string
+          sender_role: string
+        }
+        Update: {
+          auction_id?: string
+          counter_price?: number | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          message_type?: string
+          sender_id?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_messages_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       auction_payments: {
         Row: {
