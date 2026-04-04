@@ -133,6 +133,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           category: '',
           quantity: String(it.quantity || ''),
           unit: normalizeUnit(it.unit || ''),
+          price: '',
           description: it.description || '',
         })));
       }
