@@ -81,6 +81,19 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const navigateToCredits = useNavigate();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [wizardStep, setWizardStep] = useState(0);
+  const WIZARD_STEPS = ['AI Input', 'Review Items', 'Suppliers', 'Pricing & Details', 'Launch'];
+
+  // AI Preview state
+  const [aiPreviewData, setAiPreviewData] = useState<{
+    items: AuctionLineItem[];
+    category?: string;
+    title?: string;
+    description?: string;
+    qualityStandards?: string;
+    certifications?: string;
+    paymentTerms?: string;
+  } | null>(null);
 
   // ── Multi Line Items (Feature #2) ──
   const [items, setItems] = useState<AuctionLineItem[]>([
