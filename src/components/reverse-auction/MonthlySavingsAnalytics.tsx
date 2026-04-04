@@ -77,7 +77,7 @@ export function MonthlySavingsAnalytics() {
     fetchAuctions();
   }, [user?.id]);
 
-  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency } = useMemo(() => {
+  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency, avgPerAuction, trend } = useMemo(() => {
     const monthMap = new Map<string, MonthlyData>();
 
     for (let i = 5; i >= 0; i--) {
@@ -128,6 +128,10 @@ export function MonthlySavingsAnalytics() {
     const data = Array.from(monthMap.values());
     const best = data.reduce((max, m) => (m.savings > max.savings ? m : max), data[0]);
 
+    const lastM = data[data.length - 1];
+    const prevM = data[data.length - 2];
+    const trendDir = lastM && prevM ? (lastM.savings >= prevM.savings ? 'up' : 'down') : 'up';
+
     return {
       monthlyData: data,
       totalSavings: totalSav,
@@ -136,6 +140,8 @@ export function MonthlySavingsAnalytics() {
       completedCount: completed,
       bestMonth: best,
       savingsEfficiency: totalSpd > 0 ? (totalSav / totalSpd) * 100 : 0,
+      avgPerAuction: completed > 0 ? totalSav / completed : 0,
+      trend: trendDir as 'up' | 'down',
     };
   }, [auctions]);
 
@@ -153,23 +159,34 @@ export function MonthlySavingsAnalytics() {
 
   return (
     <div className="space-y-4">
-      {/* Savings Narrative */}
+      {/* Savings Narrative — scannable chips */}
       {totalSavings > 0 && (
         <div className="rounded-lg border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 px-4 py-3">
-          <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
-            You saved <span className="font-bold">{formatCompact(totalSavings)}</span> over the last 6 months across{' '}
-            <span className="font-bold">{completedCount} auctions</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className="font-bold text-emerald-700 dark:text-emerald-300">
+              {formatCompact(totalSavings)} saved
+            </span>
+            <span className="text-muted-foreground">over 6 months</span>
+            <span className="text-muted-foreground">• {completedCount} auctions</span>
             {bestMonth && bestMonth.savings > 0 && (
-              <span className="text-emerald-600 dark:text-emerald-400">
-                {' '}· Best month: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
+              <span className="text-primary font-medium">
+                • Best: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
               </span>
             )}
             {savingsEfficiency > 0 && (
-              <span className="text-emerald-600 dark:text-emerald-400">
-                {' '}· Savings efficiency: {savingsEfficiency.toFixed(1)}%
+              <span className="text-violet-600 dark:text-violet-400 font-medium">
+                • {savingsEfficiency.toFixed(1)}% efficiency
               </span>
             )}
-          </p>
+            {avgPerAuction > 0 && (
+              <span className="text-amber-600 dark:text-amber-400 font-medium">
+                • Avg {formatCompact(avgPerAuction)}/auction
+              </span>
+            )}
+            <span className={trend === 'up' ? 'text-emerald-600 font-medium' : 'text-destructive font-medium'}>
+              {trend === 'up' ? '↑ improving' : '↓ declining'}
+            </span>
+          </div>
         </div>
       )}
 
