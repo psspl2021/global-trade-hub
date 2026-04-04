@@ -77,10 +77,9 @@ export function MonthlySavingsAnalytics() {
     fetchAuctions();
   }, [user?.id]);
 
-  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount } = useMemo(() => {
+  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency } = useMemo(() => {
     const monthMap = new Map<string, MonthlyData>();
 
-    // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const d = subMonths(new Date(), i);
       const key = format(d, 'yyyy-MM');
@@ -126,12 +125,17 @@ export function MonthlySavingsAnalytics() {
       }
     });
 
+    const data = Array.from(monthMap.values());
+    const best = data.reduce((max, m) => (m.savings > max.savings ? m : max), data[0]);
+
     return {
-      monthlyData: Array.from(monthMap.values()),
+      monthlyData: data,
       totalSavings: totalSav,
       totalSpend: totalSpd,
       avgSavingsPct: completed > 0 ? savingsPctSum / completed : 0,
       completedCount: completed,
+      bestMonth: best,
+      savingsEfficiency: totalSpd > 0 ? (totalSav / totalSpd) * 100 : 0,
     };
   }, [auctions]);
 
@@ -149,6 +153,26 @@ export function MonthlySavingsAnalytics() {
 
   return (
     <div className="space-y-4">
+      {/* Savings Narrative */}
+      {totalSavings > 0 && (
+        <div className="rounded-lg border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 px-4 py-3">
+          <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+            You saved <span className="font-bold">{formatCompact(totalSavings)}</span> over the last 6 months across{' '}
+            <span className="font-bold">{completedCount} auctions</span>
+            {bestMonth && bestMonth.savings > 0 && (
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {' '}· Best month: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
+              </span>
+            )}
+            {savingsEfficiency > 0 && (
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {' '}· Savings efficiency: {savingsEfficiency.toFixed(1)}%
+              </span>
+            )}
+          </p>
+        </div>
+      )}
+
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -242,13 +266,17 @@ export function MonthlySavingsAnalytics() {
                   radius={[4, 4, 0, 0]}
                   maxBarSize={48}
                 >
-                  {monthlyData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.savings > 0 ? 'hsl(142, 76%, 36%)' : 'hsl(var(--muted))'}
-                      fillOpacity={entry.savings > 0 ? 0.85 : 0.3}
-                    />
-                  ))}
+                  {monthlyData.map((entry, index) => {
+                    const isLatest = index === monthlyData.length - 1;
+                    const isBest = bestMonth && entry.month === bestMonth.month && entry.savings > 0;
+                    return (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.savings > 0 ? 'hsl(142, 76%, 36%)' : 'hsl(var(--muted))'}
+                        fillOpacity={isLatest || isBest ? 1 : entry.savings > 0 ? 0.55 : 0.3}
+                      />
+                    );
+                  })}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
