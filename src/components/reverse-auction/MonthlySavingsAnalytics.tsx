@@ -162,40 +162,40 @@ export function MonthlySavingsAnalytics() {
       {/* Savings Narrative — scannable chips */}
       {totalSavings > 0 && (
         <div className="rounded-lg border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 px-4 py-3">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
-            <span className="inline-flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-300">
-              <IndianRupee className="w-3.5 h-3.5" />
-              {formatCompact(totalSavings)} saved
-            </span>
-            <span className="inline-flex items-center gap-1 text-muted-foreground">
-              <Calendar className="w-3 h-3" />
-              6 months
-            </span>
-            <span className="inline-flex items-center gap-1 text-muted-foreground">
-              <BarChart3 className="w-3 h-3" />
-              {completedCount} auctions
-            </span>
-            {bestMonth && bestMonth.savings > 0 && (
-              <span className="inline-flex items-center gap-1 text-primary font-medium">
-                <Trophy className="w-3 h-3" />
-                Best: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
-              </span>
-            )}
-            {savingsEfficiency > 0 && (
-              <span className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium">
-                <Gauge className="w-3 h-3" />
-                {savingsEfficiency.toFixed(1)}% efficiency
-              </span>
-            )}
-            {avgPerAuction > 0 && (
-              <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
-                <Zap className="w-3 h-3" />
-                Avg {formatCompact(avgPerAuction)}/auction
-              </span>
-            )}
-            <span className={`inline-flex items-center gap-1 font-medium ${trend === 'up' ? 'text-emerald-600' : 'text-destructive'}`}>
-              {trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-              {trend === 'up' ? 'improving' : 'declining'}
+           <div className="flex flex-wrap items-center gap-2 text-sm">
+             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold">
+               <IndianRupee className="w-4 h-4" />
+               {formatCompact(totalSavings)} saved
+             </span>
+             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+               <Calendar className="w-4 h-4" />
+               6 months
+             </span>
+             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+               <BarChart3 className="w-4 h-4" />
+               {completedCount} auctions
+             </span>
+             {bestMonth && bestMonth.savings > 0 && (
+               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary font-medium">
+                 <Trophy className="w-4 h-4" />
+                 Best: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
+               </span>
+             )}
+             {savingsEfficiency > 0 && (
+               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 font-medium">
+                 <Gauge className="w-4 h-4" />
+                 {savingsEfficiency.toFixed(1)}% efficiency
+               </span>
+             )}
+             {avgPerAuction > 0 && (
+               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">
+                 <Zap className="w-4 h-4" />
+                 Avg {formatCompact(avgPerAuction)}/auction
+               </span>
+             )}
+             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-colors ${trend === 'up' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-destructive/10 text-destructive'}`}>
+               {trend === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+               {trend === 'up' ? 'improving' : 'declining'}
             </span>
           </div>
         </div>
