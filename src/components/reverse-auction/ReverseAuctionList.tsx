@@ -495,6 +495,9 @@ function AuctionCard({
                   <Button size="sm" variant="default" onClick={() => startAuction(auction.id)}>
                     <Play className="w-3 h-3 mr-1" /> Go Live
                   </Button>
+                  <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                    <Pencil className="w-3 h-3" /> Edit
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
                 </>
               )}
