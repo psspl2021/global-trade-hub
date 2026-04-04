@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { AuctionResultExport } from './AuctionResultExport';
+import { AuctionChat } from './AuctionChat';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
