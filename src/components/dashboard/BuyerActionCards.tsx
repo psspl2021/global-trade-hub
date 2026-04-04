@@ -23,7 +23,8 @@ interface LiveMetrics {
   openRFQs: number;
   totalQuotes: number;
   liveAuctions: number;
-  auctionSavings: number;
+  liveSavings: number;
+  realizedSavings: number;
   pendingLogistics: number;
 }
 
