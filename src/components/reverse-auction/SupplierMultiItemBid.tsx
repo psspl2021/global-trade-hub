@@ -1,6 +1,6 @@
 /**
  * Multi-Item Supplier Bidding Table
- * Enterprise-grade: per-item pricing, auto-total, validation, live rank
+ * Enterprise-grade: per-item pricing, auto-total, race-safe DB placement, live rank via realtime
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,20 +94,29 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     return rankedBids.find(b => b.supplier_id === user.id)?.rank ?? null;
   }, [rankedBids, user]);
 
+  // Rank visibility — respect auction settings
+  const showExactPrices = (auction as any).show_exact_prices ?? false;
+  const showRankOnly = (auction as any).show_rank_only ?? true;
+
   const handleSubmitBid = useCallback(async () => {
     if (!user || !isValidBid || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      // Place main bid with total
-      const { data: newBid, error } = await supabase
-        .from('reverse_auction_bids')
-        .insert({
-          auction_id: auction.id,
-          supplier_id: user.id,
-          bid_price: Math.round(bidTotal * 100) / 100,
-        } as any)
-        .select()
-        .single();
+      // Build bid items for the DB function
+      const bidItemsPayload = items.map(item => ({
+        auction_item_id: item.id,
+        unit_price: Number(bidPrices[item.id] || 0),
+        quantity: item.quantity,
+        line_total: Math.round(Number(bidPrices[item.id] || 0) * item.quantity * 100) / 100,
+      }));
+
+      // Race-safe bid placement via DB function
+      const { data, error } = await supabase.rpc('place_bid_safe', {
+        p_auction_id: auction.id,
+        p_supplier_id: user.id,
+        p_bid_price: Math.round(bidTotal * 100) / 100,
+        p_bid_items: bidItemsPayload,
+      });
 
       if (error) {
         if (error.message?.includes('Rate limit')) {
@@ -117,31 +126,20 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         throw error;
       }
 
-      // Insert per-item bid breakdown
-      const bidItems = items.map(item => ({
-        bid_id: (newBid as any).id,
-        auction_item_id: item.id,
-        unit_price: Number(bidPrices[item.id] || 0),
-        quantity: item.quantity,
-        line_total: Math.round(Number(bidPrices[item.id] || 0) * item.quantity * 100) / 100,
-      }));
-
-      await supabase.from('reverse_auction_bid_items').insert(bidItems as any);
-
-      // Update auction current price
-      await supabase
-        .from('reverse_auctions')
-        .update({ current_price: bidTotal, updated_at: new Date().toISOString() } as any)
-        .eq('id', auction.id);
+      const result = data as any;
+      if (result && !result.success) {
+        toast.error(result.error || 'Bid rejected by server');
+        return;
+      }
 
       logAuctionEvent({
         auction_id: auction.id,
         event_type: 'BID_PLACED',
         actor_id: user.id,
         actor_role: 'supplier',
-        bid_id: (newBid as any).id,
+        bid_id: result?.bid_id,
         bid_amount: bidTotal,
-        metadata: { item_count: items.length, bid_items: bidItems },
+        metadata: { item_count: items.length, server_validated: true },
       });
 
       toast.success(`Bid of ${formatCurrency(bidTotal)} placed successfully!`);
@@ -157,7 +155,6 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     return <div className="text-sm text-muted-foreground p-4">Loading auction items...</div>;
   }
 
-  // If no multi-items, fall back to single price input
   if (items.length === 0) return null;
 
   return (
@@ -174,7 +171,10 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         </CardTitle>
         <div className="text-xs text-muted-foreground flex items-center gap-1.5">
           <AlertTriangle className="w-3 h-3 text-amber-600" />
-          Must beat {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
+          {showRankOnly && !showExactPrices
+            ? `Your rank: ${myRank ? `L${myRank}` : 'Not ranked'} — bid lower to improve`
+            : `Must beat ${formatCurrency(maxAllowedBid)} (min ${auction.minimum_bid_step_pct}% step)`
+          }
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
