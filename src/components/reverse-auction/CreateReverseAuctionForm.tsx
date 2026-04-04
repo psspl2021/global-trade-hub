@@ -77,7 +77,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
   // ── Multi Line Items (Feature #2) ──
   const [items, setItems] = useState<AuctionLineItem[]>([
-    { product: '', quantity: '', unit: 'MT' }
+    { product: '', quantity: '', unit: 'MT', description: '' }
   ]);
 
   const addLineItem = () => {
