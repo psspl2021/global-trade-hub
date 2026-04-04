@@ -540,6 +540,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
               onChange={(e) => {
                 const value = e.target.value;
                 setAuctionTitle(value);
+                setIsManualTitle(value !== autoTitle && value.length > 0);
                 const parsed = parseAuctionTitle(value);
                 if (parsed.length > 0) {
                   setItems(parsed.map(p => ({
@@ -556,6 +557,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                   e.preventDefault();
                   const cleanTitle = parsed.map(p => p.product).join(', ') + ' Reverse Auction';
                   setAuctionTitle(cleanTitle);
+                  setIsManualTitle(true);
                   setItems(parsed.map(p => ({
                     product: p.product,
                     quantity: p.quantity,
@@ -566,8 +568,13 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
               placeholder="e.g. hr coil 2mm 30 ton, 5mm 10 ton — auto-fills line items"
               className="mt-1"
             />
-            {auctionTitle && (
-              <p className="text-xs text-muted-foreground mt-1">Auto-generated — you can edit if needed</p>
+            {auctionTitle && !isManualTitle && (
+              <p className="text-xs text-muted-foreground mt-1">✨ Auto-generated from items — editable</p>
+            )}
+            {isManualTitle && (
+              <button type="button" onClick={() => { setIsManualTitle(false); setAuctionTitle(autoTitle); }} className="text-xs text-primary mt-1 hover:underline">
+                ↺ Reset to auto-generated title
+              </button>
             )}
           </div>
 
