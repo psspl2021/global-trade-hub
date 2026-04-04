@@ -1,6 +1,7 @@
 /**
  * Supplier Recommendation Engine
  * Ranks suppliers based on: category match, win rate, price competitiveness, participation
+ * Includes new supplier boost to prevent cold-start bias
  */
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +19,7 @@ export interface SupplierRecommendation {
   score: number;
   total_participations: number;
   total_wins: number;
+  isNewSupplier: boolean;
 }
 
 export function useSupplierRecommendation() {
@@ -45,7 +47,7 @@ export function useSupplierRecommendation() {
 
       const statsMap = new Map((stats || []).map((s: any) => [s.supplier_id, s]));
 
-      // Score: 40% win_rate + 40% price_competitiveness + 20% participation_rate
+      // Score: 35% win_rate + 35% price_competitiveness + 20% participation + 10% new supplier boost
       const scored: SupplierRecommendation[] = suppliers.map((s: any) => {
         const stat = statsMap.get(s.id);
         const winRate = stat ? Number(stat.win_rate || 0) : 0;
@@ -53,8 +55,13 @@ export function useSupplierRecommendation() {
         const participations = stat ? Number(stat.total_participations || 0) : 0;
         const maxPart = Math.max(...(stats || []).map((st: any) => Number(st.total_participations || 1)), 1);
         const participationRate = participations / maxPart;
+        const isNewSupplier = participations < 3;
 
-        const score = (winRate * 0.4) + (competitiveness * 0.4) + (participationRate * 0.2);
+        const score = 
+          (winRate * 0.35) + 
+          (competitiveness * 0.35) + 
+          (participationRate * 0.2) + 
+          (isNewSupplier ? 0.1 : 0);
 
         return {
           supplier_id: s.id,
@@ -69,6 +76,7 @@ export function useSupplierRecommendation() {
           score,
           total_participations: participations,
           total_wins: stat ? Number(stat.total_wins || 0) : 0,
+          isNewSupplier,
         };
       })
       .sort((a, b) => b.score - a.score)

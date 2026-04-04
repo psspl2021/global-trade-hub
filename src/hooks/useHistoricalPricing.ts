@@ -1,6 +1,6 @@
 /**
  * Historical Price Intelligence Engine
- * Computes avg/min/max from past completed auctions for a category
+ * Computes avg/min/max with outlier removal, trend detection, volatility
  */
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,9 @@ export interface PriceInsight {
   auctionCount: number;
   lastAuctions: { title: string; winning_price: number; starting_price: number; savings_pct: number; date: string }[];
   suggestedStartingPrice: number;
+  trend: 'up' | 'down' | 'stable';
+  volatility: 'low' | 'medium' | 'high';
+  trendPct: number;
 }
 
 export function useHistoricalPricing() {
@@ -37,10 +40,29 @@ export function useHistoricalPricing() {
         return null;
       }
 
-      const prices = data.map((d: any) => d.winning_price).filter(Boolean);
+      const rawPrices = data.map((d: any) => d.winning_price).filter(Boolean);
+      
+      // Remove outliers (prices > 2x average)
+      const rawAvg = rawPrices.reduce((a: number, b: number) => a + b, 0) / rawPrices.length;
+      const cleanPrices = rawPrices.filter((p: number) => p < rawAvg * 2 && p > rawAvg * 0.2);
+      const prices = cleanPrices.length > 2 ? cleanPrices : rawPrices;
+
       const avg = prices.reduce((a: number, b: number) => a + b, 0) / prices.length;
       const min = Math.min(...prices);
       const max = Math.max(...prices);
+
+      // Trend: compare first half avg vs second half avg
+      const mid = Math.floor(prices.length / 2);
+      const recentAvg = prices.slice(0, mid || 1).reduce((a: number, b: number) => a + b, 0) / (mid || 1);
+      const olderAvg = prices.slice(mid).reduce((a: number, b: number) => a + b, 0) / (prices.length - mid || 1);
+      const trendPct = olderAvg > 0 ? ((recentAvg - olderAvg) / olderAvg) * 100 : 0;
+      const trend: 'up' | 'down' | 'stable' = trendPct > 3 ? 'up' : trendPct < -3 ? 'down' : 'stable';
+
+      // Volatility: coefficient of variation
+      const variance = prices.reduce((sum: number, p: number) => sum + Math.pow(p - avg, 2), 0) / prices.length;
+      const stdDev = Math.sqrt(variance);
+      const cv = avg > 0 ? (stdDev / avg) * 100 : 0;
+      const volatility: 'low' | 'medium' | 'high' = cv < 10 ? 'low' : cv < 25 ? 'medium' : 'high';
 
       // Suggest 10% above historical avg as starting price
       const suggested = Math.round(avg * 1.1);
@@ -59,6 +81,9 @@ export function useHistoricalPricing() {
           date: d.created_at,
         })),
         suggestedStartingPrice: suggested,
+        trend,
+        volatility,
+        trendPct: Math.round(trendPct * 10) / 10,
       };
 
       setInsight(result);
