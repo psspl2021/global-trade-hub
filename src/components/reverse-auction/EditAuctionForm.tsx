@@ -20,11 +20,18 @@ const UNIT_OPTIONS = [
   { label: 'Litres', value: 'Ltrs' },
 ];
 
+const CATEGORIES = [
+  'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
+  'Chemicals', 'Building Materials', 'Industrial Supplies',
+  'Packaging Materials', 'Energy & Power', 'Textiles & Fabrics'
+];
+
 interface LineItem {
   product_name: string;
   quantity: string;
   unit: string;
   description: string;
+  category: string;
 }
 
 interface EditAuctionFormProps {
