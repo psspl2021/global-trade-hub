@@ -185,6 +185,11 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           </DialogTitle>
           <DialogDescription>
             Update auction details and line items. ({editCount}/2 edits used)
+            {editCount >= 1 && (
+              <span className="block mt-1 text-amber-600 font-medium">
+                ⚠ {editCount >= 2 ? 'No edits remaining' : 'Last edit remaining — make it count!'}
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
