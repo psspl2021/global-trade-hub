@@ -364,7 +364,10 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   };
 
   // Auto-calculated total order value from line items
-  const calculatedTotal = useMemo(() => items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.price || 0)), 0), [items]);
+  const calculatedTotal = useMemo(() => {
+    const raw = items.reduce((sum, i) => sum + (Math.round(Number(i.quantity || 0) * 100) / 100) * (Math.round(Number(i.price || 0) * 100) / 100), 0);
+    return Math.round(raw * 100) / 100;
+  }, [items]);
 
   // AI suggested pricing (based on first item)
   const primaryProduct = items[0]?.product || '';
@@ -452,9 +455,17 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       toast.error('Each line item must have a valid price.');
       return;
     }
+    if (validItems.some(i => Number(i.price) > 1e8)) {
+      toast.error('Price per item cannot exceed ₹10,00,00,000.');
+      return;
+    }
     const invalidQty = validItems.some(i => Number(i.quantity) <= 0);
     if (invalidQty) {
       toast.error('Each line item must have a quantity greater than 0.');
+      return;
+    }
+    if (validItems.some(i => Number(i.quantity) > 1e6)) {
+      toast.error('Quantity per item cannot exceed 10,00,000.');
       return;
     }
 
@@ -915,25 +926,29 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           </div>
 
 
-          {/* Auto-calculated Starting Price (Total Order Value) */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="startPrice">Starting Price (Total Order Value) — Auto-calculated 🔒</Label>
-              <div className="relative">
-                <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-                <Input id="startPrice" type="number" className="pl-8 bg-muted/50 font-semibold" value={calculatedTotal || ''} disabled />
+          {/* Grand Total Order Value */}
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-800 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Total Order Value (Auto-calculated) 🔒</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {calculatedTotal > 0
+                    ? `Sum of ${items.filter(i => i.price && i.quantity).length} line items`
+                    : 'Add price & quantity to line items'}
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {calculatedTotal > 0
-                  ? `✅ Sum of ${items.filter(i => i.price && i.quantity).length} line items = ₹${calculatedTotal.toLocaleString('en-IN')}`
-                  : '⚠️ Add price & quantity to line items to auto-calculate'}
+              <p className={`text-2xl font-bold ${calculatedTotal > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'}`}>
+                ₹{calculatedTotal.toLocaleString('en-IN')}
               </p>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="reservePrice">Reserve Price (optional)</Label>
               <div className="relative">
                 <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-                <Input id="reservePrice" type="number" className="pl-8" placeholder="55000" value={reservePrice} onChange={e => setReservePrice(e.target.value)} />
+                <Input id="reservePrice" type="number" className="pl-8" min="0" step="0.01" placeholder="55000" value={reservePrice} onChange={e => setReservePrice(e.target.value)} />
               </div>
             </div>
           </div>
