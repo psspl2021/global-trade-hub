@@ -443,8 +443,20 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    if (!startingPrice || parseFloat(startingPrice) <= 0) {
-      toast.error('Starting price is required for reverse auctions.');
+    // Validate each item has valid price & quantity
+    const invalidPrice = validItems.some(i => !i.price || Number(i.price) <= 0);
+    if (invalidPrice) {
+      toast.error('Each line item must have a valid price.');
+      return;
+    }
+    const invalidQty = validItems.some(i => Number(i.quantity) <= 0);
+    if (invalidQty) {
+      toast.error('Each line item must have a quantity greater than 0.');
+      return;
+    }
+
+    if (calculatedTotal <= 0) {
+      toast.error('Starting price must be greater than 0. Check your line item prices.');
       return;
     }
 
@@ -454,7 +466,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    if (reservePrice && parseFloat(reservePrice) >= parseFloat(startingPrice)) {
+    if (reservePrice && parseFloat(reservePrice) >= calculatedTotal) {
       toast.error('Reserve price must be lower than the starting price.');
       return;
     }
