@@ -116,10 +116,14 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
     return 'scheduled';
   };
 
-  // Client-side: add effective status for grouping (server already filtered + sorted)
+  // Client-side: add effective status + filter live/scheduled which are time-derived
   const filteredAuctions = useMemo(() => {
-    return auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
-  }, [auctions]);
+    const withStatus = auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
+    // For live/scheduled, filter client-side since DB doesn't know effective status
+    if (statusFilter === 'live') return withStatus.filter(a => a._effectiveStatus === 'live');
+    if (statusFilter === 'scheduled') return withStatus.filter(a => a._effectiveStatus === 'scheduled');
+    return withStatus;
+  }, [auctions, statusFilter]);
 
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || categoryFilter !== 'all' || sortBy !== 'latest';
 
