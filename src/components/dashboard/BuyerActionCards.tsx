@@ -2,7 +2,7 @@
  * Enterprise-grade Buyer Action Cards
  * Live metrics from DB, status badges, micro-CTAs
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
