@@ -5,6 +5,7 @@ export interface AuctionLineItem {
   product: string;
   quantity: string;
   unit: string;
+  description?: string;
 }
 
 export function generateAuctionTitle(items: AuctionLineItem[], transactionType: string): string {

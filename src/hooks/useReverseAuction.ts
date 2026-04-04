@@ -187,7 +187,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
           product_name: li.product_name,
           quantity: li.quantity,
           unit: li.unit,
-          category: input.category,
+          category: li.category || input.category,
+          description: li.description || null,
         }));
         await supabase.from('reverse_auction_items').insert(lineItems as any);
       }
