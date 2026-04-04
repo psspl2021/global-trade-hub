@@ -10,7 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   AreaChart, Area, Legend, Cell,
 } from 'recharts';
-import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Trophy, Gauge, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
