@@ -1,10 +1,11 @@
 /**
- * Create Reverse Auction Form — Enterprise Edition
+ * Create Reverse Auction Form — Enterprise Edition with Wizard UX
  * Features:
  * 1) AI-generated title from multi-line items
  * 2) Multiple product line items (+ Add Product)
- * 3) Supplier search + manual add supplier
- * 4) First 5 domestic auctions → 50% fee discount
+ * 3) Supplier search + manual add supplier + AI recommendations
+ * 4) Industry templates + Historical price intelligence
+ * 5) Guided wizard: AI Input → Review Items → Suppliers → Pricing → Launch
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -16,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt, UserPlus, Trash2, Package, Wallet } from 'lucide-react';
+import { Gavel, Plus, X, Clock, IndianRupee, Search, Sparkles, Shield, TrendingUp, Receipt, UserPlus, Trash2, Package, Wallet, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useReverseAuction, CreateAuctionInput } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +27,10 @@ import { getAuctionFee, formatINR } from '@/utils/auctionPricing';
 import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuctionTitle';
 import { parseAuctionTitle } from '@/utils/parseAuctionTitle';
 import { useAuth } from '@/hooks/useAuth';
+import { SupplierRecommendationPanel } from './SupplierRecommendationPanel';
+import { PriceIntelligencePanel } from './PriceIntelligencePanel';
+import { RfqTemplateSelector } from './RfqTemplateSelector';
+import { AiRfqPreview } from './AiRfqPreview';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
