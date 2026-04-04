@@ -168,29 +168,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       };
       const normalizeUnit = (u: string) => UNIT_MAP[u?.toLowerCase()?.trim()] || 'MT';
 
-      // Confirm before overwriting existing items
-      const hasExistingItems = items.some(i => i.product.trim() !== '');
-      if (hasExistingItems) {
-        const confirmReplace = window.confirm(
-          'This will replace your current items with AI-generated ones. Continue?'
-        );
-        if (!confirmReplace) {
-          setIsAiGenerating(false);
-          return;
-        }
-      }
-
-      // Map AI output to form state
-      if (rfq.items?.length > 0) {
-        setItems(rfq.items.map((it: any) => ({
-          product: it.item_name || '',
-          quantity: String(it.quantity || ''),
-          unit: normalizeUnit(it.unit || ''),
-          description: it.description || '',
-        })));
-      }
-
-      // Smart category detection via keyword matching
+      // Smart category detection
       const CATEGORY_KEYWORDS: Record<string, string[]> = {
         "Metals - Ferrous": ["steel", "hr", "cr", "coil", "plate", "tmt", "rebar", "billet", "slab", "iron", "ferrous"],
         "Metals - Non Ferrous": ["aluminium", "aluminum", "copper", "brass", "zinc", "nickel", "tin", "lead"],
@@ -201,30 +179,40 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         "Textiles & Fibers": ["textile", "cotton", "fabric", "yarn", "fiber", "fibre"],
         "Paper & Packaging": ["paper", "cardboard", "packaging", "corrugated", "carton"],
       };
+
+      let detectedCategory: string | undefined;
       if (rfq.category) {
         const text = (rfq.category + ' ' + (rfq.items?.map((i: any) => i.item_name).join(' ') || '')).toLowerCase();
         let detected: string | null = null;
         for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
           if (keywords.some(k => text.includes(k))) { detected = cat; break; }
         }
-        const matched = detected
+        detectedCategory = detected
           ? CATEGORIES.find(c => c === detected)
           : CATEGORIES.find(c => c.toLowerCase().includes(rfq.category.toLowerCase().split(' ')[0]));
-        if (matched) setCategory(matched);
       }
-      if (rfq.trade_type) {
-        const tradeMap: Record<string, string> = { domestic_india: 'domestic', import: 'import', export: 'export' };
-        setTransactionType(tradeMap[rfq.trade_type] || 'domestic');
-      }
-      // Keep auto-title mode so smart title keeps updating with item changes
-      if (rfq.title) { setAuctionTitle(rfq.title); setIsManualTitle(false); }
-      if (rfq.description) setDescription(rfq.description);
-      if (rfq.delivery_location) setDeliveryAddress(rfq.delivery_location);
-      if (rfq.quality_standards) setQualityStandards(rfq.quality_standards);
-      if (rfq.certifications_required) setCertifications(rfq.certifications_required);
-      if (rfq.payment_terms) setPaymentTerms(rfq.payment_terms);
 
-      toast.success(`AI generated ${rfq.items?.length || 0} line items! Review & adjust below.`);
+      const parsedItems: AuctionLineItem[] = rfq.items?.length > 0
+        ? rfq.items.map((it: any) => ({
+            product: it.item_name || '',
+            quantity: String(it.quantity || ''),
+            unit: normalizeUnit(it.unit || ''),
+            description: it.description || '',
+          }))
+        : [];
+
+      // Show AI Preview instead of directly applying
+      setAiPreviewData({
+        items: parsedItems,
+        category: detectedCategory,
+        title: rfq.title,
+        description: rfq.description,
+        qualityStandards: rfq.quality_standards,
+        certifications: rfq.certifications_required,
+        paymentTerms: rfq.payment_terms,
+      });
+
+      toast.success(`AI parsed ${parsedItems.length} items. Review before applying.`);
     } catch (err: any) {
       console.error('AI RFQ error:', err);
       toast.error(err.message || 'Failed to generate. Please try again.');
@@ -232,6 +220,41 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       setIsAiGenerating(false);
     }
   }, [aiDescription]);
+
+  // Apply AI preview to form
+  const applyAiPreview = useCallback(() => {
+    if (!aiPreviewData) return;
+    if (aiPreviewData.items.length > 0) setItems(aiPreviewData.items);
+    if (aiPreviewData.category) setCategory(aiPreviewData.category);
+    if (aiPreviewData.title) { setAuctionTitle(aiPreviewData.title); setIsManualTitle(false); }
+    if (aiPreviewData.description) setDescription(aiPreviewData.description);
+    if (aiPreviewData.qualityStandards) setQualityStandards(aiPreviewData.qualityStandards);
+    if (aiPreviewData.certifications) setCertifications(aiPreviewData.certifications);
+    if (aiPreviewData.paymentTerms) setPaymentTerms(aiPreviewData.paymentTerms);
+    setAiPreviewData(null);
+    setWizardStep(1); // Move to Review Items step
+    toast.success('Applied to form!');
+  }, [aiPreviewData]);
+
+  // Apply template
+  const handleApplyTemplate = useCallback((template: any) => {
+    const hasExistingItems = items.some(i => i.product.trim() !== '');
+    if (hasExistingItems && !window.confirm('Replace current items with template?')) return;
+    
+    setItems(template.default_items.map((it: any) => ({
+      product: it.product_name || '',
+      quantity: String(it.quantity || ''),
+      unit: it.unit || 'MT',
+      description: it.description || '',
+      price: '',
+    })));
+    if (template.category) setCategory(template.category);
+    if (template.quality_standards) setQualityStandards(template.quality_standards);
+    if (template.certifications) setCertifications(template.certifications);
+    if (template.payment_terms) setPaymentTerms(template.payment_terms);
+    setWizardStep(1);
+    toast.success(`Template "${template.template_name}" applied!`);
+  }, [items]);
 
   useEffect(() => {
     const generated = generateAuctionTitle(
