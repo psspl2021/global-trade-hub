@@ -353,14 +353,7 @@ function AuctionCard({
   completeAuction: (id: string) => void;
   republishAuction: (id: string, newSchedule?: any) => void;
 }) {
-  const [showRepublishDialog, setShowRepublishDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [repStartDate, setRepStartDate] = useState('');
-  const [repStartTime, setRepStartTime] = useState('');
-  const [repDuration, setRepDuration] = useState(30);
-  const [repStartingPrice, setRepStartingPrice] = useState(String(auction.starting_price || ''));
-  const [repQuantity, setRepQuantity] = useState(String(auction.quantity || ''));
-  const [repUnit, setRepUnit] = useState(auction.unit || 'MT');
 
   // Compute effective status based on time
   const effectiveStatus = (() => {
