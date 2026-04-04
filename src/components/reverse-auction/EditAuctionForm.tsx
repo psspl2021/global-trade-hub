@@ -556,15 +556,21 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
               <Textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1" />
             </div>
 
-            {/* Starting Price — Auto-calculated */}
-            <div>
-              <Label>Starting Price (₹ Total Order Value) — Auto-calculated 🔒</Label>
-              <Input type="number" value={calculatedTotal || ''} disabled className="mt-1 bg-muted/50 font-semibold" />
-              <p className="text-xs text-muted-foreground mt-1">
-                {calculatedTotal > 0
-                  ? `✅ Sum of ${items.filter(i => i.price && i.quantity).length} line items = ₹${calculatedTotal.toLocaleString('en-IN')}`
-                  : '⚠️ Add price & quantity to line items to auto-calculate'}
-              </p>
+            {/* Grand Total Order Value */}
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-800 p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Total Order Value (Auto-calculated) 🔒</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {calculatedTotal > 0
+                      ? `Sum of ${items.filter(i => i.price && i.quantity).length} line items`
+                      : 'Add price & quantity to line items'}
+                  </p>
+                </div>
+                <p className={`text-2xl font-bold ${calculatedTotal > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'}`}>
+                  ₹{calculatedTotal.toLocaleString('en-IN')}
+                </p>
+              </div>
             </div>
 
             {/* ─── Delivery & RFQ Details ─── */}
