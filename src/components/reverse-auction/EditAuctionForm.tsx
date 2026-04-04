@@ -387,6 +387,45 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           <div className="py-8 text-center text-muted-foreground">Loading auction data...</div>
         ) : (
           <div className="space-y-5 py-2">
+            {/* ── AI-Assisted Requirement ── */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="pt-4 pb-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <Label className="text-sm font-semibold">AI-Assisted Requirement (Optional)</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Describe your needs in plain text — AI will auto-fill products, quantities, category & specs below.
+                </p>
+                <Textarea
+                  placeholder="Example: I need 30 MT HR Coil IS2062 E250 and 25 MT HR Plates 10mm, delivery to Pune within 20 days. BIS certified with mill TC."
+                  value={aiDescription}
+                  onChange={(e) => setAiDescription(e.target.value)}
+                  className="min-h-[80px] text-sm bg-background"
+                  maxLength={2000}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAiGenerate}
+                  disabled={isAiGenerating || aiDescription.trim().length < 10}
+                  className="w-full gap-2"
+                  variant="default"
+                >
+                  {isAiGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generate from Description
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Title */}
             <div>
               <Label>Auction Title</Label>
