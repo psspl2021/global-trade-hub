@@ -23,7 +23,8 @@ interface LiveMetrics {
   openRFQs: number;
   totalQuotes: number;
   liveAuctions: number;
-  auctionSavings: number;
+  liveSavings: number;
+  realizedSavings: number;
   pendingLogistics: number;
 }
 
@@ -40,7 +41,8 @@ export function BuyerActionCards({
     openRFQs: 0,
     totalQuotes: 0,
     liveAuctions: 0,
-    auctionSavings: 0,
+    liveSavings: 0,
+    realizedSavings: 0,
     pendingLogistics: 0,
   });
 
@@ -84,21 +86,27 @@ export function BuyerActionCards({
 
       const auctions = auctionRes.data || [];
       const liveCount = auctions.filter((a: any) => a.status === 'live').length;
-      const totalSavings = auctions
-        .filter((a: any) => {
-          const finalPrice = a.status === 'completed' ? (a.winning_bid ?? a.current_price) : a.current_price;
-          return finalPrice && a.starting_price && finalPrice < a.starting_price;
-        })
+
+      const liveSavings = auctions
+        .filter((a: any) => a.status === 'live' && a.current_price && a.starting_price && a.current_price < a.starting_price)
+        .reduce((sum: number, a: any) => sum + (a.starting_price - a.current_price) * (a.quantity || 1), 0);
+
+      const realizedSavings = auctions
+        .filter((a: any) => a.status === 'completed')
         .reduce((sum: number, a: any) => {
-          const finalPrice = a.status === 'completed' ? (a.winning_bid ?? a.current_price) : a.current_price;
-          return sum + (a.starting_price - finalPrice) * (a.quantity || 1);
+          const finalPrice = a.winning_bid ?? a.current_price;
+          if (finalPrice && a.starting_price && finalPrice < a.starting_price) {
+            return sum + (a.starting_price - finalPrice) * (a.quantity || 1);
+          }
+          return sum;
         }, 0);
 
       setMetrics({
         openRFQs: rfqRes.count || 0,
         totalQuotes: quotesCount || 0,
         liveAuctions: liveCount,
-        auctionSavings: totalSavings,
+        liveSavings,
+        realizedSavings,
         pendingLogistics: logisticsRes.count || 0,
       });
     };
@@ -134,11 +142,13 @@ export function BuyerActionCards({
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-600',
       badge: metrics.liveAuctions > 0 ? { label: 'LIVE', variant: 'destructive' as const } : null,
-      metrics: metrics.liveAuctions > 0
-        ? `${metrics.liveAuctions} active • Savings: ${formatCurrency(metrics.auctionSavings)}`
-        : metrics.auctionSavings > 0
-          ? `Savings: ${formatCurrency(metrics.auctionSavings)}`
-          : null,
+      metrics: (() => {
+        const parts: string[] = [];
+        if (metrics.liveAuctions > 0) parts.push(`${metrics.liveAuctions} active`);
+        if (metrics.liveSavings > 0) parts.push(`Live: ${formatCurrency(metrics.liveSavings)}`);
+        if (metrics.realizedSavings > 0) parts.push(`Realized: ${formatCurrency(metrics.realizedSavings)}`);
+        return parts.length > 0 ? parts.join(' • ') : null;
+      })(),
       primaryCTA: { label: 'Create Auction', onClick: onReverseAuction },
       secondaryCTA: { label: 'View Auctions', onClick: onReverseAuction },
       onClick: onReverseAuction,
