@@ -604,7 +604,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   };
 
   const resetForm = () => {
-    setItems([{ product: '', quantity: '', unit: 'MT', description: '' }]);
+    setItems([{ product: '', quantity: '', unit: 'MT', price: '', description: '' }]);
     setCategory('');
     setStartingPrice('');
     setReservePrice('');
