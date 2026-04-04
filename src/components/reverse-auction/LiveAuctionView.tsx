@@ -276,9 +276,23 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) <= maxAllowedBid;
 
-  // Reusable bid panel content
+  // Multi-item bid panel for supplier (replaces single-price input)
+  const multiItemBidPanel = isSupplier && (isLive || effectiveStatus === 'scheduled') ? (
+    <SupplierMultiItemBid
+      auction={auction}
+      bids={bids}
+      onBidPlaced={() => {
+        setBidPrice(Math.floor(maxAllowedBid).toString());
+        document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
+      }}
+      isLive={isLive}
+    />
+  ) : null;
+
+  // Reusable bid panel content (fallback for single-item or non-multi-item auctions)
   const bidPanelContent = isSupplier ? (
     isLive ? (
+      multiItemBidPanel || (
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Gavel className="w-5 h-5 text-primary" />
@@ -328,7 +342,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           💡 You can place multiple bids. Each bid can be edited up to 2 times.
         </p>
       </div>
+      )
     ) : effectiveStatus === 'scheduled' ? (
+      multiItemBidPanel || (
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-blue-600" />
