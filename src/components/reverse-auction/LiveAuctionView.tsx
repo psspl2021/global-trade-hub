@@ -365,6 +365,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           Bidding opens when the auction starts. You'll be able to place competitive bids in real time.
         </p>
       </div>
+      )
     ) : (effectiveStatus === 'completed' || effectiveStatus === 'cancelled') ? (
       <div className="space-y-3">
         <div className="flex items-center gap-2">
