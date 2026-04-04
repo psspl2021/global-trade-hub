@@ -1113,6 +1113,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           {category && (
             <SupplierRecommendationPanel
               category={category}
+              buyerId={user?.id}
               onAddSupplier={(s) => addSupplier({ ...s, email: s.email || undefined } as any)}
               invitedIds={invitedIds}
             />

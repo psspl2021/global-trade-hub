@@ -1,37 +1,43 @@
 /**
- * Supplier Recommendation Panel
- * Shows AI-ranked top 5 suppliers for a category
+ * Supplier Recommendation Panel (Buyer Network-Scoped)
+ * Shows AI-ranked top 5 suppliers from buyer's own network
  */
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sparkles, TrendingUp, Trophy, Plus, Star } from 'lucide-react';
+import { Sparkles, Trophy, Plus, Star, Shield, Zap, UserPlus } from 'lucide-react';
 import { useSupplierRecommendation, SupplierRecommendation } from '@/hooks/useSupplierRecommendation';
 
 interface SupplierRecommendationPanelProps {
   category: string;
+  buyerId?: string;
   onAddSupplier: (supplier: { id: string; company_name: string; contact_person: string; city: string | null; email?: string | null }) => void;
   invitedIds: Set<string>;
 }
 
-export function SupplierRecommendationPanel({ category, onAddSupplier, invitedIds }: SupplierRecommendationPanelProps) {
-  const { recommendations, isLoading, getRecommendations } = useSupplierRecommendation();
+const BADGE_CONFIG: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
+  trusted: { label: 'Worked with you', icon: <Shield className="w-3 h-3" />, className: 'border-emerald-300 text-emerald-700 bg-emerald-50' },
+  high_performer: { label: 'High win rate', icon: <Zap className="w-3 h-3" />, className: 'border-amber-300 text-amber-700 bg-amber-50' },
+  new_promising: { label: 'New & promising', icon: <UserPlus className="w-3 h-3" />, className: 'border-blue-300 text-blue-700 bg-blue-50' },
+};
+
+export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, invitedIds }: SupplierRecommendationPanelProps) {
+  const { recommendations, isLoading, getRecommendations, isNetworkMode, setIsNetworkMode } = useSupplierRecommendation();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (category && !loaded) {
-      getRecommendations(category);
+      getRecommendations(category, buyerId);
       setLoaded(true);
     }
-  }, [category, loaded, getRecommendations]);
+  }, [category, loaded, getRecommendations, buyerId]);
 
-  // Re-fetch if category changes
   useEffect(() => {
     setLoaded(false);
-  }, [category]);
+  }, [category, isNetworkMode]);
 
-  if (!category || (recommendations.length === 0 && !isLoading)) return null;
+  if (!category) return null;
 
   return (
     <Card className="border-amber-200/60 bg-amber-50/30 dark:bg-amber-950/10 dark:border-amber-800/40">
@@ -39,25 +45,51 @@ export function SupplierRecommendationPanel({ category, onAddSupplier, invitedId
         <CardTitle className="text-sm flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-600" />
           AI Recommended Suppliers
-          <Badge variant="outline" className="text-xs border-amber-300 text-amber-700">Top 5</Badge>
+          <Badge variant="outline" className="text-xs border-amber-300 text-amber-700">
+            {isNetworkMode ? 'Your Network' : 'All'}
+          </Badge>
         </CardTitle>
+        <p className="text-xs text-muted-foreground mt-1">
+          {isNetworkMode
+            ? 'Based on your past auctions & supplier interactions'
+            : 'Showing all suppliers in this category'}
+        </p>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <p className="text-xs text-muted-foreground">Analyzing supplier performance...</p>
+        ) : recommendations.length === 0 ? (
+          <div className="text-center py-4 space-y-2">
+            <p className="text-xs text-muted-foreground">
+              {isNetworkMode
+                ? 'No suppliers from your network found for this category.'
+                : 'No suppliers found for this category.'}
+            </p>
+            {isNetworkMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs gap-1"
+                onClick={() => setIsNetworkMode(false)}
+              >
+                <Plus className="w-3 h-3" /> Explore New Suppliers
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="space-y-2">
             {recommendations.map((rec, idx) => {
               const isInvited = invitedIds.has(rec.supplier_id);
+              const badgeInfo = rec.badge ? BADGE_CONFIG[rec.badge] : null;
               return (
                 <div key={rec.supplier_id} className="flex items-center justify-between p-2 rounded-md bg-background border text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-amber-700 bg-amber-100 rounded-full w-5 h-5 flex items-center justify-center">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xs font-bold text-amber-700 bg-amber-100 rounded-full w-5 h-5 flex items-center justify-center shrink-0">
                       {idx + 1}
                     </span>
-                    <div>
-                      <p className="font-medium text-foreground">{rec.company_name}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground truncate">{rec.company_name}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                         {rec.city && <span>{rec.city}</span>}
                         {rec.total_wins > 0 && (
                           <span className="flex items-center gap-0.5 text-emerald-600">
@@ -69,10 +101,15 @@ export function SupplierRecommendationPanel({ category, onAddSupplier, invitedId
                           <span>{rec.total_participations} auctions</span>
                         )}
                       </div>
+                      {badgeInfo && (
+                        <Badge variant="outline" className={`text-[10px] mt-1 gap-0.5 ${badgeInfo.className}`}>
+                          {badgeInfo.icon} {badgeInfo.label}
+                        </Badge>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-right mr-2">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="text-right mr-1">
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3 text-amber-500" />
                         <span className="text-xs font-semibold">{(rec.score * 100).toFixed(0)}%</span>
@@ -100,6 +137,18 @@ export function SupplierRecommendationPanel({ category, onAddSupplier, invitedId
                 </div>
               );
             })}
+
+            {/* Toggle between network and explore mode */}
+            <div className="pt-2 text-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-muted-foreground"
+                onClick={() => setIsNetworkMode(!isNetworkMode)}
+              >
+                {isNetworkMode ? '+ Explore New Suppliers' : '← Back to Your Network'}
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
