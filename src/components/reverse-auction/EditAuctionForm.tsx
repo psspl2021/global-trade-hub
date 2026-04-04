@@ -300,7 +300,22 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
             {/* Title */}
             <div>
               <Label>Auction Title</Label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} className="mt-1" />
+              <Input
+                value={title}
+                onChange={e => {
+                  setTitle(e.target.value);
+                  setIsManualTitle(e.target.value !== autoTitle && e.target.value.length > 0);
+                }}
+                className="mt-1"
+              />
+              {title && !isManualTitle && (
+                <p className="text-xs text-muted-foreground mt-1">✨ Auto-generated from items — editable</p>
+              )}
+              {isManualTitle && (
+                <button type="button" onClick={() => { setIsManualTitle(false); setTitle(autoTitle); }} className="text-xs text-primary mt-1 hover:underline">
+                  ↺ Reset to auto-generated title
+                </button>
+              )}
             </div>
 
             {/* ─── Line Items ─── */}
