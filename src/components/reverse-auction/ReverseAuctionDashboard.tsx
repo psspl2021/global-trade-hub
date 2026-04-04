@@ -45,7 +45,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
           </div>
         </div>
         {!isSupplier && (
-          <Button onClick={() => navigate('/create-reverse-auction')} className="gap-2">
+          <Button onClick={() => navigate('/buyer/create-reverse-auction')} className="gap-2">
             <Sparkles className="w-4 h-4" />
             Create Reverse Auction
           </Button>
