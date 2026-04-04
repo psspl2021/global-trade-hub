@@ -463,9 +463,12 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         quality_standards: qualityStandards || undefined,
         line_items: validItems.map(i => ({
           product_name: i.product,
+          category: category,
           quantity: parseFloat(i.quantity || '0'),
           unit: i.unit,
+          description: i.description || undefined,
         })),
+        deadline: deadline || undefined,
       };
 
       const result = await createAuction(input);
