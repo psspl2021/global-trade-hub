@@ -88,7 +88,24 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
 
-  // Compute effective status based on time
+  // Server-side refetch when filters change (debounced search)
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    refetch({ 
+      status: statusFilter, 
+      category: categoryFilter, 
+      search: debouncedSearch || undefined, 
+      sortBy 
+    });
+  }, [statusFilter, categoryFilter, debouncedSearch, sortBy, refetch]);
+
+  // Compute effective status based on time (client-side for grouping)
   const getEffectiveStatus = (a: ReverseAuction) => {
     if (a.status === 'cancelled' || a.status === 'completed') return a.status;
     const now = new Date();
@@ -97,42 +114,10 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
     return 'scheduled';
   };
 
-  // Filter + sort auctions
+  // Client-side: add effective status for grouping (server already filtered + sorted)
   const filteredAuctions = useMemo(() => {
-    let result = auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
-
-    // Search
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(a =>
-        a.title?.toLowerCase().includes(q) ||
-        a.product_slug?.toLowerCase().includes(q) ||
-        a.category?.toLowerCase().includes(q)
-      );
-    }
-
-    // Status
-    if (statusFilter !== 'all') {
-      result = result.filter(a => a._effectiveStatus === statusFilter);
-    }
-
-    // Category
-    if (categoryFilter !== 'all') {
-      result = result.filter(a => a.category === categoryFilter);
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case 'oldest': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        case 'price_low': return (a.starting_price || 0) - (b.starting_price || 0);
-        case 'price_high': return (b.starting_price || 0) - (a.starting_price || 0);
-        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }
-    });
-
-    return result;
-  }, [auctions, searchQuery, statusFilter, categoryFilter, sortBy]);
+    return auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
+  }, [auctions]);
 
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || categoryFilter !== 'all' || sortBy !== 'latest';
 
