@@ -1198,6 +1198,7 @@ export type Database = {
           is_read: boolean | null
           message: string
           message_type: string
+          seen_by_buyer: boolean | null
           sender_id: string
           sender_role: string
         }
@@ -1209,6 +1210,7 @@ export type Database = {
           is_read?: boolean | null
           message?: string
           message_type?: string
+          seen_by_buyer?: boolean | null
           sender_id: string
           sender_role: string
         }
@@ -1220,6 +1222,7 @@ export type Database = {
           is_read?: boolean | null
           message?: string
           message_type?: string
+          seen_by_buyer?: boolean | null
           sender_id?: string
           sender_role?: string
         }

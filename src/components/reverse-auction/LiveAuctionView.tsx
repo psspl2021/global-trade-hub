@@ -798,6 +798,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             buyerId={auction.buyer_id}
             isBuyer={isBuyer}
             isLive={isLive}
+            currentL1={currentLowest}
           />
         </div>
 
