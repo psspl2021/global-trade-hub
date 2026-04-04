@@ -111,7 +111,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
       }));
 
       // Race-safe bid placement via DB function
-      const { data, error } = await supabase.rpc('place_bid_safe', {
+      const { data, error } = await (supabase.rpc as any)('place_bid_safe', {
         p_auction_id: auction.id,
         p_supplier_id: user.id,
         p_bid_price: Math.round(bidTotal * 100) / 100,
