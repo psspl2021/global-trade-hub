@@ -142,11 +142,13 @@ export function BuyerActionCards({
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-600',
       badge: metrics.liveAuctions > 0 ? { label: 'LIVE', variant: 'destructive' as const } : null,
-      metrics: metrics.liveAuctions > 0
-        ? `${metrics.liveAuctions} active • Savings: ${formatCurrency(metrics.auctionSavings)}`
-        : metrics.auctionSavings > 0
-          ? `Savings: ${formatCurrency(metrics.auctionSavings)}`
-          : null,
+      metrics: (() => {
+        const parts: string[] = [];
+        if (metrics.liveAuctions > 0) parts.push(`${metrics.liveAuctions} active`);
+        if (metrics.liveSavings > 0) parts.push(`Live: ${formatCurrency(metrics.liveSavings)}`);
+        if (metrics.realizedSavings > 0) parts.push(`Realized: ${formatCurrency(metrics.realizedSavings)}`);
+        return parts.length > 0 ? parts.join(' • ') : null;
+      })(),
       primaryCTA: { label: 'Create Auction', onClick: onReverseAuction },
       secondaryCTA: { label: 'View Auctions', onClick: onReverseAuction },
       onClick: onReverseAuction,
