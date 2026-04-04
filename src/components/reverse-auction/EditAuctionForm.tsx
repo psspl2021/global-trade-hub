@@ -461,8 +461,8 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
               <div className="space-y-3">
                 {items.map((item, i) => (
                   <div key={i} className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-                    {/* Row 1: Product + Category + Qty + Unit + Remove */}
-                    <div className="grid grid-cols-[1fr_1fr_80px_80px_36px] gap-2 items-end">
+                    {/* Row 1: Product + Category + Qty + Unit + Price + Remove */}
+                    <div className="grid grid-cols-[1fr_1fr_70px_70px_90px_36px] gap-2 items-end">
                       <div>
                         {i === 0 && <span className="text-xs text-muted-foreground mb-0.5 block">Product *</span>}
                         <Input
@@ -493,6 +493,10 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
                           </SelectContent>
                         </Select>
                       </div>
+                      <div>
+                        {i === 0 && <span className="text-xs text-muted-foreground mb-0.5 block">Price (₹)</span>}
+                        <Input type="number" placeholder="61000" value={item.price} onChange={e => updateItem(i, 'price', e.target.value)} />
+                      </div>
                       <Button type="button" variant="ghost" size="icon" className="h-9 w-9 mt-auto" disabled={items.length <= 1} onClick={() => removeItem(i)}>
                         <Trash2 className="w-4 h-4 text-destructive/70" />
                       </Button>
@@ -505,6 +509,11 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
                       className="min-h-[60px] text-sm"
                       rows={2}
                     />
+                    {item.quantity && item.price && (
+                      <p className="text-xs text-muted-foreground text-right">
+                        Line total: ₹{(parseFloat(item.quantity || '0') * parseFloat(item.price || '0')).toLocaleString('en-IN')}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
