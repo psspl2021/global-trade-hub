@@ -363,7 +363,7 @@ function AuctionCard({
   republishAuction: (id: string, newSchedule?: any) => void;
 }) {
   const [showRepublishDialog, setShowRepublishDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [repStartDate, setRepStartDate] = useState('');
   const [repStartTime, setRepStartTime] = useState('');
   const [repDuration, setRepDuration] = useState(30);
   const [repStartingPrice, setRepStartingPrice] = useState(String(auction.starting_price || ''));
