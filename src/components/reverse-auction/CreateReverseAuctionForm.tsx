@@ -79,11 +79,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
   // ── Multi Line Items (Feature #2) ──
   const [items, setItems] = useState<AuctionLineItem[]>([
-    { product: '', quantity: '', unit: 'MT', description: '' }
+    { product: '', quantity: '', unit: 'MT', price: '', description: '' }
   ]);
 
   const addLineItem = () => {
-    setItems(prev => [...prev, { product: '', quantity: '', unit: 'MT', description: '' }]);
+    setItems(prev => [...prev, { product: '', quantity: '', unit: 'MT', price: '', description: '' }]);
   };
 
   const updateItem = (index: number, key: keyof AuctionLineItem, value: string) => {
@@ -569,6 +569,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           quantity: parseFloat(i.quantity || '0'),
           unit: i.unit,
           description: i.description || undefined,
+          unit_price: parseFloat(i.price || '0'),
         })),
         deadline: deadline || undefined,
       };
@@ -604,7 +605,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   };
 
   const resetForm = () => {
-    setItems([{ product: '', quantity: '', unit: 'MT', description: '' }]);
+    setItems([{ product: '', quantity: '', unit: 'MT', price: '', description: '' }]);
     setCategory('');
     setStartingPrice('');
     setReservePrice('');
@@ -723,7 +724,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             <div className="space-y-2">
               {items.map((item, i) => (
                 <div key={i} className="space-y-1.5 p-2.5 rounded-lg border border-border/50 bg-muted/20">
-                  <div className="grid grid-cols-[1fr_100px_90px_32px] gap-2 items-end">
+                  <div className="grid grid-cols-[1fr_80px_80px_100px_32px] gap-2 items-end">
                     <div>
                       {i === 0 && <span className="text-xs text-muted-foreground">Product</span>}
                       <Input
@@ -752,6 +753,15 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                         </SelectContent>
                       </Select>
                     </div>
+                    <div>
+                      {i === 0 && <span className="text-xs text-muted-foreground">Price (₹)</span>}
+                      <Input
+                        type="number"
+                        placeholder="61000"
+                        value={item.price || ''}
+                        onChange={e => updateItem(i, 'price', e.target.value)}
+                      />
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"
@@ -769,6 +779,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                     onChange={e => updateItem(i, 'description', e.target.value)}
                     className="text-xs h-8"
                   />
+                  {item.quantity && item.price && (
+                    <p className="text-xs text-muted-foreground text-right">
+                      Line total: ₹{(parseFloat(item.quantity || '0') * parseFloat(item.price || '0')).toLocaleString('en-IN')}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -885,13 +900,24 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           </div>
 
 
+          {/* Auto-calculated Starting Price (Total Order Value) */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="startPrice">Starting Price (per {primaryUnit}) *</Label>
+              <Label htmlFor="startPrice">Starting Price (Total Order Value) *</Label>
               <div className="relative">
                 <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-                <Input id="startPrice" type="number" className="pl-8" placeholder="61000" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} />
+                <Input id="startPrice" type="number" className="pl-8" placeholder="Auto-calculated or enter manually" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} />
               </div>
+              {items.some(i => i.price && i.quantity) && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Calculated from line items: ₹{items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0).toLocaleString('en-IN')}
+                  {startingPrice !== String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)) && (
+                    <button type="button" onClick={() => setStartingPrice(String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)))} className="ml-2 text-primary hover:underline">
+                      Use calculated price
+                    </button>
+                  )}
+                </p>
+              )}
             </div>
             <div>
               <Label htmlFor="reservePrice">Reserve Price (optional)</Label>

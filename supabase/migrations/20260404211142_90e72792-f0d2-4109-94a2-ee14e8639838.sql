@@ -1,0 +1,1 @@
+ALTER TABLE public.reverse_auction_items ADD COLUMN unit_price numeric DEFAULT 0;

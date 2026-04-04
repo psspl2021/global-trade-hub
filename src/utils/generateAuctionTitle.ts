@@ -6,6 +6,7 @@ export interface AuctionLineItem {
   product: string;
   quantity: string;
   unit: string;
+  price?: string;
   description?: string;
   category?: string;
 }

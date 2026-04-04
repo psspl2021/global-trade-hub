@@ -34,6 +34,7 @@ interface LineItem {
   category: string;
   quantity: string;
   unit: string;
+  price: string;
   description: string;
 }
 
@@ -132,6 +133,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           category: '',
           quantity: String(it.quantity || ''),
           unit: normalizeUnit(it.unit || ''),
+          price: '',
           description: it.description || '',
         })));
       }
@@ -203,6 +205,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           category: it.category || '',
           quantity: String(it.quantity || ''),
           unit: it.unit || 'MT',
+          price: String(it.unit_price || ''),
           description: it.description || '',
         })));
       } else {
@@ -211,6 +214,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           category: auction.category || '',
           quantity: String(auction.quantity || ''),
           unit: auction.unit || 'MT',
+          price: '',
           description: '',
         }]);
       }
@@ -241,7 +245,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     }
   }, [items, auction.category, isManualTitle]);
 
-  const addItem = () => setItems(prev => [...prev, { product_name: '', category: '', quantity: '', unit: 'MT', description: '' }]);
+  const addItem = () => setItems(prev => [...prev, { product_name: '', category: '', quantity: '', unit: 'MT', price: '', description: '' }]);
   const removeItem = (i: number) => { if (items.length > 1) setItems(prev => prev.filter((_, idx) => idx !== i)); };
   const updateItem = (i: number, key: keyof LineItem, value: string) => {
     setItems(prev => prev.map((item, idx) => idx === i ? { ...item, [key]: value } : item));
@@ -345,6 +349,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           unit: i.unit,
           description: i.description || undefined,
           category: i.category || auction.category,
+          unit_price: parseFloat(i.price || '0'),
         })),
       }, editCount);
 
@@ -456,8 +461,8 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
               <div className="space-y-3">
                 {items.map((item, i) => (
                   <div key={i} className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-                    {/* Row 1: Product + Category + Qty + Unit + Remove */}
-                    <div className="grid grid-cols-[1fr_1fr_80px_80px_36px] gap-2 items-end">
+                    {/* Row 1: Product + Category + Qty + Unit + Price + Remove */}
+                    <div className="grid grid-cols-[1fr_1fr_70px_70px_90px_36px] gap-2 items-end">
                       <div>
                         {i === 0 && <span className="text-xs text-muted-foreground mb-0.5 block">Product *</span>}
                         <Input
@@ -488,6 +493,10 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
                           </SelectContent>
                         </Select>
                       </div>
+                      <div>
+                        {i === 0 && <span className="text-xs text-muted-foreground mb-0.5 block">Price (₹)</span>}
+                        <Input type="number" placeholder="61000" value={item.price} onChange={e => updateItem(i, 'price', e.target.value)} />
+                      </div>
                       <Button type="button" variant="ghost" size="icon" className="h-9 w-9 mt-auto" disabled={items.length <= 1} onClick={() => removeItem(i)}>
                         <Trash2 className="w-4 h-4 text-destructive/70" />
                       </Button>
@@ -500,6 +509,11 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
                       className="min-h-[60px] text-sm"
                       rows={2}
                     />
+                    {item.quantity && item.price && (
+                      <p className="text-xs text-muted-foreground text-right">
+                        Line total: ₹{(parseFloat(item.quantity || '0') * parseFloat(item.price || '0')).toLocaleString('en-IN')}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -516,8 +530,18 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
 
             {/* Starting Price */}
             <div>
-              <Label>Starting Price (₹ per {unit})</Label>
+              <Label>Starting Price (₹ Total Order Value)</Label>
               <Input type="number" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} className="mt-1" />
+              {items.some(i => i.price && i.quantity) && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Calculated from items: ₹{items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0).toLocaleString('en-IN')}
+                  {startingPrice !== String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)) && (
+                    <button type="button" onClick={() => setStartingPrice(String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)))} className="ml-2 text-primary hover:underline">
+                      Use calculated price
+                    </button>
+                  )}
+                </p>
+              )}
             </div>
 
             {/* ─── Delivery & RFQ Details ─── */}

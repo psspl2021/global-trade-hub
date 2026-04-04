@@ -72,7 +72,7 @@ export interface CreateAuctionInput {
   payment_terms?: string;
   certifications?: string;
   quality_standards?: string;
-  line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string }[];
+  line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string; unit_price?: number }[];
   deadline?: string;
 }
 
@@ -128,8 +128,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
           .in('id', auctionIds)
           .in('status', ['scheduled', 'live', 'completed']);
 
-        // Apply server-side filters (only for DB-stored terminal statuses)
-        if (filters?.status === 'completed' || filters?.status === 'cancelled') {
+        // Apply server-side filters only for cancelled (completed is time-derived, handled client-side)
+        if (filters?.status === 'cancelled') {
           query = query.eq('status', filters.status);
         }
         if (filters?.category && filters.category !== 'all') {
@@ -158,8 +158,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
           .from('reverse_auctions')
           .select('*');
 
-        // Apply server-side filters (only for DB-stored terminal statuses)
-        if (filters?.status === 'completed' || filters?.status === 'cancelled') {
+        // Apply server-side filters only for cancelled (completed is time-derived, handled client-side)
+        if (filters?.status === 'cancelled') {
           query = query.eq('status', filters.status);
         }
         if (filters?.category && filters.category !== 'all') {
@@ -242,6 +242,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
           unit: li.unit,
           category: li.category || input.category,
           description: li.description || null,
+          unit_price: li.unit_price || 0,
         }));
         await supabase.from('reverse_auction_items').insert(lineItems as any);
       }
@@ -372,7 +373,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
     certifications?: string;
     quality_standards?: string;
     deadline?: string | null;
-    line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string }[];
+    line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string; unit_price?: number }[];
   }, currentEditCount: number = 0) => {
     if (currentEditCount >= 2) {
       toast.error('Maximum 2 edits allowed per auction');
@@ -395,6 +396,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
           unit: li.unit,
           category: li.category || null,
           description: li.description || null,
+          unit_price: li.unit_price || 0,
         }));
         // Get old item IDs first
         const { data: oldItems } = await supabase
