@@ -396,6 +396,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
           unit: li.unit,
           category: li.category || null,
           description: li.description || null,
+          unit_price: li.unit_price || 0,
         }));
         // Get old item IDs first
         const { data: oldItems } = await supabase
