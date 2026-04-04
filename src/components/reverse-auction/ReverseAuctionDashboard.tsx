@@ -60,6 +60,9 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
         />
       )}
 
+      {/* Monthly Savings Analytics (buyer only) */}
+      {!isSupplier && <MonthlySavingsAnalytics />}
+
       {/* Auction List */}
       <ReverseAuctionList
         onSelectAuction={setSelectedAuction}
