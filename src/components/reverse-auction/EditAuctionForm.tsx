@@ -92,6 +92,8 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
       if (auctionRes.data) {
         const a = auctionRes.data as any;
         setTitle(a.title || '');
+        initialTitleRef.current = a.title || '';
+        setIsManualTitle(false);
         setDescription(a.description || '');
         setStartingPrice(String(a.starting_price || ''));
         setQuantity(String(a.quantity || ''));
