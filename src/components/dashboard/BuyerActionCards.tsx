@@ -85,8 +85,14 @@ export function BuyerActionCards({
       const auctions = auctionRes.data || [];
       const liveCount = auctions.filter((a: any) => a.status === 'live').length;
       const totalSavings = auctions
-        .filter((a: any) => a.current_price && a.starting_price && a.current_price < a.starting_price)
-        .reduce((sum: number, a: any) => sum + (a.starting_price - a.current_price) * (a.quantity || 1), 0);
+        .filter((a: any) => {
+          const finalPrice = a.status === 'completed' ? (a.winning_bid ?? a.current_price) : a.current_price;
+          return finalPrice && a.starting_price && finalPrice < a.starting_price;
+        })
+        .reduce((sum: number, a: any) => {
+          const finalPrice = a.status === 'completed' ? (a.winning_bid ?? a.current_price) : a.current_price;
+          return sum + (a.starting_price - finalPrice) * (a.quantity || 1);
+        }, 0);
 
       setMetrics({
         openRFQs: rfqRes.count || 0,
