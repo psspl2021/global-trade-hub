@@ -101,6 +101,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           quantity: String(it.quantity || ''),
           unit: it.unit || 'MT',
           description: it.description || '',
+          category: it.category || auction.category || '',
         })));
       } else {
         // Fallback: single item from auction
@@ -109,6 +110,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           quantity: String(auction.quantity || ''),
           unit: auction.unit || 'MT',
           description: '',
+          category: auction.category || '',
         }]);
       }
       setIsLoading(false);
