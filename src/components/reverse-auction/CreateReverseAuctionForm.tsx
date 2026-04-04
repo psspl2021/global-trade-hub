@@ -113,16 +113,21 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [qualityStandards, setQualityStandards] = useState('');
   const [deadline, setDeadline] = useState('');
 
-  // ── AI Title (Feature #1) ──
+  // ── AI Title (Feature #1) — auto-fill but allow manual override ──
   const [auctionTitle, setAuctionTitle] = useState('');
+  const [isManualTitle, setIsManualTitle] = useState(false);
+  const [autoTitle, setAutoTitle] = useState('');
+
   useEffect(() => {
-    if (auctionTitle) return;
-    const title = generateAuctionTitle(items, transactionType);
-    if (title) {
-      setAuctionTitle(title);
+    const generated = generateAuctionTitle(
+      items.map(i => ({ product: i.product, quantity: i.quantity, unit: i.unit, category: category })),
+      transactionType
+    );
+    setAutoTitle(generated);
+    if (!isManualTitle && generated) {
+      setAuctionTitle(generated);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, transactionType]);
+  }, [items, transactionType, category, isManualTitle]);
 
   // ── Supplier Search + Manual Add (Feature #3) ──
   const [supplierSearch, setSupplierSearch] = useState('');
