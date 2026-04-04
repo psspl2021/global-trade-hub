@@ -1,0 +1,1 @@
+ALTER TABLE public.reverse_auction_suppliers ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true;
