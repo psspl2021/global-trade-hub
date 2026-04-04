@@ -530,8 +530,18 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
 
             {/* Starting Price */}
             <div>
-              <Label>Starting Price (₹ per {unit})</Label>
+              <Label>Starting Price (₹ Total Order Value)</Label>
               <Input type="number" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} className="mt-1" />
+              {items.some(i => i.price && i.quantity) && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Calculated from items: ₹{items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0).toLocaleString('en-IN')}
+                  {startingPrice !== String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)) && (
+                    <button type="button" onClick={() => setStartingPrice(String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)))} className="ml-2 text-primary hover:underline">
+                      Use calculated price
+                    </button>
+                  )}
+                </p>
+              )}
             </div>
 
             {/* ─── Delivery & RFQ Details ─── */}
