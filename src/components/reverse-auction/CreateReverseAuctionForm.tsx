@@ -455,9 +455,17 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       toast.error('Each line item must have a valid price.');
       return;
     }
+    if (validItems.some(i => Number(i.price) > 1e8)) {
+      toast.error('Price per item cannot exceed ₹10,00,00,000.');
+      return;
+    }
     const invalidQty = validItems.some(i => Number(i.quantity) <= 0);
     if (invalidQty) {
       toast.error('Each line item must have a quantity greater than 0.');
+      return;
+    }
+    if (validItems.some(i => Number(i.quantity) > 1e6)) {
+      toast.error('Quantity per item cannot exceed 10,00,000.');
       return;
     }
 
