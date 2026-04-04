@@ -1,7 +1,8 @@
 /**
  * Edit Auction Form — Full RFQ-style edit with line items + supplier management
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { generateAuctionTitle } from '@/utils/generateAuctionTitle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,6 +56,9 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
   const { updateAuction } = useReverseAuction();
 
   const [title, setTitle] = useState('');
+  const [isManualTitle, setIsManualTitle] = useState(false);
+  const [autoTitle, setAutoTitle] = useState('');
+  const initialTitleRef = useRef('');
   const [description, setDescription] = useState('');
   const [startingPrice, setStartingPrice] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -88,6 +92,8 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
       if (auctionRes.data) {
         const a = auctionRes.data as any;
         setTitle(a.title || '');
+        initialTitleRef.current = a.title || '';
+        setIsManualTitle(false);
         setDescription(a.description || '');
         setStartingPrice(String(a.starting_price || ''));
         setQuantity(String(a.quantity || ''));
@@ -132,6 +138,18 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     };
     loadData();
   }, [open, auction.id]);
+
+  // Auto-title from items
+  useEffect(() => {
+    const generated = generateAuctionTitle(
+      items.map(i => ({ product: i.product_name, quantity: i.quantity, unit: i.unit, category: i.category || auction.category })),
+      (auction as any).transaction_type || 'domestic'
+    );
+    setAutoTitle(generated);
+    if (!isManualTitle && generated && title === initialTitleRef.current) {
+      setTitle(generated);
+    }
+  }, [items, auction.category, isManualTitle]);
 
   const addItem = () => setItems(prev => [...prev, { product_name: '', category: '', quantity: '', unit: 'MT', description: '' }]);
   const removeItem = (i: number) => { if (items.length > 1) setItems(prev => prev.filter((_, idx) => idx !== i)); };
@@ -282,7 +300,22 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
             {/* Title */}
             <div>
               <Label>Auction Title</Label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} className="mt-1" />
+              <Input
+                value={title}
+                onChange={e => {
+                  setTitle(e.target.value);
+                  setIsManualTitle(e.target.value !== autoTitle && e.target.value.length > 0);
+                }}
+                className="mt-1"
+              />
+              {title && !isManualTitle && (
+                <p className="text-xs text-muted-foreground mt-1">✨ Auto-generated from items — editable</p>
+              )}
+              {isManualTitle && (
+                <button type="button" onClick={() => { setIsManualTitle(false); setTitle(autoTitle); }} className="text-xs text-primary mt-1 hover:underline">
+                  ↺ Reset to auto-generated title
+                </button>
+              )}
             </div>
 
             {/* ─── Line Items ─── */}
