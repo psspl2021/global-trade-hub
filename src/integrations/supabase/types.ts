@@ -6558,6 +6558,7 @@ export type Database = {
           product_name: string
           quantity: number
           unit: string
+          unit_price: number | null
         }
         Insert: {
           auction_id: string
@@ -6568,6 +6569,7 @@ export type Database = {
           product_name: string
           quantity?: number
           unit?: string
+          unit_price?: number | null
         }
         Update: {
           auction_id?: string
@@ -6578,6 +6580,7 @@ export type Database = {
           product_name?: string
           quantity?: number
           unit?: string
+          unit_price?: number | null
         }
         Relationships: [
           {
