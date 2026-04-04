@@ -569,6 +569,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           quantity: parseFloat(i.quantity || '0'),
           unit: i.unit,
           description: i.description || undefined,
+          unit_price: parseFloat(i.price || '0'),
         })),
         deadline: deadline || undefined,
       };
