@@ -20,11 +20,18 @@ const UNIT_OPTIONS = [
   { label: 'Litres', value: 'Ltrs' },
 ];
 
+const CATEGORIES = [
+  'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
+  'Chemicals', 'Building Materials', 'Industrial Supplies',
+  'Packaging Materials', 'Energy & Power', 'Textiles & Fabrics'
+];
+
 interface LineItem {
   product_name: string;
   quantity: string;
   unit: string;
   description: string;
+  category: string;
 }
 
 interface EditAuctionFormProps {
@@ -94,6 +101,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           quantity: String(it.quantity || ''),
           unit: it.unit || 'MT',
           description: it.description || '',
+          category: it.category || auction.category || '',
         })));
       } else {
         // Fallback: single item from auction
@@ -102,6 +110,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           quantity: String(auction.quantity || ''),
           unit: auction.unit || 'MT',
           description: '',
+          category: auction.category || '',
         }]);
       }
       setIsLoading(false);
@@ -109,7 +118,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     loadData();
   }, [open, auction.id, auction.product_slug, auction.quantity, auction.unit]);
 
-  const addItem = () => setItems(prev => [...prev, { product_name: '', quantity: '', unit: 'MT', description: '' }]);
+  const addItem = () => setItems(prev => [...prev, { product_name: '', quantity: '', unit: 'MT', description: '', category: auction.category || '' }]);
   const removeItem = (i: number) => { if (items.length > 1) setItems(prev => prev.filter((_, idx) => idx !== i)); };
   const updateItem = (i: number, key: keyof LineItem, value: string) => {
     setItems(prev => prev.map((item, idx) => idx === i ? { ...item, [key]: value } : item));
@@ -153,7 +162,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           quantity: parseFloat(i.quantity || '0'),
           unit: i.unit,
           description: i.description || undefined,
-          category: auction.category,
+          category: i.category || auction.category,
         })),
       }, editCount);
 
@@ -176,6 +185,11 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           </DialogTitle>
           <DialogDescription>
             Update auction details and line items. ({editCount}/2 edits used)
+            {editCount >= 1 && (
+              <span className="block mt-1 text-amber-600 font-medium">
+                ⚠ {editCount >= 2 ? 'No edits remaining' : 'Last edit remaining — make it count!'}
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -230,12 +244,24 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
                         <Trash2 className="w-4 h-4 text-muted-foreground" />
                       </Button>
                     </div>
-                    <Input
-                      placeholder="Product description / specs (optional)"
-                      value={item.description}
-                      onChange={e => updateItem(i, 'description', e.target.value)}
-                      className="text-xs h-8"
-                    />
+                    <div className="grid grid-cols-[1fr_1fr] gap-2">
+                      <Select value={item.category} onValueChange={v => updateItem(i, 'category', v)}>
+                        <SelectTrigger className="text-xs h-8">
+                          <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CATEGORIES.map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        placeholder="Product description / specs (optional)"
+                        value={item.description}
+                        onChange={e => updateItem(i, 'description', e.target.value)}
+                        className="text-xs h-8"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>

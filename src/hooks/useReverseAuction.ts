@@ -128,8 +128,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
           .in('id', auctionIds)
           .in('status', ['scheduled', 'live', 'completed']);
 
-        // Apply server-side filters
-        if (filters?.status && filters.status !== 'all') {
+        // Apply server-side filters (only for DB-stored terminal statuses)
+        if (filters?.status === 'completed' || filters?.status === 'cancelled') {
           query = query.eq('status', filters.status);
         }
         if (filters?.category && filters.category !== 'all') {
@@ -158,8 +158,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
           .from('reverse_auctions')
           .select('*');
 
-        // Apply server-side filters
-        if (filters?.status && filters.status !== 'all') {
+        // Apply server-side filters (only for DB-stored terminal statuses)
+        if (filters?.status === 'completed' || filters?.status === 'cancelled') {
           query = query.eq('status', filters.status);
         }
         if (filters?.category && filters.category !== 'all') {
@@ -386,9 +386,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
         .eq('id', auctionId);
       if (error) throw error;
 
-      // Replace line items if provided
+      // Replace line items: insert first, then delete old (safe against partial failure)
       if (line_items && line_items.length > 0) {
-        await supabase.from('reverse_auction_items').delete().eq('auction_id', auctionId);
         const itemsToInsert = line_items.map(li => ({
           auction_id: auctionId,
           product_name: li.product_name,
@@ -397,7 +396,19 @@ export function useReverseAuction(supplierMode: boolean = false) {
           category: li.category || null,
           description: li.description || null,
         }));
-        await supabase.from('reverse_auction_items').insert(itemsToInsert as any);
+        // Get old item IDs first
+        const { data: oldItems } = await supabase
+          .from('reverse_auction_items')
+          .select('id')
+          .eq('auction_id', auctionId);
+        // Insert new items
+        const { error: insertErr } = await supabase.from('reverse_auction_items').insert(itemsToInsert as any);
+        if (insertErr) throw insertErr;
+        // Only delete old items after successful insert
+        if (oldItems && oldItems.length > 0) {
+          const oldIds = oldItems.map((o: any) => o.id);
+          await supabase.from('reverse_auction_items').delete().in('id', oldIds);
+        }
       }
 
       toast.success(`Auction updated! (${currentEditCount + 1}/2 edits used)`);

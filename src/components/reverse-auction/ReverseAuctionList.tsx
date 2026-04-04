@@ -88,22 +88,24 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
 
-  // Server-side refetch when filters change (debounced search)
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  // Debounce ALL filters together (400ms)
+  const [debouncedFilters, setDebouncedFilters] = useState({ search: '', status: 'all', category: 'all', sortBy: 'latest' });
   
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    const timer = setTimeout(() => {
+      setDebouncedFilters({ search: searchQuery, status: statusFilter, category: categoryFilter, sortBy });
+    }, 400);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, statusFilter, categoryFilter, sortBy]);
 
   useEffect(() => {
     refetch({ 
-      status: statusFilter, 
-      category: categoryFilter, 
-      search: debouncedSearch || undefined, 
-      sortBy 
+      status: debouncedFilters.status, 
+      category: debouncedFilters.category, 
+      search: debouncedFilters.search || undefined, 
+      sortBy: debouncedFilters.sortBy 
     });
-  }, [statusFilter, categoryFilter, debouncedSearch, sortBy, refetch]);
+  }, [debouncedFilters, refetch]);
 
   // Compute effective status based on time (client-side for grouping)
   const getEffectiveStatus = (a: ReverseAuction) => {
@@ -114,10 +116,14 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
     return 'scheduled';
   };
 
-  // Client-side: add effective status for grouping (server already filtered + sorted)
+  // Client-side: add effective status + filter live/scheduled which are time-derived
   const filteredAuctions = useMemo(() => {
-    return auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
-  }, [auctions]);
+    const withStatus = auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
+    // For live/scheduled, filter client-side since DB doesn't know effective status
+    if (statusFilter === 'live') return withStatus.filter(a => a._effectiveStatus === 'live');
+    if (statusFilter === 'scheduled') return withStatus.filter(a => a._effectiveStatus === 'scheduled');
+    return withStatus;
+  }, [auctions, statusFilter]);
 
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || categoryFilter !== 'all' || sortBy !== 'latest';
 
@@ -482,8 +488,12 @@ function AuctionCard({
                     <Play className="w-3 h-3 mr-1" /> Go Live
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
-                    <Pencil className="w-3 h-3" /> Edit
+                    <Pencil className="w-3 h-3" />
+                    Edit ({(auction as any).buyer_edit_count || 0}/2)
                   </Button>
+                  {((auction as any).buyer_edit_count || 0) >= 1 && (
+                    <span className="text-xs text-amber-600 font-medium flex items-center">⚠ {((auction as any).buyer_edit_count || 0) >= 2 ? 'No edits left' : 'Last edit remaining'}</span>
+                  )}
                   <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
                 </>
               )}
