@@ -452,6 +452,19 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           email: s.email,
           manual: s.manual,
         })),
+        description: description || undefined,
+        rfq_type: transactionType,
+        destination_country: destinationCountry || undefined,
+        destination_state: destinationState || undefined,
+        delivery_address: deliveryAddress || undefined,
+        payment_terms: paymentTerms || undefined,
+        certifications: certifications || undefined,
+        quality_standards: qualityStandards || undefined,
+        line_items: validItems.map(i => ({
+          product_name: i.product,
+          quantity: parseFloat(i.quantity || '0'),
+          unit: i.unit,
+        })),
       };
 
       const result = await createAuction(input);

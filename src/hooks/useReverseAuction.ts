@@ -63,6 +63,16 @@ export interface CreateAuctionInput {
   transaction_type?: string;
   invited_supplier_ids: string[];
   invited_suppliers?: { id: string; email?: string; manual?: boolean }[];
+  // RFQ-style fields
+  description?: string;
+  rfq_type?: string;
+  destination_country?: string;
+  destination_state?: string;
+  delivery_address?: string;
+  payment_terms?: string;
+  certifications?: string;
+  quality_standards?: string;
+  line_items?: { product_name: string; quantity: number; unit: string }[];
 }
 
 /** Returns bids sorted by price with rank (L1=1, L2=2, etc.) */
