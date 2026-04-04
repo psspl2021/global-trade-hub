@@ -72,12 +72,23 @@ import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
-   const [showForwardRFQ, setShowForwardRFQ] = useState(false);
-   const [showReverseAuction, setShowReverseAuction] = useState(false);
+
+  // Derive sub-view state from URL search params so it survives refresh
+  const activeView = searchParams.get('view') || '';
+  const showForwardRFQ = activeView === 'forward-rfq';
+  const showReverseAuction = activeView === 'reverse-auction';
+
+  const setShowForwardRFQ = (show: boolean) => {
+    setSearchParams(show ? { view: 'forward-rfq' } : {}, { replace: true });
+  };
+  const setShowReverseAuction = (show: boolean) => {
+    setSearchParams(show ? { view: 'reverse-auction' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
