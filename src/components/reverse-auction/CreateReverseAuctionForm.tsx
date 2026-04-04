@@ -110,6 +110,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [paymentTerms, setPaymentTerms] = useState('');
   const [certifications, setCertifications] = useState('');
+  const [qualityStandards, setQualityStandards] = useState('');
   const [deadline, setDeadline] = useState('');
 
   // ── AI Title (Feature #1) ──
