@@ -56,17 +56,36 @@ interface ReverseAuctionListProps {
   isSupplier?: boolean;
 }
 
+const STATUS_FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'live', label: 'Live' },
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'latest', label: 'Latest First' },
+  { value: 'oldest', label: 'Oldest First' },
+  { value: 'price_low', label: 'Price: Low → High' },
+  { value: 'price_high', label: 'Price: High → Low' },
+];
+
+const CATEGORIES = [
+  'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
+  'Chemicals', 'Building Materials', 'Industrial Supplies',
+  'Packaging Materials', 'Energy & Power', 'Textiles & Fabrics'
+];
+
 export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier = false }: ReverseAuctionListProps) {
   const { auctions, isLoading, startAuction, cancelAuction, completeAuction, republishAuction, refetch } = useReverseAuction(isSupplier);
   const navigate = useNavigate();
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">Loading auctions...</CardContent>
-      </Card>
-    );
-  }
+  // Filter & sort state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('latest');
 
   // Compute effective status based on time
   const getEffectiveStatus = (a: ReverseAuction) => {
@@ -77,18 +96,150 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
     return 'scheduled';
   };
 
-  // Separate auctions by effective status
-  const liveAuctions = auctions.filter(a => getEffectiveStatus(a) === 'live');
-  const scheduledAuctions = auctions.filter(a => getEffectiveStatus(a) === 'scheduled');
-  const completedAuctions = auctions.filter(a => {
-    const s = getEffectiveStatus(a);
-    return s === 'completed' || s === 'cancelled';
-  });
+  // Filter + sort auctions
+  const filteredAuctions = useMemo(() => {
+    let result = auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
+
+    // Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(a =>
+        a.title?.toLowerCase().includes(q) ||
+        a.product_slug?.toLowerCase().includes(q) ||
+        a.category?.toLowerCase().includes(q)
+      );
+    }
+
+    // Status
+    if (statusFilter !== 'all') {
+      result = result.filter(a => a._effectiveStatus === statusFilter);
+    }
+
+    // Category
+    if (categoryFilter !== 'all') {
+      result = result.filter(a => a.category === categoryFilter);
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'price_low': return (a.starting_price || 0) - (b.starting_price || 0);
+        case 'price_high': return (b.starting_price || 0) - (a.starting_price || 0);
+        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return result;
+  }, [auctions, searchQuery, statusFilter, categoryFilter, sortBy]);
+
+  const hasActiveFilters = searchQuery || statusFilter !== 'all' || categoryFilter !== 'all' || sortBy !== 'latest';
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setSortBy('latest');
+  };
+
+  // Separate by effective status for grouped display
+  const liveAuctions = filteredAuctions.filter(a => a._effectiveStatus === 'live');
+  const scheduledAuctions = filteredAuctions.filter(a => a._effectiveStatus === 'scheduled');
+  const completedAuctions = filteredAuctions.filter(a => a._effectiveStatus === 'completed' || a._effectiveStatus === 'cancelled');
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-muted-foreground">Loading auctions...</CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {/* No auctions */}
-      {auctions.length === 0 ? (
+      {/* ── Filters Bar ── */}
+      <Card className="rounded-[0.625rem]">
+        <CardContent className="py-3 px-4">
+          <div className="flex flex-col gap-3">
+            {/* Row 1: Search + Sort */}
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search auctions by title, product, or category..."
+                  className="pl-9 h-9"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[170px] h-9 gap-1">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map(s => (
+                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Row 2: Status chips + Category + Clear */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Status filter chips */}
+              {STATUS_FILTERS.map(sf => (
+                <button
+                  key={sf.value}
+                  onClick={() => setStatusFilter(sf.value)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                    statusFilter === sf.value
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
+                  }`}
+                >
+                  {sf.label}
+                  {sf.value !== 'all' && (
+                    <span className="ml-1 opacity-70">
+                      {auctions.filter(a => getEffectiveStatus(a) === sf.value).length}
+                    </span>
+                  )}
+                </button>
+              ))}
+
+              <div className="h-5 w-px bg-border mx-1" />
+
+              {/* Category dropdown */}
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="h-7 text-xs w-auto min-w-[130px] gap-1 border-dashed">
+                  <SlidersHorizontal className="w-3 h-3" />
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {CATEGORIES.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Clear filters */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:underline"
+                >
+                  <X className="w-3 h-3" />
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Results ── */}
+      {filteredAuctions.length === 0 ? (
         <Card className="rounded-[0.625rem]">
           <CardContent className="py-12 text-center">
             <Gavel className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
