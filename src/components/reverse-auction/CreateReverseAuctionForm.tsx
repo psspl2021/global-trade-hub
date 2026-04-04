@@ -103,6 +103,15 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [minBidStep, setMinBidStep] = useState('0.25');
   const [transactionType, setTransactionType] = useState('domestic');
 
+  // RFQ-style fields
+  const [description, setDescription] = useState('');
+  const [destinationCountry, setDestinationCountry] = useState('India');
+  const [destinationState, setDestinationState] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState('');
+  const [certifications, setCertifications] = useState('');
+  const [qualityStandards, setQualityStandards] = useState('');
+
   // ── AI Title (Feature #1) ──
   const [auctionTitle, setAuctionTitle] = useState('');
   useEffect(() => {
