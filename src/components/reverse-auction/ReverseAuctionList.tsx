@@ -499,7 +499,7 @@ function AuctionCard({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setShowRepublishDialog(true)}
+                  onClick={() => setShowEditDialog(true)}
                   className="gap-1"
                 >
                   <Pencil className="w-3 h-3" /> Edit & Republish
