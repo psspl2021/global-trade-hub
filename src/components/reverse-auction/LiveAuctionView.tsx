@@ -791,6 +791,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               )}
             </CardContent>
           </Card>
+
+          {/* 💬 Negotiation Chat */}
+          <AuctionChat
+            auctionId={auction.id}
+            buyerId={auction.buyer_id}
+            isBuyer={isBuyer}
+            isLive={isLive}
+          />
         </div>
 
         {/* 💻 DESKTOP → Right sticky bid panel */}
