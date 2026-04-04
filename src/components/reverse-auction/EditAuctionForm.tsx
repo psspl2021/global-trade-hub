@@ -34,6 +34,7 @@ interface LineItem {
   category: string;
   quantity: string;
   unit: string;
+  price: string;
   description: string;
 }
 
