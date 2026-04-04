@@ -311,17 +311,42 @@ export function useReverseAuction(supplierMode: boolean = false) {
     unit?: string;
     product_slug?: string;
     auction_end?: string;
+    description?: string;
+    destination_country?: string;
+    destination_state?: string;
+    delivery_address?: string;
+    payment_terms?: string;
+    certifications?: string;
+    quality_standards?: string;
+    deadline?: string | null;
+    line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string }[];
   }, currentEditCount: number = 0) => {
     if (currentEditCount >= 2) {
       toast.error('Maximum 2 edits allowed per auction');
       return false;
     }
     try {
+      const { line_items, ...auctionUpdates } = updates;
       const { error } = await supabase
         .from('reverse_auctions')
-        .update({ ...updates, buyer_edit_count: currentEditCount + 1, updated_at: new Date().toISOString() } as any)
+        .update({ ...auctionUpdates, buyer_edit_count: currentEditCount + 1, updated_at: new Date().toISOString() } as any)
         .eq('id', auctionId);
       if (error) throw error;
+
+      // Replace line items if provided
+      if (line_items && line_items.length > 0) {
+        await supabase.from('reverse_auction_items').delete().eq('auction_id', auctionId);
+        const itemsToInsert = line_items.map(li => ({
+          auction_id: auctionId,
+          product_name: li.product_name,
+          quantity: li.quantity,
+          unit: li.unit,
+          category: li.category || null,
+          description: li.description || null,
+        }));
+        await supabase.from('reverse_auction_items').insert(itemsToInsert as any);
+      }
+
       toast.success(`Auction updated! (${currentEditCount + 1}/2 edits used)`);
       fetchAuctions();
       return true;
