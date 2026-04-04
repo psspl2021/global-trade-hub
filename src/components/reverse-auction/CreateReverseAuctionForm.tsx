@@ -150,6 +150,18 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       };
       const normalizeUnit = (u: string) => UNIT_MAP[u?.toLowerCase()?.trim()] || 'MT';
 
+      // Confirm before overwriting existing items
+      const hasExistingItems = items.some(i => i.product.trim() !== '');
+      if (hasExistingItems) {
+        const confirmReplace = window.confirm(
+          'This will replace your current items with AI-generated ones. Continue?'
+        );
+        if (!confirmReplace) {
+          setIsAiGenerating(false);
+          return;
+        }
+      }
+
       // Map AI output to form state
       if (rfq.items?.length > 0) {
         setItems(rfq.items.map((it: any) => ({
@@ -159,8 +171,27 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           description: it.description || '',
         })));
       }
+
+      // Smart category detection via keyword matching
+      const CATEGORY_KEYWORDS: Record<string, string[]> = {
+        "Metals - Ferrous": ["steel", "hr", "cr", "coil", "plate", "tmt", "rebar", "billet", "slab", "iron", "ferrous"],
+        "Metals - Non Ferrous": ["aluminium", "aluminum", "copper", "brass", "zinc", "nickel", "tin", "lead"],
+        "Chemicals": ["chemical", "acid", "solvent", "alkali", "reagent", "caustic"],
+        "Polymers & Plastics": ["plastic", "polymer", "granule", "hdpe", "ldpe", "pvc", "polypropylene", "nylon"],
+        "Minerals & Ores": ["mineral", "ore", "calcium", "ite", "ite powder"],
+        "Energy & Fuels": ["fuel", "diesel", "petrol", "coal", "gas", "lpg", "oil"],
+        "Textiles & Fibers": ["textile", "cotton", "fabric", "yarn", "fiber", "fibre"],
+        "Paper & Packaging": ["paper", "cardboard", "packaging", "corrugated", "carton"],
+      };
       if (rfq.category) {
-        const matched = CATEGORIES.find(c => c.toLowerCase().includes(rfq.category.toLowerCase().split(' ')[0]));
+        const text = (rfq.category + ' ' + (rfq.items?.map((i: any) => i.item_name).join(' ') || '')).toLowerCase();
+        let detected: string | null = null;
+        for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+          if (keywords.some(k => text.includes(k))) { detected = cat; break; }
+        }
+        const matched = detected
+          ? CATEGORIES.find(c => c === detected)
+          : CATEGORIES.find(c => c.toLowerCase().includes(rfq.category.toLowerCase().split(' ')[0]));
         if (matched) setCategory(matched);
       }
       if (rfq.trade_type) {
