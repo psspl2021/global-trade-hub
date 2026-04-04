@@ -1,7 +1,7 @@
 /**
  * Edit Auction Form — Full RFQ-style edit with line items + supplier management
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { generateAuctionTitle } from '@/utils/generateAuctionTitle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Plus, Trash2, Package, Save, Users, UserPlus, Mail, X } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Pencil, Plus, Trash2, Package, Save, Users, UserPlus, Mail, X, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { toast } from 'sonner';
@@ -76,6 +77,95 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isAddingSupplier, setIsAddingSupplier] = useState(false);
+
+  // ── AI RFQ Generator ──
+  const [aiDescription, setAiDescription] = useState('');
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+
+  const UNIT_MAP: Record<string, string> = {
+    tons: 'MT', ton: 'MT', tonnes: 'MT', mt: 'MT',
+    kilograms: 'KG', kilogram: 'KG', kg: 'KG', kgs: 'KG',
+    pieces: 'Pcs', piece: 'Pcs', nos: 'Pcs', pcs: 'Pcs',
+    liters: 'Ltrs', liter: 'Ltrs', litres: 'Ltrs', ltrs: 'Ltrs',
+    meters: 'Meters', meter: 'Meters', sets: 'Sets', set: 'Sets',
+    cartons: 'Cartons', carton: 'Cartons', boxes: 'Boxes', box: 'Boxes',
+  };
+  const normalizeUnit = (u: string) => UNIT_MAP[u?.toLowerCase()?.trim()] || 'MT';
+
+  const CATEGORY_KEYWORDS: Record<string, string[]> = {
+    "Metals - Ferrous": ["steel", "hr", "cr", "coil", "plate", "tmt", "rebar", "billet", "slab", "iron", "ferrous"],
+    "Metals - Non Ferrous": ["aluminium", "aluminum", "copper", "brass", "zinc", "nickel", "tin", "lead"],
+    "Chemicals": ["chemical", "acid", "solvent", "alkali", "reagent", "caustic"],
+    "Polymers & Plastics": ["plastic", "polymer", "granule", "hdpe", "ldpe", "pvc", "polypropylene", "nylon"],
+    "Minerals & Ores": ["mineral", "ore", "calcium"],
+    "Energy & Fuels": ["fuel", "diesel", "petrol", "coal", "gas", "lpg", "oil"],
+    "Textiles & Fibers": ["textile", "cotton", "fabric", "yarn", "fiber", "fibre"],
+    "Paper & Packaging": ["paper", "cardboard", "packaging", "corrugated", "carton"],
+  };
+
+  const handleAiGenerate = useCallback(async () => {
+    if (aiDescription.trim().length < 10) {
+      toast.error('Please describe your requirement in more detail');
+      return;
+    }
+    setIsAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-rfq', {
+        body: { description: aiDescription.trim() }
+      });
+      if (error) throw new Error(error.message || 'Failed to generate');
+      if (data?.error) throw new Error(data.error);
+      const rfq = data?.rfq;
+      if (!rfq) throw new Error('Invalid AI response');
+
+      const hasExistingItems = items.some(i => i.product_name.trim() !== '');
+      if (hasExistingItems) {
+        const confirmReplace = window.confirm(
+          'This will replace your current items with AI-generated ones. Continue?'
+        );
+        if (!confirmReplace) { setIsAiGenerating(false); return; }
+      }
+
+      if (rfq.items?.length > 0) {
+        setItems(rfq.items.map((it: any) => ({
+          product_name: it.item_name || '',
+          category: '',
+          quantity: String(it.quantity || ''),
+          unit: normalizeUnit(it.unit || ''),
+          description: it.description || '',
+        })));
+      }
+
+      // Smart category detection
+      if (rfq.category) {
+        const text = (rfq.category + ' ' + (rfq.items?.map((i: any) => i.item_name).join(' ') || '')).toLowerCase();
+        let detected: string | null = null;
+        for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+          if (keywords.some(k => text.includes(k))) { detected = cat; break; }
+        }
+        const matched = detected
+          ? CATEGORIES.find(c => c === detected)
+          : CATEGORIES.find(c => c.toLowerCase().includes(rfq.category.toLowerCase().split(' ')[0]));
+        if (matched) {
+          setItems(prev => prev.map(i => ({ ...i, category: matched })));
+        }
+      }
+
+      if (rfq.title) { setTitle(rfq.title); setIsManualTitle(false); }
+      if (rfq.description) setDescription(rfq.description);
+      if (rfq.delivery_location) setDeliveryAddress(rfq.delivery_location);
+      if (rfq.quality_standards) setQualityStandards(rfq.quality_standards);
+      if (rfq.certifications_required) setCertifications(rfq.certifications_required);
+      if (rfq.payment_terms) setPaymentTerms(rfq.payment_terms);
+
+      toast.success(`AI generated ${rfq.items?.length || 0} line items! Review & adjust below.`);
+    } catch (err: any) {
+      console.error('AI RFQ error:', err);
+      toast.error(err.message || 'Failed to generate. Please try again.');
+    } finally {
+      setIsAiGenerating(false);
+    }
+  }, [aiDescription, items]);
 
   useEffect(() => {
     if (!open) return;
@@ -297,6 +387,45 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           <div className="py-8 text-center text-muted-foreground">Loading auction data...</div>
         ) : (
           <div className="space-y-5 py-2">
+            {/* ── AI-Assisted Requirement ── */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="pt-4 pb-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <Label className="text-sm font-semibold">AI-Assisted Requirement (Optional)</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Describe your needs in plain text — AI will auto-fill products, quantities, category & specs below.
+                </p>
+                <Textarea
+                  placeholder="Example: I need 30 MT HR Coil IS2062 E250 and 25 MT HR Plates 10mm, delivery to Pune within 20 days. BIS certified with mill TC."
+                  value={aiDescription}
+                  onChange={(e) => setAiDescription(e.target.value)}
+                  className="min-h-[80px] text-sm bg-background"
+                  maxLength={2000}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAiGenerate}
+                  disabled={isAiGenerating || aiDescription.trim().length < 10}
+                  className="w-full gap-2"
+                  variant="default"
+                >
+                  {isAiGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generate from Description
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Title */}
             <div>
               <Label>Auction Title</Label>
