@@ -373,7 +373,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
     certifications?: string;
     quality_standards?: string;
     deadline?: string | null;
-    line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string }[];
+    line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string; unit_price?: number }[];
   }, currentEditCount: number = 0) => {
     if (currentEditCount >= 2) {
       toast.error('Maximum 2 edits allowed per auction');
