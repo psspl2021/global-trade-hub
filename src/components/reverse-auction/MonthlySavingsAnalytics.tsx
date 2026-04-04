@@ -77,10 +77,9 @@ export function MonthlySavingsAnalytics() {
     fetchAuctions();
   }, [user?.id]);
 
-  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount } = useMemo(() => {
+  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency } = useMemo(() => {
     const monthMap = new Map<string, MonthlyData>();
 
-    // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const d = subMonths(new Date(), i);
       const key = format(d, 'yyyy-MM');
@@ -126,12 +125,17 @@ export function MonthlySavingsAnalytics() {
       }
     });
 
+    const data = Array.from(monthMap.values());
+    const best = data.reduce((max, m) => (m.savings > max.savings ? m : max), data[0]);
+
     return {
-      monthlyData: Array.from(monthMap.values()),
+      monthlyData: data,
       totalSavings: totalSav,
       totalSpend: totalSpd,
       avgSavingsPct: completed > 0 ? savingsPctSum / completed : 0,
       completedCount: completed,
+      bestMonth: best,
+      savingsEfficiency: totalSpd > 0 ? (totalSav / totalSpd) * 100 : 0,
     };
   }, [auctions]);
 
