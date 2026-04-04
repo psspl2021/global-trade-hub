@@ -2,7 +2,7 @@
  * Reverse Auction List — Shows auctions for buyer or supplier
  * Suppliers see only auctions they're invited to, with bid-oriented UI
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format, isToday } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
+import { EditAuctionForm } from './EditAuctionForm';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: <Clock className="w-3 h-3" /> },
@@ -87,7 +88,24 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
 
-  // Compute effective status based on time
+  // Server-side refetch when filters change (debounced search)
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    refetch({ 
+      status: statusFilter, 
+      category: categoryFilter, 
+      search: debouncedSearch || undefined, 
+      sortBy 
+    });
+  }, [statusFilter, categoryFilter, debouncedSearch, sortBy, refetch]);
+
+  // Compute effective status based on time (client-side for grouping)
   const getEffectiveStatus = (a: ReverseAuction) => {
     if (a.status === 'cancelled' || a.status === 'completed') return a.status;
     const now = new Date();
@@ -96,42 +114,10 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
     return 'scheduled';
   };
 
-  // Filter + sort auctions
+  // Client-side: add effective status for grouping (server already filtered + sorted)
   const filteredAuctions = useMemo(() => {
-    let result = auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
-
-    // Search
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(a =>
-        a.title?.toLowerCase().includes(q) ||
-        a.product_slug?.toLowerCase().includes(q) ||
-        a.category?.toLowerCase().includes(q)
-      );
-    }
-
-    // Status
-    if (statusFilter !== 'all') {
-      result = result.filter(a => a._effectiveStatus === statusFilter);
-    }
-
-    // Category
-    if (categoryFilter !== 'all') {
-      result = result.filter(a => a.category === categoryFilter);
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case 'oldest': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        case 'price_low': return (a.starting_price || 0) - (b.starting_price || 0);
-        case 'price_high': return (b.starting_price || 0) - (a.starting_price || 0);
-        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }
-    });
-
-    return result;
-  }, [auctions, searchQuery, statusFilter, categoryFilter, sortBy]);
+    return auctions.map(a => ({ ...a, _effectiveStatus: getEffectiveStatus(a) }));
+  }, [auctions]);
 
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || categoryFilter !== 'all' || sortBy !== 'latest';
 
@@ -362,6 +348,7 @@ function AuctionCard({
   republishAuction: (id: string, newSchedule?: any) => void;
 }) {
   const [showRepublishDialog, setShowRepublishDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [repStartDate, setRepStartDate] = useState('');
   const [repStartTime, setRepStartTime] = useState('');
   const [repDuration, setRepDuration] = useState(30);
@@ -493,6 +480,9 @@ function AuctionCard({
                 <>
                   <Button size="sm" variant="default" onClick={() => startAuction(auction.id)}>
                     <Play className="w-3 h-3 mr-1" /> Go Live
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                    <Pencil className="w-3 h-3" /> Edit
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
                 </>
@@ -638,6 +628,13 @@ function AuctionCard({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Full Edit Dialog */}
+      <EditAuctionForm
+        auction={auction}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+      />
     </>
   );
 }

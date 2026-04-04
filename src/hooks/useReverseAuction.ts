@@ -72,7 +72,8 @@ export interface CreateAuctionInput {
   payment_terms?: string;
   certifications?: string;
   quality_standards?: string;
-  line_items?: { product_name: string; quantity: number; unit: string }[];
+  line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string }[];
+  deadline?: string;
 }
 
 /** Returns bids sorted by price with rank (L1=1, L2=2, etc.) */
@@ -93,12 +94,19 @@ export function getRankedBids(bids: ReverseAuctionBid[]): RankedBid[] {
     .map((bid, index) => ({ ...bid, rank: index + 1 }));
 }
 
+export interface AuctionFilters {
+  status?: string;
+  category?: string;
+  search?: string;
+  sortBy?: string;
+}
+
 export function useReverseAuction(supplierMode: boolean = false) {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchAuctions = useCallback(async () => {
+  const fetchAuctions = useCallback(async (filters?: AuctionFilters) => {
     if (!user) return;
     setIsLoading(true);
     try {
@@ -114,19 +122,65 @@ export function useReverseAuction(supplierMode: boolean = false) {
           setIsLoading(false);
           return;
         }
-        const { data, error } = await supabase
+        let query = supabase
           .from('reverse_auctions')
           .select('*')
           .in('id', auctionIds)
-          .in('status', ['scheduled', 'live', 'completed'])
-          .order('created_at', { ascending: false });
+          .in('status', ['scheduled', 'live', 'completed']);
+
+        // Apply server-side filters
+        if (filters?.status && filters.status !== 'all') {
+          query = query.eq('status', filters.status);
+        }
+        if (filters?.category && filters.category !== 'all') {
+          query = query.eq('category', filters.category);
+        }
+        if (filters?.search) {
+          query = query.or(`title.ilike.%${filters.search}%,product_slug.ilike.%${filters.search}%,category.ilike.%${filters.search}%`);
+        }
+
+        // Sort
+        if (filters?.sortBy === 'price_low') {
+          query = query.order('starting_price', { ascending: true });
+        } else if (filters?.sortBy === 'price_high') {
+          query = query.order('starting_price', { ascending: false });
+        } else if (filters?.sortBy === 'oldest') {
+          query = query.order('created_at', { ascending: true });
+        } else {
+          query = query.order('created_at', { ascending: false });
+        }
+
+        const { data, error } = await query;
         if (error) throw error;
         setAuctions((data as unknown as ReverseAuction[]) || []);
       } else {
-        const { data, error } = await supabase
+        let query = supabase
           .from('reverse_auctions')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('*');
+
+        // Apply server-side filters
+        if (filters?.status && filters.status !== 'all') {
+          query = query.eq('status', filters.status);
+        }
+        if (filters?.category && filters.category !== 'all') {
+          query = query.eq('category', filters.category);
+        }
+        if (filters?.search) {
+          query = query.or(`title.ilike.%${filters.search}%,product_slug.ilike.%${filters.search}%,category.ilike.%${filters.search}%`);
+        }
+
+        // Sort
+        if (filters?.sortBy === 'price_low') {
+          query = query.order('starting_price', { ascending: true });
+        } else if (filters?.sortBy === 'price_high') {
+          query = query.order('starting_price', { ascending: false });
+        } else if (filters?.sortBy === 'oldest') {
+          query = query.order('created_at', { ascending: true });
+        } else {
+          query = query.order('created_at', { ascending: false });
+        }
+
+        const { data, error } = await query;
         if (error) throw error;
         setAuctions((data as unknown as ReverseAuction[]) || []);
       }
@@ -170,6 +224,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
           payment_terms: input.payment_terms || null,
           certifications: input.certifications || null,
           quality_standards: input.quality_standards || null,
+          deadline: input.deadline || null,
         } as any)
         .select()
         .single();
@@ -185,7 +240,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
           product_name: li.product_name,
           quantity: li.quantity,
           unit: li.unit,
-          category: input.category,
+          category: li.category || input.category,
+          description: li.description || null,
         }));
         await supabase.from('reverse_auction_items').insert(lineItems as any);
       }
@@ -308,17 +364,42 @@ export function useReverseAuction(supplierMode: boolean = false) {
     unit?: string;
     product_slug?: string;
     auction_end?: string;
+    description?: string;
+    destination_country?: string;
+    destination_state?: string;
+    delivery_address?: string;
+    payment_terms?: string;
+    certifications?: string;
+    quality_standards?: string;
+    deadline?: string | null;
+    line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string }[];
   }, currentEditCount: number = 0) => {
     if (currentEditCount >= 2) {
       toast.error('Maximum 2 edits allowed per auction');
       return false;
     }
     try {
+      const { line_items, ...auctionUpdates } = updates;
       const { error } = await supabase
         .from('reverse_auctions')
-        .update({ ...updates, buyer_edit_count: currentEditCount + 1, updated_at: new Date().toISOString() } as any)
+        .update({ ...auctionUpdates, buyer_edit_count: currentEditCount + 1, updated_at: new Date().toISOString() } as any)
         .eq('id', auctionId);
       if (error) throw error;
+
+      // Replace line items if provided
+      if (line_items && line_items.length > 0) {
+        await supabase.from('reverse_auction_items').delete().eq('auction_id', auctionId);
+        const itemsToInsert = line_items.map(li => ({
+          auction_id: auctionId,
+          product_name: li.product_name,
+          quantity: li.quantity,
+          unit: li.unit,
+          category: li.category || null,
+          description: li.description || null,
+        }));
+        await supabase.from('reverse_auction_items').insert(itemsToInsert as any);
+      }
+
       toast.success(`Auction updated! (${currentEditCount + 1}/2 edits used)`);
       fetchAuctions();
       return true;

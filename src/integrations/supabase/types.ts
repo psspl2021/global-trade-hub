@@ -6655,6 +6655,7 @@ export type Database = {
           created_at: string
           currency: string
           current_price: number | null
+          deadline: string | null
           delivery_address: string | null
           description: string | null
           destination_country: string | null
@@ -6690,6 +6691,7 @@ export type Database = {
           created_at?: string
           currency?: string
           current_price?: number | null
+          deadline?: string | null
           delivery_address?: string | null
           description?: string | null
           destination_country?: string | null
@@ -6725,6 +6727,7 @@ export type Database = {
           created_at?: string
           currency?: string
           current_price?: number | null
+          deadline?: string | null
           delivery_address?: string | null
           description?: string | null
           destination_country?: string | null
