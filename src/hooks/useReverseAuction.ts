@@ -128,8 +128,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
           .in('id', auctionIds)
           .in('status', ['scheduled', 'live', 'completed']);
 
-        // Apply server-side filters (only for DB-stored terminal statuses)
-        if (filters?.status === 'completed' || filters?.status === 'cancelled') {
+        // Apply server-side filters only for cancelled (completed is time-derived, handled client-side)
+        if (filters?.status === 'cancelled') {
           query = query.eq('status', filters.status);
         }
         if (filters?.category && filters.category !== 'all') {
