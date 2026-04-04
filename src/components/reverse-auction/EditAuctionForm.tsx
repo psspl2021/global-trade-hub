@@ -234,7 +234,10 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
   }, [open, auction.id]);
 
   // Auto-calculated total order value from line items
-  const calculatedTotal = useMemo(() => items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.price || 0)), 0), [items]);
+  const calculatedTotal = useMemo(() => {
+    const raw = items.reduce((sum, i) => sum + (Math.round(Number(i.quantity || 0) * 100) / 100) * (Math.round(Number(i.price || 0) * 100) / 100), 0);
+    return Math.round(raw * 100) / 100;
+  }, [items]);
 
   // Auto-title from items
   useEffect(() => {
