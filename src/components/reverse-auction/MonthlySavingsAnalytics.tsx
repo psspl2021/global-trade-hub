@@ -77,7 +77,7 @@ export function MonthlySavingsAnalytics() {
     fetchAuctions();
   }, [user?.id]);
 
-  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency } = useMemo(() => {
+  const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency, avgPerAuction, trend } = useMemo(() => {
     const monthMap = new Map<string, MonthlyData>();
 
     for (let i = 5; i >= 0; i--) {
