@@ -6699,6 +6699,7 @@ export type Database = {
           anti_snipe_threshold_seconds: number
           auction_end: string | null
           auction_start: string | null
+          auto_extensions_used: number | null
           buyer_edit_count: number
           buyer_id: string
           category: string
@@ -6712,6 +6713,8 @@ export type Database = {
           destination_country: string | null
           destination_state: string | null
           id: string
+          max_auto_extensions: number | null
+          max_bids_per_supplier: number | null
           minimum_bid_step_pct: number
           payment_terms: string | null
           product_slug: string
@@ -6720,8 +6723,11 @@ export type Database = {
           reserve_price: number | null
           result_notified: boolean | null
           rfq_type: string | null
+          show_exact_prices: boolean | null
+          show_rank_only: boolean | null
           starting_price: number
           status: string
+          target_savings_pct: number | null
           title: string
           transaction_type: string
           unit: string
@@ -6735,6 +6741,7 @@ export type Database = {
           anti_snipe_threshold_seconds?: number
           auction_end?: string | null
           auction_start?: string | null
+          auto_extensions_used?: number | null
           buyer_edit_count?: number
           buyer_id: string
           category?: string
@@ -6748,6 +6755,8 @@ export type Database = {
           destination_country?: string | null
           destination_state?: string | null
           id?: string
+          max_auto_extensions?: number | null
+          max_bids_per_supplier?: number | null
           minimum_bid_step_pct?: number
           payment_terms?: string | null
           product_slug: string
@@ -6756,8 +6765,11 @@ export type Database = {
           reserve_price?: number | null
           result_notified?: boolean | null
           rfq_type?: string | null
+          show_exact_prices?: boolean | null
+          show_rank_only?: boolean | null
           starting_price: number
           status?: string
+          target_savings_pct?: number | null
           title: string
           transaction_type?: string
           unit?: string
@@ -6771,6 +6783,7 @@ export type Database = {
           anti_snipe_threshold_seconds?: number
           auction_end?: string | null
           auction_start?: string | null
+          auto_extensions_used?: number | null
           buyer_edit_count?: number
           buyer_id?: string
           category?: string
@@ -6784,6 +6797,8 @@ export type Database = {
           destination_country?: string | null
           destination_state?: string | null
           id?: string
+          max_auto_extensions?: number | null
+          max_bids_per_supplier?: number | null
           minimum_bid_step_pct?: number
           payment_terms?: string | null
           product_slug?: string
@@ -6792,8 +6807,11 @@ export type Database = {
           reserve_price?: number | null
           result_notified?: boolean | null
           rfq_type?: string | null
+          show_exact_prices?: boolean | null
+          show_rank_only?: boolean | null
           starting_price?: number
           status?: string
+          target_savings_pct?: number | null
           title?: string
           transaction_type?: string
           unit?: string
