@@ -406,6 +406,27 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   return (
     <div className="min-h-screen pb-20">
+      {/* 🏆 Live L1 Strip — sticky top bar for mobile + desktop */}
+      {isLive && bids.length > 0 && (
+        <div className="sticky top-0 z-40 bg-foreground text-background px-4 py-2 flex items-center justify-between text-sm rounded-b-lg mb-3 shadow-lg">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-amber-400" />
+            <span className="font-semibold">L1: {formatCurrency(currentLowest)}</span>
+            <span className="text-xs opacity-70">
+              ({totalSavings.toFixed(1)}% savings)
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            {isSupplier && myRank && (
+              <span className={`font-medium ${myRank === 1 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                Your Rank: L{myRank}
+              </span>
+            )}
+            <span className={`font-mono ${urgencyColor}`}>{timeLeft}</span>
+          </div>
+        </div>
+      )}
+
       {/* Back button + Export */}
       <div className="flex items-center justify-between mb-4">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
