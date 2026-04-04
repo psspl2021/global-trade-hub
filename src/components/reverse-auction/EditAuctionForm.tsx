@@ -528,20 +528,15 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
               <Textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1" />
             </div>
 
-            {/* Starting Price */}
+            {/* Starting Price — Auto-calculated */}
             <div>
-              <Label>Starting Price (₹ Total Order Value)</Label>
-              <Input type="number" value={startingPrice} onChange={e => setStartingPrice(e.target.value)} className="mt-1" />
-              {items.some(i => i.price && i.quantity) && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  💡 Calculated from items: ₹{items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0).toLocaleString('en-IN')}
-                  {startingPrice !== String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)) && (
-                    <button type="button" onClick={() => setStartingPrice(String(items.reduce((sum, i) => sum + (parseFloat(i.quantity || '0') * parseFloat(i.price || '0')), 0)))} className="ml-2 text-primary hover:underline">
-                      Use calculated price
-                    </button>
-                  )}
-                </p>
-              )}
+              <Label>Starting Price (₹ Total Order Value) — Auto-calculated 🔒</Label>
+              <Input type="number" value={calculatedTotal || ''} disabled className="mt-1 bg-muted/50 font-semibold" />
+              <p className="text-xs text-muted-foreground mt-1">
+                {calculatedTotal > 0
+                  ? `✅ Sum of ${items.filter(i => i.price && i.quantity).length} line items = ₹${calculatedTotal.toLocaleString('en-IN')}`
+                  : '⚠️ Add price & quantity to line items to auto-calculate'}
+              </p>
             </div>
 
             {/* ─── Delivery & RFQ Details ─── */}
