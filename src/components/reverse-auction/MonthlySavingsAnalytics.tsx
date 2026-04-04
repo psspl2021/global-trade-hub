@@ -162,29 +162,40 @@ export function MonthlySavingsAnalytics() {
       {/* Savings Narrative — scannable chips */}
       {totalSavings > 0 && (
         <div className="rounded-lg border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 px-4 py-3">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-            <span className="font-bold text-emerald-700 dark:text-emerald-300">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
+            <span className="inline-flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-300">
+              <IndianRupee className="w-3.5 h-3.5" />
               {formatCompact(totalSavings)} saved
             </span>
-            <span className="text-muted-foreground">over 6 months</span>
-            <span className="text-muted-foreground">• {completedCount} auctions</span>
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              <Calendar className="w-3 h-3" />
+              6 months
+            </span>
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              <BarChart3 className="w-3 h-3" />
+              {completedCount} auctions
+            </span>
             {bestMonth && bestMonth.savings > 0 && (
-              <span className="text-primary font-medium">
-                • Best: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
+              <span className="inline-flex items-center gap-1 text-primary font-medium">
+                <Trophy className="w-3 h-3" />
+                Best: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
               </span>
             )}
             {savingsEfficiency > 0 && (
-              <span className="text-violet-600 dark:text-violet-400 font-medium">
-                • {savingsEfficiency.toFixed(1)}% efficiency
+              <span className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium">
+                <Gauge className="w-3 h-3" />
+                {savingsEfficiency.toFixed(1)}% efficiency
               </span>
             )}
             {avgPerAuction > 0 && (
-              <span className="text-amber-600 dark:text-amber-400 font-medium">
-                • Avg {formatCompact(avgPerAuction)}/auction
+              <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                <Zap className="w-3 h-3" />
+                Avg {formatCompact(avgPerAuction)}/auction
               </span>
             )}
-            <span className={trend === 'up' ? 'text-emerald-600 font-medium' : 'text-destructive font-medium'}>
-              {trend === 'up' ? '↑ improving' : '↓ declining'}
+            <span className={`inline-flex items-center gap-1 font-medium ${trend === 'up' ? 'text-emerald-600' : 'text-destructive'}`}>
+              {trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+              {trend === 'up' ? 'improving' : 'declining'}
             </span>
           </div>
         </div>
