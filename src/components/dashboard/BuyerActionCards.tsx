@@ -256,8 +256,8 @@ export function BuyerActionCards({
             {/* Live Metrics */}
             {card.metrics && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4 bg-muted/50 rounded-md px-2.5 py-1.5">
-                <TrendingUp className="w-3 h-3 text-primary" />
-                <span>{card.metrics}</span>
+                <TrendingUp className="w-3 h-3 text-primary shrink-0" />
+                {(card as any).customMetrics ? (card as any).customMetrics : <span>{card.metrics}</span>}
               </div>
             )}
           </div>
