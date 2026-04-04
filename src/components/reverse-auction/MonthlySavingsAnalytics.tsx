@@ -128,6 +128,10 @@ export function MonthlySavingsAnalytics() {
     const data = Array.from(monthMap.values());
     const best = data.reduce((max, m) => (m.savings > max.savings ? m : max), data[0]);
 
+    const lastM = data[data.length - 1];
+    const prevM = data[data.length - 2];
+    const trendDir = lastM && prevM ? (lastM.savings >= prevM.savings ? 'up' : 'down') : 'up';
+
     return {
       monthlyData: data,
       totalSavings: totalSav,
@@ -136,6 +140,8 @@ export function MonthlySavingsAnalytics() {
       completedCount: completed,
       bestMonth: best,
       savingsEfficiency: totalSpd > 0 ? (totalSav / totalSpd) * 100 : 0,
+      avgPerAuction: completed > 0 ? totalSav / completed : 0,
+      trend: trendDir as 'up' | 'down',
     };
   }, [auctions]);
 
