@@ -239,12 +239,24 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
                         <Trash2 className="w-4 h-4 text-muted-foreground" />
                       </Button>
                     </div>
-                    <Input
-                      placeholder="Product description / specs (optional)"
-                      value={item.description}
-                      onChange={e => updateItem(i, 'description', e.target.value)}
-                      className="text-xs h-8"
-                    />
+                    <div className="grid grid-cols-[1fr_1fr] gap-2">
+                      <Select value={item.category} onValueChange={v => updateItem(i, 'category', v)}>
+                        <SelectTrigger className="text-xs h-8">
+                          <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CATEGORIES.map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        placeholder="Product description / specs (optional)"
+                        value={item.description}
+                        onChange={e => updateItem(i, 'description', e.target.value)}
+                        className="text-xs h-8"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
