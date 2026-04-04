@@ -81,7 +81,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   ]);
 
   const addLineItem = () => {
-    setItems(prev => [...prev, { product: '', quantity: '', unit: 'MT' }]);
+    setItems(prev => [...prev, { product: '', quantity: '', unit: 'MT', description: '' }]);
   };
 
   const updateItem = (index: number, key: keyof AuctionLineItem, value: string) => {
