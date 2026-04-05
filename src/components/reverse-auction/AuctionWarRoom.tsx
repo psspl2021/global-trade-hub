@@ -196,11 +196,24 @@ const ALERT_STYLES: Record<SmartAlert['severity'], string> = {
 };
 
 /* ── Predicted Final Price Engine ── */
+type PriceTrend = 'falling_fast' | 'falling' | 'stable' | 'stalling';
+
 interface PricePrediction {
   predictedPrice: number;
   range: [number, number];
   confidence: number;
+  trend: PriceTrend;
+  reserveLikely: boolean;
+  reasoning: string[];
+  suggestion?: string;
 }
+
+const TREND_CONFIG: Record<PriceTrend, { icon: string; label: string; color: string }> = {
+  falling_fast: { icon: '📉', label: 'Falling fast', color: 'text-emerald-600' },
+  falling: { icon: '📉', label: 'Dropping', color: 'text-emerald-600' },
+  stable: { icon: '📊', label: 'Stable', color: 'text-amber-600' },
+  stalling: { icon: '📈', label: 'Stalling', color: 'text-destructive' },
+};
 
 function getBidVelocity(bids: ReverseAuctionBid[]): number {
   if (bids.length < 2) return 0;
@@ -209,6 +222,12 @@ function getBidVelocity(bids: ReverseAuctionBid[]): number {
   const last = new Date(sorted[sorted.length - 1].created_at).getTime();
   const minutes = (last - first) / (1000 * 60);
   return minutes > 0 ? bids.length / minutes : 0;
+}
+
+function getRecentVelocity(bids: ReverseAuctionBid[]): number {
+  const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+  const recent = bids.filter(b => new Date(b.created_at).getTime() > fiveMinAgo);
+  return recent.length;
 }
 
 function getPriceDropRate(auction: ReverseAuction, bids: ReverseAuctionBid[]): number {
@@ -230,9 +249,17 @@ function predictFinalPrice(auction: ReverseAuction, bids: ReverseAuctionBid[]): 
   if (bids.length < 2) return null;
   const current = auction.current_price ?? auction.starting_price;
   const velocity = getBidVelocity(bids);
+  const recentBids = getRecentVelocity(bids);
   const dropRate = getPriceDropRate(auction, bids);
   const timeFactor = getTimeFactor(auction);
   const competition = new Set(bids.map(b => b.supplier_id)).size;
+  const reductionPct = ((auction.starting_price - current) / auction.starting_price) * 100;
+
+  // Trend classification
+  let trend: PriceTrend = 'stable';
+  if (recentBids >= 5 && dropRate > 0) trend = 'falling_fast';
+  else if (recentBids >= 2 && dropRate > 0) trend = 'falling';
+  else if (recentBids === 0 && timeFactor > 0.3) trend = 'stalling';
 
   let expectedDrop = dropRate * (1 + velocity * 0.2);
   if (competition >= 3) expectedDrop *= 1.3;
@@ -253,11 +280,39 @@ function predictFinalPrice(auction: ReverseAuction, bids: ReverseAuctionBid[]): 
      timeFactor * 0.3) * 100
   );
 
+  // Reserve proximity
+  const reserveLikely = !!(auction.reserve_price && predicted <= auction.reserve_price * 1.05);
+
+  // Build reasoning
+  const reasoning: string[] = [];
+  reasoning.push(`${competition} active bidder${competition !== 1 ? 's' : ''}`);
+  reasoning.push(`${recentBids} bid${recentBids !== 1 ? 's' : ''} in last 5 min`);
+  reasoning.push(`${reductionPct.toFixed(1)}% price drop so far`);
+  if (trend === 'falling_fast') reasoning.push('High bid activity detected');
+  if (reserveLikely) reasoning.push('On track to hit reserve price');
+
+  // Decision suggestion based on prediction
+  let suggestion: string | undefined;
+  if (trend === 'falling_fast' && remainingMins > 5) {
+    const additionalDrop = formatCurrency(Math.round(projectedDrop * 0.5));
+    suggestion = `Wait — price likely to drop another ${additionalDrop}`;
+  } else if (trend === 'stalling' && timeFactor > 0.5) {
+    suggestion = 'Price stabilizing — consider closing soon after auction ends';
+  } else if (reserveLikely) {
+    suggestion = 'Likely to hit reserve — strong outcome expected';
+  } else if (trend === 'stable' && competition < 3) {
+    suggestion = 'Invite more suppliers to increase price pressure';
+  }
+
   const spread = predicted * 0.03;
   return {
     predictedPrice: Math.round(predicted),
     range: [Math.round(predicted - spread), Math.round(predicted + spread)],
     confidence,
+    trend,
+    reserveLikely,
+    reasoning,
+    suggestion,
   };
 }
 
