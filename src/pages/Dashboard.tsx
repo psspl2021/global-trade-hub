@@ -83,7 +83,8 @@ const Dashboard = () => {
   const activeView = searchParams.get('view') || '';
   const showForwardRFQ = activeView === 'forward-rfq';
   const showReverseAuction = activeView === 'reverse-auction';
-  const showSupplierBids = activeView === 'supplier-bids';
+  const showSupplierForwardBids = activeView === 'supplier-forward-bids';
+  const showSupplierReverseBids = activeView === 'supplier-reverse-bids';
 
   const setShowForwardRFQ = (show: boolean) => {
     setSearchParams(show ? { view: 'forward-rfq' } : {}, { replace: true });
@@ -91,8 +92,11 @@ const Dashboard = () => {
   const setShowReverseAuction = (show: boolean) => {
     setSearchParams(show ? { view: 'reverse-auction' } : {}, { replace: true });
   };
-  const setShowSupplierBids = (show: boolean) => {
-    setSearchParams(show ? { view: 'supplier-bids' } : {}, { replace: true });
+  const setShowSupplierForwardBids = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-forward-bids' } : {}, { replace: true });
+  };
+  const setShowSupplierReverseBids = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-reverse-bids' } : {}, { replace: true });
   };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
@@ -733,48 +737,35 @@ const Dashboard = () => {
 
         {role === 'supplier' && (
           <>
-            {showSupplierBids ? (
-              /* ── Full Sub-View: My Bids & Auctions ── */
+            {showSupplierForwardBids ? (
+              /* ── Sub-View: Forward Bids ── */
               <div className="space-y-4">
-                <Button variant="ghost" size="sm" onClick={() => setShowSupplierBids(false)} className="gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setShowSupplierForwardBids(false)} className="gap-2">
                   <ArrowLeft className="h-4 w-4" /> Back to Dashboard
                 </Button>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
-                    <ShoppingCart className="w-5 h-5 text-primary-foreground" />
+                    <FileText className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-foreground">My Bids & Auctions</h2>
-                    <p className="text-xs text-muted-foreground">All your forward bids & reverse auction participation</p>
+                    <h2 className="text-lg font-bold text-foreground">My Forward Bids</h2>
+                    <p className="text-xs text-muted-foreground">All your submitted bids & accepted quotes</p>
                   </div>
                 </div>
                 {user && (
-                  <Tabs defaultValue="forward" className="w-full">
-                    <TabsList className="w-full grid grid-cols-2 h-11 bg-muted/60 rounded-[0.625rem]">
-                      <TabsTrigger
-                        value="forward"
-                        className="gap-2 rounded-[0.5rem] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md font-semibold text-sm"
-                      >
-                        <FileText className="w-4 h-4" />
-                        Forward Bids
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="reverse"
-                        className="gap-2 rounded-[0.5rem] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md font-semibold text-sm"
-                      >
-                        <Gavel className="w-4 h-4" />
-                        Reverse Auction Bids
-                      </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="forward" className="mt-4 space-y-4 focus-visible:ring-0">
-                      <SupplierMyBids userId={user.id} />
-                      <SupplierAcceptedBids userId={user.id} />
-                    </TabsContent>
-                    <TabsContent value="reverse" className="mt-4 focus-visible:ring-0">
-                      <ReverseAuctionDashboard isSupplier={true} />
-                    </TabsContent>
-                  </Tabs>
+                  <div className="space-y-4">
+                    <SupplierMyBids userId={user.id} />
+                    <SupplierAcceptedBids userId={user.id} />
+                  </div>
                 )}
+              </div>
+            ) : showSupplierReverseBids ? (
+              /* ── Sub-View: Reverse Auction Bids ── */
+              <div className="space-y-4">
+                <Button variant="ghost" size="sm" onClick={() => setShowSupplierReverseBids(false)} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                </Button>
+                <ReverseAuctionDashboard isSupplier={true} />
               </div>
             ) : (
               /* ── Normal Supplier Dashboard ── */
@@ -809,16 +800,29 @@ const Dashboard = () => {
                   </Card>
                 </div>
 
-                {/* Single Bids & Auctions Card */}
-                <div className="mt-4">
-                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierBids(true)}>
+                {/* Separate Cards: Forward Bids + Reverse Auction */}
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 mt-4">
+                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierForwardBids(true)}>
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
-                        <ShoppingCart className="w-5 h-5 text-primary-foreground" />
+                        <FileText className="w-5 h-5 text-primary-foreground" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-bold text-foreground">My Bids & Auctions</p>
-                        <p className="text-xs text-muted-foreground">View all forward bids & reverse auction bids</p>
+                        <p className="text-sm font-bold text-foreground">My Bids & Quotes</p>
+                        <p className="text-xs text-muted-foreground">View forward bids</p>
+                      </div>
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+                    </div>
+                  </Card>
+
+                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierReverseBids(true)}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-amber-500 to-amber-600 shadow-md">
+                        <Gavel className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-foreground">Reverse Auctions</p>
+                        <p className="text-xs text-muted-foreground">View reverse auction bids</p>
                       </div>
                       <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
                     </div>
