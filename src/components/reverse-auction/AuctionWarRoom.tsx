@@ -542,6 +542,7 @@ function StatCard({ icon: Icon, label, value, color, bg }: { icon: any; label: s
 function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuction; bids: ReverseAuctionBid[]; tick: number; onView: () => void }) {
   const time = getTimeRemaining(auction.auction_end);
   const currentPrice = auction.current_price ?? auction.starting_price;
+  const prediction = useMemo(() => predictFinalPrice(auction, bids), [auction, bids]);
   const reductionPct = ((auction.starting_price - currentPrice) / auction.starting_price) * 100;
   const savings = (auction.starting_price - currentPrice) * auction.quantity;
   const ranked = getRankedBids(bids);
