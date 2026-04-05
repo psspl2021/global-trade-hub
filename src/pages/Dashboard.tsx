@@ -83,12 +83,16 @@ const Dashboard = () => {
   const activeView = searchParams.get('view') || '';
   const showForwardRFQ = activeView === 'forward-rfq';
   const showReverseAuction = activeView === 'reverse-auction';
+  const showSupplierBids = activeView === 'supplier-bids';
 
   const setShowForwardRFQ = (show: boolean) => {
     setSearchParams(show ? { view: 'forward-rfq' } : {}, { replace: true });
   };
   const setShowReverseAuction = (show: boolean) => {
     setSearchParams(show ? { view: 'reverse-auction' } : {}, { replace: true });
+  };
+  const setShowSupplierBids = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-bids' } : {}, { replace: true });
   };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
