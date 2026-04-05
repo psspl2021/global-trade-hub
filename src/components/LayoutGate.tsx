@@ -7,29 +7,19 @@ export default function LayoutGate({ children }: { children: React.ReactNode }) 
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Block rendering until route is fully resolved
-    const path = location.pathname;
-
-    const isAdminRoute =
-      path.startsWith("/admin") ||
-      path.startsWith("/dashboard") ||
-      path.startsWith("/control-tower") ||
-      path.startsWith("/management");
-
-    // Route + layout decision resolved
-    // (Auth/role logic can stay untouched elsewhere)
     setIsReady(true);
   }, [location.pathname]);
 
-  // 🔒 HARD BLOCK: render NOTHING until ready
   if (!isReady) {
     return null;
   }
 
+  const shouldShowExitIntent = ["/", "/buyer", "/seller", "/private-label"].includes(location.pathname);
+
   return (
     <>
       {children}
-      <ExitIntentModal />
+      {shouldShowExitIntent && <ExitIntentModal />}
     </>
   );
 }
