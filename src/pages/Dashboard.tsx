@@ -98,6 +98,10 @@ const Dashboard = () => {
   const setShowSupplierReverseBids = (show: boolean) => {
     setSearchParams(show ? { view: 'supplier-reverse-bids' } : {}, { replace: true });
   };
+  const showSupplierSubscription = activeView === 'supplier-subscription';
+  const setShowSupplierSubscription = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-subscription' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
