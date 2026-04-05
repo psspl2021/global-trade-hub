@@ -83,7 +83,8 @@ const Dashboard = () => {
   const activeView = searchParams.get('view') || '';
   const showForwardRFQ = activeView === 'forward-rfq';
   const showReverseAuction = activeView === 'reverse-auction';
-  const showSupplierBids = activeView === 'supplier-bids';
+  const showSupplierForwardBids = activeView === 'supplier-forward-bids';
+  const showSupplierReverseBids = activeView === 'supplier-reverse-bids';
 
   const setShowForwardRFQ = (show: boolean) => {
     setSearchParams(show ? { view: 'forward-rfq' } : {}, { replace: true });
@@ -91,8 +92,11 @@ const Dashboard = () => {
   const setShowReverseAuction = (show: boolean) => {
     setSearchParams(show ? { view: 'reverse-auction' } : {}, { replace: true });
   };
-  const setShowSupplierBids = (show: boolean) => {
-    setSearchParams(show ? { view: 'supplier-bids' } : {}, { replace: true });
+  const setShowSupplierForwardBids = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-forward-bids' } : {}, { replace: true });
+  };
+  const setShowSupplierReverseBids = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-reverse-bids' } : {}, { replace: true });
   };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
