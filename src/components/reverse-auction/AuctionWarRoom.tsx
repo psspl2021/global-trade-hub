@@ -3,19 +3,20 @@
  * Real-time command center for live auction monitoring & control
  */
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
-  Gavel, TrendingDown, Clock, Users, Target, Shield, Trophy,
+  TrendingDown, Clock, Users, Target, Trophy,
   Activity, ArrowLeft, Zap, AlertTriangle, Eye, IndianRupee,
-  BarChart3, Timer
+  BarChart3, Timer, ShieldCheck, ShieldAlert, ShieldX,
+  BellRing, Medal
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction, getRankedBids, ReverseAuctionBid } from '@/hooks/useReverseAuction';
-import { differenceInSeconds, isPast, formatDistanceToNow } from 'date-fns';
+import { differenceInSeconds, formatDistanceToNow } from 'date-fns';
 
 interface AuctionWarRoomProps {
   onBack: () => void;
@@ -48,6 +49,71 @@ const URGENCY_STYLES = {
   idle: 'text-muted-foreground',
 };
 
+/* ── Health indicator logic ── */
+type HealthStatus = 'healthy' | 'attention' | 'at_risk';
+
+function getAuctionHealth(uniqueBidders: number, reductionPct: number, bidsCount: number): { status: HealthStatus; label: string } {
+  if (uniqueBidders >= 3 && reductionPct >= 5) return { status: 'healthy', label: 'Healthy' };
+  if (uniqueBidders >= 2 || reductionPct >= 2) return { status: 'attention', label: 'Needs attention' };
+  return { status: 'at_risk', label: 'At risk' };
+}
+
+const HEALTH_CONFIG: Record<HealthStatus, { icon: typeof ShieldCheck; color: string; bg: string }> = {
+  healthy: { icon: ShieldCheck, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
+  attention: { icon: ShieldAlert, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20' },
+  at_risk: { icon: ShieldX, color: 'text-destructive', bg: 'bg-destructive/5' },
+};
+
+/* ── Smart alerts logic ── */
+interface SmartAlert {
+  type: 'no_bids' | 'aggressive_drop' | 'reserve_reached' | 'low_competition' | 'stale';
+  message: string;
+  severity: 'info' | 'warning' | 'critical';
+}
+
+function getSmartAlerts(auction: ReverseAuction, bids: ReverseAuctionBid[], uniqueBidders: number, reductionPct: number): SmartAlert[] {
+  const alerts: SmartAlert[] = [];
+
+  // No bids yet
+  if (bids.length === 0) {
+    alerts.push({ type: 'no_bids', message: 'No bids received yet', severity: 'warning' });
+  }
+
+  // Stale — no bids in last 3 minutes
+  if (bids.length > 0) {
+    const lastBidTime = new Date(bids[bids.length - 1]?.created_at || bids[0]?.created_at);
+    const secsSinceLastBid = differenceInSeconds(new Date(), lastBidTime);
+    if (secsSinceLastBid > 180) {
+      alerts.push({ type: 'stale', message: `No new bids in ${Math.floor(secsSinceLastBid / 60)} min`, severity: 'info' });
+    }
+  }
+
+  // Aggressive price drop (>15% reduction)
+  if (reductionPct > 15) {
+    alerts.push({ type: 'aggressive_drop', message: `Aggressive pricing — ${reductionPct.toFixed(1)}% below start`, severity: 'info' });
+  }
+
+  // Reserve price reached
+  if (auction.reserve_price && (auction.current_price ?? auction.starting_price) <= auction.reserve_price) {
+    alerts.push({ type: 'reserve_reached', message: 'Reserve price reached ✓', severity: 'info' });
+  }
+
+  // Low competition
+  if (uniqueBidders < 2 && bids.length > 0) {
+    alerts.push({ type: 'low_competition', message: 'Low competition — consider inviting more suppliers', severity: 'warning' });
+  }
+
+  return alerts;
+}
+
+const ALERT_STYLES: Record<SmartAlert['severity'], string> = {
+  info: 'text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800',
+  warning: 'text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800',
+  critical: 'text-destructive bg-destructive/5 border-destructive/20',
+};
+
+const MEDAL_ICONS = ['🥇', '🥈', '🥉'];
+
 export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps) {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
@@ -55,13 +121,11 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
 
-  // Auto-refresh timer every second
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch live auctions
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
@@ -75,7 +139,6 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
 
       if (auctionData) {
         setAuctions(auctionData as unknown as ReverseAuction[]);
-
         const liveIds = auctionData.filter(a => a.status === 'live').map(a => a.id);
         if (liveIds.length > 0) {
           const { data: bidData } = await supabase
@@ -99,7 +162,6 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
     fetchData();
   }, [user]);
 
-  // Realtime subscription for live updates
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -134,7 +196,6 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
   const scheduledAuctions = useMemo(() => auctions.filter(a => a.status === 'scheduled'), [auctions]);
   const recentEnded = useMemo(() => auctions.filter(a => a.status === 'ended').slice(0, 5), [auctions]);
 
-  // Aggregate stats
   const stats = useMemo(() => {
     const totalSavings = liveAuctions.reduce((sum, a) => {
       const current = a.current_price ?? a.starting_price;
@@ -148,7 +209,6 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
           return sum + ((a.starting_price - current) / a.starting_price) * 100;
         }, 0) / liveAuctions.length
       : 0;
-
     return { totalSavings, totalBids, uniqueSuppliers, avgReduction };
   }, [liveAuctions, bidsMap]);
 
@@ -198,7 +258,7 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
         <StatCard icon={Users} label="Active Suppliers" value={stats.uniqueSuppliers} color="text-violet-600" bg="bg-violet-50 dark:bg-violet-950/20" />
       </div>
 
-      {/* Live Auctions — Main Focus */}
+      {/* Live Auctions */}
       {liveAuctions.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -306,10 +366,31 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
   const ranked = getRankedBids(bids);
   const uniqueBidders = new Set(bids.map(b => b.supplier_id)).size;
 
-  // Progress toward reserve (if set)
+  // Health indicator
+  const health = getAuctionHealth(uniqueBidders, reductionPct, bids.length);
+  const healthCfg = HEALTH_CONFIG[health.status];
+  const HealthIcon = healthCfg.icon;
+
+  // Smart alerts
+  const alerts = getSmartAlerts(auction, bids, uniqueBidders, reductionPct);
+
+  // Reserve progress
   const progressToReserve = auction.reserve_price
     ? Math.min(100, ((auction.starting_price - currentPrice) / (auction.starting_price - auction.reserve_price)) * 100)
     : null;
+
+  // Leaderboard — top 3 unique suppliers by best bid
+  const leaderboard = useMemo(() => {
+    const seen = new Set<string>();
+    const top: { supplierId: string; price: number; rank: number }[] = [];
+    for (const bid of ranked) {
+      if (seen.has(bid.supplier_id)) continue;
+      seen.add(bid.supplier_id);
+      top.push({ supplierId: bid.supplier_id, price: bid.bid_price, rank: top.length + 1 });
+      if (top.length >= 3) break;
+    }
+    return top;
+  }, [ranked]);
 
   return (
     <Card className="border overflow-hidden hover:shadow-md transition-shadow">
@@ -317,7 +398,14 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
         {/* Top row */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-semibold text-foreground truncate">{auction.title}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-foreground truncate">{auction.title}</p>
+              {/* Health badge */}
+              <Badge variant="outline" className={`text-[10px] gap-1 shrink-0 border-0 ${healthCfg.bg} ${healthCfg.color}`}>
+                <HealthIcon className="w-3 h-3" />
+                {health.label}
+              </Badge>
+            </div>
             <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-muted-foreground">
               <span>{auction.quantity} {auction.unit}</span>
               <span>·</span>
@@ -362,6 +450,25 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
           </div>
         )}
 
+        {/* Leaderboard strip */}
+        {leaderboard.length > 0 && (
+          <div className="flex items-center gap-3 p-2 rounded-md bg-muted/50 border border-border/50">
+            <Medal className="w-4 h-4 text-amber-500 shrink-0" />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+              {leaderboard.map((entry, i) => (
+                <span key={entry.supplierId} className="flex items-center gap-1">
+                  <span>{MEDAL_ICONS[i]}</span>
+                  <span className="text-muted-foreground">Supplier {entry.rank}</span>
+                  <span className="font-semibold text-foreground">–</span>
+                  <span className={`font-bold ${i === 0 ? 'text-emerald-600' : 'text-foreground'}`}>
+                    {formatCurrency(entry.price)}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Bottom: Bidders & L1 */}
         <div className="flex items-center justify-between text-xs border-t pt-2">
           <div className="flex items-center gap-3 text-muted-foreground">
@@ -378,6 +485,22 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
             </Badge>
           )}
         </div>
+
+        {/* Smart alerts */}
+        {alerts.length > 0 && (
+          <div className="space-y-1.5">
+            {alerts.map((alert, i) => (
+              <div key={i} className={`flex items-center gap-2 text-xs rounded-md p-2 border ${ALERT_STYLES[alert.severity]}`}>
+                {alert.severity === 'critical' ? (
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                ) : (
+                  <BellRing className="w-3.5 h-3.5 shrink-0" />
+                )}
+                <span className="font-medium">{alert.message}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Urgency alert */}
         {time.urgency === 'critical' && (
