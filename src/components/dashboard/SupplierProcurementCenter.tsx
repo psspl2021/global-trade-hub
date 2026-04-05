@@ -48,14 +48,16 @@ export function SupplierProcurementCenter({ userId }: SupplierProcurementCenterP
                 className="gap-2 rounded-[0.5rem] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md font-semibold text-sm"
               >
                 <FileText className="w-4 h-4" />
-                My Bids & Quotes
+                <span className="hidden sm:inline">My Bids & Quotes</span>
+                <span className="sm:hidden">Forward Bids</span>
               </TabsTrigger>
               <TabsTrigger
                 value="reverse"
                 className="gap-2 rounded-[0.5rem] data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-md font-semibold text-sm"
               >
                 <Gavel className="w-4 h-4" />
-                Reverse Auctions
+                <span className="hidden sm:inline">Reverse Auctions</span>
+                <span className="sm:hidden">Reverse Bids</span>
               </TabsTrigger>
             </TabsList>
           </div>
