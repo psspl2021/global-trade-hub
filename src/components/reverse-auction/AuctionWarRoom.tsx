@@ -320,6 +320,63 @@ function predictFinalPrice(auction: ReverseAuction, bids: ReverseAuctionBid[]): 
   };
 }
 
+/* ── Price trend chart data builder ── */
+interface TrendPoint {
+  time: string;
+  price: number | null;
+  predicted: number | null;
+  upperBound?: number | null;
+  lowerBound?: number | null;
+}
+
+function buildPriceTrendData(
+  auction: ReverseAuction,
+  bids: ReverseAuctionBid[],
+  prediction: PricePrediction | null
+): TrendPoint[] {
+  if (bids.length === 0) return [];
+
+  // Sort bids chronologically and keep lowest price at each timestamp (L1 progression)
+  const sorted = [...bids].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+  // Build L1 progression — track running minimum
+  let runningMin = auction.starting_price;
+  const points: TrendPoint[] = [
+    { time: 'Start', price: auction.starting_price, predicted: null },
+  ];
+
+  sorted.forEach((bid, i) => {
+    if (bid.bid_price < runningMin) {
+      runningMin = bid.bid_price;
+    }
+    const t = new Date(bid.created_at);
+    const label = `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}`;
+    // Only add a point when L1 changes (or first/last bid)
+    if (bid.bid_price <= runningMin || i === sorted.length - 1) {
+      points.push({ time: label, price: runningMin, predicted: null });
+    }
+  });
+
+  // Add projection points
+  if (prediction) {
+    const lastPrice = points[points.length - 1]?.price ?? auction.starting_price;
+    points.push({
+      time: 'Now',
+      price: lastPrice,
+      predicted: lastPrice,
+    });
+    points.push({
+      time: 'Projected',
+      price: null,
+      predicted: prediction.predictedPrice,
+      upperBound: prediction.range[1],
+      lowerBound: prediction.range[0],
+    });
+  }
+
+  return points;
+}
+
 const MEDAL_ICONS = ['🥇', '🥈', '🥉'];
 
 export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps) {
