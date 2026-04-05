@@ -746,56 +746,9 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Procurement Cards — Bids + Reverse Auctions */}
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    My Bids & Quotes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    View and manage your submitted bids and quotes
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => {
-                    document.getElementById('supplier-bids-section')?.scrollIntoView({ behavior: 'smooth' });
-                  }}>
-                    View Bids
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Gavel className="h-5 w-5" />
-                    Reverse Auctions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Participate in live reverse auctions and win deals
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={() => {
-                    document.getElementById('supplier-reverse-auction')?.scrollIntoView({ behavior: 'smooth' });
-                  }}>
-                    View Auctions
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Bids & Accepted Bids */}
-            <div id="supplier-bids-section" className="space-y-4 mt-4">
-              {user && <SupplierMyBids userId={user.id} />}
-              {user && <SupplierAcceptedBids userId={user.id} />}
-            </div>
-
-            {/* Reverse Auction Section */}
-            <div id="supplier-reverse-auction" className="mt-4">
-              <ReverseAuctionDashboard isSupplier={true} />
+            {/* Unified Procurement Center — Tabbed like Buyer Dashboard */}
+            <div className="mt-4">
+              {user && <SupplierProcurementCenter userId={user.id} />}
             </div>
 
             {/* Compact cards grid for Subscription, Email, Platform Invoices */}
