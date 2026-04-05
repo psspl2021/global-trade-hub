@@ -11,7 +11,7 @@ import {
   TrendingDown, Clock, Users, Target, Trophy,
   Activity, ArrowLeft, Zap, AlertTriangle, Eye, IndianRupee,
   BarChart3, Timer, ShieldCheck, ShieldAlert, ShieldX,
-  BellRing, Medal
+  BellRing, Medal, Lightbulb
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -103,7 +103,56 @@ function getSmartAlerts(auction: ReverseAuction, bids: ReverseAuctionBid[], uniq
     alerts.push({ type: 'low_competition', message: 'Low competition — consider inviting more suppliers', severity: 'warning' });
   }
 
-  return alerts;
+  // Sort by severity priority and limit to 2
+  const priorityOrder: Record<SmartAlert['severity'], number> = { critical: 3, warning: 2, info: 1 };
+  alerts.sort((a, b) => priorityOrder[b.severity] - priorityOrder[a.severity]);
+  return alerts.slice(0, 2);
+}
+
+/* ── AI Suggestion engine ── */
+interface AISuggestion {
+  message: string;
+  action?: string;
+}
+
+function getAISuggestions(auctions: ReverseAuction[], bidsMap: Record<string, ReverseAuctionBid[]>): AISuggestion[] {
+  const suggestions: AISuggestion[] = [];
+
+  for (const auction of auctions) {
+    if (auction.status !== 'live') continue;
+    const bids = bidsMap[auction.id] || [];
+    const uniqueBidders = new Set(bids.map(b => b.supplier_id)).size;
+    const currentPrice = auction.current_price ?? auction.starting_price;
+    const reductionPct = ((auction.starting_price - currentPrice) / auction.starting_price) * 100;
+
+    if (uniqueBidders < 3) {
+      suggestions.push({
+        message: `"${auction.title}" has only ${uniqueBidders} bidder${uniqueBidders !== 1 ? 's' : ''} — invite ${3 - uniqueBidders} more to boost competition`,
+        action: 'invite',
+      });
+    }
+
+    if (auction.reserve_price && currentPrice <= auction.reserve_price * 1.05 && currentPrice > auction.reserve_price) {
+      suggestions.push({
+        message: `"${auction.title}" is close to reserve — prices may reach your target soon`,
+      });
+    }
+
+    if (reductionPct > 20) {
+      suggestions.push({
+        message: `"${auction.title}" has strong price discovery (${reductionPct.toFixed(0)}% drop) — consider awarding soon after auction ends`,
+      });
+    }
+
+    if (bids.length === 0) {
+      suggestions.push({
+        message: `"${auction.title}" has no bids yet — check if suppliers have been notified`,
+        action: 'check',
+      });
+    }
+  }
+
+  return suggestions.slice(0, 3);
 }
 
 const ALERT_STYLES: Record<SmartAlert['severity'], string> = {
