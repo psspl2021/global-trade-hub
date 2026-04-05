@@ -771,6 +771,98 @@ const Dashboard = () => {
                 </Button>
                 <ReverseAuctionDashboard isSupplier={true} />
               </div>
+            ) : showSupplierSubscription ? (
+              /* ── Sub-View: Subscription Plan ── */
+              <div className="space-y-4">
+                <Button variant="ghost" size="sm" onClick={() => setShowSupplierSubscription(false)} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                </Button>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-amber-500 to-orange-500 shadow-md">
+                    <Star className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">Subscription & Plans</h2>
+                    <p className="text-xs text-muted-foreground">Manage your bid quota and premium packs</p>
+                  </div>
+                </div>
+
+                {/* Current Plan Status */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      Current Plan
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-3">
+                    {subscription?.is_early_adopter && (
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2 py-0.5">
+                        🚀 EARLY ADOPTER
+                      </Badge>
+                    )}
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">Monthly Bids</span>
+                      <span className="font-semibold">{subscription?.bids_used_this_month ?? 0} / {subscription?.bids_limit ?? 5} used</span>
+                    </div>
+                    <Progress 
+                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                      className="h-2" 
+                    />
+                    {(subscription?.premium_bids_balance ?? 0) > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">Premium Bids Balance</span>
+                        <Badge variant="secondary" className="font-semibold">{subscription?.premium_bids_balance} bids</Badge>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Premium Pack Purchase */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Package className="h-4 w-4 text-primary" />
+                      Premium Bids Pack
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Pack</span>
+                        <span className="font-medium">50 Lifetime Bids</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Base Price</span>
+                        <span>₹24,950</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">GST (18%)</span>
+                        <span>₹4,491</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Platform Fee (1.95%)</span>
+                        <span>₹574</span>
+                      </div>
+                      <div className="border-t pt-2 flex justify-between text-sm font-bold">
+                        <span>Total</span>
+                        <span>₹30,015</span>
+                      </div>
+                    </div>
+                    <PremiumPackPurchase
+                      userId={user?.id || ''}
+                      userEmail={user?.email || ''}
+                      userPhone={user?.user_metadata?.phone || ''}
+                      userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                      userType="supplier"
+                      hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Subscription Invoices */}
+                <SubscriptionInvoices />
+              </div>
             ) : (
               /* ── Normal Supplier Dashboard ── */
               <>
