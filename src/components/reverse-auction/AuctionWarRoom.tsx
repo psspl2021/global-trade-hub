@@ -352,9 +352,21 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
               AI Suggestions
             </div>
             {aiSuggestions.map((s, i) => (
-              <div key={i} className="flex items-start gap-2 text-xs text-foreground/80 pl-6">
-                <span>💡</span>
-                <span>{s.message}</span>
+              <div key={i} className="flex items-center justify-between gap-2 pl-6">
+                <div className={`flex items-start gap-2 text-xs ${SUGGESTION_PRIORITY_STYLES[s.priority]}`}>
+                  <span>{SUGGESTION_PRIORITY_ICON[s.priority]}</span>
+                  <span>{s.message}</span>
+                </div>
+                {s.action === 'invite' && (
+                  <Button size="sm" variant="outline" className="h-6 text-[10px] px-2 shrink-0" onClick={() => s.auctionId && onSelectAuction(liveAuctions.find(a => a.id === s.auctionId)!)}>
+                    Invite Now
+                  </Button>
+                )}
+                {s.action === 'check' && (
+                  <Button size="sm" variant="outline" className="h-6 text-[10px] px-2 shrink-0" onClick={() => s.auctionId && onSelectAuction(liveAuctions.find(a => a.id === s.auctionId)!)}>
+                    View
+                  </Button>
+                )}
               </div>
             ))}
           </div>
