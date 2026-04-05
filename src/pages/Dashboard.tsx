@@ -751,9 +751,20 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Unified Procurement Center — Tabbed like Buyer Dashboard */}
+            {/* Single Bids & Auctions Card */}
             <div className="mt-4">
-              {user && <SupplierProcurementCenter userId={user.id} />}
+              <Card variant="interactive" className="p-4" onClick={() => setShowSupplierBids(true)}>
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
+                    <ShoppingCart className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-foreground">My Bids & Auctions</p>
+                    <p className="text-xs text-muted-foreground">View all forward bids & reverse auction bids</p>
+                  </div>
+                  <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+                </div>
+              </Card>
             </div>
 
             {/* Compact cards grid for Subscription, Email, Platform Invoices */}
