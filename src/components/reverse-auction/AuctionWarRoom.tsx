@@ -718,13 +718,15 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
               <div className="space-y-1">
                 <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${prediction.confidence >= 70 ? 'bg-emerald-500' : prediction.confidence >= 40 ? 'bg-amber-500' : 'bg-red-400'}`}
+                    className={`h-full rounded-full transition-all duration-500 ${prediction.confidence >= 70 ? 'bg-emerald-500' : prediction.confidence >= 40 ? 'bg-amber-500' : 'bg-red-400'}`}
                     style={{ width: `${prediction.confidence}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground italic">
-                  Based on bid activity, competition density & timing
-                </p>
+                <div className="text-[10px] text-muted-foreground flex justify-between">
+                  <span>Low</span>
+                  <span className="italic">Based on bid activity, competition & timing</span>
+                  <span>High</span>
+                </div>
               </div>
 
               {/* Reserve proximity */}
