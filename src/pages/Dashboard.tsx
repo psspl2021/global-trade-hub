@@ -977,19 +977,34 @@ const Dashboard = () => {
                   </Card>
                 </div>
 
-                {/* Refer & Earn Card */}
-                <Card variant="interactive" className="p-4 mt-4" onClick={() => setShowSupplierReferral(true)}>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
-                      <MessageCircle className="w-5 h-5 text-white" />
+                {/* AI Performance + Refer & Earn Cards */}
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 mt-4">
+                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierAIPerformance(true)}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
+                        <ShieldCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-foreground">AI Performance</p>
+                        <p className="text-xs text-muted-foreground">Trust score & insights</p>
+                      </div>
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-foreground">Refer & Earn</p>
-                      <p className="text-xs text-muted-foreground">Earn free bids & 20% commission</p>
+                  </Card>
+
+                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierReferral(true)}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
+                        <MessageCircle className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-foreground">Refer & Earn</p>
+                        <p className="text-xs text-muted-foreground">Earn free bids & 20% commission</p>
+                      </div>
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
                     </div>
-                    <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
-                  </div>
-                </Card>
+                  </Card>
+                </div>
               </>
             )}
 
