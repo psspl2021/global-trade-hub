@@ -32,6 +32,7 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
   const { recommendations, isLoading, getRecommendations, isNetworkMode, setIsNetworkMode } = useSupplierRecommendation();
   const [loaded, setLoaded] = useState(false);
   const [autoInviting, setAutoInviting] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
