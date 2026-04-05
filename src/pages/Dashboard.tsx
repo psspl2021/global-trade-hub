@@ -899,109 +899,144 @@ const Dashboard = () => {
             ) : (
               /* ── Normal Supplier Dashboard ── */
               <>
-                {/* Compact Grid - All boxes in one view */}
-                <div className="grid gap-2 grid-cols-3 lg:grid-cols-3">
-                  <Card className="p-3">
-                    <p className="text-sm font-medium">Stock Management</p>
-                    <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowStock(true)}>Update</Button>
-                  </Card>
-
-                  <Card className="p-3">
-                    <p className="text-sm font-medium">Requirements</p>
-                    <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowRequirements(true)}>Browse</Button>
-                  </Card>
-
-                  <Card className="p-3">
-                    <p className="text-sm font-medium">Invoices & PO</p>
-                    <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowCRM(true)}>CRM</Button>
-                  </Card>
+                {/* ── Section: Quick Actions ── */}
+                <div className="space-y-1.5 mb-6">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick Actions</h2>
+                  <div className="grid gap-2.5 grid-cols-3">
+                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowCatalog(true)}>
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <Package className="w-4 h-4 text-primary" />
+                        </div>
+                        <p className="text-xs font-medium text-foreground">Product Catalog</p>
+                      </div>
+                    </Card>
+                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowStock(true)}>
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <Warehouse className="w-4 h-4 text-primary" />
+                        </div>
+                        <p className="text-xs font-medium text-foreground">Stock Mgmt</p>
+                      </div>
+                    </Card>
+                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowRequirements(true)}>
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <FileText className="w-4 h-4 text-primary" />
+                        </div>
+                        <p className="text-xs font-medium text-foreground">Browse RFQs</p>
+                      </div>
+                    </Card>
+                  </div>
                 </div>
 
-                {/* Clickable Cards: Forward Bids, Reverse Auction, Subscription */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-3 mt-4">
-                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierForwardBids(true)}>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
-                        <FileText className="w-5 h-5 text-primary-foreground" />
+                {/* ── Section: Procurement Hub ── */}
+                <div className="space-y-1.5 mb-6">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Procurement Hub</h2>
+                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-primary" onClick={() => setShowSupplierForwardBids(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-sm">
+                          <FileText className="w-4 h-4 text-primary-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Forward Bids</p>
+                          <p className="text-[11px] text-muted-foreground">Quotes & accepted orders</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-primary transition-colors" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-foreground">My Bids & Quotes</p>
-                        <p className="text-xs text-muted-foreground">View forward bids</p>
-                      </div>
-                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
-                    </div>
-                  </Card>
+                    </Card>
 
-                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierReverseBids(true)}>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-amber-500 to-amber-600 shadow-md">
-                        <Gavel className="w-5 h-5 text-white" />
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-amber-500" onClick={() => setShowSupplierReverseBids(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-sm">
+                          <Gavel className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Reverse Auctions</p>
+                          <p className="text-[11px] text-muted-foreground">Live auction participation</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-amber-500 transition-colors" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-foreground">Reverse Auctions</p>
-                        <p className="text-xs text-muted-foreground">View auction bids</p>
-                      </div>
-                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
-                    </div>
-                  </Card>
+                    </Card>
 
-                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierSubscription(true)}>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-amber-500 to-orange-500 shadow-md">
-                        <Star className="w-5 h-5 text-white" />
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-orange-500" onClick={() => setShowSupplierSubscription(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-sm">
+                          <Star className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Subscription</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
+                          </p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-orange-500 transition-colors" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-foreground">Subscription Plan</p>
-                        <p className="text-xs text-muted-foreground">
-                          {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
-                        </p>
-                      </div>
-                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
-                    </div>
-                  </Card>
+                    </Card>
+                  </div>
                 </div>
 
-                {/* Email Quota + Platform Invoices */}
-                <div className="grid gap-2 grid-cols-2 mt-4">
-                  <SupplierEmailQuotaCard />
+                {/* ── Section: Tools & Insights ── */}
+                <div className="space-y-1.5 mb-6">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tools & Insights</h2>
+                  <div className="grid gap-3 grid-cols-2">
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowSupplierAIPerformance(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
+                          <ShieldCheck className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">AI Performance</p>
+                          <p className="text-[11px] text-muted-foreground">Trust score & insights</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-blue-500 transition-colors" />
+                      </div>
+                    </Card>
 
-                  <Card className="p-3">
-                    <div className="flex items-center gap-1 mb-1">
-                      <Receipt className="h-3 w-3" />
-                      <p className="text-xs font-medium">Platform Invoices</p>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mb-2">WhatsApp: +91 8368127357</p>
-                    <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
-                      View
-                    </Button>
-                  </Card>
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-slate-500 to-slate-700 shadow-sm">
+                          <Receipt className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Invoices & CRM</p>
+                          <p className="text-[11px] text-muted-foreground">PO & supplier records</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-slate-500 transition-colors" />
+                      </div>
+                    </Card>
+
+                    <SupplierEmailQuotaCard />
+
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowPlatformInvoices(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
+                          <Receipt className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Platform Invoices</p>
+                          <p className="text-[11px] text-muted-foreground">Billing & receipts</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-violet-500 transition-colors" />
+                      </div>
+                    </Card>
+                  </div>
                 </div>
 
-                {/* AI Performance + Refer & Earn Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 mt-4">
-                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierAIPerformance(true)}>
+                {/* ── Section: Grow Your Business ── */}
+                <div className="space-y-1.5">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Grow Your Business</h2>
+                  <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border border-emerald-200 dark:border-emerald-800/40 bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-950/20" onClick={() => setShowSupplierReferral(true)}>
                     <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
-                        <ShieldCheck className="w-5 h-5 text-white" />
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-sm">
+                        <MessageCircle className="w-4 h-4 text-white" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-foreground">AI Performance</p>
-                        <p className="text-xs text-muted-foreground">Trust score & insights</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">Refer & Earn</p>
+                        <p className="text-[11px] text-muted-foreground">Earn free bids & 20% commission on every referral order</p>
                       </div>
-                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
-                    </div>
-                  </Card>
-
-                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierReferral(true)}>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
-                        <MessageCircle className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-foreground">Refer & Earn</p>
-                        <p className="text-xs text-muted-foreground">Earn free bids & 20% commission</p>
-                      </div>
-                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-emerald-500 transition-colors" />
                     </div>
                   </Card>
                 </div>
