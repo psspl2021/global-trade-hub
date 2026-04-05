@@ -102,6 +102,10 @@ const Dashboard = () => {
   const setShowSupplierSubscription = (show: boolean) => {
     setSearchParams(show ? { view: 'supplier-subscription' } : {}, { replace: true });
   };
+  const showSupplierReferral = activeView === 'supplier-referral';
+  const setShowSupplierReferral = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-referral' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
@@ -863,6 +867,23 @@ const Dashboard = () => {
                 {/* Subscription Invoices */}
                 <SubscriptionInvoices />
               </div>
+            ) : showSupplierReferral ? (
+              /* ── Sub-View: Refer & Earn ── */
+              <div className="space-y-4">
+                <Button variant="ghost" size="sm" onClick={() => setShowSupplierReferral(false)} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                </Button>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
+                    <MessageCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">Refer & Earn</h2>
+                    <p className="text-xs text-muted-foreground">Share, refer suppliers, and earn commissions</p>
+                  </div>
+                </div>
+                {user && <ReferralSection userId={user.id} role="supplier" />}
+              </div>
             ) : (
               /* ── Normal Supplier Dashboard ── */
               <>
@@ -951,8 +972,19 @@ const Dashboard = () => {
                   </Card>
                 </div>
 
-                {/* Referral Section for Suppliers */}
-                {user && <ReferralSection userId={user.id} role="supplier" />}
+                {/* Refer & Earn Card */}
+                <Card variant="interactive" className="p-4 mt-4" onClick={() => setShowSupplierReferral(true)}>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-foreground">Refer & Earn</p>
+                      <p className="text-xs text-muted-foreground">Earn free bids & 20% commission</p>
+                    </div>
+                    <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+                  </div>
+                </Card>
               </>
             )}
 
