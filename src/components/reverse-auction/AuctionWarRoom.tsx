@@ -722,11 +722,13 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
                     style={{ width: `${prediction.confidence}%` }}
                   />
                 </div>
-                <div className="text-[10px] text-muted-foreground flex justify-between">
+                <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>Low</span>
-                  <span className="italic">Based on bid activity, competition & timing</span>
                   <span>High</span>
                 </div>
+                <p className="text-[10px] text-muted-foreground text-center italic">
+                  Based on bid activity, competition & timing
+                </p>
               </div>
 
               {/* Reserve proximity */}
