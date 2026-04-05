@@ -721,97 +721,145 @@ const Dashboard = () => {
 
         {role === 'supplier' && (
           <>
-            {/* AI Inventory Performance Card */}
-            {user && (
-              <div className="mb-4">
-                <SupplierAIPerformanceCard userId={user.id} onOpenCatalog={() => setShowCatalog(true)} />
-              </div>
-            )}
-
-            {/* Subscription Invoices */}
-            <div className="mb-4">
-              <SubscriptionInvoices />
-            </div>
-
-            {/* Compact Grid - All boxes in one view */}
-            <div className="grid gap-2 grid-cols-3 lg:grid-cols-3">
-              <Card className="p-3">
-                <p className="text-sm font-medium">Stock Management</p>
-                <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowStock(true)}>Update</Button>
-              </Card>
-
-              <Card className="p-3">
-                <p className="text-sm font-medium">Requirements</p>
-                <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowRequirements(true)}>Browse</Button>
-              </Card>
-
-              <Card className="p-3">
-                <p className="text-sm font-medium">Invoices & PO</p>
-                <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowCRM(true)}>CRM</Button>
-              </Card>
-            </div>
-
-            {/* Single Bids & Auctions Card */}
-            <div className="mt-4">
-              <Card variant="interactive" className="p-4" onClick={() => setShowSupplierBids(true)}>
-                <div className="flex items-center gap-3">
+            {showSupplierBids ? (
+              /* ── Full Sub-View: My Bids & Auctions ── */
+              <div className="space-y-4">
+                <Button variant="ghost" size="sm" onClick={() => setShowSupplierBids(false)} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                </Button>
+                <div className="flex items-center gap-3 mb-2">
                   <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
                     <ShoppingCart className="w-5 h-5 text-primary-foreground" />
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-foreground">My Bids & Auctions</p>
-                    <p className="text-xs text-muted-foreground">View all forward bids & reverse auction bids</p>
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">My Bids & Auctions</h2>
+                    <p className="text-xs text-muted-foreground">All your forward bids & reverse auction participation</p>
                   </div>
-                  <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
                 </div>
-              </Card>
-            </div>
-
-            {/* Compact cards grid for Subscription, Email, Platform Invoices */}
-            <div className="grid gap-2 grid-cols-3 mt-4">
-              <Card className="p-3">
-                <div className="flex items-center gap-1 mb-1">
-                  <Star className="h-3 w-3 text-amber-500" />
-                  <p className="text-xs font-medium">Subscription</p>
-                </div>
-                {subscription?.is_early_adopter && (
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-1 py-0 mb-1">
-                    EARLY ADOPTER
-                  </Badge>
+                {user && (
+                  <Tabs defaultValue="forward" className="w-full">
+                    <TabsList className="w-full grid grid-cols-2 h-11 bg-muted/60 rounded-[0.625rem]">
+                      <TabsTrigger
+                        value="forward"
+                        className="gap-2 rounded-[0.5rem] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md font-semibold text-sm"
+                      >
+                        <FileText className="w-4 h-4" />
+                        Forward Bids
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="reverse"
+                        className="gap-2 rounded-[0.5rem] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md font-semibold text-sm"
+                      >
+                        <Gavel className="w-4 h-4" />
+                        Reverse Auction Bids
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="forward" className="mt-4 space-y-4 focus-visible:ring-0">
+                      <SupplierMyBids userId={user.id} />
+                      <SupplierAcceptedBids userId={user.id} />
+                    </TabsContent>
+                    <TabsContent value="reverse" className="mt-4 focus-visible:ring-0">
+                      <ReverseAuctionDashboard isSupplier={true} />
+                    </TabsContent>
+                  </Tabs>
                 )}
-                <p className="text-[10px] text-muted-foreground mb-1">
-                  {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
-                </p>
-                <Progress 
-                  value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                  className="h-1 mb-2" 
-                />
-                <PremiumPackPurchase
-                  userId={user?.id || ''}
-                  userEmail={user?.email || ''}
-                  userPhone={user?.user_metadata?.phone || ''}
-                  userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
-                  userType="supplier"
-                  hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
-                />
-              </Card>
+              </div>
+            ) : (
+              /* ── Normal Supplier Dashboard ── */
+              <>
+                {/* AI Inventory Performance Card */}
+                {user && (
+                  <div className="mb-4">
+                    <SupplierAIPerformanceCard userId={user.id} onOpenCatalog={() => setShowCatalog(true)} />
+                  </div>
+                )}
 
-              <SupplierEmailQuotaCard />
-
-              <Card className="p-3">
-                <div className="flex items-center gap-1 mb-1">
-                  <Receipt className="h-3 w-3" />
-                  <p className="text-xs font-medium">Platform Invoices</p>
+                {/* Subscription Invoices */}
+                <div className="mb-4">
+                  <SubscriptionInvoices />
                 </div>
-                <p className="text-[10px] text-muted-foreground mb-2">WhatsApp: +91 8368127357</p>
-                <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
-                  View
-                </Button>
-              </Card>
-            </div>
 
-            {/* Referral Section for Suppliers */}
-            {user && <ReferralSection userId={user.id} role="supplier" />}
+                {/* Compact Grid - All boxes in one view */}
+                <div className="grid gap-2 grid-cols-3 lg:grid-cols-3">
+                  <Card className="p-3">
+                    <p className="text-sm font-medium">Stock Management</p>
+                    <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowStock(true)}>Update</Button>
+                  </Card>
+
+                  <Card className="p-3">
+                    <p className="text-sm font-medium">Requirements</p>
+                    <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowRequirements(true)}>Browse</Button>
+                  </Card>
+
+                  <Card className="p-3">
+                    <p className="text-sm font-medium">Invoices & PO</p>
+                    <Button variant="outline" className="w-full mt-2" size="sm" onClick={() => setShowCRM(true)}>CRM</Button>
+                  </Card>
+                </div>
+
+                {/* Single Bids & Auctions Card */}
+                <div className="mt-4">
+                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierBids(true)}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
+                        <ShoppingCart className="w-5 h-5 text-primary-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-foreground">My Bids & Auctions</p>
+                        <p className="text-xs text-muted-foreground">View all forward bids & reverse auction bids</p>
+                      </div>
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Compact cards grid for Subscription, Email, Platform Invoices */}
+                <div className="grid gap-2 grid-cols-3 mt-4">
+                  <Card className="p-3">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Star className="h-3 w-3 text-amber-500" />
+                      <p className="text-xs font-medium">Subscription</p>
+                    </div>
+                    {subscription?.is_early_adopter && (
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-1 py-0 mb-1">
+                        EARLY ADOPTER
+                      </Badge>
+                    )}
+                    <p className="text-[10px] text-muted-foreground mb-1">
+                      {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
+                    </p>
+                    <Progress 
+                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                      className="h-1 mb-2" 
+                    />
+                    <PremiumPackPurchase
+                      userId={user?.id || ''}
+                      userEmail={user?.email || ''}
+                      userPhone={user?.user_metadata?.phone || ''}
+                      userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                      userType="supplier"
+                      hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
+                    />
+                  </Card>
+
+                  <SupplierEmailQuotaCard />
+
+                  <Card className="p-3">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Receipt className="h-3 w-3" />
+                      <p className="text-xs font-medium">Platform Invoices</p>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mb-2">WhatsApp: +91 8368127357</p>
+                    <Button variant="outline" className="w-full" size="sm" onClick={() => setShowPlatformInvoices(true)}>
+                      View
+                    </Button>
+                  </Card>
+                </div>
+
+                {/* Referral Section for Suppliers */}
+                {user && <ReferralSection userId={user.id} role="supplier" />}
+              </>
+            )}
 
             {user && (
               <>
