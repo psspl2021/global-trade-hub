@@ -195,6 +195,72 @@ const ALERT_STYLES: Record<SmartAlert['severity'], string> = {
   critical: 'text-destructive bg-destructive/5 border-destructive/20',
 };
 
+/* ── Predicted Final Price Engine ── */
+interface PricePrediction {
+  predictedPrice: number;
+  range: [number, number];
+  confidence: number;
+}
+
+function getBidVelocity(bids: ReverseAuctionBid[]): number {
+  if (bids.length < 2) return 0;
+  const sorted = [...bids].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  const first = new Date(sorted[0].created_at).getTime();
+  const last = new Date(sorted[sorted.length - 1].created_at).getTime();
+  const minutes = (last - first) / (1000 * 60);
+  return minutes > 0 ? bids.length / minutes : 0;
+}
+
+function getPriceDropRate(auction: ReverseAuction, bids: ReverseAuctionBid[]): number {
+  if (bids.length === 0) return 0;
+  const current = auction.current_price ?? auction.starting_price;
+  const drop = auction.starting_price - current;
+  const durationMins = (Date.now() - new Date(auction.auction_start!).getTime()) / (1000 * 60);
+  return durationMins > 0 ? drop / durationMins : 0;
+}
+
+function getTimeFactor(auction: ReverseAuction): number {
+  if (!auction.auction_start || !auction.auction_end) return 0;
+  const total = new Date(auction.auction_end).getTime() - new Date(auction.auction_start).getTime();
+  const elapsed = Date.now() - new Date(auction.auction_start).getTime();
+  return Math.min(1, Math.max(0, elapsed / total));
+}
+
+function predictFinalPrice(auction: ReverseAuction, bids: ReverseAuctionBid[]): PricePrediction | null {
+  if (bids.length < 2) return null;
+  const current = auction.current_price ?? auction.starting_price;
+  const velocity = getBidVelocity(bids);
+  const dropRate = getPriceDropRate(auction, bids);
+  const timeFactor = getTimeFactor(auction);
+  const competition = new Set(bids.map(b => b.supplier_id)).size;
+
+  let expectedDrop = dropRate * (1 + velocity * 0.2);
+  if (competition >= 3) expectedDrop *= 1.3;
+  if (competition >= 5) expectedDrop *= 1.6;
+  if (timeFactor > 0.8) expectedDrop *= 0.7;
+
+  const remainingMins = Math.max(0, (new Date(auction.auction_end!).getTime() - Date.now()) / (1000 * 60));
+  const projectedDrop = expectedDrop * Math.min(remainingMins, 10);
+
+  const predicted = Math.max(
+    auction.reserve_price || 0,
+    current - projectedDrop
+  );
+
+  const confidence = Math.round(
+    (Math.min(1, bids.length / 10) * 0.4 +
+     Math.min(1, competition / 5) * 0.3 +
+     timeFactor * 0.3) * 100
+  );
+
+  const spread = predicted * 0.03;
+  return {
+    predictedPrice: Math.round(predicted),
+    range: [Math.round(predicted - spread), Math.round(predicted + spread)],
+    confidence,
+  };
+}
+
 const MEDAL_ICONS = ['🥇', '🥈', '🥉'];
 
 export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps) {
@@ -476,6 +542,7 @@ function StatCard({ icon: Icon, label, value, color, bg }: { icon: any; label: s
 function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuction; bids: ReverseAuctionBid[]; tick: number; onView: () => void }) {
   const time = getTimeRemaining(auction.auction_end);
   const currentPrice = auction.current_price ?? auction.starting_price;
+  const prediction = useMemo(() => predictFinalPrice(auction, bids), [auction, bids]);
   const reductionPct = ((auction.starting_price - currentPrice) / auction.starting_price) * 100;
   const savings = (auction.starting_price - currentPrice) * auction.quantity;
   const ranked = getRankedBids(bids);
@@ -562,6 +629,35 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
               <span>{progressToReserve.toFixed(0)}%</span>
             </div>
             <Progress value={progressToReserve} className="h-1.5" />
+          </div>
+        )}
+
+        {/* Predicted Final Price */}
+        {prediction && (
+          <div className="p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3" /> Predicted Final Price
+                </p>
+                <p className="text-lg font-bold text-violet-700 dark:text-violet-400">
+                  {formatCurrency(prediction.predictedPrice)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  Range: {formatCurrency(prediction.range[0])} – {formatCurrency(prediction.range[1])}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className={`text-xs font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                  {prediction.confidence}%
+                </div>
+                <p className="text-[10px] text-muted-foreground">confidence</p>
+              </div>
+            </div>
+            <Progress
+              value={prediction.confidence}
+              className="h-1 mt-2"
+            />
           </div>
         )}
 
