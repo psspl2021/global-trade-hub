@@ -889,15 +889,17 @@ const Dashboard = () => {
                 {user && <ReferralSection userId={user.id} role="supplier" />}
               </div>
             ) : (
+            ) : showSupplierAIPerformance ? (
+              /* ── Sub-View: AI Performance ── */
+              <div className="space-y-4">
+                <Button variant="ghost" size="sm" onClick={() => setShowSupplierAIPerformance(false)} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                </Button>
+                {user && <SupplierAIPerformanceCard userId={user.id} onOpenCatalog={() => setShowCatalog(true)} />}
+              </div>
+            ) : (
               /* ── Normal Supplier Dashboard ── */
               <>
-                {/* AI Inventory Performance Card */}
-                {user && (
-                  <div className="mb-4">
-                    <SupplierAIPerformanceCard userId={user.id} onOpenCatalog={() => setShowCatalog(true)} />
-                  </div>
-                )}
-
                 {/* Compact Grid - All boxes in one view */}
                 <div className="grid gap-2 grid-cols-3 lg:grid-cols-3">
                   <Card className="p-3">
