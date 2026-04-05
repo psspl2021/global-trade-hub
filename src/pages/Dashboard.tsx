@@ -68,7 +68,6 @@ import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
 import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
-import { SupplierProcurementCenter } from '@/components/dashboard/SupplierProcurementCenter';
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 
@@ -168,16 +167,28 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    const initializeSupplierDashboard = async () => {
+      if (!user?.id || role !== 'supplier') return;
+
+      await fetchSubscription();
+
+      const { count, error } = await supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('supplier_id', user.id);
+
+      if (!error && (count ?? 0) === 0) {
+        setShowCatalog(true);
+      }
+    };
+
     if (user?.id && role === 'supplier') {
-      fetchSubscription();
-      // Auto-open Product Catalog for suppliers on login
-      setShowCatalog(true);
+      initializeSupplierDashboard();
     }
     if (user?.id && role === 'logistics_partner') {
       fetchLogisticsAssets();
       fetchLogisticsSubscription();
     }
-    // Check for pending RFQ from AI generator (for buyers)
     if (user?.id && role === 'buyer') {
       const pendingRFQ = sessionStorage.getItem('pendingRFQ');
       if (pendingRFQ) {
