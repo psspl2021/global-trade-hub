@@ -39,37 +39,16 @@ export function useSupplierRecommendation() {
       let networkSupplierIds: string[] = [];
 
       if (buyerId && isNetworkMode) {
-        // Step 1: Get buyer's auction IDs
-        const { data: buyerAuctions } = await supabase
-          .from('reverse_auctions')
-          .select('id')
-          .eq('buyer_id', buyerId);
+        // Single RPC: get all supplier IDs from buyer's network (invited + participated)
+        const { data: networkData } = await supabase
+          .rpc('get_buyer_network_supplier_ids', { p_buyer_id: buyerId });
 
-        const buyerAuctionIds = (buyerAuctions || []).map(a => a.id);
+        networkSupplierIds = (networkData || []).map((r: any) => r.supplier_id);
 
-        if (buyerAuctionIds.length === 0) {
+        if (networkSupplierIds.length === 0) {
           setRecommendations([]);
           return [];
         }
-
-        // Step 2: Fetch only suppliers invited to THIS buyer's auctions
-        const { data: invited } = await supabase
-          .from('reverse_auction_suppliers')
-          .select('supplier_id')
-          .in('auction_id', buyerAuctionIds)
-          .not('supplier_id', 'is', null);
-
-        // Step 3: Fetch only suppliers who bid in THIS buyer's auctions
-        const { data: bids } = await supabase
-          .from('reverse_auction_bids')
-          .select('supplier_id')
-          .in('auction_id', buyerAuctionIds);
-
-        // Merge + deduplicate
-        networkSupplierIds = [...new Set([
-          ...(invited || []).map(i => i.supplier_id!),
-          ...(bids || []).map(b => b.supplier_id),
-        ])];
       }
 
       // Get supplier stats for category

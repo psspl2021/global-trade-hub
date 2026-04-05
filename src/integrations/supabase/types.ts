@@ -10568,6 +10568,12 @@ export type Database = {
         }[]
       }
       get_buyer_dashboard_type: { Args: { _user_id: string }; Returns: string }
+      get_buyer_network_supplier_ids: {
+        Args: { p_buyer_id: string }
+        Returns: {
+          supplier_id: string
+        }[]
+      }
       get_buyer_spend_summary: {
         Args: { p_buyer_id: string; p_days?: number }
         Returns: Json
