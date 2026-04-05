@@ -106,6 +106,10 @@ const Dashboard = () => {
   const setShowSupplierReferral = (show: boolean) => {
     setSearchParams(show ? { view: 'supplier-referral' } : {}, { replace: true });
   };
+  const showSupplierAIPerformance = activeView === 'supplier-ai-performance';
+  const setShowSupplierAIPerformance = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-ai-performance' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
