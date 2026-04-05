@@ -13,6 +13,10 @@ import {
   BarChart3, Timer, ShieldCheck, ShieldAlert, ShieldX,
   BellRing, Medal, Lightbulb
 } from 'lucide-react';
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  CartesianGrid, Area, AreaChart, ReferenceLine
+} from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction, getRankedBids, ReverseAuctionBid } from '@/hooks/useReverseAuction';
@@ -316,6 +320,63 @@ function predictFinalPrice(auction: ReverseAuction, bids: ReverseAuctionBid[]): 
   };
 }
 
+/* ── Price trend chart data builder ── */
+interface TrendPoint {
+  time: string;
+  price: number | null;
+  predicted: number | null;
+  upperBound?: number | null;
+  lowerBound?: number | null;
+}
+
+function buildPriceTrendData(
+  auction: ReverseAuction,
+  bids: ReverseAuctionBid[],
+  prediction: PricePrediction | null
+): TrendPoint[] {
+  if (bids.length === 0) return [];
+
+  // Sort bids chronologically and keep lowest price at each timestamp (L1 progression)
+  const sorted = [...bids].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+  // Build L1 progression — track running minimum
+  let runningMin = auction.starting_price;
+  const points: TrendPoint[] = [
+    { time: 'Start', price: auction.starting_price, predicted: null },
+  ];
+
+  sorted.forEach((bid, i) => {
+    if (bid.bid_price < runningMin) {
+      runningMin = bid.bid_price;
+    }
+    const t = new Date(bid.created_at);
+    const label = `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}`;
+    // Only add a point when L1 changes (or first/last bid)
+    if (bid.bid_price <= runningMin || i === sorted.length - 1) {
+      points.push({ time: label, price: runningMin, predicted: null });
+    }
+  });
+
+  // Add projection points
+  if (prediction) {
+    const lastPrice = points[points.length - 1]?.price ?? auction.starting_price;
+    points.push({
+      time: 'Now',
+      price: lastPrice,
+      predicted: lastPrice,
+    });
+    points.push({
+      time: 'Projected',
+      price: null,
+      predicted: prediction.predictedPrice,
+      upperBound: prediction.range[1],
+      lowerBound: prediction.range[0],
+    });
+  }
+
+  return points;
+}
+
 const MEDAL_ICONS = ['🥇', '🥈', '🥉'];
 
 export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps) {
@@ -598,6 +659,7 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
   const time = getTimeRemaining(auction.auction_end);
   const currentPrice = auction.current_price ?? auction.starting_price;
   const prediction = useMemo(() => predictFinalPrice(auction, bids), [auction, bids]);
+  const trendData = useMemo(() => buildPriceTrendData(auction, bids, prediction), [auction, bids, prediction]);
   const reductionPct = ((auction.starting_price - currentPrice) / auction.starting_price) * 100;
   const savings = (auction.starting_price - currentPrice) * auction.quantity;
   const ranked = getRankedBids(bids);
@@ -730,6 +792,114 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
                   Based on bid activity, competition & timing
                 </p>
               </div>
+
+              {/* Price Trend + Projection Chart */}
+              {trendData.length >= 3 && (
+                <div className="space-y-1">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                    <BarChart3 className="w-3 h-3" /> Price Trend & Projection
+                  </p>
+                  <div className="h-36 -mx-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="projectionFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                        <XAxis
+                          dataKey="time"
+                          tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                          axisLine={false}
+                          tickLine={false}
+                          tickFormatter={(v: number) => v >= 100000 ? `${(v / 100000).toFixed(1)}L` : v >= 1000 ? `${(v / 1000).toFixed(0)}K` : `${v}`}
+                          domain={['auto', 'auto']}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '0.5rem',
+                            fontSize: '11px',
+                          }}
+                          formatter={(value: number, name: string) => [
+                            formatCurrency(value),
+                            name === 'price' ? 'Actual' : 'Projected'
+                          ]}
+                        />
+                        {/* Confidence range band */}
+                        <Area
+                          type="monotone"
+                          dataKey="upperBound"
+                          stroke="none"
+                          fill="hsl(263, 70%, 50%)"
+                          fillOpacity={0.08}
+                          connectNulls={false}
+                        />
+                        {/* Actual price line */}
+                        <Area
+                          type="monotone"
+                          dataKey="price"
+                          stroke="hsl(160, 84%, 39%)"
+                          strokeWidth={2}
+                          fill="url(#actualFill)"
+                          dot={false}
+                          connectNulls={false}
+                        />
+                        {/* Projection line (dashed) */}
+                        <Line
+                          type="monotone"
+                          dataKey="predicted"
+                          stroke="hsl(263, 70%, 50%)"
+                          strokeWidth={2}
+                          strokeDasharray="6 3"
+                          dot={{ r: 3, fill: 'hsl(263, 70%, 50%)' }}
+                          connectNulls
+                        />
+                        {/* Reserve price reference line */}
+                        {auction.reserve_price && (
+                          <ReferenceLine
+                            y={auction.reserve_price}
+                            stroke="hsl(var(--destructive))"
+                            strokeDasharray="4 4"
+                            strokeOpacity={0.6}
+                            label={{
+                              value: `Reserve: ${formatCurrency(auction.reserve_price)}`,
+                              position: 'insideTopRight',
+                              fontSize: 9,
+                              fill: 'hsl(var(--destructive))',
+                            }}
+                          />
+                        )}
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex justify-center gap-4 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-0.5 bg-emerald-500 rounded-full inline-block" /> Actual
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-violet-500" /> Projected
+                    </span>
+                    {auction.reserve_price && (
+                      <span className="flex items-center gap-1">
+                        <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-destructive" /> Reserve
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Reserve proximity */}
               {prediction.reserveLikely && (
