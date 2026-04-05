@@ -98,6 +98,10 @@ const Dashboard = () => {
   const setShowSupplierReverseBids = (show: boolean) => {
     setSearchParams(show ? { view: 'supplier-reverse-bids' } : {}, { replace: true });
   };
+  const showSupplierSubscription = activeView === 'supplier-subscription';
+  const setShowSupplierSubscription = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-subscription' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
@@ -767,6 +771,98 @@ const Dashboard = () => {
                 </Button>
                 <ReverseAuctionDashboard isSupplier={true} />
               </div>
+            ) : showSupplierSubscription ? (
+              /* ── Sub-View: Subscription Plan ── */
+              <div className="space-y-4">
+                <Button variant="ghost" size="sm" onClick={() => setShowSupplierSubscription(false)} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                </Button>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-amber-500 to-orange-500 shadow-md">
+                    <Star className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">Subscription & Plans</h2>
+                    <p className="text-xs text-muted-foreground">Manage your bid quota and premium packs</p>
+                  </div>
+                </div>
+
+                {/* Current Plan Status */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      Current Plan
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-3">
+                    {subscription?.is_early_adopter && (
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2 py-0.5">
+                        🚀 EARLY ADOPTER
+                      </Badge>
+                    )}
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">Monthly Bids</span>
+                      <span className="font-semibold">{subscription?.bids_used_this_month ?? 0} / {subscription?.bids_limit ?? 5} used</span>
+                    </div>
+                    <Progress 
+                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
+                      className="h-2" 
+                    />
+                    {(subscription?.premium_bids_balance ?? 0) > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">Premium Bids Balance</span>
+                        <Badge variant="secondary" className="font-semibold">{subscription?.premium_bids_balance} bids</Badge>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Premium Pack Purchase */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Package className="h-4 w-4 text-primary" />
+                      Premium Bids Pack
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Pack</span>
+                        <span className="font-medium">50 Lifetime Bids</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Base Price</span>
+                        <span>₹24,950</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">GST (18%)</span>
+                        <span>₹4,491</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Platform Fee (1.95%)</span>
+                        <span>₹574</span>
+                      </div>
+                      <div className="border-t pt-2 flex justify-between text-sm font-bold">
+                        <span>Total</span>
+                        <span>₹30,015</span>
+                      </div>
+                    </div>
+                    <PremiumPackPurchase
+                      userId={user?.id || ''}
+                      userEmail={user?.email || ''}
+                      userPhone={user?.user_metadata?.phone || ''}
+                      userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
+                      userType="supplier"
+                      hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Subscription Invoices */}
+                <SubscriptionInvoices />
+              </div>
             ) : (
               /* ── Normal Supplier Dashboard ── */
               <>
@@ -776,11 +872,6 @@ const Dashboard = () => {
                     <SupplierAIPerformanceCard userId={user.id} onOpenCatalog={() => setShowCatalog(true)} />
                   </div>
                 )}
-
-                {/* Subscription Invoices */}
-                <div className="mb-4">
-                  <SubscriptionInvoices />
-                </div>
 
                 {/* Compact Grid - All boxes in one view */}
                 <div className="grid gap-2 grid-cols-3 lg:grid-cols-3">
@@ -800,8 +891,8 @@ const Dashboard = () => {
                   </Card>
                 </div>
 
-                {/* Separate Cards: Forward Bids + Reverse Auction */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 mt-4">
+                {/* Clickable Cards: Forward Bids, Reverse Auction, Subscription */}
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-3 mt-4">
                   <Card variant="interactive" className="p-4" onClick={() => setShowSupplierForwardBids(true)}>
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
@@ -822,42 +913,30 @@ const Dashboard = () => {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-foreground">Reverse Auctions</p>
-                        <p className="text-xs text-muted-foreground">View reverse auction bids</p>
+                        <p className="text-xs text-muted-foreground">View auction bids</p>
+                      </div>
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+                    </div>
+                  </Card>
+
+                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierSubscription(true)}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-amber-500 to-orange-500 shadow-md">
+                        <Star className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-foreground">Subscription Plan</p>
+                        <p className="text-xs text-muted-foreground">
+                          {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
+                        </p>
                       </div>
                       <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
                     </div>
                   </Card>
                 </div>
 
-                {/* Compact cards grid for Subscription, Email, Platform Invoices */}
-                <div className="grid gap-2 grid-cols-3 mt-4">
-                  <Card className="p-3">
-                    <div className="flex items-center gap-1 mb-1">
-                      <Star className="h-3 w-3 text-amber-500" />
-                      <p className="text-xs font-medium">Subscription</p>
-                    </div>
-                    {subscription?.is_early_adopter && (
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-1 py-0 mb-1">
-                        EARLY ADOPTER
-                      </Badge>
-                    )}
-                    <p className="text-[10px] text-muted-foreground mb-1">
-                      {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
-                    </p>
-                    <Progress 
-                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                      className="h-1 mb-2" 
-                    />
-                    <PremiumPackPurchase
-                      userId={user?.id || ''}
-                      userEmail={user?.email || ''}
-                      userPhone={user?.user_metadata?.phone || ''}
-                      userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
-                      userType="supplier"
-                      hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
-                    />
-                  </Card>
-
+                {/* Email Quota + Platform Invoices */}
+                <div className="grid gap-2 grid-cols-2 mt-4">
                   <SupplierEmailQuotaCard />
 
                   <Card className="p-3">
