@@ -39,35 +39,37 @@ export function useSupplierRecommendation() {
       let networkSupplierIds: string[] = [];
 
       if (buyerId && isNetworkMode) {
-        // Step 1: Get suppliers previously invited by this buyer
-        const { data: invited } = await supabase
-          .from('reverse_auction_suppliers')
-          .select('supplier_id, auction_id')
-          .not('supplier_id', 'is', null);
-
-        // Filter to only this buyer's auctions
+        // Step 1: Get buyer's auction IDs
         const { data: buyerAuctions } = await supabase
           .from('reverse_auctions')
           .select('id')
           .eq('buyer_id', buyerId);
 
-        const buyerAuctionIds = new Set((buyerAuctions || []).map(a => a.id));
+        const buyerAuctionIds = (buyerAuctions || []).map(a => a.id);
 
-        const invitedByBuyer = (invited || [])
-          .filter(i => buyerAuctionIds.has(i.auction_id) && i.supplier_id)
-          .map(i => i.supplier_id!);
+        if (buyerAuctionIds.length === 0) {
+          setRecommendations([]);
+          return [];
+        }
 
-        // Step 2: Get suppliers who bid in this buyer's auctions
+        // Step 2: Fetch only suppliers invited to THIS buyer's auctions
+        const { data: invited } = await supabase
+          .from('reverse_auction_suppliers')
+          .select('supplier_id')
+          .in('auction_id', buyerAuctionIds)
+          .not('supplier_id', 'is', null);
+
+        // Step 3: Fetch only suppliers who bid in THIS buyer's auctions
         const { data: bids } = await supabase
           .from('reverse_auction_bids')
-          .select('supplier_id, auction_id');
-
-        const participatedInBuyer = (bids || [])
-          .filter(b => buyerAuctionIds.has(b.auction_id))
-          .map(b => b.supplier_id);
+          .select('supplier_id')
+          .in('auction_id', buyerAuctionIds);
 
         // Merge + deduplicate
-        networkSupplierIds = [...new Set([...invitedByBuyer, ...participatedInBuyer])];
+        networkSupplierIds = [...new Set([
+          ...(invited || []).map(i => i.supplier_id!),
+          ...(bids || []).map(b => b.supplier_id),
+        ])];
       }
 
       // Get supplier stats for category
