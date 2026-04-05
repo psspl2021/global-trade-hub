@@ -261,6 +261,8 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
     return { totalSavings, totalBids, uniqueSuppliers, avgReduction };
   }, [liveAuctions, bidsMap]);
 
+  const aiSuggestions = useMemo(() => getAISuggestions(liveAuctions, bidsMap), [liveAuctions, bidsMap]);
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -306,6 +308,24 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
         <StatCard icon={TrendingDown} label="Avg Reduction" value={`${stats.avgReduction.toFixed(1)}%`} color="text-amber-600" bg="bg-amber-50 dark:bg-amber-950/20" />
         <StatCard icon={Users} label="Active Suppliers" value={stats.uniqueSuppliers} color="text-violet-600" bg="bg-violet-50 dark:bg-violet-950/20" />
       </div>
+
+      {/* AI Suggestions */}
+      {aiSuggestions.length > 0 && (
+        <Card className="border border-primary/20 bg-primary/5">
+          <div className="p-3 space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+              <Lightbulb className="w-4 h-4" />
+              AI Suggestions
+            </div>
+            {aiSuggestions.map((s, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-foreground/80 pl-6">
+                <span>💡</span>
+                <span>{s.message}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Live Auctions */}
       {liveAuctions.length > 0 && (
