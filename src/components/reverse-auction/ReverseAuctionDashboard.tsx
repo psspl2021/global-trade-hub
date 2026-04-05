@@ -1,6 +1,6 @@
 /**
  * Reverse Auction Dashboard — Full page view matching enterprise layout
- * Header + Credits + Pricing Plans + Auction List
+ * Header + Credits + Pricing Plans + War Room + Auction List
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,9 +8,10 @@ import { ReverseAuctionList } from './ReverseAuctionList';
 import { LiveAuctionView } from './LiveAuctionView';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
+import { AuctionWarRoom } from './AuctionWarRoom';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { Button } from '@/components/ui/button';
-import { Gavel, Sparkles } from 'lucide-react';
+import { Gavel, Sparkles, Target } from 'lucide-react';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
@@ -19,6 +20,7 @@ interface ReverseAuctionDashboardProps {
 export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDashboardProps) {
   const [selectedAuction, setSelectedAuction] = useState<ReverseAuction | null>(null);
   const [creditsKey, setCreditsKey] = useState(0);
+  const [showWarRoom, setShowWarRoom] = useState(false);
   const navigate = useNavigate();
 
   if (selectedAuction) {
@@ -27,6 +29,18 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
         auction={selectedAuction}
         onBack={() => setSelectedAuction(null)}
         isSupplier={isSupplier}
+      />
+    );
+  }
+
+  if (showWarRoom && !isSupplier) {
+    return (
+      <AuctionWarRoom
+        onBack={() => setShowWarRoom(false)}
+        onSelectAuction={(auction) => {
+          setShowWarRoom(false);
+          setSelectedAuction(auction);
+        }}
       />
     );
   }
@@ -44,12 +58,20 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
             <p className="text-sm text-muted-foreground">Price discovery through competitive reverse bidding</p>
           </div>
         </div>
-        {!isSupplier && (
-          <Button onClick={() => navigate('/buyer/create-reverse-auction')} className="gap-2">
-            <Sparkles className="w-4 h-4" />
-            Create Reverse Auction
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {!isSupplier && (
+            <Button variant="outline" onClick={() => setShowWarRoom(true)} className="gap-2">
+              <Target className="w-4 h-4" />
+              War Room
+            </Button>
+          )}
+          {!isSupplier && (
+            <Button onClick={() => navigate('/buyer/create-reverse-auction')} className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Create Reverse Auction
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Credits + Pricing Plans (buyer only) */}

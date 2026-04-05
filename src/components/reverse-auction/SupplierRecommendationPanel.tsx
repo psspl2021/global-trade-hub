@@ -135,6 +135,8 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
               const badgeInfo = rec.badge ? BADGE_CONFIG[rec.badge] : null;
               const isExpanded = expandedId === rec.supplier_id;
               const competitivenessLabel = rec.avg_price_competitiveness >= 0.7 ? 'High' : rec.avg_price_competitiveness >= 0.4 ? 'Medium' : 'Low';
+              const scoreColor = rec.score > 0.75 ? 'text-emerald-600' : rec.score > 0.5 ? 'text-amber-600' : 'text-destructive';
+              const rankLabel = idx === 0 ? 'Best match' : idx === 1 ? 'Strong alternative' : idx === 2 ? 'Backup option' : null;
               
               return (
                 <div key={rec.supplier_id} className="rounded-md bg-background border overflow-hidden">
@@ -149,6 +151,10 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
                       <div className="min-w-0">
                         <p className="font-medium text-foreground truncate">{rec.company_name}</p>
                         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                          {rankLabel && (
+                            <span className={`font-medium ${scoreColor}`}>{rankLabel}</span>
+                          )}
+                          {rankLabel && rec.city && <span>·</span>}
                           {rec.city && <span>{rec.city}</span>}
                           {rec.total_wins > 0 && (
                             <span className="flex items-center gap-0.5 text-emerald-600">
@@ -170,12 +176,13 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
                           <TooltipTrigger asChild>
                             <div className="flex items-center gap-1 cursor-help">
                               <Star className="w-3 h-3 text-amber-500" />
-                              <span className="text-xs font-semibold">{(rec.score * 100).toFixed(0)}%</span>
+                              <span className={`text-xs font-semibold ${scoreColor}`}>{(rec.score * 100).toFixed(0)}%</span>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent side="left" className="text-xs">
-                            Trust score based on win rate, pricing & history
-                          </TooltipContent>
+                           <TooltipContent side="left" className="text-xs max-w-[200px]">
+                             Based on past performance, pricing & your history
+                             {rankLabel && <span className="block mt-0.5 font-semibold text-primary">{rankLabel}</span>}
+                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
