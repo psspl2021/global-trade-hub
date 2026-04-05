@@ -888,7 +888,6 @@ const Dashboard = () => {
                 </div>
                 {user && <ReferralSection userId={user.id} role="supplier" />}
               </div>
-            ) : (
             ) : showSupplierAIPerformance ? (
               /* ── Sub-View: AI Performance ── */
               <div className="space-y-4">
