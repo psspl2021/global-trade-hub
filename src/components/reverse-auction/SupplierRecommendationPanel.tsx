@@ -1,13 +1,15 @@
 /**
  * Supplier Recommendation Panel (Buyer Network-Scoped)
  * Shows AI-ranked top 5 suppliers from buyer's own network
+ * Includes auto-invite for top performers
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Trophy, Plus, Star, Shield, Zap, UserPlus } from 'lucide-react';
+import { Sparkles, Trophy, Plus, Star, Shield, Zap, UserPlus, Wand2 } from 'lucide-react';
 import { useSupplierRecommendation, SupplierRecommendation } from '@/hooks/useSupplierRecommendation';
+import { useToast } from '@/hooks/use-toast';
 
 interface SupplierRecommendationPanelProps {
   category: string;
@@ -22,9 +24,14 @@ const BADGE_CONFIG: Record<string, { label: string; icon: React.ReactNode; class
   new_promising: { label: 'New & promising', icon: <UserPlus className="w-3 h-3" />, className: 'border-blue-300 text-blue-700 bg-blue-50' },
 };
 
+const AUTO_INVITE_COUNT = 3;
+const MAX_TOTAL_INVITES = 10;
+
 export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, invitedIds }: SupplierRecommendationPanelProps) {
   const { recommendations, isLoading, getRecommendations, isNetworkMode, setIsNetworkMode } = useSupplierRecommendation();
   const [loaded, setLoaded] = useState(false);
+  const [autoInviting, setAutoInviting] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (category && !loaded) {
@@ -37,18 +44,57 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
     setLoaded(false);
   }, [category, isNetworkMode]);
 
+  const uninvitedTopSuppliers = recommendations.filter(s => !invitedIds.has(s.supplier_id)).slice(0, AUTO_INVITE_COUNT);
+  const canAutoInvite = uninvitedTopSuppliers.length > 0 && invitedIds.size < MAX_TOTAL_INVITES;
+
+  const handleAutoInvite = useCallback(() => {
+    if (!canAutoInvite) return;
+    setAutoInviting(true);
+    try {
+      for (const s of uninvitedTopSuppliers) {
+        onAddSupplier({
+          id: s.supplier_id,
+          company_name: s.company_name,
+          contact_person: s.contact_person,
+          city: s.city,
+          email: s.email,
+        });
+      }
+      toast({
+        title: `⚡ ${uninvitedTopSuppliers.length} top suppliers auto-invited`,
+        description: 'Based on your past auctions & supplier performance',
+      });
+    } finally {
+      setAutoInviting(false);
+    }
+  }, [canAutoInvite, uninvitedTopSuppliers, onAddSupplier, toast]);
+
   if (!category) return null;
 
   return (
     <Card className="border-amber-200/60 bg-amber-50/30 dark:bg-amber-950/10 dark:border-amber-800/40">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-600" />
-          AI Recommended Suppliers
-          <Badge variant="outline" className="text-xs border-amber-300 text-amber-700">
-            {isNetworkMode ? 'Your Network' : 'All'}
-          </Badge>
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            AI Recommended Suppliers
+            <Badge variant="outline" className="text-xs border-amber-300 text-amber-700">
+              {isNetworkMode ? 'Your Network' : 'All'}
+            </Badge>
+          </CardTitle>
+          {!isLoading && canAutoInvite && (
+            <Button
+              variant="default"
+              size="sm"
+              className="h-7 text-xs gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-sm"
+              onClick={handleAutoInvite}
+              disabled={autoInviting}
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+              {autoInviting ? 'Inviting...' : `Auto-invite top ${uninvitedTopSuppliers.length}`}
+            </Button>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground mt-1">
           {isNetworkMode
             ? 'Based on your past auctions & supplier interactions'
