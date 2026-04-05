@@ -110,10 +110,26 @@ function getSmartAlerts(auction: ReverseAuction, bids: ReverseAuctionBid[], uniq
 }
 
 /* ── AI Suggestion engine ── */
+type SuggestionPriority = 'high' | 'medium' | 'low';
+
 interface AISuggestion {
   message: string;
   action?: string;
+  auctionId?: string;
+  priority: SuggestionPriority;
 }
+
+const SUGGESTION_PRIORITY_STYLES: Record<SuggestionPriority, string> = {
+  high: 'text-destructive font-semibold',
+  medium: 'text-amber-700 dark:text-amber-400',
+  low: 'text-foreground/70',
+};
+
+const SUGGESTION_PRIORITY_ICON: Record<SuggestionPriority, string> = {
+  high: '🔴',
+  medium: '🟡',
+  low: '🔵',
+};
 
 function getAISuggestions(auctions: ReverseAuction[], bidsMap: Record<string, ReverseAuctionBid[]>): AISuggestion[] {
   const suggestions: AISuggestion[] = [];
@@ -125,34 +141,52 @@ function getAISuggestions(auctions: ReverseAuction[], bidsMap: Record<string, Re
     const currentPrice = auction.current_price ?? auction.starting_price;
     const reductionPct = ((auction.starting_price - currentPrice) / auction.starting_price) * 100;
 
-    if (uniqueBidders < 3) {
+    if (bids.length === 0) {
+      suggestions.push({
+        message: `"${auction.title}" has no bids yet — check if suppliers have been notified`,
+        action: 'check',
+        auctionId: auction.id,
+        priority: 'high',
+      });
+    } else if (uniqueBidders < 3) {
       suggestions.push({
         message: `"${auction.title}" has only ${uniqueBidders} bidder${uniqueBidders !== 1 ? 's' : ''} — invite ${3 - uniqueBidders} more to boost competition`,
         action: 'invite',
+        auctionId: auction.id,
+        priority: uniqueBidders < 2 ? 'high' : 'medium',
       });
     }
 
     if (auction.reserve_price && currentPrice <= auction.reserve_price * 1.05 && currentPrice > auction.reserve_price) {
       suggestions.push({
         message: `"${auction.title}" is close to reserve — prices may reach your target soon`,
+        auctionId: auction.id,
+        priority: 'medium',
       });
     }
 
     if (reductionPct > 20) {
       suggestions.push({
         message: `"${auction.title}" has strong price discovery (${reductionPct.toFixed(0)}% drop) — consider awarding soon after auction ends`,
-      });
-    }
-
-    if (bids.length === 0) {
-      suggestions.push({
-        message: `"${auction.title}" has no bids yet — check if suppliers have been notified`,
-        action: 'check',
+        auctionId: auction.id,
+        priority: 'low',
       });
     }
   }
 
-  return suggestions.slice(0, 3);
+  // Deduplicate by message
+  const seen = new Set<string>();
+  const unique = suggestions.filter(s => {
+    if (seen.has(s.message)) return false;
+    seen.add(s.message);
+    return true;
+  });
+
+  // Sort by priority
+  const priorityOrder: Record<SuggestionPriority, number> = { high: 3, medium: 2, low: 1 };
+  unique.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+
+  return unique.slice(0, 3);
 }
 
 const ALERT_STYLES: Record<SmartAlert['severity'], string> = {
