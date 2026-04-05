@@ -31,6 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
