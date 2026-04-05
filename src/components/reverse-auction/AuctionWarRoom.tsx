@@ -793,6 +793,114 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
                 </p>
               </div>
 
+              {/* Price Trend + Projection Chart */}
+              {trendData.length >= 3 && (
+                <div className="space-y-1">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                    <BarChart3 className="w-3 h-3" /> Price Trend & Projection
+                  </p>
+                  <div className="h-36 -mx-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="projectionFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                        <XAxis
+                          dataKey="time"
+                          tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                          axisLine={false}
+                          tickLine={false}
+                          tickFormatter={(v: number) => v >= 100000 ? `${(v / 100000).toFixed(1)}L` : v >= 1000 ? `${(v / 1000).toFixed(0)}K` : `${v}`}
+                          domain={['auto', 'auto']}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '0.5rem',
+                            fontSize: '11px',
+                          }}
+                          formatter={(value: number, name: string) => [
+                            formatCurrency(value),
+                            name === 'price' ? 'Actual' : 'Projected'
+                          ]}
+                        />
+                        {/* Confidence range band */}
+                        <Area
+                          type="monotone"
+                          dataKey="upperBound"
+                          stroke="none"
+                          fill="hsl(263, 70%, 50%)"
+                          fillOpacity={0.08}
+                          connectNulls={false}
+                        />
+                        {/* Actual price line */}
+                        <Area
+                          type="monotone"
+                          dataKey="price"
+                          stroke="hsl(160, 84%, 39%)"
+                          strokeWidth={2}
+                          fill="url(#actualFill)"
+                          dot={false}
+                          connectNulls={false}
+                        />
+                        {/* Projection line (dashed) */}
+                        <Line
+                          type="monotone"
+                          dataKey="predicted"
+                          stroke="hsl(263, 70%, 50%)"
+                          strokeWidth={2}
+                          strokeDasharray="6 3"
+                          dot={{ r: 3, fill: 'hsl(263, 70%, 50%)' }}
+                          connectNulls
+                        />
+                        {/* Reserve price reference line */}
+                        {auction.reserve_price && (
+                          <ReferenceLine
+                            y={auction.reserve_price}
+                            stroke="hsl(var(--destructive))"
+                            strokeDasharray="4 4"
+                            strokeOpacity={0.6}
+                            label={{
+                              value: `Reserve: ${formatCurrency(auction.reserve_price)}`,
+                              position: 'insideTopRight',
+                              fontSize: 9,
+                              fill: 'hsl(var(--destructive))',
+                            }}
+                          />
+                        )}
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex justify-center gap-4 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-0.5 bg-emerald-500 rounded-full inline-block" /> Actual
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-violet-500" /> Projected
+                    </span>
+                    {auction.reserve_price && (
+                      <span className="flex items-center gap-1">
+                        <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-destructive" /> Reserve
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Reserve proximity */}
               {prediction.reserveLikely && (
                 <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600">
