@@ -44,10 +44,13 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
     setLoaded(false);
   }, [category, isNetworkMode]);
 
-  const uninvitedTopSuppliers = recommendations.filter(s => !invitedIds.has(s.supplier_id)).slice(0, AUTO_INVITE_COUNT);
-  const canAutoInvite = uninvitedTopSuppliers.length > 0 && invitedIds.size < MAX_TOTAL_INVITES;
+  const availableSlots = Math.max(0, MAX_TOTAL_INVITES - invitedIds.size);
+  const uninvitedTopSuppliers = recommendations
+    .filter(s => !invitedIds.has(s.supplier_id))
+    .slice(0, Math.min(AUTO_INVITE_COUNT, availableSlots));
+  const canAutoInvite = uninvitedTopSuppliers.length > 0 && availableSlots > 0;
 
-  const handleAutoInvite = useCallback(() => {
+  const handleAutoInvite = useCallback(async () => {
     if (!canAutoInvite) return;
     setAutoInviting(true);
     try {
@@ -59,6 +62,7 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
           city: s.city,
           email: s.email,
         });
+        await new Promise(res => setTimeout(res, 100));
       }
       toast({
         title: `⚡ ${uninvitedTopSuppliers.length} top suppliers auto-invited`,
@@ -91,7 +95,7 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
               disabled={autoInviting}
             >
               <Wand2 className="w-3.5 h-3.5" />
-              {autoInviting ? 'Inviting...' : `Auto-invite top ${uninvitedTopSuppliers.length}`}
+              {autoInviting ? 'Inviting...' : `Invite best suppliers instantly`}
             </Button>
           )}
         </div>
