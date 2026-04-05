@@ -2,12 +2,13 @@
  * Supplier Recommendation Panel (Buyer Network-Scoped)
  * Shows AI-ranked top 5 suppliers from buyer's own network
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Trophy, Plus, Star, Shield, Zap, UserPlus } from 'lucide-react';
+import { Sparkles, Trophy, Plus, Star, Shield, Zap, UserPlus, Wand2 } from 'lucide-react';
 import { useSupplierRecommendation, SupplierRecommendation } from '@/hooks/useSupplierRecommendation';
+import { useToast } from '@/hooks/use-toast';
 
 interface SupplierRecommendationPanelProps {
   category: string;
