@@ -7,7 +7,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Trophy, Plus, Star, Shield, Zap, UserPlus, Wand2 } from 'lucide-react';
+import { Sparkles, Trophy, Plus, Star, Shield, Zap, UserPlus, Wand2, TrendingUp, Handshake, ChevronDown, ChevronUp } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { useSupplierRecommendation, SupplierRecommendation } from '@/hooks/useSupplierRecommendation';
 import { useToast } from '@/hooks/use-toast';
 
