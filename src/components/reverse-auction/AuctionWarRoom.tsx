@@ -380,7 +380,7 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
     : null;
 
   // Leaderboard — top 3 unique suppliers by best bid
-  const leaderboard = useMemo(() => {
+  const leaderboard = (() => {
     const seen = new Set<string>();
     const top: { supplierId: string; price: number; rank: number }[] = [];
     for (const bid of ranked) {
@@ -390,7 +390,7 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
       if (top.length >= 3) break;
     }
     return top;
-  }, [ranked]);
+  })();
 
   return (
     <Card className="border overflow-hidden hover:shadow-md transition-shadow">
