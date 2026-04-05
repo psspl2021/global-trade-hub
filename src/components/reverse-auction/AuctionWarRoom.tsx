@@ -665,20 +665,16 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
   const ranked = getRankedBids(bids);
   const uniqueBidders = new Set(bids.map(b => b.supplier_id)).size;
 
-  // Health indicator
   const health = getAuctionHealth(uniqueBidders, reductionPct, bids.length);
   const healthCfg = HEALTH_CONFIG[health.status];
   const HealthIcon = healthCfg.icon;
 
-  // Smart alerts
   const alerts = getSmartAlerts(auction, bids, uniqueBidders, reductionPct);
 
-  // Reserve progress
   const progressToReserve = auction.reserve_price
     ? Math.min(100, ((auction.starting_price - currentPrice) / (auction.starting_price - auction.reserve_price)) * 100)
     : null;
 
-  // Leaderboard — top 3 unique suppliers by best bid
   const leaderboard = (() => {
     const seen = new Set<string>();
     const top: { supplierId: string; price: number; rank: number }[] = [];
@@ -693,13 +689,27 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
 
   return (
     <Card className="border overflow-hidden hover:shadow-md transition-shadow">
-      <div className="p-4 space-y-3">
-        {/* Top row */}
+      {/* ── Mobile Sticky L1 Strip ── */}
+      {ranked.length > 0 && (
+        <div className="flex items-center justify-between px-4 py-2 bg-emerald-50 dark:bg-emerald-950/30 border-b border-emerald-200 dark:border-emerald-800 lg:hidden">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">L1: {formatCurrency(ranked[0].bid_price)}</span>
+          </div>
+          <div className={`flex items-center gap-1 text-xs font-mono font-bold ${URGENCY_STYLES[time.urgency]}`}>
+            <Timer className="w-3 h-3" />
+            {time.label}
+          </div>
+          <span className="text-[10px] font-medium text-muted-foreground">{uniqueBidders} bidders</span>
+        </div>
+      )}
+
+      <div className="p-4 space-y-4">
+        {/* ── 1. Title + Health + Time ── */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <p className="font-semibold text-foreground truncate">{auction.title}</p>
-              {/* Health badge */}
               <Badge variant="outline" className={`text-[10px] gap-1 shrink-0 border-0 ${healthCfg.bg} ${healthCfg.color}`}>
                 <HealthIcon className="w-3 h-3" />
                 {health.label}
@@ -711,7 +721,7 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
               <span>Start: {formatCurrency(auction.starting_price)}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
             <div className={`flex items-center gap-1 text-xs font-mono font-bold ${URGENCY_STYLES[time.urgency]}`}>
               <Timer className="w-3.5 h-3.5" />
               {time.label}
@@ -722,7 +732,7 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
           </div>
         </div>
 
-        {/* Price & Savings Row */}
+        {/* ── 2. Metrics Strip: Current | Reduction | Savings ── */}
         <div className="grid grid-cols-3 gap-3">
           <div>
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Current Price</p>
@@ -749,178 +759,66 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
           </div>
         )}
 
-        {/* Predicted Final Price */}
+        {/* ── 3. Prediction Block (HERO — PRIMARY VISUAL DOMINANCE) ── */}
         {prediction && (() => {
           const trendCfg = TREND_CONFIG[prediction.trend];
           return (
-            <div className="p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20 space-y-2">
-              <div className="flex items-center justify-between">
+            <div className="p-4 rounded-xl border-2 border-violet-200 dark:border-violet-800 bg-violet-50/60 dark:bg-violet-950/30 space-y-3">
+              {/* Top: Price left, Trend right */}
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground/70 flex items-center gap-1">
                     <TrendingDown className="w-3 h-3" /> Predicted Final Price
                   </p>
-                  <p className="text-lg font-bold text-violet-700 dark:text-violet-400">
+                  <p className="text-2xl lg:text-3xl font-extrabold text-violet-700 dark:text-violet-400 tracking-tight">
                     {formatCurrency(prediction.predictedPrice)}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Range: {formatCurrency(prediction.range[0])} – {formatCurrency(prediction.range[1])}
                   </p>
                 </div>
-                <div className="text-right space-y-1">
-                  <div className={`text-xs font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                    {prediction.confidence}%
-                  </div>
-                  <p className="text-[10px] text-muted-foreground">confidence</p>
-                  <Badge variant="outline" className={`text-[10px] gap-1 border-0 ${trendCfg.color}`}>
+                <div className="text-right space-y-1.5 shrink-0">
+                  <Badge variant="outline" className={`text-xs gap-1 border-0 font-bold ${trendCfg.color}`}>
                     {trendCfg.icon} {trendCfg.label}
                   </Badge>
+                  {prediction.reserveLikely && (
+                    <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 justify-end">
+                      <Target className="w-3 h-3" />
+                      Hits reserve
+                    </div>
+                  )}
                 </div>
               </div>
 
+              {/* Confidence bar */}
               <div className="space-y-1">
-                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${prediction.confidence >= 70 ? 'bg-emerald-500' : prediction.confidence >= 40 ? 'bg-amber-500' : 'bg-red-400'}`}
+                    className={`h-full rounded-full transition-all duration-700 ease-out ${prediction.confidence >= 70 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : prediction.confidence >= 40 ? 'bg-gradient-to-r from-amber-400 to-amber-600' : 'bg-gradient-to-r from-red-300 to-red-500'}`}
                     style={{ width: `${prediction.confidence}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] text-muted-foreground">
+                <div className="flex justify-between items-center text-[10px] text-muted-foreground/70">
                   <span>Low</span>
+                  <span className={`font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                    {prediction.confidence}% confidence
+                  </span>
                   <span>High</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground text-center italic">
-                  Based on bid activity, competition & timing
-                </p>
               </div>
 
-              {/* Price Trend + Projection Chart */}
-              {trendData.length >= 3 && (
-                <div className="space-y-1">
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-                    <BarChart3 className="w-3 h-3" /> Price Trend & Projection
-                  </p>
-                  <div className="h-36 -mx-1">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="projectionFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0.15} />
-                            <stop offset="95%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0} />
-                          </linearGradient>
-                          <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.15} />
-                            <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                        <XAxis
-                          dataKey="time"
-                          tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
-                          axisLine={false}
-                          tickLine={false}
-                        />
-                        <YAxis
-                          tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
-                          axisLine={false}
-                          tickLine={false}
-                          tickFormatter={(v: number) => v >= 100000 ? `${(v / 100000).toFixed(1)}L` : v >= 1000 ? `${(v / 1000).toFixed(0)}K` : `${v}`}
-                          domain={['auto', 'auto']}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            background: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '0.5rem',
-                            fontSize: '11px',
-                          }}
-                          formatter={(value: number, name: string) => [
-                            formatCurrency(value),
-                            name === 'price' ? 'Actual' : 'Projected'
-                          ]}
-                        />
-                        {/* Confidence range band */}
-                        <Area
-                          type="monotone"
-                          dataKey="upperBound"
-                          stroke="none"
-                          fill="hsl(263, 70%, 50%)"
-                          fillOpacity={0.08}
-                          connectNulls={false}
-                        />
-                        {/* Actual price line */}
-                        <Area
-                          type="monotone"
-                          dataKey="price"
-                          stroke="hsl(160, 84%, 39%)"
-                          strokeWidth={2}
-                          fill="url(#actualFill)"
-                          dot={false}
-                          connectNulls={false}
-                        />
-                        {/* Projection line (dashed) */}
-                        <Line
-                          type="monotone"
-                          dataKey="predicted"
-                          stroke="hsl(263, 70%, 50%)"
-                          strokeWidth={2}
-                          strokeDasharray="6 3"
-                          dot={{ r: 3, fill: 'hsl(263, 70%, 50%)' }}
-                          connectNulls
-                        />
-                        {/* Reserve price reference line */}
-                        {auction.reserve_price && (
-                          <ReferenceLine
-                            y={auction.reserve_price}
-                            stroke="hsl(var(--destructive))"
-                            strokeDasharray="4 4"
-                            strokeOpacity={0.6}
-                            label={{
-                              value: `Reserve: ${formatCurrency(auction.reserve_price)}`,
-                              position: 'insideTopRight',
-                              fontSize: 9,
-                              fill: 'hsl(var(--destructive))',
-                            }}
-                          />
-                        )}
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="flex justify-center gap-4 text-[10px] text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <span className="w-3 h-0.5 bg-emerald-500 rounded-full inline-block" /> Actual
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-violet-500" /> Projected
-                    </span>
-                    {auction.reserve_price && (
-                      <span className="flex items-center gap-1">
-                        <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-destructive" /> Reserve
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Reserve proximity */}
-              {prediction.reserveLikely && (
-                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600">
-                  <Target className="w-3 h-3" />
-                  🎯 Likely to hit reserve
-                </div>
-              )}
-
-              {/* Decision suggestion */}
+              {/* Decision suggestion — pulse subtly */}
               {prediction.suggestion && (
-                <div className="flex items-center gap-1.5 text-xs text-primary bg-primary/5 rounded-md px-2 py-1.5 border border-primary/10">
-                  <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+                <div className="flex items-center gap-2 text-sm text-primary bg-primary/5 rounded-lg px-3 py-2 border border-primary/10">
+                  <Lightbulb className="w-4 h-4 shrink-0 animate-pulse opacity-80" />
                   <span className="font-medium">{prediction.suggestion}</span>
                 </div>
               )}
 
-              {/* Explainability — "Why this prediction?" */}
+              {/* Why this prediction — expandable */}
               <details className="group">
-                <summary className="text-[10px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors flex items-center gap-1">
-                  <Eye className="w-3 h-3" /> Why this prediction?
+                <summary className="text-[10px] text-muted-foreground/70 cursor-pointer hover:text-foreground transition-colors flex items-center gap-1">
+                  <Eye className="w-3 h-3" /> Why this prediction ▼
                 </summary>
                 <ul className="mt-1.5 space-y-0.5 pl-4">
                   {prediction.reasoning.map((r, i) => (
@@ -932,16 +830,118 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
           );
         })()}
 
-        {/* Leaderboard strip */}
+        {/* ── 4. Price Trend Graph (CENTERPIECE) ── */}
+        {trendData.length >= 3 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+              <BarChart3 className="w-3 h-3" /> Price Trend & Projection
+            </p>
+            <div className="h-44 lg:h-52 -mx-1">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="projectionFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                  <XAxis
+                    dataKey="time"
+                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => v >= 100000 ? `${(v / 100000).toFixed(1)}L` : v >= 1000 ? `${(v / 1000).toFixed(0)}K` : `${v}`}
+                    domain={['auto', 'auto']}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '0.5rem',
+                      fontSize: '11px',
+                    }}
+                    formatter={(value: number, name: string) => [
+                      formatCurrency(value),
+                      name === 'price' ? 'Actual' : 'Projected'
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="upperBound"
+                    stroke="none"
+                    fill="hsl(263, 70%, 50%)"
+                    fillOpacity={0.08}
+                    connectNulls={false}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="price"
+                    stroke="hsl(160, 84%, 39%)"
+                    strokeWidth={2}
+                    fill="url(#actualFill)"
+                    dot={false}
+                    connectNulls={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="predicted"
+                    stroke="hsl(263, 70%, 50%)"
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    dot={{ r: 3, fill: 'hsl(263, 70%, 50%)' }}
+                    connectNulls
+                  />
+                  {auction.reserve_price && (
+                    <ReferenceLine
+                      y={auction.reserve_price}
+                      stroke="hsl(var(--destructive))"
+                      strokeDasharray="4 4"
+                      strokeOpacity={0.6}
+                      label={{
+                        value: `Reserve: ${formatCurrency(auction.reserve_price)}`,
+                        position: 'insideTopRight',
+                        fontSize: 9,
+                        fill: 'hsl(var(--destructive))',
+                      }}
+                    />
+                  )}
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex justify-center gap-4 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-0.5 bg-emerald-500 rounded-full inline-block" /> Actual
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-violet-500" /> Projected
+              </span>
+              {auction.reserve_price && (
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-0.5 rounded-full inline-block border-t-2 border-dashed border-destructive" /> Reserve
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── 5. Leaderboard (Compact Horizontal Strip) ── */}
         {leaderboard.length > 0 && (
-          <div className="flex items-center gap-3 p-2 rounded-md bg-muted/50 border border-border/50">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/40 border border-border/40 overflow-x-auto">
             <Medal className="w-4 h-4 text-amber-500 shrink-0" />
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            <div className="flex items-center gap-4 text-xs whitespace-nowrap">
               {leaderboard.map((entry, i) => (
                 <span key={entry.supplierId} className="flex items-center gap-1">
-                  <span>{MEDAL_ICONS[i]}</span>
-                  <span className="text-muted-foreground">Supplier {entry.rank}</span>
-                  <span className="font-semibold text-foreground">–</span>
+                  <span className="text-sm">{MEDAL_ICONS[i]}</span>
                   <span className={`font-bold ${i === 0 ? 'text-emerald-600' : 'text-foreground'}`}>
                     {formatCurrency(entry.price)}
                   </span>
@@ -951,7 +951,30 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
           </div>
         )}
 
-        {/* Bottom: Bidders & L1 */}
+        {/* ── 6. Alerts (Compact Chips) ── */}
+        {alerts.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {alerts.map((alert, i) => (
+              <div key={i} className={`inline-flex items-center gap-1.5 text-[11px] font-medium rounded-full px-3 py-1 border ${ALERT_STYLES[alert.severity]}`}>
+                {alert.severity === 'critical' ? (
+                  <AlertTriangle className="w-3 h-3 shrink-0" />
+                ) : (
+                  <BellRing className="w-3 h-3 shrink-0" />
+                )}
+                {alert.message}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {time.urgency === 'critical' && (
+          <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-destructive bg-destructive/5 rounded-full px-3 py-1 border border-destructive/20">
+            <AlertTriangle className="w-3 h-3 shrink-0" />
+            Ending soon — monitor for last-minute bids
+          </div>
+        )}
+
+        {/* ── Bottom: Bidders count + View button (mobile) ── */}
         <div className="flex items-center justify-between text-xs border-t pt-2">
           <div className="flex items-center gap-3 text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -961,36 +984,17 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
               <BarChart3 className="w-3.5 h-3.5" /> {bids.length} bids
             </span>
           </div>
-          {ranked.length > 0 && (
-            <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700 gap-1">
-              <Trophy className="w-3 h-3" /> L1: {formatCurrency(ranked[0].bid_price)}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {ranked.length > 0 && (
+              <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700 gap-1 hidden lg:inline-flex">
+                <Trophy className="w-3 h-3" /> L1: {formatCurrency(ranked[0].bid_price)}
+              </Badge>
+            )}
+            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 lg:hidden" onClick={onView}>
+              <Eye className="w-3 h-3" /> View
+            </Button>
+          </div>
         </div>
-
-        {/* Smart alerts */}
-        {alerts.length > 0 && (
-          <div className="space-y-1.5">
-            {alerts.map((alert, i) => (
-              <div key={i} className={`flex items-center gap-2 text-xs rounded-md p-2 border ${ALERT_STYLES[alert.severity]}`}>
-                {alert.severity === 'critical' ? (
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                ) : (
-                  <BellRing className="w-3.5 h-3.5 shrink-0" />
-                )}
-                <span className="font-medium">{alert.message}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Urgency alert */}
-        {time.urgency === 'critical' && (
-          <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/5 rounded-md p-2 border border-destructive/20">
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-            <span className="font-medium">Ending soon — monitor for last-minute bids</span>
-          </div>
-        )}
       </div>
     </Card>
   );
