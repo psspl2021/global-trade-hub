@@ -659,6 +659,7 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
   const time = getTimeRemaining(auction.auction_end);
   const currentPrice = auction.current_price ?? auction.starting_price;
   const prediction = useMemo(() => predictFinalPrice(auction, bids), [auction, bids]);
+  const trendData = useMemo(() => buildPriceTrendData(auction, bids, prediction), [auction, bids, prediction]);
   const reductionPct = ((auction.starting_price - currentPrice) / auction.starting_price) * 100;
   const savings = (auction.starting_price - currentPrice) * auction.quantity;
   const ranked = getRankedBids(bids);
