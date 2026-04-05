@@ -13,6 +13,10 @@ import {
   BarChart3, Timer, ShieldCheck, ShieldAlert, ShieldX,
   BellRing, Medal, Lightbulb
 } from 'lucide-react';
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  CartesianGrid, Area, AreaChart, ReferenceLine
+} from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction, getRankedBids, ReverseAuctionBid } from '@/hooks/useReverseAuction';
