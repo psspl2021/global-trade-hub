@@ -196,11 +196,24 @@ const ALERT_STYLES: Record<SmartAlert['severity'], string> = {
 };
 
 /* ── Predicted Final Price Engine ── */
+type PriceTrend = 'falling_fast' | 'falling' | 'stable' | 'stalling';
+
 interface PricePrediction {
   predictedPrice: number;
   range: [number, number];
   confidence: number;
+  trend: PriceTrend;
+  reserveLikely: boolean;
+  reasoning: string[];
+  suggestion?: string;
 }
+
+const TREND_CONFIG: Record<PriceTrend, { icon: string; label: string; color: string }> = {
+  falling_fast: { icon: '📉', label: 'Falling fast', color: 'text-emerald-600' },
+  falling: { icon: '📉', label: 'Dropping', color: 'text-emerald-600' },
+  stable: { icon: '📊', label: 'Stable', color: 'text-amber-600' },
+  stalling: { icon: '📈', label: 'Stalling', color: 'text-destructive' },
+};
 
 function getBidVelocity(bids: ReverseAuctionBid[]): number {
   if (bids.length < 2) return 0;
@@ -209,6 +222,12 @@ function getBidVelocity(bids: ReverseAuctionBid[]): number {
   const last = new Date(sorted[sorted.length - 1].created_at).getTime();
   const minutes = (last - first) / (1000 * 60);
   return minutes > 0 ? bids.length / minutes : 0;
+}
+
+function getRecentVelocity(bids: ReverseAuctionBid[]): number {
+  const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+  const recent = bids.filter(b => new Date(b.created_at).getTime() > fiveMinAgo);
+  return recent.length;
 }
 
 function getPriceDropRate(auction: ReverseAuction, bids: ReverseAuctionBid[]): number {
@@ -230,9 +249,17 @@ function predictFinalPrice(auction: ReverseAuction, bids: ReverseAuctionBid[]): 
   if (bids.length < 2) return null;
   const current = auction.current_price ?? auction.starting_price;
   const velocity = getBidVelocity(bids);
+  const recentBids = getRecentVelocity(bids);
   const dropRate = getPriceDropRate(auction, bids);
   const timeFactor = getTimeFactor(auction);
   const competition = new Set(bids.map(b => b.supplier_id)).size;
+  const reductionPct = ((auction.starting_price - current) / auction.starting_price) * 100;
+
+  // Trend classification
+  let trend: PriceTrend = 'stable';
+  if (recentBids >= 5 && dropRate > 0) trend = 'falling_fast';
+  else if (recentBids >= 2 && dropRate > 0) trend = 'falling';
+  else if (recentBids === 0 && timeFactor > 0.3) trend = 'stalling';
 
   let expectedDrop = dropRate * (1 + velocity * 0.2);
   if (competition >= 3) expectedDrop *= 1.3;
@@ -253,11 +280,39 @@ function predictFinalPrice(auction: ReverseAuction, bids: ReverseAuctionBid[]): 
      timeFactor * 0.3) * 100
   );
 
+  // Reserve proximity
+  const reserveLikely = !!(auction.reserve_price && predicted <= auction.reserve_price * 1.05);
+
+  // Build reasoning
+  const reasoning: string[] = [];
+  reasoning.push(`${competition} active bidder${competition !== 1 ? 's' : ''}`);
+  reasoning.push(`${recentBids} bid${recentBids !== 1 ? 's' : ''} in last 5 min`);
+  reasoning.push(`${reductionPct.toFixed(1)}% price drop so far`);
+  if (trend === 'falling_fast') reasoning.push('High bid activity detected');
+  if (reserveLikely) reasoning.push('On track to hit reserve price');
+
+  // Decision suggestion based on prediction
+  let suggestion: string | undefined;
+  if (trend === 'falling_fast' && remainingMins > 5) {
+    const additionalDrop = formatCurrency(Math.round(projectedDrop * 0.5));
+    suggestion = `Wait — price likely to drop another ${additionalDrop}`;
+  } else if (trend === 'stalling' && timeFactor > 0.5) {
+    suggestion = 'Price stabilizing — consider closing soon after auction ends';
+  } else if (reserveLikely) {
+    suggestion = 'Likely to hit reserve — strong outcome expected';
+  } else if (trend === 'stable' && competition < 3) {
+    suggestion = 'Invite more suppliers to increase price pressure';
+  }
+
   const spread = predicted * 0.03;
   return {
     predictedPrice: Math.round(predicted),
     range: [Math.round(predicted - spread), Math.round(predicted + spread)],
     confidence,
+    trend,
+    reserveLikely,
+    reasoning,
+    suggestion,
   };
 }
 
@@ -633,33 +688,65 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
         )}
 
         {/* Predicted Final Price */}
-        {prediction && (
-          <div className="p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-                  <TrendingDown className="w-3 h-3" /> Predicted Final Price
-                </p>
-                <p className="text-lg font-bold text-violet-700 dark:text-violet-400">
-                  {formatCurrency(prediction.predictedPrice)}
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  Range: {formatCurrency(prediction.range[0])} – {formatCurrency(prediction.range[1])}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className={`text-xs font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                  {prediction.confidence}%
+        {prediction && (() => {
+          const trendCfg = TREND_CONFIG[prediction.trend];
+          return (
+            <div className="p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                    <TrendingDown className="w-3 h-3" /> Predicted Final Price
+                  </p>
+                  <p className="text-lg font-bold text-violet-700 dark:text-violet-400">
+                    {formatCurrency(prediction.predictedPrice)}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Range: {formatCurrency(prediction.range[0])} – {formatCurrency(prediction.range[1])}
+                  </p>
                 </div>
-                <p className="text-[10px] text-muted-foreground">confidence</p>
+                <div className="text-right space-y-1">
+                  <div className={`text-xs font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                    {prediction.confidence}%
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">confidence</p>
+                  <Badge variant="outline" className={`text-[10px] gap-1 border-0 ${trendCfg.color}`}>
+                    {trendCfg.icon} {trendCfg.label}
+                  </Badge>
+                </div>
               </div>
+
+              <Progress value={prediction.confidence} className="h-1" />
+
+              {/* Reserve proximity */}
+              {prediction.reserveLikely && (
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600">
+                  <Target className="w-3 h-3" />
+                  🎯 Likely to hit reserve
+                </div>
+              )}
+
+              {/* Decision suggestion */}
+              {prediction.suggestion && (
+                <div className="flex items-center gap-1.5 text-xs text-primary bg-primary/5 rounded-md px-2 py-1.5 border border-primary/10">
+                  <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+                  <span className="font-medium">{prediction.suggestion}</span>
+                </div>
+              )}
+
+              {/* Explainability — "Why this prediction?" */}
+              <details className="group">
+                <summary className="text-[10px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors flex items-center gap-1">
+                  <Eye className="w-3 h-3" /> Why this prediction?
+                </summary>
+                <ul className="mt-1.5 space-y-0.5 pl-4">
+                  {prediction.reasoning.map((r, i) => (
+                    <li key={i} className="text-[10px] text-muted-foreground list-disc">{r}</li>
+                  ))}
+                </ul>
+              </details>
             </div>
-            <Progress
-              value={prediction.confidence}
-              className="h-1 mt-2"
-            />
-          </div>
-        )}
+          );
+        })()}
 
         {/* Leaderboard strip */}
         {leaderboard.length > 0 && (
