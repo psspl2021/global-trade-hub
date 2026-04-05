@@ -632,6 +632,35 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
           </div>
         )}
 
+        {/* Predicted Final Price */}
+        {prediction && (
+          <div className="p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3" /> Predicted Final Price
+                </p>
+                <p className="text-lg font-bold text-violet-700 dark:text-violet-400">
+                  {formatCurrency(prediction.predictedPrice)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  Range: {formatCurrency(prediction.range[0])} – {formatCurrency(prediction.range[1])}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className={`text-xs font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                  {prediction.confidence}%
+                </div>
+                <p className="text-[10px] text-muted-foreground">confidence</p>
+              </div>
+            </div>
+            <Progress
+              value={prediction.confidence}
+              className="h-1 mt-2"
+            />
+          </div>
+        )}
+
         {/* Leaderboard strip */}
         {leaderboard.length > 0 && (
           <div className="flex items-center gap-3 p-2 rounded-md bg-muted/50 border border-border/50">
