@@ -873,11 +873,6 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                {/* Subscription Invoices */}
-                <div className="mb-4">
-                  <SubscriptionInvoices />
-                </div>
-
                 {/* Compact Grid - All boxes in one view */}
                 <div className="grid gap-2 grid-cols-3 lg:grid-cols-3">
                   <Card className="p-3">
@@ -896,8 +891,8 @@ const Dashboard = () => {
                   </Card>
                 </div>
 
-                {/* Separate Cards: Forward Bids + Reverse Auction */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 mt-4">
+                {/* Clickable Cards: Forward Bids, Reverse Auction, Subscription */}
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-3 mt-4">
                   <Card variant="interactive" className="p-4" onClick={() => setShowSupplierForwardBids(true)}>
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-primary to-primary/80 shadow-md">
@@ -918,42 +913,30 @@ const Dashboard = () => {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-foreground">Reverse Auctions</p>
-                        <p className="text-xs text-muted-foreground">View reverse auction bids</p>
+                        <p className="text-xs text-muted-foreground">View auction bids</p>
+                      </div>
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+                    </div>
+                  </Card>
+
+                  <Card variant="interactive" className="p-4" onClick={() => setShowSupplierSubscription(true)}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-amber-500 to-orange-500 shadow-md">
+                        <Star className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-foreground">Subscription Plan</p>
+                        <p className="text-xs text-muted-foreground">
+                          {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
+                        </p>
                       </div>
                       <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180" />
                     </div>
                   </Card>
                 </div>
 
-                {/* Compact cards grid for Subscription, Email, Platform Invoices */}
-                <div className="grid gap-2 grid-cols-3 mt-4">
-                  <Card className="p-3">
-                    <div className="flex items-center gap-1 mb-1">
-                      <Star className="h-3 w-3 text-amber-500" />
-                      <p className="text-xs font-medium">Subscription</p>
-                    </div>
-                    {subscription?.is_early_adopter && (
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] px-1 py-0 mb-1">
-                        EARLY ADOPTER
-                      </Badge>
-                    )}
-                    <p className="text-[10px] text-muted-foreground mb-1">
-                      {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
-                    </p>
-                    <Progress 
-                      value={((subscription?.bids_used_this_month ?? 0) / (subscription?.bids_limit ?? 5)) * 100} 
-                      className="h-1 mb-2" 
-                    />
-                    <PremiumPackPurchase
-                      userId={user?.id || ''}
-                      userEmail={user?.email || ''}
-                      userPhone={user?.user_metadata?.phone || ''}
-                      userName={user?.user_metadata?.contact_person || user?.user_metadata?.company_name || ''}
-                      userType="supplier"
-                      hasPremiumBalance={(subscription?.premium_bids_balance ?? 0) > 0}
-                    />
-                  </Card>
-
+                {/* Email Quota + Platform Invoices */}
+                <div className="grid gap-2 grid-cols-2 mt-4">
                   <SupplierEmailQuotaCard />
 
                   <Card className="p-3">
