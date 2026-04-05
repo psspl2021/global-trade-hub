@@ -151,6 +151,10 @@ export function SupplierRecommendationPanel({ category, buyerId, onAddSupplier, 
                       <div className="min-w-0">
                         <p className="font-medium text-foreground truncate">{rec.company_name}</p>
                         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                          {rankLabel && (
+                            <span className={`font-medium ${scoreColor}`}>{rankLabel}</span>
+                          )}
+                          {rankLabel && rec.city && <span>·</span>}
                           {rec.city && <span>{rec.city}</span>}
                           {rec.total_wins > 0 && (
                             <span className="flex items-center gap-0.5 text-emerald-600">
