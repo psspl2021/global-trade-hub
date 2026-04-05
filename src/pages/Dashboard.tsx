@@ -102,6 +102,10 @@ const Dashboard = () => {
   const setShowSupplierSubscription = (show: boolean) => {
     setSearchParams(show ? { view: 'supplier-subscription' } : {}, { replace: true });
   };
+  const showSupplierReferral = activeView === 'supplier-referral';
+  const setShowSupplierReferral = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-referral' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
