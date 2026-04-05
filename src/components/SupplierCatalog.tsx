@@ -125,7 +125,7 @@ export const SupplierCatalog = ({ open, onOpenChange, userId }: SupplierCatalogP
       form.reset();
       setShowAddForm(false);
       setEditingProduct(null);
-      fetchProducts();
+      await fetchProducts(false);
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
@@ -153,7 +153,7 @@ export const SupplierCatalog = ({ open, onOpenChange, userId }: SupplierCatalogP
       toast({ title: 'Error', description: 'Failed to delete product', variant: 'destructive' });
     } else {
       toast({ title: 'Success', description: 'Product deleted' });
-      fetchProducts();
+      fetchProducts(false);
     }
   };
 
