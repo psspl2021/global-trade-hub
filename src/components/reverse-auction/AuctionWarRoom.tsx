@@ -688,33 +688,65 @@ function LiveAuctionCard({ auction, bids, tick, onView }: { auction: ReverseAuct
         )}
 
         {/* Predicted Final Price */}
-        {prediction && (
-          <div className="p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-                  <TrendingDown className="w-3 h-3" /> Predicted Final Price
-                </p>
-                <p className="text-lg font-bold text-violet-700 dark:text-violet-400">
-                  {formatCurrency(prediction.predictedPrice)}
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  Range: {formatCurrency(prediction.range[0])} – {formatCurrency(prediction.range[1])}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className={`text-xs font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                  {prediction.confidence}%
+        {prediction && (() => {
+          const trendCfg = TREND_CONFIG[prediction.trend];
+          return (
+            <div className="p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                    <TrendingDown className="w-3 h-3" /> Predicted Final Price
+                  </p>
+                  <p className="text-lg font-bold text-violet-700 dark:text-violet-400">
+                    {formatCurrency(prediction.predictedPrice)}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Range: {formatCurrency(prediction.range[0])} – {formatCurrency(prediction.range[1])}
+                  </p>
                 </div>
-                <p className="text-[10px] text-muted-foreground">confidence</p>
+                <div className="text-right space-y-1">
+                  <div className={`text-xs font-bold ${prediction.confidence >= 70 ? 'text-emerald-600' : prediction.confidence >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                    {prediction.confidence}%
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">confidence</p>
+                  <Badge variant="outline" className={`text-[10px] gap-1 border-0 ${trendCfg.color}`}>
+                    {trendCfg.icon} {trendCfg.label}
+                  </Badge>
+                </div>
               </div>
+
+              <Progress value={prediction.confidence} className="h-1" />
+
+              {/* Reserve proximity */}
+              {prediction.reserveLikely && (
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600">
+                  <Target className="w-3 h-3" />
+                  🎯 Likely to hit reserve
+                </div>
+              )}
+
+              {/* Decision suggestion */}
+              {prediction.suggestion && (
+                <div className="flex items-center gap-1.5 text-xs text-primary bg-primary/5 rounded-md px-2 py-1.5 border border-primary/10">
+                  <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+                  <span className="font-medium">{prediction.suggestion}</span>
+                </div>
+              )}
+
+              {/* Explainability — "Why this prediction?" */}
+              <details className="group">
+                <summary className="text-[10px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors flex items-center gap-1">
+                  <Eye className="w-3 h-3" /> Why this prediction?
+                </summary>
+                <ul className="mt-1.5 space-y-0.5 pl-4">
+                  {prediction.reasoning.map((r, i) => (
+                    <li key={i} className="text-[10px] text-muted-foreground list-disc">{r}</li>
+                  ))}
+                </ul>
+              </details>
             </div>
-            <Progress
-              value={prediction.confidence}
-              className="h-1 mt-2"
-            />
-          </div>
-        )}
+          );
+        })()}
 
         {/* Leaderboard strip */}
         {leaderboard.length > 0 && (
