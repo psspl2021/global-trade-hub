@@ -381,178 +381,169 @@ export const SupplierMyBids = ({ userId }: SupplierMyBidsProps) => {
         </Card>
       ) : (
         <>
-          <div className="grid gap-4">
+          <div className="grid gap-2">
             {paginatedBids.map((bid) => {
               const breakdown = calculateBreakdown(bid);
               const lowestBidWithMarkup = lowestBids[bid.requirement_id];
-              // Convert lowest bid (per-unit with markup) to supplier net rate (without markup) for fair comparison
               const markupRate = getMarkupRate(bid.requirement?.trade_type);
               const lowestSupplierRate = lowestBidWithMarkup ? lowestBidWithMarkup / (1 + markupRate) : null;
               const isLowest = lowestSupplierRate && breakdown.perUnitRate <= lowestSupplierRate;
               const difference = lowestSupplierRate ? breakdown.perUnitRate - lowestSupplierRate : 0;
+              const isExpanded = expandedBidId === bid.id;
 
           return (
             <Card key={bid.id} className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{bid.requirement?.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {bid.requirement?.product_category} • {bid.requirement?.quantity} {bid.requirement?.unit}
-                    </p>
-                  </div>
+              {/* Compact clickable row */}
+              <button
+                type="button"
+                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+                onClick={() => setExpandedBidId(isExpanded ? null : bid.id)}
+              >
+                <div className="flex-1 min-w-0 mr-3">
+                  <p className="text-sm font-semibold text-foreground truncate">{bid.requirement?.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {bid.requirement?.product_category} • {bid.requirement?.quantity} {bid.requirement?.unit}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   {getStatusBadge(bid.status, bid.requirement?.status)}
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Bid Breakdown - Supplier sees only their quoted price, no fees/markup shown */}
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="font-semibold mb-3 text-sm">Your Bid Summary</h4>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Your Per-Unit Rate:</span>
-                      <p className="font-medium">₹{breakdown.perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{bid.requirement?.unit}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Quantity:</span>
-                      <p className="font-medium">{breakdown.quantity} {bid.requirement?.unit}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Total Order Value:</span>
-                      <p className="font-bold">₹{breakdown.totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Delivery Timeline:</span>
-                      <p className="font-medium">{bid.delivery_timeline_days} days</p>
-                    </div>
-                    {breakdown.gstAmount > 0 && (
-                      <>
-                        <div>
-                          <span className="text-muted-foreground">GST (18%):</span>
-                          <p className="font-medium">₹{breakdown.gstAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Grand Total:</span>
-                          <p className="font-bold text-primary">₹{breakdown.grandTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
-                    <p>Platform fee: ₹0 (No deductions from your quoted price)</p>
-                  </div>
-                </div>
+              </button>
 
-                {/* Competitive Ranking - Only for pending offers */}
-                {bid.status === 'pending' && lowestSupplierRate && (
-                  <div className={`rounded-lg p-4 ${isLowest ? 'bg-green-500/10 border border-green-500/30' : 'bg-orange-500/10 border border-orange-500/30'}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      {isLowest ? (
+              {/* Expandable detail section */}
+              {isExpanded && (
+                <CardContent className="pt-0 pb-4 space-y-4 border-t">
+                  <div className="bg-muted/50 rounded-lg p-4 mt-3">
+                    <h4 className="font-semibold mb-3 text-sm">Your Bid Summary</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Your Per-Unit Rate:</span>
+                        <p className="font-medium">₹{breakdown.perUnitRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}/{bid.requirement?.unit}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Quantity:</span>
+                        <p className="font-medium">{breakdown.quantity} {bid.requirement?.unit}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Total Order Value:</span>
+                        <p className="font-bold">₹{breakdown.totalOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Delivery Timeline:</span>
+                        <p className="font-medium">{bid.delivery_timeline_days} days</p>
+                      </div>
+                      {breakdown.gstAmount > 0 && (
                         <>
-                          <TrendingDown className="h-4 w-4 text-green-600" />
-                          <span className="font-semibold text-green-600">You're top-ranked for assignment!</span>
-                        </>
-                      ) : (
-                        <>
-                          <TrendingUp className="h-4 w-4 text-orange-600" />
-                          <span className="font-semibold text-orange-600">More competitive offers exist</span>
+                          <div>
+                            <span className="text-muted-foreground">GST (18%):</span>
+                            <p className="font-medium">₹{breakdown.gstAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Grand Total:</span>
+                            <p className="font-bold text-primary">₹{breakdown.grandTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                          </div>
                         </>
                       )}
                     </div>
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Current Top Offer:</span>
-                      <span className="ml-2 font-bold">₹{lowestSupplierRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {bid.requirement?.unit}</span>
-                      {!isLowest && (
-                        <p className="text-orange-600 mt-1">
-                          Your offer is ₹{difference.toLocaleString(undefined, { maximumFractionDigits: 2 })} higher
-                        </p>
-                      )}
+                    <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
+                      <p>Platform fee: ₹0 (No deductions from your quoted price)</p>
                     </div>
                   </div>
-                )}
 
-                {/* Re-bid Button for pending bids - only if requirement is still active */}
-                {bid.status === 'pending' && bid.requirement?.status === 'active' && (
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => handleRebid(bid)}
-                  >
-                    <Edit2 className="h-4 w-4 mr-2" />
-                    Update Bid
-                  </Button>
-                )}
-
-                {/* Assigned to Other Partner message */}
-                {bid.status === 'pending' && (bid.requirement?.status === 'closed' || bid.requirement?.status === 'awarded') && (
-                  <div className="bg-muted rounded-lg p-4 border">
-                    <div className="flex items-center gap-2">
-                      <X className="h-5 w-5 text-muted-foreground" />
-                      <span className="font-semibold text-muted-foreground">ProcureSaathi assigned this requirement to another partner.</span>
+                  {bid.status === 'pending' && lowestSupplierRate && (
+                    <div className={`rounded-lg p-4 ${isLowest ? 'bg-green-500/10 border border-green-500/30' : 'bg-orange-500/10 border border-orange-500/30'}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {isLowest ? (
+                          <>
+                            <TrendingDown className="h-4 w-4 text-green-600" />
+                            <span className="font-semibold text-green-600">You're top-ranked for assignment!</span>
+                          </>
+                        ) : (
+                          <>
+                            <TrendingUp className="h-4 w-4 text-orange-600" />
+                            <span className="font-semibold text-orange-600">More competitive offers exist</span>
+                          </>
+                        )}
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">Current Top Offer:</span>
+                        <span className="ml-2 font-bold">₹{lowestSupplierRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} per {bid.requirement?.unit}</span>
+                        {!isLowest && (
+                          <p className="text-orange-600 mt-1">
+                            Your offer is ₹{difference.toLocaleString(undefined, { maximumFractionDigits: 2 })} higher
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Status Messages */}
-                {bid.status === 'accepted' && (
-                  <div className="space-y-4">
-                    <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
+                  {bid.status === 'pending' && bid.requirement?.status === 'active' && (
+                    <Button variant="outline" className="w-full" onClick={() => handleRebid(bid)}>
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Update Bid
+                    </Button>
+                  )}
+
+                  {bid.status === 'pending' && (bid.requirement?.status === 'closed' || bid.requirement?.status === 'awarded') && (
+                    <div className="bg-muted rounded-lg p-4 border">
                       <div className="flex items-center gap-2">
-                        <Check className="h-5 w-5 text-green-600" />
-                        <span className="font-semibold text-green-600">Congratulations! You've been assigned as fulfillment partner.</span>
+                        <X className="h-5 w-5 text-muted-foreground" />
+                        <span className="font-semibold text-muted-foreground">ProcureSaathi assigned this requirement to another partner.</span>
                       </div>
                     </div>
-                    
-                    {/* Dispatched Quantity Input */}
-                    <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Truck className="h-5 w-5 text-blue-600" />
-                        <span className="font-semibold text-blue-600">Dispatch Details</span>
-                      </div>
-                      <div className="flex items-end gap-3">
-                        <div className="flex-1">
-                          <Label htmlFor={`dispatch-${bid.id}`} className="text-sm text-muted-foreground">
-                            Dispatched Quantity ({bid.requirement?.unit})
-                          </Label>
-                          <Input
-                            id={`dispatch-${bid.id}`}
-                            type="number"
-                            placeholder={`Ordered: ${bid.requirement?.quantity}`}
-                            value={dispatchedQty[bid.id] ?? (bid.dispatched_qty?.toString() || '')}
-                            onChange={(e) => handleDispatchedQtyChange(bid.id, e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={() => saveDispatchedQty(bid.id)}
-                          disabled={savingDispatch === bid.id}
-                        >
-                          {savingDispatch === bid.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            'Save'
-                          )}
-                        </Button>
-                      </div>
-                      {bid.dispatched_qty && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Last saved: {bid.dispatched_qty} {bid.requirement?.unit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {bid.status === 'rejected' && (
-                  <div className="bg-red-500/10 rounded-lg p-4 border border-red-500/30">
-                    <div className="flex items-center gap-2">
-                      <X className="h-5 w-5 text-red-600" />
-                      <span className="font-semibold text-red-600">This bid was not selected.</span>
+                  {bid.status === 'accepted' && (
+                    <div className="space-y-4">
+                      <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
+                        <div className="flex items-center gap-2">
+                          <Check className="h-5 w-5 text-green-600" />
+                          <span className="font-semibold text-green-600">Congratulations! You've been assigned as fulfillment partner.</span>
+                        </div>
+                      </div>
+                      <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Truck className="h-5 w-5 text-blue-600" />
+                          <span className="font-semibold text-blue-600">Dispatch Details</span>
+                        </div>
+                        <div className="flex items-end gap-3">
+                          <div className="flex-1">
+                            <Label htmlFor={`dispatch-${bid.id}`} className="text-sm text-muted-foreground">
+                              Dispatched Quantity ({bid.requirement?.unit})
+                            </Label>
+                            <Input
+                              id={`dispatch-${bid.id}`}
+                              type="number"
+                              placeholder={`Ordered: ${bid.requirement?.quantity}`}
+                              value={dispatchedQty[bid.id] ?? (bid.dispatched_qty?.toString() || '')}
+                              onChange={(e) => handleDispatchedQtyChange(bid.id, e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+                          <Button size="sm" onClick={() => saveDispatchedQty(bid.id)} disabled={savingDispatch === bid.id}>
+                            {savingDispatch === bid.id ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                          </Button>
+                        </div>
+                        {bid.dispatched_qty && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Last saved: {bid.dispatched_qty} {bid.requirement?.unit}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </CardContent>
+                  )}
+
+                  {bid.status === 'rejected' && (
+                    <div className="bg-red-500/10 rounded-lg p-4 border border-red-500/30">
+                      <div className="flex items-center gap-2">
+                        <X className="h-5 w-5 text-red-600" />
+                        <span className="font-semibold text-red-600">This bid was not selected.</span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              )}
             </Card>
           );
         })}
