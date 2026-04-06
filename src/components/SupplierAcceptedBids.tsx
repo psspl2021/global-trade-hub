@@ -37,6 +37,7 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
   const [acceptedBids, setAcceptedBids] = useState<AcceptedBid[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedBidId, setExpandedBidId] = useState<string | null>(null);
   const pageSize = 5;
   const [dispatchModalData, setDispatchModalData] = useState<{
     bidId: string;
