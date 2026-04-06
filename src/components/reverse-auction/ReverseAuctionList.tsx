@@ -140,88 +140,81 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
 
   return (
     <div className="space-y-4">
-      {/* ── Filters Bar ── */}
-      <Card className="rounded-[0.625rem]">
-        <CardContent className="py-3 px-4">
-          <div className="flex flex-col gap-3">
-            {/* Row 1: Search + Sort */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search auctions by title, product, or category..."
-                  className="pl-9 h-9"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[170px] h-9 gap-1">
-                  <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map(s => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Row 2: Status chips + Category + Clear */}
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Status filter chips */}
-              {STATUS_FILTERS.map(sf => (
-                <button
-                  key={sf.value}
-                  onClick={() => setStatusFilter(sf.value)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                    statusFilter === sf.value
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
-                  }`}
-                >
-                  {sf.label}
-                  {sf.value !== 'all' && (
-                    <span className="ml-1 opacity-70">
-                      {sf.value === 'cancelled'
-                        ? auctions.filter(a => a.status === 'cancelled').length
-                        : auctions.filter(a => getEffectiveStatus(a) === sf.value).length}
-                    </span>
-                  )}
-                </button>
-              ))}
-
-              <div className="h-5 w-px bg-border mx-1" />
-
-              {/* Category dropdown */}
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="h-7 text-xs w-auto min-w-[130px] gap-1 border-dashed">
-                  <SlidersHorizontal className="w-3 h-3" />
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {CATEGORIES.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Clear filters */}
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:underline"
-                >
-                  <X className="w-3 h-3" />
-                  Clear
-                </button>
-              )}
-            </div>
+      {/* ── Compact Filters ── */}
+      <div className="flex flex-col gap-2">
+        {/* Search + Sort row */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search auctions..."
+              className="pl-8 h-8 text-sm"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
           </div>
-        </CardContent>
-      </Card>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[140px] h-8 text-xs gap-1">
+              <ArrowUpDown className="w-3 h-3 text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map(s => (
+                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status chips + Category */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {STATUS_FILTERS.map(sf => (
+            <button
+              key={sf.value}
+              onClick={() => setStatusFilter(sf.value)}
+              className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium border transition-colors ${
+                statusFilter === sf.value
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
+              }`}
+            >
+              {sf.label}
+              {sf.value !== 'all' && (
+                <span className="ml-1 opacity-70">
+                  {sf.value === 'cancelled'
+                    ? auctions.filter(a => a.status === 'cancelled').length
+                    : auctions.filter(a => getEffectiveStatus(a) === sf.value).length}
+                </span>
+              )}
+            </button>
+          ))}
+
+          <div className="h-4 w-px bg-border mx-0.5" />
+
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="h-6 text-[11px] w-auto min-w-[110px] gap-1 border-dashed px-2">
+              <SlidersHorizontal className="w-3 h-3" />
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {CATEGORIES.map(c => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-0.5 px-1.5 py-0.5 text-[11px] text-destructive hover:underline"
+            >
+              <X className="w-3 h-3" />
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* ── Results ── */}
       {filteredAuctions.length === 0 ? (
