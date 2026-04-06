@@ -13,6 +13,8 @@ import {
   BarChart3, Timer, ShieldCheck, ShieldAlert, ShieldX,
   BellRing, Medal, Lightbulb
 } from 'lucide-react';
+import { SmartModePanel } from './SmartModePanel';
+import { SupplierRelationshipGraph } from './SupplierRelationshipGraph';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Area, AreaChart, ReferenceLine
