@@ -697,6 +697,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       )}
 
+      {/* 📊 Market Intelligence (buyer only, when bids exist) */}
+      {isBuyer && bids.length >= 1 && marketInsight && (
+        <div className="mb-4">
+          <MarketIntelligenceCard
+            insight={marketInsight}
+            currentBest={currentLowest}
+            currency={auction.currency}
+          />
+        </div>
+      )}
+
       {/* 🏆 Award Recommendation (buyer only, when bids exist) */}
       {isBuyer && bids.length >= 2 && (
         <div className="mb-4">
@@ -704,6 +715,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             bids={bids}
             startingPrice={auction.starting_price}
             currency={auction.currency}
+            marketAvgPrice={marketInsight?.avgPrice ?? null}
           />
         </div>
       )}
