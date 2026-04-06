@@ -8,15 +8,17 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
   Award, ChevronDown, ChevronUp, Trophy, TrendingDown,
-  Shield, Users, Star, BarChart3
+  Shield, Users, Star, BarChart3, CheckCircle2
 } from 'lucide-react';
 import { ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { computeAwardScores, SupplierScore } from '@/hooks/useAwardRecommendation';
+import { Button } from '@/components/ui/button';
 
 interface AwardRecommendationPanelProps {
   bids: ReverseAuctionBid[];
   startingPrice: number;
   currency?: string;
+  onAward?: (supplierId: string) => void;
 }
 
 const RECOMMENDATION_CONFIG = {
@@ -29,7 +31,7 @@ function formatCurrency(value: number, currency: string = 'INR') {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
 }
 
-export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR' }: AwardRecommendationPanelProps) {
+export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR', onAward }: AwardRecommendationPanelProps) {
   const [expanded, setExpanded] = useState(false);
   const scores = useMemo(() => computeAwardScores(bids, startingPrice), [bids, startingPrice]);
 
@@ -53,7 +55,8 @@ export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR'
             <div className="text-left">
               <p className="text-sm font-semibold text-foreground">Award Recommendation</p>
               <p className="text-[10px] text-muted-foreground">
-                AI-scored ranking • {scores.length} supplier{scores.length > 1 ? 's' : ''}
+                AI-scored ranking • {scores.length} supplier{scores.length > 1 ? 's' : ''} •
+                Confidence: {scores.length >= 5 ? 'High' : scores.length >= 3 ? 'Medium' : 'Low'}
               </p>
             </div>
           </div>
@@ -107,6 +110,13 @@ export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR'
                     <Progress value={score.composite_score} className="h-1.5" />
                   </div>
 
+                  {/* Why not L1 insight */}
+                  {score.rank !== 1 && score.recommendation === 'strong' && (
+                    <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                      ⚠ Not lowest price — recommended for higher reliability & relationship strength
+                    </p>
+                  )}
+
                   {/* Reasoning */}
                   <div className="flex flex-wrap gap-1">
                     {score.reasoning.map((r, i) => (
@@ -115,6 +125,22 @@ export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR'
                       </span>
                     ))}
                   </div>
+
+                  {/* Award CTA */}
+                  {onAward && idx < 3 && (
+                    <Button
+                      size="sm"
+                      className={`w-full h-7 text-xs gap-1.5 ${
+                        idx === 0
+                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          : 'bg-muted hover:bg-muted/80 text-foreground'
+                      }`}
+                      onClick={(e) => { e.stopPropagation(); onAward(score.supplier_id); }}
+                    >
+                      <CheckCircle2 className="w-3 h-3" />
+                      {idx === 0 ? 'Award to this supplier' : 'Select instead'}
+                    </Button>
+                  )}
                 </div>
               );
             })}

@@ -101,14 +101,15 @@ export function SmartModePanel({ auctions, bidsMap, buyerId }: SmartModePanelPro
 
               const existingIds = new Set((existing || []).map((e: any) => e.supplier_id));
 
-              // Find top uninvited suppliers from buyer's network
-              const { data: network } = await supabase
-                .from('reverse_auction_bids')
-                .select('supplier_id')
-                .neq('auction_id', auction.id);
+              // Find top uninvited suppliers from buyer's verified network
+              const { data: network } = await supabase.rpc(
+                'get_buyer_network_supplier_ids',
+                { p_buyer_id: buyerId }
+              );
 
-              const candidates = [...new Set((network || []).map((n: any) => n.supplier_id))]
-                .filter(id => !existingIds.has(id))
+              const candidates = (network || [])
+                .map((n: any) => n.supplier_id)
+                .filter((id: string) => !existingIds.has(id))
                 .slice(0, 2);
 
               if (candidates.length > 0) {
@@ -140,14 +141,7 @@ export function SmartModePanel({ auctions, bidsMap, buyerId }: SmartModePanelPro
                 status: 'skipped',
               });
             }
-          } else {
-            addAction({
-              type: 'auto_invite',
-              auctionTitle: auction.title,
-              description: `Cooldown active (${Math.ceil((COOLDOWN_SECONDS * 1000 - (now - lastTime)) / 1000)}s remaining)`,
-              status: 'cooldown',
-            });
-          }
+          } // skip logging during cooldown to avoid UI spam
         }
 
         // Rule: Stale detection
@@ -215,11 +209,13 @@ export function SmartModePanel({ auctions, bidsMap, buyerId }: SmartModePanelPro
             <div>
               <p className="text-sm font-semibold text-foreground flex items-center gap-2">
                 Smart Mode
-                {smartEnabled && (
-                  <Badge className="text-[9px] bg-violet-600 text-white border-0 animate-pulse">
-                    ACTIVE
-                  </Badge>
-                )}
+                 {smartEnabled && (
+                   <Badge className="text-[9px] bg-violet-600 text-white border-0 animate-pulse">
+                     {actionLog.length > 0 && actionLog[0].status === 'executed'
+                       ? `⚡ ${actionLog[0].type === 'auto_invite' ? 'Auto-inviting...' : 'Monitoring...'}`
+                       : 'ACTIVE'}
+                   </Badge>
+                 )}
               </p>
               <p className="text-[10px] text-muted-foreground">Autonomous auction optimization</p>
             </div>

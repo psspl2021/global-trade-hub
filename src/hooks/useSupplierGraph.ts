@@ -23,11 +23,13 @@ export function useSupplierGraph(buyerId: string | null) {
     if (!buyerId) return;
     setLoading(true);
     try {
-      // Get all buyer's auctions
+      // Get last 50 buyer auctions (performance guard)
       const { data: auctions } = await supabase
         .from('reverse_auctions')
         .select('id, category, starting_price, winner_supplier_id')
-        .eq('buyer_id', buyerId);
+        .eq('buyer_id', buyerId)
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (!auctions || auctions.length === 0) { setNodes([]); return; }
 
