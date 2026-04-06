@@ -115,7 +115,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const isLive = effectiveStatus === 'live';
 
   // Market Intelligence Engine
-  const { insight: marketInsight } = useMarketIntelligence(bids, auction.starting_price, auction.product_slug);
+  const { insight: marketInsight, latestAuctionDaysAgo } = useMarketIntelligence(bids, auction.starting_price, auction.product_slug);
 
   const currentLowest = useMemo(() => {
     if (bids.length === 0) return auction.starting_price;
@@ -704,6 +704,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             insight={marketInsight}
             currentBest={currentLowest}
             currency={auction.currency}
+            daysAgo={latestAuctionDaysAgo}
           />
         </div>
       )}
