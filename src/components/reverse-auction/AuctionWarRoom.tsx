@@ -13,6 +13,8 @@ import {
   BarChart3, Timer, ShieldCheck, ShieldAlert, ShieldX,
   BellRing, Medal, Lightbulb
 } from 'lucide-react';
+import { SmartModePanel } from './SmartModePanel';
+import { SupplierRelationshipGraph } from './SupplierRelationshipGraph';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Area, AreaChart, ReferenceLine
@@ -554,6 +556,12 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
           </div>
         </Card>
       )}
+
+      {/* Smart Mode + Supplier Graph */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <SmartModePanel auctions={auctions} bidsMap={bidsMap} buyerId={user?.id || ''} />
+        <SupplierRelationshipGraph buyerId={user?.id || ''} />
+      </div>
 
       {/* Live Auctions */}
       {liveAuctions.length > 0 && (

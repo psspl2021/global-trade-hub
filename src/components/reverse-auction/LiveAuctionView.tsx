@@ -5,6 +5,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { AuctionResultExport } from './AuctionResultExport';
 import { AuctionChat } from './AuctionChat';
+import { AwardRecommendationPanel } from './AwardRecommendationPanel';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -688,6 +689,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <p className="text-lg font-bold text-emerald-800">
             💰 You saved {formatCurrency(totalSavedAmount)} ({totalSavings.toFixed(1)}%) in this auction
           </p>
+        </div>
+      )}
+
+      {/* 🏆 Award Recommendation (buyer only, when bids exist) */}
+      {isBuyer && bids.length >= 2 && (
+        <div className="mb-4">
+          <AwardRecommendationPanel
+            bids={bids}
+            startingPrice={auction.starting_price}
+            currency={auction.currency}
+          />
         </div>
       )}
 
