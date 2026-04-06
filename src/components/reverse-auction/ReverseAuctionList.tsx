@@ -454,7 +454,166 @@ function SupplierAuctionRow({
   );
 }
 
-/* ─── Individual Auction Card (Buyer) ─── */
+/* ─── Buyer Compact Expandable Row ─── */
+function BuyerAuctionRow({
+  auction,
+  onSelect,
+  startAuction,
+  cancelAuction,
+  completeAuction,
+  republishAuction,
+}: {
+  auction: ReverseAuction;
+  onSelect?: (auction: ReverseAuction) => void;
+  startAuction: (id: string) => void;
+  cancelAuction: (id: string) => void;
+  completeAuction: (id: string) => void;
+  republishAuction: (id: string, newSchedule?: any) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const effectiveStatus = (() => {
+    if (auction.status === 'cancelled' || auction.status === 'completed') return auction.status;
+    const now = new Date();
+    if (auction.auction_end && new Date(auction.auction_end) <= now) return 'completed';
+    if (auction.auction_start && new Date(auction.auction_start) <= now) return 'live';
+    return 'scheduled';
+  })();
+
+  const isLive = effectiveStatus === 'live';
+  const isScheduled = effectiveStatus === 'scheduled';
+  const isCompleted = effectiveStatus === 'completed';
+  const isCancelled = effectiveStatus === 'cancelled';
+  const canRepublish = isCompleted || isCancelled;
+  const savings = auction.current_price && auction.starting_price
+    ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
+    : 0;
+
+  return (
+    <>
+      <Card className={`rounded-[0.625rem] overflow-hidden ${isLive ? 'border-emerald-400 ring-1 ring-emerald-100' : ''}`}>
+        {/* Compact clickable header */}
+        <button
+          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+          onClick={() => setExpanded(prev => !prev)}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground truncate">{auction.title}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {auction.category} • {auction.quantity} {auction.unit}
+            </p>
+          </div>
+
+          {/* Inline price summary */}
+          <div className="hidden sm:flex items-center gap-3 text-xs shrink-0">
+            <span className="text-muted-foreground">{formatCurrency(auction.starting_price, auction.currency)}</span>
+            <ArrowRight className="w-3 h-3 text-muted-foreground/50" />
+            <span className="font-semibold text-emerald-700">{formatCurrency(auction.current_price, auction.currency)}</span>
+            {savings > 0 && (
+              <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 text-[10px] px-1.5 py-0">
+                -{savings.toFixed(1)}%
+              </Badge>
+            )}
+          </div>
+
+          <AuctionStatusBadge status={effectiveStatus} />
+          <ChevronDown className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+
+        {/* Expanded details */}
+        {expanded && (
+          <div className="border-t border-border px-4 py-3 space-y-3 bg-muted/10">
+            {/* Price Grid */}
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground">Start Price</p>
+                <p className="font-semibold text-foreground">{formatCurrency(auction.starting_price, auction.currency)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Current</p>
+                <p className="font-semibold text-emerald-700">{formatCurrency(auction.current_price, auction.currency)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Savings</p>
+                <div className="flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3 text-emerald-600" />
+                  <p className="font-semibold text-emerald-700">{savings.toFixed(1)}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Timer className="w-3 h-3" />
+              {isLive ? (
+                auction.auction_end && !isPast(new Date(auction.auction_end))
+                  ? <span className="font-medium text-emerald-700">Ends {formatDistanceToNow(new Date(auction.auction_end), { addSuffix: true })}</span>
+                  : <span className="text-destructive font-medium">Auction ended</span>
+              ) : isCompleted ? (
+                <span>Completed {auction.auction_end ? format(new Date(auction.auction_end), 'dd MMM yyyy') : ''}</span>
+              ) : (
+                <span>Starts {auction.auction_start ? format(new Date(auction.auction_start), 'dd MMM yyyy HH:mm') : '—'}</span>
+              )}
+            </div>
+
+            {/* Invite Analytics */}
+            <AuctionInviteAnalytics auctionId={auction.id} />
+
+            {/* Winner */}
+            {isCompleted && auction.winning_price && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2 text-sm">
+                <div className="flex items-center gap-1 text-emerald-800 font-medium">
+                  <Trophy className="w-3 h-3" />
+                  Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
+                </div>
+              </div>
+            )}
+
+            {/* Buyer Actions */}
+            <div className="flex gap-2 flex-wrap">
+              {isScheduled && (
+                <>
+                  <Button size="sm" variant="default" onClick={() => startAuction(auction.id)}>
+                    <Play className="w-3 h-3 mr-1" /> Go Live
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                    <Pencil className="w-3 h-3" />
+                    Edit ({(auction as any).buyer_edit_count || 0}/2)
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
+                </>
+              )}
+              {isLive && (
+                <>
+                  <Button size="sm" onClick={() => onSelect?.(auction)} className="gap-1">
+                    <Gavel className="w-3 h-3" /> View Live
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => completeAuction(auction.id)}>
+                    End & Award
+                  </Button>
+                </>
+              )}
+              {canRepublish && (
+                <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                  <Pencil className="w-3 h-3" /> Edit & Republish
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </Card>
+
+      <EditAuctionForm
+        auction={auction}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onUpdated={() => republishAuction(auction.id)}
+      />
+    </>
+  );
+}
+
 function AuctionCard({
   auction,
   isSupplier,
