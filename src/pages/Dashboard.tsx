@@ -377,18 +377,103 @@ const Dashboard = () => {
                </div>
              ) : (
                <>
-                <BuyerActionCards
-                  userId={user!.id}
-                  onForwardRFQ={() => setShowForwardRFQ(true)}
-                  onReverseAuction={() => setShowReverseAuction(true)}
-                  onBookTransport={() => setShowLogisticsRequirementForm(true)}
-                  onBrowseProducts={() => setShowLiveStock(true)}
-                  onOpenCRM={() => setShowCRM(true)}
-                  onTrackShipments={() => setShowCustomerShipmentTracking(true)}
-                />
+                {/* ── Section: Quick Actions ── */}
+                <div className="space-y-1.5 mb-6">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick Actions</h2>
+                  <div className="grid gap-2.5 grid-cols-3">
+                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowForwardRFQ(true)}>
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <FileText className="w-4 h-4 text-primary" />
+                        </div>
+                        <p className="text-xs font-medium text-foreground">Post RFQ</p>
+                      </div>
+                    </Card>
+                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowLiveStock(true)}>
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <Package className="w-4 h-4 text-primary" />
+                        </div>
+                        <p className="text-xs font-medium text-foreground">Browse Products</p>
+                      </div>
+                    </Card>
+                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowLogisticsRequirementForm(true)}>
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <Truck className="w-4 h-4 text-primary" />
+                        </div>
+                        <p className="text-xs font-medium text-foreground">Book Transport</p>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
 
-                {/* ── Section: Grow Your Business ── */}
-                <div className="space-y-1.5 mt-6">
+                {/* ── Section: Procurement Hub ── */}
+                <div className="space-y-1.5 mb-6">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Procurement Hub</h2>
+                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-primary" onClick={() => setShowForwardRFQ(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-sm">
+                          <FileText className="w-4 h-4 text-primary-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Forward RFQ</p>
+                          <p className="text-[11px] text-muted-foreground">Post requirements & receive quotes</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-primary transition-colors" />
+                      </div>
+                    </Card>
+
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-amber-500" onClick={() => setShowReverseAuction(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-sm">
+                          <Gavel className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Reverse Auction</p>
+                          <p className="text-[11px] text-muted-foreground">Run live auctions & maximize savings</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-amber-500 transition-colors" />
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* ── Section: Tools & Insights ── */}
+                <div className="space-y-1.5 mb-6">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tools & Insights</h2>
+                  <div className="grid gap-3 grid-cols-2">
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-sm">
+                          <BarChart3 className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">CRM & Inventory</p>
+                          <p className="text-[11px] text-muted-foreground">Invoices & purchase orders</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-sky-500 transition-colors" />
+                      </div>
+                    </Card>
+
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCustomerShipmentTracking(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-sm">
+                          <MapPin className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Track Shipments</p>
+                          <p className="text-[11px] text-muted-foreground">Real-time logistics tracking</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-rose-500 transition-colors" />
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* ── Section: Grow Your Network ── */}
+                <div className="space-y-1.5">
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Grow Your Network</h2>
                   <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border border-emerald-200 dark:border-emerald-800/40 bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-950/20" onClick={() => setShowBuyerReferral(true)}>
                     <div className="flex items-center gap-3">
