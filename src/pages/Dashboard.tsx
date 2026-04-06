@@ -500,33 +500,18 @@ const Dashboard = () => {
                 {/* ── Section: Tools & Insights ── */}
                 <div className="space-y-1.5 mb-6">
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tools & Insights</h2>
-                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
-                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-sm">
-                          <BarChart3 className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">CRM & Inventory</p>
-                          <p className="text-[11px] text-muted-foreground">Invoices & purchase orders</p>
-                        </div>
-                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-sky-500 transition-colors" />
+                  <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-sm">
+                        <BarChart3 className="w-4 h-4 text-white" />
                       </div>
-                    </Card>
-
-                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-orange-500" onClick={() => setShowBookTransport(true)}>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 shadow-sm">
-                          <Truck className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">Book Transport</p>
-                          <p className="text-[11px] text-muted-foreground">Logistics requirements & shipment tracking</p>
-                        </div>
-                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-orange-500 transition-colors" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">CRM & Inventory</p>
+                        <p className="text-[11px] text-muted-foreground">Invoices & purchase orders</p>
                       </div>
-                    </Card>
-                  </div>
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-sky-500 transition-colors" />
+                    </div>
+                  </Card>
                 </div>
 
                 {/* ── Section: Grow Your Network ── */}
