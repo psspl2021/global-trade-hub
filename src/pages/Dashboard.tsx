@@ -114,6 +114,10 @@ const Dashboard = () => {
   const setShowBuyerReferral = (show: boolean) => {
     setSearchParams(show ? { view: 'buyer-referral' } : {}, { replace: true });
   };
+  const showBookTransport = activeView === 'book-transport';
+  const setShowBookTransport = (show: boolean) => {
+    setSearchParams(show ? { view: 'book-transport' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
@@ -343,7 +347,6 @@ const Dashboard = () => {
               <ForwardRFQCenter
                 userId={user!.id}
                 refreshKey={refreshKey}
-                logisticsRequirementsKey={logisticsRequirementsKey}
                 onBack={() => setShowForwardRFQ(false)}
                 onOpenManualRFQ={() => setShowRequirementForm(true)}
                 onRFQGenerated={(rfq) => {
