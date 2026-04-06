@@ -249,21 +249,19 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-700">Live — Bid Now</h3>
                 </div>
               )}
-              <div className="grid gap-4 md:grid-cols-2">
-                {liveAuctions.map(auction => (
-                  <AuctionCard
-                    key={auction.id}
-                    auction={auction}
-                    isSupplier={isSupplier}
-                    isBuyer={isBuyer}
-                    onSelect={onSelectAuction}
-                    startAuction={startAuction}
-                    cancelAuction={cancelAuction}
-                    completeAuction={completeAuction}
-                    republishAuction={republishAuction}
-                  />
-                ))}
-              </div>
+              {isSupplier ? (
+                <div className="space-y-2">
+                  {liveAuctions.map(auction => (
+                    <SupplierAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {liveAuctions.map(auction => (
+                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -276,21 +274,19 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700">Upcoming</h3>
                 </div>
               )}
-              <div className="grid gap-4 md:grid-cols-2">
-                {scheduledAuctions.map(auction => (
-                  <AuctionCard
-                    key={auction.id}
-                    auction={auction}
-                    isSupplier={isSupplier}
-                    isBuyer={isBuyer}
-                    onSelect={onSelectAuction}
-                    startAuction={startAuction}
-                    cancelAuction={cancelAuction}
-                    completeAuction={completeAuction}
-                    republishAuction={republishAuction}
-                  />
-                ))}
-              </div>
+              {isSupplier ? (
+                <div className="space-y-2">
+                  {scheduledAuctions.map(auction => (
+                    <SupplierAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {scheduledAuctions.map(auction => (
+                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -303,21 +299,19 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Past Auctions</h3>
                 </div>
               )}
-              <div className="grid gap-4 md:grid-cols-2">
-                {completedAuctions.map(auction => (
-                  <AuctionCard
-                    key={auction.id}
-                    auction={auction}
-                    isSupplier={isSupplier}
-                    isBuyer={isBuyer}
-                    onSelect={onSelectAuction}
-                    startAuction={startAuction}
-                    cancelAuction={cancelAuction}
-                    completeAuction={completeAuction}
-                    republishAuction={republishAuction}
-                  />
-                ))}
-              </div>
+              {isSupplier ? (
+                <div className="space-y-2">
+                  {completedAuctions.map(auction => (
+                    <SupplierAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {completedAuctions.map(auction => (
+                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
