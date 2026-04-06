@@ -6,6 +6,8 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { AuctionResultExport } from './AuctionResultExport';
 import { AuctionChat } from './AuctionChat';
 import { AwardRecommendationPanel } from './AwardRecommendationPanel';
+import { MarketIntelligenceCard } from './MarketIntelligenceCard';
+import { useMarketIntelligence } from '@/hooks/useMarketIntelligence';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -111,6 +113,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const [editBidPrice, setEditBidPrice] = useState('');
 
   const isLive = effectiveStatus === 'live';
+
+  // Market Intelligence Engine
+  const { insight: marketInsight } = useMarketIntelligence(bids, auction.starting_price, auction.product_slug);
 
   const currentLowest = useMemo(() => {
     if (bids.length === 0) return auction.starting_price;
@@ -692,6 +697,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       )}
 
+      {/* 📊 Market Intelligence (buyer only, when bids exist) */}
+      {isBuyer && bids.length >= 1 && marketInsight && (
+        <div className="mb-4">
+          <MarketIntelligenceCard
+            insight={marketInsight}
+            currentBest={currentLowest}
+            currency={auction.currency}
+          />
+        </div>
+      )}
+
       {/* 🏆 Award Recommendation (buyer only, when bids exist) */}
       {isBuyer && bids.length >= 2 && (
         <div className="mb-4">
@@ -699,6 +715,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             bids={bids}
             startingPrice={auction.starting_price}
             currency={auction.currency}
+            marketAvgPrice={marketInsight?.avgPrice ?? null}
           />
         </div>
       )}

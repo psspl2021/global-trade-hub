@@ -14,16 +14,12 @@ import { ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { computeAwardScores, SupplierScore } from '@/hooks/useAwardRecommendation';
 import { Button } from '@/components/ui/button';
 
-interface PredictionData {
-  predictedPrice: number;
-}
-
 interface AwardRecommendationPanelProps {
   bids: ReverseAuctionBid[];
   startingPrice: number;
   currency?: string;
   onAward?: (supplierId: string) => void;
-  prediction?: PredictionData | null;
+  marketAvgPrice?: number | null;
 }
 
 const RECOMMENDATION_CONFIG = {
@@ -36,7 +32,7 @@ function formatCurrency(value: number, currency: string = 'INR') {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
 }
 
-export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR', onAward, prediction }: AwardRecommendationPanelProps) {
+export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR', onAward, marketAvgPrice }: AwardRecommendationPanelProps) {
   const [expanded, setExpanded] = useState(false);
   const scores = useMemo(() => computeAwardScores(bids, startingPrice), [bids, startingPrice]);
 
@@ -81,15 +77,15 @@ export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR'
           </div>
         </button>
 
-        {expanded && prediction && topScore && (
+        {expanded && marketAvgPrice != null && topScore && (
           <div className={`px-2.5 py-1.5 rounded-md text-[10px] font-medium ${
-            topScore.bid_price <= prediction.predictedPrice
+            topScore.bid_price <= marketAvgPrice
               ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
               : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
           }`}>
-            {topScore.bid_price <= prediction.predictedPrice
-              ? `✅ Current best (${formatCurrency(topScore.bid_price, currency)}) is at or below predicted final (${formatCurrency(prediction.predictedPrice, currency)}) — safe to award`
-              : `⏳ Current best (${formatCurrency(topScore.bid_price, currency)}) is above predicted final (${formatCurrency(prediction.predictedPrice, currency)}) — price may drop further`}
+            {topScore.bid_price <= marketAvgPrice
+              ? `✅ Current best (${formatCurrency(topScore.bid_price, currency)}) is at or below market average (${formatCurrency(marketAvgPrice, currency)}) — safe to award`
+              : `⏳ Current best (${formatCurrency(topScore.bid_price, currency)}) is above market average (${formatCurrency(marketAvgPrice, currency)}) — price may drop further`}
           </div>
         )}
 
