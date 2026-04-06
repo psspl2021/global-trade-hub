@@ -320,7 +320,141 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
   );
 }
 
-/* ─── Individual Auction Card ─── */
+/* ─── Supplier Compact Expandable Row ─── */
+function SupplierAuctionRow({
+  auction,
+  onSelect,
+}: {
+  auction: ReverseAuction;
+  onSelect?: (auction: ReverseAuction) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const effectiveStatus = (() => {
+    if (auction.status === 'cancelled' || auction.status === 'completed') return auction.status;
+    const now = new Date();
+    if (auction.auction_end && new Date(auction.auction_end) <= now) return 'completed';
+    if (auction.auction_start && new Date(auction.auction_start) <= now) return 'live';
+    return 'scheduled';
+  })();
+
+  const isLive = effectiveStatus === 'live';
+  const isScheduled = effectiveStatus === 'scheduled';
+  const isCompleted = effectiveStatus === 'completed';
+  const savings = auction.current_price && auction.starting_price
+    ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
+    : 0;
+
+  return (
+    <Card className={`rounded-[0.625rem] overflow-hidden ${isLive ? 'border-emerald-400 ring-1 ring-emerald-100' : ''}`}>
+      {/* Compact clickable header */}
+      <button
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+        onClick={() => setExpanded(prev => !prev)}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground truncate">{auction.title}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {auction.category} • {auction.quantity} {auction.unit}
+          </p>
+        </div>
+        <AuctionStatusBadge status={effectiveStatus} />
+        <ChevronDown className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+
+      {/* Expanded details */}
+      {expanded && (
+        <div className="border-t border-border px-4 py-3 space-y-3 bg-muted/10">
+          {/* Auction Summary */}
+          <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">Auction Summary</h4>
+          
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground">Starting Price</p>
+              <p className="font-semibold text-foreground">{formatCurrency(auction.starting_price, auction.currency)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Current L1</p>
+              <p className="font-semibold text-emerald-700">{formatCurrency(auction.current_price, auction.currency)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Quantity</p>
+              <p className="font-semibold text-foreground">{auction.quantity} {auction.unit}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Savings</p>
+              <div className="flex items-center gap-1">
+                <TrendingDown className="w-3 h-3 text-emerald-600" />
+                <p className="font-semibold text-emerald-700">{savings.toFixed(1)}%</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Timer className="w-3 h-3" />
+            {isLive ? (
+              auction.auction_end && !isPast(new Date(auction.auction_end))
+                ? <span className="font-medium text-emerald-700">Ends {formatDistanceToNow(new Date(auction.auction_end), { addSuffix: true })}</span>
+                : <span className="text-destructive font-medium">Auction ended</span>
+            ) : isCompleted ? (
+              <span>Completed {auction.auction_end ? format(new Date(auction.auction_end), 'dd MMM yyyy') : ''}</span>
+            ) : (
+              <span>Starts {auction.auction_start ? format(new Date(auction.auction_start), 'dd MMM yyyy, hh:mm a') : 'soon'}</span>
+            )}
+          </div>
+
+          {/* Winner info */}
+          {isCompleted && auction.winning_price && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-sm">
+              <div className="flex items-center gap-1 text-emerald-800 font-medium">
+                <Trophy className="w-3 h-3" />
+                Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
+              </div>
+            </div>
+          )}
+
+          {/* Scheduled info */}
+          {isScheduled && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5">
+              <p className="font-medium text-blue-800 text-xs">You're invited to bid</p>
+              <p className="text-blue-600 text-xs mt-0.5">
+                Prepare your best price for when the auction goes live.
+              </p>
+            </div>
+          )}
+
+          {/* CTA */}
+          {isLive && (
+            <Button
+              className="w-full gap-2 font-semibold"
+              size="sm"
+              onClick={() => onSelect?.(auction)}
+            >
+              <Gavel className="w-4 h-4" />
+              Place Your Bid
+              <ArrowRight className="w-3 h-3" />
+            </Button>
+          )}
+
+          {(isCompleted || isScheduled) && (
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              size="sm"
+              onClick={() => onSelect?.(auction)}
+            >
+              View Details
+              <ArrowRight className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ─── Individual Auction Card (Buyer) ─── */
 function AuctionCard({
   auction,
   isSupplier,
