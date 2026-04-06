@@ -57,6 +57,7 @@ export function MonthlySavingsAnalytics() {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showExpanded, setShowExpanded] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
