@@ -145,6 +145,8 @@ export function AuctionCreditsPurchase({ onCreditsUpdated }: AuctionCreditsPurch
     'Best Value',
   ];
 
+  const [showPlans, setShowPlans] = useState(false);
+
   return (
     <div className="space-y-4">
       {/* Credits Balance */}
@@ -170,104 +172,118 @@ export function AuctionCreditsPurchase({ onCreditsUpdated }: AuctionCreditsPurch
         </Card>
       )}
 
-      {/* Section Title */}
-      <div>
-        <h3 className="text-lg font-semibold text-foreground">Buy Auction Credits</h3>
-        <p className="text-sm text-muted-foreground">Purchase credit packs to create reverse auctions</p>
-      </div>
+      {/* Buy Credits Card (clickable) */}
+      <Card
+        variant="interactive"
+        className={`p-4 group hover:shadow-md transition-all cursor-pointer border-l-4 border-l-amber-500 ${showPlans ? 'ring-1 ring-amber-500/20' : ''}`}
+        onClick={() => setShowPlans(!showPlans)}
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-sm">
+            <CreditCard className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Buy Auction Credits</p>
+            <p className="text-[11px] text-muted-foreground">Purchase credit packs to create reverse auctions</p>
+          </div>
+          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showPlans ? 'rotate-180' : ''}`} />
+        </div>
+      </Card>
 
-      {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {plans.map((plan, index) => {
-          const Icon = planIcons[index] || Zap;
-          const colorClass = planColors[index] || planColors[0];
-          const badge = planBadges[index];
-          const gst = Math.round(plan.price * (plan.gst_rate || 0.18));
-          const total = plan.price + gst;
+      {/* Plans Grid (collapsible) */}
+      {showPlans && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {plans.map((plan, index) => {
+            const Icon = planIcons[index] || Zap;
+            const colorClass = planColors[index] || planColors[0];
+            const badge = planBadges[index];
+            const gst = Math.round(plan.price * (plan.gst_rate || 0.18));
+            const total = plan.price + gst;
 
-          return (
-            <Card key={plan.id} className={`relative ${colorClass} transition-shadow hover:shadow-md`}>
-              {badge && (
-                <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs">
-                  {badge}
-                </Badge>
-              )}
-              <CardContent className="pt-5 pb-4 px-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Icon className="w-5 h-5 text-primary" />
-                  <span className="font-bold text-foreground">{plan.name}</span>
-                </div>
-
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{formatINR(plan.price)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    + GST {formatINR(gst)} = {formatINR(total)}
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Check className="w-3.5 h-3.5 text-green-500" />
-                    <span className="text-muted-foreground">{plan.auctions_count} auction credits</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Check className="w-3.5 h-3.5 text-green-500" />
-                    <span className="text-muted-foreground">{formatINR(plan.price_per_auction)}/auction</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Check className="w-3.5 h-3.5 text-green-500" />
-                    <span className="text-muted-foreground">Never expires</span>
-                  </div>
-                </div>
-
-                {/* Trust message for Starter */}
-                {plan.name.includes('Starter') && !starterUsed && (
-                  <p className="text-xs text-muted-foreground">
-                    ⚡ One-time launch offer (per company)
-                  </p>
+            return (
+              <Card key={plan.id} className={`relative ${colorClass} transition-shadow hover:shadow-md`}>
+                {badge && (
+                  <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs">
+                    {badge}
+                  </Badge>
                 )}
+                <CardContent className="pt-5 pb-4 px-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-5 h-5 text-primary" />
+                    <span className="font-bold text-foreground">{plan.name}</span>
+                  </div>
 
-                {plan.name === 'Enterprise Pack' ? (
-                  <a
-                    href="https://wa.me/918368127357?text=Hi, I'm interested in the Enterprise Auction Pack (50 auctions)."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors text-sm"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Contact Sales
-                  </a>
-                ) : plan.name.includes('Starter') && starterUsed ? (
-                  <Button disabled className="w-full" variant="outline">
-                    Starter Already Used
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => handlePurchase(plan)}
-                    disabled={isLoading !== null || !cashfreeLoaded}
-                    className="w-full"
-                    variant={index === 1 ? 'default' : 'outline'}
-                  >
-                    {isLoading === plan.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <CreditCard className="w-4 h-4 mr-2" />
-                    )}
-                    {isLoading === plan.id ? 'Processing...' : `Buy Now - ${formatINR(total)}`}
-                  </Button>
-                )}
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{formatINR(plan.price)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      + GST {formatINR(gst)} = {formatINR(total)}
+                    </p>
+                  </div>
 
-                {/* Payment methods */}
-                <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
-                  <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
-                  <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                      <span className="text-muted-foreground">{plan.auctions_count} auction credits</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                      <span className="text-muted-foreground">{formatINR(plan.price_per_auction)}/auction</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                      <span className="text-muted-foreground">Never expires</span>
+                    </div>
+                  </div>
+
+                  {/* Trust message for Starter */}
+                  {plan.name.includes('Starter') && !starterUsed && (
+                    <p className="text-xs text-muted-foreground">
+                      ⚡ One-time launch offer (per company)
+                    </p>
+                  )}
+
+                  {plan.name === 'Enterprise Pack' ? (
+                    <a
+                      href="https://wa.me/918368127357?text=Hi, I'm interested in the Enterprise Auction Pack (50 auctions)."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors text-sm"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Contact Sales
+                    </a>
+                  ) : plan.name.includes('Starter') && starterUsed ? (
+                    <Button disabled className="w-full" variant="outline">
+                      Starter Already Used
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={(e) => { e.stopPropagation(); handlePurchase(plan); }}
+                      disabled={isLoading !== null || !cashfreeLoaded}
+                      className="w-full"
+                      variant={index === 1 ? 'default' : 'outline'}
+                    >
+                      {isLoading === plan.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <CreditCard className="w-4 h-4 mr-2" />
+                      )}
+                      {isLoading === plan.id ? 'Processing...' : `Buy Now - ${formatINR(total)}`}
+                    </Button>
+                  )}
+
+                  {/* Payment methods */}
+                  <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
+                    <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
+                    <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
