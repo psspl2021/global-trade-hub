@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, Calendar, MapPin, Package, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, CheckCircle, Calendar, MapPin, Package, Truck, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { DispatchQuantityModal } from './DispatchQuantityModal';
