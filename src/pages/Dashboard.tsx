@@ -790,8 +790,8 @@ const Dashboard = () => {
                     <Star className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-foreground">Subscription & Plans</h2>
-                    <p className="text-xs text-muted-foreground">Manage your bid quota and premium packs</p>
+                    <h2 className="text-lg font-bold text-foreground">Forward Bids Plan</h2>
+                    <p className="text-xs text-muted-foreground">Manage your forward bid quota and premium packs</p>
                   </div>
                 </div>
 
@@ -810,7 +810,7 @@ const Dashboard = () => {
                       </Badge>
                     )}
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Monthly Bids</span>
+                      <span className="text-muted-foreground">Monthly Forward Bids</span>
                       <span className="font-semibold">{subscription?.bids_used_this_month ?? 0} / {subscription?.bids_limit ?? 5} used</span>
                     </div>
                     <Progress 
@@ -966,9 +966,9 @@ const Dashboard = () => {
                           <Star className="w-4 h-4 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">Subscription</p>
+                          <p className="text-sm font-semibold text-foreground">Forward Bids Plan</p>
                           <p className="text-[11px] text-muted-foreground">
-                            {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} bids used
+                            {subscription?.bids_used_this_month ?? 0}/{subscription?.bids_limit ?? 5} forward bids used
                           </p>
                         </div>
                         <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-orange-500 transition-colors" />
