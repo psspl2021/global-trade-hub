@@ -157,9 +157,12 @@ export function AuctionCreditsPurchase({ onCreditsUpdated }: AuctionCreditsPurch
               <div className="flex items-center gap-2">
                 <Wallet className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="font-semibold text-foreground">Auction Credits</p>
+                  <p className="font-semibold text-foreground">
+                    {remainingCredits > 0 && credits.total <= 5 ? 'Free Auction Credits' : 'Auction Credits'}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {credits.used} of {credits.total} used
+                    {credits.total <= 5 && remainingCredits > 0 ? ' • Free trial' : ''}
                   </p>
                 </div>
               </div>
