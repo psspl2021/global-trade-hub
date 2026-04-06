@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, Calendar, MapPin, Package, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, CheckCircle, Calendar, MapPin, Package, Truck, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { DispatchQuantityModal } from './DispatchQuantityModal';
@@ -37,6 +37,7 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
   const [acceptedBids, setAcceptedBids] = useState<AcceptedBid[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedBidId, setExpandedBidId] = useState<string | null>(null);
   const pageSize = 5;
   const [dispatchModalData, setDispatchModalData] = useState<{
     bidId: string;
@@ -136,28 +137,34 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
             No accepted bids yet. Keep bidding on requirements!
           </p>
         ) : (
-          <div className="space-y-4">
-            {paginatedBids.map((bid) => (
-              <div
-                key={bid.id}
-                className="p-4 border rounded-lg bg-success/5 border-success/20"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <h4 className="font-medium">{bid.requirements?.title}</h4>
-                      <Badge className="bg-success/20 text-success border-success/30">
-                        Accepted
-                      </Badge>
-                      {bid.requirements?.status === 'closed' && (
-                        <Badge variant="secondary">Closed</Badge>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
-                      <span className="flex items-center gap-1">
-                        <Package className="h-3 w-3" />
-                        {bid.requirements?.quantity} {bid.requirements?.unit}
-                      </span>
+          <div className="space-y-2">
+            {paginatedBids.map((bid) => {
+              const isExpanded = expandedBidId === bid.id;
+              return (
+              <div key={bid.id} className="border rounded-lg overflow-hidden">
+                {/* Compact clickable row */}
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+                  onClick={() => setExpandedBidId(isExpanded ? null : bid.id)}
+                >
+                  <div className="flex-1 min-w-0 mr-3">
+                    <p className="text-sm font-semibold text-foreground truncate">{bid.requirements?.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {bid.requirements?.product_category} • {bid.requirements?.quantity} {bid.requirements?.unit}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge className="bg-success/20 text-success border-success/30">Accepted</Badge>
+                    {bid.requirements?.status === 'closed' && <Badge variant="secondary">Closed</Badge>}
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {/* Expandable detail */}
+                {isExpanded && (
+                  <div className="px-4 pb-4 pt-0 border-t space-y-3">
+                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mt-3">
                       <span className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
                         {bid.requirements?.delivery_location}
@@ -167,28 +174,34 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
                         Deadline: {bid.requirements?.deadline ? format(new Date(bid.requirements.deadline), 'MMM d, yyyy') : 'N/A'}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Your Rate:</span>
-                        <span className="ml-2 font-medium">
-                          ₹{((bid.supplier_net_price || bid.bid_amount) / (bid.requirements?.quantity || 1)).toLocaleString(undefined, { maximumFractionDigits: 2 })}/{bid.requirements?.unit || 'unit'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Total Value:</span>
-                        <span className="ml-2 font-bold text-primary">
-                          ₹{(bid.supplier_net_price || bid.bid_amount).toLocaleString()}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Delivery:</span>
-                        <span className="ml-2">{bid.delivery_timeline_days} days</span>
+
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <h4 className="font-semibold mb-3 text-sm">Your Bid Summary</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Your Rate:</span>
+                          <p className="font-medium">
+                            ₹{((bid.supplier_net_price || bid.bid_amount) / (bid.requirements?.quantity || 1)).toLocaleString(undefined, { maximumFractionDigits: 2 })}/{bid.requirements?.unit || 'unit'}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Quantity:</span>
+                          <p className="font-medium">{bid.requirements?.quantity} {bid.requirements?.unit}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Total Value:</span>
+                          <p className="font-bold text-primary">₹{(bid.supplier_net_price || bid.bid_amount).toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Delivery:</span>
+                          <p className="font-medium">{bid.delivery_timeline_days} days</p>
+                        </div>
                       </div>
                     </div>
 
                     {/* Dispatch section */}
                     {bid.requirements?.status === 'awarded' && (
-                      <div className="flex items-center justify-between pt-3 mt-3 border-t border-success/20">
+                      <div className="flex items-center justify-between pt-3 border-t border-success/20">
                         <div className="text-sm">
                           {bid.dispatched_qty ? (
                             <div className="space-y-1">
@@ -224,22 +237,21 @@ export function SupplierAcceptedBids({ userId }: SupplierAcceptedBidsProps) {
 
                     {/* Closed dispatch info */}
                     {bid.requirements?.status === 'closed' && bid.dispatched_qty && (
-                      <div className="pt-3 mt-3 border-t border-success/20">
-                        <div className="space-y-1">
-                          <span className="text-sm text-success flex items-center gap-1">
-                            <CheckCircle className="h-4 w-4" />
-                            Completed: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit} dispatched
-                          </span>
-                          <span className="text-sm text-muted-foreground ml-5">
-                            Your Earnings: ₹{(((bid.supplier_net_price || bid.bid_amount) / bid.requirements.quantity) * bid.dispatched_qty).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                          </span>
-                        </div>
+                      <div className="pt-3 border-t border-success/20">
+                        <span className="text-sm text-success flex items-center gap-1">
+                          <CheckCircle className="h-4 w-4" />
+                          Completed: {bid.dispatched_qty.toLocaleString('en-IN')} {bid.requirements.unit} dispatched
+                        </span>
+                        <span className="text-sm text-muted-foreground ml-5">
+                          Your Earnings: ₹{(((bid.supplier_net_price || bid.bid_amount) / bid.requirements.quantity) * bid.dispatched_qty).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                        </span>
                       </div>
                     )}
                   </div>
-                </div>
+                )}
               </div>
-            ))}
+            );
+            })}
 
             {/* Pagination */}
             {totalPages > 1 && (
