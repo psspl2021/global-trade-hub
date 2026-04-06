@@ -10,7 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   AreaChart, Area, Legend, Cell,
 } from 'recharts';
-import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Trophy, Gauge, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Trophy, Gauge, Zap, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
@@ -57,6 +57,7 @@ export function MonthlySavingsAnalytics() {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showExpanded, setShowExpanded] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -159,67 +160,76 @@ export function MonthlySavingsAnalytics() {
 
   return (
     <div className="space-y-4">
-      {/* Savings Narrative — scannable chips */}
-      {totalSavings > 0 && (
-        <div className="rounded-lg border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 px-4 py-3">
-           <div className="flex flex-wrap items-center gap-2 text-sm">
-             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold">
-               <IndianRupee className="w-4 h-4" />
-               {formatCompact(totalSavings)} saved
-             </span>
-             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
-               <Calendar className="w-4 h-4" />
-               6 months
-             </span>
-             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
-               <BarChart3 className="w-4 h-4" />
-               {completedCount} auctions
-             </span>
-             {bestMonth && bestMonth.savings > 0 && (
-               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary font-medium">
-                 <Trophy className="w-4 h-4" />
-                 Best: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
-               </span>
-             )}
-             {savingsEfficiency > 0 && (
-               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 font-medium">
-                 <Gauge className="w-4 h-4" />
-                 {savingsEfficiency.toFixed(1)}% efficiency
-               </span>
-             )}
-             {avgPerAuction > 0 && (
-               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">
-                 <Zap className="w-4 h-4" />
-                 Avg {formatCompact(avgPerAuction)}/auction
-               </span>
-             )}
-             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-colors ${trend === 'up' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-destructive/10 text-destructive'}`}>
-               {trend === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-               {trend === 'up' ? 'improving' : 'declining'}
-            </span>
+      {/* Clickable Cost Savings Card */}
+      <Card
+        variant="interactive"
+        className={`p-4 group hover:shadow-md transition-all cursor-pointer border-l-4 border-l-emerald-500 ${showExpanded ? 'ring-1 ring-emerald-500/20' : ''}`}
+        onClick={() => setShowExpanded(!showExpanded)}
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
+            <BarChart3 className="w-4 h-4 text-white" />
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Cost Savings</p>
+            <p className="text-[11px] text-muted-foreground">Procurement savings from Reverse Auctions — last 6 months</p>
+          </div>
+          {totalSavings > 0 && (
+            <Badge variant="outline" className="text-xs font-bold text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400 mr-2">
+              {formatCompact(totalSavings)} saved
+            </Badge>
+          )}
+          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showExpanded ? 'rotate-180' : ''}`} />
         </div>
-      )}
+      </Card>
 
-      {/* Section Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            Cost Savings
-          </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Procurement savings from Reverse Auctions — last 6 months
-          </p>
-        </div>
-        <Badge variant="outline" className="text-xs gap-1">
-          <Calendar className="w-3 h-3" />
-          6-Month View
-        </Badge>
-      </div>
+      {/* Expanded Content */}
+      {showExpanded && (
+        <div className="space-y-4">
+          {/* Savings Narrative — scannable chips */}
+          {totalSavings > 0 && (
+            <div className="rounded-lg border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 px-4 py-3">
+               <div className="flex flex-wrap items-center gap-2 text-sm">
+                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold">
+                   <IndianRupee className="w-4 h-4" />
+                   {formatCompact(totalSavings)} saved
+                 </span>
+                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+                   <Calendar className="w-4 h-4" />
+                   6 months
+                 </span>
+                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+                   <BarChart3 className="w-4 h-4" />
+                   {completedCount} auctions
+                 </span>
+                 {bestMonth && bestMonth.savings > 0 && (
+                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary font-medium">
+                     <Trophy className="w-4 h-4" />
+                     Best: {formatCompact(bestMonth.savings)} ({bestMonth.monthLabel})
+                   </span>
+                 )}
+                 {savingsEfficiency > 0 && (
+                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 font-medium">
+                     <Gauge className="w-4 h-4" />
+                     {savingsEfficiency.toFixed(1)}% efficiency
+                   </span>
+                 )}
+                 {avgPerAuction > 0 && (
+                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">
+                     <Zap className="w-4 h-4" />
+                     Avg {formatCompact(avgPerAuction)}/auction
+                   </span>
+                 )}
+                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-colors ${trend === 'up' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-destructive/10 text-destructive'}`}>
+                   {trend === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                   {trend === 'up' ? 'improving' : 'declining'}
+                </span>
+              </div>
+            </div>
+          )}
 
-      {/* KPI Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="p-3.5 border bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 rounded-[0.625rem]">
           <div className="flex items-center gap-1.5 mb-1">
             <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
@@ -258,10 +268,10 @@ export function MonthlySavingsAnalytics() {
           <p className="text-2xl font-bold text-violet-700 dark:text-violet-400">{completedCount}</p>
           <span className="text-xs text-muted-foreground">of {auctions.length} total</span>
         </Card>
-      </div>
+          </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Monthly Savings Bar Chart */}
         <Card className="rounded-[0.625rem]">
           <CardHeader className="pb-2 pt-4 px-4">
@@ -356,8 +366,10 @@ export function MonthlySavingsAnalytics() {
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
-      </div>
+          </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
