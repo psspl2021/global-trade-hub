@@ -557,6 +557,12 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
         </Card>
       )}
 
+      {/* Smart Mode + Supplier Graph */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <SmartModePanel auctions={auctions} bidsMap={bidsMap} buyerId={user?.id || ''} />
+        <SupplierRelationshipGraph buyerId={user?.id || ''} />
+      </div>
+
       {/* Live Auctions */}
       {liveAuctions.length > 0 && (
         <div className="space-y-3">
