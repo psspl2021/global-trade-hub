@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Truck, IndianRupee, CheckCircle2, Package } from 'lucide-react';
+import { FileText, Truck, IndianRupee, CheckCircle2, Package, Lock } from 'lucide-react';
 import { useAuctionPO, POLineItem, calculatePOTotals, generatePONotes } from '@/hooks/useAuctionPO';
 import { supabase } from '@/integrations/supabase/client';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
@@ -39,6 +39,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
   const { generatePO, isGenerating } = useAuctionPO();
   const [items, setItems] = useState<POLineItem[]>([]);
   const [freight, setFreight] = useState(0);
+  const [otherCharges, setOtherCharges] = useState(0);
   const [poCreated, setPOCreated] = useState(false);
   const [supplierName, setSupplierName] = useState('Supplier');
 
@@ -57,10 +58,9 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
           quantity: item.quantity,
           unit: item.unit,
           unit_price: item.unit_price || 0,
-          tax_rate: 18, // default GST
+          tax_rate: 18,
         })));
       } else {
-        // Fallback: single item from auction itself
         setItems([{
           item_id: auction.id,
           description: auction.title,
@@ -71,7 +71,6 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
         }]);
       }
 
-      // Load supplier name
       const { data: profile } = await supabase
         .from('profiles')
         .select('company_name, contact_person')
@@ -85,24 +84,29 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
     loadItems();
   }, [auction.id, winnerSupplierId, winningPrice]);
 
-  const updateItem = (index: number, field: keyof POLineItem, value: number | string) => {
-    setItems(prev => prev.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item
-    ));
-  };
-
   const handleTaxChange = (index: number, value: string) => {
     if (value === 'custom') {
       const custom = prompt('Enter custom tax %');
       if (custom && !isNaN(Number(custom))) {
-        updateItem(index, 'tax_rate', Number(custom));
+        setItems(prev => prev.map((item, i) =>
+          i === index ? { ...item, tax_rate: Number(custom) } : item
+        ));
       }
     } else {
-      updateItem(index, 'tax_rate', Number(value));
+      setItems(prev => prev.map((item, i) =>
+        i === index ? { ...item, tax_rate: Number(value) } : item
+      ));
     }
   };
 
-  const totals = useMemo(() => calculatePOTotals(items, freight), [items, freight]);
+  const totals = useMemo(() => {
+    const base = calculatePOTotals(items, freight);
+    return {
+      ...base,
+      otherCharges,
+      grandTotal: base.grandTotal + otherCharges,
+    };
+  }, [items, freight, otherCharges]);
 
   const handleGenerate = async () => {
     const po = await generatePO({
@@ -111,7 +115,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
       supplierId: winnerSupplierId,
       supplierName,
       items,
-      freight,
+      freight: freight + otherCharges,
       currency: 'INR',
     });
 
@@ -147,9 +151,9 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* SKU Table */}
+        {/* SKU Table — Prices LOCKED */}
         <div className="space-y-3">
-          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Line Items</Label>
+          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Line Items (Price Locked)</Label>
           {items.map((item, idx) => (
             <div key={item.item_id} className="bg-muted/30 rounded-lg p-3 space-y-2">
               <div className="flex items-center justify-between">
@@ -164,12 +168,10 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label className="text-[10px] text-muted-foreground">Unit Price (₹)</Label>
-                  <Input
-                    type="number"
-                    value={item.unit_price}
-                    onChange={e => updateItem(idx, 'unit_price', Number(e.target.value))}
-                    className="h-8 text-sm"
-                  />
+                  <div className="h-8 flex items-center px-3 bg-muted/50 rounded-lg border border-input text-sm font-medium text-foreground">
+                    {formatINR(item.unit_price)}
+                    <Lock className="w-3 h-3 ml-auto text-muted-foreground" />
+                  </div>
                 </div>
                 <div>
                   <Label className="text-[10px] text-muted-foreground">Tax Rate</Label>
@@ -211,6 +213,22 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
           </div>
         </div>
 
+        {/* Other Charges */}
+        <div className="flex items-center gap-3">
+          <IndianRupee className="w-4 h-4 text-muted-foreground" />
+          <Label className="text-sm">Other Charges</Label>
+          <div className="relative flex-1 max-w-[160px]">
+            <IndianRupee className="w-3.5 h-3.5 absolute left-2.5 top-2 text-muted-foreground" />
+            <Input
+              type="number"
+              value={otherCharges}
+              onChange={e => setOtherCharges(Number(e.target.value))}
+              className="h-8 text-sm pl-7"
+              placeholder="0"
+            />
+          </div>
+        </div>
+
         <Separator />
 
         {/* Totals */}
@@ -227,11 +245,25 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
             <span>Freight</span>
             <span>{formatINR(freight)}</span>
           </div>
+          {otherCharges > 0 && (
+            <div className="flex justify-between text-muted-foreground">
+              <span>Other Charges</span>
+              <span>{formatINR(otherCharges)}</span>
+            </div>
+          )}
           <Separator />
           <div className="flex justify-between font-bold text-base">
             <span>Grand Total</span>
             <span className="text-primary">{formatINR(totals.grandTotal)}</span>
           </div>
+        </div>
+
+        {/* Price Lock Notice */}
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+          <Lock className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+          <p className="text-xs text-amber-800">
+            Unit prices and quantities are locked from the auction award. Only tax rates, freight, and other charges can be adjusted.
+          </p>
         </div>
 
         {/* AI Notes Preview */}
