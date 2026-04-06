@@ -140,88 +140,81 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
 
   return (
     <div className="space-y-4">
-      {/* ── Filters Bar ── */}
-      <Card className="rounded-[0.625rem]">
-        <CardContent className="py-3 px-4">
-          <div className="flex flex-col gap-3">
-            {/* Row 1: Search + Sort */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search auctions by title, product, or category..."
-                  className="pl-9 h-9"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[170px] h-9 gap-1">
-                  <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map(s => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Row 2: Status chips + Category + Clear */}
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Status filter chips */}
-              {STATUS_FILTERS.map(sf => (
-                <button
-                  key={sf.value}
-                  onClick={() => setStatusFilter(sf.value)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                    statusFilter === sf.value
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
-                  }`}
-                >
-                  {sf.label}
-                  {sf.value !== 'all' && (
-                    <span className="ml-1 opacity-70">
-                      {sf.value === 'cancelled'
-                        ? auctions.filter(a => a.status === 'cancelled').length
-                        : auctions.filter(a => getEffectiveStatus(a) === sf.value).length}
-                    </span>
-                  )}
-                </button>
-              ))}
-
-              <div className="h-5 w-px bg-border mx-1" />
-
-              {/* Category dropdown */}
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="h-7 text-xs w-auto min-w-[130px] gap-1 border-dashed">
-                  <SlidersHorizontal className="w-3 h-3" />
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {CATEGORIES.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Clear filters */}
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:underline"
-                >
-                  <X className="w-3 h-3" />
-                  Clear
-                </button>
-              )}
-            </div>
+      {/* ── Compact Filters ── */}
+      <div className="flex flex-col gap-2">
+        {/* Search + Sort row */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search auctions..."
+              className="pl-8 h-8 text-sm"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
           </div>
-        </CardContent>
-      </Card>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[140px] h-8 text-xs gap-1">
+              <ArrowUpDown className="w-3 h-3 text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map(s => (
+                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status chips + Category */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {STATUS_FILTERS.map(sf => (
+            <button
+              key={sf.value}
+              onClick={() => setStatusFilter(sf.value)}
+              className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium border transition-colors ${
+                statusFilter === sf.value
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
+              }`}
+            >
+              {sf.label}
+              {sf.value !== 'all' && (
+                <span className="ml-1 opacity-70">
+                  {sf.value === 'cancelled'
+                    ? auctions.filter(a => a.status === 'cancelled').length
+                    : auctions.filter(a => getEffectiveStatus(a) === sf.value).length}
+                </span>
+              )}
+            </button>
+          ))}
+
+          <div className="h-4 w-px bg-border mx-0.5" />
+
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="h-6 text-[11px] w-auto min-w-[110px] gap-1 border-dashed px-2">
+              <SlidersHorizontal className="w-3 h-3" />
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {CATEGORIES.map(c => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-0.5 px-1.5 py-0.5 text-[11px] text-destructive hover:underline"
+            >
+              <X className="w-3 h-3" />
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* ── Results ── */}
       {filteredAuctions.length === 0 ? (
@@ -256,9 +249,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   {liveAuctions.map(auction => (
-                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                    <BuyerAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
                   ))}
                 </div>
               )}
@@ -281,9 +274,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   {scheduledAuctions.map(auction => (
-                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                    <BuyerAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
                   ))}
                 </div>
               )}
@@ -306,9 +299,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   {completedAuctions.map(auction => (
-                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                    <BuyerAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
                   ))}
                 </div>
               )}
@@ -454,7 +447,166 @@ function SupplierAuctionRow({
   );
 }
 
-/* ─── Individual Auction Card (Buyer) ─── */
+/* ─── Buyer Compact Expandable Row ─── */
+function BuyerAuctionRow({
+  auction,
+  onSelect,
+  startAuction,
+  cancelAuction,
+  completeAuction,
+  republishAuction,
+}: {
+  auction: ReverseAuction;
+  onSelect?: (auction: ReverseAuction) => void;
+  startAuction: (id: string) => void;
+  cancelAuction: (id: string) => void;
+  completeAuction: (id: string) => void;
+  republishAuction: (id: string, newSchedule?: any) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const effectiveStatus = (() => {
+    if (auction.status === 'cancelled' || auction.status === 'completed') return auction.status;
+    const now = new Date();
+    if (auction.auction_end && new Date(auction.auction_end) <= now) return 'completed';
+    if (auction.auction_start && new Date(auction.auction_start) <= now) return 'live';
+    return 'scheduled';
+  })();
+
+  const isLive = effectiveStatus === 'live';
+  const isScheduled = effectiveStatus === 'scheduled';
+  const isCompleted = effectiveStatus === 'completed';
+  const isCancelled = effectiveStatus === 'cancelled';
+  const canRepublish = isCompleted || isCancelled;
+  const savings = auction.current_price && auction.starting_price
+    ? ((auction.starting_price - auction.current_price) / auction.starting_price * 100)
+    : 0;
+
+  return (
+    <>
+      <Card className={`rounded-[0.625rem] overflow-hidden ${isLive ? 'border-emerald-400 ring-1 ring-emerald-100' : ''}`}>
+        {/* Compact clickable header */}
+        <button
+          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+          onClick={() => setExpanded(prev => !prev)}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground truncate">{auction.title}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {auction.category} • {auction.quantity} {auction.unit}
+            </p>
+          </div>
+
+          {/* Inline price summary */}
+          <div className="hidden sm:flex items-center gap-3 text-xs shrink-0">
+            <span className="text-muted-foreground">{formatCurrency(auction.starting_price, auction.currency)}</span>
+            <ArrowRight className="w-3 h-3 text-muted-foreground/50" />
+            <span className="font-semibold text-emerald-700">{formatCurrency(auction.current_price, auction.currency)}</span>
+            {savings > 0 && (
+              <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 text-[10px] px-1.5 py-0">
+                -{savings.toFixed(1)}%
+              </Badge>
+            )}
+          </div>
+
+          <AuctionStatusBadge status={effectiveStatus} />
+          <ChevronDown className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+
+        {/* Expanded details */}
+        {expanded && (
+          <div className="border-t border-border px-4 py-3 space-y-3 bg-muted/10">
+            {/* Price Grid */}
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground">Start Price</p>
+                <p className="font-semibold text-foreground">{formatCurrency(auction.starting_price, auction.currency)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Current</p>
+                <p className="font-semibold text-emerald-700">{formatCurrency(auction.current_price, auction.currency)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Savings</p>
+                <div className="flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3 text-emerald-600" />
+                  <p className="font-semibold text-emerald-700">{savings.toFixed(1)}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Timer className="w-3 h-3" />
+              {isLive ? (
+                auction.auction_end && !isPast(new Date(auction.auction_end))
+                  ? <span className="font-medium text-emerald-700">Ends {formatDistanceToNow(new Date(auction.auction_end), { addSuffix: true })}</span>
+                  : <span className="text-destructive font-medium">Auction ended</span>
+              ) : isCompleted ? (
+                <span>Completed {auction.auction_end ? format(new Date(auction.auction_end), 'dd MMM yyyy') : ''}</span>
+              ) : (
+                <span>Starts {auction.auction_start ? format(new Date(auction.auction_start), 'dd MMM yyyy HH:mm') : '—'}</span>
+              )}
+            </div>
+
+            {/* Invite Analytics */}
+            <AuctionInviteAnalytics auctionId={auction.id} />
+
+            {/* Winner */}
+            {isCompleted && auction.winning_price && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2 text-sm">
+                <div className="flex items-center gap-1 text-emerald-800 font-medium">
+                  <Trophy className="w-3 h-3" />
+                  Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
+                </div>
+              </div>
+            )}
+
+            {/* Buyer Actions */}
+            <div className="flex gap-2 flex-wrap">
+              {isScheduled && (
+                <>
+                  <Button size="sm" variant="default" onClick={() => startAuction(auction.id)}>
+                    <Play className="w-3 h-3 mr-1" /> Go Live
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                    <Pencil className="w-3 h-3" />
+                    Edit ({(auction as any).buyer_edit_count || 0}/2)
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
+                </>
+              )}
+              {isLive && (
+                <>
+                  <Button size="sm" onClick={() => onSelect?.(auction)} className="gap-1">
+                    <Gavel className="w-3 h-3" /> View Live
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => completeAuction(auction.id)}>
+                    End & Award
+                  </Button>
+                </>
+              )}
+              {canRepublish && (
+                <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                  <Pencil className="w-3 h-3" /> Edit & Republish
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </Card>
+
+      <EditAuctionForm
+        auction={auction}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onUpdated={() => republishAuction(auction.id)}
+      />
+    </>
+  );
+}
+
 function AuctionCard({
   auction,
   isSupplier,
