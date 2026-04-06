@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, MessageCircle } from 'lucide-react';
+import { CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, MessageCircle, ChevronDown } from 'lucide-react';
 import { formatINR } from '@/utils/auctionPricing';
 
 declare global {
