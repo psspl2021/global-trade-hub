@@ -229,7 +229,7 @@ export function MonthlySavingsAnalytics() {
           )}
 
           {/* KPI Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="p-3.5 border bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 rounded-[0.625rem]">
           <div className="flex items-center gap-1.5 mb-1">
             <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
@@ -268,10 +268,10 @@ export function MonthlySavingsAnalytics() {
           <p className="text-2xl font-bold text-violet-700 dark:text-violet-400">{completedCount}</p>
           <span className="text-xs text-muted-foreground">of {auctions.length} total</span>
         </Card>
-      </div>
+          </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Monthly Savings Bar Chart */}
         <Card className="rounded-[0.625rem]">
           <CardHeader className="pb-2 pt-4 px-4">
