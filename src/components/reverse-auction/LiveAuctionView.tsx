@@ -7,6 +7,7 @@ import { AuctionResultExport } from './AuctionResultExport';
 import { AuctionChat } from './AuctionChat';
 import { AwardRecommendationPanel } from './AwardRecommendationPanel';
 import { MarketIntelligenceCard } from './MarketIntelligenceCard';
+import { AuctionPOGenerator } from './AuctionPOGenerator';
 import { useMarketIntelligence } from '@/hooks/useMarketIntelligence';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
