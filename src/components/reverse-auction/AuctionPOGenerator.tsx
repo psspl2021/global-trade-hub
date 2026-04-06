@@ -74,12 +74,12 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
       // Load supplier name
       const { data: profile } = await supabase
         .from('profiles')
-        .select('company_name, full_name')
+        .select('company_name, contact_person')
         .eq('id', winnerSupplierId)
         .single();
 
       if (profile) {
-        setSupplierName(profile.company_name || profile.full_name || 'Supplier');
+        setSupplierName(profile.company_name || profile.contact_person || 'Supplier');
       }
     }
     loadItems();
