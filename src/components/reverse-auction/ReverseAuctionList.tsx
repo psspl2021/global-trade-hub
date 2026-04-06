@@ -256,9 +256,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   {liveAuctions.map(auction => (
-                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                    <BuyerAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
                   ))}
                 </div>
               )}
@@ -281,9 +281,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   {scheduledAuctions.map(auction => (
-                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                    <BuyerAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
                   ))}
                 </div>
               )}
@@ -306,9 +306,9 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   {completedAuctions.map(auction => (
-                    <AuctionCard key={auction.id} auction={auction} isSupplier={isSupplier} isBuyer={isBuyer} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
+                    <BuyerAuctionRow key={auction.id} auction={auction} onSelect={onSelectAuction} startAuction={startAuction} cancelAuction={cancelAuction} completeAuction={completeAuction} republishAuction={republishAuction} />
                   ))}
                 </div>
               )}
