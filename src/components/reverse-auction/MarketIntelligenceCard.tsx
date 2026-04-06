@@ -11,6 +11,7 @@ interface MarketIntelligenceCardProps {
   insight: MarketInsight;
   currentBest: number;
   currency?: string;
+  daysAgo?: number | null;
 }
 
 function formatCurrency(value: number, currency: string = 'INR') {
@@ -29,7 +30,7 @@ const CONFIDENCE_CONFIG = {
   low: { barClass: 'bg-red-400 w-1/3', label: 'LOW' },
 };
 
-export function MarketIntelligenceCard({ insight, currentBest, currency = 'INR' }: MarketIntelligenceCardProps) {
+export function MarketIntelligenceCard({ insight, currentBest, currency = 'INR', daysAgo }: MarketIntelligenceCardProps) {
   const delta = insight.avgPrice - currentBest;
   const isWithinRange = currentBest >= insight.marketLow && currentBest <= insight.marketHigh;
   const dropCfg = DROP_CONFIG[insight.dropPotential];
@@ -46,7 +47,7 @@ export function MarketIntelligenceCard({ insight, currentBest, currency = 'INR' 
           <div>
             <p className="text-sm font-semibold text-foreground">Market Intelligence</p>
             <p className="text-[10px] text-muted-foreground">
-              Based on {insight.sampleSize} past auctions & category trends
+              Based on {insight.sampleSize} past auctions{daysAgo !== null && daysAgo !== undefined && ` • last ${daysAgo} days`}
             </p>
           </div>
         </div>
