@@ -63,6 +63,7 @@ export function useMarketIntelligence(
   productSlug: string | null
 ) {
   const [historicalPrices, setHistoricalPrices] = useState<number[]>([]);
+  const [latestAuctionDaysAgo, setLatestAuctionDaysAgo] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -76,7 +77,7 @@ export function useMarketIntelligence(
         // Fetch winning prices from completed auctions in same category
         const { data } = await supabase
           .from('reverse_auctions')
-          .select('current_price, starting_price')
+          .select('current_price, starting_price, created_at')
           .eq('product_slug', productSlug)
           .eq('status', 'completed')
           .not('current_price', 'is', null)
@@ -84,18 +85,22 @@ export function useMarketIntelligence(
           .limit(50);
 
         if (!cancelled && data) {
-          // Use current_price (final winning price) from completed auctions
           const prices = data
             .map((a: any) => a.current_price as number)
             .filter((p: number) => p > 0);
 
-          // Outlier removal: exclude prices > 2x average
           if (prices.length > 2) {
             const avg = prices.reduce((s, p) => s + p, 0) / prices.length;
             const filtered = prices.filter(p => p < avg * 2);
             setHistoricalPrices(filtered.length >= 2 ? filtered : prices);
           } else {
             setHistoricalPrices(prices);
+          }
+
+          // Data freshness
+          const latest = data[0]?.created_at;
+          if (latest) {
+            setLatestAuctionDaysAgo(Math.floor((Date.now() - new Date(latest).getTime()) / (1000 * 60 * 60 * 24)));
           }
         }
       } catch (err) {
@@ -113,5 +118,5 @@ export function useMarketIntelligence(
     [bids, startingPrice, historicalPrices]
   );
 
-  return { insight, loading };
+  return { insight, loading, latestAuctionDaysAgo };
 }
