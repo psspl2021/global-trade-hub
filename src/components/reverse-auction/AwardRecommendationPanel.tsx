@@ -14,11 +14,16 @@ import { ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { computeAwardScores, SupplierScore } from '@/hooks/useAwardRecommendation';
 import { Button } from '@/components/ui/button';
 
+interface PredictionData {
+  predictedPrice: number;
+}
+
 interface AwardRecommendationPanelProps {
   bids: ReverseAuctionBid[];
   startingPrice: number;
   currency?: string;
   onAward?: (supplierId: string) => void;
+  prediction?: PredictionData | null;
 }
 
 const RECOMMENDATION_CONFIG = {
@@ -31,7 +36,7 @@ function formatCurrency(value: number, currency: string = 'INR') {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
 }
 
-export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR', onAward }: AwardRecommendationPanelProps) {
+export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR', onAward, prediction }: AwardRecommendationPanelProps) {
   const [expanded, setExpanded] = useState(false);
   const scores = useMemo(() => computeAwardScores(bids, startingPrice), [bids, startingPrice]);
 
@@ -54,10 +59,18 @@ export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR'
             </div>
             <div className="text-left">
               <p className="text-sm font-semibold text-foreground">Award Recommendation</p>
-              <p className="text-[10px] text-muted-foreground">
-                AI-scored ranking • {scores.length} supplier{scores.length > 1 ? 's' : ''} •
-                Confidence: {scores.length >= 5 ? 'High' : scores.length >= 3 ? 'Medium' : 'Low'}
-              </p>
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <span>AI-scored • {scores.length} supplier{scores.length > 1 ? 's' : ''}</span>
+                <span>•</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full ${
+                      scores.length >= 5 ? 'bg-emerald-500 w-full' : scores.length >= 3 ? 'bg-amber-500 w-2/3' : 'bg-red-400 w-1/3'
+                    }`} />
+                  </div>
+                  <span>{scores.length >= 5 ? 'High' : scores.length >= 3 ? 'Medium' : 'Low'}</span>
+                </div>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -67,6 +80,18 @@ export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR'
             {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
           </div>
         </button>
+
+        {expanded && prediction && topScore && (
+          <div className={`px-2.5 py-1.5 rounded-md text-[10px] font-medium ${
+            topScore.bid_price <= prediction.predictedPrice
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+              : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+          }`}>
+            {topScore.bid_price <= prediction.predictedPrice
+              ? `✅ Current best (${formatCurrency(topScore.bid_price, currency)}) is at or below predicted final (${formatCurrency(prediction.predictedPrice, currency)}) — safe to award`
+              : `⏳ Current best (${formatCurrency(topScore.bid_price, currency)}) is above predicted final (${formatCurrency(prediction.predictedPrice, currency)}) — price may drop further`}
+          </div>
+        )}
 
         {expanded && (
           <div className="space-y-2 pt-1">
@@ -135,7 +160,12 @@ export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR'
                           ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                           : 'bg-muted hover:bg-muted/80 text-foreground'
                       }`}
-                      onClick={(e) => { e.stopPropagation(); onAward(score.supplier_id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Award this auction to Supplier ${score.supplier_id.slice(0, 6)} at ${formatCurrency(score.bid_price, currency)}?`)) {
+                          onAward(score.supplier_id);
+                        }
+                      }}
                     >
                       <CheckCircle2 className="w-3 h-3" />
                       {idx === 0 ? 'Award to this supplier' : 'Select instead'}
