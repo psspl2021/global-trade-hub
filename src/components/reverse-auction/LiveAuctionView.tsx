@@ -722,6 +722,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       )}
 
+      {/* 🧾 Purchase Order Generator (buyer only, completed auction with winner) */}
+      {isBuyer && effectiveStatus === 'completed' && auction.winner_supplier_id && (
+        <div className="mb-4">
+          <AuctionPOGenerator
+            auction={auction}
+            winnerSupplierId={auction.winner_supplier_id}
+            winningPrice={auction.winning_price || currentLowest}
+          />
+        </div>
+      )}
+
       {/* SUPPLIER BID PANEL — Desktop right, Mobile bottom */}
       <div className={`${!isMobile && bidPanelContent ? 'flex gap-4 items-start' : ''}`}>
         <div className="flex-1 space-y-4">
