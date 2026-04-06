@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
 import { BuyerLogisticsRequirements } from '@/components/logistics/BuyerLogisticsRequirements';
-import { ArrowLeft, FileText, Clock, Shield, Layers, Sparkles } from 'lucide-react';
+import { ArrowLeft, FileText, Sparkles, ChevronDown } from 'lucide-react';
 
 interface ForwardRFQCenterProps {
   userId: string;
@@ -24,67 +23,72 @@ export function ForwardRFQCenter({
   onOpenManualRFQ,
   onRFQGenerated,
 }: ForwardRFQCenterProps) {
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Back button */}
       <Button variant="ghost" size="sm" onClick={onBack} className="gap-2">
         <ArrowLeft className="h-4 w-4" /> Back to Dashboard
       </Button>
 
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Post Your RFQ. Get Multiple Quotes.
-        </h1>
-        <p className="text-muted-foreground">
-          Connect with verified Indian suppliers in minutes. Free, fast, and secure.
-        </p>
+      {/* Compact Header */}
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-sm">
+          <FileText className="w-5 h-5 text-primary-foreground" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-foreground">Forward RFQ Hub</h2>
+          <p className="text-xs text-muted-foreground">Post requirements & receive competitive quotes</p>
+        </div>
       </div>
 
-      <hr className="border-border" />
-
-      {/* Section 1: AI-powered RFQ Generator */}
-      <AIRFQGenerator onRFQGenerated={onRFQGenerated} />
-
-      {/* Section 2: Custom Requirement Card */}
-      <Card className="border-border">
-        <CardContent className="p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <FileText className="h-5 w-5 text-muted-foreground" />
-            <h3 className="text-lg font-semibold">Custom Requirement</h3>
+      {/* Action Row: AI Generate + Manual RFQ */}
+      <div className="grid grid-cols-2 gap-3">
+        <Card
+          variant="interactive"
+          className={`p-3 group hover:shadow-md transition-all cursor-pointer border ${showAIGenerator ? 'border-primary ring-1 ring-primary/20' : 'border-border'}`}
+          onClick={() => setShowAIGenerator(!showAIGenerator)}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">AI Generate RFQ</p>
+              <p className="text-[10px] text-muted-foreground">Describe needs, AI creates RFQ</p>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showAIGenerator ? 'rotate-180' : ''}`} />
           </div>
-          <p className="text-sm text-muted-foreground">
-            Need something specific? Create a detailed RFQ and get quotes from multiple suppliers.
-          </p>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>Response within 24-48 hours</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4" />
-              <span>Multi-item requirements supported</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              <span>Verified supplier bids only</span>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            className="w-full gap-2"
-            onClick={onOpenManualRFQ}
-          >
-            <FileText className="h-4 w-4" />
-            Create Manual RFQ
-          </Button>
-        </CardContent>
-      </Card>
+        </Card>
 
-      {/* Section 3: My Requirements */}
+        <Card
+          variant="interactive"
+          className="p-3 group hover:shadow-md transition-all cursor-pointer"
+          onClick={onOpenManualRFQ}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm">
+              <FileText className="w-3.5 h-3.5 text-primary-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">Manual RFQ</p>
+              <p className="text-[10px] text-muted-foreground">Create detailed requirement</p>
+            </div>
+            <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-primary transition-colors" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Collapsible AI Generator */}
+      {showAIGenerator && (
+        <AIRFQGenerator onRFQGenerated={onRFQGenerated} />
+      )}
+
+      {/* My Requirements */}
       <BuyerRequirementsList key={refreshKey} userId={userId} />
 
-      {/* Section 4: My Logistics Requirements */}
+      {/* My Logistics Requirements */}
       <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={userId} />
     </div>
   );

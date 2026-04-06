@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap } from 'lucide-react';
+import { Sparkles, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface RFQItem {
   item_name: string;
@@ -85,152 +85,109 @@ export function AIRFQGenerator({ onRFQGenerated }: AIRFQGeneratorProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* AI Generator Card */}
-      <Card className="border-primary/20 shadow-lg">
-        <CardHeader className="text-center pb-2">
-          <CardTitle className="text-primary flex items-center justify-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            AI-powered RFQ generator
-          </CardTitle>
-          <CardDescription>
-            Describe your needs — our AI will generate a complete RFQ.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="space-y-3">
+      {/* Compact AI Input */}
+      <Card className="border-primary/20">
+        <CardContent className="p-4 space-y-3">
           <Textarea
-            placeholder="Describe your sourcing requirement in detail. Include product name, quantity, specifications, and delivery requirements for best results.
-
-Example: I need 5000 kg of food-grade stainless steel containers for a dairy plant in Maharashtra. Looking for BIS certified products with 2mm thickness, 50L capacity each."
+            placeholder="Describe your sourcing requirement in detail. E.g: I need 5000 kg of food-grade stainless steel containers for a dairy plant in Maharashtra..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={5}
-            className="resize-none"
+            rows={3}
+            className="resize-none text-sm"
           />
-
-          <div className="flex justify-end">
-            <Button 
-              onClick={handleGenerate} 
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] text-muted-foreground">
+              Include product name, quantity, specs & delivery details
+            </p>
+            <Button
+              onClick={handleGenerate}
               disabled={isGenerating || description.trim().length < 10}
-              className="gap-2"
-              size="lg"
+              className="gap-1.5"
+              size="sm"
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Generating...
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4" />
-                  Generate My RFQ
-                  <ArrowRight className="h-4 w-4" />
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Generate RFQ
                 </>
               )}
             </Button>
           </div>
-
-          <p className="text-xs text-muted-foreground text-center">
-            Choose to describe your needs in detail. Include product name, quantity, specifications, and delivery requirements for best results.
-          </p>
         </CardContent>
       </Card>
 
-      {/* Generated RFQ Preview */}
+      {/* Generated RFQ Preview — Compact */}
       {generatedRFQ && (
         <Card className="border-green-500/30 bg-green-50/50 dark:bg-green-950/20">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                <CheckCircle2 className="h-5 w-5" />
-                Generated RFQ Preview
-              </CardTitle>
-              <Badge variant="secondary">{tradeTypeLabels[generatedRFQ.trade_type]}</Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="font-semibold text-lg">{generatedRFQ.title}</h4>
-              <p className="text-sm text-muted-foreground mt-1">{generatedRFQ.description}</p>
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                <h4 className="font-semibold text-sm">{generatedRFQ.title}</h4>
+              </div>
+              <Badge variant="secondary" className="text-[10px] shrink-0">
+                {tradeTypeLabels[generatedRFQ.trade_type]}
+              </Badge>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline">{generatedRFQ.category}</Badge>
+            <p className="text-xs text-muted-foreground line-clamp-2">{generatedRFQ.description}</p>
+
+            <div className="flex flex-wrap gap-1.5">
+              <Badge variant="outline" className="text-[10px]">{generatedRFQ.category}</Badge>
               {generatedRFQ.quality_standards && (
-                <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
-                  {generatedRFQ.quality_standards}
-                </Badge>
-              )}
-              {generatedRFQ.certifications_required && (
-                <Badge variant="outline" className="bg-purple-50 dark:bg-purple-950">
-                  {generatedRFQ.certifications_required}
-                </Badge>
+                <Badge variant="outline" className="text-[10px]">{generatedRFQ.quality_standards}</Badge>
               )}
             </div>
 
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
+            {/* Items table — compact */}
+            <div className="border rounded-md overflow-hidden text-xs">
+              <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="text-left p-2 font-medium">Item</th>
-                    <th className="text-left p-2 font-medium">Specifications</th>
-                    <th className="text-right p-2 font-medium">Quantity</th>
+                    <th className="text-left p-1.5 font-medium">Item</th>
+                    <th className="text-left p-1.5 font-medium hidden sm:table-cell">Specs</th>
+                    <th className="text-right p-1.5 font-medium">Qty</th>
                   </tr>
                 </thead>
                 <tbody>
                   {generatedRFQ.items.map((item, index) => (
                     <tr key={index} className="border-t">
-                      <td className="p-2 font-medium">{item.item_name}</td>
-                      <td className="p-2 text-muted-foreground">{item.description}</td>
-                      <td className="p-2 text-right">{item.quantity} {item.unit}</td>
+                      <td className="p-1.5 font-medium">{item.item_name}</td>
+                      <td className="p-1.5 text-muted-foreground hidden sm:table-cell truncate max-w-[200px]">{item.description}</td>
+                      <td className="p-1.5 text-right whitespace-nowrap">{item.quantity} {item.unit}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {generatedRFQ.payment_terms && (
-              <p className="text-sm">
-                <span className="font-medium">Suggested Payment Terms:</span>{' '}
-                <span className="text-muted-foreground">{generatedRFQ.payment_terms}</span>
-              </p>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              <Button 
-                variant="outline" 
-                className="flex-1"
+            <div className="flex gap-2 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
                 onClick={() => setGeneratedRFQ(null)}
               >
-                Edit Description
+                Edit
               </Button>
-              <Button 
-                className="flex-1 gap-2"
+              <Button
+                size="sm"
+                className="flex-1 gap-1 text-xs"
                 onClick={handleProceed}
               >
-                Proceed to Post RFQ
-                <ArrowRight className="h-4 w-4" />
+                Proceed to Post
+                <ArrowRight className="h-3 w-3" />
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Trust Badges */}
-      <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground py-4">
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-primary" />
-          <span>20,000+ Verified SMEs</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-primary" />
-          <span>Trusted by Procurement Teams</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Zap className="h-4 w-4 text-primary" />
-          <span>AI-Assisted Sourcing</span>
-        </div>
-      </div>
     </div>
   );
 }
