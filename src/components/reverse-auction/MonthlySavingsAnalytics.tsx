@@ -366,7 +366,8 @@ export function MonthlySavingsAnalytics() {
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
+          </Card>
+          </div>
         </div>
       )}
     </div>
