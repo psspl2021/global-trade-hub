@@ -114,6 +114,10 @@ const Dashboard = () => {
   const setShowBuyerReferral = (show: boolean) => {
     setSearchParams(show ? { view: 'buyer-referral' } : {}, { replace: true });
   };
+  const showBookTransport = activeView === 'book-transport';
+  const setShowBookTransport = (show: boolean) => {
+    setSearchParams(show ? { view: 'book-transport' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
@@ -343,7 +347,6 @@ const Dashboard = () => {
               <ForwardRFQCenter
                 userId={user!.id}
                 refreshKey={refreshKey}
-                logisticsRequirementsKey={logisticsRequirementsKey}
                 onBack={() => setShowForwardRFQ(false)}
                 onOpenManualRFQ={() => setShowRequirementForm(true)}
                 onRFQGenerated={(rfq) => {
@@ -374,6 +377,60 @@ const Dashboard = () => {
                    </div>
                  </div>
                  {user && <ReferralSection userId={user.id} role="buyer" />}
+                </div>
+             ) : showBookTransport ? (
+               /* ── Sub-View: Book Transport Hub ── */
+               <div className="space-y-4">
+                 <Button variant="ghost" size="sm" onClick={() => setShowBookTransport(false)} className="gap-2">
+                   <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                 </Button>
+                 <div className="flex items-center gap-3 mb-2">
+                   <div className="p-2.5 rounded-[0.625rem] bg-gradient-to-br from-orange-500 to-amber-600 shadow-md">
+                     <Truck className="w-5 h-5 text-white" />
+                   </div>
+                   <div>
+                     <h2 className="text-lg font-bold text-foreground">Book Transport</h2>
+                     <p className="text-xs text-muted-foreground">Manage logistics requirements & track shipments</p>
+                   </div>
+                 </div>
+
+                 {/* Action Row: Post Logistics + Track Shipments */}
+                 <div className="grid grid-cols-2 gap-3">
+                   <Card
+                     variant="interactive"
+                     className="p-3 group hover:shadow-md transition-all cursor-pointer"
+                     onClick={() => setShowLogisticsRequirementForm(true)}
+                   >
+                     <div className="flex items-center gap-2.5">
+                       <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 shadow-sm">
+                         <Truck className="w-3.5 h-3.5 text-white" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <p className="text-sm font-semibold text-foreground">Post Logistics Need</p>
+                         <p className="text-[10px] text-muted-foreground">Create transport requirement</p>
+                       </div>
+                     </div>
+                   </Card>
+
+                   <Card
+                     variant="interactive"
+                     className="p-3 group hover:shadow-md transition-all cursor-pointer"
+                     onClick={() => setShowCustomerShipmentTracking(true)}
+                   >
+                     <div className="flex items-center gap-2.5">
+                       <div className="p-2 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 shadow-sm">
+                         <MapPin className="w-3.5 h-3.5 text-white" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <p className="text-sm font-semibold text-foreground">Track Shipments</p>
+                         <p className="text-[10px] text-muted-foreground">Real-time logistics tracking</p>
+                       </div>
+                     </div>
+                   </Card>
+                 </div>
+
+                 {/* My Logistics Requirements */}
+                 {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
                </div>
              ) : (
                <>
@@ -397,7 +454,7 @@ const Dashboard = () => {
                         <p className="text-xs font-medium text-foreground">Browse Products</p>
                       </div>
                     </Card>
-                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowLogisticsRequirementForm(true)}>
+                    <Card variant="interactive" className="p-3 group hover:border-primary/30 transition-all" onClick={() => setShowBookTransport(true)}>
                       <div className="flex flex-col items-center text-center gap-2">
                         <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                           <Truck className="w-4 h-4 text-primary" />
@@ -443,7 +500,7 @@ const Dashboard = () => {
                 {/* ── Section: Tools & Insights ── */}
                 <div className="space-y-1.5 mb-6">
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tools & Insights</h2>
-                  <div className="grid gap-3 grid-cols-2">
+                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
                       <div className="flex items-center gap-3">
                         <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-sm">
@@ -457,16 +514,16 @@ const Dashboard = () => {
                       </div>
                     </Card>
 
-                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCustomerShipmentTracking(true)}>
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-orange-500" onClick={() => setShowBookTransport(true)}>
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-sm">
-                          <MapPin className="w-4 h-4 text-white" />
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 shadow-sm">
+                          <Truck className="w-4 h-4 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">Track Shipments</p>
-                          <p className="text-[11px] text-muted-foreground">Real-time logistics tracking</p>
+                          <p className="text-sm font-semibold text-foreground">Book Transport</p>
+                          <p className="text-[11px] text-muted-foreground">Logistics requirements & shipment tracking</p>
                         </div>
-                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-rose-500 transition-colors" />
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-orange-500 transition-colors" />
                       </div>
                     </Card>
                   </div>

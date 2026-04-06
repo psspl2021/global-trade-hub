@@ -3,13 +3,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
-import { BuyerLogisticsRequirements } from '@/components/logistics/BuyerLogisticsRequirements';
 import { ArrowLeft, FileText, Sparkles, ChevronDown } from 'lucide-react';
 
 interface ForwardRFQCenterProps {
   userId: string;
   refreshKey: number;
-  logisticsRequirementsKey: number;
   onBack: () => void;
   onOpenManualRFQ: () => void;
   onRFQGenerated: (rfq: any) => void;
@@ -18,7 +16,6 @@ interface ForwardRFQCenterProps {
 export function ForwardRFQCenter({
   userId,
   refreshKey,
-  logisticsRequirementsKey,
   onBack,
   onOpenManualRFQ,
   onRFQGenerated,
@@ -87,9 +84,6 @@ export function ForwardRFQCenter({
 
       {/* My Requirements */}
       <BuyerRequirementsList key={refreshKey} userId={userId} />
-
-      {/* My Logistics Requirements */}
-      <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={userId} />
     </div>
   );
 }
