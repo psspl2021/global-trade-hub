@@ -97,8 +97,11 @@ export function useMarketIntelligence(
             setHistoricalPrices(prices);
           }
 
-          // Data freshness
-          const latest = data[0]?.created_at;
+          // Data freshness — robust reduce instead of index-based
+          const latest = data.reduce((max: string | null, row: any) => {
+            if (!row.created_at) return max;
+            return !max || new Date(row.created_at) > new Date(max) ? row.created_at : max;
+          }, null);
           if (latest) {
             setLatestAuctionDaysAgo(Math.floor((Date.now() - new Date(latest).getTime()) / (1000 * 60 * 60 * 24)));
           }

@@ -35,6 +35,10 @@ export function MarketIntelligenceCard({ insight, currentBest, currency = 'INR',
   const isWithinRange = currentBest >= insight.marketLow && currentBest <= insight.marketHigh;
   const dropCfg = DROP_CONFIG[insight.dropPotential];
   const confCfg = CONFIDENCE_CONFIG[insight.confidence];
+  const freshnessColor = daysAgo == null ? 'text-muted-foreground'
+    : daysAgo <= 7 ? 'text-emerald-600 dark:text-emerald-400'
+    : daysAgo <= 30 ? 'text-amber-600 dark:text-amber-400'
+    : 'text-destructive';
 
   return (
     <Card className="border">
@@ -46,7 +50,7 @@ export function MarketIntelligenceCard({ insight, currentBest, currency = 'INR',
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Market Intelligence</p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className={`text-[10px] ${freshnessColor}`}>
               Based on {insight.sampleSize} past auctions{daysAgo !== null && daysAgo !== undefined && ` • last ${daysAgo} days`}
             </p>
           </div>
