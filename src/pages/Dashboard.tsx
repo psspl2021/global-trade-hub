@@ -500,7 +500,7 @@ const Dashboard = () => {
                 {/* ── Section: Tools & Insights ── */}
                 <div className="space-y-1.5 mb-6">
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tools & Insights</h2>
-                  <div className="grid gap-3 grid-cols-2">
+                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
                       <div className="flex items-center gap-3">
                         <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-sm">
@@ -514,16 +514,16 @@ const Dashboard = () => {
                       </div>
                     </Card>
 
-                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCustomerShipmentTracking(true)}>
+                    <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-orange-500" onClick={() => setShowBookTransport(true)}>
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-sm">
-                          <MapPin className="w-4 h-4 text-white" />
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 shadow-sm">
+                          <Truck className="w-4 h-4 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">Track Shipments</p>
-                          <p className="text-[11px] text-muted-foreground">Real-time logistics tracking</p>
+                          <p className="text-sm font-semibold text-foreground">Book Transport</p>
+                          <p className="text-[11px] text-muted-foreground">Logistics requirements & shipment tracking</p>
                         </div>
-                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-rose-500 transition-colors" />
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-orange-500 transition-colors" />
                       </div>
                     </Card>
                   </div>
