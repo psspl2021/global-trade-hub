@@ -228,7 +228,7 @@ export function MonthlySavingsAnalytics() {
             </div>
           )}
 
-      {/* KPI Summary Cards */}
+          {/* KPI Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="p-3.5 border bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 rounded-[0.625rem]">
           <div className="flex items-center gap-1.5 mb-1">
