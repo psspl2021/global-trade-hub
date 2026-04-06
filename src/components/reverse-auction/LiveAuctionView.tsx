@@ -7,6 +7,7 @@ import { AuctionResultExport } from './AuctionResultExport';
 import { AuctionChat } from './AuctionChat';
 import { AwardRecommendationPanel } from './AwardRecommendationPanel';
 import { MarketIntelligenceCard } from './MarketIntelligenceCard';
+import { AuctionPOGenerator } from './AuctionPOGenerator';
 import { useMarketIntelligence } from '@/hooks/useMarketIntelligence';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
@@ -717,6 +718,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             startingPrice={auction.starting_price}
             currency={auction.currency}
             marketAvgPrice={marketInsight?.avgPrice ?? null}
+          />
+        </div>
+      )}
+
+      {/* 🧾 Purchase Order Generator (buyer only, completed auction with winner) */}
+      {isBuyer && effectiveStatus === 'completed' && auction.winner_supplier_id && (
+        <div className="mb-4">
+          <AuctionPOGenerator
+            auction={auction}
+            winnerSupplierId={auction.winner_supplier_id}
+            winningPrice={auction.winning_price || currentLowest}
           />
         </div>
       )}
