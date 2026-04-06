@@ -50,7 +50,7 @@ export function MarketIntelligenceCard({ insight, currentBest, currency = 'INR',
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Market Intelligence</p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className={`text-[10px] ${freshnessColor}`}>
               Based on {insight.sampleSize} past auctions{daysAgo !== null && daysAgo !== undefined && ` • last ${daysAgo} days`}
             </p>
           </div>
