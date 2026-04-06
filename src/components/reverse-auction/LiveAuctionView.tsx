@@ -114,6 +114,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const isLive = effectiveStatus === 'live';
 
+  // Market Intelligence Engine
+  const { insight: marketInsight } = useMarketIntelligence(bids, auction.starting_price, auction.product_slug);
+
   const currentLowest = useMemo(() => {
     if (bids.length === 0) return auction.starting_price;
     return Math.min(...bids.map(b => b.bid_price));
