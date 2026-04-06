@@ -367,7 +367,8 @@ export function MonthlySavingsAnalytics() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
