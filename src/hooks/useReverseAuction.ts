@@ -265,7 +265,9 @@ export function useReverseAuction(supplierMode: boolean = false) {
         );
 
         const platformIds = uniqueInvites.filter(s => !s.manual).map(s => s.id);
+        const manualEmails = uniqueInvites.filter(s => s.manual && s.email).map(s => s.email!);
         let profileEmails: Record<string, string> = {};
+        let profileIdsByEmail: Record<string, string> = {};
         if (platformIds.length > 0) {
           const { data: profiles } = await supabase
             .from('profiles')
@@ -275,10 +277,20 @@ export function useReverseAuction(supplierMode: boolean = false) {
             profileEmails = Object.fromEntries(profiles.map((p: any) => [p.id, p.email]));
           }
         }
+        // Resolve supplier_id for manual (email-only) invites
+        if (manualEmails.length > 0) {
+          const { data: emailProfiles } = await supabase
+            .from('profiles')
+            .select('id, email')
+            .in('email', manualEmails);
+          if (emailProfiles) {
+            profileIdsByEmail = Object.fromEntries(emailProfiles.map((p: any) => [p.email.toLowerCase(), p.id]));
+          }
+        }
 
         const invites = uniqueInvites.map(s => ({
           auction_id: auctionId,
-          supplier_id: s.manual ? null : s.id,
+          supplier_id: s.manual ? (profileIdsByEmail[(s.email || '').toLowerCase()] || null) : s.id,
           supplier_email: s.email || profileEmails[s.id] || null,
           invited_by: user.id,
           supplier_source: s.manual ? 'buyer_invite' : 'platform',
