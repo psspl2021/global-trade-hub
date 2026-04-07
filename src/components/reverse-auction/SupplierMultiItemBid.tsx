@@ -158,13 +158,25 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
 
   // Smart insight: how much to reduce to become L1
   const gapToL1 = useMemo(() => {
-    if (!user || myRank === 1 || myRank === null) return null;
+    if (!user || myRank === 1) return null;
     const myBid = bids.find(b => b.supplier_id === user.id);
     if (!myBid) return null;
     const l1Price = Math.min(...bids.map(b => b.bid_price));
-    const needed = myBid.bid_price - Math.floor(l1Price * (1 - minBidStep));
-    return needed > 0 ? needed : null;
-  }, [bids, user, myRank, minBidStep]);
+    const requiredBid = l1Price - 1; // just beat L1
+    const gap = myBid.bid_price - requiredBid;
+    return gap > 0 ? gap : null;
+  }, [bids, user, myRank]);
+
+  // Safe savings percentage
+  const savingsPct = useMemo(() => {
+    return currentLowest > 0 ? ((currentLowest - bidTotal) / currentLowest) * 100 : 0;
+  }, [currentLowest, bidTotal]);
+
+  // Best "Become L1" target
+  const bestL1Target = useMemo(() => {
+    const target = Math.floor(currentLowest - 1);
+    return target > 0 ? target : null;
+  }, [currentLowest]);
 
   const handleSubmitBid = useCallback(async () => {
     if (!user || !isValidBid || isSubmitting) return;
@@ -344,11 +356,13 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             )}
           </CardTitle>
           <div className="text-xs text-muted-foreground flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md px-2.5 py-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-            {showRankOnly && !showExactPrices
-              ? `Your rank: ${myRank ? `L${myRank}` : 'Not ranked'} — bid lower to improve`
-              : `Must beat ${formatCurrency(maxAllowedBid)} (min ${auction.minimum_bid_step_pct}% step)`
-            }
+            {myRank === 1 ? (
+              <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> ✅ You are leading (L1)</>
+            ) : myRank ? (
+              <><AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> Your rank: L{myRank} — bid lower to improve</>
+            ) : (
+              <><Target className="w-3.5 h-3.5 text-muted-foreground" /> Place your first bid to enter ranking</>
+            )}
           </div>
         </div>
         {/* L1 reference anchor */}
@@ -438,7 +452,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
               <div className="flex items-center gap-1 text-emerald-600">
                 <CheckCircle2 className="w-4 h-4" />
                 <span className="text-sm font-semibold">
-                  {((currentLowest - bidTotal) / currentLowest * 100).toFixed(2)}% below L1
+                  {savingsPct.toFixed(2)}% below L1
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -453,6 +467,18 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
           <div className="space-y-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Bid</p>
             <div className="flex gap-2 flex-wrap">
+              {/* Become L1 — killer button */}
+              {bestL1Target && myRank !== 1 && (
+                <button
+                  onClick={() => setBidPrices(distributeTotal(bestL1Target))}
+                  className="text-xs border-2 border-emerald-600 bg-emerald-600 text-white px-3 py-2 rounded-lg transition-colors font-semibold text-left hover:bg-emerald-700"
+                >
+                  <span>🏆 Become L1</span>
+                  <span className="block text-[10px] text-emerald-100 mt-0.5">
+                    Total → {formatCurrency(bestL1Target)}
+                  </span>
+                </button>
+              )}
               {[500, 1000, 2000].map((reduction, idx) => {
                 const target = currentLowest - reduction;
                 if (target <= 0 || target >= currentLowest) return null;
