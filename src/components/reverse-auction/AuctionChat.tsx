@@ -70,12 +70,14 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
 
   // Resolve sender IDs to company names
   useEffect(() => {
-    const senderIds = [...new Set(messages.map(m => m.sender_id).filter(id => id && !senderNames[id]))];
-    if (senderIds.length === 0) return;
+    const msgIds = messages.map(m => m.sender_id);
+    const offerIds = counterOffers.map(o => o.supplier_id);
+    const allIds = [...new Set([...msgIds, ...offerIds])].filter(id => id && !senderNames[id]);
+    if (allIds.length === 0) return;
     supabase
       .from('profiles')
       .select('id, company_name')
-      .in('id', senderIds)
+      .in('id', allIds)
       .then(({ data }) => {
         if (data) {
           setSenderNames(prev => {
@@ -85,7 +87,7 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
           });
         }
       });
-  }, [messages]);
+  }, [messages, counterOffers]);
 
   const fetchMessages = useCallback(async () => {
     const { data } = await supabase
