@@ -64,8 +64,28 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
   const [showCounter, setShowCounter] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [senderNames, setSenderNames] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSentRef = useRef(0);
+
+  // Resolve sender IDs to company names
+  useEffect(() => {
+    const senderIds = [...new Set(messages.map(m => m.sender_id).filter(id => id && !senderNames[id]))];
+    if (senderIds.length === 0) return;
+    supabase
+      .from('profiles')
+      .select('id, company_name')
+      .in('id', senderIds)
+      .then(({ data }) => {
+        if (data) {
+          setSenderNames(prev => {
+            const next = { ...prev };
+            data.forEach((p: any) => { next[p.id] = p.company_name; });
+            return next;
+          });
+        }
+      });
+  }, [messages]);
 
   const fetchMessages = useCallback(async () => {
     const { data } = await supabase
@@ -269,7 +289,7 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
                   <div className="flex items-center justify-between">
                     <div className="text-sm">
                       <span className="text-muted-foreground">Counter offer from </span>
-                      <span className="font-medium">PS-{offer.supplier_id.slice(0, 4).toUpperCase()}</span>
+                      <span className="font-medium">{senderNames[offer.supplier_id] || `PS-${offer.supplier_id.slice(0, 4).toUpperCase()}`}</span>
                     </div>
                     <span className="text-lg font-bold text-amber-700">
                       {formatCurrency(offer.counter_price)}
@@ -336,7 +356,7 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
                     >
                       {!isMe && (
                         <p className="text-xs font-medium text-muted-foreground mb-0.5 capitalize">
-                          {msg.sender_role} • PS-{msg.sender_id.slice(0, 4).toUpperCase()}
+                          {msg.sender_role} • {senderNames[msg.sender_id] || `PS-${msg.sender_id.slice(0, 4).toUpperCase()}`}
                         </p>
                       )}
                       {isCounter ? (
