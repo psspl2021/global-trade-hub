@@ -116,6 +116,9 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     }, 0);
   }, [items, bidPrices, hasItems]);
 
+  const reductionPct = currentLowest > 0 ? ((currentLowest - bidTotal) / currentLowest) * 100 : 0;
+  const isWeakBid = bidTotal > 0 && bidTotal < currentLowest && reductionPct < auction.minimum_bid_step_pct;
+
   // Validate bid
   const validationError = useMemo(() => {
     if (hasItems) {
