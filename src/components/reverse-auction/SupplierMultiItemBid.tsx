@@ -116,20 +116,19 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
 
   const handleSubmitBid = useCallback(async () => {
     if (!user || !isValidBid || isSubmitting) return;
+
+    // Use cached authorization — no redundant DB call
+    if (!isAuthorized) {
+      toast.error('You are not authorized to bid on this auction.');
+      return;
+    }
+
+    // Bid confirmation dialog
+    const confirmed = window.confirm(`Place bid at ${formatCurrency(bidTotal)}? This action cannot be undone.`);
+    if (!confirmed) return;
+
     setIsSubmitting(true);
     try {
-      // Backend guard: verify supplier is invited before inserting
-      const { data: invited } = await supabase
-        .from('reverse_auction_suppliers')
-        .select('id')
-        .eq('auction_id', auction.id)
-        .or(`supplier_id.eq.${user.id},supplier_email.eq.${user.email}`)
-        .limit(1);
-      if (!invited || invited.length === 0) {
-        toast.error('You are not authorized to bid on this auction.');
-        return;
-      }
-      // Build bid items for the DB function
       const bidItemsPayload = items.map(item => ({
         auction_item_id: item.id,
         unit_price: Number(bidPrices[item.id] || 0),
@@ -137,7 +136,6 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         line_total: Math.round(Number(bidPrices[item.id] || 0) * item.quantity * 100) / 100,
       }));
 
-      // Insert bid directly into reverse_auction_bids
       const { data: newBid, error } = await supabase
         .from('reverse_auction_bids')
         .insert({
@@ -153,10 +151,13 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
           toast.error('Too fast! Please wait 2 seconds between bids.');
           return;
         }
+        if (error.message?.includes('unique_supplier_auction_bid')) {
+          toast.error('You already have an active bid. Wait for the next round.');
+          return;
+        }
         throw error;
       }
 
-      // Update current price on auction
       await supabase
         .from('reverse_auctions')
         .update({ current_price: Math.round(bidTotal * 100) / 100, updated_at: new Date().toISOString() } as any)
@@ -172,17 +173,23 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         metadata: { item_count: items.length, server_validated: true },
       });
 
-      toast.success(`Bid of ${formatCurrency(bidTotal)} placed successfully!`);
+      // Live feedback: show rank position
+      const isL1 = bidTotal <= currentLowest;
+      toast.success(
+        isL1
+          ? `✅ You are now L1 at ${formatCurrency(bidTotal)}!`
+          : `Bid placed at ${formatCurrency(bidTotal)}`
+      );
       onBidPlaced();
     } catch (err: any) {
       toast.error('Failed to place bid: ' + (err.message || 'Unknown error'));
     } finally {
       setIsSubmitting(false);
     }
-  }, [user, isValidBid, isSubmitting, bidTotal, items, bidPrices, auction.id, onBidPlaced]);
+  }, [user, isValidBid, isSubmitting, isAuthorized, bidTotal, items, bidPrices, auction.id, onBidPlaced, currentLowest]);
 
   if (isLoadingItems || isAuthorized === null) {
-    return <div className="text-sm text-muted-foreground p-4">Loading auction items...</div>;
+    return <div className="text-sm text-muted-foreground p-4">Checking access & loading items...</div>;
   }
 
   if (!isAuthorized) {
