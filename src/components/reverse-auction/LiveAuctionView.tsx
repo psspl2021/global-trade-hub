@@ -504,20 +504,25 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </Button>
         <div className="flex items-center gap-2">
           {isBuyer && <AuctionResultExport auction={auction} bids={bids} />}
-          {canEdit && (
-            <>
-              {canEditAuction ? (
-                <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
-                  <Pencil className="w-3 h-3" /> Edit ({2 - buyerEditCount} left)
+              {isBuyer && isLive && (
+                <Button variant="outline" size="sm" onClick={() => setShowExtendDialog(true)} className="gap-1">
+                  <Timer className="w-3 h-3" /> Extend Time
                 </Button>
-              ) : (
-                <span className="text-xs text-muted-foreground italic">Max edits used</span>
               )}
-              <Button variant="destructive" size="sm" onClick={() => setShowCancelDialog(true)} className="gap-1">
-                <XCircle className="w-3 h-3" /> Withdraw
-              </Button>
-            </>
-          )}
+              {canEdit && (
+                <>
+                  {canEditAuction ? (
+                    <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="gap-1">
+                      <Pencil className="w-3 h-3" /> Edit ({2 - buyerEditCount} left)
+                    </Button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground italic">Max edits used</span>
+                  )}
+                  <Button variant="destructive" size="sm" onClick={() => setShowCancelDialog(true)} className="gap-1">
+                    <XCircle className="w-3 h-3" /> Withdraw
+                  </Button>
+                </>
+              )}
         </div>
       </div>
 
