@@ -166,6 +166,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     return needed > 0 ? needed : null;
   }, [bids, user, myRank, minBidStep]);
 
+  const handleSubmitBid = useCallback(async () => {
     if (!user || !isValidBid || isSubmitting) return;
 
     // Use cached authorization — no redundant DB call
