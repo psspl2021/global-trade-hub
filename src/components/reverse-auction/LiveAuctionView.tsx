@@ -260,7 +260,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     if (!bidPrice) { setBidError('Enter a bid amount'); return; }
     const price = parseFloat(bidPrice);
     if (isNaN(price) || price <= 0) { setBidError('Enter a valid amount'); return; }
-    if (price >= currentLowest) { setBidError('Bid must be LOWER than current L1'); return; }
+    if (price >= currentLowest) { setBidError(`Must be less than ${formatCurrency(currentLowest - 1)} to become L1`); return; }
     setIsPlacing(true);
     try {
       await placeBid(user.id, price, auction);
@@ -368,7 +368,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <h3 className="font-semibold">Place Your Bid</h3>
         </div>
         <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
-          <span>Must beat {formatCurrency(currentLowest)} to lead</span>
+          <span>Bid below {formatCurrency(currentLowest - 1)} to become L1</span>
           {isWeakSingleBid && (
             <span className="text-amber-600">
               · Tip: reduce ~{auction.minimum_bid_step_pct}% for stronger competitiveness
@@ -376,6 +376,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           )}
           {parsedBidPrice > 0 && parsedBidPrice < currentLowest && (
             <span className="text-xs text-emerald-600 font-medium">✅ Valid bid — you're in the race</span>
+          )}
+          {parsedBidPrice >= currentLowest && parsedBidPrice > 0 && parsedBidPrice <= currentLowest * 1.005 && (
+            <span className="text-xs text-primary font-medium">⚡ You're very close — 1 click to win</span>
           )}
         </div>
         {/* Quick Bid Buttons */}
