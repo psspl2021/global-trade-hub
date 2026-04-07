@@ -909,7 +909,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             <DialogTitle>Edit Auction</DialogTitle>
             <DialogDescription>Update auction details. Changes apply immediately.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
+          <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
             <div>
               <Label>Title</Label>
               <Input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} />
@@ -936,6 +936,52 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               <div>
                 <Label>Unit</Label>
                 <Input value={editForm.unit} onChange={e => setEditForm(f => ({ ...f, unit: e.target.value }))} />
+              </div>
+            </div>
+
+            {/* Auction Start Date & Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Auction Start Date</Label>
+                <Input type="date" value={editForm.start_date} onChange={e => setEditForm(f => ({ ...f, start_date: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Auction Start Time</Label>
+                <Input type="time" value={editForm.start_time} onChange={e => setEditForm(f => ({ ...f, start_time: e.target.value }))} />
+              </div>
+            </div>
+
+            {/* Duration, Min Bid Step, Trade Type */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label>Duration</Label>
+                <select
+                  value={editForm.duration_minutes}
+                  onChange={e => setEditForm(f => ({ ...f, duration_minutes: Number(e.target.value) }))}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value={15}>15 minutes</option>
+                  <option value={30}>30 minutes</option>
+                  <option value={60}>1 hour</option>
+                  <option value={120}>2 hours</option>
+                  <option value={1440}>24 hours</option>
+                </select>
+              </div>
+              <div>
+                <Label>Min Bid Step (%)</Label>
+                <Input type="number" step="0.05" value={editForm.minimum_bid_step_pct} onChange={e => setEditForm(f => ({ ...f, minimum_bid_step_pct: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Trade Type</Label>
+                <select
+                  value={editForm.transaction_type}
+                  onChange={e => setEditForm(f => ({ ...f, transaction_type: e.target.value }))}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="domestic">Domestic</option>
+                  <option value="import">Import</option>
+                  <option value="export">Export</option>
+                </select>
               </div>
             </div>
           </div>
