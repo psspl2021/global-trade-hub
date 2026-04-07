@@ -83,8 +83,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     return Math.min(...bids.map(b => b.bid_price));
   }, [bids, auction.starting_price]);
 
-  const reductionPct = currentLowest > 0 ? ((currentLowest - bidTotal) / currentLowest) * 100 : 0;
-  const isWeakBid = bidTotal > 0 && bidTotal < currentLowest && reductionPct < auction.minimum_bid_step_pct;
+  const minBidStep = auction.minimum_bid_step_pct / 100;
 
   const hasItems = items.length > 0;
 
@@ -124,7 +123,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
       if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
     }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
-    if (bidTotal >= currentLowest) return `Total must be below ${formatCurrency(currentLowest)} (current L1)`;
+    if (bidTotal >= currentLowest) return `Must beat ${formatCurrency(currentLowest)} to lead`;
     return null;
   }, [items, bidPrices, bidTotal, currentLowest, hasItems]);
 
