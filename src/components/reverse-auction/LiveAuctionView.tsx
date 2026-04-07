@@ -322,8 +322,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) <= maxAllowedBid;
 
-  // Multi-item bid panel for supplier (replaces single-price input)
-  const multiItemBidPanel = isSupplier && (isLive || effectiveStatus === 'scheduled' || auction.status === 'live') ? (
+  // Multi-item bid panel for supplier — trust DB status, not client time
+  const isDbLive = auction.status === 'live';
+  const multiItemBidPanel = isSupplier && (isDbLive || isLive) ? (
     <SupplierMultiItemBid
       auction={auction}
       bids={bids}
@@ -331,12 +332,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         setBidPrice(Math.floor(maxAllowedBid).toString());
         document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
       }}
-      isLive={isLive}
+      isLive={isDbLive || isLive}
     />
   ) : null;
 
   // Reusable bid panel content (fallback for single-item or non-multi-item auctions)
-  const isEffectivelyLive = isLive || auction.status === 'live';
+  const isEffectivelyLive = isLive || isDbLive;
   const bidPanelContent = isSupplier ? (
     isEffectivelyLive ? (
       multiItemBidPanel || (
