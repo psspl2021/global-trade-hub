@@ -72,6 +72,12 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
   const [certifications, setCertifications] = useState('');
   const [qualityStandards, setQualityStandards] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [reservePrice, setReservePrice] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [durationMinutes, setDurationMinutes] = useState(30);
+  const [minBidStepPct, setMinBidStepPct] = useState(0.25);
+  const [transactionType, setTransactionType] = useState('domestic');
   const [items, setItems] = useState<LineItem[]>([]);
   const [suppliers, setSuppliers] = useState<InvitedSupplier[]>([]);
   const [newSupplierEmail, setNewSupplierEmail] = useState('');
@@ -197,6 +203,18 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
         setCertifications(a.certifications || '');
         setQualityStandards(a.quality_standards || '');
         setDeadline(a.deadline ? new Date(a.deadline).toISOString().split('T')[0] : '');
+        setReservePrice(a.reserve_price ? String(a.reserve_price) : '');
+        setMinBidStepPct(a.minimum_bid_step_pct || 0.25);
+        setTransactionType(a.transaction_type || 'domestic');
+        if (a.auction_start) {
+          const sd = new Date(a.auction_start);
+          setStartDate(sd.toISOString().split('T')[0]);
+          setStartTime(sd.toTimeString().slice(0, 5));
+          if (a.auction_end) {
+            const dur = Math.round((new Date(a.auction_end).getTime() - sd.getTime()) / 60000);
+            setDurationMinutes(dur > 0 ? dur : 30);
+          }
+        }
       }
 
       if (itemsRes.data && itemsRes.data.length > 0) {
@@ -357,7 +375,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
       const totalQty = validItems.reduce((sum, i) => sum + parseFloat(i.quantity || '0'), 0);
       const slug = validItems.map(i => i.product_name.toLowerCase().replace(/\s+/g, '-')).join('_');
 
-      const result = await updateAuction(auction.id, {
+      const updates: any = {
         title: title || undefined,
         starting_price: calculatedTotal,
         quantity: totalQty,
@@ -371,6 +389,9 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
         certifications: certifications || undefined,
         quality_standards: qualityStandards || undefined,
         deadline: deadline ? new Date(deadline).toISOString() : null,
+        reserve_price: reservePrice ? Number(reservePrice) : null,
+        minimum_bid_step_pct: Number(minBidStepPct),
+        transaction_type: transactionType,
         line_items: validItems.map(i => ({
           product_name: i.product_name,
           quantity: parseFloat(i.quantity || '0'),
@@ -379,7 +400,15 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           category: i.category || auction.category,
           unit_price: parseFloat(i.price || '0'),
         })),
-      }, editCount);
+      };
+      if (startDate && startTime) {
+        const start = new Date(`${startDate}T${startTime}`);
+        if (!isNaN(start.getTime())) {
+          updates.auction_start = start.toISOString();
+          updates.auction_end = new Date(start.getTime() + durationMinutes * 60000).toISOString();
+        }
+      }
+      const result = await updateAuction(auction.id, updates, editCount);
 
       if (result) {
         onOpenChange(false);
@@ -613,6 +642,59 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
                 <div>
                   <Label className="text-xs text-muted-foreground">Procurement Deadline</Label>
                   <Input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} min={new Date().toISOString().split('T')[0]} className="mt-1" />
+                </div>
+              </div>
+            </div>
+
+            {/* ─── Auction Scheduling ─── */}
+            <div className="space-y-3 pt-3 border-t border-border">
+              <Label className="text-sm font-semibold">⏱️ Auction Schedule</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Reserve Price (₹) — Optional</Label>
+                  <Input type="number" value={reservePrice} onChange={e => setReservePrice(e.target.value)} placeholder="Optional" className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Min Bid Step (%)</Label>
+                  <Input type="number" step="0.05" value={minBidStepPct} onChange={e => setMinBidStepPct(Number(e.target.value))} className="mt-1" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Auction Start Date</Label>
+                  <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Auction Start Time</Label>
+                  <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="mt-1" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Duration</Label>
+                  <select
+                    value={durationMinutes}
+                    onChange={e => setDurationMinutes(Number(e.target.value))}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring mt-1"
+                  >
+                    <option value={15}>15 minutes</option>
+                    <option value={30}>30 minutes</option>
+                    <option value={60}>1 hour</option>
+                    <option value={120}>2 hours</option>
+                    <option value={1440}>24 hours</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Trade Type</Label>
+                  <select
+                    value={transactionType}
+                    onChange={e => setTransactionType(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring mt-1"
+                  >
+                    <option value="domestic">Domestic</option>
+                    <option value="import">Import</option>
+                    <option value="export">Export</option>
+                  </select>
                 </div>
               </div>
             </div>
