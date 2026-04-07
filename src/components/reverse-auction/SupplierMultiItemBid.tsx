@@ -173,10 +173,18 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         throw error;
       }
 
-      await supabase
-        .from('reverse_auctions')
-        .update({ current_price: Math.round(bidTotal * 100) / 100, updated_at: new Date().toISOString() } as any)
-        .eq('id', auction.id);
+      // Update current price + mark supplier as bidding (parallel)
+      await Promise.all([
+        supabase
+          .from('reverse_auctions')
+          .update({ current_price: Math.round(bidTotal * 100) / 100, updated_at: new Date().toISOString() } as any)
+          .eq('id', auction.id),
+        supabase
+          .from('reverse_auction_suppliers')
+          .update({ invite_status: 'bid_submitted' } as any)
+          .eq('auction_id', auction.id)
+          .or(`supplier_id.eq.${user.id},supplier_email.eq.${user.email}`),
+      ]);
 
       logAuctionEvent({
         auction_id: auction.id,

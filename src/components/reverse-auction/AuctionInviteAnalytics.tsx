@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Eye, MousePointerClick, Gavel } from 'lucide-react';
 
@@ -12,34 +12,54 @@ interface InviteStats {
 export function AuctionInviteAnalytics({ auctionId }: { auctionId: string }) {
   const [stats, setStats] = useState<InviteStats | null>(null);
 
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from('reverse_auction_suppliers')
-        .select('invite_status')
-        .eq('auction_id', auctionId);
+  const fetchStats = useCallback(async () => {
+    const { data } = await supabase
+      .from('reverse_auction_suppliers')
+      .select('invite_status')
+      .eq('auction_id', auctionId);
 
-      if (!data) return;
+    if (!data) return;
 
-      const counts: InviteStats = { sent: 0, opened: 0, clicked: 0, bid_submitted: 0 };
-      counts.sent = data.length;
-      for (const row of data) {
-        const s = (row as any).invite_status;
-        if (s === 'opened') {
-          counts.opened++;
-        } else if (s === 'clicked') {
-          counts.opened++;
-          counts.clicked++;
-        } else if (s === 'bid_submitted') {
-          counts.opened++;
-          counts.clicked++;
-          counts.bid_submitted++;
-        }
+    const counts: InviteStats = { sent: 0, opened: 0, clicked: 0, bid_submitted: 0 };
+    counts.sent = data.length;
+    for (const row of data) {
+      const s = (row as any).invite_status;
+      if (s === 'opened') {
+        counts.opened++;
+      } else if (s === 'clicked') {
+        counts.opened++;
+        counts.clicked++;
+      } else if (s === 'bid_submitted') {
+        counts.opened++;
+        counts.clicked++;
+        counts.bid_submitted++;
       }
-      setStats(counts);
-    };
-    fetch();
+    }
+    setStats(counts);
   }, [auctionId]);
+
+  useEffect(() => {
+    fetchStats();
+
+    // Realtime subscription for live updates
+    const channel = supabase
+      .channel(`invite-analytics-${auctionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reverse_auction_suppliers',
+          filter: `auction_id=eq.${auctionId}`,
+        },
+        () => fetchStats()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [auctionId, fetchStats]);
 
   if (!stats || stats.sent === 0) return null;
 
