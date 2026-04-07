@@ -10578,6 +10578,13 @@ export type Database = {
         Args: { p_buyer_id: string; p_days?: number }
         Returns: Json
       }
+      get_company_names: {
+        Args: { user_ids: string[] }
+        Returns: {
+          company_name: string
+          id: string
+        }[]
+      }
       get_company_purchasers: {
         Args: { _user_id: string }
         Returns: {

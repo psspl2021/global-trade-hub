@@ -68,21 +68,19 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSentRef = useRef(0);
 
-  // Resolve sender IDs to company names
+  // Resolve sender IDs to company names via security-definer RPC
   useEffect(() => {
     const msgIds = messages.map(m => m.sender_id);
     const offerIds = counterOffers.map(o => o.supplier_id);
     const allIds = [...new Set([...msgIds, ...offerIds])].filter(id => id && !senderNames[id]);
     if (allIds.length === 0) return;
     supabase
-      .from('profiles')
-      .select('id, company_name')
-      .in('id', allIds)
-      .then(({ data }) => {
-        if (data) {
+      .rpc('get_company_names', { user_ids: allIds })
+      .then(({ data, error }) => {
+        if (data && !error) {
           setSenderNames(prev => {
             const next = { ...prev };
-            data.forEach((p: any) => { next[p.id] = p.company_name; });
+            (data as any[]).forEach((p) => { next[p.id] = p.company_name; });
             return next;
           });
         }
