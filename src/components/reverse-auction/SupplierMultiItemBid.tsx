@@ -380,27 +380,53 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
 
         {/* Quick bid suggestions */}
         {isLive && (
-          <div className="flex gap-2 flex-wrap">
-            {[1, 2, 3].map(step => {
-              const targetTotal = currentLowest * (1 - minBidStep * step);
-              const ratio = targetTotal / (auction.starting_price || 1);
-              return (
-                <button
-                  key={step}
-                  onClick={() => {
-                    const newPrices: Record<string, string> = {};
-                    items.forEach(item => {
-                      const basePrice = item.unit_price || (auction.starting_price / items.reduce((s, i) => s + i.quantity, 0));
-                      newPrices[item.id] = String(Math.floor(basePrice * ratio));
-                    });
-                    setBidPrices(newPrices);
-                  }}
-                  className="text-xs border border-border px-2 py-1 rounded-md hover:bg-muted transition-colors"
-                >
-                  -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(targetTotal))})
-                </button>
-              );
-            })}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Quick Bid</p>
+            <div className="flex gap-2 flex-wrap">
+              {/* Fixed amount reductions */}
+              {[500, 1000, 2000].map(reduction => {
+                const target = currentLowest - reduction;
+                if (target <= 0) return null;
+                const totalQty = items.reduce((s, i) => s + i.quantity, 0);
+                const perUnit = target / totalQty;
+                return (
+                  <button
+                    key={`fix-${reduction}`}
+                    onClick={() => {
+                      const newPrices: Record<string, string> = {};
+                      items.forEach(item => {
+                        newPrices[item.id] = String(Math.floor(perUnit));
+                      });
+                      setBidPrices(newPrices);
+                    }}
+                    className="text-xs border border-border px-2.5 py-1.5 rounded-md hover:bg-muted transition-colors font-medium"
+                  >
+                    Beat by ₹{reduction.toLocaleString('en-IN')}
+                  </button>
+                );
+              })}
+              {/* Percentage reductions */}
+              {[1, 2, 3].map(step => {
+                const targetTotal = currentLowest * (1 - minBidStep * step);
+                const ratio = targetTotal / (auction.starting_price || 1);
+                return (
+                  <button
+                    key={`pct-${step}`}
+                    onClick={() => {
+                      const newPrices: Record<string, string> = {};
+                      items.forEach(item => {
+                        const basePrice = item.unit_price || (auction.starting_price / items.reduce((s, i) => s + i.quantity, 0));
+                        newPrices[item.id] = String(Math.floor(basePrice * ratio));
+                      });
+                      setBidPrices(newPrices);
+                    }}
+                    className="text-xs border border-primary/30 text-primary px-2.5 py-1.5 rounded-md hover:bg-primary/10 transition-colors font-medium"
+                  >
+                    -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(targetTotal))})
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
