@@ -83,24 +83,28 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
   const minBidStep = auction.minimum_bid_step_pct / 100;
   const maxAllowedBid = currentLowest * (1 - minBidStep);
 
-  // Calculate total from line items
+  const hasItems = items.length > 0;
+
+  // Calculate total from line items OR single bid
   const bidTotal = useMemo(() => {
+    if (!hasItems) return Number(bidPrices['single'] || 0);
     return items.reduce((sum, item) => {
       const price = Number(bidPrices[item.id] || 0);
       return sum + (Math.round(price * 100) / 100) * (Math.round(item.quantity * 100) / 100);
     }, 0);
-  }, [items, bidPrices]);
+  }, [items, bidPrices, hasItems]);
 
   // Validate bid
   const validationError = useMemo(() => {
-    if (items.length === 0) return null;
-    const emptyItems = items.filter(i => !bidPrices[i.id] || Number(bidPrices[i.id]) <= 0);
-    if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
+    if (hasItems) {
+      const emptyItems = items.filter(i => !bidPrices[i.id] || Number(bidPrices[i.id]) <= 0);
+      if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
+    }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
     if (bidTotal >= currentLowest) return `Total must be below ${formatCurrency(currentLowest)} (current L1)`;
     if (bidTotal > maxAllowedBid) return `Must reduce by at least ${auction.minimum_bid_step_pct}% (max: ${formatCurrency(Math.floor(maxAllowedBid))})`;
     return null;
-  }, [items, bidPrices, bidTotal, currentLowest, maxAllowedBid, auction.minimum_bid_step_pct]);
+  }, [items, bidPrices, bidTotal, currentLowest, maxAllowedBid, auction.minimum_bid_step_pct, hasItems]);
 
   const isValidBid = !validationError && bidTotal > 0;
 
