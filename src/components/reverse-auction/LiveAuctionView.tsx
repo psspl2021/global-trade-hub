@@ -101,13 +101,27 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const buyerEditCount = (auction as any).buyer_edit_count || 0;
   const canEditAuction = canEdit && buyerEditCount < 2;
-  const [editForm, setEditForm] = useState({
-    title: auction.title,
-    starting_price: auction.starting_price,
-    reserve_price: auction.reserve_price || '',
-    quantity: auction.quantity,
-    unit: auction.unit,
-    product_slug: auction.product_slug,
+  const [editForm, setEditForm] = useState(() => {
+    // Derive start date/time from auction_start
+    const startDt = auction.auction_start ? new Date(auction.auction_start) : null;
+    const startDateStr = startDt ? startDt.toISOString().slice(0, 10) : '';
+    const startTimeStr = startDt ? startDt.toTimeString().slice(0, 5) : '';
+    // Derive duration from start/end
+    const endDt = auction.auction_end ? new Date(auction.auction_end) : null;
+    const durationMin = startDt && endDt ? Math.round((endDt.getTime() - startDt.getTime()) / 60000) : 30;
+    return {
+      title: auction.title,
+      starting_price: auction.starting_price,
+      reserve_price: auction.reserve_price || '',
+      quantity: auction.quantity,
+      unit: auction.unit,
+      product_slug: auction.product_slug,
+      start_date: startDateStr,
+      start_time: startTimeStr,
+      duration_minutes: durationMin,
+      minimum_bid_step_pct: auction.minimum_bid_step_pct || 0.25,
+      transaction_type: auction.transaction_type || 'domestic',
+    };
   });
   const [isSaving, setIsSaving] = useState(false);
   const [editingBidId, setEditingBidId] = useState<string | null>(null);
