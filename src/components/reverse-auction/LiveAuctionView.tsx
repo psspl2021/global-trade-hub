@@ -99,6 +99,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const canEdit = isBuyer && (effectiveStatus === 'scheduled' || effectiveStatus === 'live');
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showExtendDialog, setShowExtendDialog] = useState(false);
+  const [extendMinutes, setExtendMinutes] = useState(15);
+  const [isExtending, setIsExtending] = useState(false);
   const buyerEditCount = (auction as any).buyer_edit_count || 0;
   const canEditAuction = canEdit && buyerEditCount < 2;
   const [editForm, setEditForm] = useState(() => {
