@@ -155,6 +155,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     return new Set(bids.map(b => b.supplier_id)).size;
   }, [bids]);
 
+  // Invited suppliers count (active participants)
+  const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
+  useEffect(() => {
+    const fetchInvited = async () => {
+      const { count } = await supabase
+        .from('reverse_auction_suppliers')
+        .select('id', { count: 'exact', head: true })
+        .eq('auction_id', auction.id)
+        .eq('is_active', true);
+      setInvitedSuppliersCount(count || 0);
+    };
+    fetchInvited();
+  }, [auction.id]);
+
   const recentBidCount = useMemo(() => {
     const thirtySecsAgo = Date.now() - 30000;
     return bids.filter(b => new Date(b.created_at).getTime() > thirtySecsAgo).length;
@@ -525,7 +539,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/60 border border-border text-xs font-medium">
               <Users className="w-3.5 h-3.5 text-primary" />
-              <span>{activeBidders} supplier{activeBidders !== 1 ? 's' : ''} active</span>
+              <span>{invitedSuppliersCount} supplier{invitedSuppliersCount !== 1 ? 's' : ''} invited{activeBidders > 0 ? ` · ${activeBidders} bidding` : ''}</span>
             </div>
             {recentBidCount > 0 && (
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-xs font-medium text-amber-800 animate-pulse">
