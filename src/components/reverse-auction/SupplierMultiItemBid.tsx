@@ -66,8 +66,11 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         .select('*')
         .eq('auction_id', auction.id)
         .order('created_at');
+      console.log('[MultiItemBid] items fetch:', { auctionId: auction.id, count: data?.length, error: error?.message });
       if (!error && data) {
         setItems(data as unknown as AuctionItem[]);
+      } else if (error) {
+        console.error('[MultiItemBid] items fetch error:', error);
       }
       setIsLoadingItems(false);
     };
