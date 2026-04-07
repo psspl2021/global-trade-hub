@@ -262,10 +262,6 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     const price = parseFloat(bidPrice);
     if (isNaN(price) || price <= 0) { setBidError('Enter a valid amount'); return; }
     if (price >= currentLowest) { setBidError('Bid must be LOWER than current L1'); return; }
-    if (price > maxAllowedBid) {
-      setBidError(`Max allowed: ${formatCurrency(maxAllowedBid)} (min ${auction.minimum_bid_step_pct}% step)`);
-      return;
-    }
     setIsPlacing(true);
     try {
       await placeBid(user.id, price, auction);
@@ -370,8 +366,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <h3 className="font-semibold">Place Your Bid</h3>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <AlertTriangle className="w-3 h-3 text-amber-600" />
-          Must be below {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
+          Must be below {formatCurrency(currentLowest)} (current L1)
+          {bidPrice && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) > maxAllowedBid && (
+            <span className="text-amber-600">
+              · Tip: reduce {auction.minimum_bid_step_pct}% for stronger competitiveness
+            </span>
+          )}
         </div>
         {/* Quick Bid Buttons */}
         <div className="flex gap-2 flex-wrap">

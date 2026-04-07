@@ -125,9 +125,8 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
     if (bidTotal >= currentLowest) return `Total must be below ${formatCurrency(currentLowest)} (current L1)`;
-    if (bidTotal > maxAllowedBid) return `Must reduce by at least ${auction.minimum_bid_step_pct}% (max: ${formatCurrency(Math.floor(maxAllowedBid))})`;
     return null;
-  }, [items, bidPrices, bidTotal, currentLowest, maxAllowedBid, auction.minimum_bid_step_pct, hasItems]);
+  }, [items, bidPrices, bidTotal, currentLowest, hasItems]);
 
   const isValidBid = !validationError && bidTotal > 0;
 
@@ -290,8 +289,12 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             )}
           </CardTitle>
           <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <AlertTriangle className="w-3 h-3 text-amber-600" />
-            Must beat {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
+            Must be below {formatCurrency(currentLowest)} (current L1)
+            {bidTotal > 0 && bidTotal < currentLowest && bidTotal > maxAllowedBid && (
+              <span className="text-amber-600 ml-1">
+                · Tip: reduce {auction.minimum_bid_step_pct}% for stronger competitiveness
+              </span>
+            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
