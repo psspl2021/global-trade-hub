@@ -40,6 +40,22 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
   const [bidPrices, setBidPrices] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+  // Check if supplier is invited to this auction
+  useEffect(() => {
+    if (!user) return;
+    const checkAuth = async () => {
+      const { data } = await supabase
+        .from('reverse_auction_suppliers')
+        .select('id')
+        .eq('auction_id', auction.id)
+        .or(`supplier_id.eq.${user.id},supplier_email.eq.${user.email}`)
+        .limit(1);
+      setIsAuthorized(!!data && data.length > 0);
+    };
+    checkAuth();
+  }, [auction.id, user]);
 
   // Fetch auction items
   useEffect(() => {
@@ -102,6 +118,17 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     if (!user || !isValidBid || isSubmitting) return;
     setIsSubmitting(true);
     try {
+      // Backend guard: verify supplier is invited before inserting
+      const { data: invited } = await supabase
+        .from('reverse_auction_suppliers')
+        .select('id')
+        .eq('auction_id', auction.id)
+        .or(`supplier_id.eq.${user.id},supplier_email.eq.${user.email}`)
+        .limit(1);
+      if (!invited || invited.length === 0) {
+        toast.error('You are not authorized to bid on this auction.');
+        return;
+      }
       // Build bid items for the DB function
       const bidItemsPayload = items.map(item => ({
         auction_item_id: item.id,
@@ -154,8 +181,16 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     }
   }, [user, isValidBid, isSubmitting, bidTotal, items, bidPrices, auction.id, onBidPlaced]);
 
-  if (isLoadingItems) {
+  if (isLoadingItems || isAuthorized === null) {
     return <div className="text-sm text-muted-foreground p-4">Loading auction items...</div>;
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="text-sm text-destructive p-4 border border-destructive/20 rounded-lg bg-destructive/5">
+        You are not authorized to bid on this auction.
+      </div>
+    );
   }
 
   if (items.length === 0) return null;
