@@ -1,17 +1,19 @@
 /**
  * Reverse Auction Dashboard — Full page view matching enterprise layout
  * Header + Credits + Pricing Plans + War Room + Auction List
+ * Selected auction persisted via URL search params for refresh survival
  */
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ReverseAuctionList } from './ReverseAuctionList';
 import { LiveAuctionView } from './LiveAuctionView';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
 import { AuctionWarRoom } from './AuctionWarRoom';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Gavel, Sparkles, Target } from 'lucide-react';
+import { Gavel, Sparkles, Target, Loader2 } from 'lucide-react';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
@@ -21,13 +23,58 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [selectedAuction, setSelectedAuction] = useState<ReverseAuction | null>(null);
   const [creditsKey, setCreditsKey] = useState(0);
   const [showWarRoom, setShowWarRoom] = useState(false);
+  const [isRestoringAuction, setIsRestoringAuction] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Persist selected auction ID in URL
+  const selectAuction = (auction: ReverseAuction | null) => {
+    setSelectedAuction(auction);
+    if (auction) {
+      searchParams.set('auction', auction.id);
+    } else {
+      searchParams.delete('auction');
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
+
+  // Restore selected auction from URL on mount
+  useEffect(() => {
+    const auctionId = searchParams.get('auction');
+    if (auctionId && !selectedAuction) {
+      setIsRestoringAuction(true);
+      supabase
+        .from('reverse_auctions')
+        .select('*')
+        .eq('id', auctionId)
+        .single()
+        .then(({ data, error }) => {
+          if (data && !error) {
+            setSelectedAuction(data as unknown as ReverseAuction);
+          } else {
+            // Invalid auction ID — clean up URL
+            searchParams.delete('auction');
+            setSearchParams(searchParams, { replace: true });
+          }
+          setIsRestoringAuction(false);
+        });
+    }
+  }, []); // Only on mount
+
+  if (isRestoringAuction) {
+    return (
+      <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Loading auction...
+      </div>
+    );
+  }
 
   if (selectedAuction) {
     return (
       <LiveAuctionView
         auction={selectedAuction}
-        onBack={() => setSelectedAuction(null)}
+        onBack={() => selectAuction(null)}
         isSupplier={isSupplier}
       />
     );
@@ -39,7 +86,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
         onBack={() => setShowWarRoom(false)}
         onSelectAuction={(auction) => {
           setShowWarRoom(false);
-          setSelectedAuction(auction);
+          selectAuction(auction);
         }}
       />
     );
@@ -87,7 +134,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
 
       {/* Auction List */}
       <ReverseAuctionList
-        onSelectAuction={setSelectedAuction}
+        onSelectAuction={selectAuction}
         isBuyer={!isSupplier}
         isSupplier={isSupplier}
       />
