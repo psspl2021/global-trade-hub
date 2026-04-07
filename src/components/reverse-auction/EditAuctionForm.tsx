@@ -291,9 +291,17 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     }
     setIsAddingSupplier(true);
     try {
+      // Resolve supplier_id from profiles if the email matches an existing user
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
+
       const { data, error } = await supabase.from('reverse_auction_suppliers').insert({
         auction_id: auction.id,
         supplier_email: email,
+        supplier_id: profile?.id || null,
         supplier_source: 'buyer_invite',
       } as any).select().single();
       if (error) throw error;
