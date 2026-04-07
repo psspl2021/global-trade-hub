@@ -530,17 +530,122 @@ export function useReverseAuction(supplierMode: boolean = false) {
         if (newSchedule.quantity) updates.quantity = newSchedule.quantity;
         if (newSchedule.unit) updates.unit = newSchedule.unit;
       }
+
       const { error } = await supabase
         .from('reverse_auctions')
         .update(updates)
         .eq('id', auctionId);
       if (error) throw error;
 
-      // Clear old bids
-      await supabase
+      const { error: bidDeleteError } = await supabase
         .from('reverse_auction_bids')
         .delete()
         .eq('auction_id', auctionId);
+      if (bidDeleteError) throw bidDeleteError;
+
+      const [auctionRes, suppliersRes] = await Promise.all([
+        supabase
+          .from('reverse_auctions')
+          .select('id, title, product_slug, quantity, unit, auction_start')
+          .eq('id', auctionId)
+          .single(),
+        supabase
+          .from('reverse_auction_suppliers')
+          .select('id, supplier_id, supplier_email, is_active')
+          .eq('auction_id', auctionId)
+          .eq('is_active', true),
+      ]);
+
+      if (auctionRes.error) throw auctionRes.error;
+      if (suppliersRes.error) throw suppliersRes.error;
+
+      const activeSuppliers = suppliersRes.data || [];
+      const missingEmailSupplierIds = Array.from(
+        new Set(
+          activeSuppliers
+            .filter((supplier: any) => !supplier.supplier_email && supplier.supplier_id)
+            .map((supplier: any) => supplier.supplier_id as string)
+        )
+      );
+
+      let profileEmailBySupplierId: Record<string, string> = {};
+      if (missingEmailSupplierIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email')
+          .in('id', missingEmailSupplierIds);
+
+        if (profilesError) {
+          console.error('Failed to resolve supplier emails for republish:', profilesError);
+        } else if (profiles) {
+          profileEmailBySupplierId = Object.fromEntries(
+            profiles
+              .filter((profile: any) => profile.email)
+              .map((profile: any) => [profile.id, profile.email as string])
+          );
+        }
+      }
+
+      const resolvedSuppliers = activeSuppliers
+        .map((supplier: any) => {
+          const resolvedEmail = supplier.supplier_email || (supplier.supplier_id ? profileEmailBySupplierId[supplier.supplier_id] : null);
+          return resolvedEmail
+            ? { ...supplier, resolvedEmail }
+            : null;
+        })
+        .filter(Boolean) as Array<{
+          id: string;
+          supplier_id: string | null;
+          supplier_email: string | null;
+          resolvedEmail: string;
+        }>;
+
+      if (resolvedSuppliers.length > 0) {
+        await supabase
+          .from('reverse_auction_suppliers')
+          .update({ invite_status: 'pending' } as any)
+          .eq('auction_id', auctionId)
+          .eq('is_active', true);
+
+        const auctionData = auctionRes.data;
+        const product = auctionData.product_slug.replace(/_/g, ', ').replace(/-/g, ' ');
+        const quantity = `${auctionData.quantity} ${auctionData.unit}`;
+        const auctionLink = `https://www.procuresaathi.com/reverse-auction/${auctionId}`;
+
+        await Promise.all(
+          resolvedSuppliers.map(async (supplier) => {
+            try {
+              const { error: emailError } = await supabase.functions.invoke('send-auction-invite', {
+                body: {
+                  email: supplier.resolvedEmail,
+                  auctionTitle: auctionData.title,
+                  auctionId,
+                  product,
+                  quantity,
+                  startTime: auctionData.auction_start,
+                  auctionLink,
+                },
+              });
+
+              if (emailError) throw emailError;
+
+              const { error: inviteUpdateError } = await supabase
+                .from('reverse_auction_suppliers')
+                .update({
+                  invite_status: 'sent',
+                  supplier_email: supplier.resolvedEmail,
+                } as any)
+                .eq('id', supplier.id);
+
+              if (inviteUpdateError) {
+                console.error('Failed to update invite status after republish:', inviteUpdateError);
+              }
+            } catch (inviteError) {
+              console.error(`Failed to send republish invite to ${supplier.resolvedEmail}:`, inviteError);
+            }
+          })
+        );
+      }
 
       logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_REPUBLISHED', actor_id: user.id, actor_role: 'buyer' });
       toast.success('Auction republished successfully.');
