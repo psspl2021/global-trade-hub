@@ -141,7 +141,6 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   }, [bids, auction.starting_price]);
 
   const minBidStep = auction.minimum_bid_step_pct / 100;
-  const maxAllowedBid = currentLowest * (1 - minBidStep);
   const totalSavings = ((auction.starting_price - currentLowest) / auction.starting_price * 100);
   const buyerPrice = currentLowest;
 
@@ -265,7 +264,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     setIsPlacing(true);
     try {
       await placeBid(user.id, price, auction);
-      setBidPrice(Math.floor(maxAllowedBid).toString());
+      setBidPrice('');
       toast({
         title: "Bid placed 🚀",
         description: `Your bid of ${formatCurrency(price)} is now competing for L1`,
@@ -340,7 +339,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     return 'text-foreground';
   }, [auction.auction_end, isLive, timeLeft]);
 
-  const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) <= maxAllowedBid;
+  const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest;
+  const parsedBidPrice = bidPrice ? parseFloat(bidPrice) : 0;
+  const bidReductionPct = currentLowest > 0 ? ((currentLowest - parsedBidPrice) / currentLowest) * 100 : 0;
+  const isWeakSingleBid = parsedBidPrice > 0 && parsedBidPrice < currentLowest && bidReductionPct < auction.minimum_bid_step_pct;
 
   // Multi-item bid panel for supplier — DB status is single source of truth
   const isDbLive = auction.status === 'live';
@@ -349,7 +351,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       auction={auction}
       bids={bids}
       onBidPlaced={() => {
-        setBidPrice(Math.floor(maxAllowedBid).toString());
+        setBidPrice('');
         document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
       }}
       isLive={isDbLive}
@@ -365,12 +367,15 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <Gavel className="w-5 h-5 text-primary" />
           <h3 className="font-semibold">Place Your Bid</h3>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          Must be below {formatCurrency(currentLowest)} (current L1)
-          {bidPrice && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) > maxAllowedBid && (
+        <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
+          <span>Must beat {formatCurrency(currentLowest)} to lead</span>
+          {isWeakSingleBid && (
             <span className="text-amber-600">
-              · Tip: reduce {auction.minimum_bid_step_pct}% for stronger competitiveness
+              · Tip: reduce ~{auction.minimum_bid_step_pct}% for stronger competitiveness
             </span>
+          )}
+          {parsedBidPrice > 0 && parsedBidPrice < currentLowest && (
+            <span className="text-xs text-emerald-600 font-medium">✅ Valid bid — you're in the race</span>
           )}
         </div>
         {/* Quick Bid Buttons */}
@@ -395,7 +400,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               type="number"
               inputMode="numeric"
               className="pl-8"
-              placeholder={`Max ${Math.floor(maxAllowedBid)}`}
+              placeholder={`Enter below ${Math.floor(currentLowest)}`}
               value={bidPrice}
               onChange={e => { setBidPrice(e.target.value); setBidError(''); }}
               onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}

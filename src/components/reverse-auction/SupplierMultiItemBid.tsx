@@ -84,7 +84,6 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
   }, [bids, auction.starting_price]);
 
   const minBidStep = auction.minimum_bid_step_pct / 100;
-  const maxAllowedBid = currentLowest * (1 - minBidStep);
 
   const hasItems = items.length > 0;
 
@@ -117,6 +116,9 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     }, 0);
   }, [items, bidPrices, hasItems]);
 
+  const reductionPct = currentLowest > 0 ? ((currentLowest - bidTotal) / currentLowest) * 100 : 0;
+  const isWeakBid = bidTotal > 0 && bidTotal < currentLowest && reductionPct < auction.minimum_bid_step_pct;
+
   // Validate bid
   const validationError = useMemo(() => {
     if (hasItems) {
@@ -124,7 +126,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
       if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
     }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
-    if (bidTotal >= currentLowest) return `Total must be below ${formatCurrency(currentLowest)} (current L1)`;
+    if (bidTotal >= currentLowest) return `Must beat ${formatCurrency(currentLowest)} to lead`;
     return null;
   }, [items, bidPrices, bidTotal, currentLowest, hasItems]);
 
@@ -288,12 +290,15 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
               </Badge>
             )}
           </CardTitle>
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-            Must be below {formatCurrency(currentLowest)} (current L1)
-            {bidTotal > 0 && bidTotal < currentLowest && bidTotal > maxAllowedBid && (
-              <span className="text-amber-600 ml-1">
-                · Tip: reduce {auction.minimum_bid_step_pct}% for stronger competitiveness
+          <div className="text-xs text-muted-foreground flex flex-col gap-0.5">
+            <span>Must beat {formatCurrency(currentLowest)} to lead</span>
+            {isWeakBid && (
+              <span className="text-amber-600">
+                · Tip: reduce ~{auction.minimum_bid_step_pct}% for stronger competitiveness
               </span>
+            )}
+            {bidTotal > 0 && bidTotal < currentLowest && (
+              <span className="text-xs text-emerald-600 font-medium">✅ Valid bid — you're in the race</span>
             )}
           </div>
         </CardHeader>
@@ -302,7 +307,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             <label className="text-sm font-medium text-foreground">Your Bid Amount (₹)</label>
             <Input
               type="number"
-              placeholder={`Max ${formatCurrency(Math.floor(maxAllowedBid))}`}
+              placeholder={`Enter below ${formatCurrency(currentLowest)}`}
               value={bidPrices['single'] || ''}
               onChange={e => setBidPrices({ single: e.target.value })}
               min="0"
