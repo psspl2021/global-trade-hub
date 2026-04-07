@@ -1053,6 +1053,76 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Extend Time Dialog */}
+      <Dialog open={showExtendDialog} onOpenChange={setShowExtendDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Timer className="w-5 h-5 text-primary" />
+              Extend Auction Time
+            </DialogTitle>
+            <DialogDescription>
+              Add more time to the live auction. All suppliers will see the updated end time in real-time.
+              {auction.auction_end && (
+                <span className="block mt-1 font-medium text-foreground">
+                  Current end: {new Date(auction.auction_end).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="text-sm font-medium">Extend by</Label>
+              <div className="grid grid-cols-4 gap-2 mt-2">
+                {[5, 10, 15, 30].map(mins => (
+                  <button
+                    key={mins}
+                    onClick={() => setExtendMinutes(mins)}
+                    className={`px-3 py-2.5 rounded-md border text-sm font-medium transition-colors ${
+                      extendMinutes === mins
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted/50 border-border hover:bg-muted text-foreground'
+                    }`}
+                  >
+                    {mins} min
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {[60, 120, 1440].map(mins => (
+                  <button
+                    key={mins}
+                    onClick={() => setExtendMinutes(mins)}
+                    className={`px-3 py-2.5 rounded-md border text-sm font-medium transition-colors ${
+                      extendMinutes === mins
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted/50 border-border hover:bg-muted text-foreground'
+                    }`}
+                  >
+                    {mins >= 60 ? `${mins / 60} hr${mins > 60 ? 's' : ''}` : `${mins} min`}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {auction.auction_end && (
+              <div className="rounded-lg bg-muted/50 border p-3 text-sm">
+                <p className="text-muted-foreground">New end time:</p>
+                <p className="font-semibold text-foreground">
+                  {new Date(new Date(auction.auction_end).getTime() + extendMinutes * 60000).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowExtendDialog(false)}>Cancel</Button>
+            <Button onClick={handleExtendTime} disabled={isExtending} className="gap-1.5">
+              <Timer className="w-4 h-4" />
+              {isExtending ? 'Extending...' : `Extend by ${extendMinutes >= 60 ? `${extendMinutes / 60} hr${extendMinutes > 60 ? 's' : ''}` : `${extendMinutes} min`}`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
