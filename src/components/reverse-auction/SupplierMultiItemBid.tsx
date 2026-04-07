@@ -110,13 +110,16 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         line_total: Math.round(Number(bidPrices[item.id] || 0) * item.quantity * 100) / 100,
       }));
 
-      // Race-safe bid placement via DB function
-      const { data, error } = await (supabase.rpc as any)('place_bid_safe', {
-        p_auction_id: auction.id,
-        p_supplier_id: user.id,
-        p_bid_price: Math.round(bidTotal * 100) / 100,
-        p_bid_items: bidItemsPayload,
-      });
+      // Insert bid directly into reverse_auction_bids
+      const { data: newBid, error } = await supabase
+        .from('reverse_auction_bids')
+        .insert({
+          auction_id: auction.id,
+          supplier_id: user.id,
+          bid_price: Math.round(bidTotal * 100) / 100,
+        } as any)
+        .select()
+        .single();
 
       if (error) {
         if (error.message?.includes('Rate limit')) {
@@ -126,18 +129,18 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         throw error;
       }
 
-      const result = data as any;
-      if (result && !result.success) {
-        toast.error(result.error || 'Bid rejected by server');
-        return;
-      }
+      // Update current price on auction
+      await supabase
+        .from('reverse_auctions')
+        .update({ current_price: Math.round(bidTotal * 100) / 100, updated_at: new Date().toISOString() } as any)
+        .eq('id', auction.id);
 
       logAuctionEvent({
         auction_id: auction.id,
         event_type: 'BID_PLACED',
         actor_id: user.id,
         actor_role: 'supplier',
-        bid_id: result?.bid_id,
+        bid_id: (newBid as any)?.id,
         bid_amount: bidTotal,
         metadata: { item_count: items.length, server_validated: true },
       });
