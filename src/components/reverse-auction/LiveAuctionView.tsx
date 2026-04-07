@@ -772,9 +772,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       )}
 
-      {/* SUPPLIER BID PANEL — Desktop right, Mobile bottom */}
-      <div className={`${!isMobile && bidPanelContent ? 'flex gap-4 items-start' : ''}`}>
-        <div className="flex-1 space-y-4">
+      {/* SUPPLIER BID PANEL — Full width above bid history for visibility */}
+      {!isMobile && bidPanelContent && (
+        <div className="mb-4">
+          {bidPanelContent}
+        </div>
+      )}
+
+      <div className="space-y-4">
           {/* Bid History */}
           <Card>
             <CardHeader className="pb-2">
@@ -881,14 +886,6 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             isLive={isLive}
             currentL1={currentLowest}
           />
-        </div>
-
-        {/* 💻 DESKTOP → Right sticky bid panel */}
-        {!isMobile && bidPanelContent && (
-          <div className="sticky top-24 w-[320px] shrink-0 bg-card border rounded-[0.625rem] shadow-lg p-4">
-            {bidPanelContent}
-          </div>
-        )}
       </div>
 
       {/* 📱 MOBILE → Fixed bottom sticky bid panel */}
