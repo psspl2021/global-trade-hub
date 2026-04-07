@@ -323,7 +323,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const isValidBid = bidPrice && !isNaN(parseFloat(bidPrice)) && parseFloat(bidPrice) < currentLowest && parseFloat(bidPrice) <= maxAllowedBid;
 
   // Multi-item bid panel for supplier (replaces single-price input)
-  const multiItemBidPanel = isSupplier && (isLive || effectiveStatus === 'scheduled') ? (
+  const multiItemBidPanel = isSupplier && (isLive || effectiveStatus === 'scheduled' || auction.status === 'live') ? (
     <SupplierMultiItemBid
       auction={auction}
       bids={bids}
