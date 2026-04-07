@@ -41,6 +41,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [prevL1, setPrevL1] = useState<number | null>(null);
 
   // Check if supplier is invited to this auction
   useEffect(() => {
@@ -114,6 +115,20 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
   const showExactPrices = (auction as any).show_exact_prices ?? false;
   const showRankOnly = (auction as any).show_rank_only ?? true;
 
+  // Real-time outbid alert
+  useEffect(() => {
+    if (!user || bids.length === 0) return;
+    const newL1 = Math.min(...bids.map(b => b.bid_price));
+    if (prevL1 !== null && newL1 < prevL1) {
+      // L1 changed — check if we were outbid
+      const myBid = bids.find(b => b.supplier_id === user.id);
+      if (myBid && myBid.bid_price > newL1) {
+        toast.warning(`⚠️ You've been outbid! New L1: ${formatCurrency(newL1)}`);
+      }
+    }
+    setPrevL1(newL1);
+  }, [bids, user]);
+
   const handleSubmitBid = useCallback(async () => {
     if (!user || !isValidBid || isSubmitting) return;
 
@@ -173,12 +188,15 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         metadata: { item_count: items.length, server_validated: true },
       });
 
-      // Live feedback: show rank position
-      const isL1 = bidTotal <= currentLowest;
+      // Live feedback: precision-safe L1 check + rank
+      const isL1 = bidTotal < currentLowest - 0.01;
+      const sorted = [...bids, { bid_price: bidTotal, supplier_id: user.id }]
+        .sort((a, b) => a.bid_price - b.bid_price);
+      const rank = sorted.findIndex(b => b.supplier_id === user.id) + 1;
       toast.success(
         isL1
           ? `✅ You are now L1 at ${formatCurrency(bidTotal)}!`
-          : `Bid placed at ${formatCurrency(bidTotal)}`
+          : `📊 You are #${rank} at ${formatCurrency(bidTotal)}`
       );
       onBidPlaced();
     } catch (err: any) {
