@@ -315,6 +315,27 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     } finally { setIsSaving(false); }
   };
 
+  const handleExtendTime = async () => {
+    if (!auction.auction_end || isExtending) return;
+    setIsExtending(true);
+    try {
+      const currentEnd = new Date(auction.auction_end);
+      const newEnd = new Date(currentEnd.getTime() + extendMinutes * 60000);
+      const { error } = await supabase
+        .from('reverse_auctions')
+        .update({ auction_end: newEnd.toISOString(), updated_at: new Date().toISOString() } as any)
+        .eq('id', auction.id);
+      if (error) throw error;
+      setAuction(prev => ({ ...prev, auction_end: newEnd.toISOString() }));
+      toast({ title: '⏱️ Time Extended', description: `Auction extended by ${extendMinutes} minutes` });
+      setShowExtendDialog(false);
+    } catch (err: any) {
+      toast({ title: 'Failed to extend', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsExtending(false);
+    }
+  };
+
   const urgencyColor = useMemo(() => {
     if (!auction.auction_end || !isLive) return '';
     const secs = differenceInSeconds(new Date(auction.auction_end), new Date());
