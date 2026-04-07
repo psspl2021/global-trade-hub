@@ -273,7 +273,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         unit: editForm.unit,
         product_slug: editForm.product_slug,
         reserve_price: editForm.reserve_price ? Number(editForm.reserve_price) : null,
+        minimum_bid_step_pct: Number(editForm.minimum_bid_step_pct),
+        transaction_type: editForm.transaction_type,
       };
+      // Compute auction_start and auction_end from date/time/duration
+      if (editForm.start_date && editForm.start_time) {
+        const start = new Date(`${editForm.start_date}T${editForm.start_time}`);
+        if (!isNaN(start.getTime())) {
+          updates.auction_start = start.toISOString();
+          updates.auction_end = new Date(start.getTime() + editForm.duration_minutes * 60000).toISOString();
+        }
+      }
       const success = await updateAuction(auction.id, updates, buyerEditCount);
       if (success) { setShowEditDialog(false); onBack(); }
     } finally { setIsSaving(false); }
