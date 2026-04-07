@@ -336,8 +336,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   ) : null;
 
   // Reusable bid panel content (fallback for single-item or non-multi-item auctions)
+  const isEffectivelyLive = isLive || auction.status === 'live';
   const bidPanelContent = isSupplier ? (
-    isLive ? (
+    isEffectivelyLive ? (
       multiItemBidPanel || (
       <div className="space-y-3">
         <div className="flex items-center gap-2">
