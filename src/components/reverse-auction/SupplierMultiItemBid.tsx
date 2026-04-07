@@ -156,7 +156,16 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     setPrevL1(newL1);
   }, [bids, user]);
 
-  const handleSubmitBid = useCallback(async () => {
+  // Smart insight: how much to reduce to become L1
+  const gapToL1 = useMemo(() => {
+    if (!user || myRank === 1 || myRank === null) return null;
+    const myBid = bids.find(b => b.supplier_id === user.id);
+    if (!myBid) return null;
+    const l1Price = Math.min(...bids.map(b => b.bid_price));
+    const needed = myBid.bid_price - Math.floor(l1Price * (1 - minBidStep));
+    return needed > 0 ? needed : null;
+  }, [bids, user, myRank, minBidStep]);
+
     if (!user || !isValidBid || isSubmitting) return;
 
     // Use cached authorization — no redundant DB call
@@ -319,15 +328,6 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     );
   }
 
-  // Smart insight: how much to reduce to become L1
-  const gapToL1 = useMemo(() => {
-    if (!user || myRank === 1 || myRank === null) return null;
-    const myBid = bids.find(b => b.supplier_id === user.id);
-    if (!myBid) return null;
-    const l1Price = Math.min(...bids.map(b => b.bid_price));
-    const needed = myBid.bid_price - Math.floor(l1Price * (1 - minBidStep));
-    return needed > 0 ? needed : null;
-  }, [bids, user, myRank, minBidStep]);
 
   return (
     <Card className="border-primary/20 shadow-md overflow-hidden">
