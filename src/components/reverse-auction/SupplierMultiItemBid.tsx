@@ -126,7 +126,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
       if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
     }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
-    if (bidTotal >= currentLowest) return `Must beat ${formatCurrency(currentLowest)} to lead`;
+    if (bidTotal >= currentLowest) return `Must be less than ${formatCurrency(currentLowest - 1)} to become L1`;
     return null;
   }, [items, bidPrices, bidTotal, currentLowest, hasItems]);
 
@@ -291,7 +291,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             )}
           </CardTitle>
           <div className="text-xs text-muted-foreground flex flex-col gap-0.5">
-            <span>Must beat {formatCurrency(currentLowest)} to lead</span>
+            <span>Bid below {formatCurrency(currentLowest - 1)} to become L1</span>
             {isWeakBid && (
               <span className="text-amber-600">
                 · Tip: reduce ~{auction.minimum_bid_step_pct}% for stronger competitiveness
@@ -299,6 +299,9 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             )}
             {bidTotal > 0 && bidTotal < currentLowest && (
               <span className="text-xs text-emerald-600 font-medium">✅ Valid bid — you're in the race</span>
+            )}
+            {bidTotal >= currentLowest && bidTotal > 0 && bidTotal <= currentLowest * 1.005 && (
+              <span className="text-xs text-primary font-medium">⚡ You're very close — 1 click to win</span>
             )}
           </div>
         </CardHeader>
