@@ -85,6 +85,26 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
 
   const hasItems = items.length > 0;
 
+  // Rounding-safe distribution: last item absorbs remainder to avoid drift
+  const distributeTotal = useCallback((targetTotal: number): Record<string, string> => {
+    if (!hasItems) return { single: String(targetTotal) };
+    const totalQty = items.reduce((s, i) => s + i.quantity, 0);
+    let remaining = targetTotal;
+    const newPrices: Record<string, string> = {};
+    items.forEach((item, index) => {
+      if (index === items.length - 1) {
+        // Last item absorbs remainder for exact total
+        newPrices[item.id] = String(Math.max(1, Math.round(remaining / item.quantity)));
+      } else {
+        const share = (item.quantity / totalQty) * targetTotal;
+        const unit = Math.max(1, Math.floor(share / item.quantity));
+        newPrices[item.id] = String(unit);
+        remaining -= unit * item.quantity;
+      }
+    });
+    return newPrices;
+  }, [items, hasItems]);
+
   // Calculate total from line items OR single bid
   const bidTotal = useMemo(() => {
     if (!hasItems) return Number(bidPrices['single'] || 0);
@@ -384,45 +404,38 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             <p className="text-xs font-medium text-muted-foreground">Quick Bid</p>
             <div className="flex gap-2 flex-wrap">
               {/* Fixed amount reductions */}
-              {[500, 1000, 2000].map(reduction => {
+              {[500, 1000, 2000].map((reduction, idx) => {
                 const target = currentLowest - reduction;
-                if (target <= 0) return null;
-                const totalQty = items.reduce((s, i) => s + i.quantity, 0);
-                const perUnit = target / totalQty;
+                if (target <= 0 || target >= currentLowest) return null;
                 return (
                   <button
                     key={`fix-${reduction}`}
-                    onClick={() => {
-                      const newPrices: Record<string, string> = {};
-                      items.forEach(item => {
-                        newPrices[item.id] = String(Math.floor(perUnit));
-                      });
-                      setBidPrices(newPrices);
-                    }}
-                    className="text-xs border border-border px-2.5 py-1.5 rounded-md hover:bg-muted transition-colors font-medium"
+                    onClick={() => setBidPrices(distributeTotal(target))}
+                    className={`text-xs border px-2.5 py-1.5 rounded-md transition-colors font-medium ${
+                      idx === 0
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-700'
+                        : 'border-border hover:bg-muted'
+                    }`}
                   >
-                    Beat by ₹{reduction.toLocaleString('en-IN')}
+                    -₹{reduction.toLocaleString('en-IN')} → {formatCurrency(target)}
                   </button>
                 );
               })}
               {/* Percentage reductions */}
-              {[1, 2, 3].map(step => {
-                const targetTotal = currentLowest * (1 - minBidStep * step);
-                const ratio = targetTotal / (auction.starting_price || 1);
+              {[1, 2, 3].map((step, idx) => {
+                const targetTotal = Math.round(currentLowest * (1 - minBidStep * step));
+                if (targetTotal <= 0 || targetTotal >= currentLowest) return null;
                 return (
                   <button
                     key={`pct-${step}`}
-                    onClick={() => {
-                      const newPrices: Record<string, string> = {};
-                      items.forEach(item => {
-                        const basePrice = item.unit_price || (auction.starting_price / items.reduce((s, i) => s + i.quantity, 0));
-                        newPrices[item.id] = String(Math.floor(basePrice * ratio));
-                      });
-                      setBidPrices(newPrices);
-                    }}
-                    className="text-xs border border-primary/30 text-primary px-2.5 py-1.5 rounded-md hover:bg-primary/10 transition-colors font-medium"
+                    onClick={() => setBidPrices(distributeTotal(targetTotal))}
+                    className={`text-xs border px-2.5 py-1.5 rounded-md transition-colors font-medium ${
+                      idx === 0
+                        ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20'
+                        : 'border-primary/30 text-primary hover:bg-primary/10'
+                    }`}
                   >
-                    -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(targetTotal))})
+                    -{step * auction.minimum_bid_step_pct}% → {formatCurrency(targetTotal)}
                   </button>
                 );
               })}
