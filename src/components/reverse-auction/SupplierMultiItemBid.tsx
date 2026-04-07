@@ -83,24 +83,28 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
   const minBidStep = auction.minimum_bid_step_pct / 100;
   const maxAllowedBid = currentLowest * (1 - minBidStep);
 
-  // Calculate total from line items
+  const hasItems = items.length > 0;
+
+  // Calculate total from line items OR single bid
   const bidTotal = useMemo(() => {
+    if (!hasItems) return Number(bidPrices['single'] || 0);
     return items.reduce((sum, item) => {
       const price = Number(bidPrices[item.id] || 0);
       return sum + (Math.round(price * 100) / 100) * (Math.round(item.quantity * 100) / 100);
     }, 0);
-  }, [items, bidPrices]);
+  }, [items, bidPrices, hasItems]);
 
   // Validate bid
   const validationError = useMemo(() => {
-    if (items.length === 0) return null;
-    const emptyItems = items.filter(i => !bidPrices[i.id] || Number(bidPrices[i.id]) <= 0);
-    if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
+    if (hasItems) {
+      const emptyItems = items.filter(i => !bidPrices[i.id] || Number(bidPrices[i.id]) <= 0);
+      if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
+    }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
     if (bidTotal >= currentLowest) return `Total must be below ${formatCurrency(currentLowest)} (current L1)`;
     if (bidTotal > maxAllowedBid) return `Must reduce by at least ${auction.minimum_bid_step_pct}% (max: ${formatCurrency(Math.floor(maxAllowedBid))})`;
     return null;
-  }, [items, bidPrices, bidTotal, currentLowest, maxAllowedBid, auction.minimum_bid_step_pct]);
+  }, [items, bidPrices, bidTotal, currentLowest, maxAllowedBid, auction.minimum_bid_step_pct, hasItems]);
 
   const isValidBid = !validationError && bidTotal > 0;
 
@@ -226,7 +230,71 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
     );
   }
 
-  if (items.length === 0) return null;
+  // Single-price fallback when no auction items exist
+  if (!hasItems) {
+    return (
+      <Card className="border-primary/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Gavel className="w-4 h-4 text-primary" />
+            Place Your Bid
+            {myRank && (
+              <Badge className={myRank === 1 ? 'bg-emerald-600 text-white' : 'bg-muted text-foreground'}>
+                {myRank === 1 ? '🥇 L1' : `L${myRank}`}
+              </Badge>
+            )}
+          </CardTitle>
+          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <AlertTriangle className="w-3 h-3 text-amber-600" />
+            Must beat {formatCurrency(maxAllowedBid)} (min {auction.minimum_bid_step_pct}% step)
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Your Bid Amount (₹)</label>
+            <Input
+              type="number"
+              placeholder={`Max ${formatCurrency(Math.floor(maxAllowedBid))}`}
+              value={bidPrices['single'] || ''}
+              onChange={e => setBidPrices({ single: e.target.value })}
+              min="0"
+              disabled={!isLive}
+            />
+          </div>
+          {/* Grand Total */}
+          <div className={`rounded-lg p-3 flex items-center justify-between ${
+            isValidBid ? 'bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800' : 'bg-muted/50 border'
+          }`}>
+            <p className="text-sm font-semibold text-foreground">Your Bid</p>
+            <p className={`text-xl font-bold ${isValidBid ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'}`}>
+              {formatCurrency(bidTotal)}
+            </p>
+          </div>
+          {validationError && bidTotal > 0 && (
+            <p className="text-xs text-destructive font-medium flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" />
+              {validationError}
+            </p>
+          )}
+          <Button
+            onClick={handleSubmitBid}
+            disabled={!isValidBid || isSubmitting || !isLive}
+            className="w-full gap-2"
+            size="lg"
+          >
+            {isSubmitting ? 'Placing Bid...' : (
+              <><Gavel className="w-4 h-4" /> Submit Bid — {formatCurrency(bidTotal)}</>
+            )}
+          </Button>
+          {!isLive && (
+            <p className="text-xs text-muted-foreground text-center">
+              Bidding is not active. Wait for the auction to go live.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-primary/20">
