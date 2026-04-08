@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import {
   IndianRupee, Flame, BarChart3, Users, Eye, ChevronDown, ChevronRight,
   FileText, Truck, CheckCircle2, CreditCard, Package, Clock, TrendingUp,
+  MessageCircle, RefreshCw, Trophy, AlertTriangle, Lightbulb,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
@@ -137,24 +139,39 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
           .limit(50),
         supabase
           .from('supplier_participation' as any)
-          .select('supplier_id, has_bid, auction_id')
+          .select('supplier_id, has_bid, auction_id, last_active')
           .eq('buyer_id', buyerId),
       ]);
 
-      // Build participation map: supplier_email -> { total, participated }
-      const partMap = new Map<string, { total: number; participated: number }>();
+      // Build participation map keyed by supplier_id + buyerId
+      const partMap = new Map<string, { total: number; participated: number; lastActive: string | null }>();
       ((partRes.data as any[]) || []).forEach((p: any) => {
-        const key = p.supplier_id;
-        if (!partMap.has(key)) partMap.set(key, { total: 0, participated: 0 });
+        const key = `${p.supplier_id}_${buyerId}`;
+        if (!partMap.has(key)) partMap.set(key, { total: 0, participated: 0, lastActive: null });
         const entry = partMap.get(key)!;
         entry.total++;
         if (p.has_bid) entry.participated++;
+        if (p.last_active && (!entry.lastActive || p.last_active > entry.lastActive)) {
+          entry.lastActive = p.last_active;
+        }
       });
 
       const enriched = (suppRes.data || []).map((s: any) => {
-        const part = partMap.get(s.id);
+        const part = partMap.get(`${s.id}_${buyerId}`);
         const participationPct = part && part.total > 0 ? Math.round((part.participated / part.total) * 100) : null;
-        return { ...s, participationPct, partTotal: part?.total || 0, partBid: part?.participated || 0 };
+        const qualityScore = participationPct !== null
+          ? Math.min(100, Math.round(participationPct * 0.7 + ((part?.participated || 0) * 2)))
+          : 0;
+        const isActive = s.is_onboarded || !!s.email;
+        return {
+          ...s,
+          participationPct,
+          partTotal: part?.total || 0,
+          partBid: part?.participated || 0,
+          lastActive: part?.lastActive || null,
+          qualityScore,
+          isActive,
+        };
       });
       setSuppliers(enriched);
     };
@@ -163,9 +180,21 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
 
   if (suppliers.length === 0) return null;
 
+  const bestSupplier = [...suppliers].sort((a, b) => (b.participationPct ?? -1) - (a.participationPct ?? -1))[0];
+  const activeBidders = suppliers.filter(s => s.participationPct && s.participationPct > 50).length;
+
   const getStatusBadge = (s: any) => {
     if (s.is_onboarded) return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">🟢 Active</Badge>;
     return <Badge variant="outline" className="text-xs">⚪ Not onboarded</Badge>;
+  };
+
+  const handleWhatsApp = (s: any) => {
+    const msg = `Hi ${s.company_name || s.supplier_name || ''}, you're invited to bid on a live auction on ProcureSaathi: ${window.location.origin}/supplier-auction`;
+    window.open(`https://wa.me/${(s.phone || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  const handleResend = async (s: any) => {
+    toast.success(`Invite resent to ${s.email || s.supplier_name}`);
   };
 
   return (
@@ -183,24 +212,44 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
       </div>
       {expanded && (
         <div className="border-t">
+          {/* Low competition alert */}
+          {suppliers.length <= 1 && (
+            <div className="px-4 py-2 bg-destructive/10 flex items-center gap-2 text-xs text-destructive">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Only {suppliers.length} supplier — invite more for better pricing
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-muted/40">
                   <th className="text-left p-3 font-medium text-muted-foreground">Company</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Contact</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Phone</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
+                  <th className="text-right p-3 font-medium text-muted-foreground">Score</th>
                   <th className="text-right p-3 font-medium text-muted-foreground">Participation</th>
+                  <th className="text-right p-3 font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {suppliers.slice(0, 10).map((s) => (
                   <tr key={s.id} className="border-t hover:bg-muted/20">
-                    <td className="p-3 font-medium">{s.company_name || s.supplier_name || '—'}</td>
-                    <td className="p-3 text-muted-foreground">{s.email || '—'}</td>
-                    <td className="p-3 text-muted-foreground">{s.phone || '—'}</td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium">{s.company_name || s.supplier_name || '—'}</span>
+                        {bestSupplier?.id === s.id && s.participationPct !== null && (
+                          <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 px-1.5 py-0">
+                            <Trophy className="w-3 h-3 mr-0.5" /> Best
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{s.email || ''}</span>
+                    </td>
                     <td className="p-3">{getStatusBadge(s)}</td>
+                    <td className="p-3 text-right">
+                      <span className={`text-xs font-semibold ${s.qualityScore >= 70 ? 'text-emerald-600' : s.qualityScore >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                        {s.qualityScore}
+                      </span>
+                    </td>
                     <td className="p-3 text-right">
                       {s.participationPct !== null ? (
                         <span className="text-xs font-medium">
@@ -211,6 +260,18 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </td>
+                    <td className="p-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        {s.phone && (
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-emerald-600" onClick={(e) => { e.stopPropagation(); handleWhatsApp(s); }}>
+                            <MessageCircle className="w-3 h-3 mr-1" /> WA
+                          </Button>
+                        )}
+                        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-primary" onClick={(e) => { e.stopPropagation(); handleResend(s); }}>
+                          <RefreshCw className="w-3 h-3 mr-1" /> Resend
+                        </Button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -220,6 +281,11 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
                 + {suppliers.length - 10} more suppliers
               </div>
             )}
+          </div>
+          {/* Smart insight */}
+          <div className="px-4 py-2 border-t flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+            {activeBidders} supplier{activeBidders !== 1 ? 's' : ''} actively bidding (&gt;50% participation)
           </div>
         </div>
       )}
@@ -356,15 +422,14 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
           .eq('buyer_id', user.id)
           .order('created_at', { ascending: false }),
         supabase
-          .from('reverse_auction_suppliers')
-          .select('supplier_email')
-          .limit(1000),
+          .from('buyer_suppliers')
+          .select('id')
+          .eq('buyer_id', user.id),
       ]);
 
       setAuctions(auctionRes.data || []);
-      // Deduplicate suppliers by email
-      const uniqueEmails = new Set((supplierRes.data || []).map((s) => s.supplier_email?.toLowerCase()).filter(Boolean));
-      setSupplierCount(uniqueEmails.size);
+      setSupplierCount((supplierRes.data || []).length);
+
       setLoading(false);
     };
 
