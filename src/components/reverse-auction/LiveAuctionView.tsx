@@ -483,9 +483,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const totalSavedRaw = auction.starting_price - currentLowest;
   const totalSavedAmount = Math.max(0, totalSavedRaw);
-  const auctionOutcome: 'good' | 'neutral' | 'bad' =
-    savingsPctRaw > 0 ? 'good' : savingsPctRaw === 0 ? 'neutral' : 'bad';
+  const auctionOutcome: 'excellent' | 'good' | 'neutral' | 'bad' =
+    savingsPctRaw > 2 ? 'excellent' : savingsPctRaw > 0 ? 'good' : savingsPctRaw === 0 ? 'neutral' : 'bad';
   const formatPct = (n: number) => `${Math.abs(n).toFixed(1)}%`;
+  const outcomeColor = auctionOutcome === 'excellent' || auctionOutcome === 'good'
+    ? 'text-emerald-600' : auctionOutcome === 'bad' ? 'text-destructive' : 'text-muted-foreground';
   const uniqueSuppliers = useMemo(() => new Set(bids.map(b => b.supplier_id)).size, [bids]);
 
   return (
