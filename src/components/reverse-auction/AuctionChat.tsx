@@ -93,17 +93,31 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
       .select('*')
       .eq('auction_id', auctionId)
       .order('created_at', { ascending: true });
-    if (data) setMessages(data as unknown as AuctionMessage[]);
-  }, [auctionId]);
+    if (data) {
+      // Suppliers should only see their own messages + buyer/system messages (privacy)
+      const filtered = isBuyer
+        ? data
+        : data.filter((m: any) =>
+            m.sender_id === user?.id ||
+            m.sender_role === 'buyer' ||
+            m.sender_role === 'system'
+          );
+      setMessages(filtered as unknown as AuctionMessage[]);
+    }
+  }, [auctionId, isBuyer, user?.id]);
 
   const fetchCounterOffers = useCallback(async () => {
-    const { data } = await supabase
+    let query = supabase
       .from('auction_counter_offers')
       .select('*')
-      .eq('auction_id', auctionId)
-      .order('created_at', { ascending: false });
+      .eq('auction_id', auctionId);
+    // Suppliers should only see their own counter offers
+    if (!isBuyer && user?.id) {
+      query = query.eq('supplier_id', user.id);
+    }
+    const { data } = await query.order('created_at', { ascending: false });
     if (data) setCounterOffers(data as unknown as CounterOffer[]);
-  }, [auctionId]);
+  }, [auctionId, isBuyer, user?.id]);
 
   useEffect(() => {
     fetchMessages();
@@ -129,6 +143,10 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
   // Realtime
   useAuctionRealtime(auctionId, {
     onMessage: (msg) => {
+      // Privacy: suppliers only see their own + buyer/system messages
+      if (!isBuyer && msg.sender_id !== user?.id && msg.sender_role !== 'buyer' && msg.sender_role !== 'system') {
+        return;
+      }
       setMessages((prev) => {
         if (prev.some(m => m.id === msg.id)) return prev;
         return [...prev, msg as AuctionMessage];
