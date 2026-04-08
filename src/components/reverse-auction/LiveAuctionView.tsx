@@ -605,6 +605,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                 {recentBidCount} bid{recentBidCount !== 1 ? 's' : ''} in last 30s
               </div>
             )}
+            {isBuyer && (
+              <LiveInviteSupplier auctionId={auction.id} onInvited={fetchInvitedCount} />
+            )}
           </div>
         )}
 
