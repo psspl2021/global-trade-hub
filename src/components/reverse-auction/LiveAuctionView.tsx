@@ -176,6 +176,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
   const [invitedSuppliersList, setInvitedSuppliersList] = useState<Array<{ id: string; supplier_id: string | null; supplier_email: string | null; supplier_company_name: string | null; invite_status: string }>>([]);
   const [resendingEmail, setResendingEmail] = useState<string | null>(null);
+  const [resentEmails, setResentEmails] = useState<Set<string>>(new Set());
   const resolvedCache = useRef(new Map<string, string>());
 
   const handleResendInvite = useCallback(async (supplierEmail: string) => {
