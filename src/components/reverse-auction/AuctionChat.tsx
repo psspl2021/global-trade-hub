@@ -139,6 +139,10 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
   // Realtime
   useAuctionRealtime(auctionId, {
     onMessage: (msg) => {
+      // Privacy: suppliers only see their own + buyer/system messages
+      if (!isBuyer && msg.sender_id !== user?.id && msg.sender_role !== 'buyer' && msg.sender_role !== 'system') {
+        return;
+      }
       setMessages((prev) => {
         if (prev.some(m => m.id === msg.id)) return prev;
         return [...prev, msg as AuctionMessage];
