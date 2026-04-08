@@ -673,10 +673,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Per Unit Saved</p>
-          <h2 className="text-2xl font-bold text-primary">
-            {formatCurrencyOneDecimal(auction.quantity > 0 ? Math.round((totalSavedAmount / auction.quantity) * 10) / 10 : 0, auction.currency)}
-          </h2>
-          <span className="text-xs text-muted-foreground">per {auction.unit} · {auction.quantity} {auction.unit} total</span>
+          {(() => {
+            const perUnitRaw = auction.quantity > 0 ? totalSavedAmount / auction.quantity : 0;
+            const perUnitDisplay = Math.round(perUnitRaw * 10) / 10;
+            return (
+              <>
+                <h2 className="text-2xl font-bold text-primary" title={`Exact: ₹${perUnitRaw.toFixed(4)}`}>
+                  {perUnitDisplay > 0 && perUnitDisplay < 1
+                    ? `< ₹1`
+                    : formatCurrencyOneDecimal(perUnitDisplay, auction.currency)}
+                </h2>
+                <span className="text-xs text-muted-foreground">per {auction.unit} · {formatCurrency(totalSavedAmount)} over {auction.quantity} {auction.unit}</span>
+              </>
+            );
+          })()}
         </div>
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">

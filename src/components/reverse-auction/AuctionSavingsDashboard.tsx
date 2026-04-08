@@ -132,10 +132,19 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Per Unit Saved</span>
             </div>
             {savingsPerUnit !== null ? (
-              <>
-                <p className="text-xl font-bold text-primary">{formatINROneDecimal(savingsPerUnit, auction.currency)}</p>
-                <span className="text-xs text-muted-foreground">per {auction.unit} · {auction.quantity} {auction.unit} total</span>
-              </>
+              (() => {
+                const perUnitRaw = auction.quantity > 0 ? totalSaved / auction.quantity : 0;
+                return (
+                  <>
+                    <p className="text-xl font-bold text-primary" title={`Exact: ₹${perUnitRaw.toFixed(4)}`}>
+                      {savingsPerUnit > 0 && savingsPerUnit < 1
+                        ? `< ₹1`
+                        : formatINROneDecimal(savingsPerUnit, auction.currency)}
+                    </p>
+                    <span className="text-xs text-muted-foreground">per {auction.unit} · {formatINR(totalSaved, auction.currency)} over {auction.quantity} {auction.unit}</span>
+                  </>
+                );
+              })()
             ) : (
               <>
                 <p className="text-xl font-bold text-primary">{formatINR(totalSaved, auction.currency)}</p>
