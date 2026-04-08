@@ -682,7 +682,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             const perUnit = getPerUnitDisplay(totalSavedAmount, auction.quantity, auction.currency);
             return (
               <>
-                <h2 className="text-2xl font-bold text-primary" title={`Exact: ₹${perUnit.raw.toFixed(4)}`}>
+                <h2 className={`text-2xl font-bold ${perUnit.isLowImpact ? 'text-muted-foreground' : 'text-primary'}`} title={`Exact: ₹${perUnit.raw.toFixed(4)}`}>
                   {perUnit.display}
                 </h2>
                 <span className="text-xs text-muted-foreground">per {auction.unit} · {formatCurrency(totalSavedAmount)} over {auction.quantity} {auction.unit}</span>
