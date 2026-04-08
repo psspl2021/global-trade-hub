@@ -172,15 +172,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     return new Set(bids.map(b => b.supplier_id)).size;
   }, [bids]);
 
-  // Invited suppliers count (active participants)
+  // Invited suppliers list & count
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
+  const [invitedSuppliersList, setInvitedSuppliersList] = useState<Array<{ id: string; supplier_email: string | null; supplier_company_name: string | null; invite_status: string }>>([]);
   const fetchInvitedCount = useCallback(async () => {
-    const { count } = await supabase
+    const { data, count } = await supabase
       .from('reverse_auction_suppliers')
-      .select('id', { count: 'exact', head: true })
+      .select('id, supplier_email, supplier_company_name, invite_status', { count: 'exact' })
       .eq('auction_id', auction.id)
       .eq('is_active', true);
     setInvitedSuppliersCount(count || 0);
+    setInvitedSuppliersList(data || []);
   }, [auction.id]);
   useEffect(() => {
     fetchInvitedCount();
