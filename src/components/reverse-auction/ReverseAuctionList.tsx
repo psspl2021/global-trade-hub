@@ -402,7 +402,7 @@ function SupplierAuctionRow({
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-sm">
               <div className="flex items-center gap-1 text-emerald-800 font-medium">
                 <Trophy className="w-3 h-3" />
-                Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
+                Won at {formatCurrency(auction.winning_price, auction.currency)}
               </div>
             </div>
           )}
@@ -558,7 +558,7 @@ function BuyerAuctionRow({
               <div className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2 text-sm">
                 <div className="flex items-center gap-1 text-emerald-800 font-medium">
                   <Trophy className="w-3 h-3" />
-                  Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
+                  Won at {formatCurrency(auction.winning_price, auction.currency)}
                 </div>
               </div>
             )}
@@ -772,7 +772,7 @@ function AuctionCard({
             <div className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2 text-sm">
               <div className="flex items-center gap-1 text-emerald-800 font-medium">
                 <Trophy className="w-3 h-3" />
-                Won at {formatCurrency(auction.winning_price, auction.currency)}/{auction.unit}
+                Won at {formatCurrency(auction.winning_price, auction.currency)}
                 {isSupplier && auction.winner_supplier_id && (
                   <Badge variant="outline" className="ml-auto text-xs">
                     {auction.winner_supplier_id ? 'Result' : ''}
