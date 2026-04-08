@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ReverseAuctionList } from './ReverseAuctionList';
+import { AuctionDashboardModules } from './AuctionDashboardModules';
 import { LiveAuctionView } from './LiveAuctionView';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
