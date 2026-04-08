@@ -183,25 +183,30 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       .eq('is_active', true);
     setInvitedSuppliersCount(count || 0);
 
-    // Enrich with company names from profiles
+    // Enrich with company names from profiles (immutable)
     const suppliers = data || [];
     const idsToResolve = suppliers
       .filter(s => s.supplier_id && !s.supplier_company_name)
       .map(s => s.supplier_id!);
 
+    let nameMap = new Map<string, string>();
     if (idsToResolve.length > 0) {
       const { data: names } = await supabase.rpc('get_company_names', { user_ids: idsToResolve });
       if (names && Array.isArray(names)) {
-        const nameMap = new Map(names.map((n: any) => [n.user_id, n.company_name]));
-        suppliers.forEach(s => {
-          if (s.supplier_id && !s.supplier_company_name && nameMap.has(s.supplier_id)) {
-            s.supplier_company_name = nameMap.get(s.supplier_id)!;
-          }
-        });
+        nameMap = new Map(names.map((n: any) => [n.user_id, n.company_name]));
       }
     }
 
-    setInvitedSuppliersList(suppliers);
+    const enrichedSuppliers = suppliers.map(s => ({
+      ...s,
+      supplier_company_name:
+        s.supplier_company_name ||
+        (s.supplier_id ? nameMap.get(s.supplier_id) : null) ||
+        s.supplier_email ||
+        'Unknown Supplier',
+    }));
+
+    setInvitedSuppliersList(enrichedSuppliers);
   }, [auction.id]);
   useEffect(() => {
     fetchInvitedCount();
