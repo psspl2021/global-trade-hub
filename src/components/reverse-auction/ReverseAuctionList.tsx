@@ -397,13 +397,18 @@ function SupplierAuctionRow({
             )}
           </div>
 
-          {/* Winner info */}
+          {/* Winner info — clickable to open results dashboard */}
           {isCompleted && auction.winning_price && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-sm">
-              <div className="flex items-center gap-1 text-emerald-800 font-medium">
-                <Trophy className="w-3 h-3" />
+            <div
+              className="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-sm cursor-pointer hover:bg-emerald-100 transition-colors group"
+              onClick={() => onSelect?.(auction)}
+            >
+              <div className="flex items-center gap-1.5 text-emerald-800 font-medium">
+                <Trophy className="w-3.5 h-3.5" />
                 Won at {formatCurrency(auction.winning_price, auction.currency)}
+                <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
+              <p className="text-emerald-600 text-xs mt-1">Tap to view savings & generate PO</p>
             </div>
           )}
 
@@ -553,13 +558,18 @@ function BuyerAuctionRow({
             {/* Invite Analytics */}
             <AuctionInviteAnalytics auctionId={auction.id} />
 
-            {/* Winner */}
+            {/* Winner — clickable to open results dashboard */}
             {isCompleted && auction.winning_price && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2 text-sm">
-                <div className="flex items-center gap-1 text-emerald-800 font-medium">
-                  <Trophy className="w-3 h-3" />
+              <div
+                className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2.5 text-sm cursor-pointer hover:bg-emerald-100 transition-colors group"
+                onClick={(e) => { e.stopPropagation(); onSelect?.(auction); }}
+              >
+                <div className="flex items-center gap-1.5 text-emerald-800 font-medium">
+                  <Trophy className="w-3.5 h-3.5" />
                   Won at {formatCurrency(auction.winning_price, auction.currency)}
+                  <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
+                <p className="text-emerald-600 text-xs mt-1">View savings & generate PO →</p>
               </div>
             )}
 
@@ -767,18 +777,20 @@ function AuctionCard({
             </div>
           )}
 
-          {/* Winner */}
+          {/* Winner — clickable to open results dashboard */}
           {isCompleted && auction.winning_price && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2 text-sm">
-              <div className="flex items-center gap-1 text-emerald-800 font-medium">
-                <Trophy className="w-3 h-3" />
+            <div
+              className="bg-emerald-50 border border-emerald-200 rounded-[0.625rem] p-2.5 text-sm cursor-pointer hover:bg-emerald-100 transition-colors group"
+              onClick={(e) => { e.stopPropagation(); onSelect?.(auction); }}
+            >
+              <div className="flex items-center gap-1.5 text-emerald-800 font-medium">
+                <Trophy className="w-3.5 h-3.5" />
                 Won at {formatCurrency(auction.winning_price, auction.currency)}
-                {isSupplier && auction.winner_supplier_id && (
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    {auction.winner_supplier_id ? 'Result' : ''}
-                  </Badge>
-                )}
+                <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
+              <p className="text-emerald-600 text-xs mt-1">
+                {isBuyer ? 'View savings & generate PO →' : 'View auction results →'}
+              </p>
             </div>
           )}
         </CardContent>
