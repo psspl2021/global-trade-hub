@@ -25,6 +25,7 @@ import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctio
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SupplierMultiItemBid } from './SupplierMultiItemBid';
+import { LiveInviteSupplier } from './LiveInviteSupplier';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
