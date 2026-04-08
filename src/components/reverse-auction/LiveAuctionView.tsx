@@ -1041,7 +1041,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                 </div>
               );
             })}
-            {rankedBids.length === 0 && (
+            {bidsLoading && rankedBids.length === 0 && (
+              <div className="text-center py-6">
+                <p className="text-sm text-muted-foreground animate-pulse">Loading bids...</p>
+              </div>
+            )}
+            {!bidsLoading && rankedBids.length === 0 && (
               <div className="text-center py-6">
                 {effectiveStatus === 'completed' && auction.winner_supplier_id ? (
                   <div className="space-y-1">
