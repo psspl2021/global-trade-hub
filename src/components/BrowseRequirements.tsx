@@ -291,7 +291,7 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
     setLoading(true);
     
     // Fire-and-forget auto-expire (don't block UI loading)
-    supabase.rpc('auto_expire_requirements').catch(() => {});
+    supabase.rpc('auto_expire_requirements').then(() => {});
     
     // Fetch all requirements (not just active) for filtering
     const { data: reqData, error: reqError } = await supabase
