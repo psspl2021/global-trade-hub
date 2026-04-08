@@ -176,6 +176,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
   const [invitedSuppliersList, setInvitedSuppliersList] = useState<Array<{ id: string; supplier_id: string | null; supplier_email: string | null; supplier_company_name: string | null; invite_status: string }>>([]);
   const [resendingEmail, setResendingEmail] = useState<string | null>(null);
+  const [resentEmails, setResentEmails] = useState<Set<string>>(new Set());
   const resolvedCache = useRef(new Map<string, string>());
 
   const handleResendInvite = useCallback(async (supplierEmail: string) => {
@@ -198,6 +199,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         },
       });
       if (error) throw error;
+      setResentEmails(prev => new Set(prev).add(supplierEmail));
       toast({ title: 'Invite resent', description: `Email sent to ${supplierEmail}` });
     } catch (err: any) {
       console.error('Resend invite error:', err);
@@ -723,16 +725,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                             </Badge>
                           </div>
                           {s.supplier_email && s.invite_status !== 'bid_submitted' && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 px-2 text-xs gap-1 shrink-0 mt-0.5"
-                              disabled={resendingEmail === s.supplier_email}
-                              onClick={() => handleResendInvite(s.supplier_email!)}
-                            >
-                              <Send className="w-3 h-3" />
-                              {resendingEmail === s.supplier_email ? 'Sending…' : 'Resend'}
-                            </Button>
+                            resentEmails.has(s.supplier_email) ? (
+                              <span className="text-[10px] text-muted-foreground shrink-0 mt-1">✓ Resent</span>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 px-2 text-xs gap-1 shrink-0 mt-0.5"
+                                disabled={resendingEmail === s.supplier_email}
+                                onClick={() => handleResendInvite(s.supplier_email!)}
+                              >
+                                <Send className="w-3 h-3" />
+                                {resendingEmail === s.supplier_email ? 'Sending…' : 'Resend'}
+                              </Button>
+                            )
                           )}
                         </div>
                       ))
