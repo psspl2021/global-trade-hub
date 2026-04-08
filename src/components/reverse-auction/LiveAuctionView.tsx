@@ -714,12 +714,26 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                       <p className="text-xs text-muted-foreground p-3">No suppliers invited yet.</p>
                     ) : (
                       invitedSuppliersList.map((s) => (
-                        <div key={s.id} className="px-3 py-2 flex flex-col gap-0.5">
-                          <span className="text-sm font-medium truncate">{s.supplier_company_name || 'Unknown Company'}</span>
-                          <span className="text-xs text-muted-foreground truncate">{s.supplier_email || '—'}</span>
-                          <Badge variant={s.invite_status === 'bid_submitted' ? 'default' : 'secondary'} className="w-fit text-[10px] mt-0.5">
-                            {s.invite_status === 'bid_submitted' ? '✅ Bidding' : s.invite_status === 'clicked' ? '👁 Clicked' : s.invite_status === 'opened' ? '📬 Opened' : '📩 Sent'}
-                          </Badge>
+                        <div key={s.id} className="px-3 py-2 flex items-start justify-between gap-2">
+                          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                            <span className="text-sm font-medium truncate">{s.supplier_company_name || 'Unknown Company'}</span>
+                            <span className="text-xs text-muted-foreground truncate">{s.supplier_email || '—'}</span>
+                            <Badge variant={s.invite_status === 'bid_submitted' ? 'default' : 'secondary'} className="w-fit text-[10px] mt-0.5">
+                              {s.invite_status === 'bid_submitted' ? '✅ Bidding' : s.invite_status === 'clicked' ? '👁 Clicked' : s.invite_status === 'opened' ? '📬 Opened' : '📩 Sent'}
+                            </Badge>
+                          </div>
+                          {s.supplier_email && s.invite_status !== 'bid_submitted' && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-xs gap-1 shrink-0 mt-0.5"
+                              disabled={resendingEmail === s.supplier_email}
+                              onClick={() => handleResendInvite(s.supplier_email!)}
+                            >
+                              <Send className="w-3 h-3" />
+                              {resendingEmail === s.supplier_email ? 'Sending…' : 'Resend'}
+                            </Button>
+                          )}
                         </div>
                       ))
                     )}
