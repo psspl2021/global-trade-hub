@@ -199,6 +199,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         },
       });
       if (error) throw error;
+      setResentEmails(prev => new Set(prev).add(supplierEmail));
       toast({ title: 'Invite resent', description: `Email sent to ${supplierEmail}` });
     } catch (err: any) {
       console.error('Resend invite error:', err);
