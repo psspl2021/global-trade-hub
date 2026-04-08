@@ -483,6 +483,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const totalSavedRaw = auction.starting_price - currentLowest;
   const totalSavedAmount = Math.max(0, totalSavedRaw);
+  const auctionOutcome: 'good' | 'neutral' | 'bad' =
+    savingsPctRaw > 0 ? 'good' : savingsPctRaw === 0 ? 'neutral' : 'bad';
+  const formatPct = (n: number) => `${Math.abs(n).toFixed(1)}%`;
   const uniqueSuppliers = useMemo(() => new Set(bids.map(b => b.supplier_id)).size, [bids]);
 
   return (
@@ -618,22 +621,35 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Savings on Budget</p>
-          {totalSavedRaw >= 0 ? (
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-emerald-700">
-                {formatCurrency(totalSavedAmount)}
-              </h2>
-              <span className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
-                <TrendingUp className="w-3.5 h-3.5" />
-                {savingsPct.toFixed(1)}%
-              </span>
+          {auctionOutcome === 'good' ? (
+            <div>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-emerald-700">
+                  {formatCurrency(totalSavedAmount)}
+                </h2>
+                <span className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  {formatPct(savingsPct)}
+                </span>
+              </div>
+              <span className="text-xs text-emerald-600 font-medium">✅ Cost Optimized</span>
+            </div>
+          ) : auctionOutcome === 'neutral' ? (
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">{formatCurrency(currentLowest)}</h2>
+              <span className="text-xs text-muted-foreground">No change in price</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-destructive" />
-              <h2 className="text-lg font-bold text-destructive">
-                Price increased by {formatCurrency(Math.abs(totalSavedRaw))} ({Math.abs(savingsPctRaw).toFixed(1)}%)
-              </h2>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-destructive" />
+                <h2 className="text-lg font-bold text-destructive">
+                  Final price higher by {formatCurrency(Math.abs(totalSavedRaw))} ({formatPct(savingsPctRaw)})
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Starting: {formatCurrency(auction.starting_price)} → Final: {formatCurrency(currentLowest)}
+              </p>
             </div>
           )}
         </div>
