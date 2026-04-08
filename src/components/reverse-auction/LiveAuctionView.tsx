@@ -954,7 +954,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </ResponsiveContainer>
           ) : (
             <div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
-              Waiting for bids to render chart...
+              {effectiveStatus === 'completed' && auction.winning_price
+                ? 'Auction completed — bid history unavailable'
+                : 'Waiting for bids to render chart...'}
             </div>
           )}
         </div>
@@ -1024,7 +1026,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             })}
             {rankedBids.length === 0 && (
               <div className="text-center py-6">
-                {invitedSuppliersCount > 0 ? (
+                {effectiveStatus === 'completed' && auction.winner_supplier_id ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-emerald-700">🏆 Auction awarded</p>
+                    <p className="text-xs text-muted-foreground">Winner: {formatCurrency(auction.winning_price || currentLowest)}</p>
+                  </div>
+                ) : invitedSuppliersCount > 0 ? (
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">
                       {invitedSuppliersCount} supplier{invitedSuppliersCount !== 1 ? 's' : ''} invited — waiting for bids...
@@ -1143,7 +1150,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </CardHeader>
             <CardContent>
               {bids.length === 0 ? (
-                <p className="text-center text-muted-foreground py-6 text-sm">No bids yet. Waiting for suppliers to bid...</p>
+                <p className="text-center text-muted-foreground py-6 text-sm">
+                  {effectiveStatus === 'completed' && auction.winner_supplier_id
+                    ? 'Bid history not available — auction was awarded at ' + formatCurrency(auction.winning_price || currentLowest)
+                    : 'No bids yet. Waiting for suppliers to bid...'}
+                </p>
               ) : (
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                   {bids.map((bid) => {
