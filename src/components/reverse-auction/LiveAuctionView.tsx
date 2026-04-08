@@ -480,7 +480,8 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     return points;
   }, [bids, auction.starting_price]);
 
-  const totalSavedAmount = auction.starting_price - currentLowest;
+  const totalSavedRaw = auction.starting_price - currentLowest;
+  const totalSavedAmount = Math.max(0, totalSavedRaw);
   const uniqueSuppliers = useMemo(() => new Set(bids.map(b => b.supplier_id)).size, [bids]);
 
   return (
