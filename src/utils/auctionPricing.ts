@@ -50,10 +50,27 @@ export function formatINR(value: number): string {
 // --- Tick-accurate bid pricing ---
 export const TICK_SIZE = 0.01;
 
+export const getTickSize = (category?: string): number => {
+  switch (category) {
+    case 'steel':
+      return 1;
+    case 'cement':
+      return 0.1;
+    case 'chemicals':
+      return 0.01;
+    default:
+      return TICK_SIZE;
+  }
+};
+
 export const normalizePrice = (n: number): number =>
   Math.round(n * 100) / 100;
 
-export const getWinningBid = (l1: number): number => {
+export const getWinningBid = (l1: number, category?: string): number => {
   if (!l1 || l1 <= 0) return 0;
-  return normalizePrice(l1 - TICK_SIZE);
+  const tick = getTickSize(category);
+  return normalizePrice(l1 - tick);
 };
+
+export const isValidBid = (bid: number, l1: number): boolean =>
+  bid > 0 && bid < l1;
