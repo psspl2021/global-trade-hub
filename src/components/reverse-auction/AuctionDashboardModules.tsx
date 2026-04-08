@@ -127,61 +127,65 @@ function LiveAuctionStrip({ auctions, onSelect }: { auctions: any[]; onSelect: (
 function SupplierOverview({ buyerId }: { buyerId: string }) {
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPhone, setNewPhone] = useState('');
+  const [adding, setAdding] = useState(false);
+
+  const loadSuppliers = async () => {
+    if (!buyerId) return;
+    const [suppRes, partRes] = await Promise.all([
+      supabase
+        .from('buyer_suppliers')
+        .select('id, supplier_name, company_name, email, phone, is_onboarded')
+        .eq('buyer_id', buyerId)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase
+        .from('supplier_participation' as any)
+        .select('supplier_id, has_bid, auction_id, last_active')
+        .eq('buyer_id', buyerId),
+    ]);
+
+    const partMap = new Map<string, { total: number; participated: number; lastActive: string | null }>();
+    ((partRes.data as any[]) || []).forEach((p: any) => {
+      const key = `${p.supplier_id}_${buyerId}`;
+      if (!partMap.has(key)) partMap.set(key, { total: 0, participated: 0, lastActive: null });
+      const entry = partMap.get(key)!;
+      entry.total++;
+      if (p.has_bid) entry.participated++;
+      if (p.last_active && (!entry.lastActive || p.last_active > entry.lastActive)) {
+        entry.lastActive = p.last_active;
+      }
+    });
+
+    const enriched = (suppRes.data || []).map((s: any) => {
+      const part = partMap.get(`${s.id}_${buyerId}`);
+      const participationPct = part && part.total > 0 ? Math.round((part.participated / part.total) * 100) : null;
+      const qualityScore = participationPct !== null
+        ? Math.min(100, Math.round(participationPct * 0.7 + ((part?.participated || 0) * 2)))
+        : 0;
+      return {
+        ...s,
+        participationPct,
+        partTotal: part?.total || 0,
+        partBid: part?.participated || 0,
+        lastActive: part?.lastActive || null,
+        qualityScore,
+        isActive: s.is_onboarded || !!s.email,
+      };
+    });
+    setSuppliers(enriched);
+  };
 
   useEffect(() => {
-    if (!buyerId) return;
-    const load = async () => {
-      const [suppRes, partRes] = await Promise.all([
-        supabase
-          .from('buyer_suppliers')
-          .select('id, supplier_name, company_name, email, phone, is_onboarded')
-          .eq('buyer_id', buyerId)
-          .order('created_at', { ascending: false })
-          .limit(50),
-        supabase
-          .from('supplier_participation' as any)
-          .select('supplier_id, has_bid, auction_id, last_active')
-          .eq('buyer_id', buyerId),
-      ]);
-
-      // Build participation map keyed by supplier_id + buyerId
-      const partMap = new Map<string, { total: number; participated: number; lastActive: string | null }>();
-      ((partRes.data as any[]) || []).forEach((p: any) => {
-        const key = `${p.supplier_id}_${buyerId}`;
-        if (!partMap.has(key)) partMap.set(key, { total: 0, participated: 0, lastActive: null });
-        const entry = partMap.get(key)!;
-        entry.total++;
-        if (p.has_bid) entry.participated++;
-        if (p.last_active && (!entry.lastActive || p.last_active > entry.lastActive)) {
-          entry.lastActive = p.last_active;
-        }
-      });
-
-      const enriched = (suppRes.data || []).map((s: any) => {
-        const part = partMap.get(`${s.id}_${buyerId}`);
-        const participationPct = part && part.total > 0 ? Math.round((part.participated / part.total) * 100) : null;
-        const qualityScore = participationPct !== null
-          ? Math.min(100, Math.round(participationPct * 0.7 + ((part?.participated || 0) * 2)))
-          : 0;
-        const isActive = s.is_onboarded || !!s.email;
-        return {
-          ...s,
-          participationPct,
-          partTotal: part?.total || 0,
-          partBid: part?.participated || 0,
-          lastActive: part?.lastActive || null,
-          qualityScore,
-          isActive,
-        };
-      });
-      setSuppliers(enriched);
-    };
-    load();
+    loadSuppliers();
   }, [buyerId]);
 
-  if (suppliers.length === 0) return null;
-
-  const bestSupplier = [...suppliers].sort((a, b) => (b.participationPct ?? -1) - (a.participationPct ?? -1))[0];
+  const bestSupplier = suppliers.length > 0
+    ? [...suppliers].sort((a, b) => (b.participationPct ?? -1) - (a.participationPct ?? -1))[0]
+    : null;
   const activeBidders = suppliers.filter(s => s.participationPct && s.participationPct > 50).length;
 
   const getStatusBadge = (s: any) => {
@@ -196,6 +200,36 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
 
   const handleResend = async (s: any) => {
     toast.success(`Invite resent to ${s.email || s.supplier_name}`);
+  };
+
+  const handleAddSupplier = async () => {
+    if (!newName.trim()) {
+      toast.error('Supplier name is required');
+      return;
+    }
+    setAdding(true);
+    try {
+      const { error } = await supabase
+        .from('buyer_suppliers')
+        .insert({
+          buyer_id: buyerId,
+          supplier_name: newName.trim(),
+          email: newEmail.trim() || null,
+          phone: newPhone.trim() || null,
+          company_name: newName.trim(),
+        });
+      if (error) throw error;
+      toast.success(`${newName.trim()} added to your supplier network`);
+      setNewName('');
+      setNewEmail('');
+      setNewPhone('');
+      setShowAddForm(false);
+      loadSuppliers();
+    } catch (err: any) {
+      toast.error('Failed to add supplier: ' + err.message);
+    } finally {
+      setAdding(false);
+    }
   };
 
   return (
@@ -213,81 +247,143 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
       </div>
       {expanded && (
         <div className="border-t">
-          {/* Low competition alert */}
-          {suppliers.length <= 1 && (
-            <div className="px-4 py-2 bg-destructive/10 flex items-center gap-2 text-xs text-destructive">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              Only {suppliers.length} supplier — invite more for better pricing
-            </div>
-          )}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/40">
-                  <th className="text-left p-3 font-medium text-muted-foreground">Company</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">Score</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">Participation</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {suppliers.slice(0, 10).map((s) => (
-                  <tr key={s.id} className="border-t hover:bg-muted/20">
-                    <td className="p-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-medium">{s.company_name || s.supplier_name || '—'}</span>
-                        {bestSupplier?.id === s.id && s.participationPct !== null && (
-                          <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 px-1.5 py-0">
-                            <Trophy className="w-3 h-3 mr-0.5" /> Best
-                          </Badge>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground">{s.email || ''}</span>
-                    </td>
-                    <td className="p-3">{getStatusBadge(s)}</td>
-                    <td className="p-3 text-right">
-                      <span className={`text-xs font-semibold ${s.qualityScore >= 70 ? 'text-emerald-600' : s.qualityScore >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                        {s.qualityScore}
-                      </span>
-                    </td>
-                    <td className="p-3 text-right">
-                      {s.participationPct !== null ? (
-                        <span className="text-xs font-medium">
-                          {s.participationPct}%
-                          <span className="text-muted-foreground ml-1">({s.partBid}/{s.partTotal})</span>
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className="p-3 text-right">
-                      <div className="flex justify-end gap-1">
-                        {s.phone && (
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-emerald-600" onClick={(e) => { e.stopPropagation(); handleWhatsApp(s); }}>
-                            <MessageCircle className="w-3 h-3 mr-1" /> WA
-                          </Button>
-                        )}
-                        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-primary" onClick={(e) => { e.stopPropagation(); handleResend(s); }}>
-                          <RefreshCw className="w-3 h-3 mr-1" /> Resend
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {suppliers.length > 10 && (
-              <div className="p-3 text-center text-xs text-muted-foreground">
-                + {suppliers.length - 10} more suppliers
+          {/* Add supplier button + form */}
+          <div className="p-3 border-b">
+            {!showAddForm ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 w-full"
+                onClick={() => setShowAddForm(true)}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Add Supplier to Network
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <UserPlus className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm font-medium">Add New Supplier</span>
+                </div>
+                <Input
+                  placeholder="Company / Supplier name *"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="h-8 text-sm"
+                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Email"
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                  <Input
+                    placeholder="Phone"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={handleAddSupplier} disabled={adding} className="gap-1">
+                    <Plus className="w-3 h-3" />
+                    {adding ? 'Adding...' : 'Add'}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setShowAddForm(false)}>
+                    Cancel
+                  </Button>
+                </div>
               </div>
             )}
           </div>
-          {/* Smart insight */}
-          <div className="px-4 py-2 border-t flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-            {activeBidders} supplier{activeBidders !== 1 ? 's' : ''} actively bidding (&gt;50% participation)
-          </div>
+
+          {suppliers.length === 0 ? (
+            <div className="p-6 text-center">
+              <Users className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No suppliers yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Add suppliers to build your procurement network and track participation</p>
+            </div>
+          ) : (
+            <>
+              {/* Low competition alert */}
+              {suppliers.length <= 1 && (
+                <div className="px-4 py-2 bg-destructive/10 flex items-center gap-2 text-xs text-destructive">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Only {suppliers.length} supplier — invite more for better pricing
+                </div>
+              )}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/40">
+                      <th className="text-left p-3 font-medium text-muted-foreground">Company</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
+                      <th className="text-right p-3 font-medium text-muted-foreground">Score</th>
+                      <th className="text-right p-3 font-medium text-muted-foreground">Participation</th>
+                      <th className="text-right p-3 font-medium text-muted-foreground">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {suppliers.slice(0, 10).map((s) => (
+                      <tr key={s.id} className="border-t hover:bg-muted/20">
+                        <td className="p-3">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-medium">{s.company_name || s.supplier_name || '—'}</span>
+                            {bestSupplier?.id === s.id && s.participationPct !== null && (
+                              <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 px-1.5 py-0">
+                                <Trophy className="w-3 h-3 mr-0.5" /> Best
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">{s.email || ''}</span>
+                        </td>
+                        <td className="p-3">{getStatusBadge(s)}</td>
+                        <td className="p-3 text-right">
+                          <span className={`text-xs font-semibold ${s.qualityScore >= 70 ? 'text-emerald-600' : s.qualityScore >= 40 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                            {s.qualityScore}
+                          </span>
+                        </td>
+                        <td className="p-3 text-right">
+                          {s.participationPct !== null ? (
+                            <span className="text-xs font-medium">
+                              {s.participationPct}%
+                              <span className="text-muted-foreground ml-1">({s.partBid}/{s.partTotal})</span>
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </td>
+                        <td className="p-3 text-right">
+                          <div className="flex justify-end gap-1">
+                            {s.phone && (
+                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-emerald-600" onClick={(e) => { e.stopPropagation(); handleWhatsApp(s); }}>
+                                <MessageCircle className="w-3 h-3 mr-1" /> WA
+                              </Button>
+                            )}
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-primary" onClick={(e) => { e.stopPropagation(); handleResend(s); }}>
+                              <RefreshCw className="w-3 h-3 mr-1" /> Resend
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {suppliers.length > 10 && (
+                  <div className="p-3 text-center text-xs text-muted-foreground">
+                    + {suppliers.length - 10} more suppliers
+                  </div>
+                )}
+              </div>
+              {/* Smart insight */}
+              <div className="px-4 py-2 border-t flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                {activeBidders} supplier{activeBidders !== 1 ? 's' : ''} actively bidding (&gt;50% participation)
+              </div>
+            </>
+          )}
         </div>
       )}
     </Card>
