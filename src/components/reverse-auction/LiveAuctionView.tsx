@@ -2,7 +2,7 @@
  * Live Reverse Auction View — Real-time bidding interface
  * Enterprise: L1/L2/L3 Leaderboard, Anti-sniping, Audit logging, Mobile sticky bid
  */
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { AuctionResultExport } from './AuctionResultExport';
 import { AuctionChat } from './AuctionChat';
 import { AwardRecommendationPanel } from './AwardRecommendationPanel';
@@ -25,6 +25,7 @@ import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctio
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SupplierMultiItemBid } from './SupplierMultiItemBid';
+import { LiveInviteSupplier } from './LiveInviteSupplier';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
@@ -172,17 +173,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   // Invited suppliers count (active participants)
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
-  useEffect(() => {
-    const fetchInvited = async () => {
-      const { count } = await supabase
-        .from('reverse_auction_suppliers')
-        .select('id', { count: 'exact', head: true })
-        .eq('auction_id', auction.id)
-        .eq('is_active', true);
-      setInvitedSuppliersCount(count || 0);
-    };
-    fetchInvited();
+  const fetchInvitedCount = useCallback(async () => {
+    const { count } = await supabase
+      .from('reverse_auction_suppliers')
+      .select('id', { count: 'exact', head: true })
+      .eq('auction_id', auction.id)
+      .eq('is_active', true);
+    setInvitedSuppliersCount(count || 0);
   }, [auction.id]);
+  useEffect(() => {
+    fetchInvitedCount();
+  }, [fetchInvitedCount]);
 
   const recentBidCount = useMemo(() => {
     const thirtySecsAgo = Date.now() - 30000;
@@ -603,6 +604,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                 <Zap className="w-3.5 h-3.5" />
                 {recentBidCount} bid{recentBidCount !== 1 ? 's' : ''} in last 30s
               </div>
+            )}
+            {isBuyer && (
+              <LiveInviteSupplier auctionId={auction.id} onInvited={fetchInvitedCount} />
             )}
           </div>
         )}
