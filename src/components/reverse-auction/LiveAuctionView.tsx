@@ -1171,7 +1171,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {bids.length === 0 ? (
+              {bidsLoading && bids.length === 0 ? (
+                <p className="text-center text-muted-foreground py-6 text-sm animate-pulse">Loading bids...</p>
+              ) : bids.length === 0 ? (
                 <p className="text-center text-muted-foreground py-6 text-sm">
                   {effectiveStatus === 'completed' && auction.winner_supplier_id
                     ? 'Bid history not available — auction was awarded at ' + formatCurrency(auction.winning_price || currentLowest)
