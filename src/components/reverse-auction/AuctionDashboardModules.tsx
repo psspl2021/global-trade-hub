@@ -119,7 +119,7 @@ function LiveAuctionStrip({ auctions, onSelect }: { auctions: any[]; onSelect: (
 }
 
 /* ═══════════════════════════════════════════════
-   ✦ 3. Supplier Overview (collapsible)
+   ✦ 3. Supplier Overview (collapsible) — uses buyer_suppliers + participation
    ═══════════════════════════════════════════════ */
 function SupplierOverview({ buyerId }: { buyerId: string }) {
   const [suppliers, setSuppliers] = useState<any[]>([]);
@@ -127,27 +127,46 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
 
   useEffect(() => {
     if (!buyerId) return;
-    supabase
-      .from('reverse_auction_suppliers')
-      .select('id, supplier_email, supplier_company_name, supplier_id, invite_status, auction_id')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        // Deduplicate by email
-        const seen = new Map<string, any>();
-        (data || []).forEach((s) => {
-          const key = s.supplier_email?.toLowerCase();
-          if (key && !seen.has(key)) {
-            seen.set(key, {
-              ...s,
-              is_onboarded: !!s.supplier_id,
-            });
-          }
-        });
-        setSuppliers(Array.from(seen.values()));
+    const load = async () => {
+      const [suppRes, partRes] = await Promise.all([
+        supabase
+          .from('buyer_suppliers')
+          .select('id, supplier_name, company_name, email, phone, is_onboarded')
+          .eq('buyer_id', buyerId)
+          .order('created_at', { ascending: false })
+          .limit(50),
+        supabase
+          .from('supplier_participation' as any)
+          .select('supplier_id, has_bid, auction_id')
+          .eq('buyer_id', buyerId),
+      ]);
+
+      // Build participation map: supplier_email -> { total, participated }
+      const partMap = new Map<string, { total: number; participated: number }>();
+      ((partRes.data as any[]) || []).forEach((p: any) => {
+        const key = p.supplier_id;
+        if (!partMap.has(key)) partMap.set(key, { total: 0, participated: 0 });
+        const entry = partMap.get(key)!;
+        entry.total++;
+        if (p.has_bid) entry.participated++;
       });
+
+      const enriched = (suppRes.data || []).map((s: any) => {
+        const part = partMap.get(s.id);
+        const participationPct = part && part.total > 0 ? Math.round((part.participated / part.total) * 100) : null;
+        return { ...s, participationPct, partTotal: part?.total || 0, partBid: part?.participated || 0 };
+      });
+      setSuppliers(enriched);
+    };
+    load();
   }, [buyerId]);
 
   if (suppliers.length === 0) return null;
+
+  const getStatusBadge = (s: any) => {
+    if (s.is_onboarded) return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">🟢 Active</Badge>;
+    return <Badge variant="outline" className="text-xs">⚪ Not onboarded</Badge>;
+  };
 
   return (
     <Card className="rounded-[0.625rem] overflow-hidden">
@@ -169,20 +188,27 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
               <thead>
                 <tr className="bg-muted/40">
                   <th className="text-left p-3 font-medium text-muted-foreground">Company</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Email</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Contact</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Phone</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
+                  <th className="text-right p-3 font-medium text-muted-foreground">Participation</th>
                 </tr>
               </thead>
               <tbody>
                 {suppliers.slice(0, 10).map((s) => (
                   <tr key={s.id} className="border-t hover:bg-muted/20">
-                    <td className="p-3 font-medium">{s.supplier_company_name || '—'}</td>
-                    <td className="p-3 text-muted-foreground">{s.supplier_email}</td>
-                    <td className="p-3">
-                      {s.is_onboarded ? (
-                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">Active</Badge>
+                    <td className="p-3 font-medium">{s.company_name || s.supplier_name || '—'}</td>
+                    <td className="p-3 text-muted-foreground">{s.email || '—'}</td>
+                    <td className="p-3 text-muted-foreground">{s.phone || '—'}</td>
+                    <td className="p-3">{getStatusBadge(s)}</td>
+                    <td className="p-3 text-right">
+                      {s.participationPct !== null ? (
+                        <span className="text-xs font-medium">
+                          {s.participationPct}%
+                          <span className="text-muted-foreground ml-1">({s.partBid}/{s.partTotal})</span>
+                        </span>
                       ) : (
-                        <Badge variant="outline" className="text-xs">Not onboarded</Badge>
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>
