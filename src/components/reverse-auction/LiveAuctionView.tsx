@@ -1096,15 +1096,28 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       )}
 
-      {/* 🧾 Purchase Order Generator (buyer only, completed auction with winner) */}
-      {isBuyer && effectiveStatus === 'completed' && auction.winner_supplier_id && (
-        <div className="mb-4">
-          <AuctionPOGenerator
-            auction={auction}
-            winnerSupplierId={auction.winner_supplier_id}
-            winningPrice={auction.winning_price || currentLowest}
-          />
-        </div>
+      {/* 🏆 Winner Banner + Purchase Order Generator (buyer only, awarded auction) */}
+      {isBuyer && auction.winner_supplier_id && (
+        <>
+          <div className="rounded-[0.625rem] bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 mb-4 flex items-center gap-3">
+            <Trophy className="w-6 h-6 text-amber-600 shrink-0" />
+            <div>
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
+                🏆 Auction Awarded — Winner: {formatCurrency(auction.winning_price || currentLowest)}
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                You can now generate a Purchase Order below
+              </p>
+            </div>
+          </div>
+          <div className="mb-4">
+            <AuctionPOGenerator
+              auction={auction}
+              winnerSupplierId={auction.winner_supplier_id}
+              winningPrice={auction.winning_price || currentLowest}
+            />
+          </div>
+        </>
       )}
 
       {/* SUPPLIER BID PANEL — Full width above bid history for visibility */}
