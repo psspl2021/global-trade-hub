@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import {
   IndianRupee, Flame, BarChart3, Users, Eye, ChevronDown, ChevronRight,
   FileText, Truck, CheckCircle2, CreditCard, Package, Clock, TrendingUp,
+  MessageCircle, RefreshCw, Trophy, AlertTriangle, Lightbulb,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
