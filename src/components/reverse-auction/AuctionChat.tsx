@@ -107,13 +107,17 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
   }, [auctionId, isBuyer, user?.id]);
 
   const fetchCounterOffers = useCallback(async () => {
-    const { data } = await supabase
+    let query = supabase
       .from('auction_counter_offers')
       .select('*')
-      .eq('auction_id', auctionId)
-      .order('created_at', { ascending: false });
+      .eq('auction_id', auctionId);
+    // Suppliers should only see their own counter offers
+    if (!isBuyer && user?.id) {
+      query = query.eq('supplier_id', user.id);
+    }
+    const { data } = await query.order('created_at', { ascending: false });
     if (data) setCounterOffers(data as unknown as CounterOffer[]);
-  }, [auctionId]);
+  }, [auctionId, isBuyer, user?.id]);
 
   useEffect(() => {
     fetchMessages();
