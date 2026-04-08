@@ -998,7 +998,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                             )}
                             {isMine && <Badge variant="outline" className="text-xs border-primary text-primary">You</Badge>}
                             <span className="text-muted-foreground font-mono text-xs">
-                              PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
+                              {isBuyer
+                                ? (supplierLookup.get(bid.supplier_id)?.company || `PS-${bid.supplier_id.slice(0, 4).toUpperCase()}`)
+                                : `PS-${bid.supplier_id.slice(0, 4).toUpperCase()}`}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
