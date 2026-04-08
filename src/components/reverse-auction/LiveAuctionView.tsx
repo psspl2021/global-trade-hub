@@ -890,7 +890,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Current L1 Price</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+            {effectiveStatus === 'completed' ? 'Winning Price' : 'Current L1 Price'}
+          </p>
           <h2 className="text-2xl font-bold text-foreground">
             {formatCurrency(currentLowest)}
           </h2>
