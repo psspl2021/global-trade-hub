@@ -199,9 +199,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     return map;
   }, [invitedSuppliersList]);
 
+  const recentBidCount = useMemo(() => {
     const thirtySecsAgo = Date.now() - 30000;
     return bids.filter(b => new Date(b.created_at).getTime() > thirtySecsAgo).length;
-  }, [bids, timeLeft]); // timeLeft as dep to recompute every second
+  }, [bids, timeLeft]);
 
   const myRank = useMemo(() => {
     if (!user || !isSupplier || bids.length === 0) return null;
