@@ -84,21 +84,38 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
         .eq('auction_id', auction.id);
 
       if (auctionItems && auctionItems.length > 0) {
-        setItems(auctionItems.map(item => ({
-          item_id: item.id,
-          description: item.product_name,
-          quantity: item.quantity,
-          unit: item.unit,
-          unit_price: item.unit_price || 0,
-          tax_rate: 18,
-        })));
+        // Distribute winning price proportionally across SKUs
+        const startingTotal = auctionItems.reduce(
+          (sum, item) => sum + (item.unit_price || 0) * item.quantity,
+          0
+        );
+
+        setItems(auctionItems.map(item => {
+          let derivedUnitPrice: number;
+          if (startingTotal > 0 && winningPrice > 0) {
+            // Proportional distribution: each SKU gets its share of the winning total
+            const lineShare = ((item.unit_price || 0) * item.quantity) / startingTotal;
+            const lineTotal = winningPrice * lineShare;
+            derivedUnitPrice = lineTotal / item.quantity;
+          } else {
+            derivedUnitPrice = item.unit_price || 0;
+          }
+          return {
+            item_id: item.id,
+            description: item.product_name,
+            quantity: item.quantity,
+            unit: item.unit,
+            unit_price: derivedUnitPrice,
+            tax_rate: 18,
+          };
+        }));
       } else {
         setItems([{
           item_id: auction.id,
           description: auction.title,
           quantity: auction.quantity,
           unit: auction.unit,
-          unit_price: winningPrice,
+          unit_price: winningPrice / (auction.quantity || 1),
           tax_rate: 18,
         }]);
       }
