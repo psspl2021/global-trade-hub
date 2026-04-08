@@ -17,7 +17,7 @@ interface AuctionSavingsDashboardProps {
 
 function formatINR(value: number | null, currency = 'INR') {
   if (value === null || value === undefined) return '—';
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.floor(value));
 }
 
 function formatCompact(value: number) {
@@ -42,7 +42,9 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
   const totalSaved = startingPrice && winningPrice ? startingPrice - winningPrice : 0;
   const savingsPct = startingPrice && totalSaved > 0
     ? ((totalSaved / startingPrice) * 100) : 0;
-  const savingsPerUnit = auction.quantity > 0 ? totalSaved / auction.quantity : 0;
+  // Multi-SKU safety: only show per-unit when all items share the same unit
+  const isUniformUnit = true; // Single-unit auctions for now; future: check items
+  const savingsPerUnit = isUniformUnit && auction.quantity > 0 ? totalSaved / auction.quantity : null;
 
   // Build savings trend from bid history (cumulative best price over time)
   const savingsChartData = useMemo(() => {
@@ -118,8 +120,17 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
               <TrendingDown className="w-3.5 h-3.5 text-muted-foreground" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Per Unit Saved</span>
             </div>
-            <p className="text-xl font-bold text-primary">{formatINR(savingsPerUnit, auction.currency)}</p>
-            <span className="text-xs text-muted-foreground">per {auction.unit}</span>
+            {savingsPerUnit !== null ? (
+              <>
+                <p className="text-xl font-bold text-primary">{formatINR(savingsPerUnit, auction.currency)}</p>
+                <span className="text-xs text-muted-foreground">per {auction.unit} · {auction.quantity} {auction.unit} total</span>
+              </>
+            ) : (
+              <>
+                <p className="text-xl font-bold text-primary">{formatINR(totalSaved, auction.currency)}</p>
+                <span className="text-xs text-muted-foreground">total savings (mixed units)</span>
+              </>
+            )}
           </div>
 
           <div className="rounded-[0.625rem] border bg-card p-3.5">

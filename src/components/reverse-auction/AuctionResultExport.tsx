@@ -15,7 +15,7 @@ interface AuctionResultExportProps {
 
 function formatINR(value: number | null, currency = 'INR') {
   if (value === null || value === undefined) return '—';
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.floor(value));
 }
 
 export function AuctionResultExport({ auction, bids }: AuctionResultExportProps) {
