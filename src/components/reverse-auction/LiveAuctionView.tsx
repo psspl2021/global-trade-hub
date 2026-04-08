@@ -38,6 +38,16 @@ function formatCurrency(value: number | null, currency: string = 'INR') {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.floor(value));
 }
 
+function formatCurrencyOneDecimal(value: number | null, currency: string = 'INR') {
+  if (value === null || value === undefined) return '—';
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
 const RANK_CONFIG: Record<number, { label: string; color: string; bg: string; icon: string }> = {
   1: { label: 'L1', color: 'text-emerald-700', bg: 'bg-emerald-100 border-emerald-300', icon: '🥇' },
   2: { label: 'L2', color: 'text-blue-700', bg: 'bg-blue-100 border-blue-300', icon: '🥈' },
@@ -664,7 +674,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Per Unit Saved</p>
           <h2 className="text-2xl font-bold text-primary">
-            {formatCurrency(auction.quantity > 0 ? Math.round((totalSavedAmount / auction.quantity) * 10) / 10 : 0)}
+            {formatCurrencyOneDecimal(auction.quantity > 0 ? Math.round((totalSavedAmount / auction.quantity) * 10) / 10 : 0, auction.currency)}
           </h2>
           <span className="text-xs text-muted-foreground">per {auction.unit} · {auction.quantity} {auction.unit} total</span>
         </div>
