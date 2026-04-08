@@ -39,12 +39,13 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
   const winningPrice = auction.winning_price || (ranked.length > 0 ? ranked[0].bid_price : null);
   const startingPrice = auction.starting_price;
 
-  const totalSaved = startingPrice && winningPrice ? startingPrice - winningPrice : 0;
+  const totalSavedRaw = startingPrice && winningPrice ? startingPrice - winningPrice : 0;
+  const totalSaved = Math.max(0, totalSavedRaw);
   const savingsPct = startingPrice && totalSaved > 0
     ? ((totalSaved / startingPrice) * 100) : 0;
   // Multi-SKU safety: only show per-unit when all items share the same unit
   const isUniformUnit = true; // Single-unit auctions for now; future: check items
-  const savingsPerUnit = isUniformUnit && auction.quantity > 0 ? totalSaved / auction.quantity : null;
+  const savingsPerUnit = isUniformUnit && auction.quantity > 0 ? Math.floor(totalSaved / auction.quantity) : null;
 
   // Build savings trend from bid history (cumulative best price over time)
   const savingsChartData = useMemo(() => {

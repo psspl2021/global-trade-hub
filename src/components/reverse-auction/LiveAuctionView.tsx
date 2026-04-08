@@ -480,7 +480,8 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     return points;
   }, [bids, auction.starting_price]);
 
-  const totalSavedAmount = auction.starting_price - currentLowest;
+  const totalSavedRaw = auction.starting_price - currentLowest;
+  const totalSavedAmount = Math.max(0, totalSavedRaw);
   const uniqueSuppliers = useMemo(() => new Set(bids.map(b => b.supplier_id)).size, [bids]);
 
   return (
@@ -616,21 +617,30 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Savings on Budget</p>
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-emerald-700">
-              {formatCurrency(totalSavedAmount)}
-            </h2>
-            <span className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
-              <TrendingUp className="w-3.5 h-3.5" />
-              {totalSavings.toFixed(1)}%
-            </span>
-          </div>
+          {totalSavedRaw >= 0 ? (
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-emerald-700">
+                {formatCurrency(totalSavedAmount)}
+              </h2>
+              <span className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
+                <TrendingUp className="w-3.5 h-3.5" />
+                {totalSavings.toFixed(1)}%
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <h2 className="text-lg font-bold text-red-600">
+                Price increased by {formatCurrency(Math.abs(totalSavedRaw))}
+              </h2>
+            </div>
+          )}
         </div>
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Per Unit Saved</p>
           <h2 className="text-2xl font-bold text-primary">
-            {formatCurrency(auction.quantity > 0 ? (auction.starting_price - currentLowest) / auction.quantity : 0)}
+            {formatCurrency(auction.quantity > 0 ? Math.floor(totalSavedAmount / auction.quantity) : 0)}
           </h2>
           <span className="text-xs text-muted-foreground">per {auction.unit} · {auction.quantity} {auction.unit} total</span>
         </div>
