@@ -428,9 +428,8 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
       ]);
 
       setAuctions(auctionRes.data || []);
-      // Deduplicate suppliers by email
-      const uniqueEmails = new Set((supplierRes.data || []).map((s) => s.supplier_email?.toLowerCase()).filter(Boolean));
-      setSupplierCount(uniqueEmails.size);
+      setSupplierCount((supplierRes.data || []).length);
+
       setLoading(false);
     };
 
