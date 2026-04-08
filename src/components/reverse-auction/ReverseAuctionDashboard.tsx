@@ -122,6 +122,9 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
         </div>
       </div>
 
+      {/* Procol-style Dashboard Modules (buyer only) */}
+      {!isSupplier && <AuctionDashboardModules onSelectAuction={selectAuction} />}
+
       {/* Credits + Pricing Plans (buyer only) */}
       {!isSupplier && (
         <AuctionCreditsPurchase
