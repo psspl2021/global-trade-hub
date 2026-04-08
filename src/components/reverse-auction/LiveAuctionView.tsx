@@ -142,7 +142,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   }, [bids, auction.starting_price]);
 
   const minBidStep = auction.minimum_bid_step_pct / 100;
-  const totalSavings = ((auction.starting_price - currentLowest) / auction.starting_price * 100);
+  const savingsPct = auction.starting_price > 0 ? (Math.max(0, auction.starting_price - currentLowest) / auction.starting_price * 100) : 0;
   const buyerPrice = currentLowest;
 
   // Smart bid suggestion (step-based, not random)
@@ -493,7 +493,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             <Trophy className="w-4 h-4 text-amber-400" />
             <span className="font-semibold">L1: {formatCurrency(currentLowest)}</span>
             <span className="text-xs opacity-70">
-              ({totalSavings.toFixed(1)}% savings)
+              ({savingsPct.toFixed(1)}% savings)
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -624,7 +624,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               </h2>
               <span className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
-                {totalSavings.toFixed(1)}%
+                {savingsPct.toFixed(1)}%
               </span>
             </div>
           ) : (
@@ -780,7 +780,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       {totalSavedAmount > 0 && (
         <div className="rounded-[0.625rem] bg-emerald-50 border border-emerald-200 p-4 text-center mb-4">
           <p className="text-lg font-bold text-emerald-800">
-            💰 You saved {formatCurrency(totalSavedAmount)} ({totalSavings.toFixed(1)}%) in this auction
+            💰 You saved {formatCurrency(totalSavedAmount)} ({savingsPct.toFixed(1)}%) in this auction
           </p>
         </div>
       )}
