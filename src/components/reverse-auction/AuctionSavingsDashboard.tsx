@@ -9,6 +9,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { TrendingDown, TrendingUp, Trophy, IndianRupee, BarChart3, Users } from 'lucide-react';
 import { ReverseAuction, ReverseAuctionBid, getRankedBids, RankedBid } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
+import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
 interface AuctionSavingsDashboardProps {
   auction: ReverseAuction;
