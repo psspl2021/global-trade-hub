@@ -150,9 +150,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const { insight: marketInsight, latestAuctionDaysAgo } = useMarketIntelligence(bids, auction.starting_price, auction.product_slug);
 
   const currentLowest = useMemo(() => {
-    if (bids.length === 0) return auction.starting_price;
+    if (bids.length === 0) {
+      // For completed/awarded auctions, use winning_price or current_price as the effective lowest
+      if (auction.winning_price) return auction.winning_price;
+      if (auction.current_price) return auction.current_price;
+      return auction.starting_price;
+    }
     return Math.min(...bids.map(b => b.bid_price));
-  }, [bids, auction.starting_price]);
+  }, [bids, auction.starting_price, auction.winning_price, auction.current_price]);
 
   const minBidStep = auction.minimum_bid_step_pct / 100;
   const savingsPctRaw = auction.starting_price > 0 ? ((auction.starting_price - currentLowest) / auction.starting_price * 100) : 0;
@@ -885,7 +890,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Current L1 Price</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+            {effectiveStatus === 'completed' ? 'Winning Price' : 'Current L1 Price'}
+          </p>
           <h2 className="text-2xl font-bold text-foreground">
             {formatCurrency(currentLowest)}
           </h2>
@@ -894,8 +901,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Competition</p>
-          <h2 className="text-2xl font-bold text-foreground">{uniqueSuppliers}</h2>
-          <span className="text-xs text-muted-foreground">{bids.length} total bids</span>
+          <h2 className="text-2xl font-bold text-foreground">{uniqueSuppliers || (effectiveStatus === 'completed' && auction.winner_supplier_id ? 1 : 0)}</h2>
+          <span className="text-xs text-muted-foreground">
+            {bids.length > 0 ? `${bids.length} total bids` : effectiveStatus === 'completed' && auction.winner_supplier_id ? 'Awarded' : '0 total bids'}
+          </span>
         </div>
       </div>
 
@@ -949,7 +958,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </ResponsiveContainer>
           ) : (
             <div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
-              Waiting for bids to render chart...
+              {effectiveStatus === 'completed' && auction.winning_price
+                ? 'Auction completed — bid history unavailable'
+                : 'Waiting for bids to render chart...'}
             </div>
           )}
         </div>
@@ -1019,7 +1030,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             })}
             {rankedBids.length === 0 && (
               <div className="text-center py-6">
-                {invitedSuppliersCount > 0 ? (
+                {effectiveStatus === 'completed' && auction.winner_supplier_id ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-emerald-700">🏆 Auction awarded</p>
+                    <p className="text-xs text-muted-foreground">Winner: {formatCurrency(auction.winning_price || currentLowest)}</p>
+                  </div>
+                ) : invitedSuppliersCount > 0 ? (
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">
                       {invitedSuppliersCount} supplier{invitedSuppliersCount !== 1 ? 's' : ''} invited — waiting for bids...
@@ -1138,7 +1154,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </CardHeader>
             <CardContent>
               {bids.length === 0 ? (
-                <p className="text-center text-muted-foreground py-6 text-sm">No bids yet. Waiting for suppliers to bid...</p>
+                <p className="text-center text-muted-foreground py-6 text-sm">
+                  {effectiveStatus === 'completed' && auction.winner_supplier_id
+                    ? 'Bid history not available — auction was awarded at ' + formatCurrency(auction.winning_price || currentLowest)
+                    : 'No bids yet. Waiting for suppliers to bid...'}
+                </p>
               ) : (
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                   {bids.map((bid) => {
