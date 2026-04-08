@@ -99,7 +99,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     }
   }, [effectiveStatus, auction.status, auction.id]);
 
-  const { bids, placeBid, editBid } = useReverseAuctionBids(auction.id);
+  const { bids, isLoading: bidsLoading, placeBid, editBid, refetch: refetchBids } = useReverseAuctionBids(auction.id);
+
+  // Force bid refetch after auction load to avoid stale "0 bids" on completed auctions
+  useEffect(() => {
+    if (!auction?.id) return;
+    refetchBids();
+  }, [auction?.id]);
+
+  // Refetch bids when auction becomes completed (e.g. after award)
+  useEffect(() => {
+    if (auction?.status === 'completed') {
+      refetchBids();
+    }
+  }, [auction?.status]);
   const { updateAuction, cancelAuction } = useReverseAuction();
   const [bidPrice, setBidPrice] = useState('');
   const [bidError, setBidError] = useState('');
@@ -1028,7 +1041,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                 </div>
               );
             })}
-            {rankedBids.length === 0 && (
+            {bidsLoading && rankedBids.length === 0 && (
+              <div className="text-center py-6">
+                <p className="text-sm text-muted-foreground animate-pulse">Loading bids...</p>
+              </div>
+            )}
+            {!bidsLoading && rankedBids.length === 0 && (
               <div className="text-center py-6">
                 {effectiveStatus === 'completed' && auction.winner_supplier_id ? (
                   <div className="space-y-1">
@@ -1153,7 +1171,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {bids.length === 0 ? (
+              {bidsLoading && bids.length === 0 ? (
+                <p className="text-center text-muted-foreground py-6 text-sm animate-pulse">Loading bids...</p>
+              ) : bids.length === 0 ? (
                 <p className="text-center text-muted-foreground py-6 text-sm">
                   {effectiveStatus === 'completed' && auction.winner_supplier_id
                     ? 'Bid history not available — auction was awarded at ' + formatCurrency(auction.winning_price || currentLowest)
