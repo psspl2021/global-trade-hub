@@ -20,7 +20,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
-import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle, Medal, Timer, Users, Zap, Target, TrendingUp, BarChart3 } from 'lucide-react';
+import { Gavel, TrendingDown, Clock, ArrowLeft, IndianRupee, AlertTriangle, Shield, Trophy, ChevronDown, ChevronUp, Pencil, XCircle, Medal, Timer, Users, Zap, Target, TrendingUp, BarChart3, Send } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from 'recharts';
 import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid, getRankedBids } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
@@ -175,7 +175,37 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   // Invited suppliers list & count
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
   const [invitedSuppliersList, setInvitedSuppliersList] = useState<Array<{ id: string; supplier_id: string | null; supplier_email: string | null; supplier_company_name: string | null; invite_status: string }>>([]);
+  const [resendingEmail, setResendingEmail] = useState<string | null>(null);
   const resolvedCache = useRef(new Map<string, string>());
+
+  const handleResendInvite = useCallback(async (supplierEmail: string) => {
+    if (!supplierEmail) return;
+    setResendingEmail(supplierEmail);
+    try {
+      const product = auction.product_slug?.replace(/_/g, ', ').replace(/-/g, ' ') || 'Multiple items';
+      const quantity = auction.quantity ? `${auction.quantity} ${auction.unit || ''}`.trim() : 'See auction details';
+      const auctionLink = `${window.location.origin}/supplier-auction/${auction.id}`;
+
+      const { error } = await supabase.functions.invoke('send-auction-invite', {
+        body: {
+          email: supplierEmail,
+          auctionTitle: auction.title,
+          auctionId: auction.id,
+          product,
+          quantity,
+          startTime: auction.auction_start,
+          auctionLink,
+        },
+      });
+      if (error) throw error;
+      toast({ title: 'Invite resent', description: `Email sent to ${supplierEmail}` });
+    } catch (err: any) {
+      console.error('Resend invite error:', err);
+      toast({ title: 'Failed to resend', description: err.message || 'Something went wrong', variant: 'destructive' });
+    } finally {
+      setResendingEmail(null);
+    }
+  }, [auction, toast]);
   const fetchInvitedCount = useCallback(async () => {
     const { data, count } = await supabase
       .from('reverse_auction_suppliers')
@@ -684,12 +714,26 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                       <p className="text-xs text-muted-foreground p-3">No suppliers invited yet.</p>
                     ) : (
                       invitedSuppliersList.map((s) => (
-                        <div key={s.id} className="px-3 py-2 flex flex-col gap-0.5">
-                          <span className="text-sm font-medium truncate">{s.supplier_company_name || 'Unknown Company'}</span>
-                          <span className="text-xs text-muted-foreground truncate">{s.supplier_email || '—'}</span>
-                          <Badge variant={s.invite_status === 'bid_submitted' ? 'default' : 'secondary'} className="w-fit text-[10px] mt-0.5">
-                            {s.invite_status === 'bid_submitted' ? '✅ Bidding' : s.invite_status === 'clicked' ? '👁 Clicked' : s.invite_status === 'opened' ? '📬 Opened' : '📩 Sent'}
-                          </Badge>
+                        <div key={s.id} className="px-3 py-2 flex items-start justify-between gap-2">
+                          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                            <span className="text-sm font-medium truncate">{s.supplier_company_name || 'Unknown Company'}</span>
+                            <span className="text-xs text-muted-foreground truncate">{s.supplier_email || '—'}</span>
+                            <Badge variant={s.invite_status === 'bid_submitted' ? 'default' : 'secondary'} className="w-fit text-[10px] mt-0.5">
+                              {s.invite_status === 'bid_submitted' ? '✅ Bidding' : s.invite_status === 'clicked' ? '👁 Clicked' : s.invite_status === 'opened' ? '📬 Opened' : '📩 Sent'}
+                            </Badge>
+                          </div>
+                          {s.supplier_email && s.invite_status !== 'bid_submitted' && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-xs gap-1 shrink-0 mt-0.5"
+                              disabled={resendingEmail === s.supplier_email}
+                              onClick={() => handleResendInvite(s.supplier_email!)}
+                            >
+                              <Send className="w-3 h-3" />
+                              {resendingEmail === s.supplier_email ? 'Sending…' : 'Resend'}
+                            </Button>
+                          )}
                         </div>
                       ))
                     )}
