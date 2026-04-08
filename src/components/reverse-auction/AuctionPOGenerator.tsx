@@ -124,14 +124,14 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
       if (user?.id) {
         const { data: buyerProfile } = await supabase
           .from('profiles')
-          .select('company_name, contact_person, phone, city, state')
+          .select('company_name, contact_person, phone, city, state, address, gstin')
           .eq('id', user.id)
           .single();
         if (buyerProfile) {
           setBuyer({
             company_name: buyerProfile.company_name || '',
-            address: [buyerProfile.city, buyerProfile.state].filter(Boolean).join(', '),
-            gst: '',
+            address: buyerProfile.address || [buyerProfile.city, buyerProfile.state].filter(Boolean).join(', '),
+            gst: buyerProfile.gstin || '',
             contact: buyerProfile.contact_person || '',
             email: user.email || '',
           });
@@ -141,7 +141,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
       // Load supplier profile — try profiles first, fallback to auction suppliers table
       const { data: supplierProfile } = await supabase
         .from('profiles')
-        .select('company_name, contact_person, phone, city, state, email')
+        .select('company_name, contact_person, phone, city, state, email, address, gstin')
         .eq('id', winnerSupplierId)
         .single();
 
@@ -155,8 +155,8 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
 
       setSupplier({
         company_name: supplierProfile?.company_name || auctionSupplier?.supplier_company_name || '',
-        address: supplierProfile ? [supplierProfile.city, supplierProfile.state].filter(Boolean).join(', ') : '',
-        gst: '',
+        address: supplierProfile?.address || (supplierProfile ? [supplierProfile.city, supplierProfile.state].filter(Boolean).join(', ') : ''),
+        gst: supplierProfile?.gstin || '',
         contact: supplierProfile?.contact_person || '',
         email: supplierProfile?.email || auctionSupplier?.supplier_email || '',
       });
