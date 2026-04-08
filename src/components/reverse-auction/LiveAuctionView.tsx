@@ -175,7 +175,38 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   // Invited suppliers list & count
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
   const [invitedSuppliersList, setInvitedSuppliersList] = useState<Array<{ id: string; supplier_id: string | null; supplier_email: string | null; supplier_company_name: string | null; invite_status: string }>>([]);
+  const [resendingEmail, setResendingEmail] = useState<string | null>(null);
   const resolvedCache = useRef(new Map<string, string>());
+
+  const handleResendInvite = useCallback(async (supplierEmail: string) => {
+    if (!supplierEmail) return;
+    setResendingEmail(supplierEmail);
+    try {
+      const items = auction.reverse_auction_items || [];
+      const product = items.length === 1 ? items[0]?.item_name : `${items.length} items`;
+      const quantity = items.length === 1 ? `${items[0]?.quantity} ${items[0]?.unit || ''}`.trim() : 'See auction details';
+      const auctionLink = `${window.location.origin}/supplier-auction/${auction.id}`;
+
+      const { error } = await supabase.functions.invoke('send-auction-invite', {
+        body: {
+          email: supplierEmail,
+          auctionTitle: auction.title,
+          auctionId: auction.id,
+          product,
+          quantity,
+          startTime: auction.start_time,
+          auctionLink,
+        },
+      });
+      if (error) throw error;
+      toast({ title: 'Invite resent', description: `Email sent to ${supplierEmail}` });
+    } catch (err: any) {
+      console.error('Resend invite error:', err);
+      toast({ title: 'Failed to resend', description: err.message || 'Something went wrong', variant: 'destructive' });
+    } finally {
+      setResendingEmail(null);
+    }
+  }, [auction, toast]);
   const fetchInvitedCount = useCallback(async () => {
     const { data, count } = await supabase
       .from('reverse_auction_suppliers')
