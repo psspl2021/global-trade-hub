@@ -46,3 +46,14 @@ export function formatINR(value: number): string {
     maximumFractionDigits: 0,
   }).format(value);
 }
+
+// --- Tick-accurate bid pricing ---
+export const TICK_SIZE = 0.01;
+
+export const normalizePrice = (n: number): number =>
+  Math.round(n * 100) / 100;
+
+export const getWinningBid = (l1: number): number => {
+  if (!l1 || l1 <= 0) return 0;
+  return normalizePrice(l1 - TICK_SIZE);
+};
