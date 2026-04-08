@@ -196,7 +196,6 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           startTime: auction.auction_start,
           auctionLink,
         },
-        },
       });
       if (error) throw error;
       toast({ title: 'Invite resent', description: `Email sent to ${supplierEmail}` });
