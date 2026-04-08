@@ -39,10 +39,10 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
   const winningPrice = auction.winning_price || (ranked.length > 0 ? ranked[0].bid_price : null);
   const startingPrice = auction.starting_price;
 
-  const savingsPerUnit = startingPrice && winningPrice ? startingPrice - winningPrice : 0;
-  const savingsPct = startingPrice && savingsPerUnit > 0
-    ? ((savingsPerUnit / startingPrice) * 100) : 0;
-  const totalSaved = savingsPerUnit * auction.quantity;
+  const totalSaved = startingPrice && winningPrice ? startingPrice - winningPrice : 0;
+  const savingsPct = startingPrice && totalSaved > 0
+    ? ((totalSaved / startingPrice) * 100) : 0;
+  const savingsPerUnit = auction.quantity > 0 ? totalSaved / auction.quantity : 0;
 
   // Build savings trend from bid history (cumulative best price over time)
   const savingsChartData = useMemo(() => {
