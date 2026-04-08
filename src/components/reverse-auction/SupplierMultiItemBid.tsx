@@ -126,7 +126,8 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
       if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
     }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
-    if (bidTotal >= currentLowest) return `Must be less than ${formatCurrency(currentLowest - 1)} to become L1`;
+    const winningBid = Math.round((currentLowest - 0.01) * 100) / 100;
+    if (bidTotal >= currentLowest) return `Must be less than ${formatCurrency(winningBid)} to become L1`;
     return null;
   }, [items, bidPrices, bidTotal, currentLowest, hasItems]);
 
@@ -175,7 +176,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
 
   // Best "Become L1" target
   const bestL1Target = useMemo(() => {
-    const target = Math.floor(currentLowest - 1);
+    const target = Math.round((currentLowest - 0.01) * 100) / 100;
     return target > 0 ? target : null;
   }, [currentLowest]);
 
@@ -291,7 +292,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             )}
           </CardTitle>
           <div className="text-xs text-muted-foreground flex flex-col gap-0.5">
-            <span>Bid below {formatCurrency(currentLowest - 1)} to become L1</span>
+            <span>Bid below {formatCurrency(Math.round((currentLowest - 0.01) * 100) / 100)} to become L1</span>
             {isWeakBid && (
               <span className="text-amber-600">
                 · Tip: reduce ~{auction.minimum_bid_step_pct}% for stronger competitiveness
