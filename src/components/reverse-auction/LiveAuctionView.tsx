@@ -99,7 +99,20 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     }
   }, [effectiveStatus, auction.status, auction.id]);
 
-  const { bids, placeBid, editBid } = useReverseAuctionBids(auction.id);
+  const { bids, isLoading: bidsLoading, placeBid, editBid, refetch: refetchBids } = useReverseAuctionBids(auction.id);
+
+  // Force bid refetch after auction load to avoid stale "0 bids" on completed auctions
+  useEffect(() => {
+    if (!auction?.id) return;
+    refetchBids();
+  }, [auction?.id]);
+
+  // Refetch bids when auction becomes completed (e.g. after award)
+  useEffect(() => {
+    if (auction?.status === 'completed') {
+      refetchBids();
+    }
+  }, [auction?.status]);
   const { updateAuction, cancelAuction } = useReverseAuction();
   const [bidPrice, setBidPrice] = useState('');
   const [bidError, setBidError] = useState('');
