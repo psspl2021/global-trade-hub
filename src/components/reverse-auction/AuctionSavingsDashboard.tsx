@@ -45,7 +45,7 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
     ? ((totalSaved / startingPrice) * 100) : 0;
   // Multi-SKU safety: only show per-unit when all items share the same unit
   const isUniformUnit = true; // Single-unit auctions for now; future: check items
-  const savingsPerUnit = isUniformUnit && auction.quantity > 0 ? Math.floor(totalSaved / auction.quantity) : null;
+  const savingsPerUnit = isUniformUnit && auction.quantity > 0 ? Math.round((totalSaved / auction.quantity) * 10) / 10 : null;
 
   // Build savings trend from bid history (cumulative best price over time)
   const savingsChartData = useMemo(() => {
