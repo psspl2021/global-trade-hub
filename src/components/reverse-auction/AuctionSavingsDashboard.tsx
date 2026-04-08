@@ -9,6 +9,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { TrendingDown, TrendingUp, Trophy, IndianRupee, BarChart3, Users } from 'lucide-react';
 import { ReverseAuction, ReverseAuctionBid, getRankedBids, RankedBid } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
+import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
 interface AuctionSavingsDashboardProps {
   auction: ReverseAuction;
@@ -133,13 +134,11 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
             </div>
             {savingsPerUnit !== null ? (
               (() => {
-                const perUnitRaw = auction.quantity > 0 ? totalSaved / auction.quantity : 0;
+                const perUnit = getPerUnitDisplay(totalSaved, auction.quantity, auction.currency);
                 return (
                   <>
-                    <p className="text-xl font-bold text-primary" title={`Exact: ₹${perUnitRaw.toFixed(4)}`}>
-                      {savingsPerUnit > 0 && savingsPerUnit < 1
-                        ? `< ₹1`
-                        : formatINROneDecimal(savingsPerUnit, auction.currency)}
+                    <p className="text-xl font-bold text-primary" title={`Exact: ₹${perUnit.raw.toFixed(4)}`}>
+                      {perUnit.display}
                     </p>
                     <span className="text-xs text-muted-foreground">per {auction.unit} · {formatINR(totalSaved, auction.currency)} over {auction.quantity} {auction.unit}</span>
                   </>
