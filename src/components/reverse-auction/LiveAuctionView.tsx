@@ -173,17 +173,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   // Invited suppliers count (active participants)
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
-  useEffect(() => {
-    const fetchInvited = async () => {
-      const { count } = await supabase
-        .from('reverse_auction_suppliers')
-        .select('id', { count: 'exact', head: true })
-        .eq('auction_id', auction.id)
-        .eq('is_active', true);
-      setInvitedSuppliersCount(count || 0);
-    };
-    fetchInvited();
+  const fetchInvitedCount = useCallback(async () => {
+    const { count } = await supabase
+      .from('reverse_auction_suppliers')
+      .select('id', { count: 'exact', head: true })
+      .eq('auction_id', auction.id)
+      .eq('is_active', true);
+    setInvitedSuppliersCount(count || 0);
   }, [auction.id]);
+  useEffect(() => {
+    fetchInvitedCount();
+  }, [fetchInvitedCount]);
 
   const recentBidCount = useMemo(() => {
     const thirtySecsAgo = Date.now() - 30000;
