@@ -899,8 +899,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Competition</p>
-          <h2 className="text-2xl font-bold text-foreground">{uniqueSuppliers}</h2>
-          <span className="text-xs text-muted-foreground">{bids.length} total bids</span>
+          <h2 className="text-2xl font-bold text-foreground">{uniqueSuppliers || (effectiveStatus === 'completed' && auction.winner_supplier_id ? 1 : 0)}</h2>
+          <span className="text-xs text-muted-foreground">
+            {bids.length > 0 ? `${bids.length} total bids` : effectiveStatus === 'completed' && auction.winner_supplier_id ? 'Awarded' : '0 total bids'}
+          </span>
         </div>
       </div>
 
