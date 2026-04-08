@@ -842,9 +842,16 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                         {formatCurrency(bid.bid_price)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
+                        {isBuyer && supplierLookup.get(bid.supplier_id)?.company
+                          ? supplierLookup.get(bid.supplier_id)!.company
+                          : `PS-${bid.supplier_id.slice(0, 4).toUpperCase()}`}
                         {isMine && <span className="text-primary ml-1 font-medium">(You)</span>}
                       </p>
+                      {isBuyer && supplierLookup.get(bid.supplier_id)?.email && (
+                        <p className="text-[10px] text-muted-foreground/70 truncate max-w-[140px]">
+                          {supplierLookup.get(bid.supplier_id)!.email}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="text-right">
