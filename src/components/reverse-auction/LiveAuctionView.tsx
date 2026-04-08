@@ -174,11 +174,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   // Invited suppliers list & count
   const [invitedSuppliersCount, setInvitedSuppliersCount] = useState(0);
-  const [invitedSuppliersList, setInvitedSuppliersList] = useState<Array<{ id: string; supplier_email: string | null; supplier_company_name: string | null; invite_status: string }>>([]);
+  const [invitedSuppliersList, setInvitedSuppliersList] = useState<Array<{ id: string; supplier_id: string | null; supplier_email: string | null; supplier_company_name: string | null; invite_status: string }>>([]);
   const fetchInvitedCount = useCallback(async () => {
     const { data, count } = await supabase
       .from('reverse_auction_suppliers')
-      .select('id, supplier_email, supplier_company_name, invite_status', { count: 'exact' })
+      .select('id, supplier_id, supplier_email, supplier_company_name, invite_status', { count: 'exact' })
       .eq('auction_id', auction.id)
       .eq('is_active', true);
     setInvitedSuppliersCount(count || 0);
@@ -188,10 +188,21 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     fetchInvitedCount();
   }, [fetchInvitedCount]);
 
+  // Build supplier_id → { company_name, email } lookup for buyer leaderboard
+  const supplierLookup = useMemo(() => {
+    const map = new Map<string, { company: string | null; email: string | null }>();
+    invitedSuppliersList.forEach(s => {
+      if (s.supplier_id) {
+        map.set(s.supplier_id, { company: s.supplier_company_name, email: s.supplier_email });
+      }
+    });
+    return map;
+  }, [invitedSuppliersList]);
+
   const recentBidCount = useMemo(() => {
     const thirtySecsAgo = Date.now() - 30000;
     return bids.filter(b => new Date(b.created_at).getTime() > thirtySecsAgo).length;
-  }, [bids, timeLeft]); // timeLeft as dep to recompute every second
+  }, [bids, timeLeft]);
 
   const myRank = useMemo(() => {
     if (!user || !isSupplier || bids.length === 0) return null;
@@ -831,9 +842,16 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                         {formatCurrency(bid.bid_price)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        PS-{bid.supplier_id.slice(0, 4).toUpperCase()}
+                        {isBuyer && supplierLookup.get(bid.supplier_id)?.company
+                          ? supplierLookup.get(bid.supplier_id)!.company
+                          : `PS-${bid.supplier_id.slice(0, 4).toUpperCase()}`}
                         {isMine && <span className="text-primary ml-1 font-medium">(You)</span>}
                       </p>
+                      {isBuyer && supplierLookup.get(bid.supplier_id)?.email && (
+                        <p className="text-[10px] text-muted-foreground/70 truncate max-w-[140px]">
+                          {supplierLookup.get(bid.supplier_id)!.email}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="text-right">
