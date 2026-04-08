@@ -606,7 +606,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               </div>
             )}
             {isBuyer && (
-              <LiveInviteSupplier auctionId={auction.id} onInvited={fetchInvitedCount} />
+              <LiveInviteSupplier auctionId={auction.id} auctionTitle={auction.title} onInvited={fetchInvitedCount} />
             )}
           </div>
         )}
