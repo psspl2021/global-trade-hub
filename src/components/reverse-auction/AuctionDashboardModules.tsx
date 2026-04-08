@@ -422,9 +422,9 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
           .eq('buyer_id', user.id)
           .order('created_at', { ascending: false }),
         supabase
-          .from('reverse_auction_suppliers')
-          .select('supplier_email')
-          .limit(1000),
+          .from('buyer_suppliers')
+          .select('id')
+          .eq('buyer_id', user.id),
       ]);
 
       setAuctions(auctionRes.data || []);
