@@ -5,25 +5,36 @@
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { UserPlus, Send, X, Loader2 } from 'lucide-react';
+import { Plus, Send, X, Loader2, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface LiveInviteSupplierProps {
   auctionId: string;
+  auctionTitle?: string;
   onInvited?: () => void;
 }
 
-export function LiveInviteSupplier({ auctionId, onInvited }: LiveInviteSupplierProps) {
+export function LiveInviteSupplier({ auctionId, auctionTitle, onInvited }: LiveInviteSupplierProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [justInvited, setJustInvited] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleInvite = useCallback(async () => {
+    if (isAdding) return;
+
     const trimmed = email.trim().toLowerCase();
     if (!trimmed || !trimmed.includes('@')) {
       toast({ title: 'Enter a valid email', variant: 'destructive' });
+      return;
+    }
+
+    // Prevent self-invite
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.email?.toLowerCase() === trimmed) {
+      toast({ title: "You can't invite yourself", variant: 'destructive' });
       return;
     }
 
@@ -49,7 +60,6 @@ export function LiveInviteSupplier({ auctionId, onInvited }: LiveInviteSupplierP
           .from('reverse_auction_suppliers')
           .update({ is_active: true } as any)
           .eq('id', existing.id);
-        toast({ title: `✅ ${trimmed} re-invited to auction` });
       } else {
         // Resolve supplier_id
         const { data: profile } = await supabase
@@ -66,18 +76,36 @@ export function LiveInviteSupplier({ auctionId, onInvited }: LiveInviteSupplierP
         } as any);
 
         if (error) throw error;
-        toast({ title: `✅ ${trimmed} invited to live auction` });
       }
 
+      // Send invitation email
+      const auctionLink = `${window.location.origin}/reverse-auction/${auctionId}`;
+      supabase.functions.invoke('send-auction-invite', {
+        body: {
+          email: trimmed,
+          auctionTitle: auctionTitle || 'Live Auction',
+          auctionId,
+          auctionLink,
+        },
+      }).catch((err) => console.error('Email send failed:', err));
+
+      // Show inline confirmation
+      setJustInvited(trimmed);
       setEmail('');
-      setIsOpen(false);
       onInvited?.();
+      toast({ title: `✅ ${trimmed} invited & notified` });
+
+      // Clear confirmation after 3s and close
+      setTimeout(() => {
+        setJustInvited(null);
+        setIsOpen(false);
+      }, 3000);
     } catch (err: any) {
       toast({ title: 'Failed to invite', description: err.message, variant: 'destructive' });
     } finally {
       setIsAdding(false);
     }
-  }, [email, auctionId, toast, onInvited]);
+  }, [email, auctionId, auctionTitle, toast, onInvited, isAdding]);
 
   if (!isOpen) {
     return (
@@ -87,9 +115,19 @@ export function LiveInviteSupplier({ auctionId, onInvited }: LiveInviteSupplierP
         onClick={() => setIsOpen(true)}
         className="gap-1.5 text-xs"
       >
-        <UserPlus className="w-3.5 h-3.5" />
-        Invite Supplier
+        <Plus className="w-3.5 h-3.5" />
+        Add Supplier
       </Button>
+    );
+  }
+
+  // Show inline confirmation
+  if (justInvited) {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium animate-in fade-in duration-300">
+        <CheckCircle2 className="w-3.5 h-3.5" />
+        <span>{justInvited} invited just now</span>
+      </div>
     );
   }
 
