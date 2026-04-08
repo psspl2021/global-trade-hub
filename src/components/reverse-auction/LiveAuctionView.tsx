@@ -1017,7 +1017,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       )}
 
       {/* 🏆 Award Recommendation (buyer only, when bids exist) */}
-      {isBuyer && bids.length >= 2 && (
+      {isBuyer && bids.length >= 1 && (
         <div className="mb-4">
           <AwardRecommendationPanel
             bids={bids}
