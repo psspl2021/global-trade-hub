@@ -1020,6 +1020,27 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       </div>
 
+      {/* 🏆 Direct Award (single bid) */}
+      {isBuyer && bids.length === 1 && effectiveStatus === 'live' && (
+        <div className="mb-4 flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+          <div className="text-sm text-emerald-800 dark:text-emerald-300">
+            Only 1 supplier has bid — you can award directly
+          </div>
+          <Button
+            size="sm"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+            onClick={() => {
+              if (window.confirm(`Award this auction to the supplier at ₹${bids[0].bid_price.toLocaleString('en-IN')}?`)) {
+                handleAwardBid(bids[0].supplier_id);
+              }
+            }}
+          >
+            <Trophy className="w-3.5 h-3.5" />
+            Award Supplier
+          </Button>
+        </div>
+      )}
+
       {/* 🔥 VALUE LINE */}
       {totalSavedAmount > 0 && (
         <div className="rounded-[0.625rem] bg-emerald-50 border border-emerald-200 p-4 text-center mb-4">
