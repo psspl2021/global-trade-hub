@@ -182,9 +182,8 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     if (!supplierEmail) return;
     setResendingEmail(supplierEmail);
     try {
-      const items = auction.reverse_auction_items || [];
-      const product = items.length === 1 ? items[0]?.item_name : `${items.length} items`;
-      const quantity = items.length === 1 ? `${items[0]?.quantity} ${items[0]?.unit || ''}`.trim() : 'See auction details';
+      const product = auction.product_slug?.replace(/_/g, ', ').replace(/-/g, ' ') || 'Multiple items';
+      const quantity = auction.quantity ? `${auction.quantity} ${auction.unit || ''}`.trim() : 'See auction details';
       const auctionLink = `${window.location.origin}/supplier-auction/${auction.id}`;
 
       const { error } = await supabase.functions.invoke('send-auction-invite', {
@@ -194,8 +193,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           auctionId: auction.id,
           product,
           quantity,
-          startTime: auction.start_time,
+          startTime: auction.auction_start,
           auctionLink,
+        },
         },
       });
       if (error) throw error;
