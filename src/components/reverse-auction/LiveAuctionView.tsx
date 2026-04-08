@@ -497,7 +497,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             <Trophy className="w-4 h-4 text-amber-400" />
             <span className="font-semibold">L1: {formatCurrency(currentLowest)}</span>
             <span className="text-xs opacity-70">
-              ({savingsPct.toFixed(1)}% savings)
+              ({formatPct(savingsPct)} savings)
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -797,7 +797,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       {totalSavedAmount > 0 && (
         <div className="rounded-[0.625rem] bg-emerald-50 border border-emerald-200 p-4 text-center mb-4">
           <p className="text-lg font-bold text-emerald-800">
-            💰 You saved {formatCurrency(totalSavedAmount)} ({savingsPct.toFixed(1)}%) in this auction
+            💰 You saved {formatCurrency(totalSavedAmount)} ({formatPct(savingsPct)}) in this auction
           </p>
         </div>
       )}
