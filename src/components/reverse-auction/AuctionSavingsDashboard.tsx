@@ -137,7 +137,7 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
                 const perUnit = getPerUnitDisplay(totalSaved, auction.quantity, auction.currency);
                 return (
                   <>
-                    <p className="text-xl font-bold text-primary" title={`Exact: ₹${perUnit.raw.toFixed(4)}`}>
+                    <p className={`text-xl font-bold ${perUnit.isLowImpact ? 'text-muted-foreground' : 'text-primary'}`} title={`Exact: ₹${perUnit.raw.toFixed(4)}`}>
                       {perUnit.display}
                     </p>
                     <span className="text-xs text-muted-foreground">per {auction.unit} · {formatINR(totalSaved, auction.currency)} over {auction.quantity} {auction.unit}</span>
