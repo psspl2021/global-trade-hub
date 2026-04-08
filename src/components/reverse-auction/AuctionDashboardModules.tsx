@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import {
   IndianRupee, Flame, BarChart3, Users, Eye, ChevronDown, ChevronRight,
   FileText, Truck, CheckCircle2, CreditCard, Package, Clock, TrendingUp,
-  MessageCircle, RefreshCw, Trophy, AlertTriangle, Lightbulb,
+  MessageCircle, RefreshCw, Trophy, AlertTriangle, Lightbulb, Plus, UserPlus,
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
