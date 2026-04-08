@@ -182,7 +182,26 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       .eq('auction_id', auction.id)
       .eq('is_active', true);
     setInvitedSuppliersCount(count || 0);
-    setInvitedSuppliersList(data || []);
+
+    // Enrich with company names from profiles
+    const suppliers = data || [];
+    const idsToResolve = suppliers
+      .filter(s => s.supplier_id && !s.supplier_company_name)
+      .map(s => s.supplier_id!);
+
+    if (idsToResolve.length > 0) {
+      const { data: names } = await supabase.rpc('get_company_names', { user_ids: idsToResolve });
+      if (names && Array.isArray(names)) {
+        const nameMap = new Map(names.map((n: any) => [n.user_id, n.company_name]));
+        suppliers.forEach(s => {
+          if (s.supplier_id && !s.supplier_company_name && nameMap.has(s.supplier_id)) {
+            s.supplier_company_name = nameMap.get(s.supplier_id)!;
+          }
+        });
+      }
+    }
+
+    setInvitedSuppliersList(suppliers);
   }, [auction.id]);
   useEffect(() => {
     fetchInvitedCount();
