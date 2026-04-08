@@ -193,7 +193,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     if (idsToResolve.length > 0) {
       const { data: names } = await supabase.rpc('get_company_names', { user_ids: idsToResolve });
       if (names && Array.isArray(names)) {
-        names.forEach((n: any) => resolvedCache.current.set(n.user_id, n.company_name));
+        names.forEach((n: any) => resolvedCache.current.set(n.id || n.user_id, n.company_name));
       }
     }
 
