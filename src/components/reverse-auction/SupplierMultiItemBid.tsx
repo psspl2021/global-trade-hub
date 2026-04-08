@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { IndianRupee, Gavel, AlertTriangle, Trophy, Target, CheckCircle2 } from 'lucide-react';
+import { getWinningBid } from '@/utils/auctionPricing';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction, ReverseAuctionBid, getRankedBids } from '@/hooks/useReverseAuction';
@@ -126,8 +127,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
       if (emptyItems.length > 0) return `Enter price for all ${items.length} items`;
     }
     if (bidTotal <= 0) return 'Total bid must be greater than 0';
-    const winningBid = Math.round((currentLowest - 0.01) * 100) / 100;
-    if (bidTotal >= currentLowest) return `Must be less than ${formatCurrency(winningBid)} to become L1`;
+    if (bidTotal >= currentLowest) return `Must be less than ${formatCurrency(getWinningBid(currentLowest))} to become L1`;
     return null;
   }, [items, bidPrices, bidTotal, currentLowest, hasItems]);
 
@@ -176,7 +176,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
 
   // Best "Become L1" target
   const bestL1Target = useMemo(() => {
-    const target = Math.round((currentLowest - 0.01) * 100) / 100;
+    const target = getWinningBid(currentLowest);
     return target > 0 ? target : null;
   }, [currentLowest]);
 
@@ -292,7 +292,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
             )}
           </CardTitle>
           <div className="text-xs text-muted-foreground flex flex-col gap-0.5">
-            <span>Bid below {formatCurrency(Math.round((currentLowest - 0.01) * 100) / 100)} to become L1</span>
+            <span>Bid below {formatCurrency(getWinningBid(currentLowest))} to become L1</span>
             {isWeakBid && (
               <span className="text-amber-600">
                 · Tip: reduce ~{auction.minimum_bid_step_pct}% for stronger competitiveness

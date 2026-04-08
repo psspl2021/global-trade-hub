@@ -13,6 +13,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getWinningBid } from '@/utils/auctionPricing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -260,7 +261,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     if (!bidPrice) { setBidError('Enter a bid amount'); return; }
     const price = parseFloat(bidPrice);
     if (isNaN(price) || price <= 0) { setBidError('Enter a valid amount'); return; }
-    if (price >= currentLowest) { setBidError(`Must be less than ${formatCurrency(Math.round((currentLowest - 0.01) * 100) / 100)} to become L1`); return; }
+    if (price >= currentLowest) { setBidError(`Must be less than ${formatCurrency(getWinningBid(currentLowest))} to become L1`); return; }
     setIsPlacing(true);
     try {
       await placeBid(user.id, price, auction);
@@ -368,7 +369,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <h3 className="font-semibold">Place Your Bid</h3>
         </div>
         <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
-          <span>Bid below {formatCurrency(Math.round((currentLowest - 0.01) * 100) / 100)} to become L1</span>
+          <span>Bid below {formatCurrency(getWinningBid(currentLowest))} to become L1</span>
           {isWeakSingleBid && (
             <span className="text-amber-600">
               · Tip: reduce ~{auction.minimum_bid_step_pct}% for stronger competitiveness
