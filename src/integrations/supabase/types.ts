@@ -2242,6 +2242,7 @@ export type Database = {
           email: string | null
           gstin: string | null
           id: string
+          is_onboarded: boolean | null
           notes: string | null
           phone: string | null
           supplier_name: string
@@ -2255,6 +2256,7 @@ export type Database = {
           email?: string | null
           gstin?: string | null
           id?: string
+          is_onboarded?: boolean | null
           notes?: string | null
           phone?: string | null
           supplier_name: string
@@ -2268,6 +2270,7 @@ export type Database = {
           email?: string | null
           gstin?: string | null
           id?: string
+          is_onboarded?: boolean | null
           notes?: string | null
           phone?: string | null
           supplier_name?: string
@@ -8517,6 +8520,50 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_participation: {
+        Row: {
+          auction_id: string
+          bid_count: number | null
+          buyer_id: string
+          created_at: string | null
+          has_bid: boolean | null
+          has_viewed: boolean | null
+          id: string
+          last_bid_at: string | null
+          supplier_id: string
+        }
+        Insert: {
+          auction_id: string
+          bid_count?: number | null
+          buyer_id: string
+          created_at?: string | null
+          has_bid?: boolean | null
+          has_viewed?: boolean | null
+          id?: string
+          last_bid_at?: string | null
+          supplier_id: string
+        }
+        Update: {
+          auction_id?: string
+          bid_count?: number | null
+          buyer_id?: string
+          created_at?: string | null
+          has_bid?: boolean | null
+          has_viewed?: boolean | null
+          id?: string
+          last_bid_at?: string | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_participation_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_performance: {
         Row: {
           avg_delivery_days: number | null
@@ -10818,6 +10865,10 @@ export type Database = {
       has_role_pin: {
         Args: { _role: string; _user_id: string }
         Returns: boolean
+      }
+      increment_bid_count: {
+        Args: { aid: string; sid: string }
+        Returns: undefined
       }
       increment_intent_score: {
         Args: { delta: number; page_id: string }
