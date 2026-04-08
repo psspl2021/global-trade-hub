@@ -290,8 +290,8 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
   const fetchRequirements = async () => {
     setLoading(true);
     
-    // First, trigger auto-expire for any stale active requirements
-    await supabase.rpc('auto_expire_requirements');
+    // Fire-and-forget auto-expire (don't block UI loading)
+    supabase.rpc('auto_expire_requirements').then(() => {});
     
     // Fetch all requirements (not just active) for filtering
     const { data: reqData, error: reqError } = await supabase
@@ -360,20 +360,21 @@ export const BrowseRequirements = ({ open, onOpenChange, userId }: BrowseRequire
       }
     }
 
-    // Fetch lowest bids for each requirement using secure RPC function
-    // Fetch lowest bids using SECURE RPC that validates category access at DB level
+    // Fetch lowest bids in a SINGLE batch call (was N sequential calls causing slow load)
     if (reqData && reqData.length > 0) {
       const lowestByReq: Record<string, number> = {};
       const lowestRateByReq: Record<string, number> = {};
       
-      for (const req of reqData) {
-        // Use secure RPC that enforces category-based access at database level
-        const { data } = await supabase.rpc('get_lowest_bid_secure', { req_id: req.id });
-        if (data && data[0]?.lowest_bid_amount && data[0]?.can_view) {
-          lowestByReq[req.id] = data[0].lowest_bid_amount;
-          lowestRateByReq[req.id] = data[0].lowest_bid_amount;
-        }
-        // If can_view is false, the price is not added to the maps (stays hidden)
+      const reqIds = reqData.map(r => r.id);
+      const { data: batchData } = await supabase.rpc('get_lowest_bids_batch', { req_ids: reqIds });
+      
+      if (batchData) {
+        (batchData as any[]).forEach((row: any) => {
+          if (row.lowest_bid_amount && row.can_view) {
+            lowestByReq[row.requirement_id] = row.lowest_bid_amount;
+            lowestRateByReq[row.requirement_id] = row.lowest_bid_amount;
+          }
+        });
       }
       
       setLowestBids(lowestByReq);
