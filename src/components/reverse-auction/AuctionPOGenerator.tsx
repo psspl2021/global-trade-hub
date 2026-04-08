@@ -124,14 +124,14 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
       if (user?.id) {
         const { data: buyerProfile } = await supabase
           .from('profiles')
-          .select('company_name, contact_person, phone, city, state')
+          .select('company_name, contact_person, phone, city, state, address, gstin')
           .eq('id', user.id)
           .single();
         if (buyerProfile) {
           setBuyer({
             company_name: buyerProfile.company_name || '',
-            address: [buyerProfile.city, buyerProfile.state].filter(Boolean).join(', '),
-            gst: '',
+            address: buyerProfile.address || [buyerProfile.city, buyerProfile.state].filter(Boolean).join(', '),
+            gst: buyerProfile.gstin || '',
             contact: buyerProfile.contact_person || '',
             email: user.email || '',
           });
