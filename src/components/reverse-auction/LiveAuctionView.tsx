@@ -483,9 +483,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const totalSavedRaw = auction.starting_price - currentLowest;
   const totalSavedAmount = Math.max(0, totalSavedRaw);
-  const auctionOutcome: 'good' | 'neutral' | 'bad' =
-    savingsPctRaw > 0 ? 'good' : savingsPctRaw === 0 ? 'neutral' : 'bad';
+  const auctionOutcome: 'excellent' | 'good' | 'neutral' | 'bad' =
+    savingsPctRaw > 2 ? 'excellent' : savingsPctRaw > 0 ? 'good' : savingsPctRaw === 0 ? 'neutral' : 'bad';
   const formatPct = (n: number) => `${Math.abs(n).toFixed(1)}%`;
+  const outcomeColor = auctionOutcome === 'excellent' || auctionOutcome === 'good'
+    ? 'text-emerald-600' : auctionOutcome === 'bad' ? 'text-destructive' : 'text-muted-foreground';
   const uniqueSuppliers = useMemo(() => new Set(bids.map(b => b.supplier_id)).size, [bids]);
 
   return (
@@ -621,7 +623,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Savings on Budget</p>
-          {auctionOutcome === 'good' ? (
+          {auctionOutcome === 'excellent' || auctionOutcome === 'good' ? (
             <div>
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-emerald-700">
@@ -632,12 +634,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                   {formatPct(savingsPct)}
                 </span>
               </div>
-              <span className="text-xs text-emerald-600 font-medium">✅ Cost Optimized</span>
+              <span className={`text-xs font-medium ${outcomeColor}`}>
+                {auctionOutcome === 'excellent' ? '🔥 Highly Optimized' : '✅ Cost Optimized'}
+              </span>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                You saved {formatCurrency(totalSavedAmount)} vs starting price
+              </div>
             </div>
           ) : auctionOutcome === 'neutral' ? (
             <div>
               <h2 className="text-2xl font-bold text-foreground">{formatCurrency(currentLowest)}</h2>
-              <span className="text-xs text-muted-foreground">No change in price</span>
+              <span className="text-xs text-muted-foreground">➖ No change in price</span>
             </div>
           ) : (
             <div>
