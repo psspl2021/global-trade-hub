@@ -208,6 +208,31 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       setResendingEmail(null);
     }
   }, [auction, toast]);
+
+  const handleAwardBid = useCallback(async (supplierId: string) => {
+    try {
+      const winningBid = bids.find(b => b.supplier_id === supplierId);
+      if (!winningBid) {
+        toast({ title: 'Error', description: 'Bid not found', variant: 'destructive' });
+        return;
+      }
+      const { error } = await supabase
+        .from('reverse_auctions')
+        .update({
+          winner_supplier_id: supplierId,
+          winning_price: winningBid.bid_price,
+          status: 'completed',
+          auction_end: new Date().toISOString(),
+        })
+        .eq('id', auction.id);
+      if (error) throw error;
+      toast({ title: '🏆 Auction Awarded', description: `Awarded to supplier at ₹${winningBid.bid_price.toLocaleString('en-IN')}` });
+    } catch (err: any) {
+      console.error('Award error:', err);
+      toast({ title: 'Award failed', description: err.message || 'Something went wrong', variant: 'destructive' });
+    }
+  }, [auction.id, bids, toast]);
+
   const fetchInvitedCount = useCallback(async () => {
     const { data, count } = await supabase
       .from('reverse_auction_suppliers')
@@ -1023,6 +1048,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             bids={bids}
             startingPrice={auction.starting_price}
             currency={auction.currency}
+            onAward={handleAwardBid}
             marketAvgPrice={marketInsight?.avgPrice ?? null}
           />
         </div>
