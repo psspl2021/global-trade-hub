@@ -93,8 +93,18 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
       .select('*')
       .eq('auction_id', auctionId)
       .order('created_at', { ascending: true });
-    if (data) setMessages(data as unknown as AuctionMessage[]);
-  }, [auctionId]);
+    if (data) {
+      // Suppliers should only see their own messages + buyer/system messages (privacy)
+      const filtered = isBuyer
+        ? data
+        : data.filter((m: any) =>
+            m.sender_id === user?.id ||
+            m.sender_role === 'buyer' ||
+            m.sender_role === 'system'
+          );
+      setMessages(filtered as unknown as AuctionMessage[]);
+    }
+  }, [auctionId, isBuyer, user?.id]);
 
   const fetchCounterOffers = useCallback(async () => {
     const { data } = await supabase

@@ -894,7 +894,18 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               );
             })}
             {rankedBids.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-6">No bids yet</p>
+              <div className="text-center py-6">
+                {invitedSuppliersCount > 0 ? (
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      {invitedSuppliersCount} supplier{invitedSuppliersCount !== 1 ? 's' : ''} invited — waiting for bids...
+                    </p>
+                    {isLive && <p className="text-xs text-muted-foreground/60 animate-pulse">Bids will appear here in real-time</p>}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No bids yet</p>
+                )}
+              </div>
             )}
           </div>
         </div>
