@@ -138,21 +138,28 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
         }
       }
 
-      // Load supplier profile
+      // Load supplier profile — try profiles first, fallback to auction suppliers table
       const { data: supplierProfile } = await supabase
         .from('profiles')
-        .select('company_name, contact_person, phone, city, state')
+        .select('company_name, contact_person, phone, city, state, email')
         .eq('id', winnerSupplierId)
         .single();
-      if (supplierProfile) {
-        setSupplier({
-          company_name: supplierProfile.company_name || '',
-          address: [supplierProfile.city, supplierProfile.state].filter(Boolean).join(', '),
-          gst: '',
-          contact: supplierProfile.contact_person || '',
-          email: '',
-        });
-      }
+
+      // Also get supplier info from the auction suppliers table (has email + company)
+      const { data: auctionSupplier } = await supabase
+        .from('reverse_auction_suppliers')
+        .select('supplier_email, supplier_company_name')
+        .eq('auction_id', auction.id)
+        .eq('supplier_id', winnerSupplierId)
+        .single();
+
+      setSupplier({
+        company_name: supplierProfile?.company_name || auctionSupplier?.supplier_company_name || '',
+        address: supplierProfile ? [supplierProfile.city, supplierProfile.state].filter(Boolean).join(', ') : '',
+        gst: '',
+        contact: supplierProfile?.contact_person || '',
+        email: supplierProfile?.email || auctionSupplier?.supplier_email || '',
+      });
     }
     load();
   }, [auction.id, winnerSupplierId, winningPrice, user]);
