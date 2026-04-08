@@ -10716,6 +10716,14 @@ export type Database = {
           lowest_bid_amount: number
         }[]
       }
+      get_lowest_bids_batch: {
+        Args: { req_ids: string[] }
+        Returns: {
+          can_view: boolean
+          lowest_bid_amount: number
+          requirement_id: string
+        }[]
+      }
       get_lowest_logistics_bid: {
         Args: { req_id: string }
         Returns: {
