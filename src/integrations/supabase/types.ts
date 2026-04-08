@@ -8529,6 +8529,7 @@ export type Database = {
           has_bid: boolean | null
           has_viewed: boolean | null
           id: string
+          last_active: string | null
           last_bid_at: string | null
           supplier_id: string
         }
@@ -8540,6 +8541,7 @@ export type Database = {
           has_bid?: boolean | null
           has_viewed?: boolean | null
           id?: string
+          last_active?: string | null
           last_bid_at?: string | null
           supplier_id: string
         }
@@ -8551,6 +8553,7 @@ export type Database = {
           has_bid?: boolean | null
           has_viewed?: boolean | null
           id?: string
+          last_active?: string | null
           last_bid_at?: string | null
           supplier_id?: string
         }
