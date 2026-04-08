@@ -186,6 +186,30 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
     // Enrich with company names from profiles (immutable, cached)
     const suppliers = data || [];
+
+    // Step 1: Resolve supplier_id for email-only invites via profiles table
+    const emailsToResolve = suppliers
+      .filter(s => !s.supplier_id && s.supplier_email)
+      .map(s => s.supplier_email!.toLowerCase());
+
+    if (emailsToResolve.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, email, company_name')
+        .in('email', emailsToResolve);
+      if (profiles && profiles.length > 0) {
+        const emailMap = new Map(profiles.map((p: any) => [p.email?.toLowerCase(), p]));
+        suppliers.forEach(s => {
+          if (!s.supplier_id && s.supplier_email && emailMap.has(s.supplier_email.toLowerCase())) {
+            const p = emailMap.get(s.supplier_email.toLowerCase())!;
+            s.supplier_id = p.id;
+            s.supplier_company_name = s.supplier_company_name || p.company_name;
+          }
+        });
+      }
+    }
+
+    // Step 2: Resolve remaining supplier_ids via RPC
     const idsToResolve = suppliers
       .filter(s => s.supplier_id && !s.supplier_company_name && !resolvedCache.current.has(s.supplier_id))
       .map(s => s.supplier_id!);
@@ -197,7 +221,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       }
     }
 
-    const enrichedSuppliers = suppliers.map(s => ({
+    // Step 3: Deduplicate by supplier_id or email
+    const unique = new Map<string, typeof suppliers[0]>();
+    suppliers.forEach(s => {
+      const key = s.supplier_id || s.supplier_email || s.id;
+      if (!unique.has(key)) unique.set(key, s);
+    });
+    const dedupedSuppliers = Array.from(unique.values());
+
+    setInvitedSuppliersCount(dedupedSuppliers.length);
+
+    const enrichedSuppliers = dedupedSuppliers.map(s => ({
       ...s,
       supplier_company_name:
         s.supplier_company_name ||
