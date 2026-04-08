@@ -598,10 +598,41 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         {/* Competition Pressure Strip */}
         {isLive && (
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/60 border border-border text-xs font-medium">
-              <Users className="w-3.5 h-3.5 text-primary" />
-              <span>{invitedSuppliersCount} supplier{invitedSuppliersCount !== 1 ? 's' : ''} invited{activeBidders > 0 ? ` · ${activeBidders} bidding` : ''}</span>
-            </div>
+            {isBuyer ? (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/60 border border-border text-xs font-medium hover:bg-muted transition-colors cursor-pointer">
+                    <Users className="w-3.5 h-3.5 text-primary" />
+                    <span>{invitedSuppliersCount} supplier{invitedSuppliersCount !== 1 ? 's' : ''} invited{activeBidders > 0 ? ` · ${activeBidders} bidding` : ''}</span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0" align="start">
+                  <div className="px-3 py-2 border-b border-border">
+                    <p className="text-sm font-semibold">Invited Suppliers ({invitedSuppliersCount})</p>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto divide-y divide-border">
+                    {invitedSuppliersList.length === 0 ? (
+                      <p className="text-xs text-muted-foreground p-3">No suppliers invited yet.</p>
+                    ) : (
+                      invitedSuppliersList.map((s) => (
+                        <div key={s.id} className="px-3 py-2 flex flex-col gap-0.5">
+                          <span className="text-sm font-medium truncate">{s.supplier_company_name || 'Unknown Company'}</span>
+                          <span className="text-xs text-muted-foreground truncate">{s.supplier_email || '—'}</span>
+                          <Badge variant={s.invite_status === 'bid_submitted' ? 'default' : 'secondary'} className="w-fit text-[10px] mt-0.5">
+                            {s.invite_status === 'bid_submitted' ? '✅ Bidding' : s.invite_status === 'clicked' ? '👁 Clicked' : s.invite_status === 'opened' ? '📬 Opened' : '📩 Sent'}
+                          </Badge>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/60 border border-border text-xs font-medium">
+                <Users className="w-3.5 h-3.5 text-primary" />
+                <span>{invitedSuppliersCount} supplier{invitedSuppliersCount !== 1 ? 's' : ''} invited{activeBidders > 0 ? ` · ${activeBidders} bidding` : ''}</span>
+              </div>
+            )}
             {recentBidCount > 0 && (
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-xs font-medium text-amber-800 animate-pulse">
                 <Zap className="w-3.5 h-3.5" />
