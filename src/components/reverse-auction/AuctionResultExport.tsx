@@ -22,11 +22,11 @@ export function AuctionResultExport({ auction, bids }: AuctionResultExportProps)
   const [exporting, setExporting] = useState<'csv' | 'pdf' | null>(null);
   const ranked = getRankedBids(bids);
 
-  const savingsPerUnit = auction.starting_price && auction.winning_price
+  const totalSaved = auction.starting_price && auction.winning_price
     ? auction.starting_price - auction.winning_price : 0;
-  const savingsPct = auction.starting_price && savingsPerUnit > 0
-    ? ((savingsPerUnit / auction.starting_price) * 100).toFixed(1) : '0';
-  const totalSaved = savingsPerUnit * auction.quantity;
+  const savingsPct = auction.starting_price && totalSaved > 0
+    ? ((totalSaved / auction.starting_price) * 100).toFixed(1) : '0';
+  const savingsPerUnit = auction.quantity > 0 ? totalSaved / auction.quantity : 0;
 
   const exportCSV = () => {
     setExporting('csv');
