@@ -2,7 +2,7 @@
  * Live Reverse Auction View — Real-time bidding interface
  * Enterprise: L1/L2/L3 Leaderboard, Anti-sniping, Audit logging, Mobile sticky bid
  */
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { AuctionResultExport } from './AuctionResultExport';
 import { AuctionChat } from './AuctionChat';
 import { AwardRecommendationPanel } from './AwardRecommendationPanel';
