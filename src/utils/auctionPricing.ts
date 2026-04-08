@@ -63,14 +63,22 @@ export const getTickSize = (category?: string): number => {
   }
 };
 
-export const normalizePrice = (n: number): number =>
-  Math.round(n * 100) / 100;
+export const normalizePrice = (n: number, tick?: number): number => {
+  const decimals = tick === 1 ? 0 : tick === 0.1 ? 1 : 2;
+  const factor = Math.pow(10, decimals);
+  return Math.round(n * factor) / factor;
+};
 
 export const getWinningBid = (l1: number, category?: string): number => {
   if (!l1 || l1 <= 0) return 0;
   const tick = getTickSize(category);
-  return normalizePrice(l1 - tick);
+  return Math.max(0, normalizePrice(l1 - tick, tick));
 };
 
-export const isValidBid = (bid: number, l1: number): boolean =>
-  bid > 0 && bid < l1;
+export const isValidBid = (bid: number, l1: number, category?: string): boolean => {
+  const tick = getTickSize(category);
+  return bid > 0 && bid <= l1 - tick;
+};
+
+export const getMinNextBid = (l1: number, category?: string): number =>
+  getWinningBid(l1, category);
