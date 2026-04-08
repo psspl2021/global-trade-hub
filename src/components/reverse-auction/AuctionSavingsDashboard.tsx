@@ -20,6 +20,16 @@ function formatINR(value: number | null, currency = 'INR') {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.floor(value));
 }
 
+function formatINROneDecimal(value: number | null, currency = 'INR') {
+  if (value === null || value === undefined) return '—';
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
 function formatCompact(value: number) {
   if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)}Cr`;
   if (value >= 100000) return `₹${(value / 100000).toFixed(2)}L`;
@@ -123,7 +133,7 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
             </div>
             {savingsPerUnit !== null ? (
               <>
-                <p className="text-xl font-bold text-primary">{formatINR(savingsPerUnit, auction.currency)}</p>
+                <p className="text-xl font-bold text-primary">{formatINROneDecimal(savingsPerUnit, auction.currency)}</p>
                 <span className="text-xs text-muted-foreground">per {auction.unit} · {auction.quantity} {auction.unit} total</span>
               </>
             ) : (
