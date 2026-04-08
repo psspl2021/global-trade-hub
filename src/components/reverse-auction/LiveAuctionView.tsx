@@ -150,9 +150,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const { insight: marketInsight, latestAuctionDaysAgo } = useMarketIntelligence(bids, auction.starting_price, auction.product_slug);
 
   const currentLowest = useMemo(() => {
-    if (bids.length === 0) return auction.starting_price;
+    if (bids.length === 0) {
+      // For completed/awarded auctions, use winning_price or current_price as the effective lowest
+      if (auction.winning_price) return auction.winning_price;
+      if (auction.current_price) return auction.current_price;
+      return auction.starting_price;
+    }
     return Math.min(...bids.map(b => b.bid_price));
-  }, [bids, auction.starting_price]);
+  }, [bids, auction.starting_price, auction.winning_price, auction.current_price]);
 
   const minBidStep = auction.minimum_bid_step_pct / 100;
   const savingsPctRaw = auction.starting_price > 0 ? ((auction.starting_price - currentLowest) / auction.starting_price * 100) : 0;
