@@ -1048,6 +1048,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             bids={bids}
             startingPrice={auction.starting_price}
             currency={auction.currency}
+            onAward={handleAwardBid}
             marketAvgPrice={marketInsight?.avgPrice ?? null}
           />
         </div>
