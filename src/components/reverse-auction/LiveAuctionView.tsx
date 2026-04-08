@@ -142,7 +142,8 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   }, [bids, auction.starting_price]);
 
   const minBidStep = auction.minimum_bid_step_pct / 100;
-  const savingsPct = auction.starting_price > 0 ? (Math.max(0, auction.starting_price - currentLowest) / auction.starting_price * 100) : 0;
+  const savingsPctRaw = auction.starting_price > 0 ? ((auction.starting_price - currentLowest) / auction.starting_price * 100) : 0;
+  const savingsPct = Math.max(0, savingsPctRaw);
   const buyerPrice = currentLowest;
 
   // Smart bid suggestion (step-based, not random)
@@ -629,9 +630,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
-              <h2 className="text-lg font-bold text-red-600">
-                Price increased by {formatCurrency(Math.abs(totalSavedRaw))}
+              <AlertTriangle className="w-4 h-4 text-destructive" />
+              <h2 className="text-lg font-bold text-destructive">
+                Price increased by {formatCurrency(Math.abs(totalSavedRaw))} ({Math.abs(savingsPctRaw).toFixed(1)}%)
               </h2>
             </div>
           )}
