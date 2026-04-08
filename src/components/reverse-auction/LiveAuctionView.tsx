@@ -188,7 +188,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     fetchInvitedCount();
   }, [fetchInvitedCount]);
 
-  const recentBidCount = useMemo(() => {
+  // Build supplier_id → { company_name, email } lookup for buyer leaderboard
+  const supplierLookup = useMemo(() => {
+    const map = new Map<string, { company: string | null; email: string | null }>();
+    invitedSuppliersList.forEach(s => {
+      if (s.supplier_id) {
+        map.set(s.supplier_id, { company: s.supplier_company_name, email: s.supplier_email });
+      }
+    });
+    return map;
+  }, [invitedSuppliersList]);
+
     const thirtySecsAgo = Date.now() - 30000;
     return bids.filter(b => new Date(b.created_at).getTime() > thirtySecsAgo).length;
   }, [bids, timeLeft]); // timeLeft as dep to recompute every second
