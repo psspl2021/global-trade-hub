@@ -209,29 +209,44 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     }
   }, [auction, toast]);
 
+  const [isAwarding, setIsAwarding] = useState(false);
+
   const handleAwardBid = useCallback(async (supplierId: string) => {
+    if (isAwarding) return;
+    setIsAwarding(true);
     try {
       const winningBid = bids.find(b => b.supplier_id === supplierId);
       if (!winningBid) {
         toast({ title: 'Error', description: 'Bid not found', variant: 'destructive' });
         return;
       }
+      const nowISO = new Date().toISOString();
       const { error } = await supabase
         .from('reverse_auctions')
         .update({
           winner_supplier_id: supplierId,
           winning_price: winningBid.bid_price,
           status: 'completed',
-          auction_end: new Date().toISOString(),
+          auction_end: nowISO,
         })
         .eq('id', auction.id);
       if (error) throw error;
+      // Immediately update local state so UI reflects award without waiting for realtime
+      setAuction(prev => ({
+        ...prev,
+        winner_supplier_id: supplierId,
+        winning_price: winningBid.bid_price,
+        status: 'completed',
+        auction_end: nowISO,
+      }));
       toast({ title: '🏆 Auction Awarded', description: `Awarded to supplier at ₹${winningBid.bid_price.toLocaleString('en-IN')}` });
     } catch (err: any) {
       console.error('Award error:', err);
       toast({ title: 'Award failed', description: err.message || 'Something went wrong', variant: 'destructive' });
+    } finally {
+      setIsAwarding(false);
     }
-  }, [auction.id, bids, toast]);
+  }, [auction.id, bids, toast, isAwarding]);
 
   const fetchInvitedCount = useCallback(async () => {
     const { data, count } = await supabase
@@ -1020,8 +1035,8 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       </div>
 
-      {/* 🏆 Direct Award (single bid) */}
-      {isBuyer && bids.length === 1 && bids[0] && effectiveStatus === 'live' && (
+      {/* 🏆 Direct Award (single bid, not yet awarded) */}
+      {isBuyer && bids.length === 1 && bids[0] && effectiveStatus === 'live' && !auction.winner_supplier_id && (
         <div className="mt-4 flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
           <div className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
             Only 1 supplier has bid — you can award directly
@@ -1029,7 +1044,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <Button
             size="sm"
             className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
-            disabled={auction.status === 'completed'}
+            disabled={isAwarding || auction.status === 'completed'}
             onClick={() => {
               const bid = bids[0];
               if (!bid) return;
@@ -1042,7 +1057,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             }}
           >
             <Trophy className="w-3.5 h-3.5" />
-            Award Supplier
+            {isAwarding ? 'Awarding...' : 'Award Supplier'}
           </Button>
         </div>
       )}
@@ -1068,8 +1083,8 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       )}
 
-      {/* 🏆 Award Recommendation (buyer only, when bids exist) */}
-      {isBuyer && bids.length >= 1 && (
+      {/* 🏆 Award Recommendation (buyer only, when bids exist, not yet awarded) */}
+      {isBuyer && bids.length >= 1 && !auction.winner_supplier_id && (
         <div className="mb-4">
           <AwardRecommendationPanel
             bids={bids}
@@ -1081,15 +1096,28 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         </div>
       )}
 
-      {/* 🧾 Purchase Order Generator (buyer only, completed auction with winner) */}
-      {isBuyer && effectiveStatus === 'completed' && auction.winner_supplier_id && (
-        <div className="mb-4">
-          <AuctionPOGenerator
-            auction={auction}
-            winnerSupplierId={auction.winner_supplier_id}
-            winningPrice={auction.winning_price || currentLowest}
-          />
-        </div>
+      {/* 🏆 Winner Banner + Purchase Order Generator (buyer only, awarded auction) */}
+      {isBuyer && auction.winner_supplier_id && (
+        <>
+          <div className="rounded-[0.625rem] bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 mb-4 flex items-center gap-3">
+            <Trophy className="w-6 h-6 text-amber-600 shrink-0" />
+            <div>
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
+                🏆 Auction Awarded — Winner: {formatCurrency(auction.winning_price || currentLowest)}
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                You can now generate a Purchase Order below
+              </p>
+            </div>
+          </div>
+          <div className="mb-4">
+            <AuctionPOGenerator
+              auction={auction}
+              winnerSupplierId={auction.winner_supplier_id}
+              winningPrice={auction.winning_price || currentLowest}
+            />
+          </div>
+        </>
       )}
 
       {/* SUPPLIER BID PANEL — Full width above bid history for visibility */}
