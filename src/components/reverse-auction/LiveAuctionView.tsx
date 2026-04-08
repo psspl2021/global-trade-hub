@@ -35,7 +35,7 @@ interface LiveAuctionViewProps {
 
 function formatCurrency(value: number | null, currency: string = 'INR') {
   if (value === null || value === undefined) return '—';
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.floor(value));
 }
 
 const RANK_CONFIG: Record<number, { label: string; color: string; bg: string; icon: string }> = {
@@ -632,7 +632,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           <h2 className="text-2xl font-bold text-primary">
             {formatCurrency(auction.quantity > 0 ? (auction.starting_price - currentLowest) / auction.quantity : 0)}
           </h2>
-          <span className="text-xs text-muted-foreground">per {auction.unit}</span>
+          <span className="text-xs text-muted-foreground">per {auction.unit} · {auction.quantity} {auction.unit} total</span>
         </div>
 
         <div className="rounded-[0.625rem] border bg-card p-4 shadow-sm">
