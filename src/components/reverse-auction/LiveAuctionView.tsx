@@ -1021,17 +1021,23 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       </div>
 
       {/* 🏆 Direct Award (single bid) */}
-      {isBuyer && bids.length === 1 && effectiveStatus === 'live' && (
-        <div className="mb-4 flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
-          <div className="text-sm text-emerald-800 dark:text-emerald-300">
+      {isBuyer && bids.length === 1 && bids[0] && effectiveStatus === 'live' && (
+        <div className="mt-4 flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
+          <div className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
             Only 1 supplier has bid — you can award directly
           </div>
           <Button
             size="sm"
             className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+            disabled={auction.status === 'completed'}
             onClick={() => {
-              if (window.confirm(`Award this auction to the supplier at ₹${bids[0].bid_price.toLocaleString('en-IN')}?`)) {
-                handleAwardBid(bids[0].supplier_id);
+              const bid = bids[0];
+              if (!bid) return;
+              const confirmAward = window.confirm(
+                `Award this auction to the supplier at ₹${bid.bid_price.toLocaleString('en-IN')}?`
+              );
+              if (confirmAward) {
+                handleAwardBid(bid.supplier_id);
               }
             }}
           >
