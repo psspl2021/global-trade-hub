@@ -437,8 +437,6 @@ const Dashboard = () => {
                  {/* My Logistics Requirements */}
                  {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
                </div>
-             ) : showSupplierNetwork ? (
-               <SupplierNetworkPage userId={user!.id} onBack={() => setShowSupplierNetwork(false)} />
              ) : (
                <>
                 {/* ── Section: Quick Actions ── */}
