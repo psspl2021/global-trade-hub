@@ -97,6 +97,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
                 <tr className="bg-muted/40">
                   <th className="text-left p-3 font-medium text-muted-foreground">PO Ref</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Auction</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Company Name</th>
                   <th className="text-right p-3 font-medium text-muted-foreground">Amount</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
                 </tr>
