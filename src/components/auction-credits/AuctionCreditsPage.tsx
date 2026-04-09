@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, MessageCircle, Gem, Mail, Bot, Infinity } from 'lucide-react';
+import { ArrowLeft, CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, Gem, Mail, Bot, Infinity } from 'lucide-react';
 import { formatINR } from '@/utils/auctionPricing';
 
 declare global {
@@ -12,6 +12,9 @@ declare global {
     Cashfree: any;
   }
 }
+
+const PLATFORM_FEE_RATE = 0.0195;
+const GST_RATE = 0.18;
 
 interface AuctionPlan {
   id: string;
@@ -126,6 +129,49 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     }
   };
 
+  const handleYearlyPurchase = async () => {
+    if (!cashfreeLoaded) {
+      toast({ title: 'Please wait', description: 'Payment system loading...', variant: 'destructive' });
+      return;
+    }
+    if (!profile) return;
+
+    setIsLoading('yearly');
+    try {
+      const { data, error } = await supabase.functions.invoke('cashfree-create-auction-order', {
+        body: {
+          buyer_id: userId,
+          plan_id: 'yearly-unlimited',
+          customer_email: profile.email,
+          customer_phone: profile.phone || '0000000000',
+          customer_name: profile.company_name || profile.contact_person || 'Buyer',
+        },
+      });
+
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Failed to create order');
+      }
+
+      const cashfree = window.Cashfree({ mode: 'production' });
+      await cashfree.checkout({
+        paymentSessionId: data.payment_session_id,
+        redirectTarget: '_self',
+      });
+    } catch (err: any) {
+      console.error('Yearly purchase error:', err);
+      toast({ title: 'Error', description: err.message || 'Payment failed', variant: 'destructive' });
+    } finally {
+      setIsLoading(null);
+    }
+  };
+
+  const calcTotal = (basePrice: number) => {
+    const gst = Math.round(basePrice * GST_RATE);
+    const platformFee = Math.round(basePrice * PLATFORM_FEE_RATE);
+    const total = basePrice + gst + platformFee;
+    return { gst, platformFee, total };
+  };
+
   const remainingCredits = credits ? credits.total - credits.used : 0;
   const planIcons = [Zap, Star, Crown];
   const planColors = [
@@ -134,6 +180,9 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     'border-purple-300 bg-purple-50/50 dark:border-purple-800 dark:bg-purple-950/20',
   ];
   const planBadges = [null, 'Most Popular', 'Best Value'];
+
+  const yearlyBase = 600000;
+  const yearlyCalc = calcTotal(yearlyBase);
 
   return (
     <div className="space-y-4">
@@ -183,8 +232,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
             const Icon = planIcons[index] || Zap;
             const colorClass = planColors[index] || planColors[0];
             const badge = planBadges[index];
-            const gst = Math.round(plan.price * (plan.gst_rate || 0.18));
-            const total = plan.price + gst;
+            const { gst, platformFee, total } = calcTotal(plan.price);
 
             return (
               <Card key={plan.id} className={`relative ${colorClass} transition-shadow hover:shadow-md`}>
@@ -202,21 +250,24 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                   <div>
                     <p className="text-2xl font-bold text-foreground">{formatINR(plan.price)}</p>
                     <p className="text-xs text-muted-foreground">
-                      + GST {formatINR(gst)} = {formatINR(total)}
+                      + GST 18% ({formatINR(gst)}) + Platform fee 1.95% ({formatINR(platformFee)})
+                    </p>
+                    <p className="text-xs font-semibold text-foreground mt-0.5">
+                      Total: {formatINR(total)}
                     </p>
                   </div>
 
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="w-3.5 h-3.5 text-green-500" />
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="text-muted-foreground">{plan.auctions_count} auction credits</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="w-3.5 h-3.5 text-green-500" />
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="text-muted-foreground">{formatINR(plan.price_per_auction)}/auction</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="w-3.5 h-3.5 text-green-500" />
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="text-muted-foreground">Never expires</span>
                     </div>
                   </div>
@@ -227,17 +278,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                     </p>
                   )}
 
-                  {plan.name === 'Enterprise Pack' ? (
-                    <a
-                      href="https://wa.me/918368127357?text=Hi, I'm interested in the Enterprise Auction Pack (50 auctions)."
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors text-sm"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      Contact Sales
-                    </a>
-                  ) : plan.name.includes('Starter') && starterUsed ? (
+                  {plan.name.includes('Starter') && starterUsed ? (
                     <Button disabled className="w-full" variant="outline">
                       Starter Already Used
                     </Button>
@@ -283,7 +324,12 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                   </div>
                   <div>
                     <p className="text-3xl font-bold text-foreground">₹6,00,000<span className="text-base font-normal text-muted-foreground">/year</span></p>
-                    <p className="text-xs text-muted-foreground">+ 18% GST = ₹7,08,000 • Fixed annual pricing</p>
+                    <p className="text-xs text-muted-foreground">
+                      + GST 18% ({formatINR(yearlyCalc.gst)}) + Platform fee 1.95% ({formatINR(yearlyCalc.platformFee)})
+                    </p>
+                    <p className="text-xs font-semibold text-foreground mt-0.5">
+                      Total: {formatINR(yearlyCalc.total)} • Fixed annual pricing
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex items-center gap-2 text-sm">
@@ -305,15 +351,23 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 md:min-w-[200px]">
-                  <a
-                    href="https://wa.me/918368127357?text=Hi, I'm interested in the Yearly Unlimited Auction Pack (₹6L/year)."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors text-sm"
+                  <Button
+                    onClick={handleYearlyPurchase}
+                    disabled={isLoading !== null || !cashfreeLoaded}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    Contact Sales
-                  </a>
+                    {isLoading === 'yearly' ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 mr-2" />
+                    )}
+                    {isLoading === 'yearly' ? 'Processing...' : `Buy Now - ${formatINR(yearlyCalc.total)}`}
+                  </Button>
+                  <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
+                    <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
+                    <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
+                  </div>
                   <p className="text-xs text-center text-muted-foreground">Custom onboarding included</p>
                 </div>
               </div>
