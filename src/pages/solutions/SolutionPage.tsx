@@ -415,6 +415,26 @@ export default function SolutionPage() {
           );
         })()}
 
+        {/* Related Blog Articles */}
+        {relatedBlogs.length > 0 && (
+          <section className="py-12 bg-background border-t border-border/40">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <h2 className="text-xl font-bold text-foreground mb-6">Learn More About {page.category}</h2>
+              <div className="grid sm:grid-cols-3 gap-3">
+                {relatedBlogs.map(rb => (
+                  <Link
+                    key={rb.slug}
+                    to={`/blogs/${rb.slug}`}
+                    className="p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                  >
+                    <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{rb.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* CTA Section */}
         <section className="py-16 bg-primary/5">
           <div className="container mx-auto px-4 text-center max-w-2xl">
