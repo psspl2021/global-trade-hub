@@ -92,6 +92,19 @@ export function MonthlySavingsAnalytics() {
     fetchData();
   }, [user?.id]);
 
+  // All-time stats from allAuctions
+  const { activeCount, allTimeSavings, allTimeSpend } = useMemo(() => {
+    let active = 0, savings = 0, spend = 0;
+    allAuctions.forEach((a) => {
+      const qty = a.quantity || 1;
+      const final = a.status === 'completed' ? (a.winning_bid ?? a.current_price) : a.current_price;
+      if (final) spend += final * qty;
+      if (a.status === 'live') active++;
+      if (final && a.starting_price && final < a.starting_price) savings += (a.starting_price - final) * qty;
+    });
+    return { activeCount: active, allTimeSavings: savings, allTimeSpend: spend };
+  }, [allAuctions]);
+
   const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency, avgPerAuction, trend } = useMemo(() => {
     const monthMap = new Map<string, MonthlyData>();
 
