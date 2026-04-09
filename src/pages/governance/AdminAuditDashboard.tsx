@@ -45,7 +45,8 @@ import {
   Smartphone,
   Home,
   Zap,
-  Rocket
+  Rocket,
+  BookOpen
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
