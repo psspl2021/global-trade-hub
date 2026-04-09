@@ -10,7 +10,8 @@ import {
   Factory, Package, Building, Layers, Award
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const categoryIcons: Record<string, React.ElementType> = {
   metals: Factory,
@@ -66,17 +67,28 @@ const auctionProofByCategory: Record<string, Array<{ item: string; saved: string
 export default function SolutionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [showRFQ, setShowRFQ] = useState(false);
+  const [relatedBlogs, setRelatedBlogs] = useState<Array<{ slug: string; title: string }>>([]);
 
   const page = useMemo(() => {
     if (!slug) return undefined;
-    // Try direct match first
     const direct = getHighIntentPageBySlug(slug);
     if (direct) return direct;
-    // Try city variant
     const { baseSlug, citySlug } = parseSlugForCity(slug);
     if (citySlug) return getCityVariantPage(baseSlug, citySlug);
     return undefined;
   }, [slug]);
+
+  // Fetch related blogs for this category
+  useEffect(() => {
+    if (!page?.category) return;
+    supabase
+      .from('blogs')
+      .select('slug, title')
+      .eq('is_published', true)
+      .ilike('category', `%${page.category}%`)
+      .limit(3)
+      .then(({ data }) => { if (data) setRelatedBlogs(data); });
+  }, [page?.category]);
 
   if (!page) {
     return <Navigate to="/solutions" replace />;
@@ -402,6 +414,26 @@ export default function SolutionPage() {
             </section>
           );
         })()}
+
+        {/* Related Blog Articles */}
+        {relatedBlogs.length > 0 && (
+          <section className="py-12 bg-background border-t border-border/40">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <h2 className="text-xl font-bold text-foreground mb-6">Learn More About {page.category}</h2>
+              <div className="grid sm:grid-cols-3 gap-3">
+                {relatedBlogs.map(rb => (
+                  <Link
+                    key={rb.slug}
+                    to={`/blogs/${rb.slug}`}
+                    className="p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                  >
+                    <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{rb.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* CTA Section */}
         <section className="py-16 bg-primary/5">

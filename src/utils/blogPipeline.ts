@@ -46,10 +46,27 @@ export async function generateAndPublishBlog(entry: BlogKeyword): Promise<BlogPi
 }
 
 /**
- * Append an internal link CTA to the blog content pointing to the matching solution page.
+ * Inject internal link CTA pointing to best-performing solution page in same category,
+ * falling back to the statically mapped solution slug.
  */
-async function injectSolutionLink(blogSlug: string, solutionSlug: string): Promise<void> {
+async function injectSolutionLink(blogSlug: string, fallbackSlug: string): Promise<void> {
   try {
+    // Try to find best-performing page dynamically
+    let targetSlug = fallbackSlug;
+    try {
+      const { data: best } = await supabase
+        .from('demand_generated' as any)
+        .select('slug, revenue_score')
+        .order('revenue_score', { ascending: false })
+        .limit(1);
+
+      if (best && best.length > 0 && (best[0] as any).slug) {
+        targetSlug = (best[0] as any).slug;
+      }
+    } catch {
+      // Fallback to static slug if demand_generated table doesn't exist yet
+    }
+
     const { data: blog } = await supabase
       .from('blogs')
       .select('id, content')
@@ -62,11 +79,11 @@ async function injectSolutionLink(blogSlug: string, solutionSlug: string): Promi
 <div style="margin-top:2rem;padding:1.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">
   <h3 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">Ready to Save on Procurement?</h3>
   <p style="margin-bottom:1rem;">Compare verified suppliers and get the lowest price via reverse auction.</p>
-  <a href="/solutions/${solutionSlug}" style="display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Start Reverse Auction →</a>
+  <a href="/solutions/${targetSlug}" style="display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Start Reverse Auction →</a>
 </div>`;
 
     // Only inject if not already present
-    if (!blog.content.includes(`/solutions/${solutionSlug}`)) {
+    if (!blog.content.includes(`/solutions/${targetSlug}`)) {
       await supabase
         .from('blogs')
         .update({ content: blog.content + linkBlock })
@@ -75,6 +92,29 @@ async function injectSolutionLink(blogSlug: string, solutionSlug: string): Promi
   } catch (err) {
     console.error(`Link injection failed for blog ${blogSlug}:`, err);
   }
+}
+
+/**
+ * Track a blog page view for analytics.
+ */
+export async function trackBlogView(slug: string): Promise<void> {
+  try {
+    await supabase.from('buyer_activity_logs').insert({
+      event_type: 'blog_view',
+      page_path: `/blogs/${slug}`,
+      category_slug: `blog:${slug}`,
+    });
+  } catch {}
+}
+
+/**
+ * Ping Google with sitemap after blog publishing.
+ */
+export async function pingGoogleIndex(): Promise<void> {
+  try {
+    await fetch('https://www.google.com/ping?sitemap=https://www.procuresaathi.com/sitemap.xml');
+    await fetch('https://www.bing.com/ping?sitemap=https://www.procuresaathi.com/sitemap.xml');
+  } catch {}
 }
 
 /**

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Loader2, BookOpen, Zap } from 'lucide-react';
-import { runFullBlogPipeline, runCategoryBlogPipeline, type BlogPipelineResult } from '@/utils/blogPipeline';
+import { runFullBlogPipeline, runCategoryBlogPipeline, pingGoogleIndex, type BlogPipelineResult } from '@/utils/blogPipeline';
 import { highIntentBlogs } from '@/data/highIntentBlogs';
 
 export default function BlogPipelinePanel() {
@@ -36,6 +36,8 @@ export default function BlogPipelinePanel() {
     } catch (err) {
       console.error('Blog pipeline error:', err);
     } finally {
+      // Ping search engines after publish
+      await pingGoogleIndex();
       setRunning(false);
     }
   };
