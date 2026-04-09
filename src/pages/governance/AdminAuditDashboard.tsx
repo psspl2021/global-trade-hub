@@ -45,7 +45,8 @@ import {
   Smartphone,
   Home,
   Zap,
-  Rocket
+  Rocket,
+  BookOpen
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
@@ -86,6 +87,7 @@ const AdminIntelligenceDashboard = lazy(() => import('@/pages/admin/AdminIntelli
 const SEODashboard = lazy(() => import('@/pages/admin/SEODashboard'));
 const DemandGapsPanel = lazy(() => import('@/pages/admin/DemandGapsPanel'));
 const SEOPipelinePanel = lazy(() => import('@/components/admin/SEOPipelinePanel'));
+const BlogPipelinePanel = lazy(() => import('@/components/admin/BlogPipelinePanel'));
 
 type AdminView = 
   | 'dashboard' 
@@ -107,7 +109,8 @@ type AdminView =
   | 'seo-intelligence'
   | 'seo-dashboard'
   | 'demand-gaps'
-  | 'seo-pipeline';
+  | 'seo-pipeline'
+  | 'blog-pipeline';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
@@ -317,6 +320,7 @@ export default function AdminAuditDashboard() {
       case 'seo-dashboard': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEODashboard /></Suspense>;
       case 'demand-gaps': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemandGapsPanel /></Suspense>;
       case 'seo-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEOPipelinePanel /></Suspense>;
+      case 'blog-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><BlogPipelinePanel /></Suspense>;
       case 'dashboard':
       default:
         return renderDashboard();
@@ -621,6 +625,13 @@ export default function AdminAuditDashboard() {
           <CardContent className="space-y-3">
             <p className="text-sm text-emerald-200">Auto-publish 100 high-intent pages with AI content & internal linking</p>
             <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setCurrentView('seo-pipeline')}><Rocket className="h-4 w-4 mr-2" />Open Pipeline</Button>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-blue-950 to-blue-900 text-white border-0">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4" />Blog Pipeline<Badge className="bg-white/20 text-white text-xs">AUTO</Badge></CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-blue-200">Auto-generate 20 high-intent SEO blogs with solution page links</p>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCurrentView('blog-pipeline')}><BookOpen className="h-4 w-4 mr-2" />Open Pipeline</Button>
           </CardContent>
         </Card>
       </div>
