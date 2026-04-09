@@ -13,12 +13,13 @@ import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
 import { AuctionWarRoom } from './AuctionWarRoom';
 import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
 import { PurchaseOrdersPage } from '@/components/purchase-orders/PurchaseOrdersPage';
+import { ExecutionTrackingPage } from '@/components/execution-tracking/ExecutionTrackingPage';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart } from 'lucide-react';
+import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck } from 'lucide-react';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
@@ -30,6 +31,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [showSupplierNetwork, setShowSupplierNetwork] = useState(false);
   const [showPurchaseOrders, setShowPurchaseOrders] = useState(false);
+  const [showExecutionTracking, setShowExecutionTracking] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -52,6 +54,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     const auctionView = searchParams.get('auctionView');
     setShowSupplierNetwork(auctionView === 'supplier-network');
     setShowPurchaseOrders(auctionView === 'purchase-orders');
+    setShowExecutionTracking(auctionView === 'execution-tracking');
   }, [searchParams]);
 
   const setAuctionView = (view: string | null) => {
@@ -134,6 +137,15 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     );
   }
 
+  if (showExecutionTracking && !isSupplier && user) {
+    return (
+      <ExecutionTrackingPage
+        userId={user.id}
+        onBack={() => setAuctionView(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -165,7 +177,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
 
       {/* Quick Access Cards (buyer only) */}
       {!isSupplier && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Card
             variant="interactive"
             className="p-4 group hover:shadow-md transition-all border-l-4 border-l-violet-500 cursor-pointer"
@@ -196,6 +208,22 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
                 <p className="text-[11px] text-muted-foreground">Track & manage purchase records</p>
               </div>
               <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-amber-500 transition-colors" />
+            </div>
+          </Card>
+          <Card
+            variant="interactive"
+            className="p-4 group hover:shadow-md transition-all border-l-4 border-l-emerald-500 cursor-pointer"
+            onClick={() => setAuctionView('execution-tracking')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
+                <Truck className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Execution Tracking</p>
+                <p className="text-[11px] text-muted-foreground">Award to delivery pipeline</p>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-emerald-500 transition-colors" />
             </div>
           </Card>
         </div>

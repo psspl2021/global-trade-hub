@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   IndianRupee, Flame, BarChart3, Users, Eye, ChevronDown, ChevronRight,
-  FileText, Truck, CheckCircle2, CreditCard, Package, Clock, TrendingUp,
+  FileText, CheckCircle2, Package, Clock, TrendingUp,
   MessageCircle, RefreshCw, Trophy, AlertTriangle, Lightbulb, Plus, UserPlus,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -449,57 +449,6 @@ function POHistory({ auctions }: { auctions: any[] }) {
 }
 
 /* ═══════════════════════════════════════════════
-   ✦ 5. Execution Tracking (collapsible)
-   ═══════════════════════════════════════════════ */
-function ExecutionTracking({ auctions }: { auctions: any[] }) {
-  const [expanded, setExpanded] = useState(false);
-
-  const completedCount = useMemo(() => auctions.filter((a) => a.status === 'completed' && a.winner_supplier_id).length, [auctions]);
-  if (completedCount === 0) return null;
-
-  const steps = [
-    { label: 'Awarded', icon: CheckCircle2, color: 'text-emerald-600', count: completedCount },
-    { label: 'PO Sent', icon: FileText, color: 'text-primary', count: Math.floor(completedCount * 0.8) },
-    { label: 'In Transit', icon: Truck, color: 'text-amber-600', count: Math.floor(completedCount * 0.5) },
-    { label: 'Delivered', icon: Package, color: 'text-violet-600', count: Math.floor(completedCount * 0.3) },
-    { label: 'Payment', icon: CreditCard, color: 'text-emerald-600', count: Math.floor(completedCount * 0.2) },
-  ];
-
-  return (
-    <Card className="rounded-[0.625rem] overflow-hidden">
-      <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div className="flex items-center gap-2.5">
-          <Truck className="w-4 h-4 text-amber-600" />
-          <span className="font-semibold text-sm">Execution Tracking</span>
-        </div>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
-      </div>
-      {expanded && (
-        <div className="border-t p-4">
-          <div className="flex items-center justify-between gap-1">
-            {steps.map((step, i) => (
-              <div key={step.label} className="flex-1 flex flex-col items-center gap-1.5 relative">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center ${step.count > 0 ? 'bg-primary/10' : 'bg-muted'}`}>
-                  <step.icon className={`w-4 h-4 ${step.count > 0 ? step.color : 'text-muted-foreground'}`} />
-                </div>
-                <span className="text-[10px] font-medium text-muted-foreground text-center leading-tight">{step.label}</span>
-                <span className="text-xs font-bold">{step.count}</span>
-                {i < steps.length - 1 && (
-                  <div className="absolute top-4 left-[calc(50%+18px)] w-[calc(100%-36px)] h-0.5 bg-border" />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-/* ═══════════════════════════════════════════════
    ✦ MAIN EXPORT
    ═══════════════════════════════════════════════ */
 export function AuctionDashboardModules({ onSelectAuction }: Props) {
@@ -539,8 +488,6 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
     <div className="space-y-4">
       <SummaryCards auctions={auctions} supplierCount={supplierCount} />
       <LiveAuctionStrip auctions={auctions} onSelect={onSelectAuction} />
-      
-      <ExecutionTracking auctions={auctions} />
     </div>
   );
 }
