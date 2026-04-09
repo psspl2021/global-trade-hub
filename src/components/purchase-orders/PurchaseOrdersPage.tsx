@@ -34,7 +34,20 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         .eq('status', 'completed')
         .not('winner_supplier_id', 'is', null)
         .order('created_at', { ascending: false });
-      setAuctionPOs(data || []);
+
+      // Fetch supplier company names for winners
+      const enriched = await Promise.all(
+        (data || []).map(async (a) => {
+          const { data: sup } = await supabase
+            .from('reverse_auction_suppliers')
+            .select('supplier_company_name')
+            .eq('auction_id', a.id)
+            .eq('supplier_id', a.winner_supplier_id)
+            .maybeSingle();
+          return { ...a, supplier_company_name: sup?.supplier_company_name || '—' };
+        })
+      );
+      setAuctionPOs(enriched);
     };
     loadAuctionPOs();
   }, [userId]);
