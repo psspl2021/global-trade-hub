@@ -277,9 +277,20 @@ ${categoryInsights}
 
 ${topicSpecificInsights}
 
-MANDATORY OPENING (USE THIS EXACT SCENARIO, then expand):
-"A ${selectedIndustry} in ${selectedCity} recently ${openingScenario}."
-— Expand this into a 3-4 sentence opening paragraph that sets up the problem. Then transition into market analysis.
+MANDATORY OPENING RULES (STRICT — VIOLATION = REJECTION):
+1. Start EXACTLY with a real-world business situation using this scenario:
+   "A ${selectedIndustry} in ${selectedCity} ${openingScenario}."
+2. The opening MUST contain numbers, money (₹), or a measurable loss/gain.
+3. Expand into 3-4 sentences that set up the SPECIFIC problem before transitioning.
+4. The following patterns are STRICTLY FORBIDDEN in the opening — if ANY appear, the entire blog is rejected:
+   - "In ${currentMonth} ${currentYear}" or any date-first opener
+   - "Real-time platform intelligence"
+   - "This report explores" / "This article discusses" / "This blog covers"
+   - "The Indian market" as a sentence starter
+   - "In today's" anything
+   - "As procurement professionals"
+5. GOOD opening feel: A business problem → cost impact → urgency
+6. BAD opening feel: A report introduction → market overview → general context
 
 ARTICLE STRATEGY:
 - Anchor keyword: "${topicStrategy.anchorKeyword}"
@@ -289,7 +300,7 @@ ARTICLE STRATEGY:
 - Title direction: ${topicStrategy.titleDirection}
 
 STRICT CONTENT RULES:
-1. START with the scenario above — NEVER start with "In today's market" or "India is growing" or any generic opener.
+1. START with the scenario above — NEVER start with a date, report intro, or market overview.
 2. Write 1400-1800 words of substantive commercial analysis with ZERO filler.
 3. Use THIS STRUCTURE (sections must appear in this order but with natural flow):
    a) Scenario / Problem (using the opening above)
@@ -297,7 +308,7 @@ STRICT CONTENT RULES:
    c) Price Benchmarks — use ₹ REAL RANGES in HTML <table>, e.g., "₹48,000–55,000/MT"
    d) Supplier Challenges — verification issues, red flags, documentation gaps
    e) AI Procurement Solution — how ProcureSaathi solves this
-   f) Final Recommendation with CTA
+   f) Final Recommendation with CTA: "Start a reverse auction and get the lowest price from verified suppliers"
 4. FORCE DEPTH:
    - Mention IS codes (IS 1786, IS 2062, etc.) where relevant
    - Mention raw materials (iron ore, coking coal, billet, sponge iron, etc.)
@@ -305,33 +316,47 @@ STRICT CONTENT RULES:
    - Use real HSN codes where applicable
    - Reference DGFT, BIS, PLI schemes, GST implications
 5. KEYWORD USAGE: Use "${topicStrategy.anchorKeyword}" naturally 6-8 times. NO keyword stuffing.
-6. STRICTLY AVOID these phrases — if you use ANY of them, the blog will be rejected:
+6. STRICTLY FORBIDDEN PHRASES — if ANY appear, the blog is REJECTED:
    - "In today's competitive market"
-   - "India is growing"  
+   - "India is growing"
    - "It is important to note"
    - "plays a crucial role"
    - "In recent years"
    - "In the ever-evolving landscape"
    - "As we navigate"
    - "It goes without saying"
+   - "This section explains"
+   - "The market shows"
+   - "Let us explore"
+   - "Let's delve into"
    - Any sentence that could apply to ANY industry without modification
 7. Use price RANGES (e.g., "₹48,000–55,000/MT"), never fabricated exact numbers.
 8. Reference REAL standards: BIS IS-2062, ISO 9001, ASTM A36, DGFT notifications, HS codes.
 9. Include 2-3 HTML <table> elements with real decision-useful data.
 10. Use <h2> for major sections, <h3> for subsections, <ul>/<ol> for lists.
 11. Internal links: <a href="/post-rfq">Get AI-Matched Quotes</a>, <a href="/browseproducts">Browse Categories</a>
-12. END with: "Start a reverse auction and get the lowest price from verified suppliers" + CTA link
-13. End with "Illustrative Scenario" disclaimer and "AI Demand-Feed Notice".
-14. Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
-15. Every <h2> section must have at least 2 substantive paragraphs with CONCRETE details.
-16. Use DIFFERENT industry examples throughout: construction, infra, manufacturing, auto, FMCG.
-17. Mention at least 3 different Indian cities by name in the body content.
+12. End with "Illustrative Scenario" disclaimer and "AI Demand-Feed Notice".
+13. Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
+14. Every <h2> section must have at least 2 substantive paragraphs with CONCRETE details.
+15. Mention at least 3 different Indian cities by name in the body content.
+
+LANGUAGE DIVERSITY RULE (CRITICAL FOR UNIQUENESS):
+- Every paragraph MUST use a DIFFERENT sentence structure from the previous one.
+- Mix these writing patterns throughout:
+  a) Short punchy sentences (under 15 words). "The quote looked competitive. It wasn't."
+  b) Long analytical sentences with data. "Freight from Raipur to Mumbai adds ₹2,800–3,200/MT, which on a 500 MT order translates to ₹14–16 lakh in logistics cost alone."
+  c) Bullet-style insights embedded in prose.
+  d) Sharp observations that challenge assumptions. "Most buyers compare unit prices. Smart buyers compare landed cost per usable ton after rejection."
+  e) Direct questions to the reader. "How many of your last 5 supplier quotes included mill test certificates?"
+- If any 2 consecutive paragraphs follow the same sentence pattern → REWRITE.
+- NEVER write 3+ sentences in a row that all start with "The..." or "This..." or "It..."
+- Vary paragraph length: some 2 sentences, some 4-5 sentences. No uniform blocks.
 
 ANTI-DRIFT RULES:
 ${topicStrategy.antiDrift}
 
 UNIQUENESS ENFORCEMENT:
-- Your opening paragraph MUST use the specific scenario provided above — no generic alternatives.
+- Your opening paragraph MUST use the specific scenario provided — no generic alternatives.
 - Each section must contain at least one SPECIFIC fact (standard number, HS code, price benchmark, policy name, geographic detail).
 - Write like a procurement consultant briefing a ₹10Cr+ buyer — specific, actionable, zero filler.
 - Two blogs from the same category MUST have different openings, different city examples, different price tables, and different supplier challenges.
@@ -723,61 +748,113 @@ function injectImagesIntoContent(html: string, imageUrls: string[], captions: st
   return parts.join('');
 }
 
-// Keyword-specific image matching for relevant blog images
-function getKeywordImageQuery(keyword: string, category: string): string {
+// Keyword-specific image matching — curated Unsplash photo IDs per product
+function getKeywordImagePool(keyword: string, category: string): { cover: string; inline: string[] } {
   const kw = (keyword || category).toLowerCase();
   
-  // Steel & Metals - specific products
-  if (/tmt|rebar/.test(kw)) return 'tmt+bars+construction+site+india';
-  if (/structural steel/.test(kw)) return 'steel+structure+construction+building';
-  if (/stainless steel pipe/.test(kw)) return 'stainless+steel+pipes+industrial+warehouse';
-  if (/hr coil|hot rolled/.test(kw)) return 'steel+coil+factory+manufacturing';
-  if (/cable tray/.test(kw)) return 'cable+tray+electrical+industrial';
-  if (/aluminium|aluminum/.test(kw)) return 'aluminium+ingots+metal+factory';
-  if (/steel/.test(kw)) return 'steel+manufacturing+factory+india';
+  // TMT Bars / Rebar — construction steel images
+  if (/tmt|rebar/.test(kw)) return {
+    cover: '1590644365607-56a7b277d44c', // steel rebar bundle
+    inline: ['1504307651254-35680f356dfd', '1541888946425-d81bb19240f5', '1565008576549-57569a49371d']
+  };
   
-  // Construction
-  if (/cement/.test(kw)) return 'cement+bags+construction+site+india';
-  if (/pvc pipe/.test(kw)) return 'pvc+pipes+plumbing+warehouse+india';
-  if (/aggregate|sand|gravel/.test(kw)) return 'construction+aggregates+quarry';
-  if (/tile/.test(kw)) return 'ceramic+tiles+warehouse+manufacturing';
+  // Structural Steel
+  if (/structural steel/.test(kw)) return {
+    cover: '1565008576549-57569a49371d', // steel structure
+    inline: ['1504307651254-35680f356dfd', '1581091226825-a6a2a5aee158', '1541888946425-d81bb19240f5']
+  };
+  
+  // Stainless Steel Pipes
+  if (/stainless.*pipe|ss pipe/.test(kw)) return {
+    cover: '1558618666-fcd25c85f82e', // industrial pipes
+    inline: ['1581091226825-a6a2a5aee158', '1565193566173-7a0ee3dbe261', '1587293852726-4724c26728f3']
+  };
+  
+  // HR Coil
+  if (/hr coil|hot rolled/.test(kw)) return {
+    cover: '1504328345606-18bbc8c9d7d1', // steel coil
+    inline: ['1587293852726-4724c26728f3', '1581091226825-a6a2a5aee158', '1565193566173-7a0ee3dbe261']
+  };
+  
+  // Cement
+  if (/cement/.test(kw)) return {
+    cover: '1504307651254-35680f356dfd', // construction site
+    inline: ['1541888946425-d81bb19240f5', '1565008576549-57569a49371d', '1581091226825-a6a2a5aee158']
+  };
+  
+  // PVC Pipes
+  if (/pvc.*pipe/.test(kw)) return {
+    cover: '1558618666-fcd25c85f82e', // pipes
+    inline: ['1565193566173-7a0ee3dbe261', '1581091226825-a6a2a5aee158', '1504307651254-35680f356dfd']
+  };
+  
+  // Cable Trays
+  if (/cable tray/.test(kw)) return {
+    cover: '1581091226825-a6a2a5aee158', // industrial/electrical
+    inline: ['1558618666-fcd25c85f82e', '1565193566173-7a0ee3dbe261', '1587293852726-4724c26728f3']
+  };
+  
+  // Aluminium
+  if (/alumini?um/.test(kw)) return {
+    cover: '1504328345606-18bbc8c9d7d1', // metal
+    inline: ['1587293852726-4724c26728f3', '1565193566173-7a0ee3dbe261', '1581091226825-a6a2a5aee158']
+  };
+  
+  // General Steel
+  if (/steel/.test(kw)) return {
+    cover: '1504328345606-18bbc8c9d7d1',
+    inline: ['1587293852726-4724c26728f3', '1565193566173-7a0ee3dbe261', '1581091226825-a6a2a5aee158']
+  };
   
   // Chemicals
-  if (/chemical|solvent|acid/.test(kw)) return 'chemical+drums+industrial+warehouse';
-  if (/polymer|plastic/.test(kw)) return 'plastic+polymer+granules+manufacturing';
+  if (/chemical|solvent|acid/.test(kw)) return {
+    cover: '1532187863486-abf9dbad1b69',
+    inline: ['1581091226825-a6a2a5aee158', '1585435557343-3b092031a831', '1587293852726-4724c26728f3']
+  };
   
-  // Other categories
-  if (/textile|fabric|yarn/.test(kw)) return 'textile+fabric+rolls+manufacturing+india';
-  if (/food|spice|grain/.test(kw)) return 'food+grain+warehouse+india';
-  if (/packaging/.test(kw)) return 'packaging+corrugated+boxes+factory';
-  if (/electrical|wire|cable/.test(kw)) return 'electrical+cables+wiring+industrial';
-  if (/auto|automotive/.test(kw)) return 'automotive+parts+manufacturing+india';
+  // Textiles
+  if (/textile|fabric|yarn/.test(kw)) return {
+    cover: '1558171813-4c2e8f2ad057',
+    inline: ['1586528116311-ad8dd3c8310d', '1581091226825-a6a2a5aee158', '1565193566173-7a0ee3dbe261']
+  };
   
-  // Category fallbacks
+  // Food
+  if (/food|spice|grain/.test(kw)) return {
+    cover: '1556909114-f6e7ad7d3136',
+    inline: ['1500595046743-cd271d694d30', '1596040033229-a9821ebd058d', '1586528116311-ad8dd3c8310d']
+  };
+  
+  // Category-level fallbacks
   const catLower = category.toLowerCase();
-  if (catLower.includes('steel')) return 'steel+factory+industrial+india';
-  if (catLower.includes('chemical')) return 'chemical+plant+industrial';
-  if (catLower.includes('construction')) return 'construction+site+building+india';
-  if (catLower.includes('textile')) return 'textile+mill+fabric+india';
-  if (catLower.includes('food')) return 'food+processing+warehouse+india';
+  if (catLower.includes('steel')) return {
+    cover: '1504328345606-18bbc8c9d7d1',
+    inline: ['1587293852726-4724c26728f3', '1565193566173-7a0ee3dbe261', '1581091226825-a6a2a5aee158']
+  };
+  if (catLower.includes('chemical')) return {
+    cover: '1532187863486-abf9dbad1b69',
+    inline: ['1581091226825-a6a2a5aee158', '1585435557343-3b092031a831', '1587293852726-4724c26728f3']
+  };
+  if (catLower.includes('construction')) return {
+    cover: '1504307651254-35680f356dfd',
+    inline: ['1541888946425-d81bb19240f5', '1565008576549-57569a49371d', '1581091226825-a6a2a5aee158']
+  };
   
-  return 'industrial+procurement+warehouse+india';
+  // Default industrial
+  return {
+    cover: '1581091226825-a6a2a5aee158',
+    inline: ['1587293852726-4724c26728f3', '1565193566173-7a0ee3dbe261', '1558618666-fcd25c85f82e']
+  };
 }
 
 function getCategoryImagePool(category: string, keyword?: string): { cover: string; inline: string[] } {
-  const query = getKeywordImageQuery(keyword || '', category);
+  const pool = getKeywordImagePool(keyword || '', category);
   
-  // Use Unsplash source URLs with keyword-specific queries for relevant images
-  // These generate different images each time but are always contextually relevant
-  const baseUrl = `https://source.unsplash.com/featured`;
-  
+  // Build reliable direct Unsplash URLs from photo IDs
   return {
-    cover: `${baseUrl}/1200x600/?${query}`,
-    inline: [
-      `${baseUrl}/800x400/?${query}+warehouse`,
-      `${baseUrl}/800x400/?${query}+supply+chain`,
-      `${baseUrl}/800x400/?${query}+quality+inspection`,
-    ]
+    cover: `https://images.unsplash.com/photo-${pool.cover}?w=1200&h=600&fit=crop&auto=format&q=80`,
+    inline: pool.inline.map(id =>
+      `https://images.unsplash.com/photo-${id}?w=800&h=400&fit=crop&auto=format&q=80`
+    ),
   };
 }
 
