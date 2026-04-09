@@ -35,6 +35,7 @@ const footerLinks = {
   resources: [
     { label: "Help Center", path: "/contact" },
     { label: "FAQs", path: "/#faq" },
+    { label: "Procurement Solutions", path: "/solutions" },
     { label: "Affiliate Program", path: "/affiliate-signup" },
     { label: "Invoice Generator", path: "/invoice-generator" },
   ],

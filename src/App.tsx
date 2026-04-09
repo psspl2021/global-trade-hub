@@ -58,6 +58,10 @@ const DemandIndex = lazy(() => import("./pages/explore/DemandIndex"));
 const DemandAuthorityPage = lazy(() => import("./pages/explore/DemandAuthorityPage"));
 const IndustriesPage = lazy(() => import("./pages/explore/IndustriesPage"));
 
+// High-Intent SEO Solution Pages
+const SolutionsIndex = lazy(() => import("./pages/solutions/SolutionsIndex"));
+const SolutionPage = lazy(() => import("./pages/solutions/SolutionPage"));
+
 // Marketplace Pages - Universal SEO Route Handler
 const MarketplaceBuyPage = lazy(() => import("./pages/marketplace/BuyPage"));
 const MarketplaceSupplierPage = lazy(() => import("./pages/marketplace/SupplierPage"));
@@ -230,6 +234,10 @@ const BotAwareRouter = () => {
         <Route path="/industries" element={<IndustriesPage />} />
         <Route path="/industries/:industry" element={<IndustriesPage />} />
         <Route path="/industries/:industry/:subIndustry" element={<IndustriesPage />} />
+        
+        {/* High-Intent SEO Solution Pages */}
+        <Route path="/solutions" element={<SolutionsIndex />} />
+        <Route path="/solutions/:slug" element={<SolutionPage />} />
         
         {/* Role-Based Dashboard Routes - STRICT SEPARATION */}
         {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}
