@@ -319,6 +319,7 @@ export default function AdminAuditDashboard() {
       case 'seo-dashboard': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEODashboard /></Suspense>;
       case 'demand-gaps': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemandGapsPanel /></Suspense>;
       case 'seo-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEOPipelinePanel /></Suspense>;
+      case 'blog-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><BlogPipelinePanel /></Suspense>;
       case 'dashboard':
       default:
         return renderDashboard();
