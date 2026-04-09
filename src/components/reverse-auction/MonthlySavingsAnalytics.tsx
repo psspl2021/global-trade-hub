@@ -10,7 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   AreaChart, Area, Legend, Cell,
 } from 'recharts';
-import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Trophy, Gauge, Zap, ChevronDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Trophy, Gauge, Zap, ChevronDown, Flame, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
@@ -56,27 +56,54 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function MonthlySavingsAnalytics() {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<any[]>([]);
+  const [allAuctions, setAllAuctions] = useState<any[]>([]);
+  const [supplierCount, setSupplierCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showExpanded, setShowExpanded] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    const fetchAuctions = async () => {
+    const fetchData = async () => {
       const sixMonthsAgo = subMonths(new Date(), 6).toISOString();
-      const { data } = await supabase
-        .from('reverse_auctions')
-        .select('id, status, starting_price, current_price, winning_bid, quantity, auction_end, created_at, currency')
-        .eq('buyer_id', user.id)
-        .gte('created_at', sixMonthsAgo)
-        .order('created_at', { ascending: true });
+      const [auctionRes, allAuctionRes, supplierRes] = await Promise.all([
+        supabase
+          .from('reverse_auctions')
+          .select('id, status, starting_price, current_price, winning_bid, quantity, auction_end, created_at, currency')
+          .eq('buyer_id', user.id)
+          .gte('created_at', sixMonthsAgo)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('reverse_auctions')
+          .select('id, status, starting_price, current_price, winning_bid, quantity')
+          .eq('buyer_id', user.id),
+        supabase
+          .from('buyer_suppliers')
+          .select('id')
+          .eq('buyer_id', user.id),
+      ]);
 
-      setAuctions(data || []);
+      setAuctions(auctionRes.data || []);
+      setAllAuctions(allAuctionRes.data || []);
+      setSupplierCount((supplierRes.data || []).length);
       setLoading(false);
     };
 
-    fetchAuctions();
+    fetchData();
   }, [user?.id]);
+
+  // All-time stats from allAuctions
+  const { activeCount, allTimeSavings, allTimeSpend } = useMemo(() => {
+    let active = 0, savings = 0, spend = 0;
+    allAuctions.forEach((a) => {
+      const qty = a.quantity || 1;
+      const final = a.status === 'completed' ? (a.winning_bid ?? a.current_price) : a.current_price;
+      if (final) spend += final * qty;
+      if (a.status === 'live') active++;
+      if (final && a.starting_price && final < a.starting_price) savings += (a.starting_price - final) * qty;
+    });
+    return { activeCount: active, allTimeSavings: savings, allTimeSpend: spend };
+  }, [allAuctions]);
 
   const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency, avgPerAuction, trend } = useMemo(() => {
     const monthMap = new Map<string, MonthlyData>();
@@ -229,26 +256,41 @@ export function MonthlySavingsAnalytics() {
           )}
 
           {/* KPI Summary Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <Card className="p-3.5 border bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 rounded-[0.625rem]">
           <div className="flex items-center gap-1.5 mb-1">
             <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Total Savings</span>
           </div>
-          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatCompact(totalSavings)}</p>
-          <div className="flex items-center gap-1 mt-0.5">
-            <TrendingUp className="w-3 h-3 text-emerald-600" />
-            <span className="text-xs text-emerald-600 font-medium">realized</span>
+          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatCompact(allTimeSavings)}</p>
+          <span className="text-xs text-muted-foreground">All time</span>
+        </Card>
+
+        <Card className="p-3.5 border bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 rounded-[0.625rem]">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Flame className="w-3.5 h-3.5 text-amber-600" />
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Active Auctions</span>
           </div>
+          <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">{activeCount}</p>
+          <span className="text-xs text-muted-foreground">Live now</span>
         </Card>
 
         <Card className="p-3.5 border bg-primary/5 border-primary/20 rounded-[0.625rem]">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-primary" />
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Sourcing Spend</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Total Spend</span>
           </div>
-          <p className="text-2xl font-bold text-primary">{formatCompact(totalSpend)}</p>
-          <span className="text-xs text-muted-foreground">{auctions.length} auctions</span>
+          <p className="text-2xl font-bold text-primary">{formatCompact(allTimeSpend)}</p>
+          <span className="text-xs text-muted-foreground">{allAuctions.length} auctions</span>
+        </Card>
+
+        <Card className="p-3.5 border bg-violet-50/50 dark:bg-violet-950/20 border-violet-200 dark:border-violet-800 rounded-[0.625rem]">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Users className="w-3.5 h-3.5 text-violet-600" />
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Suppliers</span>
+          </div>
+          <p className="text-2xl font-bold text-violet-700 dark:text-violet-400">{supplierCount}</p>
+          <span className="text-xs text-muted-foreground">Total added</span>
         </Card>
 
         <Card className="p-3.5 border bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 rounded-[0.625rem]">
@@ -266,7 +308,7 @@ export function MonthlySavingsAnalytics() {
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Completed</span>
           </div>
           <p className="text-2xl font-bold text-violet-700 dark:text-violet-400">{completedCount}</p>
-          <span className="text-xs text-muted-foreground">of {auctions.length} total</span>
+          <span className="text-xs text-muted-foreground">of {allAuctions.length} total</span>
         </Card>
           </div>
 
