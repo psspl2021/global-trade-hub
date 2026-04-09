@@ -539,7 +539,7 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
     <div className="space-y-4">
       <SummaryCards auctions={auctions} supplierCount={supplierCount} />
       <LiveAuctionStrip auctions={auctions} onSelect={onSelectAuction} />
-      <POHistory auctions={auctions} />
+      
       <ExecutionTracking auctions={auctions} />
     </div>
   );
