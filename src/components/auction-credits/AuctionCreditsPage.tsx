@@ -310,12 +310,14 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
         </div>
 
         {/* Yearly Unlimited Plan */}
-        <div className="mt-6">
-          <Card className="relative border-2 border-emerald-400 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-700 overflow-hidden">
-            <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs px-3">
-              🏆 Annual Plan
-            </Badge>
-            <CardContent className="pt-6 pb-5 px-5">
+        <div className="mt-8 pt-2">
+          <Card className="relative border-2 border-emerald-400 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-700">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+              <Badge className="bg-emerald-600 text-white text-xs px-3 py-1">
+                🏆 Annual Plan
+              </Badge>
+            </div>
+            <CardContent className="pt-8 pb-5 px-5">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="space-y-3 flex-1">
                   <div className="flex items-center gap-2">
