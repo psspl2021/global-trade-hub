@@ -338,6 +338,71 @@ export default function SolutionPage() {
           </div>
         </section>
 
+        {/* Live Auction Proof — Social proof + urgency */}
+        <section className="py-16 bg-accent/10">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="flex items-center gap-3 mb-8">
+              <Award className="h-7 w-7 text-primary" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                Recent Reverse Auction Results
+              </h2>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-4">
+              {(auctionProofByCategory[page.categorySlug] || auctionProofByCategory.default).map((proof, i) => (
+                <Card key={i} className="border-primary/20 bg-background animate-slide-up" style={{ animationDelay: `${i * 100}ms` }}>
+                  <CardContent className="p-5">
+                    <div className="text-sm text-muted-foreground mb-2">{proof.item}</div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-primary">{proof.saved}</span>
+                      <Badge variant="secondary" className="text-xs">{proof.pct} saved</Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">via ProcureSaathi Reverse Auction</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-4 text-center">
+              *Illustrative savings based on aggregated platform data. Actual savings vary by category and order size.
+            </p>
+          </div>
+        </section>
+
+        {/* City Variants — Internal linking for location SEO */}
+        {(() => {
+          const { citySlug } = parseSlugForCity(page.slug);
+          const basePage = citySlug ? getHighIntentPageBySlug(parseSlugForCity(page.slug).baseSlug) : page;
+          if (!basePage) return null;
+          const cityLinks = targetCities.filter(c => c.slug !== citySlug);
+          return (
+            <section className="py-8 bg-muted/20 border-t border-border/40">
+              <div className="container mx-auto px-4 max-w-4xl">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                  Also available in:
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {!citySlug && (
+                    <span className="text-xs text-muted-foreground px-2 py-1 rounded bg-primary/10 font-medium">All India</span>
+                  )}
+                  {citySlug && (
+                    <Link to={`/solutions/${basePage.slug}`} className="text-xs text-primary hover:underline px-2 py-1 rounded bg-primary/5">
+                      All India
+                    </Link>
+                  )}
+                  {cityLinks.slice(0, 6).map(city => (
+                    <Link
+                      key={city.slug}
+                      to={`/solutions/${basePage.slug}-${city.slug}`}
+                      className="text-xs text-primary hover:underline px-2 py-1 rounded bg-primary/5"
+                    >
+                      {city.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        })()}
+
         {/* CTA Section */}
         <section className="py-16 bg-primary/5">
           <div className="container mx-auto px-4 text-center max-w-2xl">
