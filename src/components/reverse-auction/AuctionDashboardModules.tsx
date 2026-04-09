@@ -409,28 +409,19 @@ function POHistory({ auctions }: { auctions: any[] }) {
 export function AuctionDashboardModules({ onSelectAuction }: Props) {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<any[]>([]);
-  const [supplierCount, setSupplierCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) return;
 
     const load = async () => {
-      const [auctionRes, supplierRes] = await Promise.all([
-        supabase
-          .from('reverse_auctions')
-          .select('id, title, status, starting_price, current_price, winning_bid, winning_price, quantity, currency, winner_supplier_id, auction_end, created_at')
-          .eq('buyer_id', user.id)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('buyer_suppliers')
-          .select('id')
-          .eq('buyer_id', user.id),
-      ]);
+      const { data } = await supabase
+        .from('reverse_auctions')
+        .select('id, title, status, starting_price, current_price, winning_bid, winning_price, quantity, currency, winner_supplier_id, auction_end, created_at')
+        .eq('buyer_id', user.id)
+        .order('created_at', { ascending: false });
 
-      setAuctions(auctionRes.data || []);
-      setSupplierCount((supplierRes.data || []).length);
-
+      setAuctions(data || []);
       setLoading(false);
     };
 
