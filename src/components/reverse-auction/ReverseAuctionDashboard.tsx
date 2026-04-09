@@ -12,12 +12,13 @@ import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
 import { AuctionWarRoom } from './AuctionWarRoom';
 import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
+import { PurchaseOrdersPage } from '@/components/purchase-orders/PurchaseOrdersPage';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft } from 'lucide-react';
+import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart } from 'lucide-react';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
