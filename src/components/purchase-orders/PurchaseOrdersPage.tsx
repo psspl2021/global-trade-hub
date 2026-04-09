@@ -34,7 +34,20 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         .eq('status', 'completed')
         .not('winner_supplier_id', 'is', null)
         .order('created_at', { ascending: false });
-      setAuctionPOs(data || []);
+
+      // Fetch supplier company names for winners
+      const enriched = await Promise.all(
+        (data || []).map(async (a) => {
+          const { data: sup } = await supabase
+            .from('reverse_auction_suppliers')
+            .select('supplier_company_name')
+            .eq('auction_id', a.id)
+            .eq('supplier_id', a.winner_supplier_id)
+            .maybeSingle();
+          return { ...a, supplier_company_name: sup?.supplier_company_name || '—' };
+        })
+      );
+      setAuctionPOs(enriched);
     };
     loadAuctionPOs();
   }, [userId]);
@@ -84,6 +97,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
                 <tr className="bg-muted/40">
                   <th className="text-left p-3 font-medium text-muted-foreground">PO Ref</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Auction</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Company Name</th>
                   <th className="text-right p-3 font-medium text-muted-foreground">Amount</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
                 </tr>
@@ -93,6 +107,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
                   <tr key={a.id} className="border-t hover:bg-muted/20">
                     <td className="p-3 font-mono text-xs">PO-{a.id.slice(0, 8).toUpperCase()}</td>
                     <td className="p-3 font-medium truncate max-w-[200px]">{a.title}</td>
+                    <td className="p-3 text-muted-foreground">{a.supplier_company_name}</td>
                     <td className="p-3 text-right font-semibold">
                       {a.winning_bid ? formatINR(a.winning_bid * (a.quantity || 1)) : '—'}
                     </td>
