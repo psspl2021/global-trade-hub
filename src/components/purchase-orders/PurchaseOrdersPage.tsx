@@ -107,6 +107,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
                   <tr key={a.id} className="border-t hover:bg-muted/20">
                     <td className="p-3 font-mono text-xs">PO-{a.id.slice(0, 8).toUpperCase()}</td>
                     <td className="p-3 font-medium truncate max-w-[200px]">{a.title}</td>
+                    <td className="p-3 text-muted-foreground">{a.supplier_company_name}</td>
                     <td className="p-3 text-right font-semibold">
                       {a.winning_bid ? formatINR(a.winning_bid * (a.quantity || 1)) : '—'}
                     </td>
