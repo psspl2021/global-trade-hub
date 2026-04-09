@@ -235,6 +235,9 @@ ${trending_context ? `TRENDING MARKET CONTEXT (from platform intelligence):\n${t
 
 ${categoryInsights}
 
+CONTENT STRUCTURE: Use "${selectedStructure.name}" format.
+${selectedStructure.instruction}
+
 CONTENT RULES:
 - Write 1500-2000 words of SUBSTANTIVE, data-rich content. Zero filler sentences.
 - UNIQUE ANGLE: This blog's primary angle is "${selectedAngle.angle}". Make this the centerpiece. Go deep, not broad.
@@ -250,6 +253,11 @@ CONTENT RULES:
 - Weave live demand data naturally: "Platform intelligence for ${currentMonth} ${currentYear} shows..." or "Our AI demand engine has detected..."
 - Include specific HS codes, BIS numbers, ASTM grades where relevant to ${category}.
 - Mention specific raw material inputs and their price impact on ${category}.
+${custom_topic ? `\nKEYWORD-SPECIFIC RULES:
+- The target keyword is "${custom_topic}". Mention it naturally 6-8 times plus LSI variations.
+- Make EVERY section directly relevant to this specific keyword — do not drift into generic procurement advice.
+- Use Indian rupee examples (₹) with realistic scenarios tied to the keyword.
+- If the keyword mentions a specific material (steel, cement, etc.), go deep on THAT material's supply chain.` : ''}
 
 UNIQUENESS RULES:
 - DO NOT start with a generic "India's X industry is growing" opener. Start with a specific data point, market event, or buyer challenge.
