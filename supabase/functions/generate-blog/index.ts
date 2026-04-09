@@ -437,14 +437,13 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
       .substring(0, 70);
     const slug = `${slugBase}-${trade_type.toLowerCase()}-${country.toLowerCase().replace(/\s+/g, '-')}`;
 
-    // Image system: use reliable direct Unsplash photo URLs
-    const categoryImages = getCategoryImagePool(category);
-    const coverImageUrl = `https://images.unsplash.com/photo-${categoryImages.cover}?w=1200&h=600&fit=crop&auto=format&q=80`;
+    // Image system: keyword-specific images for relevance
+    const categoryImages = getCategoryImagePool(category, custom_topic);
+    const coverImageUrl = categoryImages.cover;
     
-    const inlineImageUrls = categoryImages.inline.map(id =>
-      `https://images.unsplash.com/photo-${id}?w=800&h=400&fit=crop&auto=format&q=80`
-    );
-    const imageCaptions = getImageCaptions(category, country, trade_type);
+    const inlineImageUrls = categoryImages.inline;
+    const product_name = custom_topic ? custom_topic.replace(/-/g, ' ').replace(/india$/i, '').trim() : category;
+    const imageCaptions = getImageCaptions(product_name, country, trade_type);
 
     // Inject images into content
     let finalContent = injectImagesIntoContent(blogData.content, inlineImageUrls, imageCaptions);
