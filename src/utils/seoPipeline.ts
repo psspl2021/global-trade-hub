@@ -100,7 +100,30 @@ export async function runFullSEOPipeline(
     }
   }
 
+  // Post-pipeline: regenerate sitemap + ping Google
+  await refreshSitemapAndPing();
+
   return results;
+}
+
+/**
+ * Regenerate sitemap via edge function and ping Google/Bing.
+ */
+export async function refreshSitemapAndPing(): Promise<void> {
+  try {
+    // Regenerate sitemap via edge function
+    await supabase.functions.invoke('generate-sitemap');
+    console.log('✅ Sitemap regenerated');
+
+    // Ping search engines (best-effort, non-blocking)
+    await Promise.allSettled([
+      fetch('https://www.google.com/ping?sitemap=https://www.procuresaathi.com/sitemap.xml'),
+      fetch('https://www.bing.com/ping?sitemap=https://www.procuresaathi.com/sitemap.xml'),
+    ]);
+    console.log('✅ Search engines pinged');
+  } catch (err) {
+    console.error('Sitemap refresh failed:', err);
+  }
 }
 
 /**
