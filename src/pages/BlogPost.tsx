@@ -77,6 +77,7 @@ const BlogPost = () => {
   const navigate = useNavigate();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
+  const [relatedBlogs, setRelatedBlogs] = useState<Array<{ slug: string; title: string }>>([]);
 
   const readingTime = useMemo(() => blog ? calculateReadingTime(blog.content) : 0, [blog]);
   const wordCount = useMemo(() => blog ? countWords(blog.content) : 0, [blog]);
@@ -161,11 +162,26 @@ const BlogPost = () => {
     }
   }, [blog, wordCount, readingTime]);
 
+  // Track blog view + fetch related blogs
   useEffect(() => {
     if (slug) {
       fetchBlog();
+      // Track view
+      import('@/utils/blogPipeline').then(m => m.trackBlogView(slug)).catch(() => {});
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (!blog?.category) return;
+    supabase
+      .from('blogs')
+      .select('slug, title')
+      .eq('is_published', true)
+      .ilike('category', `%${blog.category}%`)
+      .neq('slug', blog.slug)
+      .limit(3)
+      .then(({ data }) => { if (data) setRelatedBlogs(data); });
+  }, [blog]);
 
   const fetchBlog = async () => {
     try {
@@ -325,8 +341,24 @@ const BlogPost = () => {
           </p>
         </aside>
 
-        {/* Related Links */}
-        <nav className="mt-8 p-6 bg-card border border-border/50 rounded-lg">
+        {/* Related Blogs */}
+        {relatedBlogs.length > 0 && (
+          <nav className="mt-8 p-6 bg-card border border-border/50 rounded-lg">
+            <h4 className="font-semibold mb-4 text-foreground">More on {blog.category}</h4>
+            <ul className="space-y-2 text-sm">
+              {relatedBlogs.map(rb => (
+                <li key={rb.slug}>
+                  <Link to={`/blogs/${rb.slug}`} className="text-primary hover:underline">
+                    → {rb.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
+        {/* Related Resources */}
+        <nav className="mt-4 p-6 bg-card border border-border/50 rounded-lg">
           <h4 className="font-semibold mb-4 text-foreground">Related Resources</h4>
           <ul className="space-y-2 text-sm">
             <li>

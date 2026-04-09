@@ -10,7 +10,8 @@ import {
   Factory, Package, Building, Layers, Award
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const categoryIcons: Record<string, React.ElementType> = {
   metals: Factory,
