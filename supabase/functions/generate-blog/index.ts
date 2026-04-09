@@ -235,9 +235,39 @@ CRITICAL: Use this REAL data throughout the blog. Reference specific subcategori
       countryRegs
     );
 
-    const systemPrompt = `You are a senior B2B procurement research analyst at ProcureSaathi, an AI-powered procurement platform. Today is ${today}, ${currentMonth} ${currentYear}.
+    // === RANDOMIZED OPENING SCENARIOS ===
+    const cityPools = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana', 'Coimbatore', 'Vizag', 'Delhi-NCR', 'Rourkela', 'Durgapur', 'Indore', 'Nagpur', 'Surat', 'Rajkot', 'Vadodara'];
+    const industryPools = ['construction company', 'mid-size manufacturer', 'EPC contractor', 'infrastructure developer', 'fabrication unit', 'real estate group', 'auto-component maker', 'FMCG plant', 'chemical processor', 'textile mill', 'packaging converter', 'food processor', 'steel trader', 'industrial distributor', 'government PSU project'];
+    const scenarioPools = [
+      'faced a {pct}% price spike in {product} after monsoon disrupted logistics from {hub}',
+      'lost ₹{amount}L on a {product} order because the supplier delivered underweight bundles with no mill test certificates',
+      'was paying {pct}% above market rate for {product} because their procurement team was comparing only 2 suppliers',
+      'discovered that 3 out of 5 shortlisted {product} suppliers had fake BIS certifications',
+      'saved ₹{amount}L annually by switching from single-source {product} buying to competitive reverse auctions',
+      'rejected an entire {product} shipment worth ₹{amount}L due to grade mismatch — the supplier quoted Fe 500D but delivered Fe 415',
+      'was stuck with 45-day payment terms on {product} while competitors negotiated 60-90 day credit from the same suppliers',
+      'reduced {product} procurement cycle from 14 days to 3 days using AI-powered supplier matching',
+      'found that freight from {hub} to their {city} plant was adding ₹{amount}K per MT to their {product} landed cost',
+      'switched {product} sourcing from {hub} to a closer manufacturing cluster and cut logistics cost by {pct}%',
+    ];
+    const seedHash = hashString(variationSeed);
+    const selectedCity = cityPools[seedHash % cityPools.length];
+    const selectedIndustry = industryPools[(seedHash >> 4) % industryPools.length];
+    const selectedScenario = scenarioPools[(seedHash >> 8) % scenarioPools.length];
+    const product = custom_topic ? custom_topic.replace(/-/g, ' ').replace(/india$/i, '').trim() : category;
+    const pct = 8 + (seedHash % 25);
+    const amount = 5 + (seedHash % 40);
+    const hub = demandHotspots[0] || 'Raipur';
+    const openingScenario = selectedScenario
+      .replace('{pct}', String(pct))
+      .replace('{amount}', String(amount))
+      .replace('{product}', product)
+      .replace('{hub}', hub)
+      .replace('{city}', selectedCity);
 
-ROLE: You write differentiated, keyword-specific market intelligence blogs. Two blogs from the same category must not share the same intro logic, section sequence, or commercial analysis unless the keyword intent is genuinely identical.
+    const systemPrompt = `You are NOT a content writer. You are a senior procurement consultant at ProcureSaathi writing a client briefing. Today is ${today}, ${currentMonth} ${currentYear}.
+
+ROLE: Write a HIGHLY SPECIFIC, conversion-focused blog that reads like a real procurement intelligence report — NOT like AI-generated marketing content.
 
 ${marketResearchContext}
 
@@ -247,53 +277,69 @@ ${categoryInsights}
 
 ${topicSpecificInsights}
 
+MANDATORY OPENING (USE THIS EXACT SCENARIO, then expand):
+"A ${selectedIndustry} in ${selectedCity} recently ${openingScenario}."
+— Expand this into a 3-4 sentence opening paragraph that sets up the problem. Then transition into market analysis.
+
 ARTICLE STRATEGY:
 - Anchor keyword: "${topicStrategy.anchorKeyword}"
 - Topic pattern: ${topicStrategy.pattern}
-- Opening structure: "${selectedStructure.name}" — ${selectedStructure.instruction}
-- Opening instruction: ${topicStrategy.introInstruction}
+- Structure style: "${selectedStructure.name}" — ${selectedStructure.instruction}
 - Primary angle: "${selectedAngle.angle}" — ${selectedAngle.focus}
 - Title direction: ${topicStrategy.titleDirection}
 
-CONTENT RULES:
-- Write 1400-1800 words of substantive, data-rich content with zero filler.
-- Follow the SECTION BLUEPRINT exactly, but keep the narrative natural.
-- Make every section directly useful for someone evaluating "${topicStrategy.anchorKeyword}".
-- If the keyword is workflow, cost, or comparison led, prioritize ROI math, trade-offs, supplier competition design, and operating detail.
-- If the keyword is product led, prioritize specs, grades, freight logic, inspection checks, and quote red flags.
-- Use price RANGES (e.g., "₹48,000–55,000/MT"), never fabricated exact numbers.
-- Reference REAL standards: BIS IS-2062, ISO 9001, ASTM A36, DGFT notifications, HS codes, etc.
-- Include 2-3 HTML <table> elements only where they add real decision value.
-- Use <h2> for major sections, <h3> for subsections, <ul>/<ol> for lists.
-- Internal links: <a href="/post-rfq">Get AI-Matched Quotes</a>, <a href="/browseproducts">Browse Categories</a>
-- End with "Illustrative Scenario" disclaimer and "AI Demand-Feed Notice".
-- Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
-- NEVER use empty paragraphs, excessive <br> tags, or spacer divs.
-- Every <h2> section must have at least 2 substantive paragraphs with concrete details.
-- Weave live demand data naturally: "Platform intelligence for ${currentMonth} ${currentYear} shows..." or "Our AI demand engine has detected..."
-- Include specific HS codes, BIS numbers, ASTM grades where relevant to ${category}.
-- Mention specific raw material inputs and their price impact on ${category}.
-${custom_topic ? `\nKEYWORD-SPECIFIC RULES:
-- The target keyword is "${custom_topic}". Mention it naturally 6-8 times plus LSI variations.
-- Make EVERY section directly relevant to this specific keyword — do not drift into generic procurement advice.
-- Use Indian rupee examples (₹) with realistic scenarios tied to the keyword.
-- If the keyword mentions a specific material (steel, cement, etc.), go deep on THAT material's supply chain.` : ''}
+STRICT CONTENT RULES:
+1. START with the scenario above — NEVER start with "In today's market" or "India is growing" or any generic opener.
+2. Write 1400-1800 words of substantive commercial analysis with ZERO filler.
+3. Use THIS STRUCTURE (sections must appear in this order but with natural flow):
+   a) Scenario / Problem (using the opening above)
+   b) Market Reality — India-specific, mention cities (${selectedCity}, ${cityPools[(seedHash + 3) % cityPools.length]}, ${cityPools[(seedHash + 7) % cityPools.length]})
+   c) Price Benchmarks — use ₹ REAL RANGES in HTML <table>, e.g., "₹48,000–55,000/MT"
+   d) Supplier Challenges — verification issues, red flags, documentation gaps
+   e) AI Procurement Solution — how ProcureSaathi solves this
+   f) Final Recommendation with CTA
+4. FORCE DEPTH:
+   - Mention IS codes (IS 1786, IS 2062, etc.) where relevant
+   - Mention raw materials (iron ore, coking coal, billet, sponge iron, etc.)
+   - Mention supply hubs (Raipur, Durgapur, Jamshedpur, Ludhiana, etc.)
+   - Use real HSN codes where applicable
+   - Reference DGFT, BIS, PLI schemes, GST implications
+5. KEYWORD USAGE: Use "${topicStrategy.anchorKeyword}" naturally 6-8 times. NO keyword stuffing.
+6. STRICTLY AVOID these phrases — if you use ANY of them, the blog will be rejected:
+   - "In today's competitive market"
+   - "India is growing"  
+   - "It is important to note"
+   - "plays a crucial role"
+   - "In recent years"
+   - "In the ever-evolving landscape"
+   - "As we navigate"
+   - "It goes without saying"
+   - Any sentence that could apply to ANY industry without modification
+7. Use price RANGES (e.g., "₹48,000–55,000/MT"), never fabricated exact numbers.
+8. Reference REAL standards: BIS IS-2062, ISO 9001, ASTM A36, DGFT notifications, HS codes.
+9. Include 2-3 HTML <table> elements with real decision-useful data.
+10. Use <h2> for major sections, <h3> for subsections, <ul>/<ol> for lists.
+11. Internal links: <a href="/post-rfq">Get AI-Matched Quotes</a>, <a href="/browseproducts">Browse Categories</a>
+12. END with: "Start a reverse auction and get the lowest price from verified suppliers" + CTA link
+13. End with "Illustrative Scenario" disclaimer and "AI Demand-Feed Notice".
+14. Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
+15. Every <h2> section must have at least 2 substantive paragraphs with CONCRETE details.
+16. Use DIFFERENT industry examples throughout: construction, infra, manufacturing, auto, FMCG.
+17. Mention at least 3 different Indian cities by name in the body content.
 
 ANTI-DRIFT RULES:
 ${topicStrategy.antiDrift}
 
-UNIQUENESS RULES:
-- DO NOT start with a generic "India's X industry is growing" opener. Start with a specific data point, market event, or buyer challenge.
-- Each section must contain at least one SPECIFIC fact (a standard number, HS code, price benchmark, policy name, or geographic detail).
-- Avoid phrases: "In today's competitive market", "In recent years", "It is important to note", "plays a crucial role".
-- Use active voice. Write like a procurement consultant briefing a client.
-- Do not reuse heading patterns like "Market Intelligence Snapshot" or "Procurement Strategy" unless the SECTION BLUEPRINT explicitly demands them.
+UNIQUENESS ENFORCEMENT:
+- Your opening paragraph MUST use the specific scenario provided above — no generic alternatives.
+- Each section must contain at least one SPECIFIC fact (standard number, HS code, price benchmark, policy name, geographic detail).
+- Write like a procurement consultant briefing a ₹10Cr+ buyer — specific, actionable, zero filler.
+- Two blogs from the same category MUST have different openings, different city examples, different price tables, and different supplier challenges.
 
 TITLE RULES:
-- NEVER use the format "X Procurement in Y: Sourcing Guide YEAR"
+- NEVER use "X Procurement in Y: Sourcing Guide YEAR"
 - ${topicStrategy.titleDirection}
-- Reflect the specific angle "${selectedAngle.angle}" without sounding templated.
-- Make it sound like a market intelligence report, not a how-to guide`;
+- Make it sound like a market intelligence report a procurement head would forward to their team`;
 
     const userPrompt = custom_topic
       ? `Write a procurement research blog about: "${custom_topic}"
@@ -391,14 +437,13 @@ Year: ${currentYear}. Country regulations: ${countryRegs}.`;
       .substring(0, 70);
     const slug = `${slugBase}-${trade_type.toLowerCase()}-${country.toLowerCase().replace(/\s+/g, '-')}`;
 
-    // Image system: use reliable direct Unsplash photo URLs
-    const categoryImages = getCategoryImagePool(category);
-    const coverImageUrl = `https://images.unsplash.com/photo-${categoryImages.cover}?w=1200&h=600&fit=crop&auto=format&q=80`;
+    // Image system: keyword-specific images for relevance
+    const categoryImages = getCategoryImagePool(category, custom_topic);
+    const coverImageUrl = categoryImages.cover;
     
-    const inlineImageUrls = categoryImages.inline.map(id =>
-      `https://images.unsplash.com/photo-${id}?w=800&h=400&fit=crop&auto=format&q=80`
-    );
-    const imageCaptions = getImageCaptions(category, country, trade_type);
+    const inlineImageUrls = categoryImages.inline;
+    const product_name = custom_topic ? custom_topic.replace(/-/g, ' ').replace(/india$/i, '').trim() : category;
+    const imageCaptions = getImageCaptions(product_name, country, trade_type);
 
     // Inject images into content
     let finalContent = injectImagesIntoContent(blogData.content, inlineImageUrls, imageCaptions);
@@ -678,148 +723,71 @@ function injectImagesIntoContent(html: string, imageUrls: string[], captions: st
   return parts.join('');
 }
 
-// Reliable Unsplash photo IDs (verified working) organized by category
-function getCategoryImagePool(category: string): { cover: string; inline: string[] } {
-  const catLower = category.toLowerCase();
+// Keyword-specific image matching for relevant blog images
+function getKeywordImageQuery(keyword: string, category: string): string {
+  const kw = (keyword || category).toLowerCase();
   
-  const pools: Record<string, { cover: string; inline: string[] }> = {
-    'steel': {
-      cover: '1504328345606-18bbc8c9d7d1',
-      inline: [
-        '1587293852726-4724c26728f3', // steel factory
-        '1565193566173-7a0ee3dbe261', // metal warehouse  
-        '1581091226825-a6a2a5aee158', // industrial manufacturing
-        '1565008576549-57569a49371d', // steel structure
-        '1558618666-fcd25c85f82e',    // industrial pipes
-      ]
-    },
-    'chemical': {
-      cover: '1532187863486-abf9dbad1b69',
-      inline: [
-        '1581091226825-a6a2a5aee158', // chemical plant
-        '1532187863486-abf9dbad1b69', // laboratory
-        '1585435557343-3b092031a831', // chemical storage
-        '1581093458791-9f3c3250a8d0', // industrial facility
-        '1587293852726-4724c26728f3', // manufacturing
-      ]
-    },
-    'construction': {
-      cover: '1504307651254-35680f356dfd',
-      inline: [
-        '1541888946425-d81bb19240f5', // construction site
-        '1504307651254-35680f356dfd', // building construction
-        '1581091226825-a6a2a5aee158', // cement/materials
-        '1565008576549-57569a49371d', // structural work
-        '1587293852726-4724c26728f3', // heavy equipment
-      ]
-    },
-    'textile': {
-      cover: '1558171813-4c2e8f2ad057',
-      inline: [
-        '1558171813-4c2e8f2ad057', // textile rolls
-        '1586528116311-ad8dd3c8310d', // fabric production
-        '1581091226825-a6a2a5aee158', // manufacturing
-        '1565193566173-7a0ee3dbe261', // warehouse
-        '1558618666-fcd25c85f82e',    // industrial
-      ]
-    },
-    'food': {
-      cover: '1556909114-f6e7ad7d3136',
-      inline: [
-        '1556909114-f6e7ad7d3136', // food processing
-        '1500595046743-cd271d694d30', // agriculture
-        '1596040033229-a9821ebd058d', // spices/ingredients
-        '1586528116311-ad8dd3c8310d', // packaging
-        '1565193566173-7a0ee3dbe261', // cold storage
-      ]
-    },
-    'agriculture': {
-      cover: '1500595046743-cd271d694d30',
-      inline: [
-        '1500595046743-cd271d694d30', // farming
-        '1556909114-f6e7ad7d3136', // produce
-        '1596040033229-a9821ebd058d', // harvest
-        '1586528116311-ad8dd3c8310d', // packaging
-        '1565193566173-7a0ee3dbe261', // warehouse
-      ]
-    },
-    'packaging': {
-      cover: '1586528116311-ad8dd3c8310d',
-      inline: [
-        '1586528116311-ad8dd3c8310d', // packaging materials
-        '1565193566173-7a0ee3dbe261', // warehouse
-        '1581091226825-a6a2a5aee158', // manufacturing
-        '1558618666-fcd25c85f82e',    // industrial
-        '1587293852726-4724c26728f3', // factory
-      ]
-    },
-    'auto': {
-      cover: '1581091226825-a6a2a5aee158',
-      inline: [
-        '1581091226825-a6a2a5aee158', // automotive
-        '1565008576549-57569a49371d', // auto parts
-        '1587293852726-4724c26728f3', // assembly
-        '1558618666-fcd25c85f82e',    // components
-        '1504328345606-18bbc8c9d7d1', // metal parts
-      ]
-    },
-    'electrical': {
-      cover: '1581091226825-a6a2a5aee158',
-      inline: [
-        '1581091226825-a6a2a5aee158', // electronics
-        '1558618666-fcd25c85f82e',    // wiring
-        '1587293852726-4724c26728f3', // manufacturing
-        '1565193566173-7a0ee3dbe261', // components warehouse
-        '1504328345606-18bbc8c9d7d1', // industrial
-      ]
-    },
-    'plastic': {
-      cover: '1558618666-fcd25c85f82e',
-      inline: [
-        '1558618666-fcd25c85f82e',    // polymer/plastic
-        '1581091226825-a6a2a5aee158', // manufacturing
-        '1586528116311-ad8dd3c8310d', // products
-        '1587293852726-4724c26728f3', // factory
-        '1565193566173-7a0ee3dbe261', // warehouse
-      ]
-    },
-    'mineral': {
-      cover: '1518611012118-696072aa579a',
-      inline: [
-        '1518611012118-696072aa579a', // mining
-        '1504328345606-18bbc8c9d7d1', // minerals
-        '1587293852726-4724c26728f3', // processing
-        '1565008576549-57569a49371d', // extraction
-        '1581091226825-a6a2a5aee158', // industrial
-      ]
-    },
-  };
+  // Steel & Metals - specific products
+  if (/tmt|rebar/.test(kw)) return 'tmt+bars+construction+site+india';
+  if (/structural steel/.test(kw)) return 'steel+structure+construction+building';
+  if (/stainless steel pipe/.test(kw)) return 'stainless+steel+pipes+industrial+warehouse';
+  if (/hr coil|hot rolled/.test(kw)) return 'steel+coil+factory+manufacturing';
+  if (/cable tray/.test(kw)) return 'cable+tray+electrical+industrial';
+  if (/aluminium|aluminum/.test(kw)) return 'aluminium+ingots+metal+factory';
+  if (/steel/.test(kw)) return 'steel+manufacturing+factory+india';
+  
+  // Construction
+  if (/cement/.test(kw)) return 'cement+bags+construction+site+india';
+  if (/pvc pipe/.test(kw)) return 'pvc+pipes+plumbing+warehouse+india';
+  if (/aggregate|sand|gravel/.test(kw)) return 'construction+aggregates+quarry';
+  if (/tile/.test(kw)) return 'ceramic+tiles+warehouse+manufacturing';
+  
+  // Chemicals
+  if (/chemical|solvent|acid/.test(kw)) return 'chemical+drums+industrial+warehouse';
+  if (/polymer|plastic/.test(kw)) return 'plastic+polymer+granules+manufacturing';
+  
+  // Other categories
+  if (/textile|fabric|yarn/.test(kw)) return 'textile+fabric+rolls+manufacturing+india';
+  if (/food|spice|grain/.test(kw)) return 'food+grain+warehouse+india';
+  if (/packaging/.test(kw)) return 'packaging+corrugated+boxes+factory';
+  if (/electrical|wire|cable/.test(kw)) return 'electrical+cables+wiring+industrial';
+  if (/auto|automotive/.test(kw)) return 'automotive+parts+manufacturing+india';
+  
+  // Category fallbacks
+  const catLower = category.toLowerCase();
+  if (catLower.includes('steel')) return 'steel+factory+industrial+india';
+  if (catLower.includes('chemical')) return 'chemical+plant+industrial';
+  if (catLower.includes('construction')) return 'construction+site+building+india';
+  if (catLower.includes('textile')) return 'textile+mill+fabric+india';
+  if (catLower.includes('food')) return 'food+processing+warehouse+india';
+  
+  return 'industrial+procurement+warehouse+india';
+}
 
-  // Match category to pool
-  for (const [key, pool] of Object.entries(pools)) {
-    if (catLower.includes(key)) return pool;
-  }
-
-  // Default industrial pool
+function getCategoryImagePool(category: string, keyword?: string): { cover: string; inline: string[] } {
+  const query = getKeywordImageQuery(keyword || '', category);
+  
+  // Use Unsplash source URLs with keyword-specific queries for relevant images
+  // These generate different images each time but are always contextually relevant
+  const baseUrl = `https://source.unsplash.com/featured`;
+  
   return {
-    cover: '1581091226825-a6a2a5aee158',
+    cover: `${baseUrl}/1200x600/?${query}`,
     inline: [
-      '1587293852726-4724c26728f3',
-      '1565193566173-7a0ee3dbe261',
-      '1558618666-fcd25c85f82e',
-      '1504328345606-18bbc8c9d7d1',
-      '1586528116311-ad8dd3c8310d',
+      `${baseUrl}/800x400/?${query}+warehouse`,
+      `${baseUrl}/800x400/?${query}+supply+chain`,
+      `${baseUrl}/800x400/?${query}+quality+inspection`,
     ]
   };
 }
 
-function getImageCaptions(category: string, country: string, tradeType: string): string[] {
+function getImageCaptions(productName: string, country: string, tradeType: string): string[] {
   return [
-    `${category} manufacturing facility - ProcureSaathi procurement insights`,
-    `${category} supply chain warehouse - ProcureSaathi`,
-    `${category} quality inspection process`,
-    `B2B ${tradeType.toLowerCase()} logistics for ${category} - ${country}`,
-    `${category} raw materials and inventory management`,
+    `${productName} procurement and sourcing in ${country} - ProcureSaathi`,
+    `${productName} supply chain and warehouse operations - ProcureSaathi`,
+    `${productName} quality inspection and verification process`,
+    `B2B ${tradeType.toLowerCase()} logistics for ${productName} in ${country}`,
+    `${productName} raw materials and inventory management`,
   ];
 }
 
