@@ -163,24 +163,42 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
         </div>
       </div>
 
-      {/* Supplier Network Card (buyer only) */}
+      {/* Quick Access Cards (buyer only) */}
       {!isSupplier && (
-        <Card
-          variant="interactive"
-          className="p-4 group hover:shadow-md transition-all border-l-4 border-l-violet-500 cursor-pointer"
-          onClick={() => toggleSupplierNetwork(true)}
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
-              <Users className="w-4 h-4 text-white" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Card
+            variant="interactive"
+            className="p-4 group hover:shadow-md transition-all border-l-4 border-l-violet-500 cursor-pointer"
+            onClick={() => setAuctionView('supplier-network')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
+                <Users className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Supplier Network</p>
+                <p className="text-[11px] text-muted-foreground">Add & manage your supplier base</p>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-violet-500 transition-colors" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground">Supplier Network</p>
-              <p className="text-[11px] text-muted-foreground">Add & manage your supplier base</p>
+          </Card>
+          <Card
+            variant="interactive"
+            className="p-4 group hover:shadow-md transition-all border-l-4 border-l-amber-500 cursor-pointer"
+            onClick={() => setAuctionView('purchase-orders')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-sm">
+                <ShoppingCart className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Purchase Orders</p>
+                <p className="text-[11px] text-muted-foreground">Track & manage purchase records</p>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-amber-500 transition-colors" />
             </div>
-            <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-violet-500 transition-colors" />
-          </div>
-        </Card>
+          </Card>
+        </div>
       )}
 
       {/* Procol-style Dashboard Modules (buyer only) */}
