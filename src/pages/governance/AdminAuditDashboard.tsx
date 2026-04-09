@@ -44,7 +44,8 @@ import {
   Monitor,
   Smartphone,
   Home,
-  Zap
+  Zap,
+  Rocket
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
