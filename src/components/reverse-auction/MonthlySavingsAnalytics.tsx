@@ -56,26 +56,40 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function MonthlySavingsAnalytics() {
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<any[]>([]);
+  const [allAuctions, setAllAuctions] = useState<any[]>([]);
+  const [supplierCount, setSupplierCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showExpanded, setShowExpanded] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    const fetchAuctions = async () => {
+    const fetchData = async () => {
       const sixMonthsAgo = subMonths(new Date(), 6).toISOString();
-      const { data } = await supabase
-        .from('reverse_auctions')
-        .select('id, status, starting_price, current_price, winning_bid, quantity, auction_end, created_at, currency')
-        .eq('buyer_id', user.id)
-        .gte('created_at', sixMonthsAgo)
-        .order('created_at', { ascending: true });
+      const [auctionRes, allAuctionRes, supplierRes] = await Promise.all([
+        supabase
+          .from('reverse_auctions')
+          .select('id, status, starting_price, current_price, winning_bid, quantity, auction_end, created_at, currency')
+          .eq('buyer_id', user.id)
+          .gte('created_at', sixMonthsAgo)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('reverse_auctions')
+          .select('id, status, starting_price, current_price, winning_bid, quantity')
+          .eq('buyer_id', user.id),
+        supabase
+          .from('buyer_suppliers')
+          .select('id')
+          .eq('buyer_id', user.id),
+      ]);
 
-      setAuctions(data || []);
+      setAuctions(auctionRes.data || []);
+      setAllAuctions(allAuctionRes.data || []);
+      setSupplierCount((supplierRes.data || []).length);
       setLoading(false);
     };
 
-    fetchAuctions();
+    fetchData();
   }, [user?.id]);
 
   const { monthlyData, totalSavings, totalSpend, avgSavingsPct, completedCount, bestMonth, savingsEfficiency, avgPerAuction, trend } = useMemo(() => {
