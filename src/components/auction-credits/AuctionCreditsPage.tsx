@@ -136,12 +136,18 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     }
     if (!profile) return;
 
+    const yearlyPlan = plans.find(p => p.name.toLowerCase().includes('yearly'));
+    if (!yearlyPlan) {
+      toast({ title: 'Error', description: 'Yearly plan not found', variant: 'destructive' });
+      return;
+    }
+
     setIsLoading('yearly');
     try {
       const { data, error } = await supabase.functions.invoke('cashfree-create-auction-order', {
         body: {
           buyer_id: userId,
-          plan_id: 'yearly-unlimited',
+          plan_id: yearlyPlan.id,
           customer_email: profile.email,
           customer_phone: profile.phone || '0000000000',
           customer_name: profile.company_name || profile.contact_person || 'Buyer',
