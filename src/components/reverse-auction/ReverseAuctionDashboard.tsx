@@ -8,8 +8,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ReverseAuctionList } from './ReverseAuctionList';
 import { AuctionDashboardModules } from './AuctionDashboardModules';
 import { LiveAuctionView } from './LiveAuctionView';
-import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
 import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
+import { AuctionCreditsPage } from '@/components/auction-credits/AuctionCreditsPage';
 import { AuctionWarRoom } from './AuctionWarRoom';
 import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
 import { PurchaseOrdersPage } from '@/components/purchase-orders/PurchaseOrdersPage';
@@ -19,7 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck } from 'lucide-react';
+import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard } from 'lucide-react';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
@@ -27,11 +27,11 @@ interface ReverseAuctionDashboardProps {
 
 export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDashboardProps) {
   const [selectedAuction, setSelectedAuction] = useState<ReverseAuction | null>(null);
-  const [creditsKey, setCreditsKey] = useState(0);
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [showSupplierNetwork, setShowSupplierNetwork] = useState(false);
   const [showPurchaseOrders, setShowPurchaseOrders] = useState(false);
   const [showExecutionTracking, setShowExecutionTracking] = useState(false);
+  const [showAuctionCredits, setShowAuctionCredits] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +55,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     setShowSupplierNetwork(auctionView === 'supplier-network');
     setShowPurchaseOrders(auctionView === 'purchase-orders');
     setShowExecutionTracking(auctionView === 'execution-tracking');
+    setShowAuctionCredits(auctionView === 'auction-credits');
   }, [searchParams]);
 
   const setAuctionView = (view: string | null) => {
