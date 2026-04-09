@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, MessageCircle } from 'lucide-react';
+import { ArrowLeft, CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, MessageCircle, Gem, Mail, Bot, Infinity } from 'lucide-react';
 import { formatINR } from '@/utils/auctionPricing';
 
 declare global {
@@ -266,6 +266,59 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
               </Card>
             );
           })}
+        </div>
+
+        {/* Yearly Unlimited Plan */}
+        <div className="mt-6">
+          <Card className="relative border-2 border-emerald-400 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-700 overflow-hidden">
+            <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs px-3">
+              🏆 Annual Plan
+            </Badge>
+            <CardContent className="pt-6 pb-5 px-5">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="space-y-3 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Gem className="w-6 h-6 text-emerald-600" />
+                    <span className="text-lg font-bold text-foreground">Yearly Unlimited Pack</span>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">₹6,00,000<span className="text-base font-normal text-muted-foreground">/year</span></p>
+                    <p className="text-xs text-muted-foreground">+ 18% GST = ₹7,08,000 • Fixed annual pricing</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Infinity className="w-4 h-4 text-emerald-500" />
+                      <span className="text-muted-foreground">Unlimited Auctions</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="w-4 h-4 text-emerald-500" />
+                      <span className="text-muted-foreground">Email Reminders</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Bot className="w-4 h-4 text-emerald-500" />
+                      <span className="text-muted-foreground">Full AI Assistance</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Crown className="w-4 h-4 text-emerald-500" />
+                      <span className="text-muted-foreground">Priority Support</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 md:min-w-[200px]">
+                  <a
+                    href="https://wa.me/918368127357?text=Hi, I'm interested in the Yearly Unlimited Auction Pack (₹6L/year)."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors text-sm"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Contact Sales
+                  </a>
+                  <p className="text-xs text-center text-muted-foreground">Custom onboarding included</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
