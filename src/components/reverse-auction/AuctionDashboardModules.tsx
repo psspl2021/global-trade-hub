@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   IndianRupee, Flame, BarChart3, Users, Eye, ChevronDown, ChevronRight,
-  FileText, Truck, CheckCircle2, CreditCard, Package, Clock, TrendingUp,
+  FileText, CheckCircle2, Package, Clock, TrendingUp,
   MessageCircle, RefreshCw, Trophy, AlertTriangle, Lightbulb, Plus, UserPlus,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
