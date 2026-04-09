@@ -68,7 +68,7 @@ import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
 import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
-import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
+
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 
@@ -118,10 +118,6 @@ const Dashboard = () => {
   const showBookTransport = activeView === 'book-transport';
   const setShowBookTransport = (show: boolean) => {
     setSearchParams(show ? { view: 'book-transport' } : {}, { replace: true });
-  };
-  const showSupplierNetwork = activeView === 'supplier-network';
-  const setShowSupplierNetwork = (show: boolean) => {
-    setSearchParams(show ? { view: 'supplier-network' } : {}, { replace: true });
   };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
@@ -437,8 +433,6 @@ const Dashboard = () => {
                  {/* My Logistics Requirements */}
                  {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
                </div>
-             ) : showSupplierNetwork ? (
-               <SupplierNetworkPage userId={user!.id} onBack={() => setShowSupplierNetwork(false)} />
              ) : (
                <>
                 {/* ── Section: Quick Actions ── */}
@@ -499,18 +493,6 @@ const Dashboard = () => {
                           <p className="text-[11px] text-muted-foreground">Run live auctions & maximize savings</p>
                         </div>
                         <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-amber-500 transition-colors" />
-                      </div>
-                    </Card>
-                     <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-violet-500" onClick={() => setShowSupplierNetwork(true)}>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
-                          <Users className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">Supplier Network</p>
-                          <p className="text-[11px] text-muted-foreground">Add & manage your supplier base</p>
-                        </div>
-                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-violet-500 transition-colors" />
                       </div>
                     </Card>
                    </div>
