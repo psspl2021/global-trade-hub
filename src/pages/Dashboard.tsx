@@ -29,7 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel, ArrowLeft, ShoppingCart, BarChart3 } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel, ArrowLeft, ShoppingCart, BarChart3, Users } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
@@ -68,6 +68,7 @@ import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
 import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
+import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 
@@ -117,6 +118,10 @@ const Dashboard = () => {
   const showBookTransport = activeView === 'book-transport';
   const setShowBookTransport = (show: boolean) => {
     setSearchParams(show ? { view: 'book-transport' } : {}, { replace: true });
+  };
+  const showSupplierNetwork = activeView === 'supplier-network';
+  const setShowSupplierNetwork = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-network' } : {}, { replace: true });
   };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
@@ -432,6 +437,8 @@ const Dashboard = () => {
                  {/* My Logistics Requirements */}
                  {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
                </div>
+             ) : showSupplierNetwork ? (
+               <SupplierNetworkPage userId={user!.id} onBack={() => setShowSupplierNetwork(false)} />
              ) : (
                <>
                 {/* ── Section: Quick Actions ── */}
@@ -494,8 +501,20 @@ const Dashboard = () => {
                         <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-amber-500 transition-colors" />
                       </div>
                     </Card>
-                  </div>
-                </div>
+                     <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-violet-500" onClick={() => setShowSupplierNetwork(true)}>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
+                          <Users className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">Supplier Network</p>
+                          <p className="text-[11px] text-muted-foreground">Add & manage your supplier base</p>
+                        </div>
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-violet-500 transition-colors" />
+                      </div>
+                    </Card>
+                   </div>
+                 </div>
 
                 {/* ── Section: Tools & Insights ── */}
                 <div className="space-y-1.5 mb-6">
