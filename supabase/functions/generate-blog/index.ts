@@ -781,13 +781,13 @@ function getCategoryImagePool(category: string, keyword?: string): { cover: stri
   };
 }
 
-function getImageCaptions(category: string, country: string, tradeType: string): string[] {
+function getImageCaptions(productName: string, country: string, tradeType: string): string[] {
   return [
-    `${category} manufacturing facility - ProcureSaathi procurement insights`,
-    `${category} supply chain warehouse - ProcureSaathi`,
-    `${category} quality inspection process`,
-    `B2B ${tradeType.toLowerCase()} logistics for ${category} - ${country}`,
-    `${category} raw materials and inventory management`,
+    `${productName} procurement and sourcing in ${country} - ProcureSaathi`,
+    `${productName} supply chain and warehouse operations - ProcureSaathi`,
+    `${productName} quality inspection and verification process`,
+    `B2B ${tradeType.toLowerCase()} logistics for ${productName} in ${country}`,
+    `${productName} raw materials and inventory management`,
   ];
 }
 
