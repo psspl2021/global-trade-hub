@@ -649,6 +649,8 @@ serve(async (req: Request) => {
     } else if (type === 'blogs') {
       const blogPosts = await fetchBlogPosts();
       xml = generateSitemapBlogs(today, blogPosts);
+    } else if (type === 'solutions') {
+      xml = await generateSitemapSolutions(today);
     } else {
       // Default: return sitemap index
       xml = generateSitemapIndex(today);
