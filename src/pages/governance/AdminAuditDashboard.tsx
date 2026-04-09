@@ -44,7 +44,8 @@ import {
   Monitor,
   Smartphone,
   Home,
-  Zap
+  Zap,
+  Rocket
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
@@ -84,6 +85,7 @@ const SeoRevenueDashboard = lazy(() => import('@/pages/admin/SeoRevenueDashboard
 const AdminIntelligenceDashboard = lazy(() => import('@/pages/admin/AdminIntelligenceDashboard'));
 const SEODashboard = lazy(() => import('@/pages/admin/SEODashboard'));
 const DemandGapsPanel = lazy(() => import('@/pages/admin/DemandGapsPanel'));
+const SEOPipelinePanel = lazy(() => import('@/components/admin/SEOPipelinePanel'));
 
 type AdminView = 
   | 'dashboard' 
@@ -104,7 +106,8 @@ type AdminView =
   | 'seo-rev-dashboard'
   | 'seo-intelligence'
   | 'seo-dashboard'
-  | 'demand-gaps';
+  | 'demand-gaps'
+  | 'seo-pipeline';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
@@ -313,6 +316,7 @@ export default function AdminAuditDashboard() {
       case 'seo-intelligence': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><AdminIntelligenceDashboard /></Suspense>;
       case 'seo-dashboard': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEODashboard /></Suspense>;
       case 'demand-gaps': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemandGapsPanel /></Suspense>;
+      case 'seo-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEOPipelinePanel /></Suspense>;
       case 'dashboard':
       default:
         return renderDashboard();
@@ -610,6 +614,13 @@ export default function AdminAuditDashboard() {
           <CardContent className="space-y-3">
             <p className="text-sm text-orange-200">Missing slug detection, priority scoring & AI generation queue</p>
             <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white" onClick={() => setCurrentView('demand-gaps')}><Zap className="h-4 w-4 mr-2" />Open Demand Gaps</Button>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-emerald-950 to-emerald-900 text-white border-0">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Rocket className="h-4 w-4" />SEO Pipeline<Badge className="bg-white/20 text-white text-xs">AUTO</Badge></CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-emerald-200">Auto-publish 100 high-intent pages with AI content & internal linking</p>
+            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setCurrentView('seo-pipeline')}><Rocket className="h-4 w-4 mr-2" />Open Pipeline</Button>
           </CardContent>
         </Card>
       </div>
