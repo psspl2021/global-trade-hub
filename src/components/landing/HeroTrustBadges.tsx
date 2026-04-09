@@ -9,14 +9,15 @@ export const HeroTrustBadges = () => {
   ];
 
   return (
-    <div className="flex flex-wrap justify-center gap-3 sm:gap-6">
-      {badges.map((badge) => (
+    <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+      {badges.map((badge, i) => (
         <div 
           key={badge.text}
-          className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full bg-card/50 border border-border/50"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-border/40 hover:bg-card/80 hover:border-primary/30 transition-all duration-300 cursor-default group animate-slide-up"
+          style={{ animationDelay: `${250 + i * 80}ms` }}
         >
-          <badge.icon className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs sm:text-sm text-muted-foreground font-medium">
+          <badge.icon className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
+          <span className="text-xs sm:text-sm text-muted-foreground font-medium group-hover:text-foreground transition-colors">
             {badge.text}
           </span>
         </div>

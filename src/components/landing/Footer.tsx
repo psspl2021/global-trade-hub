@@ -55,8 +55,8 @@ export const Footer = () => {
       </div>
 
       {/* Main Footer */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+      <div className="container mx-auto px-4 py-14 lg:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <div className="mb-6">
@@ -71,11 +71,11 @@ export const Footer = () => {
               reliable suppliers through transparent sealed bidding.
             </p>
             <div className="space-y-3">
-              <a href="mailto:sales@procuresaathi.com" className="flex items-center gap-2 text-sm text-background/70 hover:text-background transition-colors">
+              <a href="mailto:sales@procuresaathi.com" className="flex items-center gap-2 text-sm text-background/70 hover:text-background transition-colors duration-200">
                 <Mail className="h-4 w-4" />
                 sales@procuresaathi.com
               </a>
-              <a href="tel:+918368127357" className="flex items-center gap-2 text-sm text-background/70 hover:text-background transition-colors">
+              <a href="tel:+918368127357" className="flex items-center gap-2 text-sm text-background/70 hover:text-background transition-colors duration-200">
                 <Phone className="h-4 w-4" />
                 +91 8368127357
               </a>
@@ -86,73 +86,29 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Company Links */}
-          <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-4 text-background/90">Company</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <button 
-                    onClick={() => navigate(link.path)}
-                    className="text-sm text-background/70 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Buyers Links */}
-          <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-4 text-background/90">For Buyers</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.buyers.map((link) => (
-                <li key={link.label}>
-                  <button 
-                    onClick={() => navigate(link.path)}
-                    className="text-sm text-background/70 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Suppliers Links */}
-          <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-4 text-background/90">For Suppliers</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.suppliers.map((link) => (
-                <li key={link.label}>
-                  <button 
-                    onClick={() => navigate(link.path)}
-                    className="text-sm text-background/70 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources Links */}
-          <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-4 text-background/90">Resources</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.resources.map((link) => (
-                <li key={link.label}>
-                  <button 
-                    onClick={() => navigate(link.path)}
-                    className="text-sm text-background/70 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Link Columns */}
+          {[
+            { title: 'Company', links: footerLinks.company },
+            { title: 'For Buyers', links: footerLinks.buyers },
+            { title: 'For Suppliers', links: footerLinks.suppliers },
+            { title: 'Resources', links: footerLinks.resources },
+          ].map((section) => (
+            <div key={section.title}>
+              <h3 className="font-semibold text-sm uppercase tracking-wider mb-4 text-background/90">{section.title}</h3>
+              <ul className="space-y-2.5">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    <button 
+                      onClick={() => navigate(link.path)}
+                      className="text-sm text-background/60 hover:text-background hover:translate-x-0.5 transition-all duration-200 text-left"
+                    >
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Newsletter CTA */}
@@ -160,15 +116,15 @@ export const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
               <h3 className="font-semibold text-lg mb-1">Ready to transform your procurement?</h3>
-              <p className="text-sm text-background/70">Join thousands of businesses on ProcureSaathi.</p>
+              <p className="text-sm text-background/60">Join thousands of businesses on ProcureSaathi.</p>
             </div>
             <div className="flex flex-wrap gap-3 justify-center">
               <Button 
                 onClick={() => navigate('/post-rfq')}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground group"
               >
                 Looking to Buy?
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               <Button 
                 onClick={() => navigate('/signup?role=supplier')}
@@ -203,33 +159,28 @@ export const Footer = () => {
               </p>
             </div>
             <div className="flex items-center gap-6">
-              <button className="text-xs text-background/60 hover:text-background transition-colors">
+              <button className="text-xs text-background/60 hover:text-background transition-colors duration-200">
                 Privacy Policy
               </button>
-              <button className="text-xs text-background/60 hover:text-background transition-colors">
+              <button className="text-xs text-background/60 hover:text-background transition-colors duration-200">
                 Terms of Service
               </button>
-              <div className="flex items-center gap-3">
-                <a 
-                  href="https://www.linkedin.com/company/procuresaathi" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
-                >
-                  <Linkedin className="h-4 w-4" />
-                </a>
-                <a 
-                  href="#" 
-                  className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
-                >
-                  <Twitter className="h-4 w-4" />
-                </a>
-                <a 
-                  href="#" 
-                  className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
-                >
-                  <Facebook className="h-4 w-4" />
-                </a>
+              <div className="flex items-center gap-2">
+                {[
+                  { href: "https://www.linkedin.com/company/procuresaathi", icon: Linkedin },
+                  { href: "#", icon: Twitter },
+                  { href: "#", icon: Facebook },
+                ].map((social, i) => (
+                  <a 
+                    key={i}
+                    href={social.href} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 hover:scale-110 transition-all duration-200"
+                  >
+                    <social.icon className="h-4 w-4" />
+                  </a>
+                ))}
               </div>
             </div>
           </div>
