@@ -68,6 +68,7 @@ import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
 import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
+import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 
@@ -117,6 +118,10 @@ const Dashboard = () => {
   const showBookTransport = activeView === 'book-transport';
   const setShowBookTransport = (show: boolean) => {
     setSearchParams(show ? { view: 'book-transport' } : {}, { replace: true });
+  };
+  const showSupplierNetwork = activeView === 'supplier-network';
+  const setShowSupplierNetwork = (show: boolean) => {
+    setSearchParams(show ? { view: 'supplier-network' } : {}, { replace: true });
   };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
