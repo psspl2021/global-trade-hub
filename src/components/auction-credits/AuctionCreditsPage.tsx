@@ -234,7 +234,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
       <div>
         <h3 className="text-base font-semibold text-foreground mb-3">Buy Auction Credits</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {plans.map((plan, index) => {
+          {plans.filter(p => !p.name.toLowerCase().includes('yearly')).map((plan, index) => {
             const Icon = planIcons[index] || Zap;
             const colorClass = planColors[index] || planColors[0];
             const badge = planBadges[index];
