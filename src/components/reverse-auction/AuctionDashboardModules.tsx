@@ -36,51 +36,6 @@ interface Props {
 }
 
 /* ═══════════════════════════════════════════════
-   ✦ 1. Summary KPI Cards
-   ═══════════════════════════════════════════════ */
-function SummaryCards({ auctions, supplierCount }: { auctions: any[]; supplierCount: number }) {
-  const stats = useMemo(() => {
-    let totalSavings = 0;
-    let totalSpend = 0;
-    let activeCount = 0;
-
-    auctions.forEach((a) => {
-      const qty = a.quantity || 1;
-      const final = a.status === 'completed' ? (a.winning_bid ?? a.current_price) : a.current_price;
-      if (final) totalSpend += final * qty;
-      if (a.status === 'live') activeCount++;
-      if (final && a.starting_price && final < a.starting_price) {
-        totalSavings += (a.starting_price - final) * qty;
-      }
-    });
-
-    return { totalSavings, totalSpend, activeCount };
-  }, [auctions]);
-
-  const cards = [
-    { title: 'Total Savings', value: formatCompact(stats.totalSavings), sub: 'All time', icon: IndianRupee, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/20', border: 'border-emerald-200 dark:border-emerald-800' },
-    { title: 'Active Auctions', value: String(stats.activeCount), sub: 'Live now', icon: Flame, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', border: 'border-amber-200 dark:border-amber-800' },
-    { title: 'Total Spend', value: formatCompact(stats.totalSpend), sub: 'This month', icon: BarChart3, color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/20' },
-    { title: 'Suppliers', value: String(supplierCount), sub: 'Total added', icon: Users, color: 'text-violet-600', bg: 'bg-violet-50 dark:bg-violet-950/20', border: 'border-violet-200 dark:border-violet-800' },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {cards.map((c) => (
-        <Card key={c.title} className={`p-3.5 border ${c.bg} ${c.border} rounded-[0.625rem]`}>
-          <div className="flex items-center gap-1.5 mb-1">
-            <c.icon className={`w-3.5 h-3.5 ${c.color}`} />
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{c.title}</span>
-          </div>
-          <p className={`text-2xl font-bold ${c.color}`}>{c.value}</p>
-          <span className="text-xs text-muted-foreground">{c.sub}</span>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════
    ✦ 2. Live Auction Strip
    ═══════════════════════════════════════════════ */
 function LiveAuctionStrip({ auctions, onSelect }: { auctions: any[]; onSelect: (a: any) => void }) {
@@ -486,7 +441,6 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
 
   return (
     <div className="space-y-4">
-      <SummaryCards auctions={auctions} supplierCount={supplierCount} />
       <LiveAuctionStrip auctions={auctions} onSelect={onSelectAuction} />
     </div>
   );
