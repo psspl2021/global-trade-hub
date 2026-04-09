@@ -120,7 +120,16 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     return (
       <SupplierNetworkPage
         userId={user.id}
-        onBack={() => toggleSupplierNetwork(false)}
+        onBack={() => setAuctionView(null)}
+      />
+    );
+  }
+
+  if (showPurchaseOrders && !isSupplier && user) {
+    return (
+      <PurchaseOrdersPage
+        userId={user.id}
+        onBack={() => setAuctionView(null)}
       />
     );
   }
