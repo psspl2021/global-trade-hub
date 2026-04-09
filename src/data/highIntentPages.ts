@@ -237,10 +237,25 @@ function generatePage(raw: RawKeyword, index: number): HighIntentPage {
     benefits,
     howItWorks,
     trustPoints,
-    ctaPrimary: "Start Reverse Auction",
-    ctaSecondary: "Get Supplier Quotes",
+    ctaPrimary: getSmartCTA(raw.keyword),
+    ctaSecondary: getSmartSecondaryCTA(raw.keyword),
     relatedSlugs,
   };
+}
+
+/** Smart CTA — keyword-aware primary button text */
+function getSmartCTA(keyword: string): string {
+  if (keyword.includes('supplier')) return 'Get Verified Suppliers Now';
+  if (keyword.includes('cost') || keyword.includes('price') || keyword.includes('compare')) return 'Reduce Your Procurement Cost';
+  if (keyword.includes('platform') || keyword.includes('software') || keyword.includes('system')) return 'See Reverse Auction Demo';
+  if (keyword.includes('bulk')) return 'Get Bulk Pricing Now';
+  return 'Start Reverse Auction';
+}
+
+function getSmartSecondaryCTA(keyword: string): string {
+  if (keyword.includes('supplier')) return 'Compare Supplier Quotes';
+  if (keyword.includes('cost') || keyword.includes('price')) return 'See Savings Calculator';
+  return 'Get Supplier Quotes';
 }
 
 export const highIntentPages: HighIntentPage[] = rawKeywords.map((raw, i) => generatePage(raw, i));
@@ -268,3 +283,47 @@ export const highIntentCategories = [
   { name: "Cost Reduction", slug: "cost-reduction", count: 10 },
   { name: "Industry Specific", slug: "industry-specific", count: 10 },
 ];
+
+// ─── CITY-LEVEL SEO EXPANSION ───────────────────────────────
+export const targetCities = [
+  { name: "Mumbai", slug: "mumbai" },
+  { name: "Delhi", slug: "delhi" },
+  { name: "Bangalore", slug: "bangalore" },
+  { name: "Chennai", slug: "chennai" },
+  { name: "Pune", slug: "pune" },
+  { name: "Hyderabad", slug: "hyderabad" },
+  { name: "Kolkata", slug: "kolkata" },
+  { name: "Ahmedabad", slug: "ahmedabad" },
+];
+
+/** Generate city-variant page from a base page */
+export function getCityVariantPage(baseSlug: string, citySlug: string): HighIntentPage | undefined {
+  const basePage = getHighIntentPageBySlug(baseSlug);
+  if (!basePage) return undefined;
+
+  const city = targetCities.find(c => c.slug === citySlug);
+  if (!city) return undefined;
+
+  return {
+    ...basePage,
+    slug: `${basePage.slug}-${city.slug}`,
+    keyword: `${basePage.keyword} ${city.name.toLowerCase()}`,
+    title: `${basePage.h1} in ${city.name} – Verified Suppliers | ProcureSaathi`,
+    metaDescription: `${basePage.h1} in ${city.name}. Compare verified local suppliers, run reverse auctions, save 12-25%. Fast delivery in ${city.name} region.`,
+    h1: `${basePage.h1} in ${city.name}`,
+    intro: basePage.intro.replace(/India/g, city.name).replace(/indian/gi, `${city.name}-based`),
+    ctaPrimary: getSmartCTA(basePage.keyword),
+    ctaSecondary: getSmartSecondaryCTA(basePage.keyword),
+    relatedSlugs: basePage.relatedSlugs.map(s => `${s}-${city.slug}`),
+  };
+}
+
+/** Parse slug into base + city components */
+export function parseSlugForCity(slug: string): { baseSlug: string; citySlug: string | null } {
+  for (const city of targetCities) {
+    if (slug.endsWith(`-${city.slug}`)) {
+      return { baseSlug: slug.replace(`-${city.slug}`, ''), citySlug: city.slug };
+    }
+  }
+  return { baseSlug: slug, citySlug: null };
+}

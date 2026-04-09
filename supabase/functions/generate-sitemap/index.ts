@@ -428,6 +428,77 @@ async function generateSitemapDemand(
   return xml;
 }
 
+// Solutions sitemap (high-intent SEO pages + city variants)
+async function generateSitemapSolutions(today: string): Promise<string> {
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;
+
+  // High-intent solution pages (100 base keywords)
+  const solutionSlugs = [
+    "steel-procurement-india", "tmt-bars-bulk-purchase-india", "hr-coil-suppliers-india",
+    "cr-coil-procurement-india", "ms-plates-bulk-suppliers-india", "gi-sheets-suppliers-india",
+    "wire-rods-procurement-india", "iron-procurement-india", "alloy-steel-suppliers-india",
+    "structural-steel-procurement-india", "hdpe-pipe-suppliers-india", "pvc-pipe-procurement-india",
+    "ms-pipe-bulk-purchase-india", "gi-pipe-suppliers-india", "industrial-pipe-procurement-india",
+    "pipe-fittings-suppliers-india", "valve-suppliers-industrial-india", "flange-suppliers-india",
+    "seamless-pipe-suppliers-india", "pipeline-material-procurement-india",
+    "cement-bulk-purchase-india", "ready-mix-concrete-suppliers-india",
+    "construction-materials-procurement-india", "building-materials-suppliers-india",
+    "roofing-sheets-suppliers-india", "tiles-bulk-suppliers-india", "sand-suppliers-bulk-india",
+    "aggregate-suppliers-india", "brick-suppliers-bulk-india", "rebar-suppliers-india",
+    "cable-suppliers-india-bulk", "electrical-wire-procurement-india", "transformer-suppliers-india",
+    "switchgear-suppliers-india", "electrical-panel-suppliers-india",
+    "industrial-cable-procurement-india", "power-cable-suppliers-india",
+    "control-panel-suppliers-india", "electrical-equipment-procurement-india",
+    "industrial-lighting-suppliers-india", "corrugated-box-suppliers-india",
+    "packaging-material-bulk-suppliers-india", "plastic-packaging-suppliers-india",
+    "industrial-packaging-procurement-india", "carton-box-manufacturers-india",
+    "stretch-film-suppliers-india", "pallet-suppliers-india",
+    "packaging-solutions-for-industries-india", "export-packaging-suppliers-india",
+    "protective-packaging-suppliers-india", "industrial-chemical-suppliers-india",
+    "solvent-suppliers-india-bulk", "resin-suppliers-india", "polymer-suppliers-india",
+    "adhesive-suppliers-india", "paint-chemical-suppliers-india",
+    "coating-chemicals-procurement-india", "specialty-chemicals-suppliers-india",
+    "bulk-chemical-procurement-india", "industrial-acid-suppliers-india",
+    "industrial-procurement-platform-india", "bulk-material-procurement-india",
+    "raw-material-procurement-india", "factory-procurement-solutions-india",
+    "manufacturing-procurement-platform-india", "b2b-procurement-platform-india",
+    "procurement-software-india", "supplier-comparison-platform-india",
+    "reverse-auction-procurement-india", "online-procurement-system-india",
+    "reduce-procurement-cost-india", "how-to-get-lowest-supplier-price",
+    "compare-supplier-quotes-india", "best-way-to-buy-in-bulk-india",
+    "procurement-cost-saving-strategies", "strategic-sourcing-india",
+    "supplier-negotiation-alternatives", "digital-procurement-solutions-india",
+    "automate-procurement-process-india", "cost-optimization-procurement-india",
+    "construction-procurement-platform-india", "manufacturing-raw-material-sourcing-india",
+    "infrastructure-material-procurement-india", "factory-supply-chain-procurement-india",
+    "real-estate-material-procurement-india", "industrial-buying-platform-india",
+    "contractor-procurement-solutions-india", "engineering-procurement-platform-india",
+    "project-material-sourcing-india", "bulk-sourcing-platform-india",
+  ];
+
+  const cities = ["mumbai", "delhi", "bangalore", "chennai", "pune", "hyderabad", "kolkata", "ahmedabad"];
+
+  // Base solution pages
+  for (const slug of solutionSlugs) {
+    xml += urlEntry(`${baseUrl}/solutions/${slug}`, today, 'weekly', 0.85);
+  }
+
+  // City-variant pages
+  for (const slug of solutionSlugs) {
+    for (const city of cities) {
+      xml += urlEntry(`${baseUrl}/solutions/${slug}-${city}`, today, 'weekly', 0.75);
+    }
+  }
+
+  // Solutions index
+  xml += urlEntry(`${baseUrl}/solutions`, today, 'daily', 0.9);
+
+  xml += '</urlset>';
+  return xml;
+}
+
 // 3. Import corridors + use-case sitemap
 function generateSitemapImport(today: string, revenueScores: Map<string, number>): string {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -512,6 +583,7 @@ function generateSitemapIndex(today: string): string {
   const sitemaps = [
     'sitemap-pages.xml',
     'sitemap-demand.xml',
+    'sitemap-solutions.xml',
     'sitemap-import.xml',
     'sitemap-industries.xml',
     'sitemap-blogs.xml',
@@ -577,6 +649,8 @@ serve(async (req: Request) => {
     } else if (type === 'blogs') {
       const blogPosts = await fetchBlogPosts();
       xml = generateSitemapBlogs(today, blogPosts);
+    } else if (type === 'solutions') {
+      xml = await generateSitemapSolutions(today);
     } else {
       // Default: return sitemap index
       xml = generateSitemapIndex(today);

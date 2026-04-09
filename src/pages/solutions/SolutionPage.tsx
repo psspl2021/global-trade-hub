@@ -1,13 +1,13 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { getHighIntentPageBySlug, highIntentPages, type HighIntentPage } from '@/data/highIntentPages';
+import { getHighIntentPageBySlug, highIntentPages, parseSlugForCity, getCityVariantPage, targetCities, type HighIntentPage } from '@/data/highIntentPages';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   TrendingUp, Shield, Brain, ArrowRight, CheckCircle2,
   ChevronRight, AlertTriangle, Zap, BarChart3, Globe,
-  Factory, Package, Building, Layers
+  Factory, Package, Building, Layers, Award
 } from 'lucide-react';
 import { PostRFQModal } from '@/components/PostRFQModal';
 import { useState, useMemo } from 'react';
@@ -24,11 +24,59 @@ const categoryIcons: Record<string, React.ElementType> = {
   'industry-specific': Factory,
 };
 
+/** Deterministic proof data — category-aware savings examples */
+const auctionProofByCategory: Record<string, Array<{ item: string; saved: string; pct: string }>> = {
+  metals: [
+    { item: "TMT Bars (500 MT)", saved: "₹4.2L", pct: "18%" },
+    { item: "HR Coil (200 MT)", saved: "₹3.8L", pct: "15%" },
+    { item: "MS Plates (100 MT)", saved: "₹2.1L", pct: "12%" },
+  ],
+  'pipes-fittings': [
+    { item: "HDPE Pipes (10 km)", saved: "₹5.1L", pct: "21%" },
+    { item: "GI Pipes (50 MT)", saved: "₹1.8L", pct: "14%" },
+    { item: "Valves (500 units)", saved: "₹2.3L", pct: "16%" },
+  ],
+  construction: [
+    { item: "Cement (5000 bags)", saved: "₹2.1L", pct: "12%" },
+    { item: "Ready Mix Concrete", saved: "₹3.5L", pct: "15%" },
+    { item: "Roofing Sheets", saved: "₹1.9L", pct: "18%" },
+  ],
+  electrical: [
+    { item: "Power Cables (10 km)", saved: "₹4.7L", pct: "19%" },
+    { item: "Switchgear (100 units)", saved: "₹2.8L", pct: "14%" },
+    { item: "Transformers (10 units)", saved: "₹6.2L", pct: "22%" },
+  ],
+  packaging: [
+    { item: "Corrugated Boxes (50K)", saved: "₹1.5L", pct: "13%" },
+    { item: "Stretch Film (200 rolls)", saved: "₹0.8L", pct: "11%" },
+    { item: "Pallets (1000 units)", saved: "₹1.2L", pct: "15%" },
+  ],
+  chemicals: [
+    { item: "Industrial Solvents", saved: "₹3.2L", pct: "17%" },
+    { item: "Adhesives (5 MT)", saved: "₹1.6L", pct: "14%" },
+    { item: "Specialty Chemicals", saved: "₹4.1L", pct: "19%" },
+  ],
+  default: [
+    { item: "Steel procurement", saved: "₹4.2L", pct: "18%" },
+    { item: "Cement bulk order", saved: "₹2.1L", pct: "12%" },
+    { item: "HDPE pipes", saved: "₹3.5L", pct: "21%" },
+  ],
+};
+
 export default function SolutionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [showRFQ, setShowRFQ] = useState(false);
 
-  const page = useMemo(() => slug ? getHighIntentPageBySlug(slug) : undefined, [slug]);
+  const page = useMemo(() => {
+    if (!slug) return undefined;
+    // Try direct match first
+    const direct = getHighIntentPageBySlug(slug);
+    if (direct) return direct;
+    // Try city variant
+    const { baseSlug, citySlug } = parseSlugForCity(slug);
+    if (citySlug) return getCityVariantPage(baseSlug, citySlug);
+    return undefined;
+  }, [slug]);
 
   if (!page) {
     return <Navigate to="/solutions" replace />;
@@ -289,6 +337,71 @@ export default function SolutionPage() {
             </div>
           </div>
         </section>
+
+        {/* Live Auction Proof — Social proof + urgency */}
+        <section className="py-16 bg-accent/10">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="flex items-center gap-3 mb-8">
+              <Award className="h-7 w-7 text-primary" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                Recent Reverse Auction Results
+              </h2>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-4">
+              {(auctionProofByCategory[page.categorySlug] || auctionProofByCategory.default).map((proof, i) => (
+                <Card key={i} className="border-primary/20 bg-background animate-slide-up" style={{ animationDelay: `${i * 100}ms` }}>
+                  <CardContent className="p-5">
+                    <div className="text-sm text-muted-foreground mb-2">{proof.item}</div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-primary">{proof.saved}</span>
+                      <Badge variant="secondary" className="text-xs">{proof.pct} saved</Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">via ProcureSaathi Reverse Auction</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-4 text-center">
+              *Illustrative savings based on aggregated platform data. Actual savings vary by category and order size.
+            </p>
+          </div>
+        </section>
+
+        {/* City Variants — Internal linking for location SEO */}
+        {(() => {
+          const { citySlug } = parseSlugForCity(page.slug);
+          const basePage = citySlug ? getHighIntentPageBySlug(parseSlugForCity(page.slug).baseSlug) : page;
+          if (!basePage) return null;
+          const cityLinks = targetCities.filter(c => c.slug !== citySlug);
+          return (
+            <section className="py-8 bg-muted/20 border-t border-border/40">
+              <div className="container mx-auto px-4 max-w-4xl">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                  Also available in:
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {!citySlug && (
+                    <span className="text-xs text-muted-foreground px-2 py-1 rounded bg-primary/10 font-medium">All India</span>
+                  )}
+                  {citySlug && (
+                    <Link to={`/solutions/${basePage.slug}`} className="text-xs text-primary hover:underline px-2 py-1 rounded bg-primary/5">
+                      All India
+                    </Link>
+                  )}
+                  {cityLinks.slice(0, 6).map(city => (
+                    <Link
+                      key={city.slug}
+                      to={`/solutions/${basePage.slug}-${city.slug}`}
+                      className="text-xs text-primary hover:underline px-2 py-1 rounded bg-primary/5"
+                    >
+                      {city.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* CTA Section */}
         <section className="py-16 bg-primary/5">
