@@ -256,26 +256,41 @@ export function MonthlySavingsAnalytics() {
           )}
 
           {/* KPI Summary Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <Card className="p-3.5 border bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 rounded-[0.625rem]">
           <div className="flex items-center gap-1.5 mb-1">
             <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Total Savings</span>
           </div>
-          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatCompact(totalSavings)}</p>
-          <div className="flex items-center gap-1 mt-0.5">
-            <TrendingUp className="w-3 h-3 text-emerald-600" />
-            <span className="text-xs text-emerald-600 font-medium">realized</span>
+          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatCompact(allTimeSavings)}</p>
+          <span className="text-xs text-muted-foreground">All time</span>
+        </Card>
+
+        <Card className="p-3.5 border bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 rounded-[0.625rem]">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Flame className="w-3.5 h-3.5 text-amber-600" />
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Active Auctions</span>
           </div>
+          <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">{activeCount}</p>
+          <span className="text-xs text-muted-foreground">Live now</span>
         </Card>
 
         <Card className="p-3.5 border bg-primary/5 border-primary/20 rounded-[0.625rem]">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-primary" />
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Sourcing Spend</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Total Spend</span>
           </div>
-          <p className="text-2xl font-bold text-primary">{formatCompact(totalSpend)}</p>
-          <span className="text-xs text-muted-foreground">{auctions.length} auctions</span>
+          <p className="text-2xl font-bold text-primary">{formatCompact(allTimeSpend)}</p>
+          <span className="text-xs text-muted-foreground">{allAuctions.length} auctions</span>
+        </Card>
+
+        <Card className="p-3.5 border bg-violet-50/50 dark:bg-violet-950/20 border-violet-200 dark:border-violet-800 rounded-[0.625rem]">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Users className="w-3.5 h-3.5 text-violet-600" />
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Suppliers</span>
+          </div>
+          <p className="text-2xl font-bold text-violet-700 dark:text-violet-400">{supplierCount}</p>
+          <span className="text-xs text-muted-foreground">Total added</span>
         </Card>
 
         <Card className="p-3.5 border bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 rounded-[0.625rem]">
@@ -293,7 +308,7 @@ export function MonthlySavingsAnalytics() {
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Completed</span>
           </div>
           <p className="text-2xl font-bold text-violet-700 dark:text-violet-400">{completedCount}</p>
-          <span className="text-xs text-muted-foreground">of {auctions.length} total</span>
+          <span className="text-xs text-muted-foreground">of {allAuctions.length} total</span>
         </Card>
           </div>
 
