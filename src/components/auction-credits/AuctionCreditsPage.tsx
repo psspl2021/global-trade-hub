@@ -268,9 +268,18 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-muted-foreground">
+                        {plan.name === 'Enterprise Pack' ? '2 free auctions/day' : '1 free auction/day'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="text-muted-foreground">Never expires</span>
                     </div>
                   </div>
+                  <p className="text-[11px] text-muted-foreground/70 italic">
+                    * Free daily auctions valid until {plan.auctions_count} credits exhaust. Does not carry forward.
+                  </p>
 
                   {plan.name.includes('Starter') && !starterUsed && (
                     <p className="text-xs text-muted-foreground">
