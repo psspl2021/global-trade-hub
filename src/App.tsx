@@ -235,6 +235,10 @@ const BotAwareRouter = () => {
         <Route path="/industries/:industry" element={<IndustriesPage />} />
         <Route path="/industries/:industry/:subIndustry" element={<IndustriesPage />} />
         
+        {/* High-Intent SEO Solution Pages */}
+        <Route path="/solutions" element={<SolutionsIndex />} />
+        <Route path="/solutions/:slug" element={<SolutionPage />} />
+        
         {/* Role-Based Dashboard Routes - STRICT SEPARATION */}
         {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}
         <Route path="/dashboard" element={<Dashboard />} />
