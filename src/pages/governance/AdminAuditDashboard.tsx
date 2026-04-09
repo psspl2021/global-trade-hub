@@ -84,6 +84,7 @@ const SeoRevenueDashboard = lazy(() => import('@/pages/admin/SeoRevenueDashboard
 const AdminIntelligenceDashboard = lazy(() => import('@/pages/admin/AdminIntelligenceDashboard'));
 const SEODashboard = lazy(() => import('@/pages/admin/SEODashboard'));
 const DemandGapsPanel = lazy(() => import('@/pages/admin/DemandGapsPanel'));
+const SEOPipelinePanel = lazy(() => import('@/components/admin/SEOPipelinePanel'));
 
 type AdminView = 
   | 'dashboard' 
@@ -104,7 +105,8 @@ type AdminView =
   | 'seo-rev-dashboard'
   | 'seo-intelligence'
   | 'seo-dashboard'
-  | 'demand-gaps';
+  | 'demand-gaps'
+  | 'seo-pipeline';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
