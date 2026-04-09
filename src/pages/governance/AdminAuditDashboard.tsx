@@ -626,6 +626,13 @@ export default function AdminAuditDashboard() {
             <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setCurrentView('seo-pipeline')}><Rocket className="h-4 w-4 mr-2" />Open Pipeline</Button>
           </CardContent>
         </Card>
+        <Card className="bg-gradient-to-br from-blue-950 to-blue-900 text-white border-0">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4" />Blog Pipeline<Badge className="bg-white/20 text-white text-xs">AUTO</Badge></CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-blue-200">Auto-generate 20 high-intent SEO blogs with solution page links</p>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCurrentView('blog-pipeline')}><BookOpen className="h-4 w-4 mr-2" />Open Pipeline</Button>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Row 9 — Content & Tools */}
