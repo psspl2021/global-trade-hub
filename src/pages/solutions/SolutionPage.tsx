@@ -67,17 +67,28 @@ const auctionProofByCategory: Record<string, Array<{ item: string; saved: string
 export default function SolutionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [showRFQ, setShowRFQ] = useState(false);
+  const [relatedBlogs, setRelatedBlogs] = useState<Array<{ slug: string; title: string }>>([]);
 
   const page = useMemo(() => {
     if (!slug) return undefined;
-    // Try direct match first
     const direct = getHighIntentPageBySlug(slug);
     if (direct) return direct;
-    // Try city variant
     const { baseSlug, citySlug } = parseSlugForCity(slug);
     if (citySlug) return getCityVariantPage(baseSlug, citySlug);
     return undefined;
   }, [slug]);
+
+  // Fetch related blogs for this category
+  useEffect(() => {
+    if (!page?.category) return;
+    supabase
+      .from('blogs')
+      .select('slug, title')
+      .eq('is_published', true)
+      .ilike('category', `%${page.category}%`)
+      .limit(3)
+      .then(({ data }) => { if (data) setRelatedBlogs(data); });
+  }, [page?.category]);
 
   if (!page) {
     return <Navigate to="/solutions" replace />;
