@@ -58,6 +58,10 @@ const DemandIndex = lazy(() => import("./pages/explore/DemandIndex"));
 const DemandAuthorityPage = lazy(() => import("./pages/explore/DemandAuthorityPage"));
 const IndustriesPage = lazy(() => import("./pages/explore/IndustriesPage"));
 
+// High-Intent SEO Solution Pages
+const SolutionsIndex = lazy(() => import("./pages/solutions/SolutionsIndex"));
+const SolutionPage = lazy(() => import("./pages/solutions/SolutionPage"));
+
 // Marketplace Pages - Universal SEO Route Handler
 const MarketplaceBuyPage = lazy(() => import("./pages/marketplace/BuyPage"));
 const MarketplaceSupplierPage = lazy(() => import("./pages/marketplace/SupplierPage"));
