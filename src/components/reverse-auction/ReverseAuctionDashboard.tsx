@@ -29,6 +29,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [creditsKey, setCreditsKey] = useState(0);
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [showSupplierNetwork, setShowSupplierNetwork] = useState(false);
+  const [showPurchaseOrders, setShowPurchaseOrders] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
