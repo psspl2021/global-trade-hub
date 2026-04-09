@@ -47,15 +47,16 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     setSearchParams(searchParams, { replace: true });
   };
 
-  // URL-based sub-view for supplier network
+  // URL-based sub-view for supplier network & purchase orders
   useEffect(() => {
     const auctionView = searchParams.get('auctionView');
     setShowSupplierNetwork(auctionView === 'supplier-network');
+    setShowPurchaseOrders(auctionView === 'purchase-orders');
   }, [searchParams]);
 
-  const toggleSupplierNetwork = (show: boolean) => {
-    if (show) {
-      searchParams.set('auctionView', 'supplier-network');
+  const setAuctionView = (view: string | null) => {
+    if (view) {
+      searchParams.set('auctionView', view);
     } else {
       searchParams.delete('auctionView');
     }
