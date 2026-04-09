@@ -144,6 +144,14 @@ CRITICAL: Use this REAL data throughout the blog. Reference specific subcategori
     const angles = isSupplierIntent ? supplierAngles : buyerAngles;
     const selectedAngle = angles[Math.floor(Math.random() * angles.length)];
 
+    // Structure variation to avoid repetitive blog layouts
+    const structureVariants = [
+      { name: 'problem-first', instruction: 'START with a specific, painful buyer problem. Open with a scenario: a procurement manager facing a real challenge. Build tension before introducing solutions.' },
+      { name: 'case-study-first', instruction: 'START with a realistic illustrative case study (anonymized). Example: "A mid-size manufacturer in Pune was spending ₹X on Y..." Walk through their journey, then extract lessons.' },
+      { name: 'data-first', instruction: 'START with a striking data point or market trend. Lead with numbers: "In Q1 2025, demand for X surged 34% while supply..." Use data to frame the entire narrative.' },
+    ];
+    const selectedStructure = structureVariants[Math.floor(Math.random() * structureVariants.length)];
+
     // Trade-specific deep context
     const tradeContextMap: Record<string, string> = {
       'Domestic': `domestic procurement within ${country}. Cover:
