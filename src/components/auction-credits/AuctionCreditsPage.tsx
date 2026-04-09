@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, MessageCircle } from 'lucide-react';
+import { ArrowLeft, CreditCard, Loader2, Zap, Star, Crown, Wallet, Smartphone, Check, MessageCircle, Gem, Mail, Bot, Infinity } from 'lucide-react';
 import { formatINR } from '@/utils/auctionPricing';
 
 declare global {
