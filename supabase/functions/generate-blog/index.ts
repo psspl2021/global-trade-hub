@@ -52,6 +52,25 @@ Deno.serve(async (req) => {
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // === CONTENT MEMORY: fetch recent blogs to avoid repetition ===
+    let recentBlogTitles: string[] = [];
+    let recentCities: string[] = [];
+    try {
+      const { data: recentBlogs } = await supabase
+        .from('blogs')
+        .select('title, content')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (recentBlogs) {
+        recentBlogTitles = recentBlogs.map(b => b.title);
+        // Extract cities mentioned in recent blogs
+        const cityPool = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana', 'Coimbatore', 'Vizag', 'Delhi-NCR', 'Rourkela', 'Durgapur', 'Indore', 'Nagpur', 'Surat', 'Rajkot', 'Vadodara'];
+        const last3Content = recentBlogs.slice(0, 3).map(b => b.content).join(' ');
+        recentCities = cityPool.filter(c => last3Content.includes(c));
+      }
+    } catch { /* non-fatal */ }
+
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
     const currentQuarter = `Q${Math.ceil((new Date().getMonth() + 1) / 3)}`;
