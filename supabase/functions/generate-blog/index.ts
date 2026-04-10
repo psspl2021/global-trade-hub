@@ -1060,57 +1060,57 @@ function getSectionBlueprint(
    c) Benchmark Pricing — <table> with spec, ₹ price range, unit, price driver
    d) Regional Sourcing Map — clusters, lead times, ${hotspotText}
    e) ${selectedAngle.angle} — ${selectedAngle.focus}
-   f) Compliance & Red Flags — ${countryRegs}, test documents, supplier warnings
-   g) RFQ Design: How to Get Better Quotes
-   h) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   f) Buyer Decision Table (MANDATORY) — "When Should You Buy?" with BUY NOW / WAIT / HEDGE scenarios
+   g) Hedging Strategies (MANDATORY) — rate contracts, split procurement, ₹ lakh impact example
+   h) Conversion CTA: "If your last purchase was based on 2–3 quotes, you are likely overpaying..." + "Get Lowest Price Now"`;
     case 'cost':
       return `   a) Where Cost Leaks Begin — common traps
    b) Savings Model — <table> with cost levers, likely impact, dependency
    c) Negotiate, Consolidate, or Run Competition?
    d) Quote Normalization — freight, payment terms, taxes, MOQ
    e) ${selectedAngle.angle} — ${selectedAngle.focus}
-   f) KPI Scoreboard — 30/60/90 day metrics
-   g) Execution Plan
-   h) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   f) Buyer Decision Table (MANDATORY) — BUY NOW / WAIT / HEDGE with ₹ impact
+   g) Hedging Strategies — rate contracts, split procurement, multi-supplier bidding
+   h) Conversion CTA: "Most buyers realize pricing inefficiencies only after the project is completed..." + "Get Lowest Price Now"`;
     case 'comparison':
       return `   a) The Decision Context — what the buyer is choosing between
    b) Comparison Matrix — <table> with options, cost, lead time, quality risk
    c) Where Price-Only Comparisons Fail
    d) ${selectedAngle.angle} — ${selectedAngle.focus}
-   e) When Each Option Wins — threshold conditions
-   f) Implementation Checklist
-   g) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   e) Buyer Decision Table (MANDATORY) — BUY NOW / WAIT / HEDGE scenarios
+   f) Hedging Strategies — when to lock, when to split, ₹ lakh example
+   g) Conversion CTA: "Get Lowest Price Now"`;
     case 'supplier':
       return `   a) Why Supplier Discovery Fails
    b) Verification Scorecard — <table> with documents, checks, red flags
    c) Regional Supplier Map — where serious suppliers concentrate
-   d) Quote Quality: How to Compare Fairly
-   e) ${selectedAngle.angle} — ${selectedAngle.focus}
-   f) Shortlist & RFQ Checklist
-   g) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   d) ${selectedAngle.angle} — ${selectedAngle.focus}
+   e) Buyer Decision Table (MANDATORY) — BUY NOW / WAIT / HEDGE
+   f) Hedging via Supplier Diversification — multi-source bidding, rate contracts
+   g) Conversion CTA: "Get Lowest Price Now"`;
     case 'risk':
       return `   a) The Failure Pattern — core risk in commercial terms
    b) Risk Heatmap — <table> with issue, probability, impact, control
    c) What It Costs the Buyer — margin, cash flow, lead-time impact
    d) ${selectedAngle.angle} — ${selectedAngle.focus}
-   e) Controls Buyers Should Add to RFQ
-   f) 90-Day Fix Plan
-   g) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   e) Buyer Decision Table (MANDATORY) — BUY NOW / WAIT / HEDGE with risk levels
+   f) Hedging as Risk Control — rate contracts, split procurement, ₹ lakh example
+   g) Conversion CTA: "Get Lowest Price Now"`;
     case 'transformation':
       return `   a) Why the Old Workflow Breaks — manual bottlenecks
    b) Better Buying Workflow — future-state process
    c) Operating Model — <table> old vs new by speed, visibility, control
    d) ${selectedAngle.angle} — ${selectedAngle.focus}
-   e) Metrics That Matter
-   f) Rollout Plan
-   g) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   e) Buyer Decision Table (MANDATORY) — BUY NOW / WAIT / HEDGE
+   f) Hedging Strategies — rate contracts, split procurement, reverse auction timing
+   g) Conversion CTA: "Get Lowest Price Now"`;
     default:
       return `   a) Commercial Context — concrete signal tied to keyword
    b) Benchmark Table — <table> with decision-useful data
    c) ${selectedAngle.angle} — ${selectedAngle.focus}
-   d) Compliance & Sourcing Logic — ${countryRegs}
-   e) Action Plan
-   f) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   d) Buyer Decision Table (MANDATORY) — BUY NOW / WAIT / HEDGE scenarios
+   e) Hedging Strategies — rate contracts, split procurement, ₹ impact example
+   f) Conversion CTA: "Most buyers realize pricing inefficiencies only after the project is completed..." + "Get Lowest Price Now"`;
   }
 }
 
