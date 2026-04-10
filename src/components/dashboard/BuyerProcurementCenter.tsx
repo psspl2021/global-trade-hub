@@ -29,7 +29,7 @@ export function BuyerProcurementCenter({ userId, refreshKey }: BuyerProcurementC
             <div>
               <CardTitle className="text-lg font-bold tracking-tight">Procurement Center</CardTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Manage RFQs and reverse auctions in one place
+                Your private procurement network — invite suppliers, run global auctions
               </p>
             </div>
           </div>
