@@ -1262,6 +1262,22 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             {invitedSuppliers.length === 0 && (
               <p className="text-xs text-destructive mt-1">At least one supplier must be invited</p>
             )}
+
+            {/* Supplier liquidity nudge */}
+            {invitedSuppliers.length > 0 && invitedSuppliers.length < 3 && (
+              <div className="flex items-center gap-2 mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
+                <span className="text-amber-600 text-sm">🎯</span>
+                <div>
+                  <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">Add at least 3 suppliers to unlock best pricing</p>
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400">More competition = better price discovery</p>
+                </div>
+              </div>
+            )}
+            {invitedSuppliers.length >= 3 && (
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
+                ✅ {invitedSuppliers.length} suppliers — strong competition drives better pricing
+              </p>
+            )}
           </div>
 
           {/* Anti-Sniping Info */}

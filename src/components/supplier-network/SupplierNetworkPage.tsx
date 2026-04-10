@@ -151,6 +151,27 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         </Card>
       </div>
 
+      {/* Network value signal */}
+      {suppliers.length > 0 && suppliers.length < 3 && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
+          <span className="text-lg">🎯</span>
+          <div>
+            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+              You've added {suppliers.length} supplier{suppliers.length !== 1 ? 's' : ''}. Add more for stronger competition and better pricing.
+            </p>
+            <p className="text-[10px] text-amber-600 dark:text-amber-400">Add at least 3 suppliers to unlock best pricing</p>
+          </div>
+        </div>
+      )}
+      {suppliers.length >= 3 && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800">
+          <span className="text-lg">✅</span>
+          <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+            {suppliers.length} suppliers — strong network drives great competition and better pricing
+          </p>
+        </div>
+      )}
+
       {/* Low competition alert */}
       {suppliers.length <= 1 && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
