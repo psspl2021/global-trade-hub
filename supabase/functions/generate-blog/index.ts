@@ -275,7 +275,7 @@ ${topicStrategy.antiDrift}
 
 TITLE RULES:
 - ${topicStrategy.titleDirection}
-- Make it sound like a market intelligence report a procurement head would forward
+- Make it sound like a market intelligence report a procurement head would forward`;
 
     const userPrompt = custom_topic
       ? `Write a procurement research blog about: "${custom_topic}"\nContext: ${category} industry, ${country} market, ${trade_type} trade.\nFocus: ${tradeContext}\n\nTOPIC BRIEF:\n${topicStrategy.detailBrief}\n\nYear: ${currentYear}. Regulations: ${countryRegs}.`
