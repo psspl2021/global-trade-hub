@@ -389,6 +389,9 @@ TITLE RULES:
       .replace(/(<br\s*\/?>){3,}/g, '<br/>')
       .replace(/\n{3,}/g, '\n\n');
 
+    // Final validation for confidence score
+    const finalValidation = validateBlog(finalContent, topicStrategy);
+
     return new Response(JSON.stringify({
       blog: {
         title: blogData.title,
@@ -400,6 +403,8 @@ TITLE RULES:
         seo_keywords: blogData.seo_keywords,
         cover_image: coverImageUrl,
         intent: isSupplierIntent ? 'supplier' : 'buyer',
+        confidence_score: finalValidation.confidenceScore,
+        remaining_issues: finalValidation.issues,
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
