@@ -156,9 +156,12 @@ Deno.serve(async (req) => {
     const topicSpecificInsights = getTopicSpecificInsights(custom_topic, category, country, trade_type);
     const sections = getSectionBlueprint(topicStrategy, selectedAngle, currentMonth, currentQuarter, currentYear, trade_type, demandHotspots, topSubcategories, countryRegs);
 
-    // === SCENARIO BUILDING ===
+    // === SCENARIO BUILDING (with content memory — avoid recent cities) ===
     const seedHash = hashString(variationSeed);
-    const cityPools = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana', 'Coimbatore', 'Vizag', 'Delhi-NCR', 'Rourkela', 'Durgapur', 'Indore', 'Nagpur', 'Surat', 'Rajkot', 'Vadodara'];
+    const allCities = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana', 'Coimbatore', 'Vizag', 'Delhi-NCR', 'Rourkela', 'Durgapur', 'Indore', 'Nagpur', 'Surat', 'Rajkot', 'Vadodara'];
+    // Filter out cities used in last 3 blogs (content memory)
+    const freshCities = allCities.filter(c => !recentCities.includes(c));
+    const cityPools = freshCities.length >= 5 ? freshCities : allCities;
     const industryPools = ['construction company', 'mid-size manufacturer', 'EPC contractor', 'infrastructure developer', 'fabrication unit', 'real estate group', 'auto-component maker', 'chemical processor', 'textile mill', 'packaging converter', 'industrial distributor'];
     const selectedCity = cityPools[seedHash % cityPools.length];
     const selectedCity2 = cityPools[(seedHash + 3) % cityPools.length];
@@ -168,6 +171,11 @@ Deno.serve(async (req) => {
 
     // Intent-specific opening scenario
     const openingScenario = buildOpeningScenario(topicStrategy.pattern, product, selectedCity, seedHash);
+
+    // Content memory context for prompt
+    const memoryContext = recentBlogTitles.length > 0
+      ? `\nCONTENT MEMORY (AVOID REPETITION):\nRecent blog titles already published:\n${recentBlogTitles.map(t => `- "${t}"`).join('\n')}\n\nDO NOT reuse similar:\n- Opening scenarios\n- Example companies\n- City combinations (avoid: ${recentCities.join(', ') || 'none'})\n- Table structures\n- Concluding phrases\n`
+      : '';
 
     const systemPrompt = `You are NOT a content writer. You are a senior procurement consultant at ProcureSaathi writing a client briefing. Today is ${today}, ${currentMonth} ${currentYear}.
 
