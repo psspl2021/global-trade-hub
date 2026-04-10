@@ -52,6 +52,25 @@ Deno.serve(async (req) => {
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // === CONTENT MEMORY: fetch recent blogs to avoid repetition ===
+    let recentBlogTitles: string[] = [];
+    let recentCities: string[] = [];
+    try {
+      const { data: recentBlogs } = await supabase
+        .from('blogs')
+        .select('title, content')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (recentBlogs) {
+        recentBlogTitles = recentBlogs.map(b => b.title);
+        // Extract cities mentioned in recent blogs
+        const cityPool = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana', 'Coimbatore', 'Vizag', 'Delhi-NCR', 'Rourkela', 'Durgapur', 'Indore', 'Nagpur', 'Surat', 'Rajkot', 'Vadodara'];
+        const last3Content = recentBlogs.slice(0, 3).map(b => b.content).join(' ');
+        recentCities = cityPool.filter(c => last3Content.includes(c));
+      }
+    } catch { /* non-fatal */ }
+
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
     const currentQuarter = `Q${Math.ceil((new Date().getMonth() + 1) / 3)}`;
@@ -137,9 +156,12 @@ Deno.serve(async (req) => {
     const topicSpecificInsights = getTopicSpecificInsights(custom_topic, category, country, trade_type);
     const sections = getSectionBlueprint(topicStrategy, selectedAngle, currentMonth, currentQuarter, currentYear, trade_type, demandHotspots, topSubcategories, countryRegs);
 
-    // === SCENARIO BUILDING ===
+    // === SCENARIO BUILDING (with content memory — avoid recent cities) ===
     const seedHash = hashString(variationSeed);
-    const cityPools = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana', 'Coimbatore', 'Vizag', 'Delhi-NCR', 'Rourkela', 'Durgapur', 'Indore', 'Nagpur', 'Surat', 'Rajkot', 'Vadodara'];
+    const allCities = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana', 'Coimbatore', 'Vizag', 'Delhi-NCR', 'Rourkela', 'Durgapur', 'Indore', 'Nagpur', 'Surat', 'Rajkot', 'Vadodara'];
+    // Filter out cities used in last 3 blogs (content memory)
+    const freshCities = allCities.filter(c => !recentCities.includes(c));
+    const cityPools = freshCities.length >= 5 ? freshCities : allCities;
     const industryPools = ['construction company', 'mid-size manufacturer', 'EPC contractor', 'infrastructure developer', 'fabrication unit', 'real estate group', 'auto-component maker', 'chemical processor', 'textile mill', 'packaging converter', 'industrial distributor'];
     const selectedCity = cityPools[seedHash % cityPools.length];
     const selectedCity2 = cityPools[(seedHash + 3) % cityPools.length];
@@ -150,6 +172,11 @@ Deno.serve(async (req) => {
     // Intent-specific opening scenario
     const openingScenario = buildOpeningScenario(topicStrategy.pattern, product, selectedCity, seedHash);
 
+    // Content memory context for prompt
+    const memoryContext = recentBlogTitles.length > 0
+      ? `\nCONTENT MEMORY (AVOID REPETITION):\nRecent blog titles already published:\n${recentBlogTitles.map(t => `- "${t}"`).join('\n')}\n\nDO NOT reuse similar:\n- Opening scenarios\n- Example companies\n- City combinations (avoid: ${recentCities.join(', ') || 'none'})\n- Table structures\n- Concluding phrases\n`
+      : '';
+
     const systemPrompt = `You are NOT a content writer. You are a senior procurement consultant at ProcureSaathi writing a client briefing. Today is ${today}, ${currentMonth} ${currentYear}.
 
 ROLE: Write a HIGHLY SPECIFIC blog that reads like a real procurement intelligence report — NOT like AI-generated marketing content.
@@ -158,6 +185,7 @@ ${categoryInsights}
 ${topicSpecificInsights}
 ${priceBenchmarkContext}
 ${trending_context ? `TRENDING CONTEXT:\n${trending_context}\n` : ''}
+${memoryContext}
 
 INTENT LOCK (CRITICAL — THIS DEFINES THE ENTIRE BLOG):
 ${topicStrategy.intentLock}
@@ -392,6 +420,25 @@ TITLE RULES:
     // Final validation for confidence score
     const finalValidation = validateBlog(finalContent, topicStrategy);
 
+    // === 3. STORE VALIDATION DATA in blog record for analytics ===
+    try {
+      await supabase.from('blogs').upsert({
+        slug,
+        title: blogData.title,
+        excerpt: blogData.excerpt || '',
+        content: finalContent,
+        category: category,
+        cover_image: coverImageUrl,
+        is_published: finalValidation.confidenceScore >= 70,
+        published_at: finalValidation.confidenceScore >= 70 ? new Date().toISOString() : null,
+      }, { onConflict: 'slug' });
+
+      // Log validation metrics for future optimization
+      console.log(`Blog published: ${slug} | Score: ${finalValidation.confidenceScore} | Issues: ${finalValidation.issues.length}`);
+    } catch (dbErr) {
+      console.error('Blog save error (non-fatal):', dbErr);
+    }
+
     return new Response(JSON.stringify({
       blog: {
         title: blogData.title,
@@ -405,6 +452,7 @@ TITLE RULES:
         intent: isSupplierIntent ? 'supplier' : 'buyer',
         confidence_score: finalValidation.confidenceScore,
         remaining_issues: finalValidation.issues,
+        auto_published: finalValidation.confidenceScore >= 70,
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -517,13 +565,32 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
   return { pass: issues.length === 0, issues, confidenceScore };
 }
 
-// === HARD-INJECT MISSING SECTIONS ===
+// === HARD-INJECT MISSING SECTIONS + INTERNAL LINKS + LOSS MOMENT ===
 function enforceRequiredSections(content: string, strategy: TopicStrategy, product: string, year: number): string {
   const seedHash = hashString(`${product}|${year}`);
   const cityPools = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana'];
   const c1 = cityPools[seedHash % cityPools.length];
   const c2 = cityPools[(seedHash + 3) % cityPools.length];
   const c3 = cityPools[(seedHash + 7) % cityPools.length];
+
+  // === 1. INTERNAL LINK INJECTION (SEO + user flow) ===
+  content = content.replace(
+    /Get AI-Matched Quotes/g,
+    '<a href="/post-rfq" style="color:#16a34a;font-weight:600">Get AI-Matched Quotes</a>'
+  );
+  content = content.replace(
+    /Browse Categories/g,
+    '<a href="/browseproducts" style="color:#16a34a;font-weight:600">Browse Categories</a>'
+  );
+  content = content.replace(
+    /reverse auction/gi,
+    (match) => {
+      // Only linkify if not already inside an <a> tag
+      return `<a href="/post-rfq" style="color:#16a34a;font-weight:600">${match}</a>`;
+    }
+  );
+  // De-duplicate nested links (if AI already linked some)
+  content = content.replace(/<a [^>]*><a [^>]*>(.*?)<\/a><\/a>/gi, '<a href="/post-rfq" style="color:#16a34a;font-weight:600">$1</a>');
 
   // Inject decision block if missing — DYNAMIC, not generic
   if (!/when.*should.*buy|buying.*timing|decision.*matrix/i.test(content)) {
@@ -533,12 +600,11 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
 <thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Market Signal</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Action</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Impact</th></tr></thead>
 <tbody>
 <tr><td style="padding:10px;border:1px solid #e5e7eb">Iron ore rising 5–8%</td><td style="padding:10px;border:1px solid #e5e7eb">Lock rate contract now</td><td style="padding:10px;border:1px solid #e5e7eb">Prevents ₹3,000–5,000/MT increase</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Weak demand in ${c2}</td><td style="padding:10px;border:1px solid #e5e7eb">Run reverse auction</td><td style="padding:10px;border:1px solid #e5e7eb">2–6% lower procurement cost</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Weak demand in ${c2}</td><td style="padding:10px;border:1px solid #e5e7eb">Run <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a></td><td style="padding:10px;border:1px solid #e5e7eb">2–6% lower procurement cost</td></tr>
 <tr><td style="padding:10px;border:1px solid #e5e7eb">Freight spike from ${c3}</td><td style="padding:10px;border:1px solid #e5e7eb">Shift supplier region</td><td style="padding:10px;border:1px solid #e5e7eb">Saves ₹2,000+/MT logistics</td></tr>
 <tr><td style="padding:10px;border:1px solid #e5e7eb">Monsoon disruption in ${c1}</td><td style="padding:10px;border:1px solid #e5e7eb">Pre-stock 4–6 weeks inventory</td><td style="padding:10px;border:1px solid #e5e7eb">Avoids 10–15 day supply gap</td></tr>
 </tbody></table>`;
 
-    // Insert before last </article> or CTA
     const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
     if (ctaIdx > 0) {
       content = content.slice(0, ctaIdx) + decisionBlock + '\n' + content.slice(ctaIdx);
@@ -547,12 +613,34 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
     }
   }
 
+  // === 2. LOSS MOMENT TRIGGER (buyer psychology — inject before CTA) ===
+  if (!/Where Buyers Lose Money|hidden loss|don't realize/i.test(content)) {
+    const lossBlock = `
+<div style="margin-top:1.5rem;padding:1.25rem;border-left:4px solid #ef4444;background:#fef2f2;border-radius:0 8px 8px 0;">
+<h3 style="font-size:1.1rem;font-weight:700;color:#991b1b;margin-bottom:0.75rem;">Where Buyers Lose Money (And Don't Realize It)</h3>
+<ul style="margin:0;padding-left:1.25rem;color:#7f1d1d;">
+<li><strong>Underweight bundles</strong> → 2–5% hidden loss on every delivery</li>
+<li><strong>Freight miscalculation</strong> → ₹2,000–4,000/MT extra when not factored into landed cost</li>
+<li><strong>No supplier competition</strong> → suppliers quote 5–12% higher when they know you have no alternative</li>
+<li><strong>Spec ambiguity in PO</strong> → grade/size mismatches cost ₹1–3 lakh per rejected lot</li>
+</ul>
+</div>`;
+
+    // Insert before CTA block
+    const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
+    if (ctaIdx > 0) {
+      content = content.slice(0, ctaIdx) + lossBlock + '\n' + content.slice(ctaIdx);
+    } else {
+      content = content.replace(/<\/article>/i, lossBlock + '\n</article>');
+    }
+  }
+
   // Inject CTA if missing — buyer psychology driven
-  if (!/reverse auction/i.test(content)) {
+  if (!/Start Reverse Auction|start a reverse auction/i.test(content)) {
     const cta = `
 <div style="margin-top:2rem;padding:1.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">
 <h3 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">Stop Overpaying for ${product}</h3>
-<p style="margin-bottom:1rem;">Run a reverse auction and force suppliers to compete. Typical savings: 3–12% per order. No commitment — see quotes in 24 hours.</p>
+<p style="margin-bottom:1rem;">Run a <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a> and force suppliers to compete. Typical savings: 3–12% per order. No commitment — see quotes in 24 hours.</p>
 <a href="/post-rfq" style="display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Start Reverse Auction →</a>
 </div>`;
     content = content.replace(/<\/article>/i, cta + '\n</article>');
