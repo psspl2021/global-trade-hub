@@ -74,6 +74,39 @@ export const FLEET_TRANSPORT_POSITIONING = {
 export const PLATFORM_STRATEGY_NOTE =
   "ProcureSaathi does not sell leads or run an open marketplace. You control your supplier and logistics network. We provide the infrastructure to run transparent, competitive global auctions.";
 
+// ── Investor-Grade Positioning ─────────────────────
+export const PLATFORM_POSITIONING = {
+  title: "Private Global Reverse Auctions",
+  desc: "Run procurement with your own supplier network — transparent, competitive, and global.",
+};
+
+export const MONETIZATION = {
+  buyer: "Pay per auction via credits",
+  supplier: "2 months free → then nominal fee",
+  fleet: "2 months free → then per shipment or subscription",
+};
+
+export const LIQUIDITY_RULE = {
+  minSuppliers: 3,
+  messageLow: "Add at least 3 suppliers to unlock best pricing",
+  messageHigh: "Strong competition drives better pricing",
+};
+
+export const TRUST_SIGNALS = [
+  "Verified Business Badge",
+  "GST / Tax ID Verified",
+  "Profile Completeness Score",
+  "Private Invite-Only Auctions",
+];
+
+export const GLOBAL_FEATURES = [
+  "Multi-Currency",
+  "Incoterms",
+  "Export Compliance",
+  "Timezone Conversion",
+  "Multi-Language",
+];
+
 export const SUPPLIER_INVITE_NUDGE = {
   title: "Add at least 3 suppliers to unlock best pricing",
   subtext: "More competition = better price discovery",
