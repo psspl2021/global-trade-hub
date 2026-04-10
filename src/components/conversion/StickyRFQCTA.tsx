@@ -1,11 +1,10 @@
 /**
- * Sticky CTA — "Post Requirement (AI Assisted)"
+ * Sticky CTA — "Get Lowest Price Now"
  * 
- * Appears on ALL buyer-facing public pages:
- * - Fixed bottom bar on first load (above fold equivalent for mobile)
- * - Re-appears after 60% scroll with a pulse animation
+ * Conversion-optimized bottom bar on all buyer-facing pages.
+ * - Fixed bottom bar on first load
+ * - Re-appears after 60% scroll with urgency copy
  * - Opens AI RFQ Modal on click
- * - Tracks CTA click events
  */
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -14,11 +13,10 @@ import { Sparkles, X } from 'lucide-react';
 import { AIRFQModal } from './AIRFQModal';
 import { trackConversionEvent } from '@/lib/conversionTracker';
 
-// Routes where sticky CTA should NOT appear
 const EXCLUDED_ROUTES = [
   '/admin', '/dashboard', '/management', '/control-tower',
   '/login', '/signup', '/reset-password',
-  '/supplier', '/post-rfq', // Already has its own RFQ form
+  '/supplier', '/post-rfq',
   '/invoice-generator',
 ];
 
@@ -29,25 +27,18 @@ export function StickyRFQCTA() {
   const [showScrollCTA, setShowScrollCTA] = useState(false);
   const [initialShow, setInitialShow] = useState(true);
 
-  // Check if route is excluded
   const isExcluded = EXCLUDED_ROUTES.some(r => pathname.startsWith(r));
 
-  // Handle scroll-triggered re-appearance
   useEffect(() => {
     if (isExcluded) return;
-
     const handleScroll = () => {
       const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-      if (scrollPercent >= 0.6) {
-        setShowScrollCTA(true);
-      }
+      if (scrollPercent >= 0.6) setShowScrollCTA(true);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isExcluded]);
 
-  // Reset state on route change
   useEffect(() => {
     setDismissed(false);
     setShowScrollCTA(false);
@@ -67,10 +58,10 @@ export function StickyRFQCTA() {
   if (isExcluded) return <AIRFQModal open={modalOpen} onOpenChange={setModalOpen} />;
 
   const isVisible = !dismissed && !modalOpen && (initialShow || showScrollCTA);
+  const isScrollTriggered = showScrollCTA && !initialShow;
 
   return (
     <>
-      {/* Sticky bottom bar */}
       {isVisible && (
         <div 
           className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom-4 duration-500"
@@ -84,10 +75,16 @@ export function StickyRFQCTA() {
               <Sparkles className="h-5 w-5 text-primary-foreground shrink-0 animate-pulse" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-primary-foreground truncate">
-                  Post Requirement (AI Assisted)
+                  {isScrollTriggered 
+                    ? "Still comparing quotes? Run a reverse auction." 
+                    : "Post Requirement — Get Competitive Quotes Free"
+                  }
                 </p>
                 <p className="text-xs text-primary-foreground/70 hidden sm:block">
-                  Describe what you need → AI generates RFQ → Get competitive quotes
+                  {isScrollTriggered
+                    ? "Most buyers overpay by ₹2,000–₹5,000/MT with just 2–3 quotes"
+                    : "Describe what you need → AI generates RFQ → Verified suppliers compete"
+                  }
                 </p>
               </div>
             </div>
@@ -97,10 +94,10 @@ export function StickyRFQCTA() {
                 onClick={handleCTAClick}
                 variant="secondary"
                 size="sm"
-                className="gap-1.5 font-semibold shadow-lg whitespace-nowrap"
+                className="gap-1.5 font-bold shadow-lg whitespace-nowrap"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Get Quotes Free
+                Get Lowest Price Now
               </Button>
               <button
                 onClick={handleDismiss}
