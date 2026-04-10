@@ -14,6 +14,7 @@ export type UserRole =
   | 'supplier' 
   | 'admin' 
   | 'logistics_partner' 
+  | 'transporter'
   | 'affiliate' 
   | 'purchaser'
   | 'manager'
@@ -39,7 +40,8 @@ const ROLE_PRIORITY: UserRole[] = [
   'purchaser',
   'buyer_purchaser',
   'buyer',
-  'logistics_partner', 
+  'logistics_partner',
+  'transporter',
   'supplier', 
   'affiliate',
   'external_guest'

@@ -23,6 +23,10 @@ export function useLanguage() {
     } else if (browserLang.startsWith('ar')) {
       detectedLang = 'ar';
       setIsRTL(true);
+    } else if (browserLang.startsWith('vi')) {
+      detectedLang = 'vi';
+    } else if (browserLang.startsWith('zh')) {
+      detectedLang = 'zh';
     }
     // Add more language mappings as needed
     
@@ -45,7 +49,7 @@ export function useLanguage() {
     t,
     isRTL,
     changeLanguage,
-    supportedLanguages: ['en', 'hi', 'ar'] as Language[],
+    supportedLanguages: ['en', 'hi', 'ar', 'vi', 'zh'] as Language[],
   };
 }
 
