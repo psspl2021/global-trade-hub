@@ -140,6 +140,11 @@ const Signup = () => {
       description: 'Join ProcureSaathi as a logistics partner. Connect with shippers and grow your freight business.',
       canonical: 'https://www.procuresaathi.com/signup?role=logistics_partner',
     },
+    transporter: {
+      title: 'Partner with Us - Transporter | ProcureSaathi',
+      description: 'Join ProcureSaathi as a transporter. Access freight requests and grow your logistics business globally.',
+      canonical: 'https://www.procuresaathi.com/signup?role=transporter',
+    },
     affiliate: {
       title: 'Partner with Us - Affiliate | ProcureSaathi',
       description: 'Earn by referring businesses to ProcureSaathi. Join our affiliate program and start earning commissions.',
@@ -184,7 +189,7 @@ const Signup = () => {
     }
 
     // Validate email notification consent for suppliers, logistics partners, and affiliates
-    if ((formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'affiliate') && !emailNotificationConsent) {
+    if ((formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'transporter' || formData.role === 'affiliate') && !emailNotificationConsent) {
       setErrors({ emailNotificationConsent: 'You must agree to receive email notifications to complete signup' });
       return;
     }
