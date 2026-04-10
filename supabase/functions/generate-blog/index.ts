@@ -283,13 +283,67 @@ TITLE RULES:
     }
 
     const aiData = await aiResponse.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    let blogData = extractBlogFromResponse(aiData);
 
-    if (!toolCall?.function?.arguments) {
-      throw new Error('AI did not return structured blog content');
+    // === POST-GENERATION VALIDATOR ===
+    let validation = validateBlog(blogData.content, topicStrategy);
+    console.log('Blog validation (pass 1):', JSON.stringify(validation));
+
+    // === AUTO-REWRITE LOOP (max 1 retry) ===
+    if (validation.issues.length > 0) {
+      console.log('Triggering rewrite for issues:', validation.issues);
+      const rewritePrompt = `REWRITE INSTRUCTIONS (MANDATORY FIXES):\n${validation.issues.map(i => `- ${i}`).join('\n')}\n\nReturn the FULL corrected HTML blog. Keep everything good, fix only the issues listed above.\n\nOriginal content:\n${blogData.content}`;
+
+      const rewriteResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: 'You are a procurement content editor. Fix ONLY the listed issues. Return complete HTML inside <article> tags. Do NOT add new problems.' },
+            { role: 'user', content: rewritePrompt },
+          ],
+          tools: [{
+            type: 'function',
+            function: {
+              name: 'create_blog',
+              description: 'Return the corrected blog',
+              parameters: {
+                type: 'object',
+                properties: {
+                  content: { type: 'string', description: 'Full corrected blog HTML' },
+                },
+                required: ['content'],
+                additionalProperties: false,
+              },
+            },
+          }],
+          tool_choice: { type: 'function', function: { name: 'create_blog' } },
+        }),
+      });
+
+      if (rewriteResponse.ok) {
+        try {
+          const rewriteData = await rewriteResponse.json();
+          const rewriteCall = rewriteData.choices?.[0]?.message?.tool_calls?.[0];
+          if (rewriteCall?.function?.arguments) {
+            const rewritten = JSON.parse(rewriteCall.function.arguments);
+            if (rewritten.content && rewritten.content.length > blogData.content.length * 0.5) {
+              blogData.content = rewritten.content;
+              console.log('Rewrite applied successfully');
+            }
+          }
+        } catch (e) {
+          console.error('Rewrite parse error (using original):', e);
+        }
+      }
     }
 
-    const blogData = JSON.parse(toolCall.function.arguments);
+    // === HARD-INJECT MISSING SECTIONS ===
+    blogData.content = enforceRequiredSections(blogData.content, topicStrategy, product, currentYear);
 
     const slugBase = blogData.title
       .toLowerCase()
@@ -298,18 +352,18 @@ TITLE RULES:
       .substring(0, 70);
     const slug = `${slugBase}-${trade_type.toLowerCase()}-${country.toLowerCase().replace(/\s+/g, '-')}`;
 
-    // === IMAGE SYSTEM: keyword-query-based Unsplash URLs ===
-    const imageQuery = getKeywordImageQuery(custom_topic || category);
-    const coverImageUrl = `https://source.unsplash.com/1200x600/?${encodeURIComponent(imageQuery)}`;
-    const inlineImageUrl1 = `https://source.unsplash.com/800x400/?${encodeURIComponent(imageQuery + ' warehouse')}`;
-    const inlineImageUrl2 = `https://source.unsplash.com/800x400/?${encodeURIComponent(imageQuery + ' factory')}`;
-    
+    // === IMAGE SYSTEM: stable direct Unsplash URLs ===
+    const imageIds = getKeywordImageIds(custom_topic || category);
+    const coverImageUrl = `https://images.unsplash.com/photo-${imageIds.cover}?w=1200&h=600&fit=crop&auto=format&q=80`;
+    const inlineImageUrl1 = `https://images.unsplash.com/photo-${imageIds.inline[0]}?w=800&h=400&fit=crop&auto=format&q=80`;
+    const inlineImageUrl2 = `https://images.unsplash.com/photo-${imageIds.inline[1]}?w=800&h=400&fit=crop&auto=format&q=80`;
+
     const productName = custom_topic ? custom_topic.replace(/-/g, ' ').replace(/india$/i, '').trim() : category;
 
     // Inject images after first and third <h2>
     let finalContent = blogData.content;
     const h2Matches = [...finalContent.matchAll(/<h2[^>]*>.*?<\/h2>/gi)];
-    
+
     if (h2Matches.length >= 1) {
       const firstH2 = h2Matches[0];
       const insertPos1 = firstH2.index! + firstH2[0].length;
@@ -317,7 +371,6 @@ TITLE RULES:
       finalContent = finalContent.slice(0, insertPos1) + imgTag1 + finalContent.slice(insertPos1);
     }
 
-    // Re-find h2s after first injection
     const h2Matches2 = [...finalContent.matchAll(/<h2[^>]*>.*?<\/h2>/gi)];
     if (h2Matches2.length >= 3) {
       const thirdH2 = h2Matches2[2];
@@ -326,7 +379,7 @@ TITLE RULES:
       finalContent = finalContent.slice(0, insertPos2) + imgTag2 + finalContent.slice(insertPos2);
     }
 
-    // Clean up blank gaps
+    // Clean up
     finalContent = finalContent
       .replace(/<p>\s*<\/p>/g, '')
       .replace(/<p><br\s*\/?>\s*<\/p>/g, '')
@@ -371,7 +424,180 @@ function pickDeterministicVariant<T>(items: T[], seed: string, salt: string): T 
   return items[hashString(`${seed}|${salt}`) % items.length];
 }
 
-// === KEYWORD → IMAGE QUERY (simple, reliable) ===
+// === EXTRACT BLOG FROM AI RESPONSE ===
+function extractBlogFromResponse(aiData: any): any {
+  const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+  if (!toolCall?.function?.arguments) {
+    throw new Error('AI did not return structured blog content');
+  }
+  return JSON.parse(toolCall.function.arguments);
+}
+
+// === POST-GENERATION VALIDATOR ===
+function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean; issues: string[] } {
+  const issues: string[] = [];
+
+  // Check for tables
+  if (!/<table/i.test(content)) {
+    issues.push('MISSING: Add at least one HTML <table> with decision-useful data (pricing ranges, comparison matrix, or decision framework).');
+  }
+
+  // Check for price ranges (₹ figures)
+  if (!/₹\s*[\d,]+/.test(content)) {
+    issues.push('MISSING: Add ₹ price ranges or cost impact figures. Every procurement blog needs real numbers.');
+  }
+
+  // Check for CTA
+  if (!/reverse auction/i.test(content)) {
+    issues.push('MISSING: End with CTA mentioning "reverse auction" for verified suppliers.');
+  }
+
+  // Check for Indian cities (localization)
+  if (!/(Mumbai|Chennai|Raipur|Ludhiana|Jamshedpur|Pune|Ahmedabad|Hyderabad|Bengaluru|Kolkata|Delhi|Vizag|Durgapur|Coimbatore)/i.test(content)) {
+    issues.push('MISSING: Mention at least 2-3 Indian cities/supply hubs for localization.');
+  }
+
+  // Check for banned phrases
+  const bannedPhrases = [
+    'In today\'s competitive market',
+    'It is important to note',
+    'plays a crucial role',
+    'In the ever-evolving landscape',
+    'As we navigate',
+    'Let us explore',
+    'Let\'s delve into',
+  ];
+  const found = bannedPhrases.filter(p => content.toLowerCase().includes(p.toLowerCase()));
+  if (found.length > 0) {
+    issues.push(`REMOVE these generic AI phrases: ${found.map(f => `"${f}"`).join(', ')}. Replace with sharp, specific observations.`);
+  }
+
+  // Intent-specific checks
+  if (strategy.pattern === 'forecast' && !/forecast|outlook|expected.*range|price.*driver/i.test(content)) {
+    issues.push('MISSING: This is a PRICE FORECAST blog. Add forecast section with expected ₹/MT ranges and price drivers.');
+  }
+  if (strategy.pattern === 'hedging' && !/rate contract|forward buying|staggered|inventory.*plan/i.test(content)) {
+    issues.push('MISSING: This is a HEDGING blog. Add specific hedging strategies: rate contracts, forward buying, staggered procurement.');
+  }
+
+  // Check for decision block
+  if (!/when.*should.*buy|buying.*decision|decision.*matrix|action.*plan/i.test(content)) {
+    issues.push('MISSING: Add a "When Should You Buy" or buyer decision section with actionable timing guidance.');
+  }
+
+  return { pass: issues.length === 0, issues };
+}
+
+// === HARD-INJECT MISSING SECTIONS ===
+function enforceRequiredSections(content: string, strategy: TopicStrategy, product: string, year: number): string {
+  // Inject decision block if missing
+  if (!/when.*should.*buy|buying.*timing|decision.*matrix/i.test(content)) {
+    const decisionBlock = `
+<h2>When Should You Buy ${product}?</h2>
+<table style="width:100%;border-collapse:collapse;margin:1rem 0">
+<thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Market Scenario</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Recommended Action</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Why</th></tr></thead>
+<tbody>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Prices rising steadily</td><td style="padding:10px;border:1px solid #e5e7eb">Lock rates now via rate contract</td><td style="padding:10px;border:1px solid #e5e7eb">Delay increases landed cost by 3-8%</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Stable/flat market</td><td style="padding:10px;border:1px solid #e5e7eb">Stagger purchases over 2-3 months</td><td style="padding:10px;border:1px solid #e5e7eb">Reduces concentration risk without overpaying</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Prices falling</td><td style="padding:10px;border:1px solid #e5e7eb">Buy minimum, wait for floor</td><td style="padding:10px;border:1px solid #e5e7eb">Monitor weekly; place orders in tranches</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">High volatility</td><td style="padding:10px;border:1px solid #e5e7eb">Run reverse auction immediately</td><td style="padding:10px;border:1px solid #e5e7eb">Competition among suppliers reveals true market price</td></tr>
+</tbody></table>`;
+
+    // Insert before last </article> or CTA
+    const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
+    if (ctaIdx > 0) {
+      content = content.slice(0, ctaIdx) + decisionBlock + '\n' + content.slice(ctaIdx);
+    } else {
+      content = content.replace(/<\/article>/i, decisionBlock + '\n</article>');
+    }
+  }
+
+  // Inject CTA if missing
+  if (!/reverse auction/i.test(content)) {
+    const cta = `
+<div style="margin-top:2rem;padding:1.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">
+<h3 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">Ready to Get the Best Price?</h3>
+<p style="margin-bottom:1rem;">Start a reverse auction and get the lowest price from verified suppliers. No commitment — see quotes in 24 hours.</p>
+<a href="/post-rfq" style="display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Start Reverse Auction →</a>
+</div>`;
+    content = content.replace(/<\/article>/i, cta + '\n</article>');
+  }
+
+  // Add disclaimer if missing
+  if (!/illustrative/i.test(content)) {
+    content = content.replace(/<\/article>/i,
+      `\n<p style="font-size:0.8rem;color:#9ca3af;margin-top:2rem;font-style:italic;">Disclaimer: Scenarios, price ranges, and examples are illustrative and based on market patterns. Actual prices vary by spec, quantity, location, and market conditions. Always verify with current supplier quotes.</p>\n</article>`
+    );
+  }
+
+  return content;
+}
+
+// === STABLE IMAGE IDs (direct Unsplash — no redirects) ===
+function getKeywordImageIds(keyword: string): { cover: string; inline: string[] } {
+  const k = (keyword || '').toLowerCase();
+
+  if (/tmt|rebar/.test(k)) return {
+    cover: '1504307651254-35680f356dfd',
+    inline: ['1541888946425-d81bb19240f5', '1590574716244-261b09b21bad']
+  };
+  if (/structural steel|steel beam/.test(k)) return {
+    cover: '1587293852726-70cdb56c2866',
+    inline: ['1504307651254-35680f356dfd', '1590574716244-261b09b21bad']
+  };
+  if (/stainless.*pipe|ss pipe/.test(k)) return {
+    cover: '1635070041078-e363dbe005cb',
+    inline: ['1581094794329-c8112a89af12', '1590574716244-261b09b21bad']
+  };
+  if (/hr coil|hot rolled/.test(k)) return {
+    cover: '1587293852726-70cdb56c2866',
+    inline: ['1504307651254-35680f356dfd', '1581094794329-c8112a89af12']
+  };
+  if (/pvc.*pipe/.test(k)) return {
+    cover: '1504328345606-18bbc8c9d7d1',
+    inline: ['1581094794329-c8112a89af12', '1590574716244-261b09b21bad']
+  };
+  if (/cable tray/.test(k)) return {
+    cover: '1558618666-fcd25c85f82e',
+    inline: ['1581094794329-c8112a89af12', '1590574716244-261b09b21bad']
+  };
+  if (/cement/.test(k)) return {
+    cover: '1590644365607-56a7b277d44c',
+    inline: ['1504307651254-35680f356dfd', '1541888946425-d81bb19240f5']
+  };
+  if (/alumini?um/.test(k)) return {
+    cover: '1558618666-fcd25c85f82e',
+    inline: ['1581094794329-c8112a89af12', '1504307651254-35680f356dfd']
+  };
+  if (/steel/.test(k)) return {
+    cover: '1504307651254-35680f356dfd',
+    inline: ['1587293852726-70cdb56c2866', '1590574716244-261b09b21bad']
+  };
+  if (/chemical|solvent|acid/.test(k)) return {
+    cover: '1532187863486-abf9dbad1b69',
+    inline: ['1581093458791-9f3c3250a8b0', '1581094794329-c8112a89af12']
+  };
+  if (/textile|fabric|yarn/.test(k)) return {
+    cover: '1558171813-4c2e8ac4a37a',
+    inline: ['1606107557195-0e29a4b5b4aa', '1581094794329-c8112a89af12']
+  };
+  if (/food|spice|grain/.test(k)) return {
+    cover: '1596040033229-a9821ebd058d',
+    inline: ['1574323347407-f5e1ad6d020b', '1590574716244-261b09b21bad']
+  };
+  if (/pipe/.test(k)) return {
+    cover: '1581094794329-c8112a89af12',
+    inline: ['1635070041078-e363dbe005cb', '1590574716244-261b09b21bad']
+  };
+
+  // Default industrial
+  return {
+    cover: '1590574716244-261b09b21bad',
+    inline: ['1504307651254-35680f356dfd', '1581094794329-c8112a89af12']
+  };
+}
+
+// === KEYWORD → IMAGE QUERY (kept as fallback reference) ===
 function getKeywordImageQuery(keyword: string): string {
   const k = (keyword || '').toLowerCase();
   if (/tmt|rebar/.test(k)) return 'tmt bars construction site india';
