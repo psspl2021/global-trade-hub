@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from 'sonner';
 import {
   ArrowLeft, UserPlus, Users, Trophy, MessageCircle,
-  Mail, Phone, Search, RefreshCw, AlertTriangle,
+  Mail, Phone, Search, RefreshCw, AlertTriangle, ShieldCheck,
 } from 'lucide-react';
 
 interface SupplierNetworkPageProps {
@@ -37,7 +37,7 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
     const [suppRes, partRes] = await Promise.all([
       supabase
         .from('buyer_suppliers')
-        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at')
+        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at, is_global_supplier, export_capability')
         .eq('buyer_id', userId)
         .order('created_at', { ascending: false }),
       supabase
@@ -45,6 +45,26 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         .select('supplier_id, has_bid, auction_id, last_active')
         .eq('buyer_id', userId),
     ]);
+
+    // Fetch verification data from profiles for onboarded suppliers
+    const emails = (suppRes.data || []).map((s: any) => s.email).filter(Boolean);
+    let verifiedMap = new Map<string, { verified: boolean; gstin: string | null; tax_id: string | null; completeness: number }>();
+    if (emails.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('email, is_verified_supplier, gstin, tax_id, business_registration, company_name, phone, city, country')
+        .in('email', emails);
+      (profiles || []).forEach((p: any) => {
+        const fields = [p.company_name, p.phone, p.email, p.city, p.country, p.gstin || p.tax_id || p.business_registration].filter(Boolean);
+        const completeness = Math.round((fields.length / 6) * 100);
+        verifiedMap.set(p.email?.toLowerCase(), {
+          verified: !!p.is_verified_supplier,
+          gstin: p.gstin,
+          tax_id: p.tax_id,
+          completeness,
+        });
+      });
+    }
 
     const partMap = new Map<string, { total: number; participated: number; lastActive: string | null }>();
     ((partRes.data as any[]) || []).forEach((p: any) => {
@@ -64,12 +84,17 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
       const qualityScore = participationPct !== null
         ? Math.min(100, Math.round(participationPct * 0.7 + ((part?.participated || 0) * 2)))
         : 0;
+      const vData = s.email ? verifiedMap.get(s.email.toLowerCase()) : null;
       return {
         ...s,
         participationPct,
         partBid: part?.participated || 0,
         lastActive: part?.lastActive || null,
         qualityScore,
+        isVerified: vData?.verified || false,
+        profileCompleteness: vData?.completeness || 0,
+        hasGstin: !!vData?.gstin,
+        hasTaxId: !!vData?.tax_id,
       };
     });
     setSuppliers(enriched);
@@ -150,6 +175,27 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
           <div className="text-[11px] text-muted-foreground">Active Bidders</div>
         </Card>
       </div>
+
+      {/* Network value signal */}
+      {suppliers.length > 0 && suppliers.length < 3 && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
+          <span className="text-lg">🎯</span>
+          <div>
+            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+              You've added {suppliers.length} supplier{suppliers.length !== 1 ? 's' : ''}. Add more for stronger competition and better pricing.
+            </p>
+            <p className="text-[10px] text-amber-600 dark:text-amber-400">Add at least 3 suppliers to unlock best pricing</p>
+          </div>
+        </div>
+      )}
+      {suppliers.length >= 3 && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800">
+          <span className="text-lg">✅</span>
+          <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+            {suppliers.length} suppliers — strong network drives great competition and better pricing
+          </p>
+        </div>
+      )}
 
       {/* Low competition alert */}
       {suppliers.length <= 1 && (
@@ -257,11 +303,29 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                           <Trophy className="w-2.5 h-2.5 mr-0.5 inline" /> Best
                         </Badge>
                       )}
+                      {s.isVerified && (
+                        <Badge variant="outline" className="text-[10px] text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800">
+                          <ShieldCheck className="w-2.5 h-2.5 mr-0.5 inline" /> Verified
+                        </Badge>
+                      )}
+                      {(s.hasGstin || s.hasTaxId) && !s.isVerified && (
+                        <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                          {s.hasGstin ? 'GST' : 'Tax ID'} ✓
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                       {s.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {s.email}</span>}
                       {s.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {s.phone}</span>}
                     </div>
+                    {s.profileCompleteness > 0 && s.profileCompleteness < 100 && (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <div className="h-1 flex-1 max-w-[80px] bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.profileCompleteness}%` }} />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">{s.profileCompleteness}% profile</span>
+                      </div>
+                    )}
                     {s.qualityScore > 0 && (
                       <div className="flex items-center gap-3 mt-1.5 text-xs">
                         <span className="text-violet-600 font-medium">Score: {s.qualityScore}</span>

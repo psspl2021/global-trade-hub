@@ -73,3 +73,15 @@ export const FLEET_TRANSPORT_POSITIONING = {
 
 export const PLATFORM_STRATEGY_NOTE =
   "ProcureSaathi does not sell leads or run an open marketplace. You control your supplier and logistics network. We provide the infrastructure to run transparent, competitive global auctions.";
+
+export const SUPPLIER_INVITE_NUDGE = {
+  title: "Add at least 3 suppliers to unlock best pricing",
+  subtext: "More competition = better price discovery",
+};
+
+export const NETWORK_SIGNAL = (count: number) =>
+  `You've added ${count} supplier${count !== 1 ? "s" : ""}. ${
+    count < 3
+      ? "Add more for stronger competition and better pricing."
+      : "Strong network — great competition drives better pricing."
+  }`;
