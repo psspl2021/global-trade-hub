@@ -636,6 +636,10 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         payment_terms: paymentTerms || undefined,
         certifications: certifications || undefined,
         quality_standards: qualityStandards || undefined,
+        currency: auctionCurrency || 'INR',
+        incoterm: incoterm || undefined,
+        origin_country: originCountry || undefined,
+        shipment_mode: shipmentMode || undefined,
         line_items: validItems.map(i => ({
           product_name: i.product,
           category: category,
