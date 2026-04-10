@@ -174,3 +174,33 @@ export const supplierInviteEmailHtml = (link: string) => `
 </a></p>
 <p style="color:#888;font-size:13px;">This is a private auction — only invited suppliers can participate.</p>
 `;
+
+// ── Global Buyer Plan (6-Month Contract) ───────────
+export const GLOBAL_BUYER_PLAN = {
+  name: "Global Procurement Plan",
+  duration: "6 Months",
+  basePriceINR: 700000,
+  price: "₹7,00,000",
+  highlight: "Best for high-volume buyers",
+  features: [
+    "Unlimited reverse auctions",
+    "Unlimited supplier participation",
+    "Global sourcing (multi-country, multi-currency)",
+    "Integrated Global Fleet Transportation bidding",
+    "Priority support",
+  ],
+  bonus: "🎁 Early users get 1 month FREE (7 months total)",
+  softCap: "Optimized for up to 50–100 auctions/month",
+  roi: "Most buyers recover plan cost in 1–2 auctions through better pricing",
+  cta: {
+    primary: "Activate Global Procurement Plan",
+    secondary: "Start Unlimited Auctions",
+  },
+  banner: {
+    headline: "🚀 Move beyond per-auction limits",
+    body: "Run unlimited sourcing for 6 months. Lock in better pricing, faster procurement, and global supplier access.",
+    bonus: "🎁 Early users get 1 month extra free",
+  },
+  positioning:
+    "This is not a pricing plan. This is a procurement infrastructure contract. Run ALL sourcing through ProcureSaathi.",
+};
