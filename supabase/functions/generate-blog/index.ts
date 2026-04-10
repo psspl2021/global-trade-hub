@@ -545,13 +545,32 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
   return { pass: issues.length === 0, issues, confidenceScore };
 }
 
-// === HARD-INJECT MISSING SECTIONS ===
+// === HARD-INJECT MISSING SECTIONS + INTERNAL LINKS + LOSS MOMENT ===
 function enforceRequiredSections(content: string, strategy: TopicStrategy, product: string, year: number): string {
   const seedHash = hashString(`${product}|${year}`);
   const cityPools = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana'];
   const c1 = cityPools[seedHash % cityPools.length];
   const c2 = cityPools[(seedHash + 3) % cityPools.length];
   const c3 = cityPools[(seedHash + 7) % cityPools.length];
+
+  // === 1. INTERNAL LINK INJECTION (SEO + user flow) ===
+  content = content.replace(
+    /Get AI-Matched Quotes/g,
+    '<a href="/post-rfq" style="color:#16a34a;font-weight:600">Get AI-Matched Quotes</a>'
+  );
+  content = content.replace(
+    /Browse Categories/g,
+    '<a href="/browseproducts" style="color:#16a34a;font-weight:600">Browse Categories</a>'
+  );
+  content = content.replace(
+    /reverse auction/gi,
+    (match) => {
+      // Only linkify if not already inside an <a> tag
+      return `<a href="/post-rfq" style="color:#16a34a;font-weight:600">${match}</a>`;
+    }
+  );
+  // De-duplicate nested links (if AI already linked some)
+  content = content.replace(/<a [^>]*><a [^>]*>(.*?)<\/a><\/a>/gi, '<a href="/post-rfq" style="color:#16a34a;font-weight:600">$1</a>');
 
   // Inject decision block if missing — DYNAMIC, not generic
   if (!/when.*should.*buy|buying.*timing|decision.*matrix/i.test(content)) {
@@ -561,12 +580,11 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
 <thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Market Signal</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Action</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Impact</th></tr></thead>
 <tbody>
 <tr><td style="padding:10px;border:1px solid #e5e7eb">Iron ore rising 5–8%</td><td style="padding:10px;border:1px solid #e5e7eb">Lock rate contract now</td><td style="padding:10px;border:1px solid #e5e7eb">Prevents ₹3,000–5,000/MT increase</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Weak demand in ${c2}</td><td style="padding:10px;border:1px solid #e5e7eb">Run reverse auction</td><td style="padding:10px;border:1px solid #e5e7eb">2–6% lower procurement cost</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Weak demand in ${c2}</td><td style="padding:10px;border:1px solid #e5e7eb">Run <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a></td><td style="padding:10px;border:1px solid #e5e7eb">2–6% lower procurement cost</td></tr>
 <tr><td style="padding:10px;border:1px solid #e5e7eb">Freight spike from ${c3}</td><td style="padding:10px;border:1px solid #e5e7eb">Shift supplier region</td><td style="padding:10px;border:1px solid #e5e7eb">Saves ₹2,000+/MT logistics</td></tr>
 <tr><td style="padding:10px;border:1px solid #e5e7eb">Monsoon disruption in ${c1}</td><td style="padding:10px;border:1px solid #e5e7eb">Pre-stock 4–6 weeks inventory</td><td style="padding:10px;border:1px solid #e5e7eb">Avoids 10–15 day supply gap</td></tr>
 </tbody></table>`;
 
-    // Insert before last </article> or CTA
     const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
     if (ctaIdx > 0) {
       content = content.slice(0, ctaIdx) + decisionBlock + '\n' + content.slice(ctaIdx);
@@ -575,12 +593,34 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
     }
   }
 
+  // === 2. LOSS MOMENT TRIGGER (buyer psychology — inject before CTA) ===
+  if (!/Where Buyers Lose Money|hidden loss|don't realize/i.test(content)) {
+    const lossBlock = `
+<div style="margin-top:1.5rem;padding:1.25rem;border-left:4px solid #ef4444;background:#fef2f2;border-radius:0 8px 8px 0;">
+<h3 style="font-size:1.1rem;font-weight:700;color:#991b1b;margin-bottom:0.75rem;">Where Buyers Lose Money (And Don't Realize It)</h3>
+<ul style="margin:0;padding-left:1.25rem;color:#7f1d1d;">
+<li><strong>Underweight bundles</strong> → 2–5% hidden loss on every delivery</li>
+<li><strong>Freight miscalculation</strong> → ₹2,000–4,000/MT extra when not factored into landed cost</li>
+<li><strong>No supplier competition</strong> → suppliers quote 5–12% higher when they know you have no alternative</li>
+<li><strong>Spec ambiguity in PO</strong> → grade/size mismatches cost ₹1–3 lakh per rejected lot</li>
+</ul>
+</div>`;
+
+    // Insert before CTA block
+    const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
+    if (ctaIdx > 0) {
+      content = content.slice(0, ctaIdx) + lossBlock + '\n' + content.slice(ctaIdx);
+    } else {
+      content = content.replace(/<\/article>/i, lossBlock + '\n</article>');
+    }
+  }
+
   // Inject CTA if missing — buyer psychology driven
-  if (!/reverse auction/i.test(content)) {
+  if (!/Start Reverse Auction|start a reverse auction/i.test(content)) {
     const cta = `
 <div style="margin-top:2rem;padding:1.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">
 <h3 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">Stop Overpaying for ${product}</h3>
-<p style="margin-bottom:1rem;">Run a reverse auction and force suppliers to compete. Typical savings: 3–12% per order. No commitment — see quotes in 24 hours.</p>
+<p style="margin-bottom:1rem;">Run a <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a> and force suppliers to compete. Typical savings: 3–12% per order. No commitment — see quotes in 24 hours.</p>
 <a href="/post-rfq" style="display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Start Reverse Auction →</a>
 </div>`;
     content = content.replace(/<\/article>/i, cta + '\n</article>');
