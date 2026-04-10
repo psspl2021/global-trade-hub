@@ -74,6 +74,10 @@ export interface CreateAuctionInput {
   quality_standards?: string;
   line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string; unit_price?: number }[];
   deadline?: string;
+  // Global trade fields
+  incoterm?: string;
+  origin_country?: string;
+  shipment_mode?: string;
 }
 
 /** Returns bids sorted by price with rank (L1=1, L2=2, etc.) */
