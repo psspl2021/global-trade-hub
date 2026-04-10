@@ -289,8 +289,11 @@ TITLE RULES:
     let validation = validateBlog(blogData.content, topicStrategy);
     console.log('Blog validation (pass 1):', JSON.stringify(validation));
 
-    // === AUTO-REWRITE LOOP (max 1 retry) ===
-    if (validation.issues.length > 0) {
+    // === AUTO-REWRITE LOOP (only for CRITICAL failures — saves ~50% latency) ===
+    const criticalIssues = validation.issues.filter(i =>
+      i.includes('MISSING: Add') || i.includes('REMOVE')
+    );
+    if (criticalIssues.length > 0) {
       console.log('Triggering rewrite for issues:', validation.issues);
       const rewritePrompt = `REWRITE INSTRUCTIONS (MANDATORY FIXES):\n${validation.issues.map(i => `- ${i}`).join('\n')}\n\nReturn the FULL corrected HTML blog. Keep everything good, fix only the issues listed above.\n\nOriginal content:\n${blogData.content}`;
 
@@ -386,6 +389,9 @@ TITLE RULES:
       .replace(/(<br\s*\/?>){3,}/g, '<br/>')
       .replace(/\n{3,}/g, '\n\n');
 
+    // Final validation for confidence score
+    const finalValidation = validateBlog(finalContent, topicStrategy);
+
     return new Response(JSON.stringify({
       blog: {
         title: blogData.title,
@@ -397,6 +403,8 @@ TITLE RULES:
         seo_keywords: blogData.seo_keywords,
         cover_image: coverImageUrl,
         intent: isSupplierIntent ? 'supplier' : 'buyer',
+        confidence_score: finalValidation.confidenceScore,
+        remaining_issues: finalValidation.issues,
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -485,22 +493,49 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
     issues.push('MISSING: Add a "When Should You Buy" or buyer decision section with actionable timing guidance.');
   }
 
-  return { pass: issues.length === 0, issues };
+  // Check for INSIGHT lines (premium quality signal)
+  if (!/Most buyers|Smart buyers|hidden cost|what actually matters|real cost|overlooked/i.test(content)) {
+    issues.push('MISSING: Add sharp procurement insights (e.g., "Most buyers compare price per ton. Smart buyers compare usable ton after rejection.")');
+  }
+
+  // Check for RAW MATERIAL depth
+  if (!/iron ore|coking coal|billet|sponge iron|clinker|caustic soda|ethylene/i.test(content)) {
+    issues.push('MISSING: Add raw material cost drivers (iron ore, coking coal, billet, sponge iron, etc.)');
+  }
+
+  // Check for BIS/IS standards
+  if (!/IS\s?2062|IS\s?1786|IS\s?3589|ASTM|BIS|EN\s?\d/i.test(content)) {
+    issues.push('MISSING: Add BIS/IS standards reference (IS 2062, IS 1786, ASTM, etc.)');
+  }
+
+  // Check for HSN codes (commercial clarity)
+  if (!/HSN|7208|7213|7304|7306|3917|6811/i.test(content)) {
+    issues.push('MISSING: Add HSN codes for commercial clarity (e.g., HSN 7208 for HR coils)');
+  }
+
+  const confidenceScore = Math.max(0, 100 - (issues.length * 12));
+  return { pass: issues.length === 0, issues, confidenceScore };
 }
 
 // === HARD-INJECT MISSING SECTIONS ===
 function enforceRequiredSections(content: string, strategy: TopicStrategy, product: string, year: number): string {
-  // Inject decision block if missing
+  const seedHash = hashString(`${product}|${year}`);
+  const cityPools = ['Pune', 'Mumbai', 'Chennai', 'Raipur', 'Jamshedpur', 'Ahmedabad', 'Hyderabad', 'Bengaluru', 'Kolkata', 'Ludhiana'];
+  const c1 = cityPools[seedHash % cityPools.length];
+  const c2 = cityPools[(seedHash + 3) % cityPools.length];
+  const c3 = cityPools[(seedHash + 7) % cityPools.length];
+
+  // Inject decision block if missing — DYNAMIC, not generic
   if (!/when.*should.*buy|buying.*timing|decision.*matrix/i.test(content)) {
     const decisionBlock = `
-<h2>When Should You Buy ${product}?</h2>
+<h2>When Should You Buy ${product} in ${year}?</h2>
 <table style="width:100%;border-collapse:collapse;margin:1rem 0">
-<thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Market Scenario</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Recommended Action</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Why</th></tr></thead>
+<thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Market Signal</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Action</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Impact</th></tr></thead>
 <tbody>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Prices rising steadily</td><td style="padding:10px;border:1px solid #e5e7eb">Lock rates now via rate contract</td><td style="padding:10px;border:1px solid #e5e7eb">Delay increases landed cost by 3-8%</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Stable/flat market</td><td style="padding:10px;border:1px solid #e5e7eb">Stagger purchases over 2-3 months</td><td style="padding:10px;border:1px solid #e5e7eb">Reduces concentration risk without overpaying</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Prices falling</td><td style="padding:10px;border:1px solid #e5e7eb">Buy minimum, wait for floor</td><td style="padding:10px;border:1px solid #e5e7eb">Monitor weekly; place orders in tranches</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">High volatility</td><td style="padding:10px;border:1px solid #e5e7eb">Run reverse auction immediately</td><td style="padding:10px;border:1px solid #e5e7eb">Competition among suppliers reveals true market price</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Iron ore rising 5–8%</td><td style="padding:10px;border:1px solid #e5e7eb">Lock rate contract now</td><td style="padding:10px;border:1px solid #e5e7eb">Prevents ₹3,000–5,000/MT increase</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Weak demand in ${c2}</td><td style="padding:10px;border:1px solid #e5e7eb">Run reverse auction</td><td style="padding:10px;border:1px solid #e5e7eb">2–6% lower procurement cost</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Freight spike from ${c3}</td><td style="padding:10px;border:1px solid #e5e7eb">Shift supplier region</td><td style="padding:10px;border:1px solid #e5e7eb">Saves ₹2,000+/MT logistics</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb">Monsoon disruption in ${c1}</td><td style="padding:10px;border:1px solid #e5e7eb">Pre-stock 4–6 weeks inventory</td><td style="padding:10px;border:1px solid #e5e7eb">Avoids 10–15 day supply gap</td></tr>
 </tbody></table>`;
 
     // Insert before last </article> or CTA
@@ -512,12 +547,12 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
     }
   }
 
-  // Inject CTA if missing
+  // Inject CTA if missing — buyer psychology driven
   if (!/reverse auction/i.test(content)) {
     const cta = `
 <div style="margin-top:2rem;padding:1.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">
-<h3 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">Ready to Get the Best Price?</h3>
-<p style="margin-bottom:1rem;">Start a reverse auction and get the lowest price from verified suppliers. No commitment — see quotes in 24 hours.</p>
+<h3 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">Stop Overpaying for ${product}</h3>
+<p style="margin-bottom:1rem;">Run a reverse auction and force suppliers to compete. Typical savings: 3–12% per order. No commitment — see quotes in 24 hours.</p>
 <a href="/post-rfq" style="display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Start Reverse Auction →</a>
 </div>`;
     content = content.replace(/<\/article>/i, cta + '\n</article>');
