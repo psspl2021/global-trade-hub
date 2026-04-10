@@ -1,5 +1,5 @@
 /**
- * Transporter Dashboard — Logistics command center
+ * Global Fleet Transportation Dashboard — Logistics command center
  * Shows freight requests, active shipments, and delivery tracking
  */
 import { useState, useEffect } from 'react';
