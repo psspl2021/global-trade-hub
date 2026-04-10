@@ -18,7 +18,7 @@ export default function TransporterPage() {
               Home
             </Button>
           </Link>
-          <h1 className="text-lg font-semibold">Transporter Dashboard</h1>
+          <h1 className="text-lg font-semibold">Global Fleet Transportation</h1>
         </div>
       </header>
       <main className="container mx-auto px-4 py-6">

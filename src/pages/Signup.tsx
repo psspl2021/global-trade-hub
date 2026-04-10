@@ -141,8 +141,8 @@ const Signup = () => {
       canonical: 'https://www.procuresaathi.com/signup?role=logistics_partner',
     },
     transporter: {
-      title: 'Partner with Us - Transporter | ProcureSaathi',
-      description: 'Join ProcureSaathi as a transporter. Access freight requests and grow your logistics business globally.',
+      title: 'Partner with Us - Global Fleet Transportation | ProcureSaathi',
+      description: 'Join ProcureSaathi as a Global Fleet Transportation partner. Access freight requests and grow your logistics business globally.',
       canonical: 'https://www.procuresaathi.com/signup?role=transporter',
     },
     affiliate: {
@@ -393,7 +393,7 @@ const Signup = () => {
                 </TabsTrigger>
                 <TabsTrigger value="transporter" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Truck className="h-4 w-4" />
-                  <span>Transport</span>
+                  <span>Global Fleet</span>
                 </TabsTrigger>
                 <TabsTrigger value="affiliate" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Gift className="h-4 w-4" />
@@ -410,14 +410,14 @@ const Signup = () => {
                     {formData.role === 'buyer' && 'Join as a Buyer'}
                     {formData.role === 'supplier' && 'Join as a Supplier Partner'}
                     {formData.role === 'logistics_partner' && 'Join as a Logistics Partner'}
-                    {formData.role === 'transporter' && 'Join as a Transporter'}
+                    {formData.role === 'transporter' && 'Join as a Global Fleet Transportation Partner'}
                     {formData.role === 'affiliate' && 'Join as an Affiliate Partner'}
                   </h2>
                   <p className="text-muted-foreground text-sm">
                     {formData.role === 'buyer' && 'See how ProcureSaathi can transform your procurement decisions.'}
                     {formData.role === 'supplier' && 'Start receiving AI-detected buyer demand and grow your business.'}
                     {formData.role === 'logistics_partner' && 'Freight & Transportation services — connect with shippers nationwide.'}
-                    {formData.role === 'transporter' && 'Access freight requests, track shipments, and grow your transport business globally.'}
+                    {formData.role === 'transporter' && 'Access global freight requests, track shipments, and scale your fleet operations worldwide.'}
                     {formData.role === 'affiliate' && 'Want to earn by referring? Earn commissions by bringing businesses to ProcureSaathi.'}
                   </p>
                 </div>
