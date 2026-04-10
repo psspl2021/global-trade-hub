@@ -378,20 +378,24 @@ const Signup = () => {
           <div className="lg:col-span-2">
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-              <TabsList className="grid w-full grid-cols-4 h-auto p-1">
-                <TabsTrigger value="buyers" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+              <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+                <TabsTrigger value="buyers" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <ShoppingBag className="h-4 w-4" />
                   <span>Buyers</span>
                 </TabsTrigger>
-                <TabsTrigger value="suppliers" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                <TabsTrigger value="suppliers" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Building2 className="h-4 w-4" />
                   <span>Suppliers</span>
                 </TabsTrigger>
-                <TabsTrigger value="logistics" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                <TabsTrigger value="logistics" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Truck className="h-4 w-4" />
                   <span>Logistics</span>
                 </TabsTrigger>
-                <TabsTrigger value="affiliate" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                <TabsTrigger value="transporter" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
+                  <Truck className="h-4 w-4" />
+                  <span>Transport</span>
+                </TabsTrigger>
+                <TabsTrigger value="affiliate" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Gift className="h-4 w-4" />
                   <span>Affiliate</span>
                 </TabsTrigger>
