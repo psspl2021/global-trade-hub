@@ -686,12 +686,12 @@ const Signup = () => {
                   </div>
 
                   {/* Email Consent for Partners */}
-                  {(formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'affiliate') && (
+                  {(formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'transporter' || formData.role === 'affiliate') && (
                     <EmailNotificationConsent
                       checked={emailNotificationConsent}
                       onChange={setEmailNotificationConsent}
                       error={errors.emailNotificationConsent}
-                      role={formData.role === 'affiliate' ? 'supplier' : formData.role}
+                      role={formData.role === 'affiliate' || formData.role === 'transporter' ? 'supplier' : formData.role}
                     />
                   )}
 
