@@ -12,10 +12,10 @@ export default function MidContentCTA({ title }: Props) {
         Still comparing quotes manually?
       </p>
       <h3 className="text-lg font-bold mb-2 text-foreground">
-        Compare Prices from 5+ Verified {title} Suppliers
+        Run a Private Reverse Auction with Your {title} Suppliers
       </h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Most buyers overpay by ₹2,000–₹5,000/MT because they rely on just 2–3 quotes. See what competitive pricing really looks like.
+        Invite your own suppliers. Get competitive bids across borders with full control, compliance, and transparency.
       </p>
       <Link
         to="/post-rfq"
@@ -26,7 +26,7 @@ export default function MidContentCTA({ title }: Props) {
         }
         className="inline-block rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-md transition hover:scale-105 hover:shadow-lg"
       >
-        Get Lowest Price Now →
+        Create Global Auction →
       </Link>
     </section>
   );

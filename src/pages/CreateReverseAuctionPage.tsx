@@ -43,10 +43,10 @@ export default function CreateReverseAuctionPage() {
             </button>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-foreground leading-tight">
-                Create Reverse Auction
+                Create Global Auction
               </h1>
               <p className="text-xs text-muted-foreground">
-                Add products, invite suppliers, and start bidding
+                Invite your suppliers &amp; fleet partners for competitive bidding
                 {lastSaved && (
                   <span className="ml-2 text-emerald-600 dark:text-emerald-400">
                     · Draft saved {lastSaved.toLocaleTimeString()}

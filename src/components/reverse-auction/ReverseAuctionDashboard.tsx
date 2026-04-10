@@ -166,7 +166,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Reverse Auctions</h2>
-            <p className="text-sm text-muted-foreground">Price discovery through competitive reverse bidding</p>
+            <p className="text-sm text-muted-foreground">Private global auctions with your trusted supplier network</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
           {!isSupplier && (
             <Button onClick={() => navigate('/buyer/create-reverse-auction')} className="gap-2">
               <Sparkles className="w-4 h-4" />
-              Create Reverse Auction
+              Create Global Auction
             </Button>
           )}
         </div>
