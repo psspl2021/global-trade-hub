@@ -2240,8 +2240,10 @@ export type Database = {
           company_name: string | null
           created_at: string
           email: string | null
+          export_capability: boolean | null
           gstin: string | null
           id: string
+          is_global_supplier: boolean | null
           is_onboarded: boolean | null
           notes: string | null
           phone: string | null
@@ -2254,8 +2256,10 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           email?: string | null
+          export_capability?: boolean | null
           gstin?: string | null
           id?: string
+          is_global_supplier?: boolean | null
           is_onboarded?: boolean | null
           notes?: string | null
           phone?: string | null
@@ -2268,8 +2272,10 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           email?: string | null
+          export_capability?: boolean | null
           gstin?: string | null
           id?: string
+          is_global_supplier?: boolean | null
           is_onboarded?: boolean | null
           notes?: string | null
           phone?: string | null
@@ -4334,6 +4340,90 @@ export type Database = {
           },
         ]
       }
+      logistics_requests: {
+        Row: {
+          awarded_at: string | null
+          budget_amount: number | null
+          cargo_description: string | null
+          cargo_type: string | null
+          completed_at: string | null
+          created_at: string
+          currency: string | null
+          delivery_deadline: string | null
+          destination_city: string
+          destination_country: string
+          destination_state: string | null
+          id: string
+          origin_city: string
+          origin_country: string
+          origin_state: string | null
+          pickup_date: string | null
+          requester_id: string
+          shipment_mode: string | null
+          special_instructions: string | null
+          status: string
+          transporter_id: string | null
+          updated_at: string
+          vehicle_type: string | null
+          volume_cbm: number | null
+          weight_tons: number | null
+        }
+        Insert: {
+          awarded_at?: string | null
+          budget_amount?: number | null
+          cargo_description?: string | null
+          cargo_type?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          delivery_deadline?: string | null
+          destination_city: string
+          destination_country?: string
+          destination_state?: string | null
+          id?: string
+          origin_city: string
+          origin_country?: string
+          origin_state?: string | null
+          pickup_date?: string | null
+          requester_id: string
+          shipment_mode?: string | null
+          special_instructions?: string | null
+          status?: string
+          transporter_id?: string | null
+          updated_at?: string
+          vehicle_type?: string | null
+          volume_cbm?: number | null
+          weight_tons?: number | null
+        }
+        Update: {
+          awarded_at?: string | null
+          budget_amount?: number | null
+          cargo_description?: string | null
+          cargo_type?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          delivery_deadline?: string | null
+          destination_city?: string
+          destination_country?: string
+          destination_state?: string | null
+          id?: string
+          origin_city?: string
+          origin_country?: string
+          origin_state?: string | null
+          pickup_date?: string | null
+          requester_id?: string
+          shipment_mode?: string | null
+          special_instructions?: string | null
+          status?: string
+          transporter_id?: string | null
+          updated_at?: string
+          vehicle_type?: string | null
+          volume_cbm?: number | null
+          weight_tons?: number | null
+        }
+        Relationships: []
+      }
       logistics_requirement_events: {
         Row: {
           actor: string | null
@@ -5229,6 +5319,7 @@ export type Database = {
           bank_account_number: string | null
           bank_ifsc_code: string | null
           bank_name: string | null
+          business_registration: string | null
           business_type: string | null
           buyer_industry: string | null
           city: string | null
@@ -5247,6 +5338,7 @@ export type Database = {
           is_test_account: boolean
           is_verified_supplier: boolean | null
           kyc_verified: boolean | null
+          language: string | null
           logistics_partner_type:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -5254,9 +5346,12 @@ export type Database = {
           phone: string
           referred_by_name: string | null
           referred_by_phone: string | null
+          region_type: string | null
           state: string | null
           supplier_categories: string[] | null
           supplier_notification_subcategories: string[] | null
+          tax_id: string | null
+          timezone: string | null
           transaction_score: number | null
           updated_at: string
           yard_location: string | null
@@ -5267,6 +5362,7 @@ export type Database = {
           bank_account_number?: string | null
           bank_ifsc_code?: string | null
           bank_name?: string | null
+          business_registration?: string | null
           business_type?: string | null
           buyer_industry?: string | null
           city?: string | null
@@ -5285,6 +5381,7 @@ export type Database = {
           is_test_account?: boolean
           is_verified_supplier?: boolean | null
           kyc_verified?: boolean | null
+          language?: string | null
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -5292,9 +5389,12 @@ export type Database = {
           phone: string
           referred_by_name?: string | null
           referred_by_phone?: string | null
+          region_type?: string | null
           state?: string | null
           supplier_categories?: string[] | null
           supplier_notification_subcategories?: string[] | null
+          tax_id?: string | null
+          timezone?: string | null
           transaction_score?: number | null
           updated_at?: string
           yard_location?: string | null
@@ -5305,6 +5405,7 @@ export type Database = {
           bank_account_number?: string | null
           bank_ifsc_code?: string | null
           bank_name?: string | null
+          business_registration?: string | null
           business_type?: string | null
           buyer_industry?: string | null
           city?: string | null
@@ -5323,6 +5424,7 @@ export type Database = {
           is_test_account?: boolean
           is_verified_supplier?: boolean | null
           kyc_verified?: boolean | null
+          language?: string | null
           logistics_partner_type?:
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
@@ -5330,9 +5432,12 @@ export type Database = {
           phone?: string
           referred_by_name?: string | null
           referred_by_phone?: string | null
+          region_type?: string | null
           state?: string | null
           supplier_categories?: string[] | null
           supplier_notification_subcategories?: string[] | null
+          tax_id?: string | null
+          timezone?: string | null
           transaction_score?: number | null
           updated_at?: string
           yard_location?: string | null
@@ -6810,9 +6915,11 @@ export type Database = {
           destination_country: string | null
           destination_state: string | null
           id: string
+          incoterm: string | null
           max_auto_extensions: number | null
           max_bids_per_supplier: number | null
           minimum_bid_step_pct: number
+          origin_country: string | null
           payment_terms: string | null
           product_slug: string
           quality_standards: string | null
@@ -6820,6 +6927,7 @@ export type Database = {
           reserve_price: number | null
           result_notified: boolean | null
           rfq_type: string | null
+          shipment_mode: string | null
           show_exact_prices: boolean | null
           show_rank_only: boolean | null
           starting_price: number
@@ -6852,9 +6960,11 @@ export type Database = {
           destination_country?: string | null
           destination_state?: string | null
           id?: string
+          incoterm?: string | null
           max_auto_extensions?: number | null
           max_bids_per_supplier?: number | null
           minimum_bid_step_pct?: number
+          origin_country?: string | null
           payment_terms?: string | null
           product_slug: string
           quality_standards?: string | null
@@ -6862,6 +6972,7 @@ export type Database = {
           reserve_price?: number | null
           result_notified?: boolean | null
           rfq_type?: string | null
+          shipment_mode?: string | null
           show_exact_prices?: boolean | null
           show_rank_only?: boolean | null
           starting_price: number
@@ -6894,9 +7005,11 @@ export type Database = {
           destination_country?: string | null
           destination_state?: string | null
           id?: string
+          incoterm?: string | null
           max_auto_extensions?: number | null
           max_bids_per_supplier?: number | null
           minimum_bid_step_pct?: number
+          origin_country?: string | null
           payment_terms?: string | null
           product_slug?: string
           quality_standards?: string | null
@@ -6904,6 +7017,7 @@ export type Database = {
           reserve_price?: number | null
           result_notified?: boolean | null
           rfq_type?: string | null
+          shipment_mode?: string | null
           show_exact_prices?: boolean | null
           show_rank_only?: boolean | null
           starting_price?: number
@@ -7461,6 +7575,53 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      shipment_tracking: {
+        Row: {
+          created_at: string
+          event_time: string
+          id: string
+          latitude: number | null
+          location: string | null
+          logistics_request_id: string
+          longitude: number | null
+          notes: string | null
+          status: string
+          transporter_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_time?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          logistics_request_id: string
+          longitude?: number | null
+          notes?: string | null
+          status?: string
+          transporter_id: string
+        }
+        Update: {
+          created_at?: string
+          event_time?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          logistics_request_id?: string
+          longitude?: number | null
+          notes?: string | null
+          status?: string
+          transporter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_tracking_logistics_request_id_fkey"
+            columns: ["logistics_request_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shipment_updates: {
         Row: {
@@ -11038,6 +11199,7 @@ export type Database = {
         | "buyer_ceo"
         | "buyer_manager"
         | "buyer_hr"
+        | "transporter"
       bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
       document_status:
         | "draft"
@@ -11234,6 +11396,7 @@ export const Constants = {
         "buyer_ceo",
         "buyer_manager",
         "buyer_hr",
+        "transporter",
       ],
       bid_status: ["pending", "accepted", "rejected", "withdrawn"],
       document_status: [
