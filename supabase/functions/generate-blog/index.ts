@@ -574,30 +574,27 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
   const c3 = cityPools[(seedHash + 7) % cityPools.length];
 
   // === 1. INTERNAL LINK INJECTION (SEO + user flow — max 2 links per phrase) ===
+  // First-occurrence-only linking for static phrases
   content = content.replace(
-    /Get AI-Matched Quotes/g,
+    /Get AI-Matched Quotes/,
     '<a href="/post-rfq" style="color:#16a34a;font-weight:600">Get AI-Matched Quotes</a>'
   );
   content = content.replace(
-    /Browse Categories/g,
+    /Browse Categories/,
     '<a href="/browseproducts" style="color:#16a34a;font-weight:600">Browse Categories</a>'
   );
-  // Smart linking: only first 2 occurrences of "reverse auction" (not already inside <a>)
+  // HTML-safe linking: split by existing <a> tags, only process non-link parts
   let raLinkCount = 0;
-  content = content.replace(/reverse auction/gi, (match, offset) => {
-    // Skip if already inside an anchor tag (look back for unclosed <a)
-    const before = content.slice(Math.max(0, offset - 200), offset);
-    const lastAOpen = before.lastIndexOf('<a ');
-    const lastAClose = before.lastIndexOf('</a>');
-    if (lastAOpen > lastAClose) return match; // inside an <a> tag already
-    if (raLinkCount < 2) {
-      raLinkCount++;
-      return `<a href="/post-rfq" style="color:#16a34a;font-weight:600">${match}</a>`;
-    }
-    return match;
-  });
-  // De-duplicate nested links
-  content = content.replace(/<a [^>]*><a [^>]*>(.*?)<\/a><\/a>/gi, '<a href="/post-rfq" style="color:#16a34a;font-weight:600">$1</a>');
+  content = content.split(/(<a[^>]*>.*?<\/a>)/gi).map(part => {
+    if (part.match(/^<a/i)) return part; // skip existing links
+    return part.replace(/reverse auction/gi, (match) => {
+      if (raLinkCount < 2) {
+        raLinkCount++;
+        return `<a href="/post-rfq" style="color:#16a34a;font-weight:600">${match}</a>`;
+      }
+      return match;
+    });
+  }).join('');
 
   // Inject decision block if missing — DYNAMIC, not generic
   if (!/when.*should.*buy|buying.*timing|decision.*matrix/i.test(content)) {
