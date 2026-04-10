@@ -49,18 +49,18 @@ serve(async (req) => {
           email: BREVO_SENDER_EMAIL,
         },
         to: [{ email }],
-        subject: `🔥 Reverse Auction Invitation – ${auctionTitle}`,
+        subject: `🌍 Private Global Auction Invitation – ${auctionTitle}`,
         headers: {
           'X-Mailin-custom': `auction_id:${auctionId || ''}`,
         },
         htmlContent: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #d97706, #ea580c); padding: 24px; border-radius: 12px 12px 0 0;">
-              <h1 style="color: #fff; margin: 0; font-size: 22px;">🔨 You're Invited to Bid!</h1>
+              <h1 style="color: #fff; margin: 0; font-size: 22px;">🌍 You're Invited to a Private Global Auction</h1>
             </div>
             <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 12px 12px;">
               <p style="color: #374151; font-size: 16px; margin-top: 0;">
-                A buyer on <strong>ProcureSaathi</strong> has invited you to participate in a <strong>Reverse Auction</strong>. Compete with other suppliers to win the order!
+                A verified buyer on <strong>ProcureSaathi</strong> has invited you to participate in a <strong>Private Reverse Auction</strong>. Compete with trusted suppliers to win the order!
               </p>
               
               <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 16px; margin: 20px 0;">
@@ -72,24 +72,30 @@ serve(async (req) => {
                 </table>
               </div>
 
+              <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px; margin: 16px 0;">
+                <p style="color: #166534; font-size: 13px; margin: 0;">
+                  ✔ Verified buyer requirement &nbsp; ✔ Transparent competitive bidding &nbsp; ✔ International sourcing opportunity
+                </p>
+              </div>
+
               <div style="text-align: center; margin: 24px 0;">
                 <a href="${auctionLink}" style="background: linear-gradient(135deg, #d97706, #ea580c); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
-                  🎯 Place Bid →
+                  🎯 Join & Place Your Bid →
                 </a>
               </div>
 
-              <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px; margin: 16px 0;">
-                <p style="color: #166534; font-size: 13px; margin: 0;">
-                  💡 <strong>How it works:</strong> Suppliers compete by offering the lowest price. The best bid wins the order. Start bidding early for the best chance!
+              <div style="background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; margin: 16px 0;">
+                <p style="color: #1e40af; font-size: 13px; margin: 0;">
+                  🆓 <strong>Suppliers get 2 months FREE access</strong> — no upfront cost. Pay only when you start winning business.
                 </p>
               </div>
 
               <p style="color: #6b7280; font-size: 13px; margin-bottom: 0;">
-                This is a private invitation. Only invited suppliers can view and bid on this auction.
+                This is a private auction — only invited suppliers can view and bid.
               </p>
             </div>
             <p style="color: #9ca3af; font-size: 11px; text-align: center; margin-top: 16px;">
-              ProcureSaathi — India's B2B Procurement Platform
+              ProcureSaathi — Global B2B Procurement Platform
             </p>
           </div>
         `,
