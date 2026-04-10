@@ -1027,20 +1027,20 @@ function getSectionBlueprint(
    b) Price Drivers Analysis — iron ore, coking coal, power costs, demand factors, government policies
    c) Price Benchmark Table — <table> with product/grade, current ₹/MT range, expected direction, key trigger
    d) ${currentQuarter} ${currentYear} Forecast — expected price range, what pushes up vs down
-   e) Buyer Timing Strategy — when to buy, when to wait, when to lock prices
-   f) Hedging Tactics (brief) — rate contracts, bulk locking, supplier diversification
-   g) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   e) Buyer Decision Table (MANDATORY) — "When Should You Buy?" with BUY NOW / WAIT / HEDGE scenarios, market signals, actions, risk levels
+   f) Hedging Strategies (MANDATORY) — rate contracts, split procurement, multi-supplier bidding, post-spike auctions. Include ₹ lakh impact example.
+   g) Conversion CTA: "If your last purchase was based on 2–3 quotes, you are likely overpaying..." + "Get Lowest Price Now" button`;
   }
 
   if (strategy.pattern === 'hedging') {
     return `   a) Business Impact Scenario (opening — ₹ loss from no hedging)
    b) Why Prices Spike — raw materials, seasonal demand, policy changes, supply disruptions
-   c) Hedging Strategy Matrix — <table> with strategy, when it works, expected savings, risk
+   c) Hedging Strategy Matrix — <table> with strategy, how it works, best when, expected savings
    d) Rate Contracts Deep-Dive — how to negotiate, typical terms, lock-in periods
-   e) Staggered Procurement & Forward Buying — splitting orders, timing, inventory planning
-   f) Reverse Auction as a Hedge — using competition to lock lower prices
-   g) Implementation Checklist — 30/60/90 day action plan
-   h) CTA: "Start a reverse auction and get the lowest price from verified suppliers"`;
+   e) Split Procurement — buy 30% now, 70% later. Include example: "On 500 MT, ₹3,000 difference = ₹15 lakh impact"
+   f) Buyer Decision Table (MANDATORY) — "When Should You Buy?" with BUY NOW / WAIT / HEDGE scenarios
+   g) Reverse Auction as a Hedge — using competition to lock lower prices after price spikes
+   h) Conversion CTA: "Most buyers realize pricing inefficiencies only after the project is completed..." + "Get Lowest Price Now" button`;
   }
 
   if (tradeType === 'Export') {
