@@ -410,12 +410,14 @@ const Signup = () => {
                     {formData.role === 'buyer' && 'Join as a Buyer'}
                     {formData.role === 'supplier' && 'Join as a Supplier Partner'}
                     {formData.role === 'logistics_partner' && 'Join as a Logistics Partner'}
+                    {formData.role === 'transporter' && 'Join as a Transporter'}
                     {formData.role === 'affiliate' && 'Join as an Affiliate Partner'}
                   </h2>
                   <p className="text-muted-foreground text-sm">
                     {formData.role === 'buyer' && 'See how ProcureSaathi can transform your procurement decisions.'}
                     {formData.role === 'supplier' && 'Start receiving AI-detected buyer demand and grow your business.'}
                     {formData.role === 'logistics_partner' && 'Freight & Transportation services — connect with shippers nationwide.'}
+                    {formData.role === 'transporter' && 'Access freight requests, track shipments, and grow your transport business globally.'}
                     {formData.role === 'affiliate' && 'Want to earn by referring? Earn commissions by bringing businesses to ProcureSaathi.'}
                   </p>
                 </div>
