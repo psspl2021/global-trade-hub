@@ -224,10 +224,33 @@ ${sections}
 6. Include 2-3 HTML <table> elements with decision-useful data.
 7. Use <h2> for major sections, <h3> for subsections, <ul>/<ol> for lists.
 8. Internal links: <a href="/post-rfq">Get AI-Matched Quotes</a>, <a href="/browseproducts">Browse Categories</a>
-9. End with CTA: "Start a reverse auction and get the lowest price from verified suppliers"
-10. End with "Illustrative Scenario" disclaimer.
-11. Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
-12. Mention cities: ${selectedCity}, ${selectedCity2}, ${selectedCity3}
+9. End with "Illustrative Scenario" disclaimer.
+10. Output ONLY valid HTML inside a single <article> tag. No markdown. No code fences.
+11. Mention cities: ${selectedCity}, ${selectedCity2}, ${selectedCity3}
+
+BUYER DECISION BLOCK (MANDATORY — CRITICAL FOR CONVERSION):
+You MUST include a section titled "When Should You Buy [Product] in ${currentYear}?"
+Inside this section, create 3 scenarios in a TABLE:
+| Scenario | Market Signal | Recommended Action | Risk Level |
+| BUY NOW | Prices rising fast / project timeline fixed | Lock rate contract immediately | High if delayed |
+| WAIT | Demand slowing / raw materials softening | Monitor for 2-4 weeks | Medium |
+| HEDGE | Uncertain market / budget pressure | Split procurement: buy 30% now, 70% later | Low |
+After the table, add: "Most buyers lose money not due to high prices, but due to wrong timing."
+
+HEDGING STRATEGY SECTION (MANDATORY):
+You MUST include a section on hedging with REAL tactics:
+- Rate Contract: lock ₹/MT for 30–60 days with top suppliers
+- Split Procurement: buy 30% now at current rates, 70% later based on market movement
+- Multi-supplier bidding: force price competition via reverse auction
+- Reverse auction timing: run auctions after a price spike when suppliers are desperate for volume
+Include 1 numerical example: "On 500 MT, a ₹3,000/MT difference = ₹15 lakh impact on project margin."
+
+FINAL CTA (CONVERSION-OPTIMIZED — MANDATORY):
+End blog with this EXACT structure:
+1. Trust line: "Most buyers realize pricing inefficiencies only after the project is completed — when it's too late to recover margins."
+2. Challenge line: "If your last ${product} purchase was based on 2–3 supplier quotes, you are likely overpaying by ₹2,000–₹5,000 per ton."
+3. Action line: "Run a reverse auction on ProcureSaathi and see live price competition between verified suppliers."
+4. Button: <a href="/post-rfq">Get Lowest Price Now →</a>
 
 LANGUAGE DIVERSITY (CRITICAL):
 - Every paragraph MUST use a DIFFERENT sentence structure.
@@ -252,7 +275,7 @@ ${topicStrategy.antiDrift}
 
 TITLE RULES:
 - ${topicStrategy.titleDirection}
-- Make it sound like a market intelligence report a procurement head would forward`;
+- Make it sound like a market intelligence report a procurement head would forward
 
     const userPrompt = custom_topic
       ? `Write a procurement research blog about: "${custom_topic}"\nContext: ${category} industry, ${country} market, ${trade_type} trade.\nFocus: ${tradeContext}\n\nTOPIC BRIEF:\n${topicStrategy.detailBrief}\n\nYear: ${currentYear}. Regulations: ${countryRegs}.`
@@ -536,14 +559,29 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
     issues.push('MISSING: This is a HEDGING blog. Add specific hedging strategies: rate contracts, forward buying, staggered procurement.');
   }
 
-  // Check for decision block
+  // Check for decision block with BUY/WAIT/HEDGE scenarios
   if (!/when.*should.*buy|buying.*decision|decision.*matrix|action.*plan/i.test(content)) {
-    issues.push('MISSING: Add a "When Should You Buy" or buyer decision section with actionable timing guidance.');
+    issues.push('MISSING: Add a "When Should You Buy" section with BUY NOW / WAIT / HEDGE scenarios in a table.');
+  }
+
+  // Check for hedging tactics
+  if (!/rate contract|split procurement|staggered|forward buying/i.test(content)) {
+    issues.push('MISSING: Add hedging strategy section with rate contracts, split procurement, multi-supplier bidding.');
+  }
+
+  // Check for quantified scenario (₹ lakh impact)
+  if (!/₹.*lakh|lakh.*impact|₹.*crore/i.test(content)) {
+    issues.push('MISSING: Add at least one quantified scenario (e.g., "On 500 MT, ₹3,000 difference = ₹15 lakh impact").');
   }
 
   // Check for INSIGHT lines (premium quality signal)
-  if (!/Most buyers|Smart buyers|hidden cost|what actually matters|real cost|overlooked/i.test(content)) {
-    issues.push('MISSING: Add sharp procurement insights (e.g., "Most buyers compare price per ton. Smart buyers compare usable ton after rejection.")');
+  if (!/Most buyers|Smart buyers|hidden cost|what actually matters|real cost|overlooked|don't realize|too late/i.test(content)) {
+    issues.push('MISSING: Add sharp procurement insights with psychological triggers (e.g., "Most buyers realize pricing inefficiencies only after the project is completed")');
+  }
+
+  // Check for conversion-optimized CTA (not generic)
+  if (!/overpaying|lowest price now|live price competition/i.test(content)) {
+    issues.push('MISSING: Replace generic CTA with conversion-optimized CTA ("If your last purchase was based on 2-3 quotes, you are likely overpaying...")');
   }
 
   // Check for RAW MATERIAL depth
@@ -561,7 +599,7 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
     issues.push('MISSING: Add HSN codes for commercial clarity (e.g., HSN 7208 for HR coils)');
   }
 
-  const confidenceScore = Math.max(0, 100 - (issues.length * 12));
+  const confidenceScore = Math.max(0, 100 - (issues.length * 10));
   return { pass: issues.length === 0, issues, confidenceScore };
 }
 
@@ -596,17 +634,17 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
     });
   }).join('');
 
-  // Inject decision block if missing — DYNAMIC, not generic
+  // Inject decision block if missing — BUY / WAIT / HEDGE scenarios
   if (!/when.*should.*buy|buying.*timing|decision.*matrix/i.test(content)) {
     const decisionBlock = `
 <h2>When Should You Buy ${product} in ${year}?</h2>
+<p><strong>Most buyers lose money not due to high prices, but due to wrong timing.</strong> Here's a decision framework:</p>
 <table style="width:100%;border-collapse:collapse;margin:1rem 0">
-<thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Market Signal</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Action</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Impact</th></tr></thead>
+<thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Scenario</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Market Signal</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Recommended Action</th><th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Risk Level</th></tr></thead>
 <tbody>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Iron ore rising 5–8%</td><td style="padding:10px;border:1px solid #e5e7eb">Lock rate contract now</td><td style="padding:10px;border:1px solid #e5e7eb">Prevents ₹3,000–5,000/MT increase</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Weak demand in ${c2}</td><td style="padding:10px;border:1px solid #e5e7eb">Run <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a></td><td style="padding:10px;border:1px solid #e5e7eb">2–6% lower procurement cost</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Freight spike from ${c3}</td><td style="padding:10px;border:1px solid #e5e7eb">Shift supplier region</td><td style="padding:10px;border:1px solid #e5e7eb">Saves ₹2,000+/MT logistics</td></tr>
-<tr><td style="padding:10px;border:1px solid #e5e7eb">Monsoon disruption in ${c1}</td><td style="padding:10px;border:1px solid #e5e7eb">Pre-stock 4–6 weeks inventory</td><td style="padding:10px;border:1px solid #e5e7eb">Avoids 10–15 day supply gap</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb;font-weight:600;color:#dc2626">🔴 BUY NOW</td><td style="padding:10px;border:1px solid #e5e7eb">Prices rising 5–8% month-on-month in ${c1}, iron ore trending up</td><td style="padding:10px;border:1px solid #e5e7eb">Lock rate contract for 60 days immediately</td><td style="padding:10px;border:1px solid #e5e7eb">High if you delay — ₹3,000–5,000/MT increase likely</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb;font-weight:600;color:#ca8a04">🟡 WAIT</td><td style="padding:10px;border:1px solid #e5e7eb">Demand slowing in ${c2}, raw materials softening, inventory buildup at mills</td><td style="padding:10px;border:1px solid #e5e7eb">Monitor for 2–4 weeks, run <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a> to test current floor</td><td style="padding:10px;border:1px solid #e5e7eb">Medium — prices may drop ₹1,500–3,000/MT</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb;font-weight:600;color:#16a34a">🟢 HEDGE</td><td style="padding:10px;border:1px solid #e5e7eb">Uncertain market, budget pressure, multiple projects in pipeline</td><td style="padding:10px;border:1px solid #e5e7eb">Split procurement: buy 30% now at current rates, 70% later based on movement</td><td style="padding:10px;border:1px solid #e5e7eb">Low — limits downside to 30% of volume</td></tr>
 </tbody></table>`;
 
     const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
@@ -614,6 +652,34 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
       content = content.slice(0, ctaIdx) + decisionBlock + '\n' + content.slice(ctaIdx);
     } else {
       content = content.replace(/<\/article>/i, decisionBlock + '\n</article>');
+    }
+  }
+
+  // Inject hedging tactics if missing
+  if (!/rate contract.*lock|split procurement|staggered.*procurement/i.test(content)) {
+    const hedgingBlock = `
+<h2>Hedging Strategies That Actually Work</h2>
+<table style="width:100%;border-collapse:collapse;margin:1rem 0">
+<thead><tr style="background:#f3f4f6"><th style="padding:10px;border:1px solid #e5e7eb">Strategy</th><th style="padding:10px;border:1px solid #e5e7eb">How It Works</th><th style="padding:10px;border:1px solid #e5e7eb">Best When</th></tr></thead>
+<tbody>
+<tr><td style="padding:10px;border:1px solid #e5e7eb"><strong>Rate Contract</strong></td><td style="padding:10px;border:1px solid #e5e7eb">Lock ₹/MT with supplier for 30–60 days</td><td style="padding:10px;border:1px solid #e5e7eb">Prices are trending up</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb"><strong>Split Procurement</strong></td><td style="padding:10px;border:1px solid #e5e7eb">Buy 30% now, 70% later based on market</td><td style="padding:10px;border:1px solid #e5e7eb">Market direction unclear</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb"><strong>Multi-Supplier Bidding</strong></td><td style="padding:10px;border:1px solid #e5e7eb">Force price competition via <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a></td><td style="padding:10px;border:1px solid #e5e7eb">Suppliers quoting high — use competition</td></tr>
+<tr><td style="padding:10px;border:1px solid #e5e7eb"><strong>Post-Spike Auction</strong></td><td style="padding:10px;border:1px solid #e5e7eb">Run auction after price spike when suppliers need volume</td><td style="padding:10px;border:1px solid #e5e7eb">After a demand crash or inventory buildup</td></tr>
+</tbody></table>
+<p><strong>Example:</strong> On 500 MT of ${product}, a ₹3,000/MT difference = <strong>₹15 lakh impact</strong> on your project margin. That's the difference between a profitable project and a breakeven one.</p>`;
+
+    const decisionIdx = content.indexOf('When Should You Buy');
+    if (decisionIdx > 0) {
+      // Insert before decision block
+      content = content.slice(0, decisionIdx).replace(/<h2[^>]*>$/, '') + hedgingBlock + '\n<h2>' + content.slice(decisionIdx);
+    } else {
+      const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
+      if (ctaIdx > 0) {
+        content = content.slice(0, ctaIdx) + hedgingBlock + '\n' + content.slice(ctaIdx);
+      } else {
+        content = content.replace(/<\/article>/i, hedgingBlock + '\n</article>');
+      }
     }
   }
 
@@ -630,7 +696,6 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
 </ul>
 </div>`;
 
-    // Insert before CTA block
     const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem');
     if (ctaIdx > 0) {
       content = content.slice(0, ctaIdx) + lossBlock + '\n' + content.slice(ctaIdx);
@@ -639,15 +704,20 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
     }
   }
 
-  // Inject CTA if missing — buyer psychology driven
-  if (!/Start Reverse Auction|start a reverse auction/i.test(content)) {
-    const cta = `
-<div style="margin-top:2rem;padding:1.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">
-<h3 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">Stop Overpaying for ${product}</h3>
-<p style="margin-bottom:1rem;">Run a <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a> and force suppliers to compete. Typical savings: 3–12% per order. No commitment — see quotes in 24 hours.</p>
-<a href="/post-rfq" style="display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Start Reverse Auction →</a>
+  // Inject CONVERSION-OPTIMIZED CTA (replaces generic CTA)
+  if (!/overpaying|lowest price now|live price competition/i.test(content)) {
+    // Remove old generic CTA if present
+    content = content.replace(/<div style="margin-top:2rem;padding:1\.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">[\s\S]*?<\/div>/i, '');
+    
+    const conversionCTA = `
+<div style="margin-top:2rem;padding:1.5rem;border:2px solid #16a34a;border-radius:12px;background:#f0fdf4;">
+<p style="font-size:0.95rem;color:#374151;font-style:italic;margin-bottom:0.75rem;">Most buyers realize pricing inefficiencies only after the project is completed — when it's too late to recover margins.</p>
+<h3 style="font-size:1.25rem;font-weight:700;margin-bottom:0.75rem;color:#111827;">Still Comparing Quotes Manually?</h3>
+<p style="margin-bottom:0.5rem;">If your last ${product} purchase was based on 2–3 supplier quotes, you are likely <strong>overpaying by ₹2,000–₹5,000 per ton</strong>.</p>
+<p style="margin-bottom:1rem;">Run a <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a> on ProcureSaathi and see <strong>live price competition</strong> between verified suppliers. No commitment — see quotes in 24 hours.</p>
+<a href="/post-rfq" style="display:inline-block;padding:0.75rem 2rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:1.1rem;">Get Lowest Price Now →</a>
 </div>`;
-    content = content.replace(/<\/article>/i, cta + '\n</article>');
+    content = content.replace(/<\/article>/i, conversionCTA + '\n</article>');
   }
 
   // Add disclaimer if missing
