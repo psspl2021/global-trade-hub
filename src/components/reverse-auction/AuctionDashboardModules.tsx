@@ -149,11 +149,7 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
   };
 
   const handleWhatsApp = (s: any) => {
-    const currency = (selectedAuction as any)?.currency || 'INR';
-    const destCountry = (selectedAuction as any)?.destination_country || '';
-    const currencyInfo = currency !== 'INR' ? ` | Currency: ${currency}` : '';
-    const countryInfo = destCountry && destCountry !== 'India' ? ` | Destination: ${destCountry}` : '';
-    const msg = `Hi ${s.company_name || s.supplier_name || ''}, you are invited to a reverse auction on ProcureSaathi.${currencyInfo}${countryInfo}\n\nBid here: ${window.location.origin}/supplier-auction`;
+    const msg = `Hi ${s.company_name || s.supplier_name || ''}, you are invited to a reverse auction on ProcureSaathi.\n\nBid here: ${window.location.origin}/supplier-auction`;
     window.open(`https://wa.me/${(s.phone || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
