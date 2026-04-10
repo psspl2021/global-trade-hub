@@ -283,13 +283,67 @@ TITLE RULES:
     }
 
     const aiData = await aiResponse.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    let blogData = extractBlogFromResponse(aiData);
 
-    if (!toolCall?.function?.arguments) {
-      throw new Error('AI did not return structured blog content');
+    // === POST-GENERATION VALIDATOR ===
+    let validation = validateBlog(blogData.content, topicStrategy);
+    console.log('Blog validation (pass 1):', JSON.stringify(validation));
+
+    // === AUTO-REWRITE LOOP (max 1 retry) ===
+    if (validation.issues.length > 0) {
+      console.log('Triggering rewrite for issues:', validation.issues);
+      const rewritePrompt = `REWRITE INSTRUCTIONS (MANDATORY FIXES):\n${validation.issues.map(i => `- ${i}`).join('\n')}\n\nReturn the FULL corrected HTML blog. Keep everything good, fix only the issues listed above.\n\nOriginal content:\n${blogData.content}`;
+
+      const rewriteResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: 'You are a procurement content editor. Fix ONLY the listed issues. Return complete HTML inside <article> tags. Do NOT add new problems.' },
+            { role: 'user', content: rewritePrompt },
+          ],
+          tools: [{
+            type: 'function',
+            function: {
+              name: 'create_blog',
+              description: 'Return the corrected blog',
+              parameters: {
+                type: 'object',
+                properties: {
+                  content: { type: 'string', description: 'Full corrected blog HTML' },
+                },
+                required: ['content'],
+                additionalProperties: false,
+              },
+            },
+          }],
+          tool_choice: { type: 'function', function: { name: 'create_blog' } },
+        }),
+      });
+
+      if (rewriteResponse.ok) {
+        try {
+          const rewriteData = await rewriteResponse.json();
+          const rewriteCall = rewriteData.choices?.[0]?.message?.tool_calls?.[0];
+          if (rewriteCall?.function?.arguments) {
+            const rewritten = JSON.parse(rewriteCall.function.arguments);
+            if (rewritten.content && rewritten.content.length > blogData.content.length * 0.5) {
+              blogData.content = rewritten.content;
+              console.log('Rewrite applied successfully');
+            }
+          }
+        } catch (e) {
+          console.error('Rewrite parse error (using original):', e);
+        }
+      }
     }
 
-    const blogData = JSON.parse(toolCall.function.arguments);
+    // === HARD-INJECT MISSING SECTIONS ===
+    blogData.content = enforceRequiredSections(blogData.content, topicStrategy, product, currentYear);
 
     const slugBase = blogData.title
       .toLowerCase()
@@ -298,18 +352,18 @@ TITLE RULES:
       .substring(0, 70);
     const slug = `${slugBase}-${trade_type.toLowerCase()}-${country.toLowerCase().replace(/\s+/g, '-')}`;
 
-    // === IMAGE SYSTEM: keyword-query-based Unsplash URLs ===
-    const imageQuery = getKeywordImageQuery(custom_topic || category);
-    const coverImageUrl = `https://source.unsplash.com/1200x600/?${encodeURIComponent(imageQuery)}`;
-    const inlineImageUrl1 = `https://source.unsplash.com/800x400/?${encodeURIComponent(imageQuery + ' warehouse')}`;
-    const inlineImageUrl2 = `https://source.unsplash.com/800x400/?${encodeURIComponent(imageQuery + ' factory')}`;
-    
+    // === IMAGE SYSTEM: stable direct Unsplash URLs ===
+    const imageIds = getKeywordImageIds(custom_topic || category);
+    const coverImageUrl = `https://images.unsplash.com/photo-${imageIds.cover}?w=1200&h=600&fit=crop&auto=format&q=80`;
+    const inlineImageUrl1 = `https://images.unsplash.com/photo-${imageIds.inline[0]}?w=800&h=400&fit=crop&auto=format&q=80`;
+    const inlineImageUrl2 = `https://images.unsplash.com/photo-${imageIds.inline[1]}?w=800&h=400&fit=crop&auto=format&q=80`;
+
     const productName = custom_topic ? custom_topic.replace(/-/g, ' ').replace(/india$/i, '').trim() : category;
 
     // Inject images after first and third <h2>
     let finalContent = blogData.content;
     const h2Matches = [...finalContent.matchAll(/<h2[^>]*>.*?<\/h2>/gi)];
-    
+
     if (h2Matches.length >= 1) {
       const firstH2 = h2Matches[0];
       const insertPos1 = firstH2.index! + firstH2[0].length;
@@ -317,7 +371,6 @@ TITLE RULES:
       finalContent = finalContent.slice(0, insertPos1) + imgTag1 + finalContent.slice(insertPos1);
     }
 
-    // Re-find h2s after first injection
     const h2Matches2 = [...finalContent.matchAll(/<h2[^>]*>.*?<\/h2>/gi)];
     if (h2Matches2.length >= 3) {
       const thirdH2 = h2Matches2[2];
@@ -326,7 +379,7 @@ TITLE RULES:
       finalContent = finalContent.slice(0, insertPos2) + imgTag2 + finalContent.slice(insertPos2);
     }
 
-    // Clean up blank gaps
+    // Clean up
     finalContent = finalContent
       .replace(/<p>\s*<\/p>/g, '')
       .replace(/<p><br\s*\/?>\s*<\/p>/g, '')
