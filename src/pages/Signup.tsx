@@ -164,6 +164,8 @@ const Signup = () => {
       setFormData({ ...formData, role: 'supplier' });
     } else if (value === 'logistics') {
       setFormData({ ...formData, role: 'logistics_partner' });
+    } else if (value === 'transporter') {
+      setFormData({ ...formData, role: 'transporter' });
     } else if (value === 'affiliate') {
       setFormData({ ...formData, role: 'affiliate' });
     }
