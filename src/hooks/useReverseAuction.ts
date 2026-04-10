@@ -229,6 +229,9 @@ export function useReverseAuction(supplierMode: boolean = false) {
           certifications: input.certifications || null,
           quality_standards: input.quality_standards || null,
           deadline: input.deadline || null,
+          incoterm: input.incoterm || null,
+          origin_country: input.origin_country || null,
+          shipment_mode: input.shipment_mode || null,
         } as any)
         .select()
         .single();
