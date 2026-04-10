@@ -85,3 +85,59 @@ export const NETWORK_SIGNAL = (count: number) =>
       ? "Add more for stronger competition and better pricing."
       : "Strong network — great competition drives better pricing."
   }`;
+
+// ── Buyer Monetization ──────────────────────────────
+export const BUYER_PRICING_COPY = {
+  title: "Buy Auction Credits",
+  desc: "Run private global reverse auctions with your supplier network. Pay per auction — no hidden costs.",
+  note: "Unused auctions roll over. No expiry within validity period.",
+  highlight: "More suppliers = better price discovery",
+};
+
+// ── Supplier Pricing ────────────────────────────────
+export const SUPPLIER_PRICING = {
+  freePeriod: "2 months",
+  freeBenefits: [
+    "Participate in unlimited auctions",
+    "Receive private buyer invites",
+    "Access global demand",
+  ],
+  paidAfter: "Nominal participation fee per auction OR monthly plan",
+  positioning: "Start free. Pay only when you start winning business.",
+};
+
+// ── Global Fleet Transportation Pricing ─────────────
+export const FLEET_PRICING = {
+  freePeriod: "2 months",
+  freeBenefits: [
+    "Access freight requests",
+    "Quote logistics for global shipments",
+    "Connect directly with buyers",
+  ],
+  paidAfter: "Nominal fee per shipment or subscription",
+  positioning: "Get shipments first. Pay once you start moving goods.",
+};
+
+// ── Signup Banners ──────────────────────────────────
+export const SUPPLIER_SIGNUP_BANNER =
+  "Join ProcureSaathi and access real buyer demand.\n✔ 2 months FREE access\n✔ No lead selling — only verified auctions\n✔ Start receiving global RFQs instantly\nNo upfront cost. Pay only after onboarding period.";
+
+export const FLEET_SIGNUP_BANNER =
+  "Join Global Fleet Transportation Network.\n✔ Get real shipment requests\n✔ Work with verified buyers\n✔ 2 months FREE access\nStart receiving freight demand immediately.";
+
+export const FREE_BADGE = "🆓 Free access for suppliers & fleet (Limited time)";
+
+// ── Supplier Invite Email HTML ──────────────────────
+export const supplierInviteEmailHtml = (link: string) => `
+<h2>You've been invited to a Private Global Auction</h2>
+<p>You've been invited to participate in a reverse auction on ProcureSaathi.</p>
+<ul>
+  <li>✔ Verified Buyer Requirement</li>
+  <li>✔ Transparent Competitive Bidding</li>
+  <li>✔ Global Sourcing Opportunity</li>
+</ul>
+<p><a href="${link}" style="padding:12px 20px;background:#000;color:#fff;text-decoration:none;border-radius:6px;">
+  Join Auction →
+</a></p>
+<p style="color:#888;font-size:13px;">This is a private auction — only invited suppliers can participate.</p>
+`;
