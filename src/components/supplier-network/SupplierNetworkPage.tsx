@@ -303,11 +303,29 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                           <Trophy className="w-2.5 h-2.5 mr-0.5 inline" /> Best
                         </Badge>
                       )}
+                      {s.isVerified && (
+                        <Badge variant="outline" className="text-[10px] text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800">
+                          <ShieldCheck className="w-2.5 h-2.5 mr-0.5 inline" /> Verified
+                        </Badge>
+                      )}
+                      {(s.hasGstin || s.hasTaxId) && !s.isVerified && (
+                        <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                          {s.hasGstin ? 'GST' : 'Tax ID'} ✓
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                       {s.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {s.email}</span>}
                       {s.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {s.phone}</span>}
                     </div>
+                    {s.profileCompleteness > 0 && s.profileCompleteness < 100 && (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <div className="h-1 flex-1 max-w-[80px] bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.profileCompleteness}%` }} />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">{s.profileCompleteness}% profile</span>
+                      </div>
+                    )}
                     {s.qualityScore > 0 && (
                       <div className="flex items-center gap-3 mt-1.5 text-xs">
                         <span className="text-violet-600 font-medium">Score: {s.qualityScore}</span>
