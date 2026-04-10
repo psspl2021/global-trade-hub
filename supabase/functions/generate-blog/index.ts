@@ -420,6 +420,25 @@ TITLE RULES:
     // Final validation for confidence score
     const finalValidation = validateBlog(finalContent, topicStrategy);
 
+    // === 3. STORE VALIDATION DATA in blog record for analytics ===
+    try {
+      await supabase.from('blogs').upsert({
+        slug,
+        title: blogData.title,
+        excerpt: blogData.excerpt || '',
+        content: finalContent,
+        category: category,
+        cover_image: coverImageUrl,
+        is_published: finalValidation.confidenceScore >= 70,
+        published_at: finalValidation.confidenceScore >= 70 ? new Date().toISOString() : null,
+      }, { onConflict: 'slug' });
+
+      // Log validation metrics for future optimization
+      console.log(`Blog published: ${slug} | Score: ${finalValidation.confidenceScore} | Issues: ${finalValidation.issues.length}`);
+    } catch (dbErr) {
+      console.error('Blog save error (non-fatal):', dbErr);
+    }
+
     return new Response(JSON.stringify({
       blog: {
         title: blogData.title,
@@ -433,6 +452,7 @@ TITLE RULES:
         intent: isSupplierIntent ? 'supplier' : 'buyer',
         confidence_score: finalValidation.confidenceScore,
         remaining_issues: finalValidation.issues,
+        auto_published: finalValidation.confidenceScore >= 70,
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
