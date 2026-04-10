@@ -149,7 +149,7 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
   };
 
   const handleWhatsApp = (s: any) => {
-    const msg = `Hi ${s.company_name || s.supplier_name || ''}, you're invited to bid on a live auction on ProcureSaathi: ${window.location.origin}/supplier-auction`;
+    const msg = `Hi ${s.company_name || s.supplier_name || ''}, you are invited to a reverse auction on ProcureSaathi.\n\nBid here: ${window.location.origin}/supplier-auction`;
     window.open(`https://wa.me/${(s.phone || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

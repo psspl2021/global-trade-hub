@@ -74,6 +74,10 @@ export interface CreateAuctionInput {
   quality_standards?: string;
   line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string; unit_price?: number }[];
   deadline?: string;
+  // Global trade fields
+  incoterm?: string;
+  origin_country?: string;
+  shipment_mode?: string;
 }
 
 /** Returns bids sorted by price with rank (L1=1, L2=2, etc.) */
@@ -225,6 +229,9 @@ export function useReverseAuction(supplierMode: boolean = false) {
           certifications: input.certifications || null,
           quality_standards: input.quality_standards || null,
           deadline: input.deadline || null,
+          incoterm: input.incoterm || null,
+          origin_country: input.origin_country || null,
+          shipment_mode: input.shipment_mode || null,
         } as any)
         .select()
         .single();

@@ -59,6 +59,7 @@ const Signup = () => {
     const roleParam = searchParams.get('role');
     if (roleParam === 'supplier') return 'supplier';
     if (roleParam === 'logistics_partner') return 'logistics_partner';
+    if (roleParam === 'transporter') return 'transporter';
     if (roleParam === 'affiliate') return 'affiliate';
     return 'buyer';
   };
@@ -66,6 +67,7 @@ const Signup = () => {
     const roleParam = searchParams.get('role');
     if (roleParam === 'supplier') return 'suppliers';
     if (roleParam === 'logistics_partner') return 'logistics';
+    if (roleParam === 'transporter') return 'transporter';
     if (roleParam === 'affiliate') return 'affiliate';
     return 'buyers';
   };
@@ -109,7 +111,7 @@ const Signup = () => {
     phone: '',
     location: '',
     gstin: '',
-    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner' | 'affiliate',
+    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner' | 'transporter' | 'affiliate',
     referredByName: 'Priyanka',
     referredByPhone: '+918368127357',
     buyerType: '' as '' | 'end_buyer' | 'distributor' | 'dealer',
@@ -138,6 +140,11 @@ const Signup = () => {
       description: 'Join ProcureSaathi as a logistics partner. Connect with shippers and grow your freight business.',
       canonical: 'https://www.procuresaathi.com/signup?role=logistics_partner',
     },
+    transporter: {
+      title: 'Partner with Us - Transporter | ProcureSaathi',
+      description: 'Join ProcureSaathi as a transporter. Access freight requests and grow your logistics business globally.',
+      canonical: 'https://www.procuresaathi.com/signup?role=transporter',
+    },
     affiliate: {
       title: 'Partner with Us - Affiliate | ProcureSaathi',
       description: 'Earn by referring businesses to ProcureSaathi. Join our affiliate program and start earning commissions.',
@@ -162,6 +169,8 @@ const Signup = () => {
       setFormData({ ...formData, role: 'supplier' });
     } else if (value === 'logistics') {
       setFormData({ ...formData, role: 'logistics_partner' });
+    } else if (value === 'transporter') {
+      setFormData({ ...formData, role: 'transporter' });
     } else if (value === 'affiliate') {
       setFormData({ ...formData, role: 'affiliate' });
     }
@@ -180,7 +189,7 @@ const Signup = () => {
     }
 
     // Validate email notification consent for suppliers, logistics partners, and affiliates
-    if ((formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'affiliate') && !emailNotificationConsent) {
+    if ((formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'transporter' || formData.role === 'affiliate') && !emailNotificationConsent) {
       setErrors({ emailNotificationConsent: 'You must agree to receive email notifications to complete signup' });
       return;
     }
@@ -304,6 +313,10 @@ const Signup = () => {
       email_notification_consent: emailNotificationConsent,
       country: detectedCountry,
       company_size: formData.companySize || null,
+      // Global system fields
+      region_type: detectedCountry === 'india' || detectedCountry === 'in' || detectedCountry === 'ind' ? 'india' : 'global',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      language: navigator.language?.split('-')[0] || 'en',
     });
 
     setLoading(false);
@@ -365,20 +378,24 @@ const Signup = () => {
           <div className="lg:col-span-2">
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-              <TabsList className="grid w-full grid-cols-4 h-auto p-1">
-                <TabsTrigger value="buyers" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+              <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+                <TabsTrigger value="buyers" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <ShoppingBag className="h-4 w-4" />
                   <span>Buyers</span>
                 </TabsTrigger>
-                <TabsTrigger value="suppliers" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                <TabsTrigger value="suppliers" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Building2 className="h-4 w-4" />
                   <span>Suppliers</span>
                 </TabsTrigger>
-                <TabsTrigger value="logistics" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                <TabsTrigger value="logistics" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Truck className="h-4 w-4" />
                   <span>Logistics</span>
                 </TabsTrigger>
-                <TabsTrigger value="affiliate" className="gap-1.5 text-xs sm:text-sm py-2.5 flex-col sm:flex-row">
+                <TabsTrigger value="transporter" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
+                  <Truck className="h-4 w-4" />
+                  <span>Transport</span>
+                </TabsTrigger>
+                <TabsTrigger value="affiliate" className="gap-1 text-[10px] sm:text-sm py-2.5 flex-col sm:flex-row">
                   <Gift className="h-4 w-4" />
                   <span>Affiliate</span>
                 </TabsTrigger>
@@ -393,12 +410,14 @@ const Signup = () => {
                     {formData.role === 'buyer' && 'Join as a Buyer'}
                     {formData.role === 'supplier' && 'Join as a Supplier Partner'}
                     {formData.role === 'logistics_partner' && 'Join as a Logistics Partner'}
+                    {formData.role === 'transporter' && 'Join as a Transporter'}
                     {formData.role === 'affiliate' && 'Join as an Affiliate Partner'}
                   </h2>
                   <p className="text-muted-foreground text-sm">
                     {formData.role === 'buyer' && 'See how ProcureSaathi can transform your procurement decisions.'}
                     {formData.role === 'supplier' && 'Start receiving AI-detected buyer demand and grow your business.'}
                     {formData.role === 'logistics_partner' && 'Freight & Transportation services — connect with shippers nationwide.'}
+                    {formData.role === 'transporter' && 'Access freight requests, track shipments, and grow your transport business globally.'}
                     {formData.role === 'affiliate' && 'Want to earn by referring? Earn commissions by bringing businesses to ProcureSaathi.'}
                   </p>
                 </div>
@@ -667,12 +686,12 @@ const Signup = () => {
                   </div>
 
                   {/* Email Consent for Partners */}
-                  {(formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'affiliate') && (
+                  {(formData.role === 'supplier' || formData.role === 'logistics_partner' || formData.role === 'transporter' || formData.role === 'affiliate') && (
                     <EmailNotificationConsent
                       checked={emailNotificationConsent}
                       onChange={setEmailNotificationConsent}
                       error={errors.emailNotificationConsent}
-                      role={formData.role === 'affiliate' ? 'supplier' : formData.role}
+                      role={formData.role === 'affiliate' || formData.role === 'transporter' ? 'supplier' : formData.role}
                     />
                   )}
 

@@ -92,6 +92,7 @@ const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMar
 const ReverseAuctionSEOPage = lazy(() => import("./pages/ReverseAuctionSEOPage"));
 const ReverseAuction = lazy(() => import("./pages/ReverseAuction"));
 const CreateReverseAuctionPage = lazy(() => import("./pages/CreateReverseAuctionPage"));
+const TransporterPage = lazy(() => import("./pages/TransporterPage"));
 const BusinessCreditPage = lazy(() => import("./pages/BusinessCredit"));
 
 // Industry Use-Case Pages
@@ -254,6 +255,9 @@ const BotAwareRouter = () => {
         
         {/* Enterprise Control Center: admin only */}
         <Route path="/enterprise" element={<EnterpriseControlCenterPage />} />
+        
+        {/* Transporter Dashboard */}
+        <Route path="/transporter" element={<TransporterPage />} />
         
         {/* Legacy admin sub-routes - redirect to main admin dashboard */}
         <Route path="/admin/seo-monitor" element={<Navigate to="/admin" replace />} />
