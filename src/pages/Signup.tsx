@@ -59,6 +59,7 @@ const Signup = () => {
     const roleParam = searchParams.get('role');
     if (roleParam === 'supplier') return 'supplier';
     if (roleParam === 'logistics_partner') return 'logistics_partner';
+    if (roleParam === 'transporter') return 'transporter';
     if (roleParam === 'affiliate') return 'affiliate';
     return 'buyer';
   };
@@ -66,6 +67,7 @@ const Signup = () => {
     const roleParam = searchParams.get('role');
     if (roleParam === 'supplier') return 'suppliers';
     if (roleParam === 'logistics_partner') return 'logistics';
+    if (roleParam === 'transporter') return 'transporter';
     if (roleParam === 'affiliate') return 'affiliate';
     return 'buyers';
   };
@@ -109,7 +111,7 @@ const Signup = () => {
     phone: '',
     location: '',
     gstin: '',
-    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner' | 'affiliate',
+    role: initialRole as 'buyer' | 'supplier' | 'logistics_partner' | 'transporter' | 'affiliate',
     referredByName: 'Priyanka',
     referredByPhone: '+918368127357',
     buyerType: '' as '' | 'end_buyer' | 'distributor' | 'dealer',
