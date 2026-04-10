@@ -75,3 +75,46 @@ export function getCurrencySymbol(currencyCode: string): string {
   const currency = SUPPORTED_CURRENCIES.find(c => c.code === currencyCode);
   return currency?.symbol || currencyCode;
 }
+
+// ── Global Buyer Plan FX ────────────────────────────
+const PLAN_BASE_INR = 700000;
+
+/** Indicative FX rates (replace with live API feed) */
+export const FX_RATES: Record<string, number> = {
+  INR: 1,
+  USD: 0.012,
+  EUR: 0.011,
+  AED: 0.044,
+  SAR: 0.045,
+  GBP: 0.0095,
+  CNY: 0.086,
+  VND: 295,
+  KES: 1.86,
+  NGN: 18.8,
+  JPY: 1.79,
+  SGD: 0.016,
+  AUD: 0.018,
+  QAR: 0.044,
+};
+
+/**
+ * Convert the 6-month plan price to a target currency
+ */
+export function convertPlanPrice(currency: string, customRate?: number): number {
+  const rate = customRate ?? FX_RATES[currency] ?? 1;
+  return Math.round(PLAN_BASE_INR * rate);
+}
+
+/**
+ * Format the plan price with "Billed as ₹7,00,000 equivalent" note
+ */
+export function formatPlanPrice(currency: string): { price: string; note: string } {
+  if (currency === 'INR') {
+    return { price: formatCurrency(PLAN_BASE_INR, 'INR'), note: '' };
+  }
+  const converted = convertPlanPrice(currency);
+  return {
+    price: formatCurrency(converted, currency),
+    note: `Billed as ₹7,00,000 equivalent`,
+  };
+}
