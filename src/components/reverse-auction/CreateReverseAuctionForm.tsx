@@ -133,6 +133,12 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [qualityStandards, setQualityStandards] = useState('');
   const [deadline, setDeadline] = useState('');
 
+  // Global trade fields
+  const [auctionCurrency, setAuctionCurrency] = useState('INR');
+  const [incoterm, setIncoterm] = useState('');
+  const [originCountry, setOriginCountry] = useState('India');
+  const [shipmentMode, setShipmentMode] = useState('');
+
   // ── AI Title (Feature #1) — auto-fill but allow manual override ──
   const [auctionTitle, setAuctionTitle] = useState('');
   const [isManualTitle, setIsManualTitle] = useState(false);
