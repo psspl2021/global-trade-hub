@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from 'sonner';
 import {
   ArrowLeft, UserPlus, Users, Trophy, MessageCircle,
-  Mail, Phone, Search, RefreshCw, AlertTriangle,
+  Mail, Phone, Search, RefreshCw, AlertTriangle, ShieldCheck,
 } from 'lucide-react';
 
 interface SupplierNetworkPageProps {
@@ -37,7 +37,7 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
     const [suppRes, partRes] = await Promise.all([
       supabase
         .from('buyer_suppliers')
-        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at')
+        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at, is_global_supplier, export_capability')
         .eq('buyer_id', userId)
         .order('created_at', { ascending: false }),
       supabase
@@ -45,6 +45,26 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         .select('supplier_id, has_bid, auction_id, last_active')
         .eq('buyer_id', userId),
     ]);
+
+    // Fetch verification data from profiles for onboarded suppliers
+    const emails = (suppRes.data || []).map((s: any) => s.email).filter(Boolean);
+    let verifiedMap = new Map<string, { verified: boolean; gstin: string | null; tax_id: string | null; completeness: number }>();
+    if (emails.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('email, is_verified_supplier, gstin, tax_id, business_registration, company_name, phone, city, country')
+        .in('email', emails);
+      (profiles || []).forEach((p: any) => {
+        const fields = [p.company_name, p.phone, p.email, p.city, p.country, p.gstin || p.tax_id || p.business_registration].filter(Boolean);
+        const completeness = Math.round((fields.length / 6) * 100);
+        verifiedMap.set(p.email?.toLowerCase(), {
+          verified: !!p.is_verified_supplier,
+          gstin: p.gstin,
+          tax_id: p.tax_id,
+          completeness,
+        });
+      });
+    }
 
     const partMap = new Map<string, { total: number; participated: number; lastActive: string | null }>();
     ((partRes.data as any[]) || []).forEach((p: any) => {
@@ -64,12 +84,17 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
       const qualityScore = participationPct !== null
         ? Math.min(100, Math.round(participationPct * 0.7 + ((part?.participated || 0) * 2)))
         : 0;
+      const vData = s.email ? verifiedMap.get(s.email.toLowerCase()) : null;
       return {
         ...s,
         participationPct,
         partBid: part?.participated || 0,
         lastActive: part?.lastActive || null,
         qualityScore,
+        isVerified: vData?.verified || false,
+        profileCompleteness: vData?.completeness || 0,
+        hasGstin: !!vData?.gstin,
+        hasTaxId: !!vData?.tax_id,
       };
     });
     setSuppliers(enriched);
