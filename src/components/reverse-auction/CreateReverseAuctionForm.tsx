@@ -958,6 +958,68 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             </div>
           </div>
 
+          {/* Global Trade Fields — shown for import/export transactions */}
+          {transactionType !== 'domestic' && (
+            <div className="space-y-3 p-4 rounded-lg border border-primary/20 bg-primary/5">
+              <Label className="text-sm font-semibold flex items-center gap-1.5">
+                🌐 Global Trade Details
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Currency</Label>
+                  <Select value={auctionCurrency} onValueChange={setAuctionCurrency}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="INR">₹ INR</SelectItem>
+                      <SelectItem value="USD">$ USD</SelectItem>
+                      <SelectItem value="EUR">€ EUR</SelectItem>
+                      <SelectItem value="GBP">£ GBP</SelectItem>
+                      <SelectItem value="AED">د.إ AED</SelectItem>
+                      <SelectItem value="SAR">﷼ SAR</SelectItem>
+                      <SelectItem value="CNY">¥ CNY</SelectItem>
+                      <SelectItem value="VND">₫ VND</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Incoterm</Label>
+                  <Select value={incoterm} onValueChange={setIncoterm}>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="FOB">FOB — Free on Board</SelectItem>
+                      <SelectItem value="CIF">CIF — Cost, Insurance & Freight</SelectItem>
+                      <SelectItem value="EXW">EXW — Ex Works</SelectItem>
+                      <SelectItem value="CFR">CFR — Cost & Freight</SelectItem>
+                      <SelectItem value="DDP">DDP — Delivered Duty Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Origin Country</Label>
+                  <Input
+                    value={originCountry}
+                    onChange={e => setOriginCountry(e.target.value)}
+                    placeholder="e.g. China"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Shipment Mode</Label>
+                  <Select value={shipmentMode} onValueChange={setShipmentMode}>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sea">🚢 Sea Freight</SelectItem>
+                      <SelectItem value="air">✈️ Air Freight</SelectItem>
+                      <SelectItem value="road">🚛 Road Transport</SelectItem>
+                      <SelectItem value="rail">🚂 Rail Freight</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Commercial Terms Section */}
           <div className="space-y-3 pt-2 border-t">
             <Label className="text-sm font-semibold flex items-center gap-1.5">
