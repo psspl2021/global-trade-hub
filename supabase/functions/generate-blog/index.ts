@@ -185,6 +185,7 @@ ${categoryInsights}
 ${topicSpecificInsights}
 ${priceBenchmarkContext}
 ${trending_context ? `TRENDING CONTEXT:\n${trending_context}\n` : ''}
+${memoryContext}
 
 INTENT LOCK (CRITICAL — THIS DEFINES THE ENTIRE BLOG):
 ${topicStrategy.intentLock}
