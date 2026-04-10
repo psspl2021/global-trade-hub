@@ -313,6 +313,10 @@ const Signup = () => {
       email_notification_consent: emailNotificationConsent,
       country: detectedCountry,
       company_size: formData.companySize || null,
+      // Global system fields
+      region_type: detectedCountry === 'india' || detectedCountry === 'in' || detectedCountry === 'ind' ? 'india' : 'global',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      language: navigator.language?.split('-')[0] || 'en',
     });
 
     setLoading(false);
