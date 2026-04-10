@@ -573,7 +573,7 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
   const c2 = cityPools[(seedHash + 3) % cityPools.length];
   const c3 = cityPools[(seedHash + 7) % cityPools.length];
 
-  // === 1. INTERNAL LINK INJECTION (SEO + user flow) ===
+  // === 1. INTERNAL LINK INJECTION (SEO + user flow — max 2 links per phrase) ===
   content = content.replace(
     /Get AI-Matched Quotes/g,
     '<a href="/post-rfq" style="color:#16a34a;font-weight:600">Get AI-Matched Quotes</a>'
@@ -582,14 +582,21 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
     /Browse Categories/g,
     '<a href="/browseproducts" style="color:#16a34a;font-weight:600">Browse Categories</a>'
   );
-  content = content.replace(
-    /reverse auction/gi,
-    (match) => {
-      // Only linkify if not already inside an <a> tag
+  // Smart linking: only first 2 occurrences of "reverse auction" (not already inside <a>)
+  let raLinkCount = 0;
+  content = content.replace(/reverse auction/gi, (match, offset) => {
+    // Skip if already inside an anchor tag (look back for unclosed <a)
+    const before = content.slice(Math.max(0, offset - 200), offset);
+    const lastAOpen = before.lastIndexOf('<a ');
+    const lastAClose = before.lastIndexOf('</a>');
+    if (lastAOpen > lastAClose) return match; // inside an <a> tag already
+    if (raLinkCount < 2) {
+      raLinkCount++;
       return `<a href="/post-rfq" style="color:#16a34a;font-weight:600">${match}</a>`;
     }
-  );
-  // De-duplicate nested links (if AI already linked some)
+    return match;
+  });
+  // De-duplicate nested links
   content = content.replace(/<a [^>]*><a [^>]*>(.*?)<\/a><\/a>/gi, '<a href="/post-rfq" style="color:#16a34a;font-weight:600">$1</a>');
 
   // Inject decision block if missing — DYNAMIC, not generic
