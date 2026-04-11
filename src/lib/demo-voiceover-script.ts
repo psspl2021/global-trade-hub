@@ -8,6 +8,7 @@ export type DemoNarrationStep =
   | 'auction_live'
   | 'auction_complete'
   | 'savings'
+  | 'loss_aversion'
   | 'po_start'
   | 'po_sent'
   | 'po_accepted'
@@ -78,6 +79,13 @@ export const DEMO_NARRATION: NarrationEntry[] = [
     text: {
       en: 'In this auction, you saved approximately 8 to 12 percent compared to manual negotiation. Over multiple orders, this becomes a significant cost advantage. For most businesses, this alone pays for the platform.',
       hi: 'इस ऑक्शन में आपने मैन्युअल नेगोशिएशन की तुलना में लगभग 8 से 12 प्रतिशत की बचत की है। कई ऑर्डर्स में यह एक बड़ा कॉस्ट एडवांटेज बन जाता है।',
+    },
+  },
+  {
+    step: 'loss_aversion',
+    text: {
+      en: 'Without this system, you would have paid significantly more for the same order. Every manual negotiation leaves money on the table.',
+      hi: 'इस सिस्टम के बिना, आपको इसी ऑर्डर के लिए काफी ज़्यादा भुगतान करना पड़ता। हर मैन्युअल नेगोशिएशन में पैसा बर्बाद होता है।',
     },
   },
   {

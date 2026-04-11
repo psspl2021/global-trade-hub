@@ -183,11 +183,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => clearInterval(interval);
   }, [phase, auctionComplete, showEntryScreen]);
 
-  // Narrate auction completion + savings
+  // Narrate auction completion + savings + loss aversion
   useEffect(() => {
     if (auctionComplete) {
       speak('auction_complete', () => {
-        speak('savings');
+        speak('savings', () => {
+          speak('loss_aversion');
+        });
       });
     }
   }, [auctionComplete, speak]);
@@ -522,6 +524,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     Baseline: ₹{BASELINE_PRICE.toLocaleString('en-IN')}/MT → Won at ₹{lowestBid.price.toLocaleString('en-IN')}/MT
                     {' '}• Saved ₹{savingsPerMT.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT
                   </p>
+                  <p className="text-sm text-destructive/80 mt-2">
+                    ⚠️ Without ProcureSaathi, you would have overpaid ₹{totalSavings.toLocaleString('en-IN')}
+                  </p>
                 </CardContent>
               </Card>
             )}
@@ -663,6 +668,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       Activate 6-Month Plan
                     </Button>
                   </div>
+
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Buyers typically save ₹2,000–₹5,000/MT using reverse auctions
+                  </p>
 
                   <Button
                     variant="ghost"
