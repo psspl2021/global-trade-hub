@@ -559,6 +559,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
+  const isTransitioningRef = useRef(false);
   const previousPhaseRef = useRef<DemoPhase | null>(null);
   const skipPhaseNarrationRef = useRef<DemoPhase | null>(null);
 
