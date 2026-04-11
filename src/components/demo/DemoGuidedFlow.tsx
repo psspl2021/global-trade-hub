@@ -786,6 +786,24 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     }
   };
 
+  const resetCurrentStep = useCallback(() => {
+    stop();
+    setFullDemoRunning(false);
+    setAutoPlay(false);
+    setHighlightSection(null);
+    if (phase === 'auction' || phase === 'invite') {
+      setBids(DEMO_AUCTION.initialBids);
+      setAuctionComplete(false);
+      setBidRound(0);
+      setTimeLeft(120);
+      setActiveSuppliers([]);
+    }
+    if (phase === 'po_lifecycle') {
+      setPOStatus('draft');
+      setShowCTA(false);
+    }
+  }, [phase, stop]);
+
   const startDemo = useCallback((s: EntryScenario) => {
     setScenario(s);
     setShowEntryScreen(false);
