@@ -428,7 +428,10 @@ function SupplierAuctionView({
                   {bid.supplierId === 'demo-sup-2' ? `${bid.supplierName} (You)` : bid.supplierName}
                 </span>
               </div>
-              <span className="text-sm font-bold tabular-nums">₹{bid.price.toLocaleString('en-IN')}</span>
+              <div className="text-right">
+                <span className="text-sm font-bold tabular-nums">₹{calcTotalOrderValue(bid.price).toLocaleString('en-IN')}</span>
+                <p className="text-[10px] text-muted-foreground">₹{bid.price.toLocaleString('en-IN')}/MT</p>
+              </div>
             </div>
           ))}
         </div>
@@ -506,9 +509,9 @@ function BuyerAuctionView({
             </div>
             <div className="text-right">
               <p className={`font-bold text-lg tabular-nums ${idx === 0 ? 'text-primary' : 'text-foreground'}`}>
-                ₹{bid.price.toLocaleString('en-IN')}
+                ₹{calcTotalOrderValue(bid.price).toLocaleString('en-IN')}
               </p>
-              <p className="text-xs text-muted-foreground">per MT</p>
+              <p className="text-xs text-muted-foreground">₹{bid.price.toLocaleString('en-IN')}/MT</p>
             </div>
           </div>
         ))}
@@ -516,12 +519,10 @@ function BuyerAuctionView({
         {auctionComplete && (
           <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-3">
             <p className="text-sm font-semibold text-primary">🏆 Winner: {lowestBid.supplierName}</p>
-            <p className="text-lg font-bold">₹{lowestBid.price.toLocaleString('en-IN')} / MT</p>
+            <p className="text-lg font-bold">₹{calcTotalOrderValue(lowestBid.price).toLocaleString('en-IN')}</p>
+            <p className="text-xs text-muted-foreground">₹{lowestBid.price.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT</p>
             <p className="text-sm font-medium text-green-600">
-              ₹{((BASELINE_PRICE - lowestBid.price) * DEMO_AUCTION.quantity).toLocaleString('en-IN')} saved in 90 seconds
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Total: ₹{(lowestBid.price * DEMO_AUCTION.quantity).toLocaleString('en-IN')}
+              ₹{(BASELINE_TOTAL - calcTotalOrderValue(lowestBid.price)).toLocaleString('en-IN')} saved in 90 seconds
             </p>
             <p className="text-xs text-muted-foreground italic">This is what competitive bidding actually looks like.</p>
             <p className="text-xs text-muted-foreground mt-1">Same suppliers. Different outcome — because of competition.</p>
