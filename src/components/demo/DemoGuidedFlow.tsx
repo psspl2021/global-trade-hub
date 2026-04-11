@@ -559,6 +559,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
+  const isTransitioningRef = useRef(false);
   const previousPhaseRef = useRef<DemoPhase | null>(null);
   const skipPhaseNarrationRef = useRef<DemoPhase | null>(null);
 
@@ -853,10 +854,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   }, [goToPhase]);
 
   const handleNextStep = useCallback(() => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
     setFullDemoRunning(false);
     setAutoPlay(false);
     window.speechSynthesis?.cancel();
     goToNextPhase();
+    setTimeout(() => { isTransitioningRef.current = false; }, 300);
   }, [goToNextPhase]);
 
   const resetCurrentStep = useCallback(() => {
