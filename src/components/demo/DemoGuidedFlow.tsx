@@ -50,6 +50,12 @@ const DEMO_SKUS = [
   { id: 'sku-3', name: 'TMT Fe500 — 20mm', qty: 120, unit: 'MT', basePrice: 51000 },
 ];
 
+// Total order value = sum of (qty × unit_price_for_sku) where each SKU price is proportional to bid
+const calcTotalOrderValue = (unitPrice: number) =>
+  DEMO_SKUS.reduce((sum, sku) => sum + sku.qty * Math.round(unitPrice * (sku.basePrice / BASELINE_PRICE)), 0);
+
+const BASELINE_TOTAL = calcTotalOrderValue(BASELINE_PRICE); // ≈ ₹2.58 Cr
+
 const DEMO_RFQ = {
   id: 'RFQ-2026-001',
   buyerName: 'ABC Infra Pvt Ltd',
