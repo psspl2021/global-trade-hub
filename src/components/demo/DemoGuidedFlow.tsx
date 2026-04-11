@@ -532,7 +532,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     <p className="text-xs text-muted-foreground italic mt-1">Consistency drives savings — not one deal.</p>
                   </div>
                   <p className="text-sm text-destructive/80 mt-2">
-                    ⚠️ Without ProcureSaathi, you would have overpaid ₹{totalSavings.toLocaleString('en-IN')}
+                    ⚠️ Without competitive bidding, this order could cost ₹{totalSavings.toLocaleString('en-IN')} more
                   </p>
                 </CardContent>
               </Card>
