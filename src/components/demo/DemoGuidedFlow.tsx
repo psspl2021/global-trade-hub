@@ -1231,18 +1231,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       {DEMO_RFQ.buyerName} • {DEMO_RFQ.location} • Delivery: {DEMO_RFQ.deliveryDays} days
                     </p>
                   </div>
-                  <div className="flex items-center gap-2" data-demo-controls>
-                    <Button variant="outline" size="sm" onClick={() => setAutoPlay(p => !p)} className="h-8 gap-1">
-                      {autoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                      {autoPlay ? 'Pause' : 'Auto-Play'}
-                    </Button>
-                    {!autoPlay && (
-                      <Button variant="outline" size="sm" onClick={advancePO} className="h-8 gap-1" disabled={poStatus === 'closed'}>
-                        <SkipForward className="w-3.5 h-3.5" />
-                        Next Step
-                      </Button>
-                    )}
-                  </div>
+                  <Badge variant={poStatus === 'closed' ? 'secondary' : 'default'}>
+                    {poStatus === 'closed' ? '✅ Closed' : `📦 ${poStatus.replace('_', ' ').toUpperCase()}`}
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">{DEMO_PO.title} • {DEMO_PO.supplierName}</p>
               </CardHeader>
