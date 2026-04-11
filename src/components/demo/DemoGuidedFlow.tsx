@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, Square,
   SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap, Bot,
-  FileText, Users, Mail, Send
+  FileText, Users, Mail, Send, RotateCcw
 } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
 import { getNarrationText, poStatusToNarrationStep, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
