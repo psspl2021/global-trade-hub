@@ -559,6 +559,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
+  const previousPhaseRef = useRef<DemoPhase | null>(null);
+  const skipPhaseNarrationRef = useRef<DemoPhase | null>(null);
 
   // Voice preload (Safari/Chrome lazy voice loading fix)
   useEffect(() => { window.speechSynthesis?.getVoices(); }, []);
@@ -615,11 +617,49 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   useEffect(() => {
     if (showEntryScreen) {
       introSpoken.current = false;
+      previousPhaseRef.current = null;
+      skipPhaseNarrationRef.current = null;
     }
   }, [showEntryScreen]);
 
-  // Narrate rfq_structured when fields finish filling
-  // (triggered from phase transitions via speak calls)
+  // Narration reacts to phase changes instead of driving them.
+  useEffect(() => {
+    if (showEntryScreen) return;
+
+    if (skipPhaseNarrationRef.current === phase) {
+      previousPhaseRef.current = phase;
+      skipPhaseNarrationRef.current = null;
+      return;
+    }
+
+    const previousPhase = previousPhaseRef.current;
+    if (previousPhase === phase) return;
+
+    previousPhaseRef.current = phase;
+
+    if (phase === 'rfq') {
+      speak('rfq_start');
+      return;
+    }
+
+    if (phase === 'invite') {
+      if (previousPhase === 'rfq') {
+        speak('rfq_structured', () => speak('supplier_invite'));
+      } else {
+        speak('supplier_invite');
+      }
+      return;
+    }
+
+    if (phase === 'auction') {
+      speak('auction_live');
+      return;
+    }
+
+    if (phase === 'po_lifecycle' && poStatus === 'draft') {
+      speak('po_start');
+    }
+  }, [phase, poStatus, showEntryScreen, speak]);
 
   // Highlight sync with narration
   useEffect(() => {
@@ -708,14 +748,14 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
   // Narrate auction completion + savings
   useEffect(() => {
-    if (auctionComplete) {
+    if (auctionComplete && phase === 'auction') {
       speak('auction_complete', () => {
         speak('savings', () => {
           speak('loss_aversion');
         });
       });
     }
-  }, [auctionComplete, speak]);
+  }, [auctionComplete, phase, speak]);
 
   // Auto-play PO lifecycle
   useEffect(() => {
@@ -736,7 +776,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   // Narrate PO status changes
   useEffect(() => {
     const narrationStep = poStatusToNarrationStep(poStatus);
-    if (narrationStep && phase === 'po_lifecycle') {
+    if (narrationStep && phase === 'po_lifecycle' && poStatus !== 'draft') {
       speak(narrationStep);
     }
   }, [poStatus, phase, speak]);
@@ -778,13 +818,48 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     onExit();
   }, [onExit, stop]);
 
-  const advancePO = () => {
-    const currentIdx = DEMO_TIMELINE_STEPS.findIndex(s => s.status === poStatus);
-    const nextIdx = poStatus === 'draft' ? 0 : currentIdx + 1;
-    if (nextIdx < DEMO_TIMELINE_STEPS.length) {
-      setPOStatus(DEMO_TIMELINE_STEPS[nextIdx].status);
+  const advancePO = useCallback(() => {
+    setPOStatus(currentStatus => {
+      const currentIdx = DEMO_TIMELINE_STEPS.findIndex(s => s.status === currentStatus);
+      const nextIdx = currentStatus === 'draft' ? 0 : currentIdx + 1;
+      return nextIdx < DEMO_TIMELINE_STEPS.length ? DEMO_TIMELINE_STEPS[nextIdx].status : currentStatus;
+    });
+  }, []);
+
+  const goToPhase = useCallback((nextPhase: DemoPhase) => {
+    setHighlightSection(null);
+    setPhase(nextPhase);
+  }, []);
+
+  const goToNextPhase = useCallback(() => {
+    setHighlightSection(null);
+
+    if (phase === 'po_lifecycle') {
+      advancePO();
+      return;
     }
-  };
+
+    setPhase(prev => {
+      if (prev === 'rfq') return 'invite';
+      if (prev === 'invite') return 'auction';
+      if (prev === 'auction') return auctionComplete ? 'po_lifecycle' : prev;
+      return prev;
+    });
+  }, [advancePO, auctionComplete, phase]);
+
+  const handleManualPhaseChange = useCallback((nextPhase: DemoPhase) => {
+    setFullDemoRunning(false);
+    setAutoPlay(false);
+    stop();
+    goToPhase(nextPhase);
+  }, [goToPhase, stop]);
+
+  const handleNextStep = useCallback(() => {
+    setFullDemoRunning(false);
+    setAutoPlay(false);
+    stop();
+    goToNextPhase();
+  }, [goToNextPhase, stop]);
 
   const resetCurrentStep = useCallback(() => {
     stop();
@@ -807,14 +882,16 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const startDemo = useCallback((s: EntryScenario) => {
     setScenario(s);
     setShowEntryScreen(false);
+    setHighlightSection(null);
+    previousPhaseRef.current = null;
+    skipPhaseNarrationRef.current = 'rfq';
     setPhase('rfq');
+    setAutoPlay(false);
+    setFullDemoRunning(s === 'full');
     introSpoken.current = true;
     speak('intro', () => {
       setTimeout(() => speak('rfq_start'), 400);
     });
-    if (s === 'full') {
-      setFullDemoRunning(true);
-    }
   }, [speak]);
 
   // Full demo: auto-advance RFQ → Invite → Auction
@@ -822,29 +899,29 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     if (!fullDemoRunning) return;
     if (phase === 'rfq') {
       const t = setTimeout(() => {
-        speak('rfq_structured', () => speak('supplier_invite'));
-        setPhase('invite');
+        goToPhase('invite');
       }, 8000);
       return () => clearTimeout(t);
     }
     if (phase === 'invite') {
       const t = setTimeout(() => {
-        speak('auction_live');
-        setPhase('auction');
+        goToPhase('auction');
       }, 5000);
       return () => clearTimeout(t);
     }
-  }, [fullDemoRunning, phase, speak]);
+  }, [fullDemoRunning, goToPhase, phase]);
 
   // Full demo: auto-switch to PO after auction
   useEffect(() => {
-    if (fullDemoRunning && auctionComplete && phase === 'auction') {
-      setTimeout(() => {
-        setPhase('po_lifecycle');
-        setAutoPlay(true);
-      }, 2500);
-    }
-  }, [fullDemoRunning, auctionComplete, phase]);
+    if (!(fullDemoRunning && auctionComplete && phase === 'auction')) return;
+
+    const t = setTimeout(() => {
+      goToPhase('po_lifecycle');
+      setAutoPlay(true);
+    }, 2500);
+
+    return () => clearTimeout(t);
+  }, [fullDemoRunning, auctionComplete, goToPhase, phase]);
 
   useEffect(() => {
     if (fullDemoRunning && poStatus === 'closed') {
@@ -953,28 +1030,28 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           <Button
             variant={phase === 'rfq' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setPhase('rfq')}
+            onClick={() => handleManualPhaseChange('rfq')}
           >
             🤖 RFQ
           </Button>
           <Button
             variant={phase === 'invite' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => { setPhase('invite'); speak('supplier_invite'); }}
+            onClick={() => handleManualPhaseChange('invite')}
           >
             📧 Invite
           </Button>
           <Button
             variant={phase === 'auction' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => { setPhase('auction'); speak('auction_live'); }}
+            onClick={() => handleManualPhaseChange('auction')}
           >
             🔨 Auction
           </Button>
           <Button
             variant={phase === 'po_lifecycle' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setPhase('po_lifecycle')}
+            onClick={() => handleManualPhaseChange('po_lifecycle')}
             disabled={!auctionComplete}
           >
             📦 PO Lifecycle
@@ -1068,21 +1145,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 size="sm"
                 className="h-8 gap-1 active:scale-95 transition"
                 disabled={!canGoNext}
-                onClick={() => {
-                  // ⛔ Stop autoplay first — manual always overrides
-                  setFullDemoRunning(false);
-                  setAutoPlay(false);
-                  setHighlightSection(null);
-                  if (phase === 'rfq') {
-                    speak('rfq_structured', () => { speak('supplier_invite'); setPhase('invite'); });
-                  } else if (phase === 'invite') {
-                    speak('auction_live'); setPhase('auction');
-                  } else if (phase === 'auction' && auctionComplete) {
-                    setPhase('po_lifecycle');
-                  } else if (phase === 'po_lifecycle') {
-                    advancePO();
-                  }
-                }}
+                onClick={handleNextStep}
               >
                 <SkipForward className="w-3.5 h-3.5" />
                 Next Step
@@ -1126,14 +1189,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           <div id="rfq-card" className={`space-y-4 ${highlightClass('rfq-card')}`}>
             <DemoRFQStep
               scenario={scenario}
-              onComplete={() => {
-                speak('rfq_structured', () => {
-                  setTimeout(() => {
-                    speak('supplier_invite');
-                    setPhase('invite');
-                  }, 800);
-                });
-              }}
+              onComplete={handleNextStep}
             />
           </div>
         )}
@@ -1143,10 +1199,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           <div id="invite-card" className={`space-y-4 ${highlightClass('invite-card')}`}>
             <DemoInviteStep
               scenario={scenario}
-              onComplete={() => {
-                speak('auction_live');
-                setTimeout(() => setPhase('auction'), 800);
-              }}
+              onComplete={handleNextStep}
             />
           </div>
         )}
@@ -1192,7 +1245,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   bids={bids}
                   auctionComplete={auctionComplete}
                   bidRound={bidRound}
-                  onProceedToPO={() => setPhase('po_lifecycle')}
+                  onProceedToPO={() => handleManualPhaseChange('po_lifecycle')}
                 />
               </div>
             ) : (
@@ -1202,7 +1255,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     bids={bids}
                     auctionComplete={auctionComplete}
                     bidRound={bidRound}
-                    onProceedToPO={() => setPhase('po_lifecycle')}
+                    onProceedToPO={() => handleManualPhaseChange('po_lifecycle')}
                   />
                 </div>
                 <SupplierAuctionView
