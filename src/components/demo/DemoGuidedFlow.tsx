@@ -516,7 +516,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             {auctionComplete && (
               <Card id="savings-card" className={`border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800 ${highlightClass('savings-card')}`}>
                 <CardContent className="pt-6 space-y-3">
-                  <p className="text-sm font-medium text-muted-foreground">Auction Savings</p>
+                  <p className="text-sm font-medium text-muted-foreground">💰 Immediate savings: this auction</p>
                   <AnimatedSavingsCounter
                     targetSavings={totalSavings}
                     targetPercent={savingsPercent}
@@ -525,6 +525,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     Baseline: ₹{BASELINE_PRICE.toLocaleString('en-IN')}/MT → Won at ₹{lowestBid.price.toLocaleString('en-IN')}/MT
                     {' '}• Saved ₹{savingsPerMT.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT
                   </p>
+                  <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border space-y-1">
+                    <p className="text-sm font-semibold text-foreground">📊 Real impact over time</p>
+                    <p className="text-xs text-muted-foreground">• 1–3% per auction</p>
+                    <p className="text-xs text-muted-foreground">• 10–15% annually with consistent sourcing</p>
+                    <p className="text-xs text-muted-foreground italic mt-1">Consistency drives savings — not one deal.</p>
+                  </div>
                   <p className="text-sm text-destructive/80 mt-2">
                     ⚠️ Without ProcureSaathi, you would have overpaid ₹{totalSavings.toLocaleString('en-IN')}
                   </p>
@@ -648,9 +654,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   {/* Dynamic savings reminder */}
                   <div className="flex justify-center">
                     <Badge variant="secondary" className="text-green-700 bg-green-100 text-sm px-4 py-1">
-                      💰 This demo saved ₹{totalSavings.toLocaleString('en-IN')} ({savingsPercent.toFixed(1)}%)
+                      💰 Immediate savings: ₹{totalSavings.toLocaleString('en-IN')} in this auction
                     </Badge>
                   </div>
+
+                  <p className="text-sm text-muted-foreground">
+                    📈 Over 6–12 months, consistent auctions typically reduce procurement cost by 10–15%
+                  </p>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                     <Button
@@ -670,8 +680,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </Button>
                   </div>
 
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Buyers typically save ₹2,000–₹5,000/MT using reverse auctions
+                  <p className="text-xs text-muted-foreground/70 mt-2 italic">
+                    ProcureSaathi doesn't reduce cost in one deal — it systematically reduces procurement cost over time.
                   </p>
 
                   <Button

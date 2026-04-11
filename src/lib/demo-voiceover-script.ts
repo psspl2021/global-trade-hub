@@ -77,8 +77,8 @@ export const DEMO_NARRATION: NarrationEntry[] = [
   {
     step: 'savings',
     text: {
-      en: 'In this auction, you saved approximately 8 to 12 percent compared to manual negotiation. Over multiple orders, this becomes a significant cost advantage. For most businesses, this alone pays for the platform.',
-      hi: 'इस ऑक्शन में आपने मैन्युअल नेगोशिएशन की तुलना में लगभग 8 से 12 प्रतिशत की बचत की है। कई ऑर्डर्स में यह एक बड़ा कॉस्ट एडवांटेज बन जाता है।',
+      en: 'In this auction, you achieved immediate savings compared to baseline pricing. While a single auction gives direct benefit, real impact comes over time. Most buyers save 10 to 15 percent annually by consistently running competitive sourcing. Consistency drives savings — not one deal.',
+      hi: 'इस ऑक्शन में आपने बेसलाइन प्राइसिंग की तुलना में तुरंत बचत की है। एक ऑक्शन से सीधा फायदा होता है, लेकिन असली फायदा समय के साथ आता है। ज्यादातर बायर्स साल भर में 10 से 15 प्रतिशत तक बचत करते हैं।',
     },
   },
   {
