@@ -77,8 +77,8 @@ export const DEMO_NARRATION: NarrationEntry[] = [
   {
     step: 'savings',
     text: {
-      en: 'In this auction, you achieved immediate savings compared to baseline pricing. While a single auction gives direct benefit, real impact comes over time. Most buyers save 10 to 15 percent annually by consistently running competitive sourcing. Consistency drives savings — not one deal.',
-      hi: 'इस ऑक्शन में आपने बेसलाइन प्राइसिंग की तुलना में तुरंत बचत की है। एक ऑक्शन से सीधा फायदा होता है, लेकिन असली फायदा समय के साथ आता है। ज्यादातर बायर्स साल भर में 10 से 15 प्रतिशत तक बचत करते हैं।',
+      en: 'Savings per auction are typically modest — around 500 to 1,000 rupees per metric ton, depending on category and competition. But over multiple procurements, this compounds into significant annual savings of 10 to 15 percent.',
+      hi: 'हर ऑक्शन में बचत आमतौर पर मामूली होती है — लगभग 500 से 1,000 रुपये प्रति मीट्रिक टन, कैटेगरी और कंपटीशन के अनुसार। लेकिन कई खरीद के बाद, यह सालाना 10 से 15 प्रतिशत तक की बड़ी बचत में बदल जाती है।',
     },
   },
   {
