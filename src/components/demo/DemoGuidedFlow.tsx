@@ -1051,13 +1051,16 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 className="h-8 gap-1 active:scale-95 transition"
                 disabled={!canGoNext}
                 onClick={() => {
+                  // ⛔ Stop autoplay first — manual always overrides
+                  setFullDemoRunning(false);
+                  setAutoPlay(false);
                   setHighlightSection(null);
                   if (phase === 'rfq') {
                     speak('rfq_structured', () => { speak('supplier_invite'); setPhase('invite'); });
                   } else if (phase === 'invite') {
                     speak('auction_live'); setPhase('auction');
                   } else if (phase === 'auction' && auctionComplete) {
-                    setPhase('po_lifecycle'); setAutoPlay(true);
+                    setPhase('po_lifecycle');
                   } else if (phase === 'po_lifecycle') {
                     advancePO();
                   }
