@@ -844,9 +844,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const progressPct = ((currentStatusIdx) / (allStatuses.length - 1)) * 100;
   const isDeepMode = demoDepth === 'deep';
 
+  const l1Total = calcTotalOrderValue(lowestBid.price);
+  const totalSavings = BASELINE_TOTAL - l1Total;
+  const savingsPercent = ((totalSavings / BASELINE_TOTAL) * 100);
   const savingsPerMT = BASELINE_PRICE - lowestBid.price;
-  const totalSavings = savingsPerMT * DEMO_AUCTION.quantity;
-  const savingsPercent = ((savingsPerMT / BASELINE_PRICE) * 100);
 
   const highlightClass = (section: string) =>
     highlightSection === section
