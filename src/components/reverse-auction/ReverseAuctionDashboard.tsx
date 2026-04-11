@@ -14,12 +14,14 @@ import { AuctionWarRoom } from './AuctionWarRoom';
 import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
 import { PurchaseOrdersPage } from '@/components/purchase-orders/PurchaseOrdersPage';
 import { ExecutionTrackingPage } from '@/components/execution-tracking/ExecutionTrackingPage';
+import { UsageProgressMeter } from './UsageProgressMeter';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard } from 'lucide-react';
+import { DASHBOARD_LOCKIN_COPY } from '@/lib/global-positioning';
+import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard, Globe } from 'lucide-react';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
@@ -33,9 +35,20 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [showExecutionTracking, setShowExecutionTracking] = useState(false);
   const [showAuctionCredits, setShowAuctionCredits] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
+  const [auctionCount, setAuctionCount] = useState(0);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+
+  // Fetch auction count for usage meter
+  useEffect(() => {
+    if (!user || isSupplier) return;
+    supabase
+      .from('reverse_auctions')
+      .select('id', { count: 'exact', head: true })
+      .eq('buyer_id', user.id)
+      .then(({ count }) => setAuctionCount(count ?? 0));
+  }, [user, isSupplier]);
 
   // Persist selected auction ID in URL
   const selectAuction = (auction: ReverseAuction | null) => {
@@ -158,15 +171,18 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with lock-in positioning */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
             <Gavel className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">Reverse Auctions</h2>
-            <p className="text-sm text-muted-foreground">Private global auctions with your trusted supplier network</p>
+            <h2 className="text-xl font-bold text-foreground">{DASHBOARD_LOCKIN_COPY.title}</h2>
+            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5" />
+              {DASHBOARD_LOCKIN_COPY.subtitle}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -184,6 +200,9 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
           )}
         </div>
       </div>
+
+      {/* Usage Progress Meter (buyer only) */}
+      {!isSupplier && <UsageProgressMeter auctionCount={auctionCount} />}
 
       {/* Quick Access Cards (buyer only) */}
       {!isSupplier && (

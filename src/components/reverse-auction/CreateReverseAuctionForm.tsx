@@ -31,6 +31,7 @@ import { SupplierRecommendationPanel } from './SupplierRecommendationPanel';
 import { PriceIntelligencePanel } from './PriceIntelligencePanel';
 import { RfqTemplateSelector } from './RfqTemplateSelector';
 import { AiRfqPreview } from './AiRfqPreview';
+import { AuctionPaywallGate } from './AuctionPaywallGate';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
@@ -80,6 +81,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const { user } = useAuth();
   const navigateToCredits = useNavigate();
   const [open, setOpen] = useState(false);
+  const [showPaywallGate, setShowPaywallGate] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [wizardStep, setWizardStep] = useState(0);
   const WIZARD_STEPS = ['AI Input', 'Review Items', 'Suppliers', 'Pricing & Details', 'Launch'];
@@ -542,10 +544,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    // Check for credits
+    // Check for credits — show paywall gate
     if (!hasCredits) {
-      toast.error('No auction credits available. Redirecting to purchase credits...');
-      navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+      setShowPaywallGate(true);
       return;
     }
 
@@ -1348,7 +1349,23 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   );
 
   if (mode === 'page') {
-    return formContent;
+    return (
+      <>
+        {formContent}
+        {showPaywallGate && (
+          <AuctionPaywallGate
+            onActivate={() => {
+              setShowPaywallGate(false);
+              navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+            }}
+            onViewDetails={() => {
+              setShowPaywallGate(false);
+              navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+            }}
+          />
+        )}
+      </>
+    );
   }
 
   return (

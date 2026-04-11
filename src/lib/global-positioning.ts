@@ -204,3 +204,45 @@ export const GLOBAL_BUYER_PLAN = {
   positioning:
     "This is not a pricing plan. This is a procurement infrastructure contract. Run ALL sourcing through ProcureSaathi.",
 };
+
+// ── Buyer Lock-In System ───────────────────────────
+export const PAYWALL_GATE = {
+  headline: "🚀 Unlock Unlimited Global Procurement",
+  body: "You're about to create a reverse auction. Upgrade to the Global Procurement Plan to run unlimited sourcing.",
+  features: [
+    "Run unlimited auctions",
+    "Invite unlimited suppliers & fleet partners",
+    "Access global sourcing features",
+  ],
+  price: "6 Months Plan — ₹7,00,000",
+  bonus: "🎁 Early users get 1 month FREE",
+  cta: { primary: "Activate Plan", secondary: "View Details" },
+};
+
+export const USAGE_METER = {
+  label: "Procurement Activity",
+  messageLow: "Start running auctions to unlock better pricing",
+  messageMid: "Great — you're actively optimizing procurement",
+  messageHigh: "Power user — maximizing platform value",
+};
+
+export const SAVINGS_REINFORCEMENT = (amount: number, currency = "INR") => ({
+  headline: `💰 You saved ${currency === "INR" ? "₹" : ""}${amount.toLocaleString("en-IN")} in this auction`,
+  body: "Better supplier competition = better pricing. At this rate, your plan pays for itself quickly.",
+});
+
+export const EARLY_USER_OFFER = {
+  label: "Limited Time Offer",
+  message: "Get 1 month FREE if you activate before this week",
+  urgency: "⏰ Offer expires soon",
+};
+
+export const DASHBOARD_LOCKIN_COPY = {
+  title: "Your Private Procurement Network",
+  subtitle: "Run all sourcing through ProcureSaathi",
+  bullets: [
+    "Invite suppliers",
+    "Run competitive auctions",
+    "Optimize pricing across categories",
+  ],
+};
