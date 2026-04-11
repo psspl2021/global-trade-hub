@@ -82,6 +82,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     onReset();
   }, [onReset]);
 
+  const [fullDemoRunning, setFullDemoRunning] = useState(false);
+
   const advancePO = () => {
     const currentIdx = DEMO_TIMELINE_STEPS.findIndex(s => s.status === poStatus);
     const nextIdx = poStatus === 'draft' ? 0 : currentIdx + 1;
@@ -89,6 +91,28 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       setPOStatus(DEMO_TIMELINE_STEPS[nextIdx].status);
     }
   };
+
+  const runFullDemo = useCallback(() => {
+    setFullDemoRunning(true);
+    // Let auction finish naturally, then auto-play PO
+  }, []);
+
+  // When auction completes during full demo, auto-switch to PO + auto-play
+  useEffect(() => {
+    if (fullDemoRunning && auctionComplete && phase === 'auction') {
+      setTimeout(() => {
+        setPhase('po_lifecycle');
+        setAutoPlay(true);
+      }, 1500);
+    }
+  }, [fullDemoRunning, auctionComplete, phase]);
+
+  // Stop full demo when PO is closed
+  useEffect(() => {
+    if (fullDemoRunning && poStatus === 'closed') {
+      setFullDemoRunning(false);
+    }
+  }, [fullDemoRunning, poStatus]);
 
   const sortedBids = [...bids].sort((a, b) => a.price - b.price);
   const lowestBid = sortedBids[0];
@@ -101,8 +125,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       <DemoBanner onReset={handleReset} onExit={onExit} />
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
-        {/* Phase tabs */}
-        <div className="flex gap-2">
+        {/* Phase tabs + Run Full Demo */}
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant={phase === 'auction' ? 'default' : 'outline'}
             size="sm"
@@ -118,6 +142,17 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           >
             📦 PO Lifecycle
           </Button>
+          {!fullDemoRunning && phase === 'auction' && !auctionComplete && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="ml-auto gap-1"
+              onClick={runFullDemo}
+            >
+              <Play className="w-3.5 h-3.5" />
+              Run Full Demo (2 min)
+            </Button>
+          )}
         </div>
 
         {/* ── AUCTION PHASE ── */}
@@ -274,6 +309,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             </Card>
           </div>
         )}
+      </div>
+      {/* Demo watermark */}
+      <div className="fixed bottom-2 right-2 text-xs text-muted-foreground/60 pointer-events-none select-none z-50">
+        Demo Environment — No Real Transactions
       </div>
     </div>
   );
