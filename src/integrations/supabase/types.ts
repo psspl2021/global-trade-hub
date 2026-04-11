@@ -5032,6 +5032,47 @@ export type Database = {
           },
         ]
       }
+      po_status_history: {
+        Row: {
+          changed_by: string | null
+          changed_by_role: string | null
+          created_at: string
+          id: string
+          new_status: string
+          notes: string | null
+          old_status: string | null
+          po_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          changed_by_role?: string | null
+          created_at?: string
+          id?: string
+          new_status: string
+          notes?: string | null
+          old_status?: string | null
+          po_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          changed_by_role?: string | null
+          created_at?: string
+          id?: string
+          new_status?: string
+          notes?: string | null
+          old_status?: string | null
+          po_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "po_status_history_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       premium_bid_payments: {
         Row: {
           amount: number
@@ -11151,6 +11192,16 @@ export type Database = {
           supplier_count: number
         }[]
       }
+      transition_po_status: {
+        Args: {
+          p_new_status: string
+          p_notes?: string
+          p_po_id: string
+          p_user_id: string
+          p_user_role: string
+        }
+        Returns: Json
+      }
       unlock_logistics_awarding: {
         Args: { req_id: string }
         Returns: undefined
@@ -11208,6 +11259,10 @@ export type Database = {
         | "rejected"
         | "paid"
         | "cancelled"
+        | "in_transit"
+        | "delivered"
+        | "payment_done"
+        | "closed"
       document_type:
         | "proforma_invoice"
         | "tax_invoice"
@@ -11406,6 +11461,10 @@ export const Constants = {
         "rejected",
         "paid",
         "cancelled",
+        "in_transit",
+        "delivered",
+        "payment_done",
+        "closed",
       ],
       document_type: [
         "proforma_invoice",
