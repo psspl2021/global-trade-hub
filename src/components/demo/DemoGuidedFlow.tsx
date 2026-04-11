@@ -1091,7 +1091,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 bids={bids}
                 auctionComplete={auctionComplete}
                 bidRound={bidRound}
-                skuPrices={skuPrices}
                 onReduceBid={() => setBids(prev => prev.map(b =>
                   b.supplierId === 'demo-sup-2' ? { ...b, price: Math.max(b.price - 100, BASELINE_PRICE - 800) } : b
                 ))}
@@ -1119,7 +1118,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   bids={bids}
                   auctionComplete={auctionComplete}
                   bidRound={bidRound}
-                  skuPrices={skuPrices}
+                  
                   onReduceBid={() => setBids(prev => prev.map(b =>
                     b.supplierId === 'demo-sup-2' ? { ...b, price: Math.max(b.price - 100, BASELINE_PRICE - 800) } : b
                   ))}
