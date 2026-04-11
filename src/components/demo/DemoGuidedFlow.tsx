@@ -545,7 +545,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [language, setLanguage] = useState('en');
   const [demoDepth, setDemoDepth] = useState<DemoDepth>('deep');
   const [showCTA, setShowCTA] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
   const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
@@ -558,7 +557,11 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return prices;
   });
 
-  const { speak, stop, speaking, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
+  const { speak, pause: pauseVoice, resume: resumeVoice, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
+
+  const stopVoice = useCallback(() => {
+    stop();
+  }, [stop]);
 
   // ── CRITICAL: Stop speech on unmount / exit ──
   useEffect(() => {
@@ -566,22 +569,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       window.speechSynthesis?.cancel();
     };
   }, []);
-
-  // ── Voice control functions ──
-  const pauseVoice = useCallback(() => {
-    window.speechSynthesis?.pause();
-    setPaused(true);
-  }, []);
-
-  const resumeVoice = useCallback(() => {
-    window.speechSynthesis?.resume();
-    setPaused(false);
-  }, []);
-
-  const stopVoice = useCallback(() => {
-    stop();
-    setPaused(false);
-  }, [stop]);
 
   // ── Auto-scroll to highlighted section ──
   useEffect(() => {
@@ -764,7 +751,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setFullDemoRunning(false);
     setShowEntryScreen(true);
     setShowCTA(false);
-    setPaused(false);
     setTimeLeft(120);
     setActiveSuppliers([]);
     introSpoken.current = false;
@@ -789,7 +775,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setScenario(s);
     setShowEntryScreen(false);
     setPhase('rfq');
-    setPaused(false);
     introSpoken.current = true;
     speak('intro', () => {
       setTimeout(() => speak('rfq_start'), 400);

@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { getNarrationText, type DemoNarrationStep, type DemoScenario } from '@/lib/demo-voiceover-script';
 
 const LANG_MAP: Record<string, string> = {
-  en: 'en-IN',
+  en: 'en-US',
   hi: 'hi-IN',
   ar: 'ar-SA',
   vi: 'vi-VN',
@@ -11,6 +11,7 @@ const LANG_MAP: Record<string, string> = {
 
 export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario = 'full') {
   const [speaking, setSpeaking] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [currentStep, setCurrentStep] = useState<DemoNarrationStep | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -22,16 +23,20 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
     if (!text) return;
 
     const synthesis = window.speechSynthesis;
+    // Cancel any previous speech before starting new
     synthesis.cancel();
+    // Chrome bug: after cancel, synthesis can get stuck in paused state
     synthesis.resume();
 
     const utterance = new SpeechSynthesisUtterance(text);
+
+    // Pick best available voice
     const requestedLang = LANG_MAP[language] || 'en-US';
     const voices = synthesis.getVoices();
     const preferredVoice =
-      voices.find((voice) => voice.lang === requestedLang) ||
-      voices.find((voice) => voice.lang.toLowerCase().startsWith(requestedLang.slice(0, 2).toLowerCase())) ||
-      voices.find((voice) => voice.lang.toLowerCase().startsWith('en'));
+      voices.find(v => v.lang === requestedLang) ||
+      voices.find(v => v.lang.toLowerCase().startsWith(requestedLang.slice(0, 2).toLowerCase())) ||
+      voices.find(v => v.lang.toLowerCase().startsWith('en'));
 
     utterance.lang = preferredVoice?.lang || requestedLang;
     if (preferredVoice) utterance.voice = preferredVoice;
@@ -41,32 +46,53 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
 
     utterance.onstart = () => {
       setSpeaking(true);
+      setPaused(false);
       setCurrentStep(step);
     };
     utterance.onend = () => {
       setSpeaking(false);
+      setPaused(false);
       setCurrentStep(null);
       onEnd?.();
     };
-    utterance.onerror = () => {
-      setSpeaking(false);
-      setCurrentStep(null);
+    utterance.onerror = (e) => {
+      // 'interrupted' is normal when we cancel to start a new utterance
+      if (e.error !== 'interrupted') {
+        setSpeaking(false);
+        setPaused(false);
+        setCurrentStep(null);
+      }
     };
 
     utteranceRef.current = utterance;
     synthesis.speak(utterance);
   }, [language, voiceEnabled, scenario]);
 
+  const pause = useCallback(() => {
+    if (window.speechSynthesis?.speaking) {
+      window.speechSynthesis.pause();
+      setPaused(true);
+    }
+  }, []);
+
+  const resume = useCallback(() => {
+    if (window.speechSynthesis?.paused) {
+      window.speechSynthesis.resume();
+      setPaused(false);
+    }
+  }, []);
+
   const stop = useCallback(() => {
     window.speechSynthesis?.cancel();
     setSpeaking(false);
+    setPaused(false);
     setCurrentStep(null);
   }, []);
 
   const toggleVoice = useCallback(() => {
-    if (speaking) stop();
+    if (speaking || paused) stop();
     setVoiceEnabled(v => !v);
-  }, [speaking, stop]);
+  }, [speaking, paused, stop]);
 
-  return { speak, stop, speaking, currentStep, voiceEnabled, toggleVoice };
+  return { speak, pause, resume, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice };
 }
