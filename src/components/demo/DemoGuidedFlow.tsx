@@ -271,7 +271,10 @@ function DemoInviteStep({ onComplete, scenario }: { onComplete: () => void; scen
               )}
             </div>
           ))}
-        </div>
+              <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+                Sent via auctions@procuresaathi.com • Tracked • Delivered
+              </p>
+            </div>
 
         {/* Email preview */}
         {showPreview && (
@@ -384,6 +387,14 @@ function SupplierAuctionView({
           })}
         </div>
 
+        {/* Suggested next bid */}
+        {!auctionComplete && myRank > 1 && (
+          <div className="text-xs text-muted-foreground p-2 bg-muted/50 rounded border border-border">
+            🤖 Suggested next bid: <span className="font-semibold text-foreground">₹{(l1Price - 50).toLocaleString('en-IN')}/MT</span>
+            <span className="ml-1 text-muted-foreground/70">— just ₹50 below current L1</span>
+          </div>
+        )}
+
         {/* Leaderboard */}
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground">📊 Live Leaderboard</p>
@@ -487,9 +498,13 @@ function BuyerAuctionView({
           <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-3">
             <p className="text-sm font-semibold text-primary">🏆 Winner: {lowestBid.supplierName}</p>
             <p className="text-lg font-bold">₹{lowestBid.price.toLocaleString('en-IN')} / MT</p>
+            <p className="text-sm font-medium text-green-600">
+              ₹{((BASELINE_PRICE - lowestBid.price) * DEMO_AUCTION.quantity).toLocaleString('en-IN')} saved in 90 seconds
+            </p>
             <p className="text-xs text-muted-foreground">
               Total: ₹{(lowestBid.price * DEMO_AUCTION.quantity).toLocaleString('en-IN')}
             </p>
+            <p className="text-xs text-muted-foreground italic">This is what competitive bidding actually looks like.</p>
             <Button size="sm" className="mt-2" onClick={onProceedToPO}>
               Proceed to PO →
             </Button>
@@ -1014,8 +1029,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <DemoRFQStep
               scenario={scenario}
               onComplete={() => {
-                speak('rfq_structured', () => speak('supplier_invite'));
-                setPhase('invite');
+                speak('rfq_structured', () => {
+                  setTimeout(() => {
+                    speak('supplier_invite');
+                    setPhase('invite');
+                  }, 800);
+                });
               }}
             />
           </div>
@@ -1028,7 +1047,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               scenario={scenario}
               onComplete={() => {
                 speak('auction_live');
-                setPhase('auction');
+                setTimeout(() => setPhase('auction'), 800);
               }}
             />
           </div>
@@ -1244,6 +1263,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       Activate 6-Month Plan
                     </Button>
                   </div>
+
+                  <p className="text-sm text-muted-foreground italic mt-3">
+                    This is your private procurement engine — not a public marketplace.
+                  </p>
 
                   <p className="text-xs text-muted-foreground/70 mt-2 italic">
                     ProcureSaathi doesn't reduce cost in one deal — it systematically reduces procurement cost over time.
