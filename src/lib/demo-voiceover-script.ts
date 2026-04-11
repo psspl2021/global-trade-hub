@@ -7,6 +7,7 @@ export type DemoNarrationStep =
   | 'intro'
   | 'auction_live'
   | 'auction_complete'
+  | 'savings'
   | 'po_start'
   | 'po_sent'
   | 'po_accepted'
@@ -41,6 +42,13 @@ export const DEMO_NARRATION: NarrationEntry[] = [
     text: {
       en: 'The auction is complete. The lowest bidder wins. Now, you generate a Purchase Order directly from the platform. No manual follow-ups. No confusion. Everything is structured and tracked.',
       hi: 'ऑक्शन पूरा हो गया। सबसे कम बोली लगाने वाला जीतता है। अब आप सीधे प्लेटफॉर्म से पर्चेज ऑर्डर बनाते हैं।',
+    },
+  },
+  {
+    step: 'savings',
+    text: {
+      en: 'In this auction, you saved approximately 8 to 12 percent compared to manual negotiation. Over multiple orders, this becomes a significant cost advantage. For most businesses, this alone pays for the platform.',
+      hi: 'इस ऑक्शन में आपने मैन्युअल नेगोशिएशन की तुलना में लगभग 8 से 12 प्रतिशत की बचत की है। कई ऑर्डर्स में यह एक बड़ा कॉस्ट एडवांटेज बन जाता है।',
     },
   },
   {
