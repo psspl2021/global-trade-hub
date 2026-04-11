@@ -846,6 +846,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const savingsPercent = ((totalSavings / BASELINE_TOTAL) * 100);
   const savingsPerMT = BASELINE_PRICE - lowestBid.price;
 
+  // Single source of truth for "Next Step" button state
+  const canGoNext =
+    phase === 'rfq' ||
+    phase === 'invite' ||
+    (phase === 'auction' && auctionComplete) ||
+    (phase === 'po_lifecycle' && poStatus !== 'closed');
+
   const highlightClass = (section: string) =>
     highlightSection === section
       ? 'ring-2 ring-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)] transition-shadow duration-500'
