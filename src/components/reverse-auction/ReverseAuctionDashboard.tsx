@@ -171,15 +171,18 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with lock-in positioning */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
             <Gavel className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">Reverse Auctions</h2>
-            <p className="text-sm text-muted-foreground">Private global auctions with your trusted supplier network</p>
+            <h2 className="text-xl font-bold text-foreground">{DASHBOARD_LOCKIN_COPY.title}</h2>
+            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5" />
+              {DASHBOARD_LOCKIN_COPY.subtitle}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -197,6 +200,9 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
           )}
         </div>
       </div>
+
+      {/* Usage Progress Meter (buyer only) */}
+      {!isSupplier && <UsageProgressMeter auctionCount={auctionCount} />}
 
       {/* Quick Access Cards (buyer only) */}
       {!isSupplier && (
