@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, Square,
   SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap, Bot,
-  FileText, Users, Mail, Send, RotateCcw
+  FileText, Users, Mail, Send, RotateCcw, TrendingDown
 } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
 import { getNarrationText, poStatusToNarrationStep, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
@@ -50,11 +50,10 @@ const DEMO_SKUS = [
   { id: 'sku-3', name: 'TMT Fe500 — 20mm', qty: 120, unit: 'MT', basePrice: 51000 },
 ];
 
-// Total order value = sum of (qty × unit_price_for_sku) where each SKU price is proportional to bid
 const calcTotalOrderValue = (unitPrice: number) =>
   DEMO_SKUS.reduce((sum, sku) => sum + sku.qty * Math.round(unitPrice * (sku.basePrice / BASELINE_PRICE)), 0);
 
-const BASELINE_TOTAL = calcTotalOrderValue(BASELINE_PRICE); // ≈ ₹2.58 Cr
+const BASELINE_TOTAL = calcTotalOrderValue(BASELINE_PRICE);
 
 const DEMO_RFQ = {
   id: 'RFQ-2026-001',
@@ -72,6 +71,46 @@ const DEMO_INVITE_EMAILS = [
   { name: 'JSW Steel Trading', email: 'bids@jswsteel.in', sent: false },
   { name: 'SAIL Distribution', email: 'quotes@sail.in', sent: false },
 ];
+
+const PHASE_STEPS: { phase: DemoPhase; label: string; number: number }[] = [
+  { phase: 'rfq', label: 'Create RFQ', number: 1 },
+  { phase: 'invite', label: 'Invite Suppliers', number: 2 },
+  { phase: 'auction', label: 'Run Auction', number: 3 },
+  { phase: 'po_lifecycle', label: 'Save Cost', number: 4 },
+];
+
+// ── Step Indicator ──
+function DemoStepIndicator({ currentPhase, auctionComplete }: { currentPhase: DemoPhase; auctionComplete: boolean }) {
+  const currentIdx = PHASE_STEPS.findIndex(s => s.phase === currentPhase);
+  return (
+    <div className="flex items-center gap-1 w-full overflow-x-auto py-2">
+      {PHASE_STEPS.map((step, idx) => {
+        const isActive = idx === currentIdx;
+        const isCompleted = idx < currentIdx || (currentPhase === 'po_lifecycle' && idx <= currentIdx);
+        return (
+          <div key={step.phase} className="flex items-center gap-1 flex-1 min-w-0">
+            <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              isActive ? 'bg-primary text-primary-foreground shadow-sm' :
+              isCompleted ? 'bg-primary/15 text-primary' :
+              'bg-muted text-muted-foreground'
+            }`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                isCompleted && !isActive ? 'bg-primary text-primary-foreground' : 
+                isActive ? 'bg-primary-foreground text-primary' : 'bg-muted-foreground/20'
+              }`}>
+                {isCompleted && !isActive ? '✓' : step.number}
+              </span>
+              <span className="hidden sm:inline">{step.label}</span>
+            </div>
+            {idx < PHASE_STEPS.length - 1 && (
+              <div className={`h-px flex-1 min-w-2 ${isCompleted ? 'bg-primary/40' : 'bg-border'}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ── Animated Savings Counter ──
 function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSavings: number; targetPercent: number }) {
@@ -254,7 +293,6 @@ function DemoInviteStep({ onComplete, scenario }: { onComplete: () => void; scen
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* Email sending animation */}
         <div className="space-y-2">
           {DEMO_INVITE_EMAILS.map((inv, i) => (
             <div
@@ -277,12 +315,11 @@ function DemoInviteStep({ onComplete, scenario }: { onComplete: () => void; scen
               )}
             </div>
           ))}
-              <p className="text-[10px] text-muted-foreground/60 mt-1.5">
-                Sent via auctions@procuresaathi.com • Tracked • Delivered
-              </p>
-            </div>
+          <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+            Sent via auctions@procuresaathi.com • Tracked • Delivered
+          </p>
+        </div>
 
-        {/* Email preview */}
         {showPreview && (
           <div className="mt-3 p-4 bg-muted/30 rounded-lg border border-border space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <p className="text-xs font-semibold text-muted-foreground">📧 Email Preview</p>
@@ -376,7 +413,7 @@ function SupplierAuctionView({
           )}
         </div>
 
-        {/* SKU-level pricing */}
+        {/* SKU-level pricing — always derived from bid */}
         <div className="border rounded-lg overflow-hidden">
           <div className="grid grid-cols-5 gap-px bg-border text-xs font-medium text-muted-foreground">
             <div className="bg-muted p-2">SKU</div>
@@ -467,6 +504,7 @@ function BuyerAuctionView({
 }) {
   const sortedBids = [...bids].sort((a, b) => a.price - b.price);
   const lowestBid = sortedBids[0];
+  const totalSaved = BASELINE_TOTAL - calcTotalOrderValue(lowestBid.price);
 
   return (
     <Card>
@@ -493,39 +531,52 @@ function BuyerAuctionView({
         )}
       </CardHeader>
       <CardContent className="space-y-3">
-        {sortedBids.map((bid, idx) => (
-          <div
-            key={bid.supplierId}
-            className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-              idx === 0 ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'border-border'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-lg font-bold text-muted-foreground">#{idx + 1}</span>
-              <div>
-                <p className="font-medium text-sm">{bid.supplierName}</p>
-                <p className="text-xs text-muted-foreground">{bid.badge}</p>
+        {/* Psychological trigger */}
+        <p className="text-xs text-muted-foreground italic border-l-2 border-primary/30 pl-2">
+          Same suppliers. Different outcome — because of competition.
+        </p>
+
+        {sortedBids.map((bid, idx) => {
+          const bidTotal = calcTotalOrderValue(bid.price);
+          return (
+            <div
+              key={bid.supplierId}
+              className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                idx === 0 ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'border-border'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-bold text-muted-foreground">#{idx + 1}</span>
+                <div>
+                  <p className="font-medium text-sm">{bid.supplierName}</p>
+                  <p className="text-xs text-muted-foreground">{bid.badge}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className={`font-bold text-lg tabular-nums ${idx === 0 ? 'text-primary' : 'text-foreground'}`}>
+                  ₹{bidTotal.toLocaleString('en-IN')}
+                </p>
+                <p className="text-xs text-muted-foreground">₹{bid.price.toLocaleString('en-IN')}/MT</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className={`font-bold text-lg tabular-nums ${idx === 0 ? 'text-primary' : 'text-foreground'}`}>
-                ₹{calcTotalOrderValue(bid.price).toLocaleString('en-IN')}
-              </p>
-              <p className="text-xs text-muted-foreground">₹{bid.price.toLocaleString('en-IN')}/MT</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {auctionComplete && (
           <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-3">
-            <p className="text-sm font-semibold text-primary">🏆 Winner: {lowestBid.supplierName}</p>
-            <p className="text-lg font-bold">₹{calcTotalOrderValue(lowestBid.price).toLocaleString('en-IN')}</p>
-            <p className="text-xs text-muted-foreground">₹{lowestBid.price.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT</p>
-            <p className="text-sm font-medium text-green-600">
-              ₹{(BASELINE_TOTAL - calcTotalOrderValue(lowestBid.price)).toLocaleString('en-IN')} saved in 90 seconds
+            <p className="text-2xl font-bold text-green-600">
+              ₹{totalSaved.toLocaleString('en-IN')} saved in 90 seconds
             </p>
-            <p className="text-xs text-muted-foreground italic">This is what competitive bidding actually looks like.</p>
-            <p className="text-xs text-muted-foreground mt-1">Same suppliers. Different outcome — because of competition.</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              Same suppliers. Different outcome — because of competition.
+            </p>
+            <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+              <span>🏆 Winner: {lowestBid.supplierName}</span>
+              <span>•</span>
+              <span>₹{calcTotalOrderValue(lowestBid.price).toLocaleString('en-IN')} total</span>
+              <span>•</span>
+              <span>{sortedBids.length} suppliers • 8 rounds</span>
+            </div>
             <Button size="sm" className="mt-2" onClick={onProceedToPO}>
               Proceed to PO →
             </Button>
@@ -563,20 +614,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const previousPhaseRef = useRef<DemoPhase | null>(null);
   const skipPhaseNarrationRef = useRef<DemoPhase | null>(null);
 
-  // Voice preload (Safari/Chrome lazy voice loading fix)
   useEffect(() => { window.speechSynthesis?.getVoices(); }, []);
 
   const { speak, pause: pauseVoice, resume: resumeVoice, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
 
-  const stopVoice = useCallback(() => {
-    stop();
-  }, [stop]);
-
-  // ── CRITICAL: Stop speech on unmount / exit ──
+  // ── Stop speech on unmount ──
   useEffect(() => {
-    return () => {
-      window.speechSynthesis?.cancel();
-    };
+    return () => { window.speechSynthesis?.cancel(); };
   }, []);
 
   // ── Auto-scroll to highlighted section ──
@@ -612,9 +656,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       window.removeEventListener('scroll', handleInteraction);
       document.removeEventListener('keydown', handleInteraction);
     };
-  }, [fullDemoRunning, stop]);
+  }, [fullDemoRunning]);
 
-  // Reset intro narration lock whenever the entry screen is shown again.
   useEffect(() => {
     if (showEntryScreen) {
       introSpoken.current = false;
@@ -623,7 +666,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     }
   }, [showEntryScreen]);
 
-  // Narration reacts to phase changes instead of driving them.
+  // ── Narration reacts to phase changes (State → Effects → UI) ──
   useEffect(() => {
     if (showEntryScreen) return;
 
@@ -635,14 +678,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
     const previousPhase = previousPhaseRef.current;
     if (previousPhase === phase) return;
-
     previousPhaseRef.current = phase;
 
-    if (phase === 'rfq') {
-      speak('rfq_start');
-      return;
-    }
-
+    if (phase === 'rfq') { speak('rfq_start'); return; }
     if (phase === 'invite') {
       if (previousPhase === 'rfq') {
         speak('rfq_structured', () => speak('supplier_invite'));
@@ -651,52 +689,31 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       }
       return;
     }
-
-    if (phase === 'auction') {
-      speak('auction_live');
-      return;
-    }
-
-    if (phase === 'po_lifecycle' && poStatus === 'draft') {
-      speak('po_start');
-    }
+    if (phase === 'auction') { speak('auction_live'); return; }
+    if (phase === 'po_lifecycle' && poStatus === 'draft') { speak('po_start'); }
   }, [phase, poStatus, showEntryScreen, speak]);
 
   // Highlight sync with narration
   useEffect(() => {
     if (!currentStep) { setHighlightSection(null); return; }
     const map: Record<string, string> = {
-      intro: 'rfq-card',
-      rfq_start: 'rfq-card',
-      rfq_structured: 'rfq-card',
-      supplier_invite: 'invite-card',
-      auction_live: 'auction-card',
-      auction_complete: 'auction-card',
-      savings: 'savings-card',
-      loss_aversion: 'savings-card',
-      po_start: 'po-card',
-      po_sent: 'po-timeline',
-      po_accepted: 'po-timeline',
-      po_in_transit: 'po-timeline',
-      po_delivered: 'po-timeline',
-      po_payment: 'po-timeline',
-      po_closed: 'po-timeline',
-      outro: 'po-card',
-      cta: 'cta-card',
+      intro: 'rfq-card', rfq_start: 'rfq-card', rfq_structured: 'rfq-card',
+      supplier_invite: 'invite-card', auction_live: 'auction-card', auction_complete: 'auction-card',
+      savings: 'savings-card', loss_aversion: 'savings-card',
+      po_start: 'po-card', po_sent: 'po-timeline', po_accepted: 'po-timeline',
+      po_in_transit: 'po-timeline', po_delivered: 'po-timeline',
+      po_payment: 'po-timeline', po_closed: 'po-timeline',
+      outro: 'po-card', cta: 'cta-card',
     };
     setHighlightSection(map[currentStep] || null);
   }, [currentStep]);
 
-  // Countdown timer for auction
+  // Countdown timer
   useEffect(() => {
     if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
     const t = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 1) {
-          setAuctionComplete(true);
-          clearInterval(t);
-          return 0;
-        }
+        if (prev <= 1) { setAuctionComplete(true); clearInterval(t); return 0; }
         return prev - 1;
       });
     }, 1000);
@@ -713,15 +730,14 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => timers.forEach(clearTimeout);
   }, [phase, showEntryScreen]);
 
-  // Live bid simulation — each supplier has different aggression & floor
+  // ── Live bid simulation with per-supplier aggression ──
   useEffect(() => {
     if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
 
-    // Different aggression per supplier: Tata most aggressive, Essar least
     const aggressionMap: Record<string, { minDrop: number; maxDrop: number; floor: number }> = {
-      'demo-sup-1': { minDrop: 80, maxDrop: 200, floor: BASELINE_PRICE - 800 },  // Tata: aggressive, wins
-      'demo-sup-2': { minDrop: 40, maxDrop: 150, floor: BASELINE_PRICE - 550 },  // JSW: moderate
-      'demo-sup-3': { minDrop: 30, maxDrop: 120, floor: BASELINE_PRICE - 350 },  // Essar: conservative
+      'demo-sup-1': { minDrop: 80, maxDrop: 200, floor: BASELINE_PRICE - 800 },
+      'demo-sup-2': { minDrop: 40, maxDrop: 150, floor: BASELINE_PRICE - 550 },
+      'demo-sup-3': { minDrop: 30, maxDrop: 120, floor: BASELINE_PRICE - 350 },
     };
 
     const interval = setInterval(() => {
@@ -729,32 +745,22 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
         prev.map(b => {
           const config = aggressionMap[b.supplierId] || { minDrop: 50, maxDrop: 150, floor: BASELINE_PRICE - 500 };
           const drop = Math.floor(Math.random() * (config.maxDrop - config.minDrop) + config.minDrop);
-          return {
-            ...b,
-            price: Math.max(b.price - drop, config.floor),
-          };
+          return { ...b, price: Math.max(b.price - drop, config.floor) };
         })
       );
       setBidRound(r => {
         const next = r + 1;
-        if (next >= 8) {
-          setAuctionComplete(true);
-          clearInterval(interval);
-        }
+        if (next >= 8) { setAuctionComplete(true); clearInterval(interval); }
         return next;
       });
     }, 2500);
     return () => clearInterval(interval);
   }, [phase, auctionComplete, showEntryScreen]);
 
-  // Narrate auction completion + savings
+  // Narrate auction completion
   useEffect(() => {
     if (auctionComplete && phase === 'auction') {
-      speak('auction_complete', () => {
-        speak('savings', () => {
-          speak('loss_aversion');
-        });
-      });
+      speak('auction_complete', () => { speak('savings', () => { speak('loss_aversion'); }); });
     }
   }, [auctionComplete, phase, speak]);
 
@@ -782,14 +788,11 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     }
   }, [poStatus, phase, speak]);
 
-  // Show CTA + narrate outro when PO closes
+  // Show CTA on PO close
   useEffect(() => {
     if (poStatus === 'closed' && phase === 'po_lifecycle') {
       const t = setTimeout(() => {
-        speak('outro', () => {
-          setShowCTA(true);
-          speak('cta');
-        });
+        speak('outro', () => { setShowCTA(true); speak('cta'); });
       }, 1500);
       return () => clearTimeout(t);
     }
@@ -832,6 +835,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setPhase(nextPhase);
   }, []);
 
+  // ── PURE NAVIGATION — no voice dependency ──
   const goToNextPhase = useCallback(() => {
     setHighlightSection(null);
     setPhase(prev => {
@@ -853,6 +857,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     goToPhase(nextPhase);
   }, [goToPhase]);
 
+  // ── SPAM-PROTECTED NEXT STEP ──
   const handleNextStep = useCallback(() => {
     if (isTransitioningRef.current) return;
     isTransitioningRef.current = true;
@@ -891,44 +896,30 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setAutoPlay(false);
     setFullDemoRunning(s === 'full');
     introSpoken.current = true;
-    speak('intro', () => {
-      setTimeout(() => speak('rfq_start'), 400);
-    });
+    speak('intro', () => { setTimeout(() => speak('rfq_start'), 400); });
   }, [speak]);
 
-  // Full demo: auto-advance RFQ → Invite → Auction
+  // Full demo: auto-advance
   useEffect(() => {
     if (!fullDemoRunning) return;
     if (phase === 'rfq') {
-      const t = setTimeout(() => {
-        goToPhase('invite');
-      }, 8000);
+      const t = setTimeout(() => goToPhase('invite'), 8000);
       return () => clearTimeout(t);
     }
     if (phase === 'invite') {
-      const t = setTimeout(() => {
-        goToPhase('auction');
-      }, 5000);
+      const t = setTimeout(() => goToPhase('auction'), 5000);
       return () => clearTimeout(t);
     }
   }, [fullDemoRunning, goToPhase, phase]);
 
-  // Full demo: auto-switch to PO after auction
   useEffect(() => {
     if (!(fullDemoRunning && auctionComplete && phase === 'auction')) return;
-
-    const t = setTimeout(() => {
-      goToPhase('po_lifecycle');
-      setAutoPlay(true);
-    }, 2500);
-
+    const t = setTimeout(() => { goToPhase('po_lifecycle'); setAutoPlay(true); }, 2500);
     return () => clearTimeout(t);
   }, [fullDemoRunning, auctionComplete, goToPhase, phase]);
 
   useEffect(() => {
-    if (fullDemoRunning && poStatus === 'closed') {
-      setFullDemoRunning(false);
-    }
+    if (fullDemoRunning && poStatus === 'closed') setFullDemoRunning(false);
   }, [fullDemoRunning, poStatus]);
 
   const sortedBids = [...bids].sort((a, b) => a.price - b.price);
@@ -943,7 +934,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const savingsPercent = ((totalSavings / BASELINE_TOTAL) * 100);
   const savingsPerMT = BASELINE_PRICE - lowestBid.price;
 
-  // Single source of truth for "Next Step" button state
   const canGoNext =
     phase === 'rfq' ||
     phase === 'invite' ||
@@ -1013,6 +1003,17 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </div>
             </Button>
           </div>
+
+          {/* Urgency CTA on entry */}
+          <div className="p-4 rounded-lg border border-destructive/20 bg-destructive/5 text-center space-y-2">
+            <p className="text-sm font-medium text-destructive">
+              No competition = higher prices. Run auctions to reduce cost instantly.
+            </p>
+            <Button size="sm" className="gap-1.5" onClick={() => navigate('/buyer/create-reverse-auction')}>
+              <TrendingDown className="w-4 h-4" />
+              Run Your First Auction
+            </Button>
+          </div>
         </div>
 
         <div className="fixed bottom-2 right-2 text-xs text-muted-foreground/60 pointer-events-none select-none z-50">
@@ -1026,28 +1027,26 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     <div className="min-h-screen bg-background">
       <DemoBanner onReset={handleReset} onExit={handleExit} />
 
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
+      <div className="max-w-4xl mx-auto p-4 space-y-4">
+        {/* ── Step Indicator ── */}
+        <DemoStepIndicator currentPhase={phase} auctionComplete={auctionComplete} />
+
+        {/* ── Positioning Statement ── */}
+        <div className="px-3 py-2 rounded-lg bg-muted/40 border border-border">
+          <p className="text-xs text-muted-foreground text-center">
+            You don't negotiate prices here. You create competition — and the system tracks your savings automatically.
+          </p>
+        </div>
+
         {/* Phase tabs + controls */}
         <div className="flex items-center gap-2 flex-wrap" data-demo-controls>
-          <Button
-            variant={phase === 'rfq' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleManualPhaseChange('rfq')}
-          >
+          <Button variant={phase === 'rfq' ? 'default' : 'outline'} size="sm" onClick={() => handleManualPhaseChange('rfq')}>
             🤖 RFQ
           </Button>
-          <Button
-            variant={phase === 'invite' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleManualPhaseChange('invite')}
-          >
+          <Button variant={phase === 'invite' ? 'default' : 'outline'} size="sm" onClick={() => handleManualPhaseChange('invite')}>
             📧 Invite
           </Button>
-          <Button
-            variant={phase === 'auction' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleManualPhaseChange('auction')}
-          >
+          <Button variant={phase === 'auction' ? 'default' : 'outline'} size="sm" onClick={() => handleManualPhaseChange('auction')}>
             🔨 Auction
           </Button>
           <Button
@@ -1098,7 +1097,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </Button>
             ) : (
               <Button variant="ghost" size="sm" onClick={() => {
-                // Phase-aware play: speak the right narration for current phase
                 const phaseNarration: Record<string, DemoNarrationStep> = {
                   rfq: 'rfq_start',
                   invite: 'supplier_invite',
@@ -1111,40 +1109,30 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </Button>
             )}
             {(speaking || paused) && (
-              <Button variant="ghost" size="sm" onClick={stopVoice} className="h-7 w-7 p-0" title="Stop voiceover">
+              <Button variant="ghost" size="sm" onClick={() => { window.speechSynthesis?.cancel(); stop(); }} className="h-7 w-7 p-0" title="Stop voiceover">
                 <Square className="w-3.5 h-3.5" />
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleVoice}
-              className="h-7 w-7 p-0"
-              title={voiceEnabled ? 'Mute voiceover' : 'Enable voiceover'}
-            >
+            <Button variant="ghost" size="sm" onClick={toggleVoice} className="h-7 w-7 p-0"
+              title={voiceEnabled ? 'Mute voiceover' : 'Enable voiceover'}>
               {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
             </Button>
             {speaking && <span className="text-xs text-primary animate-pulse">●</span>}
           </div>
 
-          {/* Auto-play & Next Step — always visible (not just PO) */}
+          {/* Auto-play & Next Step */}
           {!fullDemoRunning && (
             <div className="flex items-center gap-1 ml-auto" data-demo-controls>
               <Button
-                variant="outline"
-                size="sm"
+                variant="outline" size="sm"
                 className="h-8 gap-1 active:scale-95 transition"
-                onClick={() => {
-                  setFullDemoRunning(true);
-                  setAutoPlay(true);
-                }}
+                onClick={() => { setFullDemoRunning(true); setAutoPlay(true); }}
               >
                 <Play className="w-3.5 h-3.5" />
                 Auto-Play
               </Button>
               <Button
-                variant="outline"
-                size="sm"
+                variant="outline" size="sm"
                 className="h-8 gap-1 active:scale-95 transition"
                 disabled={!canGoNext}
                 onClick={handleNextStep}
@@ -1153,8 +1141,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 Next Step
               </Button>
               <Button
-                variant="ghost"
-                size="sm"
+                variant="ghost" size="sm"
                 className="h-8 gap-1 active:scale-95 transition text-muted-foreground"
                 onClick={resetCurrentStep}
                 title="Reset current phase without restarting the whole demo"
@@ -1166,11 +1153,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           )}
           {fullDemoRunning && (
             <Button
-              variant="secondary"
-              size="sm"
+              variant="secondary" size="sm"
               className="ml-auto gap-1 active:scale-95 transition"
               data-demo-controls
-              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); stop(); }}
+              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); window.speechSynthesis?.cancel(); }}
             >
               <Pause className="w-3.5 h-3.5" />
               Stop Auto-Play
@@ -1189,20 +1175,14 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
         {/* ── RFQ PHASE ── */}
         {phase === 'rfq' && (
           <div id="rfq-card" className={`space-y-4 ${highlightClass('rfq-card')}`}>
-            <DemoRFQStep
-              scenario={scenario}
-              onComplete={handleNextStep}
-            />
+            <DemoRFQStep scenario={scenario} onComplete={handleNextStep} />
           </div>
         )}
 
         {/* ── INVITE PHASE ── */}
         {phase === 'invite' && (
           <div id="invite-card" className={`space-y-4 ${highlightClass('invite-card')}`}>
-            <DemoInviteStep
-              scenario={scenario}
-              onComplete={handleNextStep}
-            />
+            <DemoInviteStep scenario={scenario} onComplete={handleNextStep} />
           </div>
         )}
 
@@ -1264,7 +1244,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   bids={bids}
                   auctionComplete={auctionComplete}
                   bidRound={bidRound}
-                  
                   onReduceBid={() => setBids(prev => prev.map(b =>
                     b.supplierId === 'demo-sup-2' ? { ...b, price: Math.max(b.price - 100, BASELINE_PRICE - 800) } : b
                   ))}
@@ -1278,6 +1257,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 <CardContent className="pt-6 space-y-3">
                   <p className="text-sm font-medium text-muted-foreground">💰 Immediate savings: this auction</p>
                   <AnimatedSavingsCounter targetSavings={totalSavings} targetPercent={savingsPercent} />
+                  <p className="text-xs text-muted-foreground">
+                    ₹{totalSavings.toLocaleString('en-IN')} saved • {sortedBids.length} suppliers • 8 rounds
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     Baseline: ₹{BASELINE_PRICE.toLocaleString('en-IN')}/MT → Won at ₹{lowestBid.price.toLocaleString('en-IN')}/MT
                     {' '}• Saved ₹{savingsPerMT.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT
@@ -1389,18 +1371,29 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
                   <div className="flex justify-center">
                     <Badge variant="secondary" className="text-green-700 bg-green-100 text-sm px-4 py-1">
-                      💰 Immediate savings: ₹{totalSavings.toLocaleString('en-IN')} in this auction
+                      💰 ₹{totalSavings.toLocaleString('en-IN')} saved in 90 seconds
                     </Badge>
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
-                    📊 Typical savings: ₹500–₹1,000 per MT (category dependent) · 10–15% annually with consistent sourcing
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Same suppliers. Different outcome — because of competition.
                   </p>
+
+                  <p className="text-sm text-muted-foreground">
+                    📊 Typical savings: ₹500–₹1,000 per MT · 10–15% annually with consistent sourcing
+                  </p>
+
+                  {/* Urgency block */}
+                  <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+                    <p className="text-sm text-destructive font-medium">
+                      No competition = higher prices. Run auctions to reduce cost instantly.
+                    </p>
+                  </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                     <Button size="lg" className="gap-2" onClick={() => navigate('/buyer/create-reverse-auction')}>
                       <Zap className="w-4 h-4" />
-                      Create Your First Auction
+                      Run Your First Auction
                     </Button>
                     <Button variant="outline" size="lg" onClick={() => navigate('/buyer?buy_plan=true')}>
                       Activate 6-Month Plan
@@ -1409,10 +1402,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
                   <p className="text-sm text-muted-foreground italic mt-3">
                     This is your private procurement engine — not a public marketplace.
-                  </p>
-
-                  <p className="text-xs text-muted-foreground/70 mt-2 italic">
-                    ProcureSaathi doesn't reduce cost in one deal — it systematically reduces procurement cost over time.
                   </p>
 
                   <Button variant="ghost" size="sm" onClick={handleReset} className="text-xs text-muted-foreground">
