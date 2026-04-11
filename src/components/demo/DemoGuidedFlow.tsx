@@ -854,10 +854,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   }, [goToPhase]);
 
   const handleNextStep = useCallback(() => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
     setFullDemoRunning(false);
     setAutoPlay(false);
     window.speechSynthesis?.cancel();
     goToNextPhase();
+    setTimeout(() => { isTransitioningRef.current = false; }, 300);
   }, [goToNextPhase]);
 
   const resetCurrentStep = useCallback(() => {
