@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
-import { poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
+import { DEMO_NARRATION, poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
 import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
 import { DemoBanner } from './DemoBanner';
 
@@ -234,8 +234,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           <div className="bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-sm text-foreground/80 animate-in fade-in slide-in-from-top-2 duration-300">
             <span className="text-primary mr-2">🎤</span>
             {(() => {
-              const { DEMO_NARRATION } = require('@/lib/demo-voiceover-script');
-              const entry = DEMO_NARRATION.find((n: any) => n.step === currentStep);
+              const entry = DEMO_NARRATION.find(n => n.step === currentStep);
               const text = entry?.text?.['en'] || '';
               return text.length > 120 ? text.slice(0, 120) + '…' : text;
             })()}
