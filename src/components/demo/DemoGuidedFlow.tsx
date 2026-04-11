@@ -148,6 +148,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       auction_live: 'auction-card',
       auction_complete: 'auction-card',
       savings: 'savings-card',
+      loss_aversion: 'savings-card',
       po_start: 'po-card',
       po_sent: 'po-timeline',
       po_accepted: 'po-timeline',
