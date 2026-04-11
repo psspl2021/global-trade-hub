@@ -638,6 +638,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setShowEntryScreen(true);
     setShowCTA(false);
     setPaused(false);
+    setTimeLeft(120);
+    setActiveSuppliers([]);
     introSpoken.current = false;
     onReset();
   }, [onReset, stop]);
