@@ -332,7 +332,9 @@ function SupplierAuctionView({
   const myBid = bids.find(b => b.supplierId === 'demo-sup-2');
   const myRank = sortedBids.findIndex(b => b.supplierId === 'demo-sup-2') + 1;
   const l1Price = sortedBids[0]?.price || 0;
-  const gapToL1 = myBid ? myBid.price - l1Price : 0;
+  const myTotal = myBid ? calcTotalOrderValue(myBid.price) : 0;
+  const l1Total = calcTotalOrderValue(l1Price);
+  const gapToL1 = myTotal - l1Total;
 
   return (
     <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-950/20 dark:border-blue-800">
@@ -357,7 +359,7 @@ function SupplierAuctionView({
           <div className="flex-1">
             <p className="text-sm font-medium">Your Rank: {myRank === 1 ? 'L1 🏆' : myRank === 2 ? 'L2' : 'L3'}</p>
             <p className="text-xs text-muted-foreground">
-              Your Bid: ₹{myBid?.price.toLocaleString('en-IN')}/MT
+              Your Total: ₹{myTotal.toLocaleString('en-IN')}
               {myRank > 1 && ` • Gap to L1: ₹${gapToL1.toLocaleString('en-IN')}`}
             </p>
           </div>
@@ -376,22 +378,23 @@ function SupplierAuctionView({
 
         {/* SKU-level pricing */}
         <div className="border rounded-lg overflow-hidden">
-          <div className="grid grid-cols-4 gap-px bg-border text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-5 gap-px bg-border text-xs font-medium text-muted-foreground">
             <div className="bg-muted p-2">SKU</div>
             <div className="bg-muted p-2 text-right">Qty</div>
-            <div className="bg-muted p-2 text-right">Your Price</div>
-            <div className="bg-muted p-2 text-right">L1 Price</div>
+            <div className="bg-muted p-2 text-right">Your Rate</div>
+            <div className="bg-muted p-2 text-right">Your Total</div>
+            <div className="bg-muted p-2 text-right">L1 Total</div>
           </div>
           {DEMO_SKUS.map(sku => {
-            // Derive SKU price proportionally from actual bid price
             const mySkuPrice = myBid ? Math.round(myBid.price * (sku.basePrice / BASELINE_PRICE)) : sku.basePrice;
             const l1SkuPrice = Math.round(l1Price * (sku.basePrice / BASELINE_PRICE));
             return (
-              <div key={sku.id} className="grid grid-cols-4 gap-px bg-border text-sm">
+              <div key={sku.id} className="grid grid-cols-5 gap-px bg-border text-sm">
                 <div className="bg-background p-2">{sku.name}</div>
                 <div className="bg-background p-2 text-right tabular-nums">{sku.qty}</div>
-                <div className="bg-background p-2 text-right tabular-nums font-medium">₹{mySkuPrice.toLocaleString('en-IN')}</div>
-                <div className="bg-background p-2 text-right tabular-nums text-primary">₹{l1SkuPrice.toLocaleString('en-IN')}</div>
+                <div className="bg-background p-2 text-right tabular-nums">₹{mySkuPrice.toLocaleString('en-IN')}</div>
+                <div className="bg-background p-2 text-right tabular-nums font-medium">₹{(mySkuPrice * sku.qty).toLocaleString('en-IN')}</div>
+                <div className="bg-background p-2 text-right tabular-nums text-primary">₹{(l1SkuPrice * sku.qty).toLocaleString('en-IN')}</div>
               </div>
             );
           })}
@@ -400,8 +403,8 @@ function SupplierAuctionView({
         {/* Suggested next bid */}
         {!auctionComplete && myRank > 1 && (
           <div className="text-xs text-muted-foreground p-2 bg-muted/50 rounded border border-border">
-            🤖 Suggested next bid: <span className="font-semibold text-foreground">₹{(l1Price - 50).toLocaleString('en-IN')}/MT</span>
-            <span className="ml-1 text-muted-foreground/70">— just ₹50 below current L1</span>
+            🤖 Suggested total bid: <span className="font-semibold text-foreground">₹{calcTotalOrderValue(l1Price - 50).toLocaleString('en-IN')}</span>
+            <span className="ml-1 text-muted-foreground/70">— beat L1 by ₹50/MT</span>
           </div>
         )}
 
