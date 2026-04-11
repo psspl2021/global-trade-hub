@@ -474,8 +474,11 @@ function BuyerAuctionView({
         <p className="text-sm text-muted-foreground">
           {DEMO_AUCTION.category} • {DEMO_AUCTION.quantity} {DEMO_AUCTION.unit} • {DEMO_AUCTION.currency}
         </p>
+        <p className="text-xs text-muted-foreground">
+          You invited {sortedBids.length} verified suppliers • Auction controlled by you
+        </p>
         {!auctionComplete && (
-          <p className="text-xs text-muted-foreground">{sortedBids.length} suppliers actively competing</p>
+          <p className="text-xs text-green-600">↓ Prices improving in real-time</p>
         )}
       </CardHeader>
       <CardContent className="space-y-3">
@@ -513,6 +516,7 @@ function BuyerAuctionView({
               Total: ₹{(lowestBid.price * DEMO_AUCTION.quantity).toLocaleString('en-IN')}
             </p>
             <p className="text-xs text-muted-foreground italic">This is what competitive bidding actually looks like.</p>
+            <p className="text-xs text-muted-foreground mt-1">Same suppliers. Different outcome — because of competition.</p>
             <Button size="sm" className="mt-2" onClick={onProceedToPO}>
               Proceed to PO →
             </Button>

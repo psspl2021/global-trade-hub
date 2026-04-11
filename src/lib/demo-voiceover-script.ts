@@ -69,8 +69,8 @@ export const DEMO_NARRATION: NarrationEntry[] = [
   {
     step: 'supplier_invite',
     text: {
-      en: 'Suppliers don\'t browse listings… They receive structured, private invitations. Only your trusted network competes — no open marketplace noise.',
-      hi: 'सप्लायर्स लिस्टिंग नहीं ब्राउज़ करते… उन्हें संरचित, निजी आमंत्रण मिलते हैं। केवल आपका विश्वसनीय नेटवर्क प्रतिस्पर्धा करता है।',
+      en: 'Notice something… Suppliers are not browsing listings here. They are responding to your requirement — through structured, private invitations. Only your trusted network competes.',
+      hi: 'ध्यान दीजिए… सप्लायर्स यहाँ लिस्टिंग ब्राउज़ नहीं कर रहे। वे आपकी ज़रूरत पर रिस्पॉन्ड कर रहे हैं — संरचित, निजी आमंत्रण के ज़रिए।',
     },
     supplierText: {
       en: 'You\'ve received a private auction invitation from a verified buyer. Review the requirement details and prepare your best bid.',
