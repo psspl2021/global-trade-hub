@@ -315,13 +315,11 @@ function SupplierAuctionView({
   bids,
   auctionComplete,
   bidRound,
-  skuPrices,
   onReduceBid,
 }: {
   bids: DemoBid[];
   auctionComplete: boolean;
   bidRound: number;
-  skuPrices: Record<string, number>;
   onReduceBid: () => void;
 }) {
   const sortedBids = [...bids].sort((a, b) => a.price - b.price);
@@ -379,8 +377,9 @@ function SupplierAuctionView({
             <div className="bg-muted p-2 text-right">L1 Price</div>
           </div>
           {DEMO_SKUS.map(sku => {
-            const mySkuPrice = skuPrices[sku.id] || sku.basePrice;
-            const l1SkuPrice = Math.round(mySkuPrice * (l1Price / (myBid?.price || l1Price)));
+            // Derive SKU price proportionally from actual bid price
+            const mySkuPrice = myBid ? Math.round(myBid.price * (sku.basePrice / BASELINE_PRICE)) : sku.basePrice;
+            const l1SkuPrice = Math.round(l1Price * (sku.basePrice / BASELINE_PRICE));
             return (
               <div key={sku.id} className="grid grid-cols-4 gap-px bg-border text-sm">
                 <div className="bg-background p-2">{sku.name}</div>
