@@ -525,9 +525,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     Baseline: ₹{BASELINE_PRICE.toLocaleString('en-IN')}/MT → Won at ₹{lowestBid.price.toLocaleString('en-IN')}/MT
                     {' '}• Saved ₹{savingsPerMT.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT
                   </p>
-                  <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border space-y-1">
-                    <p className="text-sm font-semibold text-foreground">📊 Real impact over time</p>
-                    <p className="text-xs text-muted-foreground">• 1–3% per auction</p>
+                   <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border space-y-1">
+                    <p className="text-sm font-semibold text-foreground">📊 Typical savings observed</p>
+                    <p className="text-xs text-muted-foreground">• ₹500–₹1,000 per MT depending on category, volume, and supplier competition</p>
                     <p className="text-xs text-muted-foreground">• 10–15% annually with consistent sourcing</p>
                     <p className="text-xs text-muted-foreground italic mt-1">Consistency drives savings — not one deal.</p>
                   </div>
@@ -658,8 +658,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </Badge>
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
-                    📈 Over 6–12 months, consistent auctions typically reduce procurement cost by 10–15%
+                   <p className="text-sm text-muted-foreground">
+                    📊 Typical savings: ₹500–₹1,000 per MT (category dependent) · 10–15% annually with consistent sourcing
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
