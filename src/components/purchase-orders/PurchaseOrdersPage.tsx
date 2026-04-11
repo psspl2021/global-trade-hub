@@ -105,7 +105,22 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         <p className="text-sm text-muted-foreground">Track execution lifecycle for all procurement orders</p>
       </div>
 
-      {/* Execution Cards */}
+      {/* PO Creation Block Warning */}
+      {!canCreatePO && (
+        <Card className="border-destructive/50 bg-destructive/5 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-semibold text-sm text-destructive">Pending Order — New PO Blocked</p>
+              <p className="text-xs text-muted-foreground">{blockMessage}</p>
+              {blocking_po_title && (
+                <p className="text-xs font-mono text-muted-foreground">Order: {blocking_po_title}</p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
       {allPOs.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
