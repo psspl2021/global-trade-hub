@@ -25,6 +25,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const [auctionPOs, setAuctionPOs] = useState<any[]>([]);
   const [manualPOs, setManualPOs] = useState<any[]>([]);
   const { role } = useUserRole(userId);
+  const { allowed: canCreatePO, blocking_po_id, blocking_po_title, message: blockMessage } = useCanCreatePO(userId);
 
   const loadData = useCallback(async () => {
     // Load auction-based POs (completed auctions with winners)
