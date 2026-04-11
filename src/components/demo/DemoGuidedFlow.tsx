@@ -666,18 +666,27 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => timers.forEach(clearTimeout);
   }, [phase, showEntryScreen]);
 
-  // Live bid simulation — REALISTIC: ₹50-150 drop per round
+  // Live bid simulation — each supplier has different aggression & floor
   useEffect(() => {
     if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
+
+    // Different aggression per supplier: Tata most aggressive, Essar least
+    const aggressionMap: Record<string, { minDrop: number; maxDrop: number; floor: number }> = {
+      'demo-sup-1': { minDrop: 80, maxDrop: 200, floor: BASELINE_PRICE - 800 },  // Tata: aggressive, wins
+      'demo-sup-2': { minDrop: 40, maxDrop: 150, floor: BASELINE_PRICE - 550 },  // JSW: moderate
+      'demo-sup-3': { minDrop: 30, maxDrop: 120, floor: BASELINE_PRICE - 350 },  // Essar: conservative
+    };
+
     const interval = setInterval(() => {
       setBids(prev =>
-        prev.map(b => ({
-          ...b,
-          price: Math.max(
-            b.price - Math.floor(Math.random() * 150 + 50),
-            BASELINE_PRICE - 800
-          ),
-        }))
+        prev.map(b => {
+          const config = aggressionMap[b.supplierId] || { minDrop: 50, maxDrop: 150, floor: BASELINE_PRICE - 500 };
+          const drop = Math.floor(Math.random() * (config.maxDrop - config.minDrop) + config.minDrop);
+          return {
+            ...b,
+            price: Math.max(b.price - drop, config.floor),
+          };
+        })
       );
       setBidRound(r => {
         const next = r + 1;

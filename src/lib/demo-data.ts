@@ -39,9 +39,9 @@ export const DEMO_AUCTION = {
   createdAt: new Date(Date.now() - 3600000).toISOString(),
   endsAt: new Date(Date.now() + 7200000).toISOString(),
   initialBids: [
-    { supplierId: 'demo-sup-1', supplierName: 'Tata Steel Distributors', price: 52000, badge: '🟢' },
-    { supplierId: 'demo-sup-2', supplierName: 'JSW Steel Trading', price: 50500, badge: '🟢' },
-    { supplierId: 'demo-sup-3', supplierName: 'Essar Metals', price: 49800, badge: '🟡' },
+    { supplierId: 'demo-sup-1', supplierName: 'Tata Steel Distributors', price: 52800, badge: '🟢' },
+    { supplierId: 'demo-sup-2', supplierName: 'JSW Steel Trading', price: 53200, badge: '🟢' },
+    { supplierId: 'demo-sup-3', supplierName: 'Essar Metals', price: 53500, badge: '🟡' },
   ] as DemoBid[],
 };
 
