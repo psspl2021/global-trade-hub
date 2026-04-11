@@ -97,8 +97,14 @@ function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSaving
 
 // ── AI RFQ Animation Step ──
 function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenario: EntryScenario }) {
-  const [typing, setTyping] = useState(true);
+  const [aiStage, setAiStage] = useState(0); // 0=typing, 1=parsing, 2=structuring, 3=optimizing, 4=done
   const [filledFields, setFilledFields] = useState(0);
+  const aiStages = [
+    '💬 "Need 500 MT TMT steel bars Fe500, 12mm/16mm/20mm, deliver to Gurgaon in 7 days"',
+    '🔍 Parsing requirement...',
+    '🧩 Structuring into SKU line items...',
+    '🤖 Optimizing supplier selection...',
+  ];
   const fields = [
     { label: 'Product', value: DEMO_RFQ.subCategory },
     { label: 'Category', value: DEMO_RFQ.category },
@@ -110,12 +116,18 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
+    // AI stages: 0→1→2→3 then start filling fields
+    timers.push(setTimeout(() => setAiStage(1), 1200));
+    timers.push(setTimeout(() => setAiStage(2), 2400));
+    timers.push(setTimeout(() => setAiStage(3), 3600));
+    timers.push(setTimeout(() => setAiStage(4), 4800));
     fields.forEach((_, i) => {
-      timers.push(setTimeout(() => setFilledFields(i + 1), 600 * (i + 1)));
+      timers.push(setTimeout(() => setFilledFields(i + 1), 4800 + 500 * (i + 1)));
     });
-    timers.push(setTimeout(() => setTyping(false), 600 * (fields.length + 1)));
     return () => timers.forEach(clearTimeout);
   }, []);
+
+  const showFields = aiStage >= 4;
 
   return (
     <Card className="border-primary/20">
@@ -132,31 +144,36 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* AI input simulation */}
-        <div className="p-3 bg-muted/50 rounded-lg border border-border">
-          <p className="text-xs text-muted-foreground mb-1">🤖 AI Input</p>
-          <p className="text-sm font-mono">
-            "Need 500 MT TMT steel bars Fe500, 12mm/16mm/20mm, deliver to Gurgaon in 7 days"
-          </p>
+        {/* AI processing stages */}
+        <div className="p-3 bg-muted/50 rounded-lg border border-border space-y-1.5">
+          {aiStages.map((text, i) => (
+            <p key={i} className={`text-sm font-mono transition-all duration-300 ${
+              i < aiStage ? 'text-muted-foreground' : i === aiStage ? 'text-foreground animate-pulse' : 'opacity-0 h-0 overflow-hidden'
+            }`}>
+              {i < aiStage ? '✅ ' : ''}{text}
+            </p>
+          ))}
         </div>
 
         {/* Auto-fill animation */}
-        <div className="space-y-2">
-          {fields.map((f, i) => (
-            <div
-              key={f.label}
-              className={`flex items-center gap-3 p-2 rounded border transition-all duration-300 ${
-                i < filledFields ? 'border-primary/30 bg-primary/5' : 'border-border opacity-40'
-              }`}
-            >
-              <span className="text-xs text-muted-foreground w-24 shrink-0">{f.label}</span>
-              <span className={`text-sm font-medium transition-opacity ${i < filledFields ? 'opacity-100' : 'opacity-0'}`}>
-                {f.value}
-              </span>
-              {i < filledFields && <Check className="w-3.5 h-3.5 text-green-600 ml-auto" />}
-            </div>
-          ))}
-        </div>
+        {showFields && (
+          <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {fields.map((f, i) => (
+              <div
+                key={f.label}
+                className={`flex items-center gap-3 p-2 rounded border transition-all duration-300 ${
+                  i < filledFields ? 'border-primary/30 bg-primary/5' : 'border-border opacity-40'
+                }`}
+              >
+                <span className="text-xs text-muted-foreground w-24 shrink-0">{f.label}</span>
+                <span className={`text-sm font-medium transition-opacity ${i < filledFields ? 'opacity-100' : 'opacity-0'}`}>
+                  {f.value}
+                </span>
+                {i < filledFields && <Check className="w-3.5 h-3.5 text-green-600 ml-auto" />}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* SKU breakdown */}
         {filledFields >= fields.length && (
@@ -181,7 +198,7 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
           </div>
         )}
 
-        {!typing && (
+        {filledFields >= fields.length && (
           <Button className="w-full mt-3 gap-2" onClick={onComplete}>
             <FileText className="w-4 h-4" />
             {scenario === 'supplier' ? 'View Auction Invite →' : 'Launch Reverse Auction →'}
@@ -198,14 +215,16 @@ function SupplierAuctionView({
   auctionComplete,
   bidRound,
   skuPrices,
+  onReduceBid,
 }: {
   bids: DemoBid[];
   auctionComplete: boolean;
   bidRound: number;
   skuPrices: Record<string, number>;
+  onReduceBid: () => void;
 }) {
   const sortedBids = [...bids].sort((a, b) => a.price - b.price);
-  const myBid = bids.find(b => b.supplierId === 'demo-sup-2'); // JSW = "you"
+  const myBid = bids.find(b => b.supplierId === 'demo-sup-2');
   const myRank = sortedBids.findIndex(b => b.supplierId === 'demo-sup-2') + 1;
   const l1Price = sortedBids[0]?.price || 0;
   const gapToL1 = myBid ? myBid.price - l1Price : 0;
@@ -238,7 +257,7 @@ function SupplierAuctionView({
             </p>
           </div>
           {!auctionComplete && myRank > 1 && (
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-1" disabled>
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-1" onClick={onReduceBid}>
               <Zap className="w-3.5 h-3.5" />
               Become L1
             </Button>
