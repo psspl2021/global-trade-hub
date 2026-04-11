@@ -5037,6 +5037,7 @@ export type Database = {
           changed_by: string | null
           changed_by_role: string | null
           created_at: string
+          delay_reason: string | null
           id: string
           new_status: string
           notes: string | null
@@ -5047,6 +5048,7 @@ export type Database = {
           changed_by?: string | null
           changed_by_role?: string | null
           created_at?: string
+          delay_reason?: string | null
           id?: string
           new_status: string
           notes?: string | null
@@ -5057,6 +5059,7 @@ export type Database = {
           changed_by?: string | null
           changed_by_role?: string | null
           created_at?: string
+          delay_reason?: string | null
           id?: string
           new_status?: string
           notes?: string | null
@@ -5495,6 +5498,7 @@ export type Database = {
           delivery_due_date: string | null
           discount_amount: number
           discount_percent: number | null
+          driver_contact: string | null
           expected_delivery_date: string | null
           id: string
           immutable_hash: string | null
@@ -5513,8 +5517,10 @@ export type Database = {
           tax_rate: number | null
           terms_and_conditions: string | null
           total_amount: number
+          transporter_name: string | null
           updated_at: string
           value_locked_at: string | null
+          vehicle_number: string | null
           vendor_address: string | null
           vendor_email: string | null
           vendor_gstin: string | null
@@ -5530,6 +5536,7 @@ export type Database = {
           delivery_due_date?: string | null
           discount_amount?: number
           discount_percent?: number | null
+          driver_contact?: string | null
           expected_delivery_date?: string | null
           id?: string
           immutable_hash?: string | null
@@ -5548,8 +5555,10 @@ export type Database = {
           tax_rate?: number | null
           terms_and_conditions?: string | null
           total_amount?: number
+          transporter_name?: string | null
           updated_at?: string
           value_locked_at?: string | null
+          vehicle_number?: string | null
           vendor_address?: string | null
           vendor_email?: string | null
           vendor_gstin?: string | null
@@ -5565,6 +5574,7 @@ export type Database = {
           delivery_due_date?: string | null
           discount_amount?: number
           discount_percent?: number | null
+          driver_contact?: string | null
           expected_delivery_date?: string | null
           id?: string
           immutable_hash?: string | null
@@ -5583,8 +5593,10 @@ export type Database = {
           tax_rate?: number | null
           terms_and_conditions?: string | null
           total_amount?: number
+          transporter_name?: string | null
           updated_at?: string
           value_locked_at?: string | null
+          vehicle_number?: string | null
           vendor_address?: string | null
           vendor_email?: string | null
           vendor_gstin?: string | null
@@ -10653,6 +10665,7 @@ export type Database = {
           remaining_monthly: number
         }[]
       }
+      check_can_create_po: { Args: { p_buyer_id: string }; Returns: Json }
       check_governance_access: {
         Args: { p_user_id: string }
         Returns: {
@@ -11192,16 +11205,30 @@ export type Database = {
           supplier_count: number
         }[]
       }
-      transition_po_status: {
-        Args: {
-          p_new_status: string
-          p_notes?: string
-          p_po_id: string
-          p_user_id: string
-          p_user_role: string
-        }
-        Returns: Json
-      }
+      transition_po_status:
+        | {
+            Args: {
+              p_new_status: string
+              p_notes?: string
+              p_po_id: string
+              p_user_id: string
+              p_user_role: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_driver_contact?: string
+              p_new_status: string
+              p_notes?: string
+              p_po_id: string
+              p_transporter_name?: string
+              p_user_id: string
+              p_user_role: string
+              p_vehicle_number?: string
+            }
+            Returns: Json
+          }
       unlock_logistics_awarding: {
         Args: { req_id: string }
         Returns: undefined
