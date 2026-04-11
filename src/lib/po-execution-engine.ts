@@ -44,12 +44,17 @@ export const PO_STATUS_COLORS: Record<POExecutionStatus, { bg: string; text: str
 
 type ExecutionRole = 'buyer' | 'supplier' | 'transporter' | 'admin';
 
+export type TransportSource = 'supplier' | 'buyer' | 'platform';
+export type PaymentMode = 'manual' | 'proof_upload' | 'escrow';
+
 interface AvailableAction {
   label: string;
   targetStatus: POExecutionStatus;
   variant: 'default' | 'outline' | 'destructive';
   confirmMessage: string;
   requiresTransportDetails?: boolean;
+  requiresPaymentDetails?: boolean;
+  requiresDeliveryNotes?: boolean;
 }
 
 export const DELIVERY_DELAY_REASONS = [
@@ -59,6 +64,18 @@ export const DELIVERY_DELAY_REASONS = [
   'Supplier dispatch delay',
   'Custom clearance delay',
   'Other',
+];
+
+export const TRANSPORT_SOURCE_OPTIONS: { value: TransportSource; label: string }[] = [
+  { value: 'supplier', label: 'Supplier Arranged' },
+  { value: 'buyer', label: 'Buyer Arranged' },
+  { value: 'platform', label: 'Platform (ProcureSaathi)' },
+];
+
+export const PAYMENT_MODE_OPTIONS: { value: PaymentMode; label: string }[] = [
+  { value: 'manual', label: 'Mark as Paid (Manual)' },
+  { value: 'proof_upload', label: 'Upload Payment Proof' },
+  { value: 'escrow', label: 'Escrow Payment' },
 ];
 
 export function mapUserRoleToExecRole(role: string | null): ExecutionRole | null {
@@ -85,10 +102,10 @@ export function getAvailableActions(status: POExecutionStatus, execRole: Executi
     actions.push({ label: 'Mark In Transit', targetStatus: 'in_transit', variant: 'default', confirmMessage: 'Confirm shipment is in transit?', requiresTransportDetails: true });
   }
   if (status === 'in_transit' && (execRole === 'supplier' || execRole === 'transporter')) {
-    actions.push({ label: 'Mark Delivered', targetStatus: 'delivered', variant: 'default', confirmMessage: 'Confirm delivery has been completed?' });
+    actions.push({ label: 'Mark Delivered', targetStatus: 'delivered', variant: 'default', confirmMessage: 'Confirm delivery has been completed?', requiresDeliveryNotes: true });
   }
   if (status === 'delivered' && (execRole === 'buyer' || execRole === 'admin')) {
-    actions.push({ label: 'Confirm Payment', targetStatus: 'payment_done', variant: 'default', confirmMessage: 'Confirm payment has been made for this order?' });
+    actions.push({ label: 'Confirm Payment', targetStatus: 'payment_done', variant: 'default', confirmMessage: 'Confirm payment has been made for this order?', requiresPaymentDetails: true });
   }
   if (status === 'payment_done' && (execRole === 'buyer' || execRole === 'admin')) {
     actions.push({ label: 'Close Order', targetStatus: 'closed', variant: 'outline', confirmMessage: 'Close this order? This action is final.' });
@@ -105,6 +122,17 @@ export interface TransportDetails {
   vehicle_number: string;
   transporter_name: string;
   driver_contact: string;
+  transport_source: TransportSource;
+}
+
+export interface PaymentDetails {
+  payment_mode: PaymentMode;
+  payment_proof_url?: string;
+}
+
+export interface DeliveryDetails {
+  delay_reason?: string;
+  delay_notes?: string;
 }
 
 export function validateTransportDetails(data: Partial<TransportDetails>): string | null {
@@ -112,4 +140,10 @@ export function validateTransportDetails(data: Partial<TransportDetails>): strin
   if (!data.transporter_name?.trim()) return 'Transporter company name is required';
   if (!data.driver_contact?.trim()) return 'Driver contact number is required';
   return null;
+}
+
+export function getReliabilityBadge(score: number): { label: string; color: string } {
+  if (score >= 80) return { label: `🟢 ${score}% Reliable`, color: 'text-green-600' };
+  if (score >= 50) return { label: `🟡 ${score}% Moderate`, color: 'text-amber-600' };
+  return { label: `🔴 ${score}% Risky`, color: 'text-red-600' };
 }

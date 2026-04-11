@@ -4,7 +4,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Truck } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Truck, CreditCard, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -12,8 +13,15 @@ import {
   mapUserRoleToExecRole,
   PO_STATUS_LABELS,
   validateTransportDetails,
+  DELIVERY_DELAY_REASONS,
+  TRANSPORT_SOURCE_OPTIONS,
+  PAYMENT_MODE_OPTIONS,
   type POExecutionStatus,
   type TransportDetails,
+  type PaymentDetails,
+  type DeliveryDetails,
+  type TransportSource,
+  type PaymentMode,
 } from '@/lib/po-execution-engine';
 
 interface PurchaseOrderActionsProps {
@@ -27,7 +35,9 @@ interface PurchaseOrderActionsProps {
 export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, onStatusChange }: PurchaseOrderActionsProps) {
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
-  const [transport, setTransport] = useState<TransportDetails>({ vehicle_number: '', transporter_name: '', driver_contact: '' });
+  const [transport, setTransport] = useState<TransportDetails>({ vehicle_number: '', transporter_name: '', driver_contact: '', transport_source: 'supplier' });
+  const [payment, setPayment] = useState<PaymentDetails>({ payment_mode: 'manual' });
+  const [delivery, setDelivery] = useState<DeliveryDetails>({});
   const { toast } = useToast();
 
   const execRole = mapUserRoleToExecRole(userRole);
@@ -35,7 +45,7 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
 
   if (actions.length === 0) return null;
 
-  const handleTransition = async (targetStatus: POExecutionStatus, requiresTransport?: boolean) => {
+  const handleTransition = async (targetStatus: POExecutionStatus, requiresTransport?: boolean, requiresPayment?: boolean) => {
     if (requiresTransport) {
       const err = validateTransportDetails(transport);
       if (err) {
@@ -55,6 +65,11 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
         p_vehicle_number: requiresTransport ? transport.vehicle_number : null,
         p_transporter_name: requiresTransport ? transport.transporter_name : null,
         p_driver_contact: requiresTransport ? transport.driver_contact : null,
+        p_transport_source: requiresTransport ? transport.transport_source : null,
+        p_payment_mode: requiresPayment ? payment.payment_mode : null,
+        p_payment_proof_url: requiresPayment ? payment.payment_proof_url || null : null,
+        p_delivery_delay_reason: delivery.delay_reason || null,
+        p_delivery_delay_notes: delivery.delay_notes || null,
       });
 
       if (error) throw error;
@@ -69,7 +84,9 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
         description: `Order moved to "${PO_STATUS_LABELS[targetStatus]}"`,
       });
       setNotes('');
-      setTransport({ vehicle_number: '', transporter_name: '', driver_contact: '' });
+      setTransport({ vehicle_number: '', transporter_name: '', driver_contact: '', transport_source: 'supplier' });
+      setPayment({ payment_mode: 'manual' });
+      setDelivery({});
       onStatusChange();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -86,15 +103,17 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
             <Button variant={action.variant} size="sm" disabled={loading}>
               {loading && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
               {action.requiresTransportDetails && <Truck className="w-3 h-3 mr-1" />}
+              {action.requiresPaymentDetails && <CreditCard className="w-3 h-3 mr-1" />}
               {action.label}
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="max-h-[85vh] overflow-y-auto">
             <AlertDialogHeader>
               <AlertDialogTitle>{action.label}</AlertDialogTitle>
               <AlertDialogDescription>{action.confirmMessage}</AlertDialogDescription>
             </AlertDialogHeader>
 
+            {/* Transport Details Section */}
             {action.requiresTransportDetails && (
               <div className="space-y-3 py-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
@@ -102,6 +121,17 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
                   Transport Details (Required)
                 </div>
                 <div className="space-y-2">
+                  <div>
+                    <Label htmlFor="transport_source" className="text-xs">Transport Arranged By</Label>
+                    <Select value={transport.transport_source} onValueChange={(v) => setTransport(p => ({ ...p, transport_source: v as TransportSource }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {TRANSPORT_SOURCE_OPTIONS.map(o => (
+                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div>
                     <Label htmlFor="vehicle_number" className="text-xs">Vehicle Number</Label>
                     <Input id="vehicle_number" placeholder="e.g. MH12AB1234" value={transport.vehicle_number} onChange={(e) => setTransport(p => ({ ...p, vehicle_number: e.target.value }))} />
@@ -118,6 +148,70 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
               </div>
             )}
 
+            {/* Delivery Notes / Delay Reason Section */}
+            {action.requiresDeliveryNotes && (
+              <div className="space-y-3 py-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-teal-700 dark:text-teal-400">
+                  <AlertTriangle className="w-4 h-4" />
+                  Delivery Details
+                </div>
+                <div>
+                  <Label className="text-xs">Delay Reason (if applicable)</Label>
+                  <Select value={delivery.delay_reason || ''} onValueChange={(v) => setDelivery(p => ({ ...p, delay_reason: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select if delayed" /></SelectTrigger>
+                    <SelectContent>
+                      {DELIVERY_DELAY_REASONS.map(r => (
+                        <SelectItem key={r} value={r}>{r}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {delivery.delay_reason && (
+                  <div>
+                    <Label className="text-xs">Additional Notes</Label>
+                    <Textarea
+                      placeholder="Describe the delay..."
+                      value={delivery.delay_notes || ''}
+                      onChange={(e) => setDelivery(p => ({ ...p, delay_notes: e.target.value }))}
+                      rows={2}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Payment Details Section */}
+            {action.requiresPaymentDetails && (
+              <div className="space-y-3 py-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                  <CreditCard className="w-4 h-4" />
+                  Payment Confirmation
+                </div>
+                <div>
+                  <Label className="text-xs">Payment Method</Label>
+                  <Select value={payment.payment_mode} onValueChange={(v) => setPayment(p => ({ ...p, payment_mode: v as PaymentMode }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_MODE_OPTIONS.map(o => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {payment.payment_mode === 'proof_upload' && (
+                  <div>
+                    <Label className="text-xs">Payment Proof URL</Label>
+                    <Input
+                      placeholder="Paste screenshot URL or upload link"
+                      value={payment.payment_proof_url || ''}
+                      onChange={(e) => setPayment(p => ({ ...p, payment_proof_url: e.target.value }))}
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1">Upload payment screenshot and paste the link here</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <Textarea
               placeholder="Add notes (optional)"
               value={notes}
@@ -127,7 +221,7 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
             />
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleTransition(action.targetStatus, action.requiresTransportDetails)}>
+              <AlertDialogAction onClick={() => handleTransition(action.targetStatus, action.requiresTransportDetails, action.requiresPaymentDetails)}>
                 Confirm
               </AlertDialogAction>
             </AlertDialogFooter>
