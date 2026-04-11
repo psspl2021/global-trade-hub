@@ -5,7 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap } from 'lucide-react';
+import {
+  Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, Square,
+  SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap, Bot,
+  FileText, Users
+} from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
 import { getNarrationText, poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
 import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
@@ -16,7 +20,7 @@ interface DemoGuidedFlowProps {
   onExit: () => void;
 }
 
-type DemoPhase = 'auction' | 'po_lifecycle';
+type DemoPhase = 'rfq' | 'auction' | 'po_lifecycle';
 type DemoDepth = 'sales' | 'deep';
 type EntryScenario = 'buyer' | 'supplier' | 'full';
 
@@ -38,7 +42,26 @@ const LANGUAGE_OPTIONS = [
   { value: 'zh', label: '中文' },
 ];
 
-const BASELINE_PRICE = 52000; // Starting price per MT for savings calc
+const BASELINE_PRICE = 52000;
+
+// SKU-level items for realistic demo
+const DEMO_SKUS = [
+  { id: 'sku-1', name: 'TMT Fe500 — 12mm', qty: 200, unit: 'MT', basePrice: 52000 },
+  { id: 'sku-2', name: 'TMT Fe500 — 16mm', qty: 180, unit: 'MT', basePrice: 51500 },
+  { id: 'sku-3', name: 'TMT Fe500 — 20mm', qty: 120, unit: 'MT', basePrice: 51000 },
+];
+
+// Real-world anchors
+const DEMO_RFQ = {
+  id: 'RFQ-2026-001',
+  buyerName: 'ABC Infra Pvt Ltd',
+  buyerContact: 'Rajesh Kumar',
+  location: 'Gurgaon, Haryana',
+  deliveryDays: 7,
+  paymentTerms: '30 days credit',
+  category: 'Metals — Ferrous',
+  subCategory: 'TMT Steel Bars',
+};
 
 function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSavings: number; targetPercent: number }) {
   const [displayValue, setDisplayValue] = useState(0);
@@ -48,16 +71,14 @@ function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSaving
     let frame: number;
     const duration = 1500;
     const start = performance.now();
-
     const animate = (now: number) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setDisplayValue(Math.floor(eased * targetSavings));
       setDisplayPct(Math.round(eased * targetPercent * 10) / 10);
       if (progress < 1) frame = requestAnimationFrame(animate);
     };
-
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
   }, [targetSavings, targetPercent]);
@@ -74,11 +95,302 @@ function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSaving
   );
 }
 
+// ── AI RFQ Animation Step ──
+function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenario: EntryScenario }) {
+  const [typing, setTyping] = useState(true);
+  const [filledFields, setFilledFields] = useState(0);
+  const fields = [
+    { label: 'Product', value: DEMO_RFQ.subCategory },
+    { label: 'Category', value: DEMO_RFQ.category },
+    { label: 'Buyer', value: `${DEMO_RFQ.buyerContact} — ${DEMO_RFQ.buyerName}` },
+    { label: 'Location', value: DEMO_RFQ.location },
+    { label: 'Delivery', value: `${DEMO_RFQ.deliveryDays} days` },
+    { label: 'Payment Terms', value: DEMO_RFQ.paymentTerms },
+  ];
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    fields.forEach((_, i) => {
+      timers.push(setTimeout(() => setFilledFields(i + 1), 600 * (i + 1)));
+    });
+    timers.push(setTimeout(() => setTyping(false), 600 * (fields.length + 1)));
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <Card className="border-primary/20">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <Bot className="w-5 h-5 text-primary" />
+          <CardTitle className="text-lg">AI RFQ Generation</CardTitle>
+          <Badge variant="outline" className="text-xs">{DEMO_RFQ.id}</Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {scenario === 'supplier'
+            ? 'Buyer has submitted a structured requirement — you receive this enquiry:'
+            : 'Enter your requirement in plain text — AI structures it automatically'}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* AI input simulation */}
+        <div className="p-3 bg-muted/50 rounded-lg border border-border">
+          <p className="text-xs text-muted-foreground mb-1">🤖 AI Input</p>
+          <p className="text-sm font-mono">
+            "Need 500 MT TMT steel bars Fe500, 12mm/16mm/20mm, deliver to Gurgaon in 7 days"
+          </p>
+        </div>
+
+        {/* Auto-fill animation */}
+        <div className="space-y-2">
+          {fields.map((f, i) => (
+            <div
+              key={f.label}
+              className={`flex items-center gap-3 p-2 rounded border transition-all duration-300 ${
+                i < filledFields ? 'border-primary/30 bg-primary/5' : 'border-border opacity-40'
+              }`}
+            >
+              <span className="text-xs text-muted-foreground w-24 shrink-0">{f.label}</span>
+              <span className={`text-sm font-medium transition-opacity ${i < filledFields ? 'opacity-100' : 'opacity-0'}`}>
+                {f.value}
+              </span>
+              {i < filledFields && <Check className="w-3.5 h-3.5 text-green-600 ml-auto" />}
+            </div>
+          ))}
+        </div>
+
+        {/* SKU breakdown */}
+        {filledFields >= fields.length && (
+          <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <p className="text-xs font-semibold text-muted-foreground">📦 SKU Breakdown (Auto-generated)</p>
+            <div className="border rounded-lg overflow-hidden">
+              <div className="grid grid-cols-4 gap-px bg-border text-xs font-medium text-muted-foreground">
+                <div className="bg-muted p-2">Item</div>
+                <div className="bg-muted p-2 text-right">Qty</div>
+                <div className="bg-muted p-2 text-right">Unit</div>
+                <div className="bg-muted p-2 text-right">Est. Price</div>
+              </div>
+              {DEMO_SKUS.map(sku => (
+                <div key={sku.id} className="grid grid-cols-4 gap-px bg-border text-sm">
+                  <div className="bg-background p-2">{sku.name}</div>
+                  <div className="bg-background p-2 text-right tabular-nums">{sku.qty}</div>
+                  <div className="bg-background p-2 text-right">{sku.unit}</div>
+                  <div className="bg-background p-2 text-right tabular-nums">₹{sku.basePrice.toLocaleString('en-IN')}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!typing && (
+          <Button className="w-full mt-3 gap-2" onClick={onComplete}>
+            <FileText className="w-4 h-4" />
+            {scenario === 'supplier' ? 'View Auction Invite →' : 'Launch Reverse Auction →'}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Supplier Auction View ──
+function SupplierAuctionView({
+  bids,
+  auctionComplete,
+  bidRound,
+  skuPrices,
+}: {
+  bids: DemoBid[];
+  auctionComplete: boolean;
+  bidRound: number;
+  skuPrices: Record<string, number>;
+}) {
+  const sortedBids = [...bids].sort((a, b) => a.price - b.price);
+  const myBid = bids.find(b => b.supplierId === 'demo-sup-2'); // JSW = "you"
+  const myRank = sortedBids.findIndex(b => b.supplierId === 'demo-sup-2') + 1;
+  const l1Price = sortedBids[0]?.price || 0;
+  const gapToL1 = myBid ? myBid.price - l1Price : 0;
+
+  return (
+    <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-950/20 dark:border-blue-800">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-600" />
+            <CardTitle className="text-lg">Supplier View — Your Bidding Console</CardTitle>
+          </div>
+          <Badge variant={auctionComplete ? 'secondary' : 'default'}>
+            {auctionComplete ? '✅ Ended' : `🔴 LIVE — Round ${bidRound}/8`}
+          </Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">You are: JSW Steel Trading (Bellary)</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Rank & Status strip */}
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/40">
+          <div className={`text-2xl font-bold ${myRank === 1 ? 'text-green-600' : myRank === 2 ? 'text-amber-600' : 'text-destructive'}`}>
+            #{myRank}
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Your Rank: {myRank === 1 ? 'L1 🏆' : myRank === 2 ? 'L2' : 'L3'}</p>
+            <p className="text-xs text-muted-foreground">
+              Your Bid: ₹{myBid?.price.toLocaleString('en-IN')}/MT
+              {myRank > 1 && ` • Gap to L1: ₹${gapToL1.toLocaleString('en-IN')}`}
+            </p>
+          </div>
+          {!auctionComplete && myRank > 1 && (
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-1" disabled>
+              <Zap className="w-3.5 h-3.5" />
+              Become L1
+            </Button>
+          )}
+        </div>
+
+        {/* SKU-level pricing */}
+        <div className="border rounded-lg overflow-hidden">
+          <div className="grid grid-cols-4 gap-px bg-border text-xs font-medium text-muted-foreground">
+            <div className="bg-muted p-2">SKU</div>
+            <div className="bg-muted p-2 text-right">Qty</div>
+            <div className="bg-muted p-2 text-right">Your Price</div>
+            <div className="bg-muted p-2 text-right">L1 Price</div>
+          </div>
+          {DEMO_SKUS.map(sku => {
+            const mySkuPrice = skuPrices[sku.id] || sku.basePrice;
+            const l1SkuPrice = Math.round(mySkuPrice * (l1Price / (myBid?.price || l1Price)));
+            return (
+              <div key={sku.id} className="grid grid-cols-4 gap-px bg-border text-sm">
+                <div className="bg-background p-2">{sku.name}</div>
+                <div className="bg-background p-2 text-right tabular-nums">{sku.qty}</div>
+                <div className="bg-background p-2 text-right tabular-nums font-medium">₹{mySkuPrice.toLocaleString('en-IN')}</div>
+                <div className="bg-background p-2 text-right tabular-nums text-primary">₹{l1SkuPrice.toLocaleString('en-IN')}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Leaderboard */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground">📊 Live Leaderboard</p>
+          {sortedBids.map((bid, idx) => (
+            <div
+              key={bid.supplierId}
+              className={`flex items-center justify-between p-2.5 rounded-lg border transition-all ${
+                bid.supplierId === 'demo-sup-2'
+                  ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/40'
+                  : idx === 0
+                  ? 'border-primary/30 bg-primary/5'
+                  : 'border-border'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-muted-foreground">#{idx + 1}</span>
+                <span className="text-sm font-medium">
+                  {bid.supplierId === 'demo-sup-2' ? `${bid.supplierName} (You)` : bid.supplierName}
+                </span>
+              </div>
+              <span className="text-sm font-bold tabular-nums">₹{bid.price.toLocaleString('en-IN')}</span>
+            </div>
+          ))}
+        </div>
+
+        {auctionComplete && myRank === 1 && (
+          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-center dark:bg-green-950/30 dark:border-green-800">
+            <p className="text-sm font-semibold text-green-700 dark:text-green-400">🏆 You won! Purchase Order incoming.</p>
+          </div>
+        )}
+        {auctionComplete && myRank > 1 && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-center dark:bg-amber-950/30 dark:border-amber-800">
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+              You finished #{myRank}. Improve your next bid strategy.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Buyer Auction View ──
+function BuyerAuctionView({
+  bids,
+  auctionComplete,
+  bidRound,
+  onProceedToPO,
+}: {
+  bids: DemoBid[];
+  auctionComplete: boolean;
+  bidRound: number;
+  onProceedToPO: () => void;
+}) {
+  const sortedBids = [...bids].sort((a, b) => a.price - b.price);
+  const lowestBid = sortedBids[0];
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">{DEMO_AUCTION.title}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {DEMO_RFQ.id} • {DEMO_RFQ.buyerName} • {DEMO_RFQ.location}
+            </p>
+          </div>
+          <Badge variant={auctionComplete ? 'secondary' : 'default'}>
+            {auctionComplete ? '✅ Completed' : `🔴 LIVE — Round ${bidRound}/8`}
+          </Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {DEMO_AUCTION.category} • {DEMO_AUCTION.quantity} {DEMO_AUCTION.unit} • {DEMO_AUCTION.currency}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {sortedBids.map((bid, idx) => (
+          <div
+            key={bid.supplierId}
+            className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+              idx === 0 ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'border-border'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-bold text-muted-foreground">#{idx + 1}</span>
+              <div>
+                <p className="font-medium text-sm">{bid.supplierName}</p>
+                <p className="text-xs text-muted-foreground">{bid.badge}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className={`font-bold text-lg tabular-nums ${idx === 0 ? 'text-primary' : 'text-foreground'}`}>
+                ₹{bid.price.toLocaleString('en-IN')}
+              </p>
+              <p className="text-xs text-muted-foreground">per MT</p>
+            </div>
+          </div>
+        ))}
+
+        {auctionComplete && (
+          <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-3">
+            <p className="text-sm font-semibold text-primary">🏆 Winner: {lowestBid.supplierName}</p>
+            <p className="text-lg font-bold">₹{lowestBid.price.toLocaleString('en-IN')} / MT</p>
+            <p className="text-xs text-muted-foreground">
+              Total: ₹{(lowestBid.price * DEMO_AUCTION.quantity).toLocaleString('en-IN')}
+            </p>
+            <Button size="sm" className="mt-2" onClick={onProceedToPO}>
+              Proceed to PO →
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ════════════════════════════════════
+// ═══ MAIN COMPONENT ═══
+// ════════════════════════════════════
 export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const navigate = useNavigate();
   const [showEntryScreen, setShowEntryScreen] = useState(true);
   const [scenario, setScenario] = useState<EntryScenario>('full');
-  const [phase, setPhase] = useState<DemoPhase>('auction');
+  const [phase, setPhase] = useState<DemoPhase>('rfq');
   const [bids, setBids] = useState<DemoBid[]>(DEMO_AUCTION.initialBids);
   const [auctionComplete, setAuctionComplete] = useState(false);
   const [poStatus, setPOStatus] = useState<DemoPOStatus>('draft');
@@ -89,11 +401,42 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [language, setLanguage] = useState('en');
   const [demoDepth, setDemoDepth] = useState<DemoDepth>('deep');
   const [showCTA, setShowCTA] = useState(false);
+  const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
 
+  // SKU-level prices for supplier view (simulated variation)
+  const [skuPrices] = useState<Record<string, number>>(() => {
+    const prices: Record<string, number> = {};
+    DEMO_SKUS.forEach(s => { prices[s.id] = s.basePrice - Math.floor(Math.random() * 300); });
+    return prices;
+  });
+
   const { speak, stop, speaking, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
+
+  // ── CRITICAL: Stop speech on unmount / exit ──
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis?.cancel();
+    };
+  }, []);
+
+  // ── Voice control functions ──
+  const pauseVoice = useCallback(() => {
+    window.speechSynthesis?.pause();
+    setPaused(true);
+  }, []);
+
+  const resumeVoice = useCallback(() => {
+    window.speechSynthesis?.resume();
+    setPaused(false);
+  }, []);
+
+  const stopVoice = useCallback(() => {
+    stop();
+    setPaused(false);
+  }, [stop]);
 
   // ── Auto-scroll to highlighted section ──
   useEffect(() => {
@@ -162,14 +505,17 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setHighlightSection(map[currentStep] || null);
   }, [currentStep]);
 
-  // Live bid simulation
+  // Live bid simulation — REALISTIC: ₹50-150 drop per round, cap at ₹500-1000/MT savings
   useEffect(() => {
     if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
     const interval = setInterval(() => {
       setBids(prev =>
         prev.map(b => ({
           ...b,
-          price: Math.max(b.price - Math.floor(Math.random() * 800 + 200), 42000),
+          price: Math.max(
+            b.price - Math.floor(Math.random() * 150 + 50),
+            BASELINE_PRICE - 800 // cap total savings at ~₹800/MT
+          ),
         }))
       );
       setBidRound(r => {
@@ -234,18 +580,26 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
   const handleReset = useCallback(() => {
     stop();
+    window.speechSynthesis?.cancel();
     setBids(DEMO_AUCTION.initialBids);
     setAuctionComplete(false);
     setPOStatus('draft');
     setAutoPlay(false);
     setBidRound(0);
-    setPhase('auction');
+    setPhase('rfq');
     setFullDemoRunning(false);
     setShowEntryScreen(true);
     setShowCTA(false);
+    setPaused(false);
     introSpoken.current = false;
     onReset();
   }, [onReset, stop]);
+
+  const handleExit = useCallback(() => {
+    stop();
+    window.speechSynthesis?.cancel();
+    onExit();
+  }, [onExit, stop]);
 
   const advancePO = () => {
     const currentIdx = DEMO_TIMELINE_STEPS.findIndex(s => s.status === poStatus);
@@ -258,10 +612,19 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const startDemo = useCallback((s: EntryScenario) => {
     setScenario(s);
     setShowEntryScreen(false);
+    setPhase('rfq'); // Always start with RFQ step
     if (s === 'full') {
       setFullDemoRunning(true);
     }
   }, []);
+
+  // Full demo: auto-advance from RFQ to auction after delay
+  useEffect(() => {
+    if (fullDemoRunning && phase === 'rfq') {
+      const t = setTimeout(() => setPhase('auction'), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [fullDemoRunning, phase]);
 
   // Full demo: auto-switch to PO after auction
   useEffect(() => {
@@ -286,7 +649,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const progressPct = ((currentStatusIdx) / (allStatuses.length - 1)) * 100;
   const isDeepMode = demoDepth === 'deep';
 
-  // Savings calculations
   const savingsPerMT = BASELINE_PRICE - lowestBid.price;
   const totalSavings = savingsPerMT * DEMO_AUCTION.quantity;
   const savingsPercent = ((savingsPerMT / BASELINE_PRICE) * 100);
@@ -296,7 +658,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       ? 'ring-2 ring-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)] transition-shadow duration-500'
       : 'transition-shadow duration-500';
 
-  // Get current subtitle text
   const getSubtitleText = () => {
     if (!currentStep) return '';
     const text = getNarrationText(currentStep, language, scenario);
@@ -307,7 +668,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   if (showEntryScreen) {
     return (
       <div className="min-h-screen bg-background">
-        <DemoBanner onReset={handleReset} onExit={onExit} />
+        <DemoBanner onReset={handleReset} onExit={handleExit} />
         <div className="max-w-lg mx-auto p-6 pt-12 space-y-8">
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold text-foreground">Interactive Procurement Simulation</h1>
@@ -331,38 +692,27 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           </div>
 
           <div className="space-y-3">
-            <Button
-              className="w-full h-16 text-left justify-start gap-4"
-              onClick={() => startDemo('full')}
-            >
+            <Button className="w-full h-16 text-left justify-start gap-4" onClick={() => startDemo('full')}>
               <Play className="w-5 h-5 shrink-0" />
               <div>
                 <p className="font-semibold">Full Walkthrough (2 min)</p>
-                <p className="text-xs text-primary-foreground/70">Auction → PO → Delivery → Payment — fully automated</p>
+                <p className="text-xs text-primary-foreground/70">AI RFQ → Auction → PO → Delivery → Payment — fully automated</p>
               </div>
             </Button>
 
-            <Button
-              variant="outline"
-              className="w-full h-16 text-left justify-start gap-4"
-              onClick={() => startDemo('buyer')}
-            >
+            <Button variant="outline" className="w-full h-16 text-left justify-start gap-4" onClick={() => startDemo('buyer')}>
               <Package className="w-5 h-5 shrink-0 text-primary" />
               <div>
                 <p className="font-semibold">Buyer Flow</p>
-                <p className="text-xs text-muted-foreground">Create auctions, compare bids, issue POs</p>
+                <p className="text-xs text-muted-foreground">Create RFQ, run auction, compare bids, issue POs, track savings</p>
               </div>
             </Button>
 
-            <Button
-              variant="outline"
-              className="w-full h-16 text-left justify-start gap-4"
-              onClick={() => startDemo('supplier')}
-            >
+            <Button variant="outline" className="w-full h-16 text-left justify-start gap-4" onClick={() => startDemo('supplier')}>
               <Truck className="w-5 h-5 shrink-0 text-primary" />
               <div>
                 <p className="font-semibold">Supplier Experience</p>
-                <p className="text-xs text-muted-foreground">Bid on auctions, accept POs, manage deliveries</p>
+                <p className="text-xs text-muted-foreground">Receive enquiry, bid on auction, see L1/L2 leaderboard, accept PO</p>
               </div>
             </Button>
           </div>
@@ -377,17 +727,24 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <DemoBanner onReset={handleReset} onExit={onExit} />
+      <DemoBanner onReset={handleReset} onExit={handleExit} />
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Phase tabs + controls */}
         <div className="flex items-center gap-2 flex-wrap" data-demo-controls>
           <Button
+            variant={phase === 'rfq' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setPhase('rfq')}
+          >
+            🤖 RFQ
+          </Button>
+          <Button
             variant={phase === 'auction' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setPhase('auction')}
           >
-            🔨 Live Auction
+            🔨 Auction
           </Button>
           <Button
             variant={phase === 'po_lifecycle' ? 'default' : 'outline'}
@@ -425,17 +782,37 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <span className="text-xs">{isDeepMode ? 'Deep' : 'Sales'}</span>
           </Button>
 
-          {/* Voice toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleVoice}
-            className="gap-1"
-            title={voiceEnabled ? 'Mute voiceover' : 'Enable voiceover'}
-          >
-            {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          {/* ── Voice Controls: Play/Pause/Stop/Mute ── */}
+          <div className="flex items-center gap-1 border rounded-lg px-1 py-0.5" data-demo-controls>
+            {speaking && !paused ? (
+              <Button variant="ghost" size="sm" onClick={pauseVoice} className="h-7 w-7 p-0" title="Pause voiceover">
+                <Pause className="w-3.5 h-3.5" />
+              </Button>
+            ) : paused ? (
+              <Button variant="ghost" size="sm" onClick={resumeVoice} className="h-7 w-7 p-0" title="Resume voiceover">
+                <Play className="w-3.5 h-3.5" />
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => speak('intro')} className="h-7 w-7 p-0" title="Play voiceover">
+                <Play className="w-3.5 h-3.5" />
+              </Button>
+            )}
+            {(speaking || paused) && (
+              <Button variant="ghost" size="sm" onClick={stopVoice} className="h-7 w-7 p-0" title="Stop voiceover">
+                <Square className="w-3.5 h-3.5" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleVoice}
+              className="h-7 w-7 p-0"
+              title={voiceEnabled ? 'Mute voiceover' : 'Enable voiceover'}
+            >
+              {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            </Button>
             {speaking && <span className="text-xs text-primary animate-pulse">●</span>}
-          </Button>
+          </div>
 
           {!fullDemoRunning && phase === 'auction' && !auctionComplete && (
             <Button
@@ -445,7 +822,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               onClick={() => setFullDemoRunning(true)}
             >
               <Play className="w-3.5 h-3.5" />
-              Run Full Demo (2 min)
+              Run Full Demo
             </Button>
           )}
         </div>
@@ -458,74 +835,67 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           </div>
         )}
 
+        {/* ── RFQ PHASE ── */}
+        {phase === 'rfq' && (
+          <div className="space-y-4">
+            <DemoRFQStep
+              scenario={scenario}
+              onComplete={() => setPhase('auction')}
+            />
+          </div>
+        )}
+
         {/* ── AUCTION PHASE ── */}
         {phase === 'auction' && (
           <div className="space-y-4">
-            <Card id="auction-card" className={highlightClass('auction-card')}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{DEMO_AUCTION.title}</CardTitle>
-                  <Badge variant={auctionComplete ? 'secondary' : 'default'}>
-                    {auctionComplete ? '✅ Completed' : `🔴 LIVE — Round ${bidRound}/8`}
-                  </Badge>
+            {/* Dual view for full mode, role-specific for buyer/supplier */}
+            {scenario === 'supplier' ? (
+              <SupplierAuctionView
+                bids={bids}
+                auctionComplete={auctionComplete}
+                bidRound={bidRound}
+                skuPrices={skuPrices}
+              />
+            ) : scenario === 'buyer' ? (
+              <div id="auction-card" className={highlightClass('auction-card')}>
+                <BuyerAuctionView
+                  bids={bids}
+                  auctionComplete={auctionComplete}
+                  bidRound={bidRound}
+                  onProceedToPO={() => setPhase('po_lifecycle')}
+                />
+              </div>
+            ) : (
+              /* Full mode: side-by-side on desktop, stacked on mobile */
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div id="auction-card" className={highlightClass('auction-card')}>
+                  <BuyerAuctionView
+                    bids={bids}
+                    auctionComplete={auctionComplete}
+                    bidRound={bidRound}
+                    onProceedToPO={() => setPhase('po_lifecycle')}
+                  />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {DEMO_AUCTION.category} • {DEMO_AUCTION.quantity} {DEMO_AUCTION.unit} • {DEMO_AUCTION.currency}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {sortedBids.map((bid, idx) => (
-                  <div
-                    key={bid.supplierId}
-                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                      idx === 0 ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'border-border'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg font-bold text-muted-foreground">#{idx + 1}</span>
-                      <div>
-                        <p className="font-medium text-sm">{bid.supplierName}</p>
-                        <p className="text-xs text-muted-foreground">{bid.badge}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-bold text-lg tabular-nums ${idx === 0 ? 'text-primary' : 'text-foreground'}`}>
-                        ₹{bid.price.toLocaleString('en-IN')}
-                      </p>
-                      <p className="text-xs text-muted-foreground">per MT</p>
-                    </div>
-                  </div>
-                ))}
-
-                {auctionComplete && (
-                  <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-3">
-                    <p className="text-sm font-semibold text-primary">🏆 Winner: {lowestBid.supplierName}</p>
-                    <p className="text-lg font-bold">₹{lowestBid.price.toLocaleString('en-IN')} / MT</p>
-                    <p className="text-xs text-muted-foreground">
-                      Total: ₹{(lowestBid.price * DEMO_AUCTION.quantity).toLocaleString('en-IN')}
-                    </p>
-                    <Button size="sm" className="mt-2" onClick={() => setPhase('po_lifecycle')}>
-                      Proceed to PO →
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                <SupplierAuctionView
+                  bids={bids}
+                  auctionComplete={auctionComplete}
+                  bidRound={bidRound}
+                  skuPrices={skuPrices}
+                />
+              </div>
+            )}
 
             {/* Animated Savings Card */}
             {auctionComplete && (
               <Card id="savings-card" className={`border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800 ${highlightClass('savings-card')}`}>
                 <CardContent className="pt-6 space-y-3">
                   <p className="text-sm font-medium text-muted-foreground">💰 Immediate savings: this auction</p>
-                  <AnimatedSavingsCounter
-                    targetSavings={totalSavings}
-                    targetPercent={savingsPercent}
-                  />
+                  <AnimatedSavingsCounter targetSavings={totalSavings} targetPercent={savingsPercent} />
                   <p className="text-xs text-muted-foreground">
                     Baseline: ₹{BASELINE_PRICE.toLocaleString('en-IN')}/MT → Won at ₹{lowestBid.price.toLocaleString('en-IN')}/MT
                     {' '}• Saved ₹{savingsPerMT.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT
                   </p>
-                   <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border space-y-1">
+                  <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border space-y-1">
                     <p className="text-sm font-semibold text-foreground">📊 Typical savings observed</p>
                     <p className="text-xs text-muted-foreground">• ₹500–₹1,000 per MT depending on category, volume, and supplier competition</p>
                     <p className="text-xs text-muted-foreground">• 10–15% annually with consistent sourcing</p>
@@ -538,8 +908,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </Card>
             )}
 
-            {/* Supplier cards — only in deep mode */}
-            {isDeepMode && (
+            {/* Supplier cards — only in deep mode & buyer/full */}
+            {isDeepMode && scenario !== 'supplier' && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {DEMO_SUPPLIERS.map(s => (
                   <Card key={s.id} className="p-3">
@@ -559,25 +929,19 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <Card id="po-card" className={highlightClass('po-card')}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{DEMO_PO.poNumber}</CardTitle>
+                  <div>
+                    <CardTitle className="text-lg">{DEMO_PO.poNumber}</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {DEMO_RFQ.buyerName} • {DEMO_RFQ.location} • Delivery: {DEMO_RFQ.deliveryDays} days
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2" data-demo-controls>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setAutoPlay(p => !p)}
-                      className="h-8 gap-1"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setAutoPlay(p => !p)} className="h-8 gap-1">
                       {autoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                       {autoPlay ? 'Pause' : 'Auto-Play'}
                     </Button>
                     {!autoPlay && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={advancePO}
-                        className="h-8 gap-1"
-                        disabled={poStatus === 'closed'}
-                      >
+                      <Button variant="outline" size="sm" onClick={advancePO} className="h-8 gap-1" disabled={poStatus === 'closed'}>
                         <SkipForward className="w-3.5 h-3.5" />
                         Next Step
                       </Button>
@@ -589,7 +953,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               <CardContent className="space-y-4">
                 <Progress value={progressPct} className="h-2" />
 
-                {/* Timeline */}
                 <div id="po-timeline" className={`space-y-2 ${highlightClass('po-timeline')}`}>
                   {allStatuses.map((status, idx) => {
                     const isCompleted = idx <= currentStatusIdx;
@@ -598,11 +961,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       <div
                         key={status}
                         className={`flex items-center gap-3 p-2.5 rounded-lg transition-all ${
-                          isCurrent
-                            ? 'bg-primary/10 border border-primary/30'
-                            : isCompleted
-                            ? 'bg-muted/50'
-                            : 'opacity-40'
+                          isCurrent ? 'bg-primary/10 border border-primary/30'
+                            : isCompleted ? 'bg-muted/50' : 'opacity-40'
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
@@ -620,9 +980,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                             </p>
                           )}
                         </div>
-                        {isCurrent && (
-                          <Badge variant="default" className="text-[10px]">Current</Badge>
-                        )}
+                        {isCurrent && <Badge variant="default" className="text-[10px]">Current</Badge>}
                       </div>
                     );
                   })}
@@ -648,34 +1006,25 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   </div>
                   <h3 className="text-xl font-bold text-foreground">Ready to run your first auction?</h3>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    You just experienced the full procurement lifecycle — from competitive bidding to payment confirmation. Start saving on your real orders now.
+                    You just experienced the full procurement lifecycle — from AI-powered RFQ to competitive bidding to payment confirmation. Start saving on your real orders now.
                   </p>
 
-                  {/* Dynamic savings reminder */}
                   <div className="flex justify-center">
                     <Badge variant="secondary" className="text-green-700 bg-green-100 text-sm px-4 py-1">
                       💰 Immediate savings: ₹{totalSavings.toLocaleString('en-IN')} in this auction
                     </Badge>
                   </div>
 
-                   <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     📊 Typical savings: ₹500–₹1,000 per MT (category dependent) · 10–15% annually with consistent sourcing
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                    <Button
-                      size="lg"
-                      className="gap-2"
-                      onClick={() => navigate('/buyer/create-reverse-auction')}
-                    >
+                    <Button size="lg" className="gap-2" onClick={() => navigate('/buyer/create-reverse-auction')}>
                       <Zap className="w-4 h-4" />
                       Create Your First Auction
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={() => navigate('/buyer?buy_plan=true')}
-                    >
+                    <Button variant="outline" size="lg" onClick={() => navigate('/buyer?buy_plan=true')}>
                       Activate 6-Month Plan
                     </Button>
                   </div>
@@ -684,12 +1033,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     ProcureSaathi doesn't reduce cost in one deal — it systematically reduces procurement cost over time.
                   </p>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleReset}
-                    className="text-xs text-muted-foreground"
-                  >
+                  <Button variant="ghost" size="sm" onClick={handleReset} className="text-xs text-muted-foreground">
                     ↻ Replay Simulation
                   </Button>
                 </CardContent>
@@ -699,7 +1043,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
         )}
       </div>
 
-      {/* Demo watermark */}
       <div className="fixed bottom-2 right-2 text-xs text-muted-foreground/60 pointer-events-none select-none z-50">
         Demo Environment — No Real Transactions
       </div>
