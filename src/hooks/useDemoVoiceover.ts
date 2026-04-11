@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { DEMO_NARRATION, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
+import { getNarrationText, type DemoNarrationStep, type DemoScenario } from '@/lib/demo-voiceover-script';
 
 const LANG_MAP: Record<string, string> = {
   en: 'en-IN',
@@ -9,7 +9,7 @@ const LANG_MAP: Record<string, string> = {
   zh: 'zh-CN',
 };
 
-export function useDemoVoiceover(language: string = 'en') {
+export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario = 'full') {
   const [speaking, setSpeaking] = useState(false);
   const [currentStep, setCurrentStep] = useState<DemoNarrationStep | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -18,13 +18,9 @@ export function useDemoVoiceover(language: string = 'en') {
   const speak = useCallback((step: DemoNarrationStep, onEnd?: () => void) => {
     if (!voiceEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
 
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
-    const entry = DEMO_NARRATION.find(n => n.step === step);
-    if (!entry) return;
-
-    const text = entry.text[language] || entry.text['en'] || '';
+    const text = getNarrationText(step, language, scenario);
     if (!text) return;
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -49,7 +45,7 @@ export function useDemoVoiceover(language: string = 'en') {
 
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
-  }, [language, voiceEnabled]);
+  }, [language, voiceEnabled, scenario]);
 
   const stop = useCallback(() => {
     window.speechSynthesis?.cancel();

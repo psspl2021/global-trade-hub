@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, SkipForward, Volume2, VolumeX, Globe, Eye, Layers } from 'lucide-react';
+import { Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
-import { DEMO_NARRATION, poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
+import { getNarrationText, poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
 import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
 import { DemoBanner } from './DemoBanner';
 
@@ -37,8 +38,46 @@ const LANGUAGE_OPTIONS = [
   { value: 'zh', label: '中文' },
 ];
 
+const BASELINE_PRICE = 52000; // Starting price per MT for savings calc
+
+function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSavings: number; targetPercent: number }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const [displayPct, setDisplayPct] = useState(0);
+
+  useEffect(() => {
+    let frame: number;
+    const duration = 1500;
+    const start = performance.now();
+
+    const animate = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setDisplayValue(Math.floor(eased * targetSavings));
+      setDisplayPct(Math.round(eased * targetPercent * 10) / 10);
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [targetSavings, targetPercent]);
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="text-2xl font-bold text-green-600 tabular-nums">
+        💰 ₹{displayValue.toLocaleString('en-IN')}
+      </div>
+      <Badge variant="secondary" className="text-green-700 bg-green-100 text-sm">
+        {displayPct}% saved
+      </Badge>
+    </div>
+  );
+}
+
 export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
+  const navigate = useNavigate();
   const [showEntryScreen, setShowEntryScreen] = useState(true);
+  const [scenario, setScenario] = useState<EntryScenario>('full');
   const [phase, setPhase] = useState<DemoPhase>('auction');
   const [bids, setBids] = useState<DemoBid[]>(DEMO_AUCTION.initialBids);
   const [auctionComplete, setAuctionComplete] = useState(false);
@@ -49,11 +88,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [highlightSection, setHighlightSection] = useState<string | null>(null);
   const [language, setLanguage] = useState('en');
   const [demoDepth, setDemoDepth] = useState<DemoDepth>('deep');
+  const [showCTA, setShowCTA] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
 
-  const { speak, stop, speaking, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language);
+  const { speak, stop, speaking, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
 
   // ── Auto-scroll to highlighted section ──
   useEffect(() => {
@@ -73,10 +113,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     pauseListenerAttached.current = true;
 
     const handleInteraction = (e: Event) => {
-      // Ignore clicks on demo control buttons
       const target = e.target as HTMLElement;
       if (target.closest('[data-demo-controls]')) return;
-
       setFullDemoRunning(false);
       setAutoPlay(false);
       stop();
@@ -109,7 +147,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       intro: 'auction-card',
       auction_live: 'auction-card',
       auction_complete: 'auction-card',
-      savings: 'auction-card',
+      savings: 'savings-card',
       po_start: 'po-card',
       po_sent: 'po-timeline',
       po_accepted: 'po-timeline',
@@ -118,6 +156,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       po_payment: 'po-timeline',
       po_closed: 'po-timeline',
       outro: 'po-card',
+      cta: 'cta-card',
     };
     setHighlightSection(map[currentStep] || null);
   }, [currentStep]);
@@ -148,7 +187,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   useEffect(() => {
     if (auctionComplete) {
       speak('auction_complete', () => {
-        // Trigger savings narration after auction_complete ends
         speak('savings');
       });
     }
@@ -178,10 +216,15 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     }
   }, [poStatus, phase, speak]);
 
-  // Narrate outro when PO closes
+  // Show CTA + narrate outro when PO closes
   useEffect(() => {
     if (poStatus === 'closed' && phase === 'po_lifecycle') {
-      const t = setTimeout(() => speak('outro'), 1500);
+      const t = setTimeout(() => {
+        speak('outro', () => {
+          setShowCTA(true);
+          speak('cta');
+        });
+      }, 1500);
       return () => clearTimeout(t);
     }
   }, [poStatus, phase, speak]);
@@ -196,6 +239,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setPhase('auction');
     setFullDemoRunning(false);
     setShowEntryScreen(true);
+    setShowCTA(false);
     introSpoken.current = false;
     onReset();
   }, [onReset, stop]);
@@ -208,9 +252,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     }
   };
 
-  const startDemo = useCallback((scenario: EntryScenario) => {
+  const startDemo = useCallback((s: EntryScenario) => {
+    setScenario(s);
     setShowEntryScreen(false);
-    if (scenario === 'full') {
+    if (s === 'full') {
       setFullDemoRunning(true);
     }
   }, []);
@@ -221,7 +266,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       setTimeout(() => {
         setPhase('po_lifecycle');
         setAutoPlay(true);
-      }, 2500); // Extra time for savings narration
+      }, 2500);
     }
   }, [fullDemoRunning, auctionComplete, phase]);
 
@@ -238,10 +283,22 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const progressPct = ((currentStatusIdx) / (allStatuses.length - 1)) * 100;
   const isDeepMode = demoDepth === 'deep';
 
+  // Savings calculations
+  const savingsPerMT = BASELINE_PRICE - lowestBid.price;
+  const totalSavings = savingsPerMT * DEMO_AUCTION.quantity;
+  const savingsPercent = ((savingsPerMT / BASELINE_PRICE) * 100);
+
   const highlightClass = (section: string) =>
     highlightSection === section
       ? 'ring-2 ring-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)] transition-shadow duration-500'
       : 'transition-shadow duration-500';
+
+  // Get current subtitle text
+  const getSubtitleText = () => {
+    if (!currentStep) return '';
+    const text = getNarrationText(currentStep, language, scenario);
+    return text.length > 140 ? text.slice(0, 140) + '…' : text;
+  };
 
   // ── ENTRY SCREEN ──
   if (showEntryScreen) {
@@ -254,7 +311,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <p className="text-sm text-muted-foreground">Choose your walkthrough experience</p>
           </div>
 
-          {/* Language selector on entry */}
           <div className="flex justify-center">
             <div className="flex items-center gap-2">
               <Globe className="w-4 h-4 text-muted-foreground" />
@@ -395,11 +451,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
         {speaking && currentStep && (
           <div className="bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-sm text-foreground/80 animate-in fade-in slide-in-from-top-2 duration-300">
             <span className="text-primary mr-2">🎤</span>
-            {(() => {
-              const entry = DEMO_NARRATION.find(n => n.step === currentStep);
-              const text = entry?.text?.[language] || entry?.text?.['en'] || '';
-              return text.length > 120 ? text.slice(0, 120) + '…' : text;
-            })()}
+            {getSubtitleText()}
           </div>
         )}
 
@@ -443,17 +495,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 ))}
 
                 {auctionComplete && (
-                  <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-2">
+                  <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-3">
                     <p className="text-sm font-semibold text-primary">🏆 Winner: {lowestBid.supplierName}</p>
                     <p className="text-lg font-bold">₹{lowestBid.price.toLocaleString('en-IN')} / MT</p>
                     <p className="text-xs text-muted-foreground">
                       Total: ₹{(lowestBid.price * DEMO_AUCTION.quantity).toLocaleString('en-IN')}
                     </p>
-                    {isDeepMode && (
-                      <p className="text-xs text-green-600 font-medium">
-                        💰 Estimated savings: 8–12% vs manual negotiation
-                      </p>
-                    )}
                     <Button size="sm" className="mt-2" onClick={() => setPhase('po_lifecycle')}>
                       Proceed to PO →
                     </Button>
@@ -461,6 +508,23 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 )}
               </CardContent>
             </Card>
+
+            {/* Animated Savings Card */}
+            {auctionComplete && (
+              <Card id="savings-card" className={`border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800 ${highlightClass('savings-card')}`}>
+                <CardContent className="pt-6 space-y-3">
+                  <p className="text-sm font-medium text-muted-foreground">Auction Savings</p>
+                  <AnimatedSavingsCounter
+                    targetSavings={totalSavings}
+                    targetPercent={savingsPercent}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Baseline: ₹{BASELINE_PRICE.toLocaleString('en-IN')}/MT → Won at ₹{lowestBid.price.toLocaleString('en-IN')}/MT
+                    {' '}• Saved ₹{savingsPerMT.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Supplier cards — only in deep mode */}
             {isDeepMode && (
@@ -552,7 +616,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   })}
                 </div>
 
-                {poStatus === 'closed' && (
+                {poStatus === 'closed' && !showCTA && (
                   <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 text-center">
                     <p className="font-semibold text-primary">✅ Order Complete — Lifecycle Finished</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -562,6 +626,55 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 )}
               </CardContent>
             </Card>
+
+            {/* ── CTA EXIT HOOK ── */}
+            {showCTA && (
+              <Card id="cta-card" className={`border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 ${highlightClass('cta-card')}`}>
+                <CardContent className="pt-6 text-center space-y-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
+                    <Rocket className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">Ready to run your first auction?</h3>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                    You just experienced the full procurement lifecycle — from competitive bidding to payment confirmation. Start saving on your real orders now.
+                  </p>
+
+                  {/* Dynamic savings reminder */}
+                  <div className="flex justify-center">
+                    <Badge variant="secondary" className="text-green-700 bg-green-100 text-sm px-4 py-1">
+                      💰 This demo saved ₹{totalSavings.toLocaleString('en-IN')} ({savingsPercent.toFixed(1)}%)
+                    </Badge>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                    <Button
+                      size="lg"
+                      className="gap-2"
+                      onClick={() => navigate('/buyer/create-reverse-auction')}
+                    >
+                      <Zap className="w-4 h-4" />
+                      Create Your First Auction
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => navigate('/buyer?buy_plan=true')}
+                    >
+                      Activate 6-Month Plan
+                    </Button>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    className="text-xs text-muted-foreground"
+                  >
+                    ↻ Replay Simulation
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </div>
