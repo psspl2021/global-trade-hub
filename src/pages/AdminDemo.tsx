@@ -11,16 +11,27 @@ import { Shield, Play } from 'lucide-react';
 export default function AdminDemoPage() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string>();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) { navigate('/login'); return; }
       setUserId(data.user.id);
+      setLoading(false);
     });
   }, [navigate]);
 
   const { isAdmin } = useUserRole(userId);
   const { demoEnabled, toggleDemo, resetDemo, canAccessDemo } = useDemoMode(userId);
+
+  // Show loading while checking auth — never flash "Access Denied"
+  if (loading || !userId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-sm text-muted-foreground">Loading demo...</div>
+      </div>
+    );
+  }
 
   if (!canAccessDemo) {
     return (

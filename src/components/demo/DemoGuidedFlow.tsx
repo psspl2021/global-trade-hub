@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, Square,
   SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap, Bot,
-  FileText, Users
+  FileText, Users, Mail, Send
 } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
 import { getNarrationText, poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
@@ -20,7 +20,7 @@ interface DemoGuidedFlowProps {
   onExit: () => void;
 }
 
-type DemoPhase = 'rfq' | 'auction' | 'po_lifecycle';
+type DemoPhase = 'rfq' | 'invite' | 'auction' | 'po_lifecycle';
 type DemoDepth = 'sales' | 'deep';
 type EntryScenario = 'buyer' | 'supplier' | 'full';
 
@@ -44,14 +44,12 @@ const LANGUAGE_OPTIONS = [
 
 const BASELINE_PRICE = 52000;
 
-// SKU-level items for realistic demo
 const DEMO_SKUS = [
   { id: 'sku-1', name: 'TMT Fe500 — 12mm', qty: 200, unit: 'MT', basePrice: 52000 },
   { id: 'sku-2', name: 'TMT Fe500 — 16mm', qty: 180, unit: 'MT', basePrice: 51500 },
   { id: 'sku-3', name: 'TMT Fe500 — 20mm', qty: 120, unit: 'MT', basePrice: 51000 },
 ];
 
-// Real-world anchors
 const DEMO_RFQ = {
   id: 'RFQ-2026-001',
   buyerName: 'ABC Infra Pvt Ltd',
@@ -63,6 +61,13 @@ const DEMO_RFQ = {
   subCategory: 'TMT Steel Bars',
 };
 
+const DEMO_INVITE_EMAILS = [
+  { name: 'Tata Steel Trading', email: 'procurement@tatasteel.in', sent: false },
+  { name: 'JSW Steel Trading', email: 'bids@jswsteel.in', sent: false },
+  { name: 'SAIL Distribution', email: 'quotes@sail.in', sent: false },
+];
+
+// ── Animated Savings Counter ──
 function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSavings: number; targetPercent: number }) {
   const [displayValue, setDisplayValue] = useState(0);
   const [displayPct, setDisplayPct] = useState(0);
@@ -97,13 +102,13 @@ function AnimatedSavingsCounter({ targetSavings, targetPercent }: { targetSaving
 
 // ── AI RFQ Animation Step ──
 function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenario: EntryScenario }) {
-  const [aiStage, setAiStage] = useState(0); // 0=typing, 1=parsing, 2=structuring, 3=optimizing, 4=done
+  const [aiStage, setAiStage] = useState(0);
   const [filledFields, setFilledFields] = useState(0);
   const aiStages = [
     '💬 "Need 500 MT TMT steel bars Fe500, 12mm/16mm/20mm, deliver to Gurgaon in 7 days"',
-    '🔍 Parsing requirement...',
-    '🧩 Structuring into SKU line items...',
-    '🤖 Optimizing supplier selection...',
+    '🔍 Parsing requirement…',
+    '🧩 Structuring into SKU line items…',
+    '🤖 Optimizing supplier selection…',
   ];
   const fields = [
     { label: 'Product', value: DEMO_RFQ.subCategory },
@@ -116,13 +121,12 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
-    // AI stages: 0→1→2→3 then start filling fields
     timers.push(setTimeout(() => setAiStage(1), 1200));
     timers.push(setTimeout(() => setAiStage(2), 2400));
     timers.push(setTimeout(() => setAiStage(3), 3600));
     timers.push(setTimeout(() => setAiStage(4), 4800));
     fields.forEach((_, i) => {
-      timers.push(setTimeout(() => setFilledFields(i + 1), 4800 + 500 * (i + 1)));
+      timers.push(setTimeout(() => setFilledFields(i + 1), 4800 + 600 * (i + 1)));
     });
     return () => timers.forEach(clearTimeout);
   }, []);
@@ -144,7 +148,6 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* AI processing stages */}
         <div className="p-3 bg-muted/50 rounded-lg border border-border space-y-1.5">
           {aiStages.map((text, i) => (
             <p key={i} className={`text-sm font-mono transition-all duration-300 ${
@@ -155,7 +158,6 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
           ))}
         </div>
 
-        {/* Auto-fill animation */}
         {showFields && (
           <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
             {fields.map((f, i) => (
@@ -175,7 +177,6 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
           </div>
         )}
 
-        {/* SKU breakdown */}
         {filledFields >= fields.length && (
           <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <p className="text-xs font-semibold text-muted-foreground">📦 SKU Breakdown (Auto-generated)</p>
@@ -200,8 +201,105 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
 
         {filledFields >= fields.length && (
           <Button className="w-full mt-3 gap-2" onClick={onComplete}>
-            <FileText className="w-4 h-4" />
-            {scenario === 'supplier' ? 'View Auction Invite →' : 'Launch Reverse Auction →'}
+            <Mail className="w-4 h-4" />
+            {scenario === 'supplier' ? 'View Auction Invite →' : 'Invite Suppliers →'}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Supplier Invite Step ──
+function DemoInviteStep({ onComplete, scenario }: { onComplete: () => void; scenario: EntryScenario }) {
+  const [sentEmails, setSentEmails] = useState<boolean[]>(DEMO_INVITE_EMAILS.map(() => false));
+  const [allSent, setAllSent] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    DEMO_INVITE_EMAILS.forEach((_, i) => {
+      timers.push(setTimeout(() => {
+        setSentEmails(prev => {
+          const next = [...prev];
+          next[i] = true;
+          return next;
+        });
+      }, 800 * (i + 1)));
+    });
+    timers.push(setTimeout(() => {
+      setAllSent(true);
+      setShowPreview(true);
+    }, 800 * (DEMO_INVITE_EMAILS.length + 1)));
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <Card className="border-primary/20">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <Send className="w-5 h-5 text-primary" />
+          <CardTitle className="text-lg">Invite Suppliers</CardTitle>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {scenario === 'supplier'
+            ? 'You received this private auction invitation from a verified buyer:'
+            : 'Sending structured, private invitations to your trusted supplier network'}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* Email sending animation */}
+        <div className="space-y-2">
+          {DEMO_INVITE_EMAILS.map((inv, i) => (
+            <div
+              key={inv.email}
+              className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-500 ${
+                sentEmails[i] ? 'border-green-300 bg-green-50/50 dark:bg-green-950/20' : 'border-border'
+              }`}
+            >
+              <Mail className={`w-4 h-4 shrink-0 transition-colors ${sentEmails[i] ? 'text-green-600' : 'text-muted-foreground'}`} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{inv.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{inv.email}</p>
+              </div>
+              {sentEmails[i] ? (
+                <Badge variant="secondary" className="text-green-700 bg-green-100 text-xs shrink-0">
+                  ✅ Sent
+                </Badge>
+              ) : (
+                <span className="text-xs text-muted-foreground animate-pulse">Sending…</span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Email preview */}
+        {showPreview && (
+          <div className="mt-3 p-4 bg-muted/30 rounded-lg border border-border space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <p className="text-xs font-semibold text-muted-foreground">📧 Email Preview</p>
+            <div className="bg-background rounded-lg p-3 border border-border space-y-1.5">
+              <p className="text-xs text-muted-foreground">From: ProcureSaathi &lt;auctions@procuresaathi.com&gt;</p>
+              <p className="text-xs text-muted-foreground">Subject: <span className="font-semibold text-foreground">Private Auction Invite — TMT Steel Bars (500 MT)</span></p>
+              <hr className="my-2 border-border" />
+              <p className="text-sm text-foreground">
+                You've been invited to a <strong>private reverse auction</strong> by <strong>{DEMO_RFQ.buyerName}</strong>.
+              </p>
+              <div className="text-xs text-muted-foreground space-y-0.5 mt-1">
+                <p>📦 Product: TMT Fe500 — 12mm, 16mm, 20mm</p>
+                <p>📍 Delivery: {DEMO_RFQ.location} ({DEMO_RFQ.deliveryDays} days)</p>
+                <p>💳 Terms: {DEMO_RFQ.paymentTerms}</p>
+              </div>
+              <div className="mt-2 p-2 bg-primary/5 rounded text-xs text-primary font-medium text-center">
+                [ Accept Invite & Place Bid → ]
+              </div>
+            </div>
+          </div>
+        )}
+
+        {allSent && (
+          <Button className="w-full mt-3 gap-2" onClick={onComplete}>
+            <Zap className="w-4 h-4" />
+            Start Live Auction →
           </Button>
         )}
       </CardContent>
@@ -244,7 +342,7 @@ function SupplierAuctionView({
         <p className="text-sm text-muted-foreground">You are: JSW Steel Trading (Bellary)</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Rank & Status strip */}
+        {/* Rank strip */}
         <div className="flex items-center gap-3 p-3 rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/40">
           <div className={`text-2xl font-bold ${myRank === 1 ? 'text-green-600' : myRank === 2 ? 'text-amber-600' : 'text-destructive'}`}>
             #{myRank}
@@ -427,7 +525,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
 
-  // SKU-level prices for supplier view (simulated variation)
   const [skuPrices] = useState<Record<string, number>>(() => {
     const prices: Record<string, number> = {};
     DEMO_SKUS.forEach(s => { prices[s.id] = s.basePrice - Math.floor(Math.random() * 300); });
@@ -494,21 +591,27 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     };
   }, [fullDemoRunning, stop]);
 
-  // Speak intro on mount (once)
+  // Speak intro + RFQ narration on mount
   useEffect(() => {
     if (showEntryScreen) return;
     if (!introSpoken.current) {
       introSpoken.current = true;
-      const t = setTimeout(() => speak('intro', () => speak('auction_live')), 600);
+      const t = setTimeout(() => speak('intro', () => speak('rfq_start')), 600);
       return () => clearTimeout(t);
     }
   }, [speak, showEntryScreen]);
+
+  // Narrate rfq_structured when fields finish filling
+  // (triggered from phase transitions via speak calls)
 
   // Highlight sync with narration
   useEffect(() => {
     if (!currentStep) { setHighlightSection(null); return; }
     const map: Record<string, string> = {
-      intro: 'auction-card',
+      intro: 'rfq-card',
+      rfq_start: 'rfq-card',
+      rfq_structured: 'rfq-card',
+      supplier_invite: 'invite-card',
       auction_live: 'auction-card',
       auction_complete: 'auction-card',
       savings: 'savings-card',
@@ -526,7 +629,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setHighlightSection(map[currentStep] || null);
   }, [currentStep]);
 
-  // Countdown timer for auction realism
+  // Countdown timer for auction
   useEffect(() => {
     if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
     const t = setInterval(() => {
@@ -552,7 +655,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => timers.forEach(clearTimeout);
   }, [phase, showEntryScreen]);
 
-  // Live bid simulation — REALISTIC: ₹50-150 drop per round, cap at ₹500-1000/MT savings
+  // Live bid simulation — REALISTIC: ₹50-150 drop per round
   useEffect(() => {
     if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
     const interval = setInterval(() => {
@@ -577,7 +680,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => clearInterval(interval);
   }, [phase, auctionComplete, showEntryScreen]);
 
-  // Narrate auction completion + savings + loss aversion
+  // Narrate auction completion + savings
   useEffect(() => {
     if (auctionComplete) {
       speak('auction_complete', () => {
@@ -661,19 +764,30 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const startDemo = useCallback((s: EntryScenario) => {
     setScenario(s);
     setShowEntryScreen(false);
-    setPhase('rfq'); // Always start with RFQ step
+    setPhase('rfq');
     if (s === 'full') {
       setFullDemoRunning(true);
     }
   }, []);
 
-  // Full demo: auto-advance from RFQ to auction after delay
+  // Full demo: auto-advance RFQ → Invite → Auction
   useEffect(() => {
-    if (fullDemoRunning && phase === 'rfq') {
-      const t = setTimeout(() => setPhase('auction'), 5000);
+    if (!fullDemoRunning) return;
+    if (phase === 'rfq') {
+      const t = setTimeout(() => {
+        speak('rfq_structured', () => speak('supplier_invite'));
+        setPhase('invite');
+      }, 8000);
       return () => clearTimeout(t);
     }
-  }, [fullDemoRunning, phase]);
+    if (phase === 'invite') {
+      const t = setTimeout(() => {
+        speak('auction_live');
+        setPhase('auction');
+      }, 5000);
+      return () => clearTimeout(t);
+    }
+  }, [fullDemoRunning, phase, speak]);
 
   // Full demo: auto-switch to PO after auction
   useEffect(() => {
@@ -745,7 +859,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               <Play className="w-5 h-5 shrink-0" />
               <div>
                 <p className="font-semibold">Full Walkthrough (2 min)</p>
-                <p className="text-xs text-primary-foreground/70">AI RFQ → Auction → PO → Delivery → Payment — fully automated</p>
+                <p className="text-xs text-primary-foreground/70">AI RFQ → Invite → Auction → PO → Delivery → Payment</p>
               </div>
             </Button>
 
@@ -753,7 +867,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               <Package className="w-5 h-5 shrink-0 text-primary" />
               <div>
                 <p className="font-semibold">Buyer Flow</p>
-                <p className="text-xs text-muted-foreground">Create RFQ, run auction, compare bids, issue POs, track savings</p>
+                <p className="text-xs text-muted-foreground">Create RFQ, invite suppliers, run auction, issue POs, track savings</p>
               </div>
             </Button>
 
@@ -761,7 +875,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               <Truck className="w-5 h-5 shrink-0 text-primary" />
               <div>
                 <p className="font-semibold">Supplier Experience</p>
-                <p className="text-xs text-muted-foreground">Receive enquiry, bid on auction, see L1/L2 leaderboard, accept PO</p>
+                <p className="text-xs text-muted-foreground">Receive invite, bid on auction, see L1/L2 leaderboard, accept PO</p>
               </div>
             </Button>
           </div>
@@ -789,9 +903,16 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             🤖 RFQ
           </Button>
           <Button
+            variant={phase === 'invite' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => { setPhase('invite'); speak('supplier_invite'); }}
+          >
+            📧 Invite
+          </Button>
+          <Button
             variant={phase === 'auction' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setPhase('auction')}
+            onClick={() => { setPhase('auction'); speak('auction_live'); }}
           >
             🔨 Auction
           </Button>
@@ -831,7 +952,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <span className="text-xs">{isDeepMode ? 'Deep' : 'Sales'}</span>
           </Button>
 
-          {/* ── Voice Controls: Play/Pause/Stop/Mute ── */}
+          {/* ── Voice Controls ── */}
           <div className="flex items-center gap-1 border rounded-lg px-1 py-0.5" data-demo-controls>
             {speaking && !paused ? (
               <Button variant="ghost" size="sm" onClick={pauseVoice} className="h-7 w-7 p-0" title="Pause voiceover">
@@ -842,7 +963,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 <Play className="w-3.5 h-3.5" />
               </Button>
             ) : (
-              <Button variant="ghost" size="sm" onClick={() => speak(currentStep || 'intro')} className="h-7 w-7 p-0" title="Play voiceover">
+              <Button variant="ghost" size="sm" onClick={() => {
+                if (paused) { resumeVoice(); }
+                else if (!speaking) { speak(currentStep || 'intro'); }
+              }} className="h-7 w-7 p-0" title="Play voiceover">
                 <Play className="w-3.5 h-3.5" />
               </Button>
             )}
@@ -886,10 +1010,26 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
         {/* ── RFQ PHASE ── */}
         {phase === 'rfq' && (
-          <div className="space-y-4">
+          <div id="rfq-card" className={`space-y-4 ${highlightClass('rfq-card')}`}>
             <DemoRFQStep
               scenario={scenario}
-              onComplete={() => setPhase('auction')}
+              onComplete={() => {
+                speak('rfq_structured', () => speak('supplier_invite'));
+                setPhase('invite');
+              }}
+            />
+          </div>
+        )}
+
+        {/* ── INVITE PHASE ── */}
+        {phase === 'invite' && (
+          <div id="invite-card" className={`space-y-4 ${highlightClass('invite-card')}`}>
+            <DemoInviteStep
+              scenario={scenario}
+              onComplete={() => {
+                speak('auction_live');
+                setPhase('auction');
+              }}
             />
           </div>
         )}
@@ -940,7 +1080,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 />
               </div>
             ) : (
-              /* Full mode: side-by-side on desktop, stacked on mobile */
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div id="auction-card" className={highlightClass('auction-card')}>
                   <BuyerAuctionView
@@ -962,7 +1101,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </div>
             )}
 
-            {/* Animated Savings Card */}
+            {/* Savings Card */}
             {auctionComplete && (
               <Card id="savings-card" className={`border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800 ${highlightClass('savings-card')}`}>
                 <CardContent className="pt-6 space-y-3">
@@ -985,7 +1124,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </Card>
             )}
 
-            {/* Supplier cards — only in deep mode & buyer/full */}
+            {/* Supplier cards — deep mode */}
             {isDeepMode && scenario !== 'supplier' && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {DEMO_SUPPLIERS.map(s => (
@@ -1074,7 +1213,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </CardContent>
             </Card>
 
-            {/* ── CTA EXIT HOOK ── */}
+            {/* CTA EXIT HOOK */}
             {showCTA && (
               <Card id="cta-card" className={`border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 ${highlightClass('cta-card')}`}>
                 <CardContent className="pt-6 text-center space-y-4">
