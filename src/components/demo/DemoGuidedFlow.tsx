@@ -1346,7 +1346,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   })}
                 </div>
 
-                {poStatus === 'closed' && !showCTA && (
+            {poStatus === 'closed' && !showCTA && (
                   <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 text-center">
                     <p className="font-semibold text-primary">✅ Order Complete — Lifecycle Finished</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -1354,6 +1354,121 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* ── PROCUREMENT COMMAND CENTER CARDS ── */}
+            {currentStatusIdx >= 1 && (
+              <div className="space-y-3 animate-in fade-in slide-in-from-bottom-3 duration-500">
+                <div className="flex items-center gap-2 px-1">
+                  <Layers className="w-4 h-4 text-primary" />
+                  <p className="text-sm font-semibold text-foreground">Procurement Command Center</p>
+                  <Badge variant="outline" className="text-[10px]">LIVE</Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {/* 📦 Execution Tracking */}
+                  <div className={`p-4 rounded-xl border bg-card shadow-sm transition-all duration-500 ${
+                    ['in_transit', 'delivered'].includes(poStatus) ? 'ring-1 ring-primary/20 border-primary/30' : ''
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Package className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">Execution Tracking</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {poStatus === 'draft' || poStatus === 'sent' ? 'Awaiting supplier acceptance' :
+                       poStatus === 'accepted' ? 'Order confirmed • Dispatch pending' :
+                       poStatus === 'in_transit' ? 'Shipment in transit • ETA 2 days' :
+                       poStatus === 'delivered' ? '✅ Goods delivered • QC pending' :
+                       '✅ Order fulfilled & verified'}
+                    </p>
+                    <div className={`mt-2 text-xs font-medium ${
+                      currentStatusIdx >= 3 ? 'text-green-600' : 'text-amber-600'
+                    }`}>
+                      {currentStatusIdx >= 3 ? 'Live tracked via transporter' : 'Pending dispatch'}
+                    </div>
+                  </div>
+
+                  {/* 🚚 Logistics */}
+                  <div className={`p-4 rounded-xl border bg-card shadow-sm transition-all duration-500 ${
+                    poStatus === 'in_transit' ? 'ring-1 ring-amber-200 border-amber-300' : ''
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center">
+                        <Truck className="w-4 h-4 text-amber-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">Logistics</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Truck: {DEMO_TRANSPORTER.vehicle}</p>
+                    <p className="text-xs text-muted-foreground">Driver: {DEMO_TRANSPORTER.driver}</p>
+                    <div className="mt-2 text-xs font-medium text-primary">
+                      {poStatus === 'in_transit' ? '📍 GPS Tracking Active' : 'GPS Enabled Tracking'}
+                    </div>
+                  </div>
+
+                  {/* 💰 Payment */}
+                  <div className={`p-4 rounded-xl border bg-card shadow-sm transition-all duration-500 ${
+                    poStatus === 'payment_done' ? 'ring-1 ring-green-200 border-green-300' : ''
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center">
+                        <CreditCard className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">Payment Status</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Terms: 30 Days Credit</p>
+                    <div className={`mt-2 text-xs font-medium ${
+                      poStatus === 'payment_done' || poStatus === 'closed' ? 'text-green-600' : 'text-amber-600'
+                    }`}>
+                      {poStatus === 'payment_done' || poStatus === 'closed' ? '✅ Payment Confirmed' : '⏳ Payment Pending'}
+                    </div>
+                  </div>
+
+                  {/* 🏭 Supplier Network */}
+                  <div className="p-4 rounded-xl border bg-card shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">Supplier Network</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">3 Active • 12 Verified • 2 Blacklisted</p>
+                    <div className="mt-2 text-xs font-medium text-green-600">
+                      {poStatus === 'closed' ? '⭐ Reliability Score Updated' : 'Scores updating post-delivery'}
+                    </div>
+                  </div>
+
+                  {/* 📊 Analytics */}
+                  <div className="p-4 rounded-xl border bg-card shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/30 flex items-center justify-center">
+                        <TrendingDown className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">Savings Analytics</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">₹{totalSavings.toLocaleString('en-IN')} saved this order</p>
+                    <div className="mt-2 text-xs font-medium text-indigo-600">
+                      {savingsPercent.toFixed(1)}% lower than baseline
+                    </div>
+                  </div>
+
+                  {/* 🧾 Audit */}
+                  <div className="p-4 rounded-xl border bg-card shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">Audit Trail</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">All actions logged & export-ready</p>
+                    <div className="mt-2 text-xs font-medium text-green-600">
+                      ERP Sync Enabled
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
               </CardContent>
             </Card>
 
