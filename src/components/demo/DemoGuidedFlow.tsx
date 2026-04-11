@@ -421,6 +421,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [demoDepth, setDemoDepth] = useState<DemoDepth>('deep');
   const [showCTA, setShowCTA] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(120);
+  const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
@@ -524,6 +526,32 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setHighlightSection(map[currentStep] || null);
   }, [currentStep]);
 
+  // Countdown timer for auction realism
+  useEffect(() => {
+    if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
+    const t = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setAuctionComplete(true);
+          clearInterval(t);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [phase, auctionComplete, showEntryScreen]);
+
+  // Supplier join animation
+  useEffect(() => {
+    if (phase !== 'auction' || showEntryScreen) return;
+    setActiveSuppliers([]);
+    const timers = DEMO_SUPPLIERS.map((s, i) =>
+      setTimeout(() => setActiveSuppliers(prev => [...prev, s]), i * 1200)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [phase, showEntryScreen]);
+
   // Live bid simulation — REALISTIC: ₹50-150 drop per round, cap at ₹500-1000/MT savings
   useEffect(() => {
     if (phase !== 'auction' || auctionComplete || showEntryScreen) return;
@@ -533,7 +561,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           ...b,
           price: Math.max(
             b.price - Math.floor(Math.random() * 150 + 50),
-            BASELINE_PRICE - 800 // cap total savings at ~₹800/MT
+            BASELINE_PRICE - 800
           ),
         }))
       );
@@ -812,7 +840,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 <Play className="w-3.5 h-3.5" />
               </Button>
             ) : (
-              <Button variant="ghost" size="sm" onClick={() => speak('intro')} className="h-7 w-7 p-0" title="Play voiceover">
+              <Button variant="ghost" size="sm" onClick={() => speak(currentStep || 'intro')} className="h-7 w-7 p-0" title="Play voiceover">
                 <Play className="w-3.5 h-3.5" />
               </Button>
             )}
@@ -867,6 +895,28 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
         {/* ── AUCTION PHASE ── */}
         {phase === 'auction' && (
           <div className="space-y-4">
+            {/* Countdown timer */}
+            {!auctionComplete && (
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium tabular-nums">
+                    ⏱ {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')} remaining
+                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground italic">
+                  This is not a marketplace. This is your private supplier network competing for your order.
+                </div>
+              </div>
+            )}
+
+            {/* Supplier join notifications */}
+            {activeSuppliers.length > 0 && activeSuppliers.length < DEMO_SUPPLIERS.length && (
+              <div className="text-sm text-primary animate-in fade-in slide-in-from-top-2 duration-300">
+                ✅ {activeSuppliers[activeSuppliers.length - 1].name} joined the auction
+              </div>
+            )}
+
             {/* Dual view for full mode, role-specific for buyer/supplier */}
             {scenario === 'supplier' ? (
               <SupplierAuctionView
@@ -874,6 +924,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 auctionComplete={auctionComplete}
                 bidRound={bidRound}
                 skuPrices={skuPrices}
+                onReduceBid={() => setBids(prev => prev.map(b =>
+                  b.supplierId === 'demo-sup-2' ? { ...b, price: Math.max(b.price - 100, BASELINE_PRICE - 800) } : b
+                ))}
               />
             ) : scenario === 'buyer' ? (
               <div id="auction-card" className={highlightClass('auction-card')}>
@@ -900,6 +953,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   auctionComplete={auctionComplete}
                   bidRound={bidRound}
                   skuPrices={skuPrices}
+                  onReduceBid={() => setBids(prev => prev.map(b =>
+                    b.supplierId === 'demo-sup-2' ? { ...b, price: Math.max(b.price - 100, BASELINE_PRICE - 800) } : b
+                  ))}
                 />
               </div>
             )}
