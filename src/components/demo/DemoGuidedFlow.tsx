@@ -1087,6 +1087,16 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 <SkipForward className="w-3.5 h-3.5" />
                 Next Step
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1 active:scale-95 transition text-muted-foreground"
+                onClick={resetCurrentStep}
+                title="Reset current phase without restarting the whole demo"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset Step
+              </Button>
             </div>
           )}
           {fullDemoRunning && (
