@@ -122,6 +122,7 @@ const RevenueDashboard = lazy(() => import("./pages/admin/RevenueDashboard"));
 const AdminIntelligenceDashboard = lazy(() => import("./pages/admin/AdminIntelligenceDashboard"));
 const SEODashboard = lazy(() => import("./pages/admin/SEODashboard"));
 const DemandGapsPanel = lazy(() => import("./pages/admin/DemandGapsPanel"));
+const AdminDemoPage = lazy(() => import("./pages/AdminDemo"));
 // GEO Landing Pages
 const GeoUSA = lazy(() => import("./pages/geo/GeoUSA"));
 const GeoUK = lazy(() => import("./pages/geo/GeoUK"));
@@ -249,6 +250,7 @@ const BotAwareRouter = () => {
         
         {/* Admin Audit Dashboard: ps_admin, admin */}
         <Route path="/admin" element={<AdminAuditDashboard />} />
+        <Route path="/admin/demo" element={<AdminDemoPage />} />
         
         {/* Control Tower: management + admin only */}
         <Route path="/control-tower" element={<ControlTowerPage />} />
