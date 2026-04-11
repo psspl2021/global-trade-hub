@@ -18,13 +18,23 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
   const speak = useCallback((step: DemoNarrationStep, onEnd?: () => void) => {
     if (!voiceEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
 
-    window.speechSynthesis.cancel();
-
     const text = getNarrationText(step, language, scenario);
     if (!text) return;
 
+    const synthesis = window.speechSynthesis;
+    synthesis.cancel();
+    synthesis.resume();
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = LANG_MAP[language] || 'en-IN';
+    const requestedLang = LANG_MAP[language] || 'en-US';
+    const voices = synthesis.getVoices();
+    const preferredVoice =
+      voices.find((voice) => voice.lang === requestedLang) ||
+      voices.find((voice) => voice.lang.toLowerCase().startsWith(requestedLang.slice(0, 2).toLowerCase())) ||
+      voices.find((voice) => voice.lang.toLowerCase().startsWith('en'));
+
+    utterance.lang = preferredVoice?.lang || requestedLang;
+    if (preferredVoice) utterance.voice = preferredVoice;
     utterance.rate = 0.95;
     utterance.pitch = 1;
     utterance.volume = 0.85;
@@ -44,7 +54,7 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
     };
 
     utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
+    synthesis.speak(utterance);
   }, [language, voiceEnabled, scenario]);
 
   const stop = useCallback(() => {

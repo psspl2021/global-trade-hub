@@ -618,15 +618,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     };
   }, [fullDemoRunning, stop]);
 
-  // Speak intro + RFQ narration on mount
+  // Reset intro narration lock whenever the entry screen is shown again.
   useEffect(() => {
-    if (showEntryScreen) return;
-    if (!introSpoken.current) {
-      introSpoken.current = true;
-      const t = setTimeout(() => speak('intro', () => speak('rfq_start')), 600);
-      return () => clearTimeout(t);
+    if (showEntryScreen) {
+      introSpoken.current = false;
     }
-  }, [speak, showEntryScreen]);
+  }, [showEntryScreen]);
 
   // Narrate rfq_structured when fields finish filling
   // (triggered from phase transitions via speak calls)
@@ -792,10 +789,15 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setScenario(s);
     setShowEntryScreen(false);
     setPhase('rfq');
+    setPaused(false);
+    introSpoken.current = true;
+    speak('intro', () => {
+      setTimeout(() => speak('rfq_start'), 400);
+    });
     if (s === 'full') {
       setFullDemoRunning(true);
     }
-  }, []);
+  }, [speak]);
 
   // Full demo: auto-advance RFQ → Invite → Auction
   useEffect(() => {
