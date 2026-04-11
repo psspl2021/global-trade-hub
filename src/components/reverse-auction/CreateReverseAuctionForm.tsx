@@ -542,10 +542,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    // Check for credits
+    // Check for credits — show paywall gate
     if (!hasCredits) {
-      toast.error('No auction credits available. Redirecting to purchase credits...');
-      navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+      setShowPaywallGate(true);
       return;
     }
 
