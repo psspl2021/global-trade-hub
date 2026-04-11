@@ -11,7 +11,7 @@ import {
   FileText, Users, Mail, Send
 } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
-import { getNarrationText, poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
+import { getNarrationText, poStatusToNarrationStep, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
 import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
 import { DemoBanner } from './DemoBanner';
 
