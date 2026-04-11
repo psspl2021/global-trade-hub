@@ -35,9 +35,20 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [showExecutionTracking, setShowExecutionTracking] = useState(false);
   const [showAuctionCredits, setShowAuctionCredits] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
+  const [auctionCount, setAuctionCount] = useState(0);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+
+  // Fetch auction count for usage meter
+  useEffect(() => {
+    if (!user || isSupplier) return;
+    supabase
+      .from('reverse_auctions')
+      .select('id', { count: 'exact', head: true })
+      .eq('buyer_id', user.id)
+      .then(({ count }) => setAuctionCount(count ?? 0));
+  }, [user, isSupplier]);
 
   // Persist selected auction ID in URL
   const selectAuction = (auction: ReverseAuction | null) => {
