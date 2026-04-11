@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft, FileText, AlertTriangle } from 'lucide-react';
 import { BuyerPurchasesList } from '@/components/crm/BuyerPurchasesList';
 import { BuyerPurchaseForm } from '@/components/crm/BuyerPurchaseForm';
 import { BuyerPurchaseViewer } from '@/components/crm/BuyerPurchaseViewer';
 import { PurchaseOrderExecutionCard } from './PurchaseOrderExecutionCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useCanCreatePO } from '@/hooks/useCanCreatePO';
 
 interface PurchaseOrdersPageProps {
   userId: string;
