@@ -357,6 +357,11 @@ function SupplierAuctionView({
               {myRank > 1 && ` • Gap to L1: ₹${gapToL1.toLocaleString('en-IN')}`}
             </p>
           </div>
+          {myRank > 1 && !auctionComplete && (
+            <div className="text-xs text-destructive font-medium animate-pulse">
+              ⚠️ You are about to lose this order
+            </div>
+          )}
           {!auctionComplete && myRank > 1 && (
             <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-1" onClick={onReduceBid}>
               <Zap className="w-3.5 h-3.5" />
@@ -469,6 +474,9 @@ function BuyerAuctionView({
         <p className="text-sm text-muted-foreground">
           {DEMO_AUCTION.category} • {DEMO_AUCTION.quantity} {DEMO_AUCTION.unit} • {DEMO_AUCTION.currency}
         </p>
+        {!auctionComplete && (
+          <p className="text-xs text-muted-foreground">{sortedBids.length} suppliers actively competing</p>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {sortedBids.map((bid, idx) => (
