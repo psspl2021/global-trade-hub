@@ -49,7 +49,17 @@ interface AvailableAction {
   targetStatus: POExecutionStatus;
   variant: 'default' | 'outline' | 'destructive';
   confirmMessage: string;
+  requiresTransportDetails?: boolean;
 }
+
+export const DELIVERY_DELAY_REASONS = [
+  'Vehicle breakdown',
+  'Route delay',
+  'Weather issue',
+  'Supplier dispatch delay',
+  'Custom clearance delay',
+  'Other',
+];
 
 export function mapUserRoleToExecRole(role: string | null): ExecutionRole | null {
   if (!role) return null;
@@ -72,7 +82,7 @@ export function getAvailableActions(status: POExecutionStatus, execRole: Executi
     actions.push({ label: 'Accept Order', targetStatus: 'accepted', variant: 'default', confirmMessage: 'Accept this Purchase Order?' });
   }
   if (status === 'accepted' && (execRole === 'supplier' || execRole === 'transporter')) {
-    actions.push({ label: 'Mark In Transit', targetStatus: 'in_transit', variant: 'default', confirmMessage: 'Confirm shipment is in transit?' });
+    actions.push({ label: 'Mark In Transit', targetStatus: 'in_transit', variant: 'default', confirmMessage: 'Confirm shipment is in transit?', requiresTransportDetails: true });
   }
   if (status === 'in_transit' && (execRole === 'supplier' || execRole === 'transporter')) {
     actions.push({ label: 'Mark Delivered', targetStatus: 'delivered', variant: 'default', confirmMessage: 'Confirm delivery has been completed?' });
@@ -89,4 +99,17 @@ export function getAvailableActions(status: POExecutionStatus, execRole: Executi
 
 export function getStatusIndex(status: POExecutionStatus): number {
   return PO_STATUS_FLOW.indexOf(status);
+}
+
+export interface TransportDetails {
+  vehicle_number: string;
+  transporter_name: string;
+  driver_contact: string;
+}
+
+export function validateTransportDetails(data: Partial<TransportDetails>): string | null {
+  if (!data.vehicle_number?.trim()) return 'Vehicle number is required';
+  if (!data.transporter_name?.trim()) return 'Transporter company name is required';
+  if (!data.driver_contact?.trim()) return 'Driver contact number is required';
+  return null;
 }

@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft, FileText, AlertTriangle } from 'lucide-react';
 import { BuyerPurchasesList } from '@/components/crm/BuyerPurchasesList';
 import { BuyerPurchaseForm } from '@/components/crm/BuyerPurchaseForm';
 import { BuyerPurchaseViewer } from '@/components/crm/BuyerPurchaseViewer';
 import { PurchaseOrderExecutionCard } from './PurchaseOrderExecutionCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useCanCreatePO } from '@/hooks/useCanCreatePO';
 
 interface PurchaseOrdersPageProps {
   userId: string;
@@ -24,6 +25,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const [auctionPOs, setAuctionPOs] = useState<any[]>([]);
   const [manualPOs, setManualPOs] = useState<any[]>([]);
   const { role } = useUserRole(userId);
+  const { allowed: canCreatePO, blocking_po_id, blocking_po_title, message: blockMessage } = useCanCreatePO(userId);
 
   const loadData = useCallback(async () => {
     // Load auction-based POs (completed auctions with winners)
@@ -59,7 +61,11 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
 
   useEffect(() => { loadData(); }, [loadData, refreshKey]);
 
-  const handleCreatePurchase = () => { setEditPurchaseId(null); setPurchaseFormOpen(true); };
+  const handleCreatePurchase = () => {
+    if (!canCreatePO) return; // blocked by hook
+    setEditPurchaseId(null);
+    setPurchaseFormOpen(true);
+  };
   const handleEditPurchase = (id: string) => { setEditPurchaseId(id); setPurchaseFormOpen(true); };
   const handleViewPurchase = (id: string) => { setViewPurchaseId(id); setPurchaseViewerOpen(true); };
   const handleRefresh = () => setRefreshKey((k) => k + 1);
@@ -99,7 +105,22 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         <p className="text-sm text-muted-foreground">Track execution lifecycle for all procurement orders</p>
       </div>
 
-      {/* Execution Cards */}
+      {/* PO Creation Block Warning */}
+      {!canCreatePO && (
+        <Card className="border-destructive/50 bg-destructive/5 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-semibold text-sm text-destructive">Pending Order — New PO Blocked</p>
+              <p className="text-xs text-muted-foreground">{blockMessage}</p>
+              {blocking_po_title && (
+                <p className="text-xs font-mono text-muted-foreground">Order: {blocking_po_title}</p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
       {allPOs.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
