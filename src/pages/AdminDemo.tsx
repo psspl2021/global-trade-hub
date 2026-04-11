@@ -1,40 +1,30 @@
+import { lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
-import { DemoGuidedFlow } from '@/components/demo/DemoGuidedFlow';
-import { AccessDenied } from '@/components/purchaser/AccessDenied';
-import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+
+// Lazy load — demo code never ships to non-admin bundles
+const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow'));
 
 export default function AdminDemoPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
 
-  if (authLoading || roleLoading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </main>
-    );
-  }
+  // While resolving auth/role — render nothing (no UI hint)
+  if (authLoading || roleLoading) return null;
 
   const isAdmin = role === 'ps_admin' || role === 'admin';
 
-  if (!user || !isAdmin) {
-    return (
-      <main className="min-h-screen pt-20 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <AccessDenied variant="404" />
-        </div>
-      </main>
-    );
-  }
+  // Hard block — no redirect, no 404, no hint this route exists
+  if (!user || !isAdmin) return null;
 
   return (
-    <DemoGuidedFlow
-      onReset={() => undefined}
-      onExit={() => navigate('/admin')}
-    />
+    <Suspense fallback={null}>
+      <DemoGuidedFlow
+        onReset={() => undefined}
+        onExit={() => navigate('/admin')}
+      />
+    </Suspense>
   );
 }
