@@ -547,7 +547,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [showCTA, setShowCTA] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
   const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
-  const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
@@ -558,7 +557,11 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return prices;
   });
 
-  const { speak, stop, speaking, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
+  const { speak, pause: pauseVoice, resume: resumeVoice, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
+
+  const stopVoice = useCallback(() => {
+    stop();
+  }, [stop]);
 
   // ── CRITICAL: Stop speech on unmount / exit ──
   useEffect(() => {
@@ -566,22 +569,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       window.speechSynthesis?.cancel();
     };
   }, []);
-
-  // ── Voice control functions ──
-  const pauseVoice = useCallback(() => {
-    window.speechSynthesis?.pause();
-    setPaused(true);
-  }, []);
-
-  const resumeVoice = useCallback(() => {
-    window.speechSynthesis?.resume();
-    setPaused(false);
-  }, []);
-
-  const stopVoice = useCallback(() => {
-    stop();
-    setPaused(false);
-  }, [stop]);
 
   // ── Auto-scroll to highlighted section ──
   useEffect(() => {
