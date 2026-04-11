@@ -596,11 +596,11 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     pauseListenerAttached.current = true;
 
     const handleInteraction = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('[data-demo-controls]')) return;
+      const target = e.target as Element | null;
+      if (target && typeof target.closest === 'function' && target.closest('[data-demo-controls]')) return;
       setFullDemoRunning(false);
       setAutoPlay(false);
-      stop();
+      window.speechSynthesis?.cancel();
     };
 
     const opts = { once: true, capture: true };
@@ -833,33 +833,31 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
   const goToNextPhase = useCallback(() => {
     setHighlightSection(null);
-
-    if (phase === 'po_lifecycle') {
-      advancePO();
-      return;
-    }
-
     setPhase(prev => {
       if (prev === 'rfq') return 'invite';
       if (prev === 'invite') return 'auction';
       if (prev === 'auction') return auctionComplete ? 'po_lifecycle' : prev;
+      if (prev === 'po_lifecycle') {
+        advancePO();
+        return prev;
+      }
       return prev;
     });
-  }, [advancePO, auctionComplete, phase]);
+  }, [advancePO, auctionComplete]);
 
   const handleManualPhaseChange = useCallback((nextPhase: DemoPhase) => {
     setFullDemoRunning(false);
     setAutoPlay(false);
-    stop();
+    window.speechSynthesis?.cancel();
     goToPhase(nextPhase);
-  }, [goToPhase, stop]);
+  }, [goToPhase]);
 
   const handleNextStep = useCallback(() => {
     setFullDemoRunning(false);
     setAutoPlay(false);
-    stop();
+    window.speechSynthesis?.cancel();
     goToNextPhase();
-  }, [goToNextPhase, stop]);
+  }, [goToNextPhase]);
 
   const resetCurrentStep = useCallback(() => {
     stop();
