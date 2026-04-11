@@ -84,8 +84,8 @@ export const DEMO_NARRATION: NarrationEntry[] = [
   {
     step: 'loss_aversion',
     text: {
-      en: 'Without this system, you would have paid significantly more for the same order. Every manual negotiation leaves money on the table.',
-      hi: 'इस सिस्टम के बिना, आपको इसी ऑर्डर के लिए काफी ज़्यादा भुगतान करना पड़ता। हर मैन्युअल नेगोशिएशन में पैसा बर्बाद होता है।',
+      en: 'Without competitive bidding, buyers often pay significantly more for the same order. This difference directly impacts your margins.',
+      hi: 'कंपेटिटिव बिडिंग के बिना, बायर्स अक्सर उसी ऑर्डर के लिए ज्यादा कीमत देते हैं। यह फर्क सीधे आपके मार्जिन पर असर डालता है।',
     },
   },
   {
