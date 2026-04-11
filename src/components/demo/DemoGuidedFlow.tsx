@@ -751,7 +751,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setFullDemoRunning(false);
     setShowEntryScreen(true);
     setShowCTA(false);
-    setPaused(false);
     setTimeLeft(120);
     setActiveSuppliers([]);
     introSpoken.current = false;
@@ -776,7 +775,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setScenario(s);
     setShowEntryScreen(false);
     setPhase('rfq');
-    setPaused(false);
     introSpoken.current = true;
     speak('intro', () => {
       setTimeout(() => speak('rfq_start'), 400);
