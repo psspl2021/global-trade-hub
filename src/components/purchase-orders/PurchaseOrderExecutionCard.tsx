@@ -1,0 +1,105 @@
+import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { PurchaseOrderTimeline } from './PurchaseOrderTimeline';
+import { PurchaseOrderActions } from './PurchaseOrderActions';
+import {
+  PO_STATUS_LABELS,
+  PO_STATUS_COLORS,
+  type POExecutionStatus,
+} from '@/lib/po-execution-engine';
+import { cn } from '@/lib/utils';
+import { Clock } from 'lucide-react';
+
+interface PurchaseOrderExecutionCardProps {
+  po: {
+    id: string;
+    po_number: string;
+    vendor_name?: string;
+    supplier_company_name?: string;
+    title?: string;
+    total_amount?: number;
+    status: string;
+    winning_bid?: number;
+    quantity?: number;
+    currency?: string;
+  };
+  userId: string;
+  userRole: string | null;
+  onRefresh: () => void;
+}
+
+function formatAmount(amount: number, currency?: string) {
+  if (currency === 'INR' || !currency) {
+    return '₹' + amount.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+  }
+  return amount.toLocaleString('en-US', { style: 'currency', currency });
+}
+
+export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: PurchaseOrderExecutionCardProps) {
+  const [history, setHistory] = useState<any[]>([]);
+  const currentStatus = (po.status || 'draft') as POExecutionStatus;
+  const colors = PO_STATUS_COLORS[currentStatus] || PO_STATUS_COLORS.draft;
+
+  const displayName = po.vendor_name || po.supplier_company_name || '—';
+  const displayTitle = po.title || po.po_number;
+  const displayAmount = po.total_amount || (po.winning_bid && po.quantity ? po.winning_bid * po.quantity : 0);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from('po_status_history')
+        .select('*')
+        .eq('po_id', po.id)
+        .order('created_at', { ascending: true });
+      setHistory(data || []);
+    };
+    load();
+  }, [po.id, currentStatus]);
+
+  return (
+    <Card className="rounded-[0.625rem] overflow-hidden">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 border-b">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-muted-foreground">{po.po_number}</span>
+            <Badge variant="outline" className={cn('text-xs', colors.bg, colors.text, colors.border)}>
+              {PO_STATUS_LABELS[currentStatus]}
+            </Badge>
+          </div>
+          <p className="font-semibold text-sm truncate mt-0.5">{displayTitle}</p>
+          <p className="text-xs text-muted-foreground">{displayName}</p>
+        </div>
+        {displayAmount > 0 && (
+          <span className="text-lg font-bold whitespace-nowrap">
+            {formatAmount(displayAmount, po.currency)}
+          </span>
+        )}
+      </div>
+
+      {/* Timeline */}
+      <div className="px-4 pt-3 pb-1">
+        <PurchaseOrderTimeline currentStatus={currentStatus} />
+      </div>
+
+      {/* Actions */}
+      <div className="px-4 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <PurchaseOrderActions
+          poId={po.id}
+          currentStatus={currentStatus}
+          userId={userId}
+          userRole={userRole}
+          onStatusChange={onRefresh}
+        />
+        {history.length > 0 && (
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Clock className="w-3 h-3" />
+            Last: {new Date(history[history.length - 1].created_at).toLocaleDateString()}
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
