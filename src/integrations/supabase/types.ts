@@ -5495,6 +5495,8 @@ export type Database = {
           created_by: string | null
           currency: string | null
           delivery_address: string | null
+          delivery_delay_notes: string | null
+          delivery_delay_reason: string | null
           delivery_due_date: string | null
           discount_amount: number
           discount_percent: number | null
@@ -5506,6 +5508,9 @@ export type Database = {
           notes: string | null
           order_date: string
           original_po_value: number | null
+          payment_confirmed_at: string | null
+          payment_mode: string | null
+          payment_proof_url: string | null
           po_number: string
           po_status: string | null
           po_value: number | null
@@ -5517,6 +5522,7 @@ export type Database = {
           tax_rate: number | null
           terms_and_conditions: string | null
           total_amount: number
+          transport_source: string | null
           transporter_name: string | null
           updated_at: string
           value_locked_at: string | null
@@ -5533,6 +5539,8 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           delivery_address?: string | null
+          delivery_delay_notes?: string | null
+          delivery_delay_reason?: string | null
           delivery_due_date?: string | null
           discount_amount?: number
           discount_percent?: number | null
@@ -5544,6 +5552,9 @@ export type Database = {
           notes?: string | null
           order_date?: string
           original_po_value?: number | null
+          payment_confirmed_at?: string | null
+          payment_mode?: string | null
+          payment_proof_url?: string | null
           po_number: string
           po_status?: string | null
           po_value?: number | null
@@ -5555,6 +5566,7 @@ export type Database = {
           tax_rate?: number | null
           terms_and_conditions?: string | null
           total_amount?: number
+          transport_source?: string | null
           transporter_name?: string | null
           updated_at?: string
           value_locked_at?: string | null
@@ -5571,6 +5583,8 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           delivery_address?: string | null
+          delivery_delay_notes?: string | null
+          delivery_delay_reason?: string | null
           delivery_due_date?: string | null
           discount_amount?: number
           discount_percent?: number | null
@@ -5582,6 +5596,9 @@ export type Database = {
           notes?: string | null
           order_date?: string
           original_po_value?: number | null
+          payment_confirmed_at?: string | null
+          payment_mode?: string | null
+          payment_proof_url?: string | null
           po_number?: string
           po_status?: string | null
           po_value?: number | null
@@ -5593,6 +5610,7 @@ export type Database = {
           tax_rate?: number | null
           terms_and_conditions?: string | null
           total_amount?: number
+          transport_source?: string | null
           transporter_name?: string | null
           updated_at?: string
           value_locked_at?: string | null
@@ -11222,6 +11240,24 @@ export type Database = {
               p_new_status: string
               p_notes?: string
               p_po_id: string
+              p_transporter_name?: string
+              p_user_id: string
+              p_user_role: string
+              p_vehicle_number?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_delivery_delay_notes?: string
+              p_delivery_delay_reason?: string
+              p_driver_contact?: string
+              p_new_status: string
+              p_notes?: string
+              p_payment_mode?: string
+              p_payment_proof_url?: string
+              p_po_id: string
+              p_transport_source?: string
               p_transporter_name?: string
               p_user_id: string
               p_user_role: string
