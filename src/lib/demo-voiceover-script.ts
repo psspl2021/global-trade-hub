@@ -15,11 +15,16 @@ export type DemoNarrationStep =
   | 'po_delivered'
   | 'po_payment'
   | 'po_closed'
-  | 'outro';
+  | 'outro'
+  | 'cta';
+
+export type DemoScenario = 'full' | 'buyer' | 'supplier';
 
 export interface NarrationEntry {
   step: DemoNarrationStep;
-  text: Record<string, string>; // keyed by language code
+  text: Record<string, string>;
+  buyerText?: Record<string, string>;
+  supplierText?: Record<string, string>;
 }
 
 export const DEMO_NARRATION: NarrationEntry[] = [
