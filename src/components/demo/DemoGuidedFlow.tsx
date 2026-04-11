@@ -560,11 +560,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
 
-  const [skuPrices] = useState<Record<string, number>>(() => {
-    const prices: Record<string, number> = {};
-    DEMO_SKUS.forEach(s => { prices[s.id] = s.basePrice - Math.floor(Math.random() * 300); });
-    return prices;
-  });
+  // Voice preload (Safari/Chrome lazy voice loading fix)
+  useEffect(() => { window.speechSynthesis?.getVoices(); }, []);
 
   const { speak, pause: pauseVoice, resume: resumeVoice, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
 
@@ -1032,7 +1029,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 gap-1"
+                className="h-8 gap-1 active:scale-95 transition"
                 onClick={() => {
                   setFullDemoRunning(true);
                   setAutoPlay(true);
@@ -1044,8 +1041,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 gap-1"
+                className="h-8 gap-1 active:scale-95 transition"
+                disabled={!canGoNext}
                 onClick={() => {
+                  setHighlightSection(null);
                   if (phase === 'rfq') {
                     speak('rfq_structured', () => { speak('supplier_invite'); setPhase('invite'); });
                   } else if (phase === 'invite') {
@@ -1056,7 +1055,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     advancePO();
                   }
                 }}
-                disabled={phase === 'auction' && !auctionComplete || poStatus === 'closed'}
               >
                 <SkipForward className="w-3.5 h-3.5" />
                 Next Step
@@ -1067,7 +1065,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <Button
               variant="secondary"
               size="sm"
-              className="ml-auto gap-1"
+              className="ml-auto gap-1 active:scale-95 transition"
               data-demo-controls
               onClick={() => { setFullDemoRunning(false); setAutoPlay(false); stop(); }}
             >
