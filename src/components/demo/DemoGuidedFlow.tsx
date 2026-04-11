@@ -50,6 +50,12 @@ const DEMO_SKUS = [
   { id: 'sku-3', name: 'TMT Fe500 — 20mm', qty: 120, unit: 'MT', basePrice: 51000 },
 ];
 
+// Total order value = sum of (qty × unit_price_for_sku) where each SKU price is proportional to bid
+const calcTotalOrderValue = (unitPrice: number) =>
+  DEMO_SKUS.reduce((sum, sku) => sum + sku.qty * Math.round(unitPrice * (sku.basePrice / BASELINE_PRICE)), 0);
+
+const BASELINE_TOTAL = calcTotalOrderValue(BASELINE_PRICE); // ≈ ₹2.58 Cr
+
 const DEMO_RFQ = {
   id: 'RFQ-2026-001',
   buyerName: 'ABC Infra Pvt Ltd',
@@ -326,7 +332,9 @@ function SupplierAuctionView({
   const myBid = bids.find(b => b.supplierId === 'demo-sup-2');
   const myRank = sortedBids.findIndex(b => b.supplierId === 'demo-sup-2') + 1;
   const l1Price = sortedBids[0]?.price || 0;
-  const gapToL1 = myBid ? myBid.price - l1Price : 0;
+  const myTotal = myBid ? calcTotalOrderValue(myBid.price) : 0;
+  const l1Total = calcTotalOrderValue(l1Price);
+  const gapToL1 = myTotal - l1Total;
 
   return (
     <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-950/20 dark:border-blue-800">
@@ -351,7 +359,7 @@ function SupplierAuctionView({
           <div className="flex-1">
             <p className="text-sm font-medium">Your Rank: {myRank === 1 ? 'L1 🏆' : myRank === 2 ? 'L2' : 'L3'}</p>
             <p className="text-xs text-muted-foreground">
-              Your Bid: ₹{myBid?.price.toLocaleString('en-IN')}/MT
+              Your Total: ₹{myTotal.toLocaleString('en-IN')}
               {myRank > 1 && ` • Gap to L1: ₹${gapToL1.toLocaleString('en-IN')}`}
             </p>
           </div>
@@ -370,22 +378,23 @@ function SupplierAuctionView({
 
         {/* SKU-level pricing */}
         <div className="border rounded-lg overflow-hidden">
-          <div className="grid grid-cols-4 gap-px bg-border text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-5 gap-px bg-border text-xs font-medium text-muted-foreground">
             <div className="bg-muted p-2">SKU</div>
             <div className="bg-muted p-2 text-right">Qty</div>
-            <div className="bg-muted p-2 text-right">Your Price</div>
-            <div className="bg-muted p-2 text-right">L1 Price</div>
+            <div className="bg-muted p-2 text-right">Your Rate</div>
+            <div className="bg-muted p-2 text-right">Your Total</div>
+            <div className="bg-muted p-2 text-right">L1 Total</div>
           </div>
           {DEMO_SKUS.map(sku => {
-            // Derive SKU price proportionally from actual bid price
             const mySkuPrice = myBid ? Math.round(myBid.price * (sku.basePrice / BASELINE_PRICE)) : sku.basePrice;
             const l1SkuPrice = Math.round(l1Price * (sku.basePrice / BASELINE_PRICE));
             return (
-              <div key={sku.id} className="grid grid-cols-4 gap-px bg-border text-sm">
+              <div key={sku.id} className="grid grid-cols-5 gap-px bg-border text-sm">
                 <div className="bg-background p-2">{sku.name}</div>
                 <div className="bg-background p-2 text-right tabular-nums">{sku.qty}</div>
-                <div className="bg-background p-2 text-right tabular-nums font-medium">₹{mySkuPrice.toLocaleString('en-IN')}</div>
-                <div className="bg-background p-2 text-right tabular-nums text-primary">₹{l1SkuPrice.toLocaleString('en-IN')}</div>
+                <div className="bg-background p-2 text-right tabular-nums">₹{mySkuPrice.toLocaleString('en-IN')}</div>
+                <div className="bg-background p-2 text-right tabular-nums font-medium">₹{(mySkuPrice * sku.qty).toLocaleString('en-IN')}</div>
+                <div className="bg-background p-2 text-right tabular-nums text-primary">₹{(l1SkuPrice * sku.qty).toLocaleString('en-IN')}</div>
               </div>
             );
           })}
@@ -394,8 +403,8 @@ function SupplierAuctionView({
         {/* Suggested next bid */}
         {!auctionComplete && myRank > 1 && (
           <div className="text-xs text-muted-foreground p-2 bg-muted/50 rounded border border-border">
-            🤖 Suggested next bid: <span className="font-semibold text-foreground">₹{(l1Price - 50).toLocaleString('en-IN')}/MT</span>
-            <span className="ml-1 text-muted-foreground/70">— just ₹50 below current L1</span>
+            🤖 Suggested total bid: <span className="font-semibold text-foreground">₹{calcTotalOrderValue(l1Price - 50).toLocaleString('en-IN')}</span>
+            <span className="ml-1 text-muted-foreground/70">— beat L1 by ₹50/MT</span>
           </div>
         )}
 
@@ -419,7 +428,10 @@ function SupplierAuctionView({
                   {bid.supplierId === 'demo-sup-2' ? `${bid.supplierName} (You)` : bid.supplierName}
                 </span>
               </div>
-              <span className="text-sm font-bold tabular-nums">₹{bid.price.toLocaleString('en-IN')}</span>
+              <div className="text-right">
+                <span className="text-sm font-bold tabular-nums">₹{calcTotalOrderValue(bid.price).toLocaleString('en-IN')}</span>
+                <p className="text-[10px] text-muted-foreground">₹{bid.price.toLocaleString('en-IN')}/MT</p>
+              </div>
             </div>
           ))}
         </div>
@@ -497,9 +509,9 @@ function BuyerAuctionView({
             </div>
             <div className="text-right">
               <p className={`font-bold text-lg tabular-nums ${idx === 0 ? 'text-primary' : 'text-foreground'}`}>
-                ₹{bid.price.toLocaleString('en-IN')}
+                ₹{calcTotalOrderValue(bid.price).toLocaleString('en-IN')}
               </p>
-              <p className="text-xs text-muted-foreground">per MT</p>
+              <p className="text-xs text-muted-foreground">₹{bid.price.toLocaleString('en-IN')}/MT</p>
             </div>
           </div>
         ))}
@@ -507,12 +519,10 @@ function BuyerAuctionView({
         {auctionComplete && (
           <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center space-y-3">
             <p className="text-sm font-semibold text-primary">🏆 Winner: {lowestBid.supplierName}</p>
-            <p className="text-lg font-bold">₹{lowestBid.price.toLocaleString('en-IN')} / MT</p>
+            <p className="text-lg font-bold">₹{calcTotalOrderValue(lowestBid.price).toLocaleString('en-IN')}</p>
+            <p className="text-xs text-muted-foreground">₹{lowestBid.price.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT</p>
             <p className="text-sm font-medium text-green-600">
-              ₹{((BASELINE_PRICE - lowestBid.price) * DEMO_AUCTION.quantity).toLocaleString('en-IN')} saved in 90 seconds
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Total: ₹{(lowestBid.price * DEMO_AUCTION.quantity).toLocaleString('en-IN')}
+              ₹{(BASELINE_TOTAL - calcTotalOrderValue(lowestBid.price)).toLocaleString('en-IN')} saved in 90 seconds
             </p>
             <p className="text-xs text-muted-foreground italic">This is what competitive bidding actually looks like.</p>
             <p className="text-xs text-muted-foreground mt-1">Same suppliers. Different outcome — because of competition.</p>
@@ -834,9 +844,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const progressPct = ((currentStatusIdx) / (allStatuses.length - 1)) * 100;
   const isDeepMode = demoDepth === 'deep';
 
+  const l1Total = calcTotalOrderValue(lowestBid.price);
+  const totalSavings = BASELINE_TOTAL - l1Total;
+  const savingsPercent = ((totalSavings / BASELINE_TOTAL) * 100);
   const savingsPerMT = BASELINE_PRICE - lowestBid.price;
-  const totalSavings = savingsPerMT * DEMO_AUCTION.quantity;
-  const savingsPercent = ((savingsPerMT / BASELINE_PRICE) * 100);
 
   const highlightClass = (section: string) =>
     highlightSection === section
