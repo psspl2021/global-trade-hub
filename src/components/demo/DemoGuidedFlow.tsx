@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, SkipForward } from 'lucide-react';
+import { Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
+import { poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
+import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
 import { DemoBanner } from './DemoBanner';
 
 interface DemoGuidedFlowProps {
@@ -31,7 +33,40 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [poStatus, setPOStatus] = useState<DemoPOStatus>('draft');
   const [autoPlay, setAutoPlay] = useState(false);
   const [bidRound, setBidRound] = useState(0);
+  const [fullDemoRunning, setFullDemoRunning] = useState(false);
+  const [highlightSection, setHighlightSection] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const introSpoken = useRef(false);
+
+  const { speak, stop, speaking, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover('en');
+
+  // Speak intro on mount (once)
+  useEffect(() => {
+    if (!introSpoken.current) {
+      introSpoken.current = true;
+      const t = setTimeout(() => speak('intro', () => speak('auction_live')), 600);
+      return () => clearTimeout(t);
+    }
+  }, [speak]);
+
+  // Highlight sync with narration
+  useEffect(() => {
+    if (!currentStep) { setHighlightSection(null); return; }
+    const map: Record<string, string> = {
+      intro: 'auction-card',
+      auction_live: 'auction-card',
+      auction_complete: 'auction-card',
+      po_start: 'po-card',
+      po_sent: 'po-timeline',
+      po_accepted: 'po-timeline',
+      po_in_transit: 'po-timeline',
+      po_delivered: 'po-timeline',
+      po_payment: 'po-timeline',
+      po_closed: 'po-timeline',
+      outro: 'po-card',
+    };
+    setHighlightSection(map[currentStep] || null);
+  }, [currentStep]);
 
   // Live bid simulation
   useEffect(() => {
@@ -55,12 +90,18 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => clearInterval(interval);
   }, [phase, auctionComplete]);
 
+  // Narrate auction completion
+  useEffect(() => {
+    if (auctionComplete) {
+      speak('auction_complete');
+    }
+  }, [auctionComplete, speak]);
+
   // Auto-play PO lifecycle
   useEffect(() => {
     if (phase !== 'po_lifecycle' || !autoPlay) return;
     const currentIdx = DEMO_TIMELINE_STEPS.findIndex(s => s.status === poStatus);
     if (currentIdx < 0) {
-      // Start from first step
       const firstStep = DEMO_TIMELINE_STEPS[0];
       timerRef.current = setTimeout(() => setPOStatus(firstStep.status), firstStep.delayMs);
     } else if (currentIdx < DEMO_TIMELINE_STEPS.length - 1) {
@@ -72,17 +113,34 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [phase, autoPlay, poStatus]);
 
+  // Narrate PO status changes
+  useEffect(() => {
+    const narrationStep = poStatusToNarrationStep(poStatus);
+    if (narrationStep && phase === 'po_lifecycle') {
+      speak(narrationStep);
+    }
+  }, [poStatus, phase, speak]);
+
+  // Narrate outro when PO closes
+  useEffect(() => {
+    if (poStatus === 'closed' && phase === 'po_lifecycle') {
+      const t = setTimeout(() => speak('outro'), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [poStatus, phase, speak]);
+
   const handleReset = useCallback(() => {
+    stop();
     setBids(DEMO_AUCTION.initialBids);
     setAuctionComplete(false);
     setPOStatus('draft');
     setAutoPlay(false);
     setBidRound(0);
     setPhase('auction');
+    setFullDemoRunning(false);
+    introSpoken.current = false;
     onReset();
-  }, [onReset]);
-
-  const [fullDemoRunning, setFullDemoRunning] = useState(false);
+  }, [onReset, stop]);
 
   const advancePO = () => {
     const currentIdx = DEMO_TIMELINE_STEPS.findIndex(s => s.status === poStatus);
@@ -94,10 +152,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
   const runFullDemo = useCallback(() => {
     setFullDemoRunning(true);
-    // Let auction finish naturally, then auto-play PO
   }, []);
 
-  // When auction completes during full demo, auto-switch to PO + auto-play
+  // Full demo: auto-switch to PO after auction
   useEffect(() => {
     if (fullDemoRunning && auctionComplete && phase === 'auction') {
       setTimeout(() => {
@@ -107,7 +164,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     }
   }, [fullDemoRunning, auctionComplete, phase]);
 
-  // Stop full demo when PO is closed
   useEffect(() => {
     if (fullDemoRunning && poStatus === 'closed') {
       setFullDemoRunning(false);
@@ -120,12 +176,17 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const currentStatusIdx = allStatuses.indexOf(poStatus);
   const progressPct = ((currentStatusIdx) / (allStatuses.length - 1)) * 100;
 
+  const highlightClass = (section: string) =>
+    highlightSection === section
+      ? 'ring-2 ring-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)] transition-shadow duration-500'
+      : 'transition-shadow duration-500';
+
   return (
     <div className="min-h-screen bg-background">
       <DemoBanner onReset={handleReset} onExit={onExit} />
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
-        {/* Phase tabs + Run Full Demo */}
+        {/* Phase tabs + controls */}
         <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant={phase === 'auction' ? 'default' : 'outline'}
@@ -137,11 +198,24 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           <Button
             variant={phase === 'po_lifecycle' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => { setPhase('po_lifecycle'); }}
+            onClick={() => setPhase('po_lifecycle')}
             disabled={!auctionComplete}
           >
             📦 PO Lifecycle
           </Button>
+
+          {/* Voice toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleVoice}
+            className="gap-1"
+            title={voiceEnabled ? 'Mute voiceover' : 'Enable voiceover'}
+          >
+            {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            {speaking && <span className="text-xs text-primary animate-pulse">●</span>}
+          </Button>
+
           {!fullDemoRunning && phase === 'auction' && !auctionComplete && (
             <Button
               variant="secondary"
@@ -155,10 +229,23 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           )}
         </div>
 
+        {/* Narration subtitle bar */}
+        {speaking && currentStep && (
+          <div className="bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-sm text-foreground/80 animate-in fade-in slide-in-from-top-2 duration-300">
+            <span className="text-primary mr-2">🎤</span>
+            {(() => {
+              const { DEMO_NARRATION } = require('@/lib/demo-voiceover-script');
+              const entry = DEMO_NARRATION.find((n: any) => n.step === currentStep);
+              const text = entry?.text?.['en'] || '';
+              return text.length > 120 ? text.slice(0, 120) + '…' : text;
+            })()}
+          </div>
+        )}
+
         {/* ── AUCTION PHASE ── */}
         {phase === 'auction' && (
           <div className="space-y-4">
-            <Card>
+            <Card className={highlightClass('auction-card')}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{DEMO_AUCTION.title}</CardTitle>
@@ -225,7 +312,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
         {/* ── PO LIFECYCLE PHASE ── */}
         {phase === 'po_lifecycle' && (
           <div className="space-y-4">
-            <Card>
+            <Card className={highlightClass('po-card')}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{DEMO_PO.poNumber}</CardTitle>
@@ -259,7 +346,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 <Progress value={progressPct} className="h-2" />
 
                 {/* Timeline */}
-                <div className="space-y-2">
+                <div className={`space-y-2 ${highlightClass('po-timeline')}`}>
                   {allStatuses.map((status, idx) => {
                     const isCompleted = idx <= currentStatusIdx;
                     const isCurrent = idx === currentStatusIdx;
@@ -310,6 +397,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
           </div>
         )}
       </div>
+
       {/* Demo watermark */}
       <div className="fixed bottom-2 right-2 text-xs text-muted-foreground/60 pointer-events-none select-none z-50">
         Demo Environment — No Real Transactions
