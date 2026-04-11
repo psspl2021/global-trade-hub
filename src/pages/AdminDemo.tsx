@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 
 // Lazy load — demo code never ships to non-admin bundles
-const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow'));
+const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow').then(m => ({ default: m.DemoGuidedFlow })));
 
 export default function AdminDemoPage() {
   const navigate = useNavigate();
