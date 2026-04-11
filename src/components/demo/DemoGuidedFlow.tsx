@@ -1469,8 +1469,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 </div>
               </div>
             )}
-              </CardContent>
-            </Card>
+
+
 
             {/* CTA EXIT HOOK */}
             {showCTA && (
