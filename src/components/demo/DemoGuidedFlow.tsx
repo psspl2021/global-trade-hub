@@ -545,8 +545,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [language, setLanguage] = useState('en');
   const [demoDepth, setDemoDepth] = useState<DemoDepth>('deep');
   const [showCTA, setShowCTA] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
+  const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
   const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const introSpoken = useRef(false);
