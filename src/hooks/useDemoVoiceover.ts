@@ -23,8 +23,10 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
     if (!text) return;
 
     const synthesis = window.speechSynthesis;
-    // Cancel any previous speech before starting new
-    synthesis.cancel();
+    // Only cancel if actively speaking (not paused) — prevents overlap
+    if (synthesis.speaking && !synthesis.paused) {
+      synthesis.cancel();
+    }
     // Chrome bug: after cancel, synthesis can get stuck in paused state
     synthesis.resume();
 

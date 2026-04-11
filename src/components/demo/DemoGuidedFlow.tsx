@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, Square,
   SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap, Bot,
-  FileText, Users, Mail, Send
+  FileText, Users, Mail, Send, RotateCcw
 } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
 import { getNarrationText, poStatusToNarrationStep, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
@@ -786,6 +786,24 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     }
   };
 
+  const resetCurrentStep = useCallback(() => {
+    stop();
+    setFullDemoRunning(false);
+    setAutoPlay(false);
+    setHighlightSection(null);
+    if (phase === 'auction' || phase === 'invite') {
+      setBids(DEMO_AUCTION.initialBids);
+      setAuctionComplete(false);
+      setBidRound(0);
+      setTimeLeft(120);
+      setActiveSuppliers([]);
+    }
+    if (phase === 'po_lifecycle') {
+      setPOStatus('draft');
+      setShowCTA(false);
+    }
+  }, [phase, stop]);
+
   const startDemo = useCallback((s: EntryScenario) => {
     setScenario(s);
     setShowEntryScreen(false);
@@ -1051,13 +1069,16 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 className="h-8 gap-1 active:scale-95 transition"
                 disabled={!canGoNext}
                 onClick={() => {
+                  // ⛔ Stop autoplay first — manual always overrides
+                  setFullDemoRunning(false);
+                  setAutoPlay(false);
                   setHighlightSection(null);
                   if (phase === 'rfq') {
                     speak('rfq_structured', () => { speak('supplier_invite'); setPhase('invite'); });
                   } else if (phase === 'invite') {
                     speak('auction_live'); setPhase('auction');
                   } else if (phase === 'auction' && auctionComplete) {
-                    setPhase('po_lifecycle'); setAutoPlay(true);
+                    setPhase('po_lifecycle');
                   } else if (phase === 'po_lifecycle') {
                     advancePO();
                   }
@@ -1065,6 +1086,16 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               >
                 <SkipForward className="w-3.5 h-3.5" />
                 Next Step
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1 active:scale-95 transition text-muted-foreground"
+                onClick={resetCurrentStep}
+                title="Reset current phase without restarting the whole demo"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset Step
               </Button>
             </div>
           )}
