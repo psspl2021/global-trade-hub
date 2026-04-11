@@ -11,7 +11,7 @@ import {
   FileText, Users, Mail, Send
 } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
-import { getNarrationText, poStatusToNarrationStep } from '@/lib/demo-voiceover-script';
+import { getNarrationText, poStatusToNarrationStep, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
 import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
 import { DemoBanner } from './DemoBanner';
 
@@ -997,8 +997,14 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </Button>
             ) : (
               <Button variant="ghost" size="sm" onClick={() => {
-                if (paused) { resumeVoice(); }
-                else if (!speaking) { speak(currentStep || 'intro'); }
+                // Phase-aware play: speak the right narration for current phase
+                const phaseNarration: Record<string, DemoNarrationStep> = {
+                  rfq: 'rfq_start',
+                  invite: 'supplier_invite',
+                  auction: auctionComplete ? 'auction_complete' : 'auction_live',
+                  po_lifecycle: poStatusToNarrationStep(poStatus) || 'po_start',
+                };
+                speak(phaseNarration[phase] || 'intro');
               }} className="h-7 w-7 p-0" title="Play voiceover">
                 <Play className="w-3.5 h-3.5" />
               </Button>
@@ -1020,15 +1026,53 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             {speaking && <span className="text-xs text-primary animate-pulse">●</span>}
           </div>
 
-          {!fullDemoRunning && phase === 'auction' && !auctionComplete && (
+          {/* Auto-play & Next Step — always visible (not just PO) */}
+          {!fullDemoRunning && (
+            <div className="flex items-center gap-1 ml-auto" data-demo-controls>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1"
+                onClick={() => {
+                  setFullDemoRunning(true);
+                  setAutoPlay(true);
+                }}
+              >
+                <Play className="w-3.5 h-3.5" />
+                Auto-Play
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1"
+                onClick={() => {
+                  if (phase === 'rfq') {
+                    speak('rfq_structured', () => { speak('supplier_invite'); setPhase('invite'); });
+                  } else if (phase === 'invite') {
+                    speak('auction_live'); setPhase('auction');
+                  } else if (phase === 'auction' && auctionComplete) {
+                    setPhase('po_lifecycle'); setAutoPlay(true);
+                  } else if (phase === 'po_lifecycle') {
+                    advancePO();
+                  }
+                }}
+                disabled={phase === 'auction' && !auctionComplete || poStatus === 'closed'}
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+                Next Step
+              </Button>
+            </div>
+          )}
+          {fullDemoRunning && (
             <Button
               variant="secondary"
               size="sm"
               className="ml-auto gap-1"
-              onClick={() => setFullDemoRunning(true)}
+              data-demo-controls
+              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); stop(); }}
             >
-              <Play className="w-3.5 h-3.5" />
-              Run Full Demo
+              <Pause className="w-3.5 h-3.5" />
+              Stop Auto-Play
             </Button>
           )}
         </div>
@@ -1187,18 +1231,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       {DEMO_RFQ.buyerName} • {DEMO_RFQ.location} • Delivery: {DEMO_RFQ.deliveryDays} days
                     </p>
                   </div>
-                  <div className="flex items-center gap-2" data-demo-controls>
-                    <Button variant="outline" size="sm" onClick={() => setAutoPlay(p => !p)} className="h-8 gap-1">
-                      {autoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                      {autoPlay ? 'Pause' : 'Auto-Play'}
-                    </Button>
-                    {!autoPlay && (
-                      <Button variant="outline" size="sm" onClick={advancePO} className="h-8 gap-1" disabled={poStatus === 'closed'}>
-                        <SkipForward className="w-3.5 h-3.5" />
-                        Next Step
-                      </Button>
-                    )}
-                  </div>
+                  <Badge variant={poStatus === 'closed' ? 'secondary' : 'default'}>
+                    {poStatus === 'closed' ? '✅ Closed' : `📦 ${poStatus.replace('_', ' ').toUpperCase()}`}
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">{DEMO_PO.title} • {DEMO_PO.supplierName}</p>
               </CardHeader>
