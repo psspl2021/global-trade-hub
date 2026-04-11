@@ -997,8 +997,14 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </Button>
             ) : (
               <Button variant="ghost" size="sm" onClick={() => {
-                if (paused) { resumeVoice(); }
-                else if (!speaking) { speak(currentStep || 'intro'); }
+                // Phase-aware play: speak the right narration for current phase
+                const phaseNarration: Record<string, DemoNarrationStep> = {
+                  rfq: 'rfq_start',
+                  invite: 'supplier_invite',
+                  auction: auctionComplete ? 'auction_complete' : 'auction_live',
+                  po_lifecycle: poStatusToNarrationStep(poStatus) || 'po_start',
+                };
+                speak(phaseNarration[phase] || 'intro');
               }} className="h-7 w-7 p-0" title="Play voiceover">
                 <Play className="w-3.5 h-3.5" />
               </Button>
@@ -1020,15 +1026,53 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             {speaking && <span className="text-xs text-primary animate-pulse">●</span>}
           </div>
 
-          {!fullDemoRunning && phase === 'auction' && !auctionComplete && (
+          {/* Auto-play & Next Step — always visible (not just PO) */}
+          {!fullDemoRunning && (
+            <div className="flex items-center gap-1 ml-auto" data-demo-controls>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1"
+                onClick={() => {
+                  setFullDemoRunning(true);
+                  setAutoPlay(true);
+                }}
+              >
+                <Play className="w-3.5 h-3.5" />
+                Auto-Play
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1"
+                onClick={() => {
+                  if (phase === 'rfq') {
+                    speak('rfq_structured', () => { speak('supplier_invite'); setPhase('invite'); });
+                  } else if (phase === 'invite') {
+                    speak('auction_live'); setPhase('auction');
+                  } else if (phase === 'auction' && auctionComplete) {
+                    setPhase('po_lifecycle'); setAutoPlay(true);
+                  } else if (phase === 'po_lifecycle') {
+                    advancePO();
+                  }
+                }}
+                disabled={phase === 'auction' && !auctionComplete || poStatus === 'closed'}
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+                Next Step
+              </Button>
+            </div>
+          )}
+          {fullDemoRunning && (
             <Button
               variant="secondary"
               size="sm"
               className="ml-auto gap-1"
-              onClick={() => setFullDemoRunning(true)}
+              data-demo-controls
+              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); stop(); }}
             >
-              <Play className="w-3.5 h-3.5" />
-              Run Full Demo
+              <Pause className="w-3.5 h-3.5" />
+              Stop Auto-Play
             </Button>
           )}
         </div>
