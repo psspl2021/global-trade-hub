@@ -61,7 +61,11 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
 
   useEffect(() => { loadData(); }, [loadData, refreshKey]);
 
-  const handleCreatePurchase = () => { setEditPurchaseId(null); setPurchaseFormOpen(true); };
+  const handleCreatePurchase = () => {
+    if (!canCreatePO) return; // blocked by hook
+    setEditPurchaseId(null);
+    setPurchaseFormOpen(true);
+  };
   const handleEditPurchase = (id: string) => { setEditPurchaseId(id); setPurchaseFormOpen(true); };
   const handleViewPurchase = (id: string) => { setViewPurchaseId(id); setPurchaseViewerOpen(true); };
   const handleRefresh = () => setRefreshKey((k) => k + 1);
