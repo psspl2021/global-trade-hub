@@ -7,6 +7,7 @@ export type DemoNarrationStep =
   | 'intro'
   | 'auction_live'
   | 'auction_complete'
+  | 'savings'
   | 'po_start'
   | 'po_sent'
   | 'po_accepted'
