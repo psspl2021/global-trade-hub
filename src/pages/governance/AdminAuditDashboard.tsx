@@ -752,7 +752,8 @@ export default function AdminAuditDashboard() {
       <PartnerDocumentVerification open={showPartnerDocs} onOpenChange={setShowPartnerDocs} adminId={user?.id || ''} />
       <PremiumBidsManager open={showPremiumBids} onOpenChange={setShowPremiumBids} adminId={user?.id || ''} />
     </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
