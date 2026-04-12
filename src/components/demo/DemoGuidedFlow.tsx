@@ -1204,7 +1204,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                         <p className="text-sm font-bold text-foreground tabular-nums">₹{savingsPerMT.toLocaleString('en-IN')}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Annual Impact (Typical mid-size company)</p>
+                        <p className="text-xs text-muted-foreground">Annual Impact (Typical mid-size company procurement spend)</p>
                         <p className="text-lg font-extrabold text-green-700 dark:text-green-400 tabular-nums">₹{(savingsPerMT * 12000).toLocaleString('en-IN')}</p>
                       </div>
                     </div>
@@ -1312,7 +1312,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   <p className="text-xs text-muted-foreground">This is your procurement operating system — not just an auction tool.</p>
                 </div>
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm text-primary font-medium">
-                  Every action is controlled, recorded, and enforceable — no step can be skipped or manipulated.
+                  Every action is controlled, recorded, and fully auditable — no step can be skipped or manipulated.
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {/* 📦 Order Execution Control */}
@@ -1413,16 +1413,20 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
             {/* Trust line */}
             <p className="text-xs text-muted-foreground text-center">
-              No new suppliers added — only your existing suppliers competing for your order.
+              No new suppliers added — only your existing, approved suppliers competing.
             </p>
 
 
 
             {/* Psychological killer before CTA */}
             {showCTA && (
-              <p className="text-center text-sm text-muted-foreground mt-4">
-                Same suppliers. Same requirement. The only difference is — competition.
-              </p>
+              <div className="text-center text-sm text-muted-foreground mt-4 leading-relaxed">
+                Same suppliers.<br/>
+                Same requirement.<br/>
+                <span className="font-semibold text-foreground">
+                  The only difference is — competition.
+                </span>
+              </div>
             )}
 
             {/* CTA EXIT HOOK */}
@@ -1439,6 +1443,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 </p>
                 <p className="text-lg font-bold text-green-400 tabular-nums">
                   Your estimated annual saving: ₹{(savingsPerMT * 12000).toLocaleString('en-IN')}
+                </p>
+                <p className="text-xs text-background/50 mt-3">
+                  No change in your supplier network. No disruption to your current process.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                   <Button
