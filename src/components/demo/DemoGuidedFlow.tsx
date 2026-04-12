@@ -1084,6 +1084,19 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
         {/* ── RFQ PHASE ── */}
         {phase === 'rfq' && (
           <div id="rfq-card" className={`space-y-4 ${highlightClass('rfq-card')}`}>
+            {/* Business Problem Opener */}
+            <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
+              <p className="font-semibold text-destructive text-sm">Why most companies overpay in procurement</p>
+              <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                <li>• Limited supplier competition on each order</li>
+                <li>• Manual negotiation with no price transparency</li>
+                <li>• No real-time benchmarking against market rates</li>
+                <li>• No auditable trail of pricing decisions</li>
+              </ul>
+              <p className="mt-3 text-sm font-semibold text-destructive">
+                Result → 8–15% higher procurement cost annually
+              </p>
+            </div>
             <DemoRFQStep scenario={scenario} onComplete={handleNextStep} />
           </div>
         )}
@@ -1167,27 +1180,41 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </div>
             )}
 
-            {/* Savings Card */}
+            {/* Savings Card + ROI Block */}
             {auctionComplete && (
               <Card id="savings-card" className={`border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800 ${highlightClass('savings-card')}`}>
                 <CardContent className="pt-6 space-y-3">
                   <p className="text-sm font-medium text-muted-foreground">💰 Immediate savings: this auction</p>
                   <AnimatedSavingsCounter targetSavings={totalSavings} targetPercent={savingsPercent} />
                   <p className="text-xs text-muted-foreground">
-                    ₹{totalSavings.toLocaleString('en-IN')} saved • {sortedBids.length} suppliers • 8 rounds
-                  </p>
-                  <p className="text-xs text-muted-foreground">
                     Baseline: ₹{BASELINE_PRICE.toLocaleString('en-IN')}/MT → Won at ₹{lowestBid.price.toLocaleString('en-IN')}/MT
                     {' '}• Saved ₹{savingsPerMT.toLocaleString('en-IN')}/MT × {DEMO_AUCTION.quantity} MT
                   </p>
-                  <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border space-y-1">
-                    <p className="text-sm font-semibold text-foreground">📊 Typical savings observed</p>
-                    <p className="text-xs text-muted-foreground">• ₹500–₹1,000 per MT depending on category, volume, and supplier competition</p>
-                    <p className="text-xs text-muted-foreground">• 10–15% annually with consistent sourcing</p>
-                    <p className="text-xs text-muted-foreground italic mt-1">Consistency drives savings — not one deal.</p>
+
+                  {/* Enterprise ROI Block */}
+                  <div className="p-4 bg-green-100/60 dark:bg-green-950/40 rounded-xl border border-green-300 dark:border-green-700 space-y-2">
+                    <p className="text-base font-semibold text-green-800 dark:text-green-300">Business Impact — Annualized</p>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Per Order</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">₹{totalSavings.toLocaleString('en-IN')}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Per MT</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">₹{savingsPerMT.toLocaleString('en-IN')}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Annual (12,000 MT)</p>
+                        <p className="text-lg font-extrabold text-green-700 dark:text-green-400 tabular-nums">₹{(savingsPerMT * 12000).toLocaleString('en-IN')}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center mt-1">
+                      Based on ₹{savingsPerMT.toLocaleString('en-IN')}/MT savings across 12,000 MT annual volume
+                    </p>
                   </div>
+
                   <p className="text-sm text-destructive/80 mt-2">
-                    ⚠️ Without competitive bidding, this order could cost ₹{totalSavings.toLocaleString('en-IN')} more
+                    ⚠️ Without competition, this order would have cost ₹{totalSavings.toLocaleString('en-IN')} more
                   </p>
                 </CardContent>
               </Card>
@@ -1279,13 +1306,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                 <div className="space-y-1 px-1">
                   <div className="flex items-center gap-2">
                     <Layers className="w-4 h-4 text-primary" />
-                    <p className="text-sm font-semibold text-foreground">Your Procurement Command Center — Live Control</p>
+                    <p className="text-sm font-semibold text-foreground">Procurement Operating System — Live Control</p>
                     <Badge variant="outline" className="text-[10px]">LIVE</Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">From requirement to payment — everything in one system.</p>
+                  <p className="text-xs text-muted-foreground">This is your procurement operating system — not just an auction tool.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {/* 📦 Execution Tracking */}
+                  {/* 📦 Order Execution Control */}
                   <div className={`p-4 rounded-xl border bg-card shadow-sm transition-all duration-500 ${
                     ['in_transit', 'delivered'].includes(poStatus) ? 'ring-1 ring-primary/20 border-primary/30' : ''
                   }`}>
@@ -1293,7 +1320,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Package className="w-4 h-4 text-primary" />
                       </div>
-                      <span className="text-sm font-semibold text-foreground">Execution Tracking</span>
+                      <span className="text-sm font-semibold text-foreground">Order Execution Control</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {poStatus === 'draft' || poStatus === 'sent' ? 'Awaiting supplier acceptance' :
@@ -1309,7 +1336,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </div>
                   </div>
 
-                  {/* 🚚 Logistics */}
+                  {/* 🚚 Live Logistics Visibility */}
                   <div className={`p-4 rounded-xl border bg-card shadow-sm transition-all duration-500 ${
                     poStatus === 'in_transit' ? 'ring-1 ring-amber-200 border-amber-300' : ''
                   }`}>
@@ -1317,7 +1344,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center">
                         <Truck className="w-4 h-4 text-amber-600" />
                       </div>
-                      <span className="text-sm font-semibold text-foreground">Logistics</span>
+                      <span className="text-sm font-semibold text-foreground">Live Logistics Visibility</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Truck: {DEMO_TRANSPORTER.vehicle}</p>
                     <p className="text-xs text-muted-foreground">Driver: {DEMO_TRANSPORTER.driver}</p>
@@ -1326,7 +1353,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </div>
                   </div>
 
-                  {/* 💰 Payment */}
+                  {/* 💰 Payment Discipline Enforcement */}
                   <div className={`p-4 rounded-xl border bg-card shadow-sm transition-all duration-500 ${
                     poStatus === 'payment_done' ? 'ring-1 ring-green-200 border-green-300' : ''
                   }`}>
@@ -1334,7 +1361,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center">
                         <CreditCard className="w-4 h-4 text-emerald-600" />
                       </div>
-                      <span className="text-sm font-semibold text-foreground">Payment Status</span>
+                      <span className="text-sm font-semibold text-foreground">Payment Discipline Enforcement</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Terms: 30 Days Credit</p>
                     <div className={`mt-2 text-xs font-medium ${
@@ -1344,13 +1371,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </div>
                   </div>
 
-                  {/* 🏭 Supplier Network */}
+                  {/* 🏭 Supplier Performance Engine */}
                   <div className="p-4 rounded-xl border bg-card shadow-sm">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center">
                         <Users className="w-4 h-4 text-blue-600" />
                       </div>
-                      <span className="text-sm font-semibold text-foreground">Supplier Network</span>
+                      <span className="text-sm font-semibold text-foreground">Supplier Performance Engine</span>
                     </div>
                     <p className="text-xs text-muted-foreground">3 Active • 12 Verified • 2 Blacklisted</p>
                     <div className="mt-2 text-xs font-medium text-green-600">
@@ -1358,21 +1385,21 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </div>
                   </div>
 
-                  {/* 📊 Savings Graph */}
+                  {/* 📊 Savings Intelligence */}
                   <DemoSavingsGraph
                     baselinePrice={BASELINE_PRICE}
                     finalPrice={BASELINE_PRICE - (totalSavings / 500)}
                   />
 
-                  {/* 🧾 Audit */}
+                  {/* 🧾 Audit & Compliance Layer */}
                   <div className="p-4 rounded-xl border bg-card shadow-sm">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
                         <FileText className="w-4 h-4 text-muted-foreground" />
                       </div>
-                      <span className="text-sm font-semibold text-foreground">Audit Trail</span>
+                      <span className="text-sm font-semibold text-foreground">Audit & Compliance Layer</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">All actions logged & export-ready</p>
+                    <p className="text-xs text-muted-foreground">Every action logged • Tamper-proof • Export-ready</p>
                     <div className="mt-2 text-xs font-medium text-green-600">
                       ERP Sync Enabled
                     </div>
@@ -1385,59 +1412,44 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
             {/* CTA EXIT HOOK */}
             {showCTA && (
-              <Card id="cta-card" className={`border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 ${highlightClass('cta-card')}`}>
-                <CardContent className="pt-6 text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
-                    <Rocket className="w-6 h-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground">Ready to run your first auction?</h3>
-                  <p className="text-lg font-semibold text-foreground/90">
-                    This is not just a tool — it is your control over pricing, suppliers, and margins.
-                  </p>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    You just experienced the full procurement lifecycle — from AI-powered RFQ to competitive bidding to payment confirmation. Start saving on your real orders now.
-                  </p>
-
-                  <div className="flex justify-center">
-                    <Badge variant="secondary" className="text-green-700 bg-green-100 text-sm px-4 py-1">
-                      💰 ₹{totalSavings.toLocaleString('en-IN')} saved in 90 seconds
-                    </Badge>
-                  </div>
-
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Same suppliers. Different outcome — because of competition.
-                  </p>
-
-                  <p className="text-sm text-muted-foreground">
-                    📊 Typical savings: ₹500–₹1,000 per MT · 10–15% annually with consistent sourcing
-                  </p>
-
-                  {/* Urgency block */}
-                  <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
-                    <p className="text-sm text-destructive font-medium">
-                      No competition = higher prices. Run auctions to reduce cost instantly.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                    <Button size="lg" className="gap-2" onClick={() => navigate('/buyer/create-reverse-auction')}>
-                      <Zap className="w-4 h-4" />
-                      Run Your First Auction
-                    </Button>
-                    <Button variant="outline" size="lg" onClick={() => navigate('/buyer?buy_plan=true')}>
-                      Activate 6-Month Plan
-                    </Button>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground italic mt-3">
-                    This is your private procurement engine — not a public marketplace.
-                  </p>
-
-                  <Button variant="ghost" size="sm" onClick={handleReset} className="text-xs text-muted-foreground">
-                    ↻ Replay Simulation
+              <div id="cta-card" className={`rounded-xl bg-foreground text-background p-6 text-center space-y-4 ${highlightClass('cta-card')}`}>
+                <p className="text-xl font-semibold">
+                  You are not reducing cost by negotiation.
+                </p>
+                <p className="text-lg">
+                  You are reducing cost by creating competition.
+                </p>
+                <p className="text-sm text-background/60">
+                  Companies using structured procurement systems typically save 10–15% annually.
+                </p>
+                <p className="text-lg font-bold text-green-400 tabular-nums">
+                  Your estimated annual saving: ₹{(savingsPerMT * 12000).toLocaleString('en-IN')}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                  <Button
+                    size="lg"
+                    className="bg-background text-foreground hover:bg-background/90 gap-2"
+                    onClick={() => navigate('/buyer/create-reverse-auction')}
+                  >
+                    <Zap className="w-4 h-4" />
+                    Run Your First Auction
                   </Button>
-                </CardContent>
-              </Card>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-background/30 text-background hover:bg-background/10"
+                    onClick={() => navigate('/buyer?buy_plan=true')}
+                  >
+                    Activate 6-Month Plan
+                  </Button>
+                </div>
+                <p className="text-xs text-background/40 italic">
+                  This is your private procurement engine — not a public marketplace.
+                </p>
+                <Button variant="ghost" size="sm" onClick={handleReset} className="text-xs text-background/50 hover:text-background/80">
+                  ↻ Replay Simulation
+                </Button>
+              </div>
             )}
           </div>
         )}
