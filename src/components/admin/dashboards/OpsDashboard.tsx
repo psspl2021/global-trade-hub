@@ -1,6 +1,6 @@
 /**
  * Ops Dashboard — Execution Control
- * Shows: RFQs, Bids, L1, AI Selection, Auctions, Logistics, Vehicles, Partner Docs
+ * Shows: RFQs, Bids, L1, AI Selection, Auctions, Logistics, Vehicles, Partner Docs, Auction Intelligence
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import {
   ClipboardList, Gavel, Settings, Truck, Car, FileText, Eye
 } from 'lucide-react';
 import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
+import ReverseAuctionIntelligence from '@/components/admin/ReverseAuctionIntelligence';
 
 interface OpsDashboardProps {
   stats: {
@@ -147,6 +148,9 @@ export function OpsDashboard({
           </CardContent>
         </Card>
       </div>
+
+      {/* Row 4 — Auction Intelligence */}
+      <ReverseAuctionIntelligence />
     </div>
   );
 }
