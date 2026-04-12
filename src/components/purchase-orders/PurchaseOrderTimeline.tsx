@@ -1,4 +1,4 @@
-import { Check, Circle, Truck, Package, CreditCard, Lock, Send, HandshakeIcon } from 'lucide-react';
+import { Check, Circle, Truck, Package, CreditCard, Lock, Send, HandshakeIcon, XCircle } from 'lucide-react';
 import {
   PO_STATUS_FLOW,
   PO_STATUS_LABELS,
@@ -16,6 +16,7 @@ const STATUS_ICONS: Record<POExecutionStatus, React.ElementType> = {
   delivered: Package,
   payment_done: CreditCard,
   closed: Lock,
+  cancelled: XCircle,
 };
 
 interface PurchaseOrderTimelineProps {
