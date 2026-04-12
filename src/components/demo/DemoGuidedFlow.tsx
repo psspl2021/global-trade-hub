@@ -14,6 +14,7 @@ import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_
 import { getNarrationText, poStatusToNarrationStep, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
 import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
 import { DemoBanner } from './DemoBanner';
+import { DemoSavingsGraph } from './DemoSavingsGraph';
 
 interface DemoGuidedFlowProps {
   onReset: () => void;
@@ -1442,19 +1443,11 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     </div>
                   </div>
 
-                  {/* 📊 Analytics */}
-                  <div className="p-4 rounded-xl border bg-card shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="h-8 w-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/30 flex items-center justify-center">
-                        <TrendingDown className="w-4 h-4 text-indigo-600" />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">Savings Analytics</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">₹{totalSavings.toLocaleString('en-IN')} saved this order</p>
-                    <div className="mt-2 text-xs font-medium text-indigo-600">
-                      {savingsPercent.toFixed(1)}% lower than baseline
-                    </div>
-                  </div>
+                  {/* 📊 Savings Graph */}
+                  <DemoSavingsGraph
+                    baselinePrice={BASELINE_PRICE}
+                    finalPrice={BASELINE_PRICE - (totalSavings / 500)}
+                  />
 
                   {/* 🧾 Audit */}
                   <div className="p-4 rounded-xl border bg-card shadow-sm">
