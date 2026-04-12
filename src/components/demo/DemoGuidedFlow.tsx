@@ -751,7 +751,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   }, [poStatus, phase]);
 
   const handleReset = useCallback(() => {
-    window.speechSynthesis?.cancel();
     setBids(DEMO_AUCTION.initialBids);
     setAuctionComplete(false);
     setPOStatus('draft');
@@ -767,7 +766,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   }, [onReset]);
 
   const handleExit = useCallback(() => {
-    window.speechSynthesis?.cancel();
     onExit();
   }, [onExit]);
 
@@ -802,7 +800,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const handleManualPhaseChange = useCallback((nextPhase: DemoPhase) => {
     setFullDemoRunning(false);
     setAutoPlay(false);
-    window.speechSynthesis?.cancel();
     goToPhase(nextPhase);
   }, [goToPhase]);
 
@@ -812,7 +809,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     isTransitioningRef.current = true;
     setFullDemoRunning(false);
     setAutoPlay(false);
-    window.speechSynthesis?.cancel();
+    
     goToNextPhase();
     setTimeout(() => { isTransitioningRef.current = false; }, 300);
   }, [goToNextPhase]);
