@@ -30,9 +30,10 @@ interface PurchaseOrderActionsProps {
   userId: string;
   userRole: string | null;
   onStatusChange: () => void;
+  disabled?: boolean;
 }
 
-export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, onStatusChange }: PurchaseOrderActionsProps) {
+export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, onStatusChange, disabled }: PurchaseOrderActionsProps) {
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
   const [transport, setTransport] = useState<TransportDetails>({ vehicle_number: '', transporter_name: '', driver_contact: '', transport_source: 'supplier' });
