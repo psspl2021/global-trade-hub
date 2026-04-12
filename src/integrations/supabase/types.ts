@@ -1880,6 +1880,56 @@ export type Database = {
           },
         ]
       }
+      buyer_auction_usage: {
+        Row: {
+          auction_duration_seconds: number | null
+          auction_id: string | null
+          buyer_id: string
+          created_at: string | null
+          first_bid_price: number | null
+          id: string
+          price_drop_pct: number | null
+          total_bids_received: number | null
+          unique_suppliers: number | null
+          used_reverse_auction: boolean | null
+          winning_price: number | null
+        }
+        Insert: {
+          auction_duration_seconds?: number | null
+          auction_id?: string | null
+          buyer_id: string
+          created_at?: string | null
+          first_bid_price?: number | null
+          id?: string
+          price_drop_pct?: number | null
+          total_bids_received?: number | null
+          unique_suppliers?: number | null
+          used_reverse_auction?: boolean | null
+          winning_price?: number | null
+        }
+        Update: {
+          auction_duration_seconds?: number | null
+          auction_id?: string | null
+          buyer_id?: string
+          created_at?: string | null
+          first_bid_price?: number | null
+          id?: string
+          price_drop_pct?: number | null
+          total_bids_received?: number | null
+          unique_suppliers?: number | null
+          used_reverse_auction?: boolean | null
+          winning_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_auction_usage_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buyer_companies: {
         Row: {
           address: string | null
@@ -5136,6 +5186,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      po_email_logs: {
+        Row: {
+          buyer_id: string
+          delivered_at: string | null
+          email_type: string
+          failed_at: string | null
+          failure_reason: string | null
+          id: string
+          opened_at: string | null
+          po_id: string | null
+          provider_message_id: string | null
+          sent_at: string | null
+          status: string
+          supplier_id: string | null
+        }
+        Insert: {
+          buyer_id: string
+          delivered_at?: string | null
+          email_type?: string
+          failed_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          opened_at?: string | null
+          po_id?: string | null
+          provider_message_id?: string | null
+          sent_at?: string | null
+          status?: string
+          supplier_id?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          delivered_at?: string | null
+          email_type?: string
+          failed_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          opened_at?: string | null
+          po_id?: string | null
+          provider_message_id?: string | null
+          sent_at?: string | null
+          status?: string
+          supplier_id?: string | null
+        }
+        Relationships: []
       }
       po_items: {
         Row: {
@@ -11170,6 +11265,7 @@ export type Database = {
           subcategory: string
         }[]
       }
+      get_auction_intelligence: { Args: never; Returns: Json }
       get_bids_for_buyer: {
         Args: { p_requirement_id: string }
         Returns: {
@@ -11395,6 +11491,16 @@ export type Database = {
           supplier_gstin: string
           supplier_name: string
           supplier_phone: string
+        }[]
+      }
+      get_supplier_auction_leaderboard: {
+        Args: never
+        Returns: {
+          auctions_participated: number
+          avg_bid_rank: number
+          supplier_id: string
+          win_rate: number
+          wins: number
         }[]
       }
       get_supplier_email_stats: {
