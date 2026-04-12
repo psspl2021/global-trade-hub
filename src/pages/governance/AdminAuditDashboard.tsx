@@ -94,6 +94,7 @@ const SEODashboard = lazy(() => import('@/pages/admin/SEODashboard'));
 const DemandGapsPanel = lazy(() => import('@/pages/admin/DemandGapsPanel'));
 const SEOPipelinePanel = lazy(() => import('@/components/admin/SEOPipelinePanel'));
 const BlogPipelinePanel = lazy(() => import('@/components/admin/BlogPipelinePanel'));
+const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow').then(m => ({ default: m.DemoGuidedFlow })));
 
 type AdminView = 
   | 'dashboard' 
@@ -116,7 +117,8 @@ type AdminView =
   | 'seo-dashboard'
   | 'demand-gaps'
   | 'seo-pipeline'
-  | 'blog-pipeline';
+  | 'blog-pipeline'
+  | 'demo';
 
 export default function AdminAuditDashboard() {
   const navigate = useNavigate();
@@ -330,6 +332,7 @@ export default function AdminAuditDashboard() {
       case 'demand-gaps': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemandGapsPanel /></Suspense>;
       case 'seo-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEOPipelinePanel /></Suspense>;
       case 'blog-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><BlogPipelinePanel /></Suspense>;
+      case 'demo': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemoGuidedFlow onReset={() => {}} onExit={() => setCurrentView('dashboard')} /></Suspense>;
       case 'dashboard':
       default:
         return renderDashboard();
@@ -464,7 +467,7 @@ export default function AdminAuditDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">Run guided procurement simulation for client calls</p>
-            <Button variant="outline" className="w-full" disabled><Rocket className="h-4 w-4 mr-2" />Coming Soon</Button>
+            <Button variant="outline" className="w-full" onClick={() => setCurrentView('demo')}><Rocket className="h-4 w-4 mr-2" />Start Demo</Button>
           </CardContent>
         </Card>
         <AuctionTrackerCard />
