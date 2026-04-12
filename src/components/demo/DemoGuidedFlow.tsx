@@ -751,7 +751,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   }, [poStatus, phase]);
 
   const handleReset = useCallback(() => {
-    stop();
     window.speechSynthesis?.cancel();
     setBids(DEMO_AUCTION.initialBids);
     setAuctionComplete(false);
@@ -764,9 +763,8 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setShowCTA(false);
     setTimeLeft(120);
     setActiveSuppliers([]);
-    introSpoken.current = false;
     onReset();
-  }, [onReset, stop]);
+  }, [onReset]);
 
   const handleExit = useCallback(() => {
     stop();
