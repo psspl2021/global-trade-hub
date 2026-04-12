@@ -1204,12 +1204,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                         <p className="text-sm font-bold text-foreground tabular-nums">₹{savingsPerMT.toLocaleString('en-IN')}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Annual (12,000 MT)</p>
+                        <p className="text-xs text-muted-foreground">Annual Impact (Typical mid-size company)</p>
                         <p className="text-lg font-extrabold text-green-700 dark:text-green-400 tabular-nums">₹{(savingsPerMT * 12000).toLocaleString('en-IN')}</p>
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground text-center mt-1">
-                      Based on ₹{savingsPerMT.toLocaleString('en-IN')}/MT savings across 12,000 MT annual volume
+                      Based on real procurement patterns across metals, cement, and construction categories
                     </p>
                   </div>
 
@@ -1311,6 +1311,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   </div>
                   <p className="text-xs text-muted-foreground">This is your procurement operating system — not just an auction tool.</p>
                 </div>
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm text-primary font-medium">
+                  Every action is controlled, recorded, and enforceable — no step can be skipped or manipulated.
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {/* 📦 Order Execution Control */}
                   <div className={`p-4 rounded-xl border bg-card shadow-sm transition-all duration-500 ${
@@ -1408,7 +1411,19 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               </div>
             )}
 
+            {/* Trust line */}
+            <p className="text-xs text-muted-foreground text-center">
+              No new suppliers added — only your existing suppliers competing for your order.
+            </p>
 
+
+
+            {/* Psychological killer before CTA */}
+            {showCTA && (
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                Same suppliers. Same requirement. The only difference is — competition.
+              </p>
+            )}
 
             {/* CTA EXIT HOOK */}
             {showCTA && (
