@@ -11,7 +11,8 @@ export type ProcurementAction =
   | 'AUCTION_STARTED' | 'AUCTION_CLOSED'
   | 'PO_CREATED' | 'PO_SENT_TO_SUPPLIER' | 'PO_ACCEPTED'
   | 'SHIPMENT_MARKED' | 'DELIVERY_CONFIRMED'
-  | 'PAYMENT_MARKED_DONE';
+  | 'PAYMENT_MARKED_DONE'
+  | 'ERP_SYNCED' | 'ERP_SYNC_FAILED';
 
 interface AuditEntry {
   rfq_id?: string;
