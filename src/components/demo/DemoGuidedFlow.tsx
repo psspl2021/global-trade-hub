@@ -607,20 +607,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [timeLeft, setTimeLeft] = useState(120);
   const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
-  const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
   const isTransitioningRef = useRef(false);
   const previousPhaseRef = useRef<DemoPhase | null>(null);
   const skipPhaseNarrationRef = useRef<DemoPhase | null>(null);
-
-  useEffect(() => { window.speechSynthesis?.getVoices(); }, []);
-
-  const { speak, pause: pauseVoice, resume: resumeVoice, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
-
-  // ── Stop speech on unmount ──
-  useEffect(() => {
-    return () => { window.speechSynthesis?.cancel(); };
-  }, []);
 
   // ── Auto-scroll to highlighted section ──
   useEffect(() => {
@@ -644,7 +634,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       if (target && typeof target.closest === 'function' && target.closest('[data-demo-controls]')) return;
       setFullDemoRunning(false);
       setAutoPlay(false);
-      window.speechSynthesis?.cancel();
     };
 
     const opts = { once: true, capture: true };
@@ -659,13 +648,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
   useEffect(() => {
     if (showEntryScreen) {
-      introSpoken.current = false;
       previousPhaseRef.current = null;
       skipPhaseNarrationRef.current = null;
     }
   }, [showEntryScreen]);
 
-  // ── Narration reacts to phase changes (State → Effects → UI) ──
+  // ── Track phase changes ──
   useEffect(() => {
     if (showEntryScreen) return;
 
@@ -678,34 +666,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     const previousPhase = previousPhaseRef.current;
     if (previousPhase === phase) return;
     previousPhaseRef.current = phase;
-
-    if (phase === 'rfq') { speak('rfq_start'); return; }
-    if (phase === 'invite') {
-      if (previousPhase === 'rfq') {
-        speak('rfq_structured', () => speak('supplier_invite'));
-      } else {
-        speak('supplier_invite');
-      }
-      return;
-    }
-    if (phase === 'auction') { speak('auction_live'); return; }
-    if (phase === 'po_lifecycle' && poStatus === 'draft') { speak('po_start'); }
-  }, [phase, poStatus, showEntryScreen, speak]);
-
-  // Highlight sync with narration
-  useEffect(() => {
-    if (!currentStep) { setHighlightSection(null); return; }
-    const map: Record<string, string> = {
-      intro: 'rfq-card', rfq_start: 'rfq-card', rfq_structured: 'rfq-card',
-      supplier_invite: 'invite-card', auction_live: 'auction-card', auction_complete: 'auction-card',
-      savings: 'savings-card', loss_aversion: 'savings-card',
-      po_start: 'po-card', po_sent: 'po-timeline', po_accepted: 'po-timeline',
-      po_in_transit: 'po-timeline', po_delivered: 'po-timeline',
-      po_payment: 'po-timeline', po_closed: 'po-timeline',
-      outro: 'po-card', cta: 'cta-card',
-    };
-    setHighlightSection(map[currentStep] || null);
-  }, [currentStep]);
+  }, [phase, poStatus, showEntryScreen]);
 
   // Countdown timer
   useEffect(() => {
@@ -756,12 +717,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => clearInterval(interval);
   }, [phase, auctionComplete, showEntryScreen]);
 
-  // Narrate auction completion
+  // Auction complete handler
   useEffect(() => {
     if (auctionComplete && phase === 'auction') {
-      speak('auction_complete', () => { speak('savings', () => { speak('loss_aversion'); }); });
+      // Auction completed
     }
-  }, [auctionComplete, phase, speak]);
+  }, [auctionComplete, phase]);
 
   // Auto-play PO lifecycle
   useEffect(() => {
@@ -779,23 +740,15 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [phase, autoPlay, poStatus]);
 
-  // Narrate PO status changes
-  useEffect(() => {
-    const narrationStep = poStatusToNarrationStep(poStatus);
-    if (narrationStep && phase === 'po_lifecycle' && poStatus !== 'draft') {
-      speak(narrationStep);
-    }
-  }, [poStatus, phase, speak]);
-
   // Show CTA on PO close
   useEffect(() => {
     if (poStatus === 'closed' && phase === 'po_lifecycle') {
       const t = setTimeout(() => {
-        speak('outro', () => { setShowCTA(true); speak('cta'); });
+        setShowCTA(true);
       }, 1500);
       return () => clearTimeout(t);
     }
-  }, [poStatus, phase, speak]);
+  }, [poStatus, phase]);
 
   const handleReset = useCallback(() => {
     stop();
