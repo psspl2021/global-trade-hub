@@ -15,6 +15,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
+import { useAdminRole, AdminDashboardRole } from '@/hooks/useAdminRole';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +80,11 @@ import RevenueDashboardView from '@/components/admin/RevenueDashboardView';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
+import { CEODashboard } from '@/components/admin/dashboards/CEODashboard';
+import { OpsDashboard } from '@/components/admin/dashboards/OpsDashboard';
+import { SalesDashboard } from '@/components/admin/dashboards/SalesDashboard';
+import { RoleBadge } from '@/components/admin/dashboards/RoleBadge';
+import { AdminRoleSwitch } from '@/components/admin/dashboards/AdminRoleSwitch';
 
 
 const AdminSEOMonitor = lazy(() => import('@/pages/AdminSEOMonitor'));
