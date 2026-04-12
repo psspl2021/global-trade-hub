@@ -161,7 +161,6 @@ const Index = () => {
         {/* ===== SECTION 1: HERO ===== */}
         <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
           {/* Background image - preloaded for fast LCP */}
-          <link rel="preload" as="image" href={heroBgProcurement} />
           <img
             src={heroBgProcurement}
             alt=""
