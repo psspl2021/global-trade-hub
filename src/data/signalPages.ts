@@ -2630,6 +2630,394 @@ Suppliers operate as verified fulfilment partners.`,
 
   // Medical Equipment → existing canonical
   { slug: 'medical-equipment', canonicalSlug: 'medical-equipment-diagnostics', h1: 'Medical Equipment Procurement', subheading: '', bodyText: '', useCases: [], whatBuyerGets: [], metaTitle: 'Medical Equipment Procurement', metaDescription: 'Medical equipment bulk supply.', intentKeywords: ['medical equipment'], signalMapping: { category: 'medical_healthcare', subcategory: 'diagnostic_equipment', industry: 'healthcare', buyer_type: 'hospital', estimated_value_band: 'very_high', signal_source: 'signal_page' }, verifiedSuppliersCount: 65, successfulDealsCount: 130, typicalDealRange: { min: 2000000, max: 200000000 }, deliveryTimeline: '15–60 days' },
+
+  // ─── PETROLEUM & DIESEL SIGNAL PAGES ─────────────────────────────
+
+  // PAGE: Bulk Diesel Procurement
+  {
+    slug: 'bulk-diesel-procurement',
+    h1: 'Bulk Diesel Procurement for Construction, Mining & Fleet Operations',
+    subheading: 'Compare pricing from IOCL, HPCL, BPCL, Nayara & Jio-bp through reverse auctions.',
+    bodyText: `ProcureSaathi manages bulk diesel procurement for high-volume consumers across India.
+
+We source from all major Oil Marketing Companies — IOCL, HPCL, BPCL, Nayara Energy, and Jio-bp — and run competitive reverse auctions to deliver the best per-litre pricing.
+
+Buyers get a single contract with ProcureSaathi, transparent pricing, verified supply chain, and doorstep delivery tracking.
+
+Diesel is 15-60% of operating costs for construction, mining, and logistics companies. Even ₹1-2/litre savings on bulk orders translates to lakhs in annual savings.`,
+    useCases: [
+      'Government EPC & highway construction',
+      'Mining & quarrying operations',
+      'Fleet & logistics companies',
+      'Real estate & commercial construction',
+      'Industrial DG set backup power'
+    ],
+    whatBuyerGets: [
+      'Competitive pricing from multiple OMCs',
+      'BS-VI compliant diesel from verified sources',
+      'Doorstep delivery with quantity verification',
+      'GST-compliant invoicing',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['IS 1460:2017 HSD', 'BS-VI Grade', 'Cetane ≥ 51', 'Sulphur ≤ 10 ppm', 'IOCL / HPCL / BPCL / Nayara / Jio-bp'],
+    metaTitle: 'Bulk Diesel Procurement India | HPCL IOCL BPCL Nayara Jio-bp',
+    metaDescription: 'Bulk diesel procurement through reverse auctions. Compare IOCL, HPCL, BPCL, Nayara & Jio-bp pricing. Save ₹1-5/litre on bulk diesel orders.',
+    intentKeywords: ['bulk diesel procurement india', 'bulk diesel supply', 'diesel wholesale price', 'HSD bulk purchase', 'diesel for construction', 'diesel bulk rate india', 'diesel procurement platform', 'competitive diesel pricing', 'OMC diesel comparison', 'industrial diesel supply'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel',
+      industry: 'multi_sector',
+      buyer_type: 'bulk_consumer',
+      estimated_value_band: 'very_high',
+      urgency: 'recurring',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 45,
+    successfulDealsCount: 78,
+    typicalDealRange: { min: 500000, max: 50000000 },
+    deliveryTimeline: '24-72 hours'
+  },
+
+  // PAGE: Diesel for Government Contractors
+  {
+    slug: 'diesel-government-contractors',
+    h1: 'Diesel Procurement for Government Contractors & EPC Projects',
+    subheading: 'Reduce fuel costs on fixed-price government contracts through competitive sourcing.',
+    bodyText: `Government contractors executing road, bridge, railway, and infrastructure projects spend 15-25% of project costs on diesel.
+
+On fixed-price government contracts, every rupee saved on diesel goes directly to your bottom line. ProcureSaathi runs reverse auctions across all major OMCs to deliver the most competitive per-litre pricing for your project sites.
+
+No more relying on a single dealer. Compare IOCL, HPCL, BPCL, Nayara, and Jio-bp pricing in real time. Get verified quality with quantity verification at delivery.`,
+    useCases: [
+      'National highway & expressway construction',
+      'Bridge & flyover projects (NHAI/NHIDCL)',
+      'Railway line & station construction',
+      'Smart city & AMRUT infrastructure',
+      'Defense cantonment & border road projects'
+    ],
+    whatBuyerGets: [
+      'Multi-OMC price comparison',
+      'Project-site delivery with dip verification',
+      'CPWD/NHAI compliant documentation',
+      'GST invoicing for government billing',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['IS 1460:2017 HSD BS-VI', 'CPWD fuel norms', 'NHAI specification', 'IRC guidelines compliant'],
+    metaTitle: 'Diesel for Government Contractors India | EPC Project Fuel Supply',
+    metaDescription: 'Bulk diesel for government contractors & EPC projects. Compare OMC pricing. CPWD/NHAI compliant. Save on fixed-price project fuel costs.',
+    intentKeywords: ['diesel for government contractors', 'EPC project diesel supply', 'construction diesel bulk', 'NHAI project fuel', 'government project diesel', 'highway construction diesel', 'bridge project fuel supply', 'infrastructure diesel procurement', 'CPWD fuel supply', 'road construction diesel'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel',
+      industry: 'government_infra',
+      buyer_type: 'government_epc',
+      estimated_value_band: 'very_high',
+      urgency: 'project_based',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 40,
+    successfulDealsCount: 65,
+    typicalDealRange: { min: 1000000, max: 100000000 },
+    deliveryTimeline: '24-48 hours'
+  },
+
+  // PAGE: Diesel for Builders & Real Estate
+  {
+    slug: 'diesel-builders-real-estate',
+    h1: 'Diesel Procurement for Builders & Real Estate Developers',
+    subheading: 'Cut construction diesel costs across multiple sites with competitive reverse auctions.',
+    bodyText: `Builders and real estate developers running multiple construction sites consume diesel for tower cranes, concrete pumps, DG sets, and earth-moving equipment.
+
+ProcureSaathi centralizes your diesel procurement across all project sites, running reverse auctions to find the best pricing from IOCL, HPCL, BPCL, Nayara, and Jio-bp.
+
+For a builder with 5+ active sites, competitive sourcing can save ₹50 lakh+ annually on diesel alone.`,
+    useCases: [
+      'Multi-site residential construction',
+      'Commercial & mall development',
+      'Ready-mix concrete plant operations',
+      'Earth moving & excavation projects',
+      'High-rise DG set backup'
+    ],
+    whatBuyerGets: [
+      'Centralized procurement for all sites',
+      'Competitive multi-OMC pricing',
+      'Site-wise delivery tracking',
+      'Anti-pilferage quantity verification',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['IS 1460:2017 HSD BS-VI', 'Site delivery tankers', 'Dip measurement verification', 'Quality test certificates'],
+    metaTitle: 'Diesel for Builders India | Real Estate Construction Fuel Supply',
+    metaDescription: 'Bulk diesel for builders & real estate. Multi-site procurement, competitive OMC pricing, delivery tracking. Reduce construction fuel costs.',
+    intentKeywords: ['diesel for builders', 'construction site diesel', 'real estate diesel procurement', 'builder diesel supply', 'construction fuel supply', 'DG set diesel supply', 'multi-site diesel procurement', 'construction equipment fuel', 'ready mix diesel', 'builder fuel management'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel',
+      industry: 'construction',
+      buyer_type: 'builder',
+      estimated_value_band: 'high',
+      urgency: 'recurring',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 38,
+    successfulDealsCount: 55,
+    typicalDealRange: { min: 500000, max: 30000000 },
+    deliveryTimeline: '24-48 hours'
+  },
+
+  // PAGE: Diesel for Fleet & Logistics Partners
+  {
+    slug: 'diesel-fleet-logistics',
+    h1: 'Diesel Procurement for Fleet Operators & Logistics Partners',
+    subheading: 'Reduce per-km operating costs with competitive bulk diesel pricing.',
+    bodyText: `Fleet operators and logistics companies spend 40-60% of operating costs on diesel. On thin margins, even ₹1/litre savings creates significant impact.
+
+ProcureSaathi runs reverse auctions across IOCL, HPCL, BPCL, Nayara, and Jio-bp to find the most competitive bulk diesel rates for your fleet.
+
+For a 100-truck fleet consuming 5 lakh litres monthly, ₹1/litre savings = ₹5 lakh monthly savings = ₹60 lakh annual savings.`,
+    useCases: [
+      'Long-haul trucking operations',
+      'E-commerce last-mile delivery fleets',
+      'Cold chain & reefer transport',
+      'City bus & cab fleet operations',
+      'Container trailer movements'
+    ],
+    whatBuyerGets: [
+      'Best-in-market per-litre pricing',
+      'Multi-brand OMC comparison',
+      'Bulk fuel delivery or fuel station access',
+      'Digital quantity tracking',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['IS 1460:2017 HSD BS-VI', 'Premium diesel options', 'Multi-location delivery', 'Fuel management compatible'],
+    metaTitle: 'Diesel for Fleet Operators India | Logistics Fuel Procurement',
+    metaDescription: 'Bulk diesel for fleet operators & logistics. Compare OMC rates. ₹1/litre savings = ₹60L/year for 100-truck fleet. Reverse auction pricing.',
+    intentKeywords: ['diesel for fleet operators', 'logistics diesel procurement', 'trucking diesel supply', 'fleet fuel management', 'bulk diesel for transport', 'diesel for logistics company', 'truck fleet diesel', 'commercial vehicle diesel', 'fleet diesel rates', 'transport diesel bulk'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel',
+      industry: 'logistics',
+      buyer_type: 'fleet_operator',
+      estimated_value_band: 'very_high',
+      urgency: 'daily',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 42,
+    successfulDealsCount: 90,
+    typicalDealRange: { min: 300000, max: 50000000 },
+    deliveryTimeline: 'Daily / On-demand'
+  },
+
+  // PAGE: Diesel Mining & Quarrying
+  {
+    slug: 'diesel-mining-quarrying',
+    h1: 'Diesel Procurement for Mining & Quarrying Operations',
+    subheading: 'Competitive diesel sourcing for high-volume mine site operations.',
+    bodyText: `Mining and quarrying operations consume massive diesel volumes for dump trucks, excavators, drilling rigs, and haul vehicles — often 5-20 KL per day.
+
+Remote mine locations limit supplier access and inflate prices. ProcureSaathi connects you with verified suppliers who deliver to your mine site with quantity verification and quality certification.
+
+Coal India alone spends ₹15,000+ crore annually on diesel. Private miners can achieve 2-4% savings through competitive reverse auction sourcing.`,
+    useCases: [
+      'Coal mining operations',
+      'Iron ore & mineral extraction',
+      'Limestone & granite quarrying',
+      'Sand mining operations',
+      'Mine site DG power generation'
+    ],
+    whatBuyerGets: [
+      'Mine-site tanker delivery',
+      'Dip-stick quantity verification',
+      'Quality test certificates per delivery',
+      'Multi-OMC competitive pricing',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['IS 1460:2017 HSD BS-VI', 'DGMS safety compliant', 'Mine site delivery capable', 'Bulk tanker supply'],
+    metaTitle: 'Diesel for Mining India | Quarrying & Mine Site Fuel Supply',
+    metaDescription: 'Bulk diesel for mining & quarrying. Mine-site delivery, quantity verification, competitive OMC pricing. Save 2-4% on mine fuel costs.',
+    intentKeywords: ['diesel for mining', 'mining diesel supply', 'quarry diesel procurement', 'mine site fuel', 'coal mining diesel', 'iron ore mine diesel', 'excavator diesel supply', 'dump truck fuel', 'mining fuel management', 'heavy equipment diesel'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel',
+      industry: 'mining',
+      buyer_type: 'mining_operator',
+      estimated_value_band: 'very_high',
+      urgency: 'daily',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 45,
+    typicalDealRange: { min: 2000000, max: 200000000 },
+    deliveryTimeline: '24-72 hours'
+  },
+
+  // PAGE: HPCL Diesel Bulk
+  {
+    slug: 'hpcl-diesel-bulk-supply',
+    h1: 'HPCL Diesel Bulk Procurement | HP Turbojet Diesel Supply',
+    subheading: 'Competitive HPCL diesel pricing through reverse auctions for bulk consumers.',
+    bodyText: `HPCL (Hindustan Petroleum) is one of India's largest oil marketing companies with a nationwide depot network. HP Turbojet diesel is trusted by government contractors and fleet operators.
+
+ProcureSaathi enables bulk buyers to compare HPCL depot pricing across regions and negotiate competitive rates through reverse auctions — something not available through direct dealer negotiation.
+
+HPCL holds approximately 20% of India's diesel market share with refinery capacity expansion underway.`,
+    useCases: [
+      'Government EPC project fueling',
+      'Industrial DG backup',
+      'Highway construction equipment',
+      'Fleet fueling operations',
+      'Mining equipment supply'
+    ],
+    whatBuyerGets: [
+      'HPCL depot-sourced verified diesel',
+      'Competitive pricing vs direct dealer rates',
+      'BS-VI quality certification',
+      'Bulk delivery with documentation',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['HPCL HSD BS-VI', 'HP Turbojet grade', 'IS 1460:2017', 'HPCL quality protocol'],
+    metaTitle: 'HPCL Diesel Bulk Supply India | HP Turbojet Diesel Procurement',
+    metaDescription: 'HPCL diesel bulk procurement through reverse auctions. HP Turbojet diesel at competitive rates. Nationwide supply from HPCL depots.',
+    intentKeywords: ['HPCL diesel bulk', 'HP diesel supply', 'HPCL bulk purchase', 'HP Turbojet diesel', 'HPCL diesel rate today', 'HPCL industrial diesel', 'HPCL depot diesel', 'Hindustan Petroleum diesel', 'HPCL diesel dealer', 'HPCL diesel price bulk'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel_hpcl',
+      industry: 'multi_sector',
+      buyer_type: 'bulk_consumer',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 60,
+    typicalDealRange: { min: 500000, max: 30000000 },
+    deliveryTimeline: '24-48 hours'
+  },
+
+  // PAGE: IOCL Diesel Bulk
+  {
+    slug: 'iocl-diesel-bulk-supply',
+    h1: 'IOCL Diesel Bulk Procurement | Indian Oil XtraPremium Diesel',
+    subheading: 'India\'s largest OMC diesel at competitive reverse auction pricing.',
+    bodyText: `IOCL (Indian Oil Corporation) commands approximately 40% of India's diesel market with 11 refineries and the widest distribution network.
+
+ProcureSaathi enables bulk buyers to access competitive IOCL diesel pricing through reverse auctions, bypassing traditional single-dealer negotiations.
+
+From XtraPremium diesel to standard HSD, get the best rates for your consumption volume.`,
+    useCases: [
+      'National highway construction',
+      'Railway project fueling',
+      'PSU project supply',
+      'Large infrastructure works',
+      'Industrial bulk consumption'
+    ],
+    whatBuyerGets: [
+      'IOCL depot-sourced verified diesel',
+      'Competitive vs standard dealer pricing',
+      'XtraPremium diesel availability',
+      'Pan-India delivery coverage',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['IOCL HSD BS-VI', 'XtraPremium grade', 'IS 1460:2017', 'IOCL quality assurance'],
+    metaTitle: 'IOCL Diesel Bulk Supply India | Indian Oil Diesel Procurement',
+    metaDescription: 'IOCL diesel bulk procurement through reverse auctions. Indian Oil XtraPremium diesel. Competitive rates from India\'s largest OMC.',
+    intentKeywords: ['IOCL diesel bulk', 'Indian Oil diesel supply', 'IOCL bulk purchase', 'XtraPremium diesel', 'IOCL diesel rate', 'Indian Oil industrial diesel', 'IOCL depot supply', 'Indian Oil bulk diesel', 'IOCL diesel price today', 'IOCL diesel dealer'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel_iocl',
+      industry: 'multi_sector',
+      buyer_type: 'bulk_consumer',
+      estimated_value_band: 'very_high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 50,
+    successfulDealsCount: 85,
+    typicalDealRange: { min: 1000000, max: 50000000 },
+    deliveryTimeline: '24-48 hours'
+  },
+
+  // PAGE: Nayara & Jio-bp Diesel
+  {
+    slug: 'nayara-jiobp-diesel-supply',
+    h1: 'Nayara Energy & Jio-bp Diesel Procurement',
+    subheading: 'Competitive private-sector OMC diesel through reverse auctions.',
+    bodyText: `Nayara Energy (formerly Essar Oil) and Jio-bp represent India's leading private Oil Marketing Companies.
+
+Nayara operates India's second-largest single-location refinery at Vadinar with 6,700+ fuel stations. Jio-bp, a Reliance-BP joint venture, offers premium additivized diesel through 1,400+ outlets.
+
+ProcureSaathi enables price comparison between private and PSU OMCs to find the best bulk diesel rates for your operations.`,
+    useCases: [
+      'Cost-conscious industrial buyers',
+      'Fleet operators seeking premium diesel',
+      'Gujarat & western India operations',
+      'E-commerce delivery fleets',
+      'Construction projects near private depots'
+    ],
+    whatBuyerGets: [
+      'Private OMC competitive pricing',
+      'Comparison with PSU rates',
+      'Premium additivized diesel options',
+      'Refinery-proximate supply advantage',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['Nayara HSD BS-VI', 'Jio-bp Premium Diesel', 'IS 1460:2017', 'Advanced additive technology'],
+    metaTitle: 'Nayara & Jio-bp Diesel Supply India | Private OMC Bulk Diesel',
+    metaDescription: 'Nayara Energy & Jio-bp diesel bulk procurement. Private OMC competitive pricing. Premium diesel. Reverse auction sourcing.',
+    intentKeywords: ['Nayara diesel supply', 'Jio-bp diesel bulk', 'Nayara Energy fuel', 'Jio-bp diesel rate', 'private OMC diesel', 'Essar diesel supply', 'Reliance diesel', 'Nayara bulk purchase', 'Jio-bp fleet diesel', 'Nayara diesel price'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'diesel_private',
+      industry: 'multi_sector',
+      buyer_type: 'bulk_consumer',
+      estimated_value_band: 'high',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 30,
+    successfulDealsCount: 40,
+    typicalDealRange: { min: 500000, max: 20000000 },
+    deliveryTimeline: '24-72 hours'
+  },
+
+  // PAGE: Bitumen Procurement
+  {
+    slug: 'bitumen-procurement-road-construction',
+    h1: 'Bitumen Procurement for Road & Highway Construction',
+    subheading: 'VG10, VG30, VG40, PMB & Emulsion bitumen through competitive sourcing.',
+    bodyText: `India consumes 8-10 million MT of bitumen annually, driven by Bharatmala, NHAI, and state highway programs.
+
+ProcureSaathi sources bitumen across all grades — VG10, VG30, VG40, Polymer Modified (PMB), CRMB, and Emulsion — from OMC depots and verified distributors through reverse auctions.
+
+Seasonal demand spikes (October-March) create price volatility. Competitive sourcing helps contractors lock better rates.`,
+    useCases: [
+      'National highway construction',
+      'State road development',
+      'Airport runway laying',
+      'Bridge deck waterproofing',
+      'Urban road resurfacing'
+    ],
+    whatBuyerGets: [
+      'Multi-grade bitumen availability',
+      'OMC depot sourced supply',
+      'MoRTH specification compliance',
+      'Competitive season-adjusted pricing',
+      'Contract with ProcureSaathi Pvt Ltd'
+    ],
+    specifications: ['IS 73:2018', 'VG10/VG30/VG40', 'PMB/CRMB/Emulsion', 'IRC SP:53 compliant', 'MoRTH specifications'],
+    metaTitle: 'Bitumen Procurement India | VG30 VG40 PMB Road Construction',
+    metaDescription: 'Bitumen bulk procurement for road & highway construction. VG10, VG30, VG40, PMB grades. OMC depot supply. Competitive pricing.',
+    intentKeywords: ['bitumen procurement india', 'VG30 bitumen supply', 'VG40 bitumen price', 'PMB bitumen suppliers', 'road construction bitumen', 'bulk bitumen purchase', 'bitumen for highway', 'emulsion bitumen supply', 'bitumen rate today', 'NHAI bitumen procurement'],
+    signalMapping: {
+      category: 'petroleum',
+      subcategory: 'bitumen',
+      industry: 'road_construction',
+      buyer_type: 'highway_contractor',
+      estimated_value_band: 'very_high',
+      urgency: 'seasonal',
+      signal_source: 'signal_page'
+    },
+    verifiedSuppliersCount: 35,
+    successfulDealsCount: 55,
+    typicalDealRange: { min: 2000000, max: 100000000 },
+    deliveryTimeline: '3-10 days'
+  },
 ];
 
 // =======================================================
