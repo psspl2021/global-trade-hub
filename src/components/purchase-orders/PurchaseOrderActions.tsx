@@ -57,6 +57,20 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
 
     setLoading(true);
     try {
+      // Race-safe: atomic server-side validation for external POs before transition
+      const { data: gateCheck, error: gateError } = await supabase.rpc('proceed_po_step', {
+        p_po_id: poId,
+        p_new_status: targetStatus,
+        p_updated_by: userId,
+      });
+
+      if (gateError) throw gateError;
+      const gate = gateCheck as any;
+      if (gate && !gate.success) {
+        throw new Error(gate.reason || 'Validation failed');
+      }
+
+      // proceed_po_step already updated status, now run transition for side-effects
       const { data, error } = await supabase.rpc('transition_po_status', {
         p_po_id: poId,
         p_new_status: targetStatus,
