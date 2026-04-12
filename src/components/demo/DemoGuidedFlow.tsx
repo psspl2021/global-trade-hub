@@ -1211,6 +1211,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     <p className="text-xs text-muted-foreground text-center mt-1">
                       Based on real procurement patterns across metals, cement, and construction categories
                     </p>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Savings achieved within minutes of running a single auction
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Consistent savings come from process, not one-time negotiation
+                    </p>
                   </div>
 
                   <p className="text-sm text-destructive/80 mt-2">
