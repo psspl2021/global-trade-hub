@@ -23,6 +23,8 @@ export type UserRole =
   | 'hr'
   | 'external_guest'
   | 'ps_admin'
+  | 'ops_manager'
+  | 'sales_manager'
   | null;
 
 // Priority order: governance roles have highest priority
