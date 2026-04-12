@@ -265,11 +265,7 @@ export default function AdminAuditDashboard() {
 
   useEffect(() => {
     if (user) fetchStats();
-  }, [selectedDays]);
-
-  useEffect(() => {
-    fetchStats();
-  }, [user]);
+  }, [user, selectedDays]);
 
   useEffect(() => {
     const handler = (e: Event) => {
