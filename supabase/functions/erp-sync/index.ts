@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const BodySchema = z.object({
   po_id: z.string().uuid(),
@@ -12,11 +13,21 @@ const BodySchema = z.object({
   erp_type: z.enum(["webhook", "tally", "sap", "odoo", "busy", "manual"]).default("webhook"),
 });
 
-async function generateHash(payload: Record<string, unknown>): Promise<string> {
+async function generateHash(payload: Record<string, unknown>, previousHash: string | null): Promise<string> {
   const encoder = new TextEncoder();
-  const data = JSON.stringify({ ...payload, ts: Date.now() });
+  const data = `${previousHash || 'GENESIS'}|${JSON.stringify({ ...payload, ts: Date.now() })}`;
   const buffer = await crypto.subtle.digest("SHA-256", encoder.encode(data));
   return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function getLastHash(supabase: any, poId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("procurement_audit_logs")
+    .select("hash_signature")
+    .eq("po_id", poId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  return data?.[0]?.hash_signature || null;
 }
 
 serve(async (req) => {
@@ -72,21 +83,13 @@ serve(async (req) => {
       });
     }
 
-    // Build ERP payload based on type
     const erpPayload = buildErpPayload(po, erp_type);
-
-    // Log PO_CREATED audit event
-    const createHash = await generateHash({
-      action_type: "ERP_SYNCED",
-      performed_by: user.id,
-      new_value: erpPayload,
-    });
+    const previousHash = await getLastHash(supabase, po_id);
 
     let syncStatus = "success";
     let erpResponse: Record<string, unknown> = { type: erp_type, synced_at: new Date().toISOString() };
     let erpRefId: string | null = null;
 
-    // If endpoint provided, attempt real sync
     if (erp_endpoint) {
       try {
         const erpApiKey = Deno.env.get("ERP_API_KEY");
@@ -113,22 +116,38 @@ serve(async (req) => {
         erpResponse = { error: String(fetchErr) };
       }
     } else {
-      // Manual / no endpoint — mark as pending for manual sync
       syncStatus = erp_type === "manual" ? "manual_pending" : "pending";
       erpResponse = { type: erp_type, payload: erpPayload, message: "No endpoint configured — payload ready for manual sync" };
     }
 
-    // Update PO with sync status
+    // If failed, queue for retry
+    if (syncStatus === "failed") {
+      await supabase.from("erp_sync_queue").insert({
+        po_id,
+        status: "pending",
+        erp_type,
+        erp_endpoint: erp_endpoint || null,
+        last_error: JSON.stringify(erpResponse),
+        next_retry_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      });
+    }
+
+    // Update PO
     await supabase
       .from("purchase_orders")
       .update({
-        erp_sync_status: syncStatus,
+        erp_sync_status: syncStatus === "failed" ? "retrying" : syncStatus,
         erp_reference_id: erpRefId,
         erp_response: erpResponse,
       })
       .eq("id", po_id);
 
-    // Log audit event
+    // Audit log with chain hash
+    const hash = await generateHash(
+      { action_type: syncStatus === "failed" ? "ERP_SYNC_FAILED" : "ERP_SYNCED", performed_by: user.id, new_value: erpResponse },
+      previousHash
+    );
+
     await supabase.from("procurement_audit_logs").insert({
       po_id,
       action_type: syncStatus === "failed" ? "ERP_SYNC_FAILED" : "ERP_SYNCED",
@@ -136,7 +155,8 @@ serve(async (req) => {
       performed_by_role: "buyer",
       new_value: { erp_type, sync_status: syncStatus, erp_response: erpResponse },
       is_system_action: false,
-      hash_signature: createHash,
+      hash_signature: hash,
+      previous_hash: previousHash,
     });
 
     return new Response(JSON.stringify({
@@ -144,6 +164,7 @@ serve(async (req) => {
       sync_status: syncStatus,
       erp_reference_id: erpRefId,
       erp_payload: erpPayload,
+      queued_for_retry: syncStatus === "failed",
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -175,32 +196,11 @@ function buildErpPayload(po: Record<string, unknown>, erpType: string) {
 
   switch (erpType) {
     case "tally":
-      return {
-        VoucherType: "Purchase",
-        PartyName: po.vendor_name,
-        Amount: String(po.total_amount),
-        GSTIN: po.vendor_gstin,
-        Narration: `ProcureSaathi PO ${po.po_number}`,
-        Date: po.order_date,
-      };
+      return { VoucherType: "Purchase", PartyName: po.vendor_name, Amount: String(po.total_amount), GSTIN: po.vendor_gstin, Narration: `ProcureSaathi PO ${po.po_number}`, Date: po.order_date };
     case "sap":
-      return {
-        CompanyCode: "1000",
-        Supplier: po.vendor_name,
-        PurchaseOrderType: "NB",
-        TotalNetAmount: po.total_amount,
-        Currency: po.currency || "INR",
-        PurchaseOrderDate: po.order_date,
-        ...base,
-      };
+      return { CompanyCode: "1000", Supplier: po.vendor_name, PurchaseOrderType: "NB", TotalNetAmount: po.total_amount, Currency: po.currency || "INR", PurchaseOrderDate: po.order_date, ...base };
     case "odoo":
-      return {
-        partner_name: po.vendor_name,
-        amount_total: po.total_amount,
-        date_order: po.order_date,
-        notes: `ProcureSaathi PO ${po.po_number}`,
-        ...base,
-      };
+      return { partner_name: po.vendor_name, amount_total: po.total_amount, date_order: po.order_date, notes: `ProcureSaathi PO ${po.po_number}`, ...base };
     default:
       return base;
   }
