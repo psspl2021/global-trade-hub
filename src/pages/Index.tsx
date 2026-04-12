@@ -168,10 +168,10 @@ const Index = () => {
             fetchPriority="high"
             decoding="async"
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'contrast(0.95) brightness(0.8)' }}
+            style={{ filter: 'contrast(1) brightness(0.9)' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/50 to-background/85" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/25 to-background/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30" />
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
