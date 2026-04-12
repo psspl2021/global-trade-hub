@@ -5084,6 +5084,7 @@ export type Database = {
           created_at: string
           delay_reason: string | null
           id: string
+          idempotency_key: string | null
           new_status: string
           notes: string | null
           old_status: string | null
@@ -5095,6 +5096,7 @@ export type Database = {
           created_at?: string
           delay_reason?: string | null
           id?: string
+          idempotency_key?: string | null
           new_status: string
           notes?: string | null
           old_status?: string | null
@@ -5106,6 +5108,7 @@ export type Database = {
           created_at?: string
           delay_reason?: string | null
           id?: string
+          idempotency_key?: string | null
           new_status?: string
           notes?: string | null
           old_status?: string | null
