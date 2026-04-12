@@ -11019,6 +11019,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
+      check_admin_permission: {
+        Args: { _action: string; _user_id: string }
+        Returns: boolean
+      }
       check_and_create_demand_alerts: { Args: never; Returns: number }
       check_and_create_forecast_alerts: { Args: never; Returns: number }
       check_and_increment_email_quota: {
@@ -11709,6 +11713,8 @@ export type Database = {
         | "buyer_manager"
         | "buyer_hr"
         | "transporter"
+        | "ops_manager"
+        | "sales_manager"
       bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
       document_status:
         | "draft"
@@ -11910,6 +11916,8 @@ export const Constants = {
         "buyer_manager",
         "buyer_hr",
         "transporter",
+        "ops_manager",
+        "sales_manager",
       ],
       bid_status: ["pending", "accepted", "rejected", "withdrawn"],
       document_status: [

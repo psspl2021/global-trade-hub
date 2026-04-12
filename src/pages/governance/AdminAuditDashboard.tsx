@@ -15,6 +15,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
+import { useAdminRole, AdminDashboardRole } from '@/hooks/useAdminRole';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +80,11 @@ import RevenueDashboardView from '@/components/admin/RevenueDashboardView';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
+import { CEODashboard } from '@/components/admin/dashboards/CEODashboard';
+import { OpsDashboard } from '@/components/admin/dashboards/OpsDashboard';
+import { SalesDashboard } from '@/components/admin/dashboards/SalesDashboard';
+import { RoleBadge } from '@/components/admin/dashboards/RoleBadge';
+import { AdminRoleSwitch } from '@/components/admin/dashboards/AdminRoleSwitch';
 
 
 const AdminSEOMonitor = lazy(() => import('@/pages/AdminSEOMonitor'));
@@ -116,6 +122,11 @@ export default function AdminAuditDashboard() {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { primaryRole, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
+  
+  const { dashboardRole } = useAdminRole(user?.id);
+  const [roleOverride, setRoleOverride] = useState<AdminDashboardRole>(null);
+  const activeRole = roleOverride || dashboardRole || 'admin';
+  const isFullAdmin = dashboardRole === 'admin';
   
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
   
@@ -281,7 +292,8 @@ export default function AdminAuditDashboard() {
     if (!authLoading && !user) { navigate('/login'); return; }
     if (!accessLoading && primaryRole) {
       if (['purchaser', 'buyer', 'buyer_purchaser'].includes(primaryRole)) { navigate('/dashboard'); return; }
-      if (['cfo', 'ceo', 'manager', 'buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(primaryRole)) { navigate('/management'); return; }
+      // Allow ceo, ops_manager, sales_manager to stay on /admin with role-based dashboards
+      if (['manager', 'buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(primaryRole)) { navigate('/management'); return; }
     }
   }, [authLoading, accessLoading, user, primaryRole, navigate]);
 
@@ -294,7 +306,8 @@ export default function AdminAuditDashboard() {
     );
   }
 
-  if (isAccessDenied || !['ps_admin', 'admin'].includes(primaryRole)) {
+  if (isAccessDenied || !['ps_admin', 'admin', 'ceo', 'ops_manager', 'sales_manager'].includes(primaryRole)) {
+    // CEO role users get redirected to /management, so not included here
     console.warn('[AdminAuditDashboard] Access denied for role:', primaryRole);
     return <AccessDenied variant="404" />;
   }
@@ -327,7 +340,59 @@ export default function AdminAuditDashboard() {
     }
   };
 
-  const renderDashboard = () => (
+  const renderDashboard = () => {
+    // Role-based dashboard rendering
+    if (activeRole === 'ceo') {
+      return (
+        <CEODashboard
+          stats={stats}
+          visitorStats={visitorStats}
+          statsLoading={statsLoading}
+          selectedDays={selectedDays}
+          onSelectedDaysChange={setSelectedDays}
+          onRefresh={fetchStats}
+          onOpenView={(view) => setCurrentView(view as AdminView)}
+          onOpenAnalyticsModal={() => setShowAnalyticsModal(true)}
+          userName={userName}
+        />
+      );
+    }
+
+    if (activeRole === 'ops_manager') {
+      return (
+        <OpsDashboard
+          stats={stats}
+          onShowUsers={() => setShowUsers(true)}
+          onShowRequirements={() => setShowRequirements(true)}
+          onShowBids={() => setShowBids(true)}
+          onShowL1Analysis={() => setShowL1Analysis(true)}
+          onShowLogistics={() => setShowLogistics(true)}
+          onShowVehicles={() => setShowVehicles(true)}
+          onShowPartnerDocs={() => setShowPartnerDocs(true)}
+          userName={userName}
+        />
+      );
+    }
+
+    if (activeRole === 'sales_manager') {
+      return (
+        <SalesDashboard
+          visitorStats={visitorStats}
+          statsLoading={statsLoading}
+          selectedDays={selectedDays}
+          onSelectedDaysChange={setSelectedDays}
+          onRefresh={fetchStats}
+          onOpenView={(view) => setCurrentView(view as AdminView)}
+          onOpenAnalyticsModal={() => setShowAnalyticsModal(true)}
+          onShowPremiumBids={() => setShowPremiumBids(true)}
+          onShowReferrals={() => setShowReferrals(true)}
+          userName={userName}
+        />
+      );
+    }
+
+    // Full admin dashboard (original)
+    return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Welcome back, {userName}!</h1>
@@ -689,7 +754,8 @@ export default function AdminAuditDashboard() {
       <PartnerDocumentVerification open={showPartnerDocs} onOpenChange={setShowPartnerDocs} adminId={user?.id || ''} />
       <PremiumBidsManager open={showPremiumBids} onOpenChange={setShowPremiumBids} adminId={user?.id || ''} />
     </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -703,8 +769,11 @@ export default function AdminAuditDashboard() {
               <Button variant="ghost" size="sm" onClick={() => setCurrentView('dashboard')}>← Back to Dashboard</Button>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <Badge className="bg-emerald-600 text-white border-0"><Shield className="w-3 h-3 mr-1" />ADMIN</Badge>
+           <div className="flex items-center gap-3">
+            <RoleBadge role={activeRole} />
+            {isFullAdmin && (
+              <AdminRoleSwitch currentView={activeRole} onSwitch={(r) => setRoleOverride(r === dashboardRole ? null : r)} />
+            )}
             <NotificationBell />
             <Button variant="outline" size="sm" onClick={() => navigate('/')}><Home className="h-4 w-4 mr-2" />Home</Button>
             <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate('/'); }}><LogOut className="h-4 w-4 mr-2" />Sign Out</Button>
