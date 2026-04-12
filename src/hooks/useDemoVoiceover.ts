@@ -33,14 +33,12 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
     synthesis.resume(); // Chrome bug: clear stuck paused state
 
     const voices = await getVoices();
-    const requestedLang = LANG_MAP[language] || 'en-IN';
 
-    // Priority: exact match → language-family match → Indian English → any English → first
+    // Always use en-IN voice — Hinglish text sounds best with Indian English
     const preferredVoice =
-      voices.find(v => v.lang === requestedLang) ||
-      voices.find(v => v.lang.toLowerCase().startsWith(requestedLang.slice(0, 2).toLowerCase())) ||
-      voices.find(v => v.lang === 'en-IN') ||
+      voices.find(v => v.lang === VOICE_LANG) ||
       voices.find(v => v.lang.toLowerCase().startsWith('en')) ||
+      voices[0];
       voices[0];
 
     const utterance = new SpeechSynthesisUtterance(text);
