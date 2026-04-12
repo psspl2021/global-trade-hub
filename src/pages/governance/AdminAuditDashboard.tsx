@@ -454,21 +454,6 @@ export default function AdminAuditDashboard() {
             <Button className="w-full bg-white text-slate-900 hover:bg-slate-100" onClick={() => setCurrentView('enterprise')}><Shield className="h-4 w-4 mr-2" />Open Enterprise Center</Button>
           </CardContent>
         </Card>
-        <Card className="border border-primary/20 bg-gradient-to-br from-primary/5 to-background cursor-pointer hover:shadow-md transition active:scale-[0.98]" onClick={() => navigate('/admin/demo')}>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Rocket className="h-4 w-4 text-primary" />
-              </div>
-              Demo Mode
-              <Badge variant="outline" className="text-xs border-primary/30 text-primary">SALES</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm text-muted-foreground">Run guided procurement simulation for client calls</p>
-            <p className="text-xs font-medium text-primary">Start Demo →</p>
-          </CardContent>
-        </Card>
         <AuctionTrackerCard />
       </div>
 
