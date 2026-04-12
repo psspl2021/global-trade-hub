@@ -1,7 +1,6 @@
 /**
- * Demo Voiceover Script — Multi-language narration synced to demo phases.
- * Uses browser SpeechSynthesis API (zero API cost).
- * Tone: conversational, boardroom-ready — NOT robotic.
+ * Demo Voiceover Script — Hinglish narration for natural Indian English voice.
+ * Text is Hinglish (romanized Hindi-English mix) so en-IN voice sounds human.
  */
 
 export type DemoNarrationStep =
@@ -36,156 +35,156 @@ export const DEMO_NARRATION: NarrationEntry[] = [
   {
     step: 'intro',
     text: {
-      en: 'Welcome to ProcureSaathi — your private procurement network. This is not a marketplace… This is your own controlled sourcing engine. Let me walk you through how it works.',
-      hi: 'प्रोक्योरसाथी में आपका स्वागत है — आपका निजी प्रोक्योरमेंट नेटवर्क। यह कोई मार्केटप्लेस नहीं है… यह आपका अपना नियंत्रित सोर्सिंग इंजन है।',
+      en: 'Welcome to ProcureSaathi — aapka private procurement network. Yeh marketplace nahi hai… yeh aapka apna controlled sourcing engine hai. Let me walk you through how it works.',
+      hi: 'ProcureSaathi mein aapka swagat hai — aapka apna private procurement network. Yeh koi marketplace nahi hai… yeh aapka khud ka sourcing engine hai.',
     },
     buyerText: {
-      en: 'Welcome, Buyer. This is your Procurement Command Center. From here, you run reverse auctions, manage suppliers, and track every order — from dispatch to delivery.',
-      hi: 'स्वागत है, बायर। यह आपका प्रोक्योरमेंट कमांड सेंटर है।',
+      en: 'Welcome, Buyer. Yeh hai aapka Procurement Command Center. Yahaan se aap reverse auctions chalate ho, suppliers manage karte ho, aur har order track karte ho.',
+      hi: 'Swagat hai, Buyer. Yeh aapka Procurement Command Center hai. Yahaan se sab control hota hai.',
     },
     supplierText: {
-      en: 'Welcome, Supplier. This is where you receive auction invites, place competitive bids, and manage your orders. Let me show you how it works.',
-      hi: 'स्वागत है, सप्लायर। यहाँ आप ऑक्शन आमंत्रण प्राप्त करते हैं और प्रतिस्पर्धी बोलियाँ लगाते हैं।',
+      en: 'Welcome, Supplier. Yahaan aap auction invites receive karte ho, competitive bids lagate ho, aur apne orders manage karte ho.',
+      hi: 'Swagat hai, Supplier. Yahaan aap auction invites receive karte ho aur competitive bids lagate ho.',
     },
   },
   {
     step: 'rfq_start',
     text: {
-      en: 'You don\'t start with forms… You just describe your requirement in plain text. ProcureSaathi\'s AI converts it into a structured RFQ — automatically.',
-      hi: 'आप फॉर्म से शुरू नहीं करते… आप बस अपनी ज़रूरत सामान्य भाषा में बताते हैं। प्रोक्योरसाथी का AI इसे अपने-आप एक संरचित RFQ में बदल देता है।',
+      en: 'Aap sirf requirement daalte ho — system automatically RFQ bana deta hai. No forms, no manual work.',
+      hi: 'Aap bas apni requirement likhte ho, system automatically RFQ bana deta hai.',
     },
     supplierText: {
-      en: 'The buyer has submitted a requirement… and the system has structured it into a detailed enquiry — with SKU-level breakdown, delivery terms, and payment conditions.',
-      hi: 'बायर ने अपनी ज़रूरत सबमिट कर दी है… और सिस्टम ने इसे SKU-लेवल ब्रेकडाउन के साथ एक डिटेल्ड एन्क्वायरी में बदल दिया है।',
+      en: 'Buyer ne apni requirement submit kar di hai… aur system ne ise ek detailed enquiry mein convert kar diya hai — SKU breakdown, delivery terms, payment conditions — sab ready.',
+      hi: 'Buyer ne requirement submit ki hai… system ne ise detailed enquiry mein convert kar diya hai.',
     },
   },
   {
     step: 'rfq_structured',
     text: {
-      en: 'Every requirement is structured before reaching suppliers… No ambiguity. No back-and-forth. Product, quantity, SKU breakdown, delivery timeline, payment terms — all locked before a single supplier is contacted.',
-      hi: 'हर ज़रूरत सप्लायर्स तक पहुँचने से पहले संरचित होती है… कोई अस्पष्टता नहीं। प्रोडक्ट, क्वांटिटी, SKU ब्रेकडाउन, डिलीवरी टाइमलाइन — सब लॉक।',
+      en: 'Har requirement suppliers tak pahunchne se pehle structured hoti hai. No ambiguity, no back-and-forth. Product, quantity, SKU breakdown, delivery timeline — sab locked hai.',
+      hi: 'Har requirement pehle se structured hoti hai. Koi confusion nahi. Product, quantity, timeline — sab locked.',
     },
   },
   {
     step: 'supplier_invite',
     text: {
-      en: 'Notice something… Suppliers are not browsing listings here. They are responding to your requirement — through structured, private invitations. Only your trusted network competes.',
-      hi: 'ध्यान दीजिए… सप्लायर्स यहाँ लिस्टिंग ब्राउज़ नहीं कर रहे। वे आपकी ज़रूरत पर रिस्पॉन्ड कर रहे हैं — संरचित, निजी आमंत्रण के ज़रिए।',
+      en: 'Ek cheez notice karo… Suppliers yahaan listings browse nahi kar rahe. Woh aapki requirement par respond kar rahe hain — private invitations ke through. Sirf aapka trusted network compete karta hai.',
+      hi: 'Notice karo… Suppliers listings nahi dekh rahe. Woh aapki requirement par respond kar rahe hain — private invite ke through.',
     },
     supplierText: {
-      en: 'You\'ve received a private auction invitation from a verified buyer. Review the requirement details and prepare your best bid.',
-      hi: 'आपको एक वेरिफाइड बायर से प्राइवेट ऑक्शन इन्विटेशन मिला है। ज़रूरत की डिटेल्स देखें और अपनी बेस्ट बोली तैयार करें।',
+      en: 'Aapko ek verified buyer se private auction invitation mila hai. Requirement details review karo aur apni best bid taiyaar karo.',
+      hi: 'Aapko ek verified buyer se private auction invite mila hai. Details dekho aur best bid lagao.',
     },
   },
   {
     step: 'auction_live',
     text: {
-      en: 'Now the most powerful feature — Reverse Auctions… Instead of calling 3 to 4 suppliers manually, you invite your trusted suppliers into a live competitive auction. They compete in real time… and you get the best possible price — transparently.',
-      hi: 'अब सबसे शक्तिशाली फीचर — रिवर्स ऑक्शन… मैन्युअली 3-4 सप्लायर्स को कॉल करने की बजाय, आप अपने विश्वसनीय सप्लायर्स को लाइव ऑक्शन में आमंत्रित करते हैं।',
+      en: 'Ab sabse powerful feature — Reverse Auction. Manually 3-4 suppliers ko call karne ki jagah, aap apne trusted suppliers ko live competitive auction mein invite karte ho. Woh real-time mein compete karte hain… aur aapko best possible price milta hai — transparently.',
+      hi: 'Ab dekhiye sabse powerful feature — Reverse Auction. Aapke suppliers real-time mein compete kar rahe hain. Best price automatically milta hai.',
     },
     buyerText: {
-      en: 'You\'ve invited 3 suppliers to compete… Watch as bids drop in real time. You don\'t negotiate — the market does it for you.',
-      hi: 'आपने 3 सप्लायर्स को प्रतिस्पर्धा के लिए आमंत्रित किया है… देखें कैसे बोलियाँ रियल-टाइम में गिरती हैं।',
+      en: 'Aapne 3 suppliers ko compete karne ke liye invite kiya hai. Dekho kaise bids real-time mein drop ho rahi hain. Aap negotiate nahi karte — market karta hai aapke liye.',
+      hi: 'Aapne 3 suppliers ko invite kiya hai. Dekho kaise bids real-time mein gir rahi hain.',
     },
     supplierText: {
-      en: 'You\'ve received an auction invite. Place your best bid to win the order… The lowest bid wins — compete smartly.',
-      hi: 'आपको ऑक्शन का आमंत्रण मिला है। ऑर्डर जीतने के लिए अपनी सबसे अच्छी बोली लगाएँ।',
+      en: 'Aapko auction invite mila hai. Order jeetne ke liye apni best bid lagao. Lowest bid wins — compete smartly.',
+      hi: 'Aapko auction invite mila hai. Best bid lagao — lowest bid jeetegi.',
     },
   },
   {
     step: 'auction_complete',
     text: {
-      en: 'The auction closes… and the lowest bidder wins — transparently. Now, you generate a Purchase Order directly from the platform. No manual follow-ups… No confusion. Everything is structured and tracked.',
-      hi: 'ऑक्शन बंद हो गया… और सबसे कम बोली लगाने वाला जीतता है — पारदर्शी तरीके से। अब आप सीधे प्लेटफॉर्म से पर्चेज ऑर्डर बनाते हैं।',
+      en: 'Auction complete ho gaya… aur lowest bidder jeeta hai — transparently. Ab aap directly platform se Purchase Order generate karte ho. No manual follow-ups, no confusion.',
+      hi: 'Auction khatam — best price automatically mil gaya. Ab ek click mein Purchase Order ban jaata hai.',
     },
     buyerText: {
-      en: 'Auction complete! You got the best price… Now generate a Purchase Order with one click — no back and forth.',
-      hi: 'ऑक्शन पूरा! आपको सबसे अच्छी कीमत मिली। अब एक क्लिक में पर्चेज ऑर्डर बनाएँ।',
+      en: 'Auction complete! Aapko best price mil gaya. Ab ek click mein Purchase Order generate karo — no back and forth.',
+      hi: 'Auction complete! Best price mila. Ek click mein PO ban jaayega.',
     },
     supplierText: {
-      en: 'The auction has ended. If you won… a Purchase Order will be generated for you. Accept it to proceed.',
-      hi: 'ऑक्शन समाप्त हो गया। अगर आप जीते, तो पर्चेज ऑर्डर जनरेट होगा।',
+      en: 'Auction end ho gaya. Agar aap jeete ho… toh aapke liye Purchase Order generate hoga. Accept karo aur aage badho.',
+      hi: 'Auction khatam. Agar aap jeete, toh PO generate hoga. Accept karo.',
     },
   },
   {
     step: 'savings',
     text: {
-      en: 'Savings per auction are typically modest — around 500 to 1,000 rupees per metric ton… depending on category and competition. But over multiple procurements… this compounds into significant annual savings of 10 to 15 percent.',
-      hi: 'हर ऑक्शन में बचत आमतौर पर मामूली होती है — लगभग 500 से 1,000 रुपये प्रति मीट्रिक टन… लेकिन कई खरीद के बाद, यह सालाना 10 से 15 प्रतिशत तक की बड़ी बचत में बदल जाती है।',
+      en: 'Aapne kuch hi seconds mein significant cost save kiya hai. Har auction mein typically 500 se 1000 rupees per metric ton savings hoti hai. Multiple procurements ke baad, yeh 10 se 15 percent annual savings ban jaati hai.',
+      hi: 'Sirf kuch seconds mein aapne cost save kar li. Har auction mein 500 se 1000 rupees per MT bachte hain. Saal bhar mein 10 se 15 percent savings.',
     },
   },
   {
     step: 'loss_aversion',
     text: {
-      en: 'Without competitive bidding… buyers often pay significantly more for the same order. This difference… directly impacts your margins.',
-      hi: 'कंपेटिटिव बिडिंग के बिना… बायर्स अक्सर उसी ऑर्डर के लिए ज्यादा कीमत देते हैं। यह फर्क… सीधे आपके मार्जिन पर असर डालता है।',
+      en: 'Without competition, yahi order aapko zyada mehenga padta. Competitive bidding ke bina… buyers aksar usi order ke liye zyada pay karte hain. Yeh difference… seedha aapke margins par impact karta hai.',
+      hi: 'Agar competition nahi hota, toh yeh order aur mehenga padta. Yeh fark seedha margins par impact karta hai.',
     },
   },
   {
     step: 'po_start',
     text: {
-      en: 'Now comes Execution Tracking — where most systems fail… Here, every step is enforced. No step can be skipped. This ensures discipline and trust… across the entire supply chain.',
-      hi: 'अब आता है एक्ज़ीक्यूशन ट्रैकिंग — जहाँ ज़्यादातर सिस्टम फेल होते हैं… यहाँ हर स्टेप एनफोर्स्ड है।',
+      en: 'Ab aata hai Execution Tracking — jahaan zyada-tar systems fail hote hain. Yahaan har step enforced hai. Koi step skip nahi ho sakta. Discipline aur trust — poori supply chain mein.',
+      hi: 'Ab aata hai Execution Tracking. Har step enforced hai. Koi step skip nahi hoga.',
     },
   },
   {
     step: 'po_sent',
     text: {
-      en: 'The Purchase Order has been sent to the supplier… They must formally accept before anything moves forward.',
-      hi: 'पर्चेज ऑर्डर सप्लायर को भेज दिया गया है… आगे बढ़ने से पहले उन्हें औपचारिक रूप से स्वीकार करना होगा।',
+      en: 'Purchase Order supplier ko bhej diya gaya hai. Aage badhne se pehle unhe formally accept karna hoga.',
+      hi: 'PO supplier ko bhej diya hai. Unhe pehle accept karna hoga.',
     },
     supplierText: {
-      en: 'You\'ve received a Purchase Order… Review the terms and accept to begin fulfillment.',
-      hi: 'आपको पर्चेज ऑर्डर मिला है। शर्तें देखें और स्वीकार करें।',
+      en: 'Aapko Purchase Order mila hai. Terms review karo aur accept karo — fulfillment shuru karne ke liye.',
+      hi: 'Aapko PO mila hai. Terms dekho aur accept karo.',
     },
   },
   {
     step: 'po_accepted',
     text: {
-      en: 'Supplier has accepted the order… Now shipment details must be entered — vehicle number, driver contact, and transport source.',
-      hi: 'सप्लायर ने ऑर्डर स्वीकार कर लिया है… अब शिपमेंट डिटेल्स भरनी होंगी।',
+      en: 'Supplier ne order accept kar liya hai. Ab shipment details enter karni hongi — vehicle number, driver contact, aur transport source.',
+      hi: 'Supplier ne accept kiya. Ab shipment details bharne hongi.',
     },
   },
   {
     step: 'po_in_transit',
     text: {
-      en: 'Shipment is now in transit… Vehicle details are locked. If delivery is delayed… reasons must be recorded. No excuses without accountability.',
-      hi: 'शिपमेंट अब ट्रांज़िट में है… अगर डिलीवरी में देरी होती है, तो कारण दर्ज करने होंगे।',
+      en: 'Shipment ab transit mein hai. Vehicle details locked hain. Agar delivery delay hoti hai… reasons record karne honge. Bina accountability ke koi excuse nahi chalega.',
+      hi: 'Shipment transit mein hai. Agar delay hota hai toh reason dena padega. Koi excuse nahi.',
     },
   },
   {
     step: 'po_delivered',
     text: {
-      en: 'Goods delivered… Delivery is confirmed with accountability. The buyer must now confirm payment… to close the loop.',
-      hi: 'माल डिलीवर हो गया… अब बायर को पेमेंट कन्फर्म करना होगा।',
+      en: 'Goods delivered ho gaye. Delivery confirmed hai with accountability. Ab buyer ko payment confirm karna hoga — loop close karne ke liye.',
+      hi: 'Maal deliver ho gaya. Ab buyer ko payment confirm karni hogi.',
     },
   },
   {
     step: 'po_payment',
     text: {
-      en: 'Payment confirmed… If a previous order is incomplete, new orders are blocked. This ensures serious business… not casual transactions.',
-      hi: 'पेमेंट कन्फर्म हो गया… अगर कोई पुराना ऑर्डर अधूरा है, तो नए ऑर्डर ब्लॉक हो जाएंगे।',
+      en: 'Payment confirmed. Agar koi previous order incomplete hai, toh new orders block ho jaayenge. Yeh serious business ensure karta hai — casual transactions nahi.',
+      hi: 'Payment confirm ho gayi. Purana order adhoora hai toh naye orders block honge.',
     },
   },
   {
     step: 'po_closed',
     text: {
-      en: 'Order complete… The full lifecycle is finished. Supplier reliability score is updated… The buyer can now create a new order.',
-      hi: 'ऑर्डर पूरा हो गया… सप्लायर की विश्वसनीयता स्कोर अपडेट हो गया है।',
+      en: 'Order complete. Poora lifecycle finish ho gaya hai. Supplier ki reliability score update ho gayi hai. Buyer ab naya order create kar sakta hai.',
+      hi: 'Order complete. Supplier ka reliability score update ho gaya. Ab naya order bana sakte ho.',
     },
   },
   {
     step: 'outro',
     text: {
-      en: 'ProcureSaathi is not just a tool… It is your Procurement Operating System. You control the network… You control the pricing… You control the outcome.',
-      hi: 'प्रोक्योरसाथी सिर्फ एक टूल नहीं है… यह आपका प्रोक्योरमेंट ऑपरेटिंग सिस्टम है।',
+      en: 'ProcureSaathi sirf ek tool nahi hai… Yeh aapka Procurement Operating System hai. Aap network control karte ho. Aap pricing control karte ho. Aap outcome control karte ho.',
+      hi: 'Yeh sirf tool nahi — yeh aapka complete procurement system hai. Network, pricing, outcome — sab aapke control mein.',
     },
   },
   {
     step: 'cta',
     text: {
-      en: 'You are now ready to run your first global auction… Let\'s get started.',
-      hi: 'अब आप अपना पहला ग्लोबल ऑक्शन चलाने के लिए तैयार हैं… चलिए शुरू करते हैं।',
+      en: 'Ab aap apna first auction run karne ke liye ready ho. Let\'s get started.',
+      hi: 'Ab aap apna first auction start kar sakte ho. Chaliye shuru karte hain.',
     },
   },
 ];
