@@ -642,6 +642,21 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
     issues.push('MISSING: Add regret trigger before final CTA (e.g., "Most procurement teams realize this after final billing — when cost overruns are already locked").');
   }
 
+  // === TRUST PROOF VALIDATOR ===
+  if (!/5–12%|price reduction|without changing suppliers|₹.*lakh saved|savings.*structured/i.test(content)) {
+    issues.push('MISSING: Add trust proof block with % savings range and ₹ example (e.g., "ProcureSaathi buyers typically see 5–12% price reduction when supplier competition is structured properly").');
+  }
+
+  // === FRICTION REMOVAL VALIDATOR ===
+  if (!/no commitment|no platform fees|quotes in 24 hours|no signup required|free to use/i.test(content)) {
+    issues.push('MISSING: Add friction removal line below CTA (e.g., "No commitment. No platform fees. Get supplier quotes in 24 hours.").');
+  }
+
+  // === SPEED TRIGGER VALIDATOR ===
+  if (!/in 24 hours|within 24 hours|24-hour|same-day/i.test(content)) {
+    issues.push('MISSING: Add speed trigger in CTA (e.g., "Get Lowest Price in 24 Hours →" instead of generic CTA).');
+  }
+
   const confidenceScore = Math.max(0, 100 - (issues.length * 10));
   return { pass: issues.length === 0, issues, confidenceScore };
 }
@@ -819,8 +834,8 @@ Not ready to run a reverse auction yet? → <a href="/browseproducts" style="col
     }
   }
 
-  // Inject CONVERSION-OPTIMIZED CTA (replaces generic CTA)
-  if (!/overpaying|lowest price now|live price competition/i.test(content)) {
+  // Inject CONVERSION-OPTIMIZED CTA with TRUST PROOF + FRICTION REMOVAL + SPEED TRIGGER
+  if (!/overpaying|lowest price.*24|live price competition/i.test(content)) {
     // Remove old generic CTA if present
     content = content.replace(/<div style="margin-top:2rem;padding:1\.5rem;border:1px solid #e5e7eb;border-radius:12px;background:#f0fdf4;">[\s\S]*?<\/div>/i, '');
     
@@ -829,8 +844,10 @@ Not ready to run a reverse auction yet? → <a href="/browseproducts" style="col
 <p style="font-size:0.95rem;color:#374151;font-style:italic;margin-bottom:0.75rem;">Most buyers realize pricing inefficiencies only after the project is completed — when it's too late to recover margins.</p>
 <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:0.75rem;color:#111827;">Still Comparing Quotes Manually?</h3>
 <p style="margin-bottom:0.5rem;">If your last ${product} purchase was based on 2–3 supplier quotes, you are likely <strong>overpaying by ₹2,000–₹5,000 per ton</strong>.</p>
-<p style="margin-bottom:1rem;">Run a <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a> on ProcureSaathi and see <strong>live price competition</strong> between verified suppliers. No commitment — see quotes in 24 hours.</p>
-<a href="/post-rfq" style="display:inline-block;padding:0.75rem 2rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:1.1rem;">Get Lowest Price Now →</a>
+<p style="margin-bottom:0.5rem;font-weight:600;">ProcureSaathi buyers typically see 5–12% price reduction when supplier competition is structured properly. On a ₹50 lakh procurement, that's <strong>₹2.5–6 lakh saved</strong> — without changing suppliers.</p>
+<p style="margin-bottom:1rem;">Run a <a href="/post-rfq" style="color:#16a34a;font-weight:600">reverse auction</a> on ProcureSaathi and see <strong>live price competition</strong> between verified suppliers.</p>
+<a href="/post-rfq" style="display:inline-block;padding:0.75rem 2rem;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:1.1rem;">Get Lowest Price in 24 Hours →</a>
+<p style="font-size:0.85rem;color:#6b7280;margin-top:0.75rem;margin-bottom:0;">No commitment. No platform fees. Get supplier quotes in 24 hours.</p>
 </div>`;
     content = content.replace(/<\/article>/i, conversionCTA + '\n</article>');
   }
