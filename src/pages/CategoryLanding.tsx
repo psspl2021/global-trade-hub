@@ -961,6 +961,77 @@ const CategoryLanding = () => {
         </section>
       )}
 
+      {/* Subcategory-specific Market Intelligence (enriches thin subcategory pages) */}
+      {subcategorySlug && (
+        <section className="py-12 border-b">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl font-bold mb-6">
+              {subcategoryName} Market Intelligence
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <TrendingUp className="h-6 w-6 text-primary" />
+                    <h3 className="font-semibold">Demand Trend</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {subcategoryName} demand is growing across Indian manufacturing and infrastructure sectors. 
+                    Procurement teams are actively sourcing verified suppliers for project-based and recurring requirements.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Users className="h-6 w-6 text-primary" />
+                    <h3 className="font-semibold">Buyer Segments</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Key buyers include EPC contractors, manufacturing plants, government departments, 
+                    and export-oriented businesses sourcing {subcategoryName?.toLowerCase()} in bulk.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Shield className="h-6 w-6 text-primary" />
+                    <h3 className="font-semibold">Quality Standards</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    All {subcategoryName?.toLowerCase()} suppliers are verified for BIS/ISO compliance, 
+                    factory audits, and quality certifications required for industrial procurement.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Related subcategories within same parent */}
+            {category && (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Related in {categoryName}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {category.subcategories
+                    .filter(sub => nameToSlug(sub) !== subcategorySlug)
+                    .slice(0, 12)
+                    .map(sub => (
+                      <Badge
+                        key={sub}
+                        className="cursor-pointer hover:bg-primary/90"
+                        onClick={() => navigate(`/category/${categorySlug}/${nameToSlug(sub)}`)}
+                      >
+                        {sub}
+                      </Badge>
+                    ))
+                  }
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Benefits Section */}
       <section className="py-12 bg-muted/50">
         <div className="container mx-auto px-4">
