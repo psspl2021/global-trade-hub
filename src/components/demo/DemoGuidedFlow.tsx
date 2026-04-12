@@ -888,6 +888,16 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       ? 'ring-2 ring-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)] transition-shadow duration-500'
       : 'transition-shadow duration-500';
 
+  const getLiveCommentary = () => {
+    if (phase === 'rfq') return "Just type requirement → RFQ auto-created";
+    if (phase === 'invite') return "Private invites sent → Only your suppliers compete";
+    if (phase === 'auction' && !auctionComplete) return "Watch this… prices dropping LIVE due to competition";
+    if (phase === 'auction' && auctionComplete) return "Same suppliers. Better price. Because of competition.";
+    if (phase === 'po_lifecycle' && poStatus !== 'closed') return "Execution tracking — no step can be skipped";
+    if (phase === 'po_lifecycle' && poStatus === 'closed') return "Full procurement lifecycle completed — zero leakage";
+    return "";
+  };
+
   if (showEntryScreen) {
     return (
       <div className="min-h-screen bg-background">
@@ -966,6 +976,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       <div className="max-w-4xl mx-auto p-4 space-y-4">
         {/* ── Step Indicator ── */}
         <DemoStepIndicator currentPhase={phase} auctionComplete={auctionComplete} />
+
+        {/* ── Live Commentary Bar ── */}
+        {getLiveCommentary() && (
+          <div className="bg-foreground text-background px-4 py-2.5 rounded-lg text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+            ⚡ {getLiveCommentary()}
+          </div>
+        )}
 
         {/* ── Positioning Statement ── */}
         <div className="px-3 py-2 rounded-lg bg-muted/40 border border-border">
@@ -1100,6 +1117,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             {activeSuppliers.length > 0 && activeSuppliers.length < DEMO_SUPPLIERS.length && (
               <div className="text-sm text-primary animate-in fade-in slide-in-from-top-2 duration-300">
                 ✅ {activeSuppliers[activeSuppliers.length - 1].name} joined the auction
+              </div>
+            )}
+
+            {/* Auction punch line */}
+            {!auctionComplete && bidRound > 1 && (
+              <div className="text-center text-base font-semibold text-green-600 dark:text-green-400 animate-pulse">
+                🔥 Round by round — price automatically going DOWN
               </div>
             )}
 
@@ -1367,6 +1391,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                     <Rocket className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="text-xl font-bold text-foreground">Ready to run your first auction?</h3>
+                  <p className="text-lg font-semibold text-foreground/90">
+                    This is not a tool. This is your CONTROL over pricing, suppliers, and margins.
+                  </p>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
                     You just experienced the full procurement lifecycle — from AI-powered RFQ to competitive bidding to payment confirmation. Start saving on your real orders now.
                   </p>
