@@ -237,6 +237,11 @@ Inside this section, create 3 scenarios in a TABLE:
 | HEDGE | Uncertain market / budget pressure | Split procurement: buy 30% now, 70% later | Low |
 After the table, add: "Most buyers lose money not due to high prices, but due to wrong timing."
 
+LOSS VISUALIZATION (MANDATORY — inside or after decision block):
+After the decision table, add a LOSS SCENARIO in bold red:
+"Delay decision by 30 days → potential increase of ₹2,000–₹4,000/MT. On 500 MT → ₹10–20 lakh additional cost."
+This must feel visceral, not neutral. Show the COST OF INACTION.
+
 HEDGING STRATEGY SECTION (MANDATORY):
 You MUST include a section on hedging with REAL tactics:
 - Rate Contract: lock ₹/MT for 30–60 days with top suppliers
@@ -244,6 +249,22 @@ You MUST include a section on hedging with REAL tactics:
 - Multi-supplier bidding: force price competition via reverse auction
 - Reverse auction timing: run auctions after a price spike when suppliers are desperate for volume
 Include 1 numerical example: "On 500 MT, a ₹3,000/MT difference = ₹15 lakh impact on project margin."
+
+INTERACTIVE DECISION HOOK (MANDATORY — mid-blog):
+Include AT LEAST ONE direct question to the reader that forces self-assessment:
+Example: "How many supplier quotes did you compare last time — 2, 3, or more than 5?"
+Followed by: "If it's less than 5, you're not seeing the real market price."
+This creates self-realization and drives action.
+
+MICRO-COMMITMENT CTA (MANDATORY — mid-blog, BEFORE final CTA):
+Add a LOW-INTENT capture CTA somewhere in the middle of the blog:
+"Not ready to run a reverse auction yet? → <a href="/browseproducts">See current market price trends first</a>"
+This captures readers who aren't ready for the big CTA yet.
+
+REGRET TRIGGER (MANDATORY — immediately before final CTA):
+Add this line BEFORE the final CTA button:
+"Most procurement teams realize this after final billing — when cost overruns are already locked."
+This creates urgency through anticipated regret.
 
 FINAL CTA (CONVERSION-OPTIMIZED — MANDATORY):
 End blog with this EXACT structure:
