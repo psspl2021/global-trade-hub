@@ -160,13 +160,15 @@ const Index = () => {
       <main>
         {/* ===== SECTION 1: HERO ===== */}
         <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
-          {/* Background image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ 
-              backgroundImage: `url(${heroBgProcurement})`,
-              filter: 'contrast(0.95) brightness(0.8)'
-            }}
+          {/* Background image - preloaded for fast LCP */}
+          <img
+            src={heroBgProcurement}
+            alt=""
+            role="presentation"
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: 'contrast(0.95) brightness(0.8)' }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/50 to-background/85" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50" />
