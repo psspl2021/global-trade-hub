@@ -821,7 +821,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   }, [goToNextPhase]);
 
   const resetCurrentStep = useCallback(() => {
-    stop();
     setFullDemoRunning(false);
     setAutoPlay(false);
     setHighlightSection(null);
@@ -836,7 +835,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       setPOStatus('draft');
       setShowCTA(false);
     }
-  }, [phase, stop]);
+  }, [phase]);
 
   const startDemo = useCallback((s: EntryScenario) => {
     setScenario(s);
@@ -847,9 +846,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setPhase('rfq');
     setAutoPlay(false);
     setFullDemoRunning(s === 'full');
-    introSpoken.current = true;
-    speak('intro', () => { setTimeout(() => speak('rfq_start'), 400); });
-  }, [speak]);
+  }, []);
 
   // Full demo: auto-advance
   useEffect(() => {
@@ -897,13 +894,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       ? 'ring-2 ring-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)] transition-shadow duration-500'
       : 'transition-shadow duration-500';
 
-  const getSubtitleText = () => {
-    if (!currentStep) return '';
-    const text = getNarrationText(currentStep, language, scenario);
-    return text.length > 140 ? text.slice(0, 140) + '…' : text;
-  };
-
-  // ── ENTRY SCREEN ──
   if (showEntryScreen) {
     return (
       <div className="min-h-screen bg-background">
@@ -1037,41 +1027,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <span className="text-xs">{isDeepMode ? 'Deep' : 'Sales'}</span>
           </Button>
 
-          {/* ── Voice Controls ── */}
-          <div className="flex items-center gap-1 border rounded-lg px-1 py-0.5" data-demo-controls>
-            {speaking && !paused ? (
-              <Button variant="ghost" size="sm" onClick={pauseVoice} className="h-7 w-7 p-0" title="Pause voiceover">
-                <Pause className="w-3.5 h-3.5" />
-              </Button>
-            ) : paused ? (
-              <Button variant="ghost" size="sm" onClick={resumeVoice} className="h-7 w-7 p-0" title="Resume voiceover">
-                <Play className="w-3.5 h-3.5" />
-              </Button>
-            ) : (
-              <Button variant="ghost" size="sm" onClick={() => {
-                const phaseNarration: Record<string, DemoNarrationStep> = {
-                  rfq: 'rfq_start',
-                  invite: 'supplier_invite',
-                  auction: auctionComplete ? 'auction_complete' : 'auction_live',
-                  po_lifecycle: poStatusToNarrationStep(poStatus) || 'po_start',
-                };
-                speak(phaseNarration[phase] || 'intro');
-              }} className="h-7 w-7 p-0" title="Play voiceover">
-                <Play className="w-3.5 h-3.5" />
-              </Button>
-            )}
-            {(speaking || paused) && (
-              <Button variant="ghost" size="sm" onClick={() => { window.speechSynthesis?.cancel(); stop(); }} className="h-7 w-7 p-0" title="Stop voiceover">
-                <Square className="w-3.5 h-3.5" />
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={toggleVoice} className="h-7 w-7 p-0"
-              title={voiceEnabled ? 'Mute voiceover' : 'Enable voiceover'}>
-              {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            </Button>
-            {speaking && <span className="text-xs text-primary animate-pulse">●</span>}
-          </div>
-
           {/* Auto-play & Next Step */}
           {!fullDemoRunning && (
             <div className="flex items-center gap-1 ml-auto" data-demo-controls>
@@ -1108,21 +1063,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               variant="secondary" size="sm"
               className="ml-auto gap-1 active:scale-95 transition"
               data-demo-controls
-              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); window.speechSynthesis?.cancel(); }}
+              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); }}
             >
-              <Pause className="w-3.5 h-3.5" />
               Stop Auto-Play
             </Button>
           )}
         </div>
-
-        {/* Narration subtitle bar */}
-        {speaking && currentStep && (
-          <div className="bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-sm text-foreground/80 animate-in fade-in slide-in-from-top-2 duration-300">
-            <span className="text-primary mr-2">🎤</span>
-            {getSubtitleText()}
-          </div>
-        )}
 
         {/* ── RFQ PHASE ── */}
         {phase === 'rfq' && (
