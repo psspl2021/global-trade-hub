@@ -19,7 +19,7 @@ export function useExternalPOValidation() {
       setResult(res);
       return res;
     } catch {
-      const fallback = { valid: true }; // fail-open
+      const fallback = { valid: false, reason: 'validation_unavailable' };
       setResult(fallback);
       return fallback;
     } finally {
