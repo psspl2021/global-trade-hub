@@ -56,6 +56,7 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
     }
 
     setLoading(true);
+    const idempotencyKey = `${poId}_${targetStatus}_${Date.now()}`;
     try {
       // Race-safe: atomic server-side validation for external POs before transition
       const { data: gateCheck, error: gateError } = await supabase.rpc('proceed_po_step', {
