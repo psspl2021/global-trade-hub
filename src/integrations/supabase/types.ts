@@ -5236,6 +5236,57 @@ export type Database = {
           },
         ]
       }
+      procurement_audit_logs: {
+        Row: {
+          action_type: string
+          auction_id: string | null
+          created_at: string
+          hash_signature: string
+          id: string
+          ip_address: string | null
+          is_system_action: boolean
+          new_value: Json | null
+          old_value: Json | null
+          performed_by: string
+          performed_by_role: string
+          po_id: string | null
+          rfq_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          auction_id?: string | null
+          created_at?: string
+          hash_signature: string
+          id?: string
+          ip_address?: string | null
+          is_system_action?: boolean
+          new_value?: Json | null
+          old_value?: Json | null
+          performed_by: string
+          performed_by_role?: string
+          po_id?: string | null
+          rfq_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          auction_id?: string | null
+          created_at?: string
+          hash_signature?: string
+          id?: string
+          ip_address?: string | null
+          is_system_action?: boolean
+          new_value?: Json | null
+          old_value?: Json | null
+          performed_by?: string
+          performed_by_role?: string
+          po_id?: string | null
+          rfq_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       procurement_config: {
         Row: {
           config_key: string
@@ -5501,6 +5552,9 @@ export type Database = {
           discount_amount: number
           discount_percent: number | null
           driver_contact: string | null
+          erp_reference_id: string | null
+          erp_response: Json | null
+          erp_sync_status: string | null
           expected_delivery_date: string | null
           id: string
           immutable_hash: string | null
@@ -5545,6 +5599,9 @@ export type Database = {
           discount_amount?: number
           discount_percent?: number | null
           driver_contact?: string | null
+          erp_reference_id?: string | null
+          erp_response?: Json | null
+          erp_sync_status?: string | null
           expected_delivery_date?: string | null
           id?: string
           immutable_hash?: string | null
@@ -5589,6 +5646,9 @@ export type Database = {
           discount_amount?: number
           discount_percent?: number | null
           driver_contact?: string | null
+          erp_reference_id?: string | null
+          erp_response?: Json | null
+          erp_sync_status?: string | null
           expected_delivery_date?: string | null
           id?: string
           immutable_hash?: string | null
