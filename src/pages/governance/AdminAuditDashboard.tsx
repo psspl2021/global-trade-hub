@@ -123,6 +123,11 @@ export default function AdminAuditDashboard() {
   const { user, signOut, loading: authLoading } = useAuth();
   const { primaryRole, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
   
+  const { dashboardRole } = useAdminRole(user?.id);
+  const [roleOverride, setRoleOverride] = useState<AdminDashboardRole>(null);
+  const activeRole = roleOverride || dashboardRole || 'admin';
+  const isFullAdmin = dashboardRole === 'admin';
+  
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
   
   const [showUsers, setShowUsers] = useState(false);
