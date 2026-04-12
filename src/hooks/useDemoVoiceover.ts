@@ -42,7 +42,7 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
       voices[0];
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = preferredVoice?.lang || requestedLang;
+    utterance.lang = preferredVoice?.lang || VOICE_LANG;
     if (preferredVoice) utterance.voice = preferredVoice;
 
     // Human-like tuning
