@@ -5084,6 +5084,7 @@ export type Database = {
           created_at: string
           delay_reason: string | null
           id: string
+          idempotency_key: string | null
           new_status: string
           notes: string | null
           old_status: string | null
@@ -5095,6 +5096,7 @@ export type Database = {
           created_at?: string
           delay_reason?: string | null
           id?: string
+          idempotency_key?: string | null
           new_status: string
           notes?: string | null
           old_status?: string | null
@@ -5106,6 +5108,7 @@ export type Database = {
           created_at?: string
           delay_reason?: string | null
           id?: string
+          idempotency_key?: string | null
           new_status?: string
           notes?: string | null
           old_status?: string | null
@@ -11321,10 +11324,24 @@ export type Database = {
         Args: { _metadata?: Json; _target_role: string; _user_id: string }
         Returns: string
       }
-      proceed_po_step: {
-        Args: { p_new_status: string; p_po_id: string; p_updated_by: string }
-        Returns: Json
-      }
+      proceed_po_step:
+        | {
+            Args: {
+              p_new_status: string
+              p_po_id: string
+              p_updated_by: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_idempotency_key?: string
+              p_new_status: string
+              p_po_id: string
+              p_updated_by: string
+            }
+            Returns: Json
+          }
       promote_next_affiliate: { Args: never; Returns: undefined }
       promote_next_waitlisted_affiliate: { Args: never; Returns: undefined }
       promote_signal_on_visit: {
