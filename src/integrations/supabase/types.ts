@@ -1597,6 +1597,7 @@ export type Database = {
           awarded_at: string | null
           awarded_commission_pct: number | null
           awarded_commission_value: number | null
+          base_price: number | null
           bid_amount: number
           buyer_logistics_price: number | null
           buyer_material_price: number | null
@@ -1607,12 +1608,16 @@ export type Database = {
           delivery_timeline_days: number
           dispatched_qty: number | null
           expected_delivery_date: string | null
+          freight_cost: number | null
+          gst_percent: number | null
           id: string
           is_paid_bid: boolean
+          landed_cost: number | null
           logistics_execution_mode: string | null
           logistics_notes: string | null
           markup_amount: number | null
           markup_percentage: number | null
+          payment_terms_days: number | null
           platform_margin: number | null
           quality_status: string | null
           rejected_at: string | null
@@ -1636,6 +1641,7 @@ export type Database = {
           awarded_at?: string | null
           awarded_commission_pct?: number | null
           awarded_commission_value?: number | null
+          base_price?: number | null
           bid_amount: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
@@ -1646,12 +1652,16 @@ export type Database = {
           delivery_timeline_days: number
           dispatched_qty?: number | null
           expected_delivery_date?: string | null
+          freight_cost?: number | null
+          gst_percent?: number | null
           id?: string
           is_paid_bid?: boolean
+          landed_cost?: number | null
           logistics_execution_mode?: string | null
           logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
+          payment_terms_days?: number | null
           platform_margin?: number | null
           quality_status?: string | null
           rejected_at?: string | null
@@ -1675,6 +1685,7 @@ export type Database = {
           awarded_at?: string | null
           awarded_commission_pct?: number | null
           awarded_commission_value?: number | null
+          base_price?: number | null
           bid_amount?: number
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
@@ -1685,12 +1696,16 @@ export type Database = {
           delivery_timeline_days?: number
           dispatched_qty?: number | null
           expected_delivery_date?: string | null
+          freight_cost?: number | null
+          gst_percent?: number | null
           id?: string
           is_paid_bid?: boolean
+          landed_cost?: number | null
           logistics_execution_mode?: string | null
           logistics_notes?: string | null
           markup_amount?: number | null
           markup_percentage?: number | null
+          payment_terms_days?: number | null
           platform_margin?: number | null
           quality_status?: string | null
           rejected_at?: string | null
@@ -3503,6 +3518,56 @@ export type Database = {
           },
         ]
       }
+      erp_reconciliation_logs: {
+        Row: {
+          checked_at: string | null
+          created_at: string | null
+          erp_reference_id: string | null
+          id: string
+          is_mismatched: boolean | null
+          mismatch_details: Json | null
+          po_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status_in_erp: string | null
+          status_in_platform: string | null
+        }
+        Insert: {
+          checked_at?: string | null
+          created_at?: string | null
+          erp_reference_id?: string | null
+          id?: string
+          is_mismatched?: boolean | null
+          mismatch_details?: Json | null
+          po_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status_in_erp?: string | null
+          status_in_platform?: string | null
+        }
+        Update: {
+          checked_at?: string | null
+          created_at?: string | null
+          erp_reference_id?: string | null
+          id?: string
+          is_mismatched?: boolean | null
+          mismatch_details?: Json | null
+          po_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status_in_erp?: string | null
+          status_in_platform?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_reconciliation_logs_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       erp_sync_queue: {
         Row: {
           attempt_count: number
@@ -4717,6 +4782,51 @@ export type Database = {
         }
         Relationships: []
       }
+      market_price_snapshots: {
+        Row: {
+          category: string | null
+          city: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          price_avg: number | null
+          price_max: number
+          price_min: number
+          product: string
+          recorded_at: string | null
+          region: string | null
+          source: string | null
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          price_avg?: number | null
+          price_max: number
+          price_min: number
+          product: string
+          recorded_at?: string | null
+          region?: string | null
+          source?: string | null
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          price_avg?: number | null
+          price_max?: number
+          price_min?: number
+          product?: string
+          recorded_at?: string | null
+          region?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string
@@ -5123,6 +5233,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      po_status_transitions: {
+        Row: {
+          from_status: string
+          to_status: string
+        }
+        Insert: {
+          from_status: string
+          to_status: string
+        }
+        Update: {
+          from_status?: string
+          to_status?: string
+        }
+        Relationships: []
       }
       premium_bid_payments: {
         Row: {
@@ -7110,7 +7235,9 @@ export type Database = {
           id: string
           incoterm: string | null
           max_auto_extensions: number | null
+          max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
+          min_decrement_value: number | null
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
@@ -7123,6 +7250,7 @@ export type Database = {
           shipment_mode: string | null
           show_exact_prices: boolean | null
           show_rank_only: boolean | null
+          soft_close_seconds: number | null
           starting_price: number
           status: string
           target_savings_pct: number | null
@@ -7157,7 +7285,9 @@ export type Database = {
           id?: string
           incoterm?: string | null
           max_auto_extensions?: number | null
+          max_bid_frequency_per_supplier?: number | null
           max_bids_per_supplier?: number | null
+          min_decrement_value?: number | null
           minimum_bid_step_pct?: number
           origin_country?: string | null
           payment_terms?: string | null
@@ -7170,6 +7300,7 @@ export type Database = {
           shipment_mode?: string | null
           show_exact_prices?: boolean | null
           show_rank_only?: boolean | null
+          soft_close_seconds?: number | null
           starting_price: number
           status?: string
           target_savings_pct?: number | null
@@ -7204,7 +7335,9 @@ export type Database = {
           id?: string
           incoterm?: string | null
           max_auto_extensions?: number | null
+          max_bid_frequency_per_supplier?: number | null
           max_bids_per_supplier?: number | null
+          min_decrement_value?: number | null
           minimum_bid_step_pct?: number
           origin_country?: string | null
           payment_terms?: string | null
@@ -7217,6 +7350,7 @@ export type Database = {
           shipment_mode?: string | null
           show_exact_prices?: boolean | null
           show_rank_only?: boolean | null
+          soft_close_seconds?: number | null
           starting_price?: number
           status?: string
           target_savings_pct?: number | null
@@ -7499,6 +7633,27 @@ export type Database = {
           sort_order?: number | null
           template_name?: string
           unit?: string | null
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission: string
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission: string
+          role: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission?: string
+          role?: string
         }
         Relationships: []
       }
@@ -9108,6 +9263,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      supplier_scores: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_scored_at: string | null
+          on_time_delivery_score: number | null
+          price_competitiveness_score: number | null
+          quality_score: number | null
+          reliability_score: number | null
+          supplier_id: string
+          total_orders_scored: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_scored_at?: string | null
+          on_time_delivery_score?: number | null
+          price_competitiveness_score?: number | null
+          quality_score?: number | null
+          reliability_score?: number | null
+          supplier_id: string
+          total_orders_scored?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_scored_at?: string | null
+          on_time_delivery_score?: number | null
+          price_competitiveness_score?: number | null
+          quality_score?: number | null
+          reliability_score?: number | null
+          supplier_id?: string
+          total_orders_scored?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       supplier_selection_log: {
         Row: {
@@ -10848,6 +11042,10 @@ export type Database = {
           primary_role: string
         }[]
       }
+      check_permission: {
+        Args: { p_permission: string; p_user_id: string }
+        Returns: boolean
+      }
       check_self_referral: {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: Json
@@ -11175,6 +11373,10 @@ export type Database = {
         Args: { po: Database["public"]["Tables"]["purchase_orders"]["Row"] }
         Returns: number
       }
+      get_price_intelligence: {
+        Args: { p_city?: string; p_product: string }
+        Returns: Json
+      }
       get_purchaser_incentive_summary: {
         Args: { p_purchaser_id: string }
         Returns: Json
@@ -11452,6 +11654,14 @@ export type Database = {
       upsert_demand_gap: {
         Args: { p_category?: string; p_slug: string }
         Returns: undefined
+      }
+      validate_bid_rules: {
+        Args: {
+          p_auction_id: string
+          p_bid_amount: number
+          p_supplier_id: string
+        }
+        Returns: Json
       }
       validate_external_po: { Args: { p_po_id: string }; Returns: Json }
       validate_referral_eligibility: {
