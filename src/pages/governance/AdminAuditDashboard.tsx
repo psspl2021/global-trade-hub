@@ -338,7 +338,59 @@ export default function AdminAuditDashboard() {
     }
   };
 
-  const renderDashboard = () => (
+  const renderDashboard = () => {
+    // Role-based dashboard rendering
+    if (activeRole === 'ceo') {
+      return (
+        <CEODashboard
+          stats={stats}
+          visitorStats={visitorStats}
+          statsLoading={statsLoading}
+          selectedDays={selectedDays}
+          onSelectedDaysChange={setSelectedDays}
+          onRefresh={fetchStats}
+          onOpenView={(view) => setCurrentView(view as AdminView)}
+          onOpenAnalyticsModal={() => setShowAnalyticsModal(true)}
+          userName={userName}
+        />
+      );
+    }
+
+    if (activeRole === 'ops_manager') {
+      return (
+        <OpsDashboard
+          stats={stats}
+          onShowUsers={() => setShowUsers(true)}
+          onShowRequirements={() => setShowRequirements(true)}
+          onShowBids={() => setShowBids(true)}
+          onShowL1Analysis={() => setShowL1Analysis(true)}
+          onShowLogistics={() => setShowLogistics(true)}
+          onShowVehicles={() => setShowVehicles(true)}
+          onShowPartnerDocs={() => setShowPartnerDocs(true)}
+          userName={userName}
+        />
+      );
+    }
+
+    if (activeRole === 'sales_manager') {
+      return (
+        <SalesDashboard
+          visitorStats={visitorStats}
+          statsLoading={statsLoading}
+          selectedDays={selectedDays}
+          onSelectedDaysChange={setSelectedDays}
+          onRefresh={fetchStats}
+          onOpenView={(view) => setCurrentView(view as AdminView)}
+          onOpenAnalyticsModal={() => setShowAnalyticsModal(true)}
+          onShowPremiumBids={() => setShowPremiumBids(true)}
+          onShowReferrals={() => setShowReferrals(true)}
+          userName={userName}
+        />
+      );
+    }
+
+    // Full admin dashboard (original)
+    return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Welcome back, {userName}!</h1>
@@ -714,8 +766,11 @@ export default function AdminAuditDashboard() {
               <Button variant="ghost" size="sm" onClick={() => setCurrentView('dashboard')}>← Back to Dashboard</Button>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <Badge className="bg-emerald-600 text-white border-0"><Shield className="w-3 h-3 mr-1" />ADMIN</Badge>
+           <div className="flex items-center gap-3">
+            <RoleBadge role={activeRole} />
+            {isFullAdmin && (
+              <AdminRoleSwitch currentView={activeRole} onSwitch={(r) => setRoleOverride(r === dashboardRole ? null : r)} />
+            )}
             <NotificationBell />
             <Button variant="outline" size="sm" onClick={() => navigate('/')}><Home className="h-4 w-4 mr-2" />Home</Button>
             <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate('/'); }}><LogOut className="h-4 w-4 mr-2" />Sign Out</Button>
