@@ -149,7 +149,7 @@ function DemoRFQStep({ onComplete, scenario }: { onComplete: () => void; scenari
   const [aiStage, setAiStage] = useState(0);
   const [filledFields, setFilledFields] = useState(0);
   const aiStages = [
-    '💬 "Need 500 MT TMT steel bars Fe500, 12mm/16mm/20mm, deliver to Gurgaon in 7 days"',
+    '💬 "Requirement: 500 MT TMT Steel Bars (Fe500), sizes 12mm, 16mm, 20mm — delivery to Gurgaon within 7 days"',
     '🔍 Parsing requirement…',
     '🧩 Structuring into SKU line items…',
     '🤖 Optimizing supplier selection…',
