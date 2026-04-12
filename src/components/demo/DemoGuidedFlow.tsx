@@ -1408,9 +1408,15 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                       </div>
                       <span className="text-sm font-semibold text-foreground">Audit & Compliance Layer</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Every action logged • Tamper-proof • Export-ready</p>
-                    <div className="mt-2 text-xs font-medium text-green-600">
-                      ERP Sync Enabled
+                    <p className="text-xs text-muted-foreground">
+                      Every action is recorded with timestamp, user identity, and system trace.
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-1">
+                      Export-ready • ERP-synced • Tamper-proof (SHA-256 hash chain)
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <Badge variant="outline" className="text-[10px]">Immutable Ledger</Badge>
+                      <Badge variant="outline" className="text-[10px]">ERP Sync ✓</Badge>
                     </div>
                   </div>
                 </div>
