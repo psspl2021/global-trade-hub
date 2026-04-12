@@ -1360,10 +1360,13 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             {/* ── PROCUREMENT COMMAND CENTER CARDS ── */}
             {currentStatusIdx >= 1 && (
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-3 duration-500">
-                <div className="flex items-center gap-2 px-1">
-                  <Layers className="w-4 h-4 text-primary" />
-                  <p className="text-sm font-semibold text-foreground">Procurement Command Center</p>
-                  <Badge variant="outline" className="text-[10px]">LIVE</Badge>
+                <div className="space-y-1 px-1">
+                  <div className="flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-primary" />
+                    <p className="text-sm font-semibold text-foreground">Your Procurement Command Center — Live Control</p>
+                    <Badge variant="outline" className="text-[10px]">LIVE</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">From requirement to payment — everything in one system.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {/* 📦 Execution Tracking */}
