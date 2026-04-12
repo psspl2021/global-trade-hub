@@ -94,7 +94,7 @@ serve(async (req) => {
 
     if (po.erp_sync_enabled === false) {
       await supabase.from("purchase_orders").update({ erp_sync_status: "not_enabled" }).eq("id", po_id);
-      return new Response(JSON.stringify({ skipped: true, reason: "disabled" }), {
+      return new Response(JSON.stringify({ skipped: true, reason: "disabled_by_policy_or_buyer" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
