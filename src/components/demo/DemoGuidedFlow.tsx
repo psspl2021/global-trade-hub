@@ -767,10 +767,9 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   }, [onReset]);
 
   const handleExit = useCallback(() => {
-    stop();
     window.speechSynthesis?.cancel();
     onExit();
-  }, [onExit, stop]);
+  }, [onExit]);
 
   const advancePO = useCallback(() => {
     setPOStatus(currentStatus => {
