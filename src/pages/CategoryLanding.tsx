@@ -695,21 +695,41 @@ const CategoryLanding = () => {
 
     // ItemList schema for category pages (NO Product schema on listing pages - GSC compliance)
     const categorySubcategories = category?.subcategories || [];
-    const itemListSchema = {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "name": subcategoryName || categoryName,
-      "description": pageDescription,
-      "itemListOrder": "https://schema.org/ItemListOrderAscending",
-      "numberOfItems": categorySubcategories.length,
-      "itemListElement": categorySubcategories.slice(0, 10).map((sub, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "name": sub,
-        "url": `https://www.procuresaathi.com/category/${categorySlug}/${nameToSlug(sub)}`
-      }))
-    };
-    injectStructuredData(itemListSchema, 'category-itemlist-schema');
+    
+    // Only inject ItemList if there are items (avoids GSC validation errors on subcategory pages)
+    if (!subcategorySlug && categorySubcategories.length > 0) {
+      const itemListSchema = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": categoryName,
+        "description": pageDescription,
+        "itemListOrder": "https://schema.org/ItemListOrderAscending",
+        "numberOfItems": categorySubcategories.length,
+        "itemListElement": categorySubcategories.slice(0, 10).map((sub, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "name": sub,
+          "url": `https://www.procuresaathi.com/category/${categorySlug}/${nameToSlug(sub)}`
+        }))
+      };
+      injectStructuredData(itemListSchema, 'category-itemlist-schema');
+    } else if (subcategorySlug) {
+      // For subcategory pages, inject a Service schema instead (richer signal for GSC)
+      const serviceSchema = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": `${subcategoryName} Procurement`,
+        "description": pageDescription,
+        "provider": {
+          "@type": "Organization",
+          "name": "ProcureSaathi",
+          "url": "https://www.procuresaathi.com"
+        },
+        "areaServed": { "@type": "Country", "name": "India" },
+        "serviceType": `B2B ${subcategoryName} Sourcing`
+      };
+      injectStructuredData(serviceSchema, 'category-itemlist-schema');
+    }
 
     // FAQ schema with unique ID per category
     if (content.faqs.length > 0) {
