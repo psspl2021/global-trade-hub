@@ -101,7 +101,7 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
       {actions.map((action) => (
         <AlertDialog key={action.targetStatus}>
           <AlertDialogTrigger asChild>
-            <Button variant={action.variant} size="sm" disabled={loading}>
+            <Button variant={action.variant} size="sm" disabled={loading || disabled}>
               {loading && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
               {action.requiresTransportDetails && <Truck className="w-3 h-3 mr-1" />}
               {action.requiresPaymentDetails && <CreditCard className="w-3 h-3 mr-1" />}
