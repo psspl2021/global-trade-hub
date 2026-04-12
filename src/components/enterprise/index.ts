@@ -21,3 +21,4 @@ export { SupplierRiskBadges } from './SupplierRiskBadges';
 export { ERPExportLayer } from './ERPExportLayer';
 export { GovernanceControlSettings } from './GovernanceControlSettings';
 export { EnterpriseControlCenter } from './EnterpriseControlCenter';
+export { AuditComplianceTimeline } from './AuditComplianceTimeline';
