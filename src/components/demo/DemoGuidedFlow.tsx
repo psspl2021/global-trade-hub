@@ -1204,7 +1204,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                         <p className="text-sm font-bold text-foreground tabular-nums">₹{savingsPerMT.toLocaleString('en-IN')}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Annual Impact (Typical mid-size company)</p>
+                        <p className="text-xs text-muted-foreground">Annual Impact (Typical mid-size company procurement spend)</p>
                         <p className="text-lg font-extrabold text-green-700 dark:text-green-400 tabular-nums">₹{(savingsPerMT * 12000).toLocaleString('en-IN')}</p>
                       </div>
                     </div>
