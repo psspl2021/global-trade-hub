@@ -8,8 +8,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { logProcurementEvent } from '@/utils/procurementAuditLogger';
+import { useERPPolicy } from '@/hooks/useERPPolicy';
 import { toast } from 'sonner';
-import { FileText, ExternalLink, Zap } from 'lucide-react';
+import { FileText, ExternalLink, Zap, ShieldAlert, Lock } from 'lucide-react';
 
 interface POCreationModalProps {
   open: boolean;
@@ -20,17 +21,23 @@ interface POCreationModalProps {
   totalValue: number;
   currency?: string;
   userId: string;
+  companyId?: string | null;
   onCreated: () => void;
 }
 
 export function POCreationModal({
   open, onOpenChange, auctionId, supplierId, supplierName,
-  totalValue, currency = 'INR', userId, onCreated,
+  totalValue, currency = 'INR', userId, companyId, onCreated,
 }: POCreationModalProps) {
   const [mode, setMode] = useState<'platform' | 'external'>('platform');
   const [externalPoNumber, setExternalPoNumber] = useState('');
   const [erpSyncEnabled, setErpSyncEnabled] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const { policy, resolveErpSync } = useERPPolicy(companyId || null);
+
+  const finalErpSync = mode === 'platform' ? resolveErpSync(erpSyncEnabled) : false;
+  const policyLocked = policy === 'mandatory' || policy === 'disabled';
 
   const handleCreate = async () => {
     if (mode === 'external' && !externalPoNumber.trim()) {
@@ -54,7 +61,7 @@ export function POCreationModal({
           status: 'draft',
           po_source: mode,
           external_po_number: mode === 'external' ? externalPoNumber.trim() : null,
-          erp_sync_enabled: mode === 'platform' ? erpSyncEnabled : false,
+          erp_sync_enabled: finalErpSync,
           created_by: userId,
         })
         .select()
@@ -69,8 +76,20 @@ export function POCreationModal({
         action_type: 'PO_MODE_SELECTED',
         performed_by: userId,
         performed_by_role: 'buyer',
-        new_value: { mode, erp_sync_enabled: erpSyncEnabled },
+        new_value: { mode, erp_sync_enabled: finalErpSync },
       });
+
+      // Audit: ERP policy enforced (if org policy overrode buyer choice)
+      if (policyLocked) {
+        await logProcurementEvent({
+          po_id: (po as any).id,
+          auction_id: auctionId,
+          action_type: 'ERP_POLICY_ENFORCED',
+          performed_by: userId,
+          performed_by_role: 'buyer',
+          new_value: { policy, resolved_erp_sync: finalErpSync },
+        });
+      }
 
       // Audit: PO created or external linked
       await logProcurementEvent({
@@ -82,13 +101,13 @@ export function POCreationModal({
         new_value: { po_number: poNumber, total_value: totalValue, supplier: supplierName },
       });
 
-      if (!erpSyncEnabled || mode === 'external') {
+      if (!finalErpSync) {
         await logProcurementEvent({
           po_id: (po as any).id,
           action_type: 'ERP_SYNC_SKIPPED',
           performed_by: userId,
           performed_by_role: 'buyer',
-          new_value: { reason: mode === 'external' ? 'external_po' : 'disabled_by_buyer' },
+          new_value: { reason: mode === 'external' ? 'external_po' : policy === 'disabled' ? 'disabled_by_policy' : 'disabled_by_buyer' },
         });
       }
 
@@ -132,7 +151,7 @@ export function POCreationModal({
                 <ExternalLink className="w-4 h-4 text-muted-foreground" />
                 <span className="font-medium text-sm">Use Existing ERP PO</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Track lifecycle using your own PO number</p>
+              <p className="text-xs text-muted-foreground mt-1">Track lifecycle using your own PO number. Supplier must confirm.</p>
             </div>
           </label>
         </RadioGroup>
@@ -146,6 +165,10 @@ export function POCreationModal({
               value={externalPoNumber}
               onChange={(e) => setExternalPoNumber(e.target.value)}
             />
+            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <ShieldAlert className="w-3 h-3" />
+              Supplier must confirm this PO number before lifecycle can progress
+            </p>
           </div>
         )}
 
@@ -154,8 +177,19 @@ export function POCreationModal({
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-muted-foreground" />
               <Label htmlFor="erp-toggle" className="text-sm">Enable ERP Sync</Label>
+              {policyLocked && (
+                <Badge variant="outline" className="text-[10px] flex items-center gap-0.5">
+                  <Lock className="w-2.5 h-2.5" />
+                  {policy === 'mandatory' ? 'Required by policy' : 'Disabled by policy'}
+                </Badge>
+              )}
             </div>
-            <Switch id="erp-toggle" checked={erpSyncEnabled} onCheckedChange={setErpSyncEnabled} />
+            <Switch
+              id="erp-toggle"
+              checked={finalErpSync}
+              onCheckedChange={setErpSyncEnabled}
+              disabled={policyLocked}
+            />
           </div>
         )}
 
