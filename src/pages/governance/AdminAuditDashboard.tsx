@@ -306,7 +306,7 @@ export default function AdminAuditDashboard() {
     );
   }
 
-  if (isAccessDenied || !['ps_admin', 'admin', 'ops_manager', 'sales_manager'].includes(primaryRole)) {
+  if (isAccessDenied || !['ps_admin', 'admin', 'ceo', 'ops_manager', 'sales_manager'].includes(primaryRole)) {
     // CEO role users get redirected to /management, so not included here
     console.warn('[AdminAuditDashboard] Access denied for role:', primaryRole);
     return <AccessDenied variant="404" />;
