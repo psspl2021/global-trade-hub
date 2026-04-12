@@ -620,6 +620,28 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
     issues.push('MISSING: Add HSN codes for commercial clarity (e.g., HSN 7208 for HR coils)');
   }
 
+  // === NEW: DECISION PRESSURE VALIDATORS ===
+
+  // Check for reader question (interactive decision hook)
+  if (!/\?\s*<\/p>|how many.*quotes|did you compare|are you comparing|do you know/i.test(content)) {
+    issues.push('MISSING: Add at least 1 direct question to the reader (e.g., "How many supplier quotes did you compare last time?"). Forces self-realization.');
+  }
+
+  // Check for loss visualization (₹ cost of delay/inaction)
+  if (!/delay.*₹|additional cost|cost of inaction|potential increase|₹.*lakh additional/i.test(content)) {
+    issues.push('MISSING: Add loss visualization showing ₹ cost of INACTION/DELAY (e.g., "Delay 30 days → ₹10-20 lakh additional cost on 500 MT").');
+  }
+
+  // Check for micro-commitment CTA (low-intent capture)
+  if (!/not ready|see.*price trends|market price trends first|compare prices first/i.test(content)) {
+    issues.push('MISSING: Add micro-commitment CTA for low-intent readers (e.g., "Not ready to run a reverse auction yet? → See current market price trends first").');
+  }
+
+  // Check for regret trigger before CTA
+  if (!/after final billing|cost overruns.*locked|realize.*too late|when it's too late/i.test(content)) {
+    issues.push('MISSING: Add regret trigger before final CTA (e.g., "Most procurement teams realize this after final billing — when cost overruns are already locked").');
+  }
+
   const confidenceScore = Math.max(0, 100 - (issues.length * 10));
   return { pass: issues.length === 0, issues, confidenceScore };
 }
