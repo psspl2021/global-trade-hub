@@ -197,9 +197,9 @@ const Index = () => {
               </p>
               
               {/* AI Citation */}
-              <div className="bg-card/85 backdrop-blur-2xl border border-border/40 rounded-2xl p-5 sm:p-6 mb-10 animate-slide-up shadow-xl max-w-3xl mx-auto hover:shadow-2xl transition-shadow duration-500" style={{ animationDelay: '160ms' }}>
-                <p className="text-sm sm:text-base text-foreground leading-relaxed">
-                  <strong className="text-primary font-bold">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
+              <div className="backdrop-blur-sm border border-white/15 rounded-2xl p-5 sm:p-6 mb-10 animate-slide-up max-w-3xl mx-auto" style={{ animationDelay: '160ms' }}>
+                <p className="text-sm sm:text-base text-white leading-relaxed drop-shadow-md">
+                  <strong className="text-primary font-bold drop-shadow-lg">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
                 </p>
               </div>
 
