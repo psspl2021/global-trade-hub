@@ -3500,6 +3500,48 @@ export type Database = {
           },
         ]
       }
+      erp_sync_queue: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          erp_endpoint: string | null
+          erp_type: string
+          id: string
+          last_error: string | null
+          max_retries: number
+          next_retry_at: string
+          po_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          erp_endpoint?: string | null
+          erp_type?: string
+          id?: string
+          last_error?: string | null
+          max_retries?: number
+          next_retry_at?: string
+          po_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          erp_endpoint?: string | null
+          erp_type?: string
+          id?: string
+          last_error?: string | null
+          max_retries?: number
+          next_retry_at?: string
+          po_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       export_demand_lanes: {
         Row: {
           category: string
@@ -5250,6 +5292,7 @@ export type Database = {
           performed_by: string
           performed_by_role: string
           po_id: string | null
+          previous_hash: string | null
           rfq_id: string | null
           user_agent: string | null
         }
@@ -5266,6 +5309,7 @@ export type Database = {
           performed_by: string
           performed_by_role?: string
           po_id?: string | null
+          previous_hash?: string | null
           rfq_id?: string | null
           user_agent?: string | null
         }
@@ -5282,6 +5326,7 @@ export type Database = {
           performed_by?: string
           performed_by_role?: string
           po_id?: string | null
+          previous_hash?: string | null
           rfq_id?: string | null
           user_agent?: string | null
         }
@@ -11347,6 +11392,15 @@ export type Database = {
         Returns: {
           auctions_without_payment: number
           payments_without_auction: number
+        }[]
+      }
+      verify_audit_chain: {
+        Args: { p_auction_id?: string; p_po_id?: string; p_rfq_id?: string }
+        Returns: {
+          broken_at: string
+          is_intact: boolean
+          total_records: number
+          verified_records: number
         }[]
       }
       verify_role_pin: {
