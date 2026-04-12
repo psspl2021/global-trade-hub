@@ -237,6 +237,11 @@ Inside this section, create 3 scenarios in a TABLE:
 | HEDGE | Uncertain market / budget pressure | Split procurement: buy 30% now, 70% later | Low |
 After the table, add: "Most buyers lose money not due to high prices, but due to wrong timing."
 
+LOSS VISUALIZATION (MANDATORY — inside or after decision block):
+After the decision table, add a LOSS SCENARIO in bold red:
+"Delay decision by 30 days → potential increase of ₹2,000–₹4,000/MT. On 500 MT → ₹10–20 lakh additional cost."
+This must feel visceral, not neutral. Show the COST OF INACTION.
+
 HEDGING STRATEGY SECTION (MANDATORY):
 You MUST include a section on hedging with REAL tactics:
 - Rate Contract: lock ₹/MT for 30–60 days with top suppliers
@@ -244,6 +249,22 @@ You MUST include a section on hedging with REAL tactics:
 - Multi-supplier bidding: force price competition via reverse auction
 - Reverse auction timing: run auctions after a price spike when suppliers are desperate for volume
 Include 1 numerical example: "On 500 MT, a ₹3,000/MT difference = ₹15 lakh impact on project margin."
+
+INTERACTIVE DECISION HOOK (MANDATORY — mid-blog):
+Include AT LEAST ONE direct question to the reader that forces self-assessment:
+Example: "How many supplier quotes did you compare last time — 2, 3, or more than 5?"
+Followed by: "If it's less than 5, you're not seeing the real market price."
+This creates self-realization and drives action.
+
+MICRO-COMMITMENT CTA (MANDATORY — mid-blog, BEFORE final CTA):
+Add a LOW-INTENT capture CTA somewhere in the middle of the blog:
+"Not ready to run a reverse auction yet? → <a href="/browseproducts">See current market price trends first</a>"
+This captures readers who aren't ready for the big CTA yet.
+
+REGRET TRIGGER (MANDATORY — immediately before final CTA):
+Add this line BEFORE the final CTA button:
+"Most procurement teams realize this after final billing — when cost overruns are already locked."
+This creates urgency through anticipated regret.
 
 FINAL CTA (CONVERSION-OPTIMIZED — MANDATORY):
 End blog with this EXACT structure:
@@ -599,6 +620,28 @@ function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean
     issues.push('MISSING: Add HSN codes for commercial clarity (e.g., HSN 7208 for HR coils)');
   }
 
+  // === NEW: DECISION PRESSURE VALIDATORS ===
+
+  // Check for reader question (interactive decision hook)
+  if (!/\?\s*<\/p>|how many.*quotes|did you compare|are you comparing|do you know/i.test(content)) {
+    issues.push('MISSING: Add at least 1 direct question to the reader (e.g., "How many supplier quotes did you compare last time?"). Forces self-realization.');
+  }
+
+  // Check for loss visualization (₹ cost of delay/inaction)
+  if (!/delay.*₹|additional cost|cost of inaction|potential increase|₹.*lakh additional/i.test(content)) {
+    issues.push('MISSING: Add loss visualization showing ₹ cost of INACTION/DELAY (e.g., "Delay 30 days → ₹10-20 lakh additional cost on 500 MT").');
+  }
+
+  // Check for micro-commitment CTA (low-intent capture)
+  if (!/not ready|see.*price trends|market price trends first|compare prices first/i.test(content)) {
+    issues.push('MISSING: Add micro-commitment CTA for low-intent readers (e.g., "Not ready to run a reverse auction yet? → See current market price trends first").');
+  }
+
+  // Check for regret trigger before CTA
+  if (!/after final billing|cost overruns.*locked|realize.*too late|when it's too late/i.test(content)) {
+    issues.push('MISSING: Add regret trigger before final CTA (e.g., "Most procurement teams realize this after final billing — when cost overruns are already locked").');
+  }
+
   const confidenceScore = Math.max(0, 100 - (issues.length * 10));
   return { pass: issues.length === 0, issues, confidenceScore };
 }
@@ -701,6 +744,78 @@ function enforceRequiredSections(content: string, strategy: TopicStrategy, produ
       content = content.slice(0, ctaIdx) + lossBlock + '\n' + content.slice(ctaIdx);
     } else {
       content = content.replace(/<\/article>/i, lossBlock + '\n</article>');
+    }
+  }
+
+  // === 3. LOSS VISUALIZATION (visceral cost-of-delay — inject after decision block) ===
+  if (!/delay.*₹|additional cost|cost of inaction|potential increase|₹.*lakh additional/i.test(content)) {
+    const lossVizBlock = `
+<p style="color:#b91c1c;font-weight:600;margin-top:1rem;font-size:1.05rem;">
+⚠️ Delay decision by 30 days → potential increase of ₹2,000–₹4,000/MT.<br/>
+On 500 MT → <strong>₹10–20 lakh additional cost</strong>. That's margin you'll never recover.
+</p>`;
+    // Insert after decision table or loss moment block
+    const decisionEnd = content.indexOf('wrong timing.');
+    if (decisionEnd > 0) {
+      const insertAt = content.indexOf('</p>', decisionEnd);
+      if (insertAt > 0) {
+        content = content.slice(0, insertAt + 4) + lossVizBlock + content.slice(insertAt + 4);
+      }
+    } else {
+      const lossIdx = content.indexOf('Where Buyers Lose Money');
+      if (lossIdx > 0) {
+        const divEnd = content.indexOf('</div>', lossIdx);
+        if (divEnd > 0) {
+          content = content.slice(0, divEnd + 6) + lossVizBlock + content.slice(divEnd + 6);
+        }
+      }
+    }
+  }
+
+  // === 4. INTERACTIVE DECISION HOOK (reader question — inject mid-blog) ===
+  if (!/how many.*quotes|did you compare|are you comparing/i.test(content)) {
+    const questionBlock = `
+<div style="margin:1.5rem 0;padding:1.25rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;">
+<p style="font-weight:600;font-size:1.05rem;margin-bottom:0.5rem;">How many supplier quotes did you compare last time — 2, 3, or more than 5?</p>
+<p style="margin:0;color:#1e3a5f;">If it's less than 5, you're not seeing the real market price. Most procurement teams compare 2–3 quotes and assume they have the best deal. They don't.</p>
+</div>`;
+    // Insert after second <h2>
+    const h2s = [...content.matchAll(/<\/h2>/gi)];
+    if (h2s.length >= 2) {
+      const pos = h2s[1].index! + h2s[1][0].length;
+      // Find next paragraph end
+      const nextP = content.indexOf('</p>', pos);
+      if (nextP > 0) {
+        content = content.slice(0, nextP + 4) + questionBlock + content.slice(nextP + 4);
+      }
+    }
+  }
+
+  // === 5. MICRO-COMMITMENT CTA (low-intent capture — mid-blog) ===
+  if (!/not ready.*auction|see.*price trends first|market price trends first/i.test(content)) {
+    const microCTA = `
+<p style="margin:1.5rem 0;padding:1rem;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+Not ready to run a reverse auction yet? → <a href="/browseproducts" style="color:#16a34a;font-weight:600;">See current market price trends first</a>
+</p>`;
+    // Insert after third <h2>
+    const h2s = [...content.matchAll(/<\/h2>/gi)];
+    if (h2s.length >= 3) {
+      const pos = h2s[2].index! + h2s[2][0].length;
+      const nextP = content.indexOf('</p>', pos);
+      if (nextP > 0) {
+        content = content.slice(0, nextP + 4) + microCTA + content.slice(nextP + 4);
+      }
+    }
+  }
+
+  // === 6. REGRET TRIGGER (before final CTA) ===
+  if (!/after final billing|cost overruns.*locked/i.test(content)) {
+    const regretTrigger = `
+<p style="font-style:italic;color:#374151;margin-bottom:0.75rem;">Most procurement teams realize this after final billing — when cost overruns are already locked.</p>`;
+    // Insert just before the final CTA div
+    const ctaIdx = content.lastIndexOf('<div style="margin-top:2rem;padding:1.5rem;border:2px solid');
+    if (ctaIdx > 0) {
+      content = content.slice(0, ctaIdx) + regretTrigger + content.slice(ctaIdx);
     }
   }
 
