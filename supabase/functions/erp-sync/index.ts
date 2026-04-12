@@ -83,7 +83,7 @@ serve(async (req) => {
       });
     }
 
-    // Skip sync for external POs or when ERP sync is disabled
+    // 1. Skip sync for external POs
     if (po.po_source === "external") {
       await supabase.from("purchase_orders").update({ erp_sync_status: "not_enabled" }).eq("id", po_id);
       return new Response(JSON.stringify({ skipped: true, reason: "external_po" }), {
@@ -92,9 +92,66 @@ serve(async (req) => {
       });
     }
 
-    if (po.erp_sync_enabled === false) {
+    // 2. Backend ERP policy enforcement (never trust frontend)
+    let policyOverride: string | null = null;
+    if (po.company_id) {
+      const { data: company } = await supabase
+        .from("buyer_companies")
+        .select("erp_sync_policy")
+        .eq("id", po.company_id)
+        .single();
+
+      const policy = company?.erp_sync_policy || "optional";
+
+      if (policy === "disabled") {
+        await supabase.from("purchase_orders").update({ erp_sync_status: "not_enabled" }).eq("id", po_id);
+
+        // Audit: backend policy enforcement
+        const prevHash = await getLastHash(supabase, po_id);
+        const hash = await generateHash({ action: "ERP_POLICY_ENFORCED_BACKEND", policy, po_id }, prevHash);
+        await supabase.from("procurement_audit_logs").insert({
+          po_id,
+          action_type: "ERP_POLICY_ENFORCED_BACKEND",
+          performed_by: "system",
+          performed_by_role: "system",
+          is_system_action: true,
+          new_value: { policy, decision: "skipped" },
+          hash_signature: hash,
+          previous_hash: prevHash,
+        });
+
+        return new Response(JSON.stringify({ skipped: true, reason: "disabled_by_policy" }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (policy === "mandatory") {
+        policyOverride = "mandatory";
+        // Force sync even if UI said disabled — update the PO record
+        if (po.erp_sync_enabled === false) {
+          await supabase.from("purchase_orders").update({ erp_sync_enabled: true }).eq("id", po_id);
+
+          const prevHash = await getLastHash(supabase, po_id);
+          const hash = await generateHash({ action: "ERP_POLICY_ENFORCED_BACKEND", policy, po_id }, prevHash);
+          await supabase.from("procurement_audit_logs").insert({
+            po_id,
+            action_type: "ERP_POLICY_ENFORCED_BACKEND",
+            performed_by: "system",
+            performed_by_role: "system",
+            is_system_action: true,
+            new_value: { policy, decision: "forced_sync", ui_value: false },
+            hash_signature: hash,
+            previous_hash: prevHash,
+          });
+        }
+      }
+    }
+
+    // 3. Check buyer/UI preference (only if policy is 'optional')
+    if (!policyOverride && po.erp_sync_enabled === false) {
       await supabase.from("purchase_orders").update({ erp_sync_status: "not_enabled" }).eq("id", po_id);
-      return new Response(JSON.stringify({ skipped: true, reason: "disabled_by_policy_or_buyer" }), {
+      return new Response(JSON.stringify({ skipped: true, reason: "disabled_by_buyer" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
