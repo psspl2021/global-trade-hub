@@ -176,8 +176,8 @@ export const DEMO_NARRATION: NarrationEntry[] = [
   {
     step: 'outro',
     text: {
-      en: 'ProcureSaathi sirf ek tool nahi hai… Yeh aapka… Procurement Operating System hai. Aap network control karte ho… Aap pricing control karte ho… Aap OUTCOME control karte ho.',
-      hi: 'Yeh sirf tool nahi… yeh aapka complete procurement system hai. Network… pricing… outcome… sab aapke control mein.',
+      en: 'Yeh sirf tool nahi hai… yeh aapka CONTROL hai… pricing ka… suppliers ka… aur margins ka. Aap decide karte ho… system execute karta hai.',
+      hi: 'Yeh sirf tool nahi… yeh aapka CONTROL hai… pricing ka… suppliers ka… margins ka.',
     },
   },
   {

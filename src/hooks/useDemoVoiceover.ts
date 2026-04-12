@@ -22,7 +22,7 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const speak = useCallback(async (step: DemoNarrationStep, onEnd?: () => void) => {
+  const speakInternal = useCallback(async (step: DemoNarrationStep, onEnd?: () => void) => {
     if (!voiceEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
 
     const text = getNarrationText(step, language, scenario);
@@ -39,14 +39,14 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
       voices.find(v => v.lang === VOICE_LANG) ||
       voices.find(v => v.lang.toLowerCase().startsWith('en')) ||
       voices[0];
-      voices[0];
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = preferredVoice?.lang || VOICE_LANG;
     if (preferredVoice) utterance.voice = preferredVoice;
 
-    // Human-like tuning
-    utterance.rate = 0.9;
+    // Human-like tuning — slower for impact lines
+    const SLOW_STEPS: DemoNarrationStep[] = ['savings', 'loss_aversion', 'outro'];
+    utterance.rate = SLOW_STEPS.includes(step) ? 0.82 : 0.9;
     utterance.pitch = 1;
     utterance.volume = 1;
 
@@ -98,6 +98,17 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
     if (speaking || paused) stop();
     setVoiceEnabled(v => !v);
   }, [speaking, paused, stop]);
+
+  // Dramatic pause before impact steps
+  const DRAMA_STEPS: DemoNarrationStep[] = ['loss_aversion', 'outro', 'cta'];
+  const speak = useCallback((step: DemoNarrationStep, onEnd?: () => void) => {
+    const delay = DRAMA_STEPS.includes(step) ? 800 : 0;
+    if (delay) {
+      setTimeout(() => speakInternal(step, onEnd), delay);
+    } else {
+      speakInternal(step, onEnd);
+    }
+  }, [speakInternal]);
 
   return { speak, pause, resume, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice };
 }
