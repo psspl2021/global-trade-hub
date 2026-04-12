@@ -10,7 +10,8 @@ export type POExecutionStatus =
   | 'in_transit'
   | 'delivered'
   | 'payment_done'
-  | 'closed';
+  | 'closed'
+  | 'cancelled';
 
 export const PO_STATUS_FLOW: POExecutionStatus[] = [
   'draft',
@@ -30,6 +31,7 @@ export const PO_STATUS_LABELS: Record<POExecutionStatus, string> = {
   delivered: 'Delivered',
   payment_done: 'Payment Done',
   closed: 'Closed',
+  cancelled: 'Cancelled',
 };
 
 export const PO_STATUS_COLORS: Record<POExecutionStatus, { bg: string; text: string; border: string }> = {
@@ -40,6 +42,7 @@ export const PO_STATUS_COLORS: Record<POExecutionStatus, { bg: string; text: str
   delivered: { bg: 'bg-teal-50 dark:bg-teal-950/30', text: 'text-teal-700 dark:text-teal-400', border: 'border-teal-200 dark:border-teal-800' },
   payment_done: { bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800' },
   closed: { bg: 'bg-green-50 dark:bg-green-950/30', text: 'text-green-700 dark:text-green-400', border: 'border-green-200 dark:border-green-800' },
+  cancelled: { bg: 'bg-red-50 dark:bg-red-950/30', text: 'text-red-700 dark:text-red-400', border: 'border-red-200 dark:border-red-800' },
 };
 
 type ExecutionRole = 'buyer' | 'supplier' | 'transporter' | 'admin';
