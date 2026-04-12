@@ -24,6 +24,10 @@ interface PurchaseOrderExecutionCardProps {
     winning_bid?: number;
     quantity?: number;
     currency?: string;
+    po_source?: string;
+    external_po_number?: string;
+    erp_sync_enabled?: boolean;
+    erp_sync_status?: string;
   };
   userId: string;
   userRole: string | null;
@@ -45,6 +49,8 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
   const displayName = po.vendor_name || po.supplier_company_name || '—';
   const displayTitle = po.title || po.po_number;
   const displayAmount = po.total_amount || (po.winning_bid && po.quantity ? po.winning_bid * po.quantity : 0);
+  const isExternal = po.po_source === 'external';
+  const erpDisabled = po.erp_sync_enabled === false || po.erp_sync_status === 'not_enabled';
 
   useEffect(() => {
     const load = async () => {
@@ -68,6 +74,14 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
             <Badge variant="outline" className={cn('text-xs', colors.bg, colors.text, colors.border)}>
               {PO_STATUS_LABELS[currentStatus]}
             </Badge>
+            {isExternal ? (
+              <Badge variant="secondary" className="text-[10px]">External PO</Badge>
+            ) : (
+              <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">Platform PO</Badge>
+            )}
+            {erpDisabled && (
+              <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">ERP Sync: Off</Badge>
+            )}
           </div>
           <p className="font-semibold text-sm truncate mt-0.5">{displayTitle}</p>
           <p className="text-xs text-muted-foreground">{displayName}</p>

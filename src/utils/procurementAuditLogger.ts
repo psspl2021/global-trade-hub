@@ -12,7 +12,8 @@ export type ProcurementAction =
   | 'PO_CREATED' | 'PO_SENT_TO_SUPPLIER' | 'PO_ACCEPTED'
   | 'SHIPMENT_MARKED' | 'DELIVERY_CONFIRMED'
   | 'PAYMENT_MARKED_DONE'
-  | 'ERP_SYNCED' | 'ERP_SYNC_FAILED';
+  | 'ERP_SYNCED' | 'ERP_SYNC_FAILED'
+  | 'EXTERNAL_PO_LINKED' | 'ERP_SYNC_SKIPPED' | 'PO_MODE_SELECTED';
 
 interface AuditEntry {
   rfq_id?: string;

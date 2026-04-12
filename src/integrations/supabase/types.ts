@@ -5599,8 +5599,10 @@ export type Database = {
           driver_contact: string | null
           erp_reference_id: string | null
           erp_response: Json | null
+          erp_sync_enabled: boolean
           erp_sync_status: string | null
           expected_delivery_date: string | null
+          external_po_number: string | null
           id: string
           immutable_hash: string | null
           legal_hold: boolean | null
@@ -5611,6 +5613,7 @@ export type Database = {
           payment_mode: string | null
           payment_proof_url: string | null
           po_number: string
+          po_source: string
           po_status: string | null
           po_value: number | null
           requirement_id: string | null
@@ -5646,8 +5649,10 @@ export type Database = {
           driver_contact?: string | null
           erp_reference_id?: string | null
           erp_response?: Json | null
+          erp_sync_enabled?: boolean
           erp_sync_status?: string | null
           expected_delivery_date?: string | null
+          external_po_number?: string | null
           id?: string
           immutable_hash?: string | null
           legal_hold?: boolean | null
@@ -5658,6 +5663,7 @@ export type Database = {
           payment_mode?: string | null
           payment_proof_url?: string | null
           po_number: string
+          po_source?: string
           po_status?: string | null
           po_value?: number | null
           requirement_id?: string | null
@@ -5693,8 +5699,10 @@ export type Database = {
           driver_contact?: string | null
           erp_reference_id?: string | null
           erp_response?: Json | null
+          erp_sync_enabled?: boolean
           erp_sync_status?: string | null
           expected_delivery_date?: string | null
+          external_po_number?: string | null
           id?: string
           immutable_hash?: string | null
           legal_hold?: boolean | null
@@ -5705,6 +5713,7 @@ export type Database = {
           payment_mode?: string | null
           payment_proof_url?: string | null
           po_number?: string
+          po_source?: string
           po_status?: string | null
           po_value?: number | null
           requirement_id?: string | null
@@ -7090,6 +7099,8 @@ export type Database = {
           description: string | null
           destination_country: string | null
           destination_state: string | null
+          enable_erp_sync: boolean
+          enable_po_generation: boolean
           id: string
           incoterm: string | null
           max_auto_extensions: number | null
@@ -7135,6 +7146,8 @@ export type Database = {
           description?: string | null
           destination_country?: string | null
           destination_state?: string | null
+          enable_erp_sync?: boolean
+          enable_po_generation?: boolean
           id?: string
           incoterm?: string | null
           max_auto_extensions?: number | null
@@ -7180,6 +7193,8 @@ export type Database = {
           description?: string | null
           destination_country?: string | null
           destination_state?: string | null
+          enable_erp_sync?: boolean
+          enable_po_generation?: boolean
           id?: string
           incoterm?: string | null
           max_auto_extensions?: number | null

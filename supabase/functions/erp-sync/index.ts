@@ -83,6 +83,23 @@ serve(async (req) => {
       });
     }
 
+    // Skip sync for external POs or when ERP sync is disabled
+    if (po.po_source === "external") {
+      await supabase.from("purchase_orders").update({ erp_sync_status: "not_enabled" }).eq("id", po_id);
+      return new Response(JSON.stringify({ skipped: true, reason: "external_po" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (po.erp_sync_enabled === false) {
+      await supabase.from("purchase_orders").update({ erp_sync_status: "not_enabled" }).eq("id", po_id);
+      return new Response(JSON.stringify({ skipped: true, reason: "disabled" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const erpPayload = buildErpPayload(po, erp_type);
     const previousHash = await getLastHash(supabase, po_id);
 
