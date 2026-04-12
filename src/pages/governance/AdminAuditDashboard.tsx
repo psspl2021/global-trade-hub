@@ -292,7 +292,8 @@ export default function AdminAuditDashboard() {
     if (!authLoading && !user) { navigate('/login'); return; }
     if (!accessLoading && primaryRole) {
       if (['purchaser', 'buyer', 'buyer_purchaser'].includes(primaryRole)) { navigate('/dashboard'); return; }
-      if (['cfo', 'ceo', 'manager', 'buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(primaryRole)) { navigate('/management'); return; }
+      // Allow ceo, ops_manager, sales_manager to stay on /admin with role-based dashboards
+      if (['manager', 'buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(primaryRole)) { navigate('/management'); return; }
     }
   }, [authLoading, accessLoading, user, primaryRole, navigate]);
 
