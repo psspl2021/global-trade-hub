@@ -2,12 +2,23 @@ import { useCallback, useRef, useState } from 'react';
 import { getNarrationText, type DemoNarrationStep, type DemoScenario } from '@/lib/demo-voiceover-script';
 
 const LANG_MAP: Record<string, string> = {
-  en: 'en-US',
+  en: 'en-IN',
   hi: 'hi-IN',
   ar: 'ar-SA',
   vi: 'vi-VN',
   zh: 'zh-CN',
 };
+
+/** Resolve voices with a fallback for lazy-loading browsers (Chrome/Safari) */
+function getVoices(): Promise<SpeechSynthesisVoice[]> {
+  return new Promise((resolve) => {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length) return resolve(voices);
+    window.speechSynthesis.onvoiceschanged = () => {
+      resolve(window.speechSynthesis.getVoices());
+    };
+  });
+}
 
 export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario = 'full') {
   const [speaking, setSpeaking] = useState(false);
@@ -16,37 +27,35 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const speak = useCallback((step: DemoNarrationStep, onEnd?: () => void) => {
+  const speak = useCallback(async (step: DemoNarrationStep, onEnd?: () => void) => {
     if (!voiceEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
 
     const text = getNarrationText(step, language, scenario);
     if (!text) return;
 
     const synthesis = window.speechSynthesis;
-    // Only cancel if actively speaking — preserve paused state
-    if (synthesis.speaking && !synthesis.paused) {
-      synthesis.cancel();
-    } else if (synthesis.pending) {
-      synthesis.cancel();
-    }
-    // Chrome bug: after cancel, synthesis can get stuck in paused state
-    synthesis.resume();
+    synthesis.cancel();
+    synthesis.resume(); // Chrome bug: clear stuck paused state
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = await getVoices();
+    const requestedLang = LANG_MAP[language] || 'en-IN';
 
-    // Pick best available voice
-    const requestedLang = LANG_MAP[language] || 'en-US';
-    const voices = synthesis.getVoices();
+    // Priority: exact match → language-family match → Indian English → any English → first
     const preferredVoice =
       voices.find(v => v.lang === requestedLang) ||
       voices.find(v => v.lang.toLowerCase().startsWith(requestedLang.slice(0, 2).toLowerCase())) ||
-      voices.find(v => v.lang.toLowerCase().startsWith('en'));
+      voices.find(v => v.lang === 'en-IN') ||
+      voices.find(v => v.lang.toLowerCase().startsWith('en')) ||
+      voices[0];
 
+    const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = preferredVoice?.lang || requestedLang;
     if (preferredVoice) utterance.voice = preferredVoice;
-    utterance.rate = 0.95;
+
+    // Human-like tuning
+    utterance.rate = 0.9;
     utterance.pitch = 1;
-    utterance.volume = 0.85;
+    utterance.volume = 1;
 
     utterance.onstart = () => {
       setSpeaking(true);
@@ -60,7 +69,6 @@ export function useDemoVoiceover(language: string = 'en', scenario: DemoScenario
       onEnd?.();
     };
     utterance.onerror = (e) => {
-      // 'interrupted' is normal when we cancel to start a new utterance
       if (e.error !== 'interrupted') {
         setSpeaking(false);
         setPaused(false);
