@@ -63,6 +63,7 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
         p_po_id: poId,
         p_new_status: targetStatus,
         p_updated_by: userId,
+        p_idempotency_key: idempotencyKey,
       });
 
       if (gateError) throw gateError;
