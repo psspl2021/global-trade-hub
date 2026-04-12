@@ -889,12 +889,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       : 'transition-shadow duration-500';
 
   const getLiveCommentary = () => {
-    if (phase === 'rfq') return "Just type requirement → RFQ auto-created";
-    if (phase === 'invite') return "Private invites sent → Only your suppliers compete";
-    if (phase === 'auction' && !auctionComplete) return "Watch this… prices dropping LIVE due to competition";
-    if (phase === 'auction' && auctionComplete) return "Same suppliers. Better price. Because of competition.";
-    if (phase === 'po_lifecycle' && poStatus !== 'closed') return "Execution tracking — no step can be skipped";
-    if (phase === 'po_lifecycle' && poStatus === 'closed') return "Full procurement lifecycle completed — zero leakage";
+    if (phase === 'rfq') return "Enter requirement → RFQ is created automatically";
+    if (phase === 'invite') return "Private invitations sent → Only your suppliers participate";
+    if (phase === 'auction' && !auctionComplete) return "Live competition in progress → Prices are dropping in real-time";
+    if (phase === 'auction' && auctionComplete) return "Same suppliers. Better price. Driven by competition.";
+    if (phase === 'po_lifecycle' && poStatus !== 'closed') return "Execution tracking → Every step is controlled and recorded";
+    if (phase === 'po_lifecycle' && poStatus === 'closed') return "Procurement lifecycle completed → Fully tracked and optimized";
     return "";
   };
 
@@ -1123,7 +1123,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             {/* Auction punch line */}
             {!auctionComplete && bidRound > 1 && (
               <div className="text-center text-base font-semibold text-green-600 dark:text-green-400 animate-pulse">
-                🔥 Round by round — price automatically going DOWN
+                Live bidding in action — prices decreasing with each round
               </div>
             )}
 
@@ -1392,7 +1392,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
                   </div>
                   <h3 className="text-xl font-bold text-foreground">Ready to run your first auction?</h3>
                   <p className="text-lg font-semibold text-foreground/90">
-                    This is not a tool. This is your CONTROL over pricing, suppliers, and margins.
+                    This is not just a tool — it is your control over pricing, suppliers, and margins.
                   </p>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
                     You just experienced the full procurement lifecycle — from AI-powered RFQ to competitive bidding to payment confirmation. Start saving on your real orders now.
