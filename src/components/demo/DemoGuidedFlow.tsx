@@ -6,13 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Check, Clock, Truck, Package, CreditCard, Award, Play, Pause, Square,
-  SkipForward, Volume2, VolumeX, Globe, Eye, Layers, Rocket, Zap, Bot,
+  Check, Clock, Truck, Package, CreditCard, Award, Play,
+  SkipForward, Globe, Eye, Layers, Rocket, Zap, Bot,
   FileText, Users, Mail, Send, RotateCcw, TrendingDown
 } from 'lucide-react';
 import { DEMO_AUCTION, DEMO_PO, DEMO_SUPPLIERS, DEMO_TRANSPORTER, DEMO_TIMELINE_STEPS, type DemoBid, type DemoPOStatus } from '@/lib/demo-data';
-import { getNarrationText, poStatusToNarrationStep, type DemoNarrationStep } from '@/lib/demo-voiceover-script';
-import { useDemoVoiceover } from '@/hooks/useDemoVoiceover';
 import { DemoBanner } from './DemoBanner';
 import { DemoSavingsGraph } from './DemoSavingsGraph';
 
@@ -609,20 +607,10 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const [timeLeft, setTimeLeft] = useState(120);
   const [activeSuppliers, setActiveSuppliers] = useState<typeof DEMO_SUPPLIERS>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
-  const introSpoken = useRef(false);
   const pauseListenerAttached = useRef(false);
   const isTransitioningRef = useRef(false);
   const previousPhaseRef = useRef<DemoPhase | null>(null);
   const skipPhaseNarrationRef = useRef<DemoPhase | null>(null);
-
-  useEffect(() => { window.speechSynthesis?.getVoices(); }, []);
-
-  const { speak, pause: pauseVoice, resume: resumeVoice, stop, speaking, paused, currentStep, voiceEnabled, toggleVoice } = useDemoVoiceover(language, scenario);
-
-  // ── Stop speech on unmount ──
-  useEffect(() => {
-    return () => { window.speechSynthesis?.cancel(); };
-  }, []);
 
   // ── Auto-scroll to highlighted section ──
   useEffect(() => {
@@ -646,7 +634,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       if (target && typeof target.closest === 'function' && target.closest('[data-demo-controls]')) return;
       setFullDemoRunning(false);
       setAutoPlay(false);
-      window.speechSynthesis?.cancel();
     };
 
     const opts = { once: true, capture: true };
@@ -661,13 +648,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
 
   useEffect(() => {
     if (showEntryScreen) {
-      introSpoken.current = false;
       previousPhaseRef.current = null;
       skipPhaseNarrationRef.current = null;
     }
   }, [showEntryScreen]);
 
-  // ── Narration reacts to phase changes (State → Effects → UI) ──
+  // ── Track phase changes ──
   useEffect(() => {
     if (showEntryScreen) return;
 
@@ -680,34 +666,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     const previousPhase = previousPhaseRef.current;
     if (previousPhase === phase) return;
     previousPhaseRef.current = phase;
-
-    if (phase === 'rfq') { speak('rfq_start'); return; }
-    if (phase === 'invite') {
-      if (previousPhase === 'rfq') {
-        speak('rfq_structured', () => speak('supplier_invite'));
-      } else {
-        speak('supplier_invite');
-      }
-      return;
-    }
-    if (phase === 'auction') { speak('auction_live'); return; }
-    if (phase === 'po_lifecycle' && poStatus === 'draft') { speak('po_start'); }
-  }, [phase, poStatus, showEntryScreen, speak]);
-
-  // Highlight sync with narration
-  useEffect(() => {
-    if (!currentStep) { setHighlightSection(null); return; }
-    const map: Record<string, string> = {
-      intro: 'rfq-card', rfq_start: 'rfq-card', rfq_structured: 'rfq-card',
-      supplier_invite: 'invite-card', auction_live: 'auction-card', auction_complete: 'auction-card',
-      savings: 'savings-card', loss_aversion: 'savings-card',
-      po_start: 'po-card', po_sent: 'po-timeline', po_accepted: 'po-timeline',
-      po_in_transit: 'po-timeline', po_delivered: 'po-timeline',
-      po_payment: 'po-timeline', po_closed: 'po-timeline',
-      outro: 'po-card', cta: 'cta-card',
-    };
-    setHighlightSection(map[currentStep] || null);
-  }, [currentStep]);
+  }, [phase, poStatus, showEntryScreen]);
 
   // Countdown timer
   useEffect(() => {
@@ -758,12 +717,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => clearInterval(interval);
   }, [phase, auctionComplete, showEntryScreen]);
 
-  // Narrate auction completion
+  // Auction complete handler
   useEffect(() => {
     if (auctionComplete && phase === 'auction') {
-      speak('auction_complete', () => { speak('savings', () => { speak('loss_aversion'); }); });
+      // Auction completed
     }
-  }, [auctionComplete, phase, speak]);
+  }, [auctionComplete, phase]);
 
   // Auto-play PO lifecycle
   useEffect(() => {
@@ -781,27 +740,17 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [phase, autoPlay, poStatus]);
 
-  // Narrate PO status changes
-  useEffect(() => {
-    const narrationStep = poStatusToNarrationStep(poStatus);
-    if (narrationStep && phase === 'po_lifecycle' && poStatus !== 'draft') {
-      speak(narrationStep);
-    }
-  }, [poStatus, phase, speak]);
-
   // Show CTA on PO close
   useEffect(() => {
     if (poStatus === 'closed' && phase === 'po_lifecycle') {
       const t = setTimeout(() => {
-        speak('outro', () => { setShowCTA(true); speak('cta'); });
+        setShowCTA(true);
       }, 1500);
       return () => clearTimeout(t);
     }
-  }, [poStatus, phase, speak]);
+  }, [poStatus, phase]);
 
   const handleReset = useCallback(() => {
-    stop();
-    window.speechSynthesis?.cancel();
     setBids(DEMO_AUCTION.initialBids);
     setAuctionComplete(false);
     setPOStatus('draft');
@@ -813,15 +762,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setShowCTA(false);
     setTimeLeft(120);
     setActiveSuppliers([]);
-    introSpoken.current = false;
     onReset();
-  }, [onReset, stop]);
+  }, [onReset]);
 
   const handleExit = useCallback(() => {
-    stop();
-    window.speechSynthesis?.cancel();
     onExit();
-  }, [onExit, stop]);
+  }, [onExit]);
 
   const advancePO = useCallback(() => {
     setPOStatus(currentStatus => {
@@ -854,7 +800,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
   const handleManualPhaseChange = useCallback((nextPhase: DemoPhase) => {
     setFullDemoRunning(false);
     setAutoPlay(false);
-    window.speechSynthesis?.cancel();
     goToPhase(nextPhase);
   }, [goToPhase]);
 
@@ -864,13 +809,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     isTransitioningRef.current = true;
     setFullDemoRunning(false);
     setAutoPlay(false);
-    window.speechSynthesis?.cancel();
+    
     goToNextPhase();
     setTimeout(() => { isTransitioningRef.current = false; }, 300);
   }, [goToNextPhase]);
 
   const resetCurrentStep = useCallback(() => {
-    stop();
     setFullDemoRunning(false);
     setAutoPlay(false);
     setHighlightSection(null);
@@ -885,7 +829,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       setPOStatus('draft');
       setShowCTA(false);
     }
-  }, [phase, stop]);
+  }, [phase]);
 
   const startDemo = useCallback((s: EntryScenario) => {
     setScenario(s);
@@ -896,9 +840,7 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
     setPhase('rfq');
     setAutoPlay(false);
     setFullDemoRunning(s === 'full');
-    introSpoken.current = true;
-    speak('intro', () => { setTimeout(() => speak('rfq_start'), 400); });
-  }, [speak]);
+  }, []);
 
   // Full demo: auto-advance
   useEffect(() => {
@@ -946,13 +888,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
       ? 'ring-2 ring-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.25)] transition-shadow duration-500'
       : 'transition-shadow duration-500';
 
-  const getSubtitleText = () => {
-    if (!currentStep) return '';
-    const text = getNarrationText(currentStep, language, scenario);
-    return text.length > 140 ? text.slice(0, 140) + '…' : text;
-  };
-
-  // ── ENTRY SCREEN ──
   if (showEntryScreen) {
     return (
       <div className="min-h-screen bg-background">
@@ -1086,41 +1021,6 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
             <span className="text-xs">{isDeepMode ? 'Deep' : 'Sales'}</span>
           </Button>
 
-          {/* ── Voice Controls ── */}
-          <div className="flex items-center gap-1 border rounded-lg px-1 py-0.5" data-demo-controls>
-            {speaking && !paused ? (
-              <Button variant="ghost" size="sm" onClick={pauseVoice} className="h-7 w-7 p-0" title="Pause voiceover">
-                <Pause className="w-3.5 h-3.5" />
-              </Button>
-            ) : paused ? (
-              <Button variant="ghost" size="sm" onClick={resumeVoice} className="h-7 w-7 p-0" title="Resume voiceover">
-                <Play className="w-3.5 h-3.5" />
-              </Button>
-            ) : (
-              <Button variant="ghost" size="sm" onClick={() => {
-                const phaseNarration: Record<string, DemoNarrationStep> = {
-                  rfq: 'rfq_start',
-                  invite: 'supplier_invite',
-                  auction: auctionComplete ? 'auction_complete' : 'auction_live',
-                  po_lifecycle: poStatusToNarrationStep(poStatus) || 'po_start',
-                };
-                speak(phaseNarration[phase] || 'intro');
-              }} className="h-7 w-7 p-0" title="Play voiceover">
-                <Play className="w-3.5 h-3.5" />
-              </Button>
-            )}
-            {(speaking || paused) && (
-              <Button variant="ghost" size="sm" onClick={() => { window.speechSynthesis?.cancel(); stop(); }} className="h-7 w-7 p-0" title="Stop voiceover">
-                <Square className="w-3.5 h-3.5" />
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={toggleVoice} className="h-7 w-7 p-0"
-              title={voiceEnabled ? 'Mute voiceover' : 'Enable voiceover'}>
-              {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            </Button>
-            {speaking && <span className="text-xs text-primary animate-pulse">●</span>}
-          </div>
-
           {/* Auto-play & Next Step */}
           {!fullDemoRunning && (
             <div className="flex items-center gap-1 ml-auto" data-demo-controls>
@@ -1157,21 +1057,12 @@ export function DemoGuidedFlow({ onReset, onExit }: DemoGuidedFlowProps) {
               variant="secondary" size="sm"
               className="ml-auto gap-1 active:scale-95 transition"
               data-demo-controls
-              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); window.speechSynthesis?.cancel(); }}
+              onClick={() => { setFullDemoRunning(false); setAutoPlay(false); }}
             >
-              <Pause className="w-3.5 h-3.5" />
               Stop Auto-Play
             </Button>
           )}
         </div>
-
-        {/* Narration subtitle bar */}
-        {speaking && currentStep && (
-          <div className="bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-sm text-foreground/80 animate-in fade-in slide-in-from-top-2 duration-300">
-            <span className="text-primary mr-2">🎤</span>
-            {getSubtitleText()}
-          </div>
-        )}
 
         {/* ── RFQ PHASE ── */}
         {phase === 'rfq' && (
