@@ -152,11 +152,12 @@ const STRATEGIC_COUNTRIES = new Set([
   "south-korea", "saudi-arabia", "vietnam", "indonesia", "italy",
 ]);
 
-// Redirect non-strategic /source/:country → /global-sourcing-countries
+// Non-strategic /source/:country → render GlobalSourcingPage with noindex
+// (Client-side redirects fail GSC validation; serving content with noindex is safer)
 const SourceCountryGate = () => {
   const { country } = useParams();
   if (!country || !STRATEGIC_COUNTRIES.has(country.toLowerCase())) {
-    return <Navigate to="/global-sourcing-countries" replace />;
+    return <GlobalSourcingPage />;
   }
   return <SourceCountry />;
 };
@@ -281,6 +282,14 @@ const BotAwareRouter = () => {
         <Route path="/buy-energy-power" element={<Navigate to="/demand/structural-steel-india" replace />} />
         <Route path="/buy-industrial-supplies" element={<Navigate to="/demand/ms-pipes-india" replace />} />
         <Route path="/buy-polymers" element={<Navigate to="/demand/pp-granules-india" replace />} />
+        <Route path="/buy-hardware-tools" element={<Navigate to="/demand/hand-tools-india" replace />} />
+        <Route path="/buy-pipes-tubes" element={<Navigate to="/demand/ms-pipes-india" replace />} />
+        <Route path="/buy-chemicals" element={<Navigate to="/demand/caustic-soda-india" replace />} />
+        <Route path="/buy-electrical-equipment" element={<Navigate to="/demand/copper-wire-india" replace />} />
+        <Route path="/buy-food-beverages" element={<Navigate to="/demand/rice-basmati-india" replace />} />
+        <Route path="/buy-packaging" element={<Navigate to="/demand/corrugated-boxes-india" replace />} />
+        <Route path="/buy-petroleum" element={<Navigate to="/demand/bulk-diesel-india" replace />} />
+        <Route path="/buy-textiles" element={<Navigate to="/demand/cotton-yarn-india" replace />} />
         
         {/* /categories/{slug} → redirect to /category/{slug} (canonical normalization) */}
         <Route path="/categories/:slug" element={<CategoriesRedirect />} />
