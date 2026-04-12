@@ -30,9 +30,10 @@ interface PurchaseOrderActionsProps {
   userId: string;
   userRole: string | null;
   onStatusChange: () => void;
+  disabled?: boolean;
 }
 
-export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, onStatusChange }: PurchaseOrderActionsProps) {
+export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, onStatusChange, disabled }: PurchaseOrderActionsProps) {
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
   const [transport, setTransport] = useState<TransportDetails>({ vehicle_number: '', transporter_name: '', driver_contact: '', transport_source: 'supplier' });
@@ -100,7 +101,7 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
       {actions.map((action) => (
         <AlertDialog key={action.targetStatus}>
           <AlertDialogTrigger asChild>
-            <Button variant={action.variant} size="sm" disabled={loading}>
+            <Button variant={action.variant} size="sm" disabled={loading || disabled}>
               {loading && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
               {action.requiresTransportDetails && <Truck className="w-3 h-3 mr-1" />}
               {action.requiresPaymentDetails && <CreditCard className="w-3 h-3 mr-1" />}

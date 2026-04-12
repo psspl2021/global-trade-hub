@@ -1872,6 +1872,7 @@ export type Database = {
           company_name: string
           country: string | null
           created_at: string | null
+          erp_sync_policy: string
           gstin: string | null
           id: string
           industry: string | null
@@ -1884,6 +1885,7 @@ export type Database = {
           company_name: string
           country?: string | null
           created_at?: string | null
+          erp_sync_policy?: string
           gstin?: string | null
           id?: string
           industry?: string | null
@@ -1896,6 +1898,7 @@ export type Database = {
           company_name?: string
           country?: string | null
           created_at?: string | null
+          erp_sync_policy?: string
           gstin?: string | null
           id?: string
           industry?: string | null
@@ -8976,6 +8979,33 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_po_acknowledgements: {
+        Row: {
+          confirmed_at: string
+          confirmed_po_number: string
+          created_at: string
+          id: string
+          po_id: string
+          supplier_id: string
+        }
+        Insert: {
+          confirmed_at?: string
+          confirmed_po_number: string
+          created_at?: string
+          id?: string
+          po_id: string
+          supplier_id: string
+        }
+        Update: {
+          confirmed_at?: string
+          confirmed_po_number?: string
+          created_at?: string
+          id?: string
+          po_id?: string
+          supplier_id?: string
+        }
+        Relationships: []
+      }
       supplier_sale_items: {
         Row: {
           created_at: string
@@ -10981,6 +11011,10 @@ export type Database = {
         Args: { p_buyer_id: string; p_days?: number }
         Returns: Json
       }
+      get_company_erp_policy: {
+        Args: { p_company_id: string }
+        Returns: string
+      }
       get_company_names: {
         Args: { user_ids: string[] }
         Returns: {
@@ -11398,6 +11432,7 @@ export type Database = {
         Args: { p_category?: string; p_slug: string }
         Returns: undefined
       }
+      validate_external_po: { Args: { p_po_id: string }; Returns: Json }
       validate_referral_eligibility: {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: boolean

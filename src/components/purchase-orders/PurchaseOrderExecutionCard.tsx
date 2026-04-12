@@ -10,7 +10,7 @@ import {
   type POExecutionStatus,
 } from '@/lib/po-execution-engine';
 import { cn } from '@/lib/utils';
-import { Clock } from 'lucide-react';
+import { Clock, AlertTriangle } from 'lucide-react';
 
 interface PurchaseOrderExecutionCardProps {
   po: {
@@ -43,6 +43,7 @@ function formatAmount(amount: number, currency?: string) {
 
 export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: PurchaseOrderExecutionCardProps) {
   const [history, setHistory] = useState<any[]>([]);
+  const [supplierConfirmed, setSupplierConfirmed] = useState<boolean | null>(null);
   const currentStatus = (po.status || 'draft') as POExecutionStatus;
   const colors = PO_STATUS_COLORS[currentStatus] || PO_STATUS_COLORS.draft;
 
@@ -61,15 +62,33 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
         .order('created_at', { ascending: true });
       setHistory(data || []);
     };
+
+    const checkConfirmation = async () => {
+      if (!isExternal || !po.external_po_number) {
+        setSupplierConfirmed(null);
+        return;
+      }
+      const { data } = await supabase
+        .from('supplier_po_acknowledgements' as any)
+        .select('id')
+        .eq('po_id', po.id)
+        .eq('confirmed_po_number', po.external_po_number)
+        .limit(1);
+      setSupplierConfirmed((data as any[])?.length > 0);
+    };
+
     load();
-  }, [po.id, currentStatus]);
+    checkConfirmation();
+  }, [po.id, currentStatus, isExternal, po.external_po_number]);
+
+  const pendingConfirmation = isExternal && supplierConfirmed === false;
 
   return (
     <Card className="rounded-[0.625rem] overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 border-b">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs text-muted-foreground">{po.po_number}</span>
             <Badge variant="outline" className={cn('text-xs', colors.bg, colors.text, colors.border)}>
               {PO_STATUS_LABELS[currentStatus]}
@@ -93,6 +112,14 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
         )}
       </div>
 
+      {/* Pending supplier confirmation warning */}
+      {pendingConfirmation && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-700">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span className="text-xs">Waiting for supplier to confirm PO number. Lifecycle progression blocked.</span>
+        </div>
+      )}
+
       {/* Timeline */}
       <div className="px-4 pt-3 pb-1">
         <PurchaseOrderTimeline currentStatus={currentStatus} />
@@ -106,6 +133,7 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
           userId={userId}
           userRole={userRole}
           onStatusChange={onRefresh}
+          disabled={pendingConfirmation}
         />
         {history.length > 0 && (
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
