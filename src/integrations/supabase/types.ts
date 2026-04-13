@@ -3413,6 +3413,57 @@ export type Database = {
         }
         Relationships: []
       }
+      email_queue: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          email_type: string
+          html_body: string
+          id: string
+          last_error: string | null
+          max_attempts: number | null
+          metadata: Json | null
+          recipient_email: string
+          recipient_name: string | null
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          email_type: string
+          html_body: string
+          id?: string
+          last_error?: string | null
+          max_attempts?: number | null
+          metadata?: Json | null
+          recipient_email: string
+          recipient_name?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          email_type?: string
+          html_body?: string
+          id?: string
+          last_error?: string | null
+          max_attempts?: number | null
+          metadata?: Json | null
+          recipient_email?: string
+          recipient_name?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       email_subscription_payments: {
         Row: {
           amount: number
@@ -5850,9 +5901,15 @@ export type Database = {
       }
       purchase_orders: {
         Row: {
+          approval_escalated: boolean | null
           approval_required: boolean | null
           approval_status: string | null
           auction_quality_score: number | null
+          ceo_override: boolean | null
+          ceo_override_by: string | null
+          ceo_override_reason: string | null
+          cfo_approved_at: string | null
+          cfo_approved_by: string | null
           contract_id: string | null
           created_at: string
           created_by: string | null
@@ -5870,6 +5927,7 @@ export type Database = {
           erp_response: Json | null
           erp_sync_enabled: boolean
           erp_sync_status: string | null
+          escalated_at: string | null
           expected_delivery_date: string | null
           external_po_number: string | null
           id: string
@@ -5888,6 +5946,9 @@ export type Database = {
           po_status: string | null
           po_value: number | null
           price_drop_pct: number | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
           requirement_id: string | null
           status: Database["public"]["Enums"]["document_status"]
           subtotal: number
@@ -5909,9 +5970,15 @@ export type Database = {
           vendor_phone: string | null
         }
         Insert: {
+          approval_escalated?: boolean | null
           approval_required?: boolean | null
           approval_status?: string | null
           auction_quality_score?: number | null
+          ceo_override?: boolean | null
+          ceo_override_by?: string | null
+          ceo_override_reason?: string | null
+          cfo_approved_at?: string | null
+          cfo_approved_by?: string | null
           contract_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -5929,6 +5996,7 @@ export type Database = {
           erp_response?: Json | null
           erp_sync_enabled?: boolean
           erp_sync_status?: string | null
+          escalated_at?: string | null
           expected_delivery_date?: string | null
           external_po_number?: string | null
           id?: string
@@ -5947,6 +6015,9 @@ export type Database = {
           po_status?: string | null
           po_value?: number | null
           price_drop_pct?: number | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           requirement_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
@@ -5968,9 +6039,15 @@ export type Database = {
           vendor_phone?: string | null
         }
         Update: {
+          approval_escalated?: boolean | null
           approval_required?: boolean | null
           approval_status?: string | null
           auction_quality_score?: number | null
+          ceo_override?: boolean | null
+          ceo_override_by?: string | null
+          ceo_override_reason?: string | null
+          cfo_approved_at?: string | null
+          cfo_approved_by?: string | null
           contract_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -5988,6 +6065,7 @@ export type Database = {
           erp_response?: Json | null
           erp_sync_enabled?: boolean
           erp_sync_status?: string | null
+          escalated_at?: string | null
           expected_delivery_date?: string | null
           external_po_number?: string | null
           id?: string
@@ -6006,6 +6084,9 @@ export type Database = {
           po_status?: string | null
           po_value?: number | null
           price_drop_pct?: number | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           requirement_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
@@ -11063,15 +11144,27 @@ export type Database = {
           platform_profit: number
         }[]
       }
-      approve_po_step: {
-        Args: {
-          p_idempotency_key: string
-          p_po_id: string
-          p_role: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      approve_po_step:
+        | {
+            Args: {
+              p_idempotency_key: string
+              p_po_id: string
+              p_role: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_action?: string
+              p_idempotency_key: string
+              p_po_id: string
+              p_reason?: string
+              p_role: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       auction_competition_score: { Args: never; Returns: number }
       auction_revenue_daily: {
         Args: never
@@ -11358,6 +11451,7 @@ export type Database = {
         }
         Returns: string
       }
+      escalate_stale_approvals: { Args: never; Returns: number }
       export_lane_audit: { Args: { p_signal_id: string }; Returns: Json }
       generate_audit_hash: {
         Args: {
@@ -11894,9 +11988,24 @@ export type Database = {
         Returns: undefined
       }
       update_lane_sla_statuses: { Args: never; Returns: undefined }
+      update_session_heartbeat: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       upsert_demand_gap: {
         Args: { p_category?: string; p_slug: string }
         Returns: undefined
+      }
+      validate_active_session: { Args: { p_user_id: string }; Returns: boolean }
+      validate_and_proceed_po: {
+        Args: {
+          p_idempotency_key: string
+          p_metadata?: Json
+          p_po_id: string
+          p_target_status: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       validate_bid_rules: {
         Args: {
