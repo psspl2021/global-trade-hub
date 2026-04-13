@@ -5321,6 +5321,47 @@ export type Database = {
         }
         Relationships: []
       }
+      po_finance_logs: {
+        Row: {
+          action: string
+          amount: number | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          payment_reference: string | null
+          performed_by: string
+          po_id: string
+        }
+        Insert: {
+          action: string
+          amount?: number | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_reference?: string | null
+          performed_by: string
+          po_id: string
+        }
+        Update: {
+          action?: string
+          amount?: number | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_reference?: string | null
+          performed_by?: string
+          po_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "po_finance_logs_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       po_items: {
         Row: {
           created_at: string
@@ -5904,7 +5945,9 @@ export type Database = {
           approval_escalated: boolean | null
           approval_required: boolean | null
           approval_status: string | null
+          auction_id: string | null
           auction_quality_score: number | null
+          budget_cap: number | null
           ceo_override: boolean | null
           ceo_override_by: string | null
           ceo_override_reason: string | null
@@ -5939,8 +5982,11 @@ export type Database = {
           order_date: string
           original_po_value: number | null
           payment_confirmed_at: string | null
+          payment_initiated_at: string | null
           payment_mode: string | null
           payment_proof_url: string | null
+          payment_reference: string | null
+          payment_status: string | null
           po_number: string
           po_source: string
           po_status: string | null
@@ -5950,6 +5996,7 @@ export type Database = {
           rejected_by: string | null
           rejection_reason: string | null
           requirement_id: string | null
+          spend_category: string | null
           status: Database["public"]["Enums"]["document_status"]
           subtotal: number
           supplier_id: string
@@ -5973,7 +6020,9 @@ export type Database = {
           approval_escalated?: boolean | null
           approval_required?: boolean | null
           approval_status?: string | null
+          auction_id?: string | null
           auction_quality_score?: number | null
+          budget_cap?: number | null
           ceo_override?: boolean | null
           ceo_override_by?: string | null
           ceo_override_reason?: string | null
@@ -6008,8 +6057,11 @@ export type Database = {
           order_date?: string
           original_po_value?: number | null
           payment_confirmed_at?: string | null
+          payment_initiated_at?: string | null
           payment_mode?: string | null
           payment_proof_url?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
           po_number: string
           po_source?: string
           po_status?: string | null
@@ -6019,6 +6071,7 @@ export type Database = {
           rejected_by?: string | null
           rejection_reason?: string | null
           requirement_id?: string | null
+          spend_category?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id: string
@@ -6042,7 +6095,9 @@ export type Database = {
           approval_escalated?: boolean | null
           approval_required?: boolean | null
           approval_status?: string | null
+          auction_id?: string | null
           auction_quality_score?: number | null
+          budget_cap?: number | null
           ceo_override?: boolean | null
           ceo_override_by?: string | null
           ceo_override_reason?: string | null
@@ -6077,8 +6132,11 @@ export type Database = {
           order_date?: string
           original_po_value?: number | null
           payment_confirmed_at?: string | null
+          payment_initiated_at?: string | null
           payment_mode?: string | null
           payment_proof_url?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
           po_number?: string
           po_source?: string
           po_status?: string | null
@@ -6088,6 +6146,7 @@ export type Database = {
           rejected_by?: string | null
           rejection_reason?: string | null
           requirement_id?: string | null
+          spend_category?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id?: string
@@ -6108,6 +6167,13 @@ export type Database = {
           vendor_phone?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "purchase_orders_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchase_orders_contract_id_fkey"
             columns: ["contract_id"]
@@ -11335,6 +11401,7 @@ export type Database = {
         }
         Returns: Json
       }
+      cleanup_dead_sessions: { Args: never; Returns: number }
       cleanup_stale_sessions: { Args: never; Returns: number }
       close_expired_auctions: { Args: never; Returns: undefined }
       complete_supplier_reveal: {
@@ -11884,6 +11951,16 @@ export type Database = {
         Returns: undefined
       }
       recalculate_intent_scores: { Args: never; Returns: number }
+      record_po_payment: {
+        Args: {
+          p_amount: number
+          p_idempotency_key: string
+          p_payment_reference: string
+          p_po_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
       register_session: {
         Args: { p_device_info?: string; p_user_id: string }
