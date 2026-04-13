@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction, ReverseAuctionBid, getRankedBids } from '@/hooks/useReverseAuction';
 import { toast } from 'sonner';
+import { VirtualizedBidTable } from './VirtualizedBidTable';
 import { logAuctionEvent } from '@/utils/auctionAuditLogger';
 
 interface AuctionItem {
