@@ -6,10 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useRef } from "react";
 
 export async function registerSession(userId: string): Promise<{
-  allowed: boolean;
   sessionId: string | null;
-  reason?: string;
-  activeCount?: number;
 }> {
   const deviceInfo = `${navigator.userAgent.slice(0, 100)}`;
   const { data, error } = await supabase.rpc("register_session", {
@@ -19,15 +16,12 @@ export async function registerSession(userId: string): Promise<{
 
   if (error) {
     console.error("Session registration failed:", error);
-    return { allowed: true, sessionId: null };
+    return { sessionId: null };
   }
 
   const result = data as any;
   return {
-    allowed: result?.allowed ?? true,
     sessionId: result?.session_id ?? null,
-    reason: result?.reason,
-    activeCount: result?.active_count,
   };
 }
 
