@@ -16,6 +16,7 @@ import { useMemo } from 'react';
 import { categoriesData } from '@/data/categories';
 import { signalPagesConfig } from '@/data/signalPages';
 import { demandProducts } from '@/data/demandProducts';
+import { transactionalImportPages } from '@/data/transactionalImportPages';
 
 // Generate slugs for categories
 const categoryWithSlugs = categoriesData.map(cat => ({
