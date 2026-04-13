@@ -203,6 +203,8 @@ const BotAwareRouter = () => {
       /^\/ai-procurement-vs-traditional-rfq$/,
       /^\/ai-b2b-procurement-platform-guide$/,
       /^\/ar\//,
+      /^\/import\//,
+      /^\/rfq\//,
       /^\/$/,
     ];
     

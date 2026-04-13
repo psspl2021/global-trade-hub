@@ -16,6 +16,7 @@ import { useMemo } from 'react';
 import { categoriesData } from '@/data/categories';
 import { signalPagesConfig } from '@/data/signalPages';
 import { demandProducts } from '@/data/demandProducts';
+import { transactionalImportPages } from '@/data/transactionalImportPages';
 
 // Generate slugs for categories
 const categoryWithSlugs = categoriesData.map(cat => ({
@@ -134,6 +135,43 @@ function getPageData(pathname: string): PageData | null {
       description: `Source industrial products from ${country} through ProcureSaathi. Verified suppliers, export documentation, managed logistics for cross-border B2B procurement.`,
       category: country,
       slug: sourceMatch[1],
+    };
+  }
+
+  // Import corridor page: /import/{slug}
+  const importMatch = pathname.match(/^\/import\/(.+)$/);
+  if (importMatch) {
+    const slug = importMatch[1];
+    const importPage = transactionalImportPages.find(p => p.slug === slug);
+    if (importPage) {
+      return {
+        type: 'import',
+        title: `Import ${importPage.skuLabel} from ${importPage.country} to India | ProcureSaathi`,
+        description: `Source ${importPage.skuLabel} from ${importPage.country}. Get pricing, lead times, duty analysis, and verified supplier connections through ProcureSaathi's managed import desk.`,
+        category: importPage.skuLabel,
+        slug,
+      };
+    }
+    // Fallback for unknown import slugs
+    const label = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return {
+      type: 'import',
+      title: `Import ${label} | Cross-Border Sourcing | ProcureSaathi`,
+      description: `Source ${label} through ProcureSaathi's managed import desk. Verified suppliers, duty analysis, quality inspection, and end-to-end logistics.`,
+      category: label,
+      slug,
+    };
+  }
+
+  // RFQ detail page: /rfq/{id}
+  const rfqMatch = pathname.match(/^\/rfq\/(.+)$/);
+  if (rfqMatch) {
+    return {
+      type: 'rfq',
+      title: 'Procurement Requirement | Get Supplier Quotes | ProcureSaathi',
+      description: 'View this procurement requirement on ProcureSaathi. Verified suppliers can submit competitive quotes. AI-powered matching ensures best pricing and quality.',
+      category: 'RFQ',
+      slug: rfqMatch[1],
     };
   }
 
@@ -303,6 +341,12 @@ function generateSchemas(pageData: NonNullable<ReturnType<typeof getPageData>>) 
   } else if (pageData.type === 'demand') {
     breadcrumbs.push({ name: 'Products', url: 'https://www.procuresaathi.com/categories' });
     breadcrumbs.push({ name: pageData.category, url: `https://www.procuresaathi.com/demand/${pageData.slug}` });
+  } else if (pageData.type === 'import') {
+    breadcrumbs.push({ name: 'Global Sourcing', url: 'https://www.procuresaathi.com/global-sourcing-countries' });
+    breadcrumbs.push({ name: pageData.category, url: `https://www.procuresaathi.com/import/${pageData.slug}` });
+  } else if (pageData.type === 'rfq') {
+    breadcrumbs.push({ name: 'Requirements', url: 'https://www.procuresaathi.com/requirements' });
+    breadcrumbs.push({ name: 'RFQ Detail', url: `https://www.procuresaathi.com/rfq/${pageData.slug}` });
   }
 
   schemas.push({
@@ -334,7 +378,7 @@ function generateSchemas(pageData: NonNullable<ReturnType<typeof getPageData>>) 
   }
 
   // Service schema for procurement/signal pages
-  if (pageData.type === 'signal' || pageData.type === 'solutions' || pageData.type === 'demand') {
+  if (pageData.type === 'signal' || pageData.type === 'solutions' || pageData.type === 'demand' || pageData.type === 'import') {
     schemas.push({
       '@context': 'https://schema.org',
       '@type': 'Service',
@@ -458,6 +502,16 @@ export function SEOStaticRenderer({ pathname }: SEOStaticRendererProps) {
             )}
             {pageData.type === 'browse' && (
               <li className="font-medium">Browse Products</li>
+            )}
+            {pageData.type === 'import' && (
+              <>
+                <li><a href="/global-sourcing-countries" className="text-muted-foreground hover:text-primary">Global Sourcing</a></li>
+                <li className="text-muted-foreground">›</li>
+                <li className="font-medium">{pageData.category}</li>
+              </>
+            )}
+            {pageData.type === 'rfq' && (
+              <li className="font-medium">RFQ Detail</li>
             )}
           </ol>
         </div>
