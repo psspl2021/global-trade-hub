@@ -503,6 +503,16 @@ export function SEOStaticRenderer({ pathname }: SEOStaticRendererProps) {
             {pageData.type === 'browse' && (
               <li className="font-medium">Browse Products</li>
             )}
+            {pageData.type === 'import' && (
+              <>
+                <li><a href="/global-sourcing-countries" className="text-muted-foreground hover:text-primary">Global Sourcing</a></li>
+                <li className="text-muted-foreground">›</li>
+                <li className="font-medium">{pageData.category}</li>
+              </>
+            )}
+            {pageData.type === 'rfq' && (
+              <li className="font-medium">RFQ Detail</li>
+            )}
           </ol>
         </div>
       </nav>
