@@ -78,10 +78,37 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
     setIsSubmitting(true);
     
     try {
-      // For now, show a success message - actual invitation would require edge function
+      // Fetch inviter context
+      const { data: { user } } = await supabase.auth.getUser();
+      let inviterName = '';
+      let companyName = '';
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, company')
+          .eq('id', user.id)
+          .single();
+        inviterName = profile?.full_name || user.email || '';
+        companyName = profile?.company || '';
+      }
+
+      const { data, error } = await supabase.functions.invoke('send-team-invite', {
+        body: {
+          email: email.trim(),
+          fullName: fullName.trim() || undefined,
+          role,
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+          inviterName,
+          companyName,
+        },
+      });
+
+      if (error) throw error;
+
       toast({
         title: 'Invitation Sent',
-        description: `An invitation has been sent to ${email} to join as ${BUYER_ROLES.find(r => r.value === role)?.label}.`,
+        description: `An invitation email has been sent to ${email}.`,
       });
       
       // Reset form
@@ -90,13 +117,12 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
       setRole('buyer_purchaser');
       setSelectedCategories([]);
       onOpenChange(false);
-      
-      // Trigger success callback
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Invitation error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to send invitation. Please try again.',
+        description: error?.message || 'Failed to send invitation. Please try again.',
         variant: 'destructive',
       });
     } finally {
