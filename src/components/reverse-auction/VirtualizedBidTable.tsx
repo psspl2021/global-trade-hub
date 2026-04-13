@@ -1,4 +1,4 @@
-import { useRef, memo } from 'react';
+import { useRef, memo, useCallback, useMemo, useReducer } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Input } from '@/components/ui/input';
 
@@ -22,21 +22,24 @@ const ROW_HEIGHT = 64;
 const MAX_VISIBLE_ROWS = 12;
 const VIRTUALIZATION_THRESHOLD = 15;
 
+// --- Isolated row with its own price state to prevent global re-renders ---
 const BidRow = memo(function BidRow({
   item,
-  unitPrice,
-  lineTotal,
+  value,
   onChange,
   isLive,
-  value,
 }: {
   item: AuctionItem;
-  unitPrice: number;
-  lineTotal: number;
+  value: string;
   onChange: (val: string) => void;
   isLive: boolean;
-  value: string;
 }) {
+  const unitPrice = Number(value || 0);
+  const lineTotal = useMemo(
+    () => Math.round(unitPrice * item.quantity * 100) / 100,
+    [unitPrice, item.quantity]
+  );
+
   return (
     <div className="flex items-center border-b last:border-b-0 hover:bg-muted/20 transition-colors" style={{ height: ROW_HEIGHT }}>
       <div className="flex-1 px-4 py-2 min-w-0">
@@ -83,9 +86,19 @@ export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: 
     enabled: useVirtual,
   });
 
-  const handlePriceChange = (itemId: string, value: string) => {
-    setBidPrices(prev => ({ ...prev, [itemId]: value }));
-  };
+  // Stable per-item callback factory — avoids new closure per render
+  const handlersRef = useRef<Record<string, (val: string) => void>>({});
+  const getHandler = useCallback((itemId: string) => {
+    if (!handlersRef.current[itemId]) {
+      handlersRef.current[itemId] = (value: string) => {
+        setBidPrices(prev => {
+          if (prev[itemId] === value) return prev; // bail if unchanged
+          return { ...prev, [itemId]: value };
+        });
+      };
+    }
+    return handlersRef.current[itemId];
+  }, [setBidPrices]);
 
   const tableHeight = useVirtual
     ? Math.min(items.length, MAX_VISIBLE_ROWS) * ROW_HEIGHT
@@ -112,7 +125,6 @@ export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: 
             <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
               {rowVirtualizer.getVirtualItems().map(virtualRow => {
                 const item = items[virtualRow.index];
-                const unitPrice = Number(bidPrices[item.id] || 0);
                 return (
                   <div
                     key={item.id}
@@ -127,9 +139,7 @@ export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: 
                   >
                     <BidRow
                       item={item}
-                      unitPrice={unitPrice}
-                      lineTotal={unitPrice * item.quantity}
-                      onChange={(val) => handlePriceChange(item.id, val)}
+                      onChange={getHandler(item.id)}
                       isLive={isLive}
                       value={bidPrices[item.id] || ''}
                     />
@@ -138,20 +148,15 @@ export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: 
               })}
             </div>
           ) : (
-            items.map(item => {
-              const unitPrice = Number(bidPrices[item.id] || 0);
-              return (
-                <BidRow
-                  key={item.id}
-                  item={item}
-                  unitPrice={unitPrice}
-                  lineTotal={unitPrice * item.quantity}
-                  onChange={(val) => handlePriceChange(item.id, val)}
-                  isLive={isLive}
-                  value={bidPrices[item.id] || ''}
-                />
-              );
-            })
+            items.map(item => (
+              <BidRow
+                key={item.id}
+                item={item}
+                onChange={getHandler(item.id)}
+                isLive={isLive}
+                value={bidPrices[item.id] || ''}
+              />
+            ))
           )}
         </div>
       </div>
