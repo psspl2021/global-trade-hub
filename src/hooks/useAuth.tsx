@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { registerSession, deactivateAllSessions } from '@/hooks/useSessionControl';
+import { registerSession, deactivateAllSessions, useSessionHeartbeat } from '@/hooks/useSessionControl';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Session heartbeat — keeps last_seen_at current for accurate cleanup
+  useSessionHeartbeat(activeSessionId);
 
   useEffect(() => {
     // Set up auth state listener
@@ -23,6 +27,7 @@ export const useAuth = () => {
           setTimeout(async () => {
             try {
               const result = await registerSession(session.user.id);
+              if (result.sessionId) setActiveSessionId(result.sessionId);
               if (!result.allowed) {
                 // Session limit reached — user decides
                 const proceed = window.confirm(
@@ -30,8 +35,10 @@ export const useAuth = () => {
                 );
                 if (proceed) {
                   await deactivateAllSessions(session.user.id);
-                  await registerSession(session.user.id);
+                  const newResult = await registerSession(session.user.id);
+                  if (newResult.sessionId) setActiveSessionId(newResult.sessionId);
                 } else {
+                  setActiveSessionId(null);
                   await supabase.auth.signOut({ scope: 'local' });
                 }
               }
