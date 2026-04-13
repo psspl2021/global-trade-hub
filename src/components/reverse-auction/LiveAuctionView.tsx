@@ -3,6 +3,7 @@
  * Enterprise: L1/L2/L3 Leaderboard, Anti-sniping, Audit logging, Mobile sticky bid
  */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useAuctionTabLock } from '@/hooks/useAuctionTabLock';
 import { AuctionResultExport } from './AuctionResultExport';
 import { AuctionChat } from './AuctionChat';
 import { AwardRecommendationPanel } from './AwardRecommendationPanel';
@@ -63,7 +64,6 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const { toast } = useToast();
 
   // ── Tab-Level Lock: prevent same auction in multiple tabs ──
-  const { useAuctionTabLock } = require('@/hooks/useAuctionTabLock');
   useAuctionTabLock(initialAuction.id);
 
   const [auction, setAuction] = useState<ReverseAuction>(initialAuction);
