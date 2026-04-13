@@ -147,9 +147,14 @@ const ImportRouteResolver = () => {
 };
 
 // Strategic countries that keep standalone /source/:country pages
+// Expanded to include all countries GSC is actively crawling
 const STRATEGIC_COUNTRIES = new Set([
   "china", "uae", "germany", "usa", "japan",
   "south-korea", "saudi-arabia", "vietnam", "indonesia", "italy",
+  "switzerland", "netherlands", "colombia", "south-africa", "brazil",
+  "france", "thailand", "norway", "bahrain", "ireland", "ukraine",
+  "ghana", "romania", "egypt", "belgium", "chile", "mexico", "peru",
+  "oman", "bangladesh", "ethiopia", "nigeria", "uganda",
 ]);
 
 // Non-strategic /source/:country → render GlobalSourcingPage with noindex
@@ -190,6 +195,14 @@ const BotAwareRouter = () => {
       /^\/solutions\//,
       /^\/source\//,
       /^\/browse/,
+      /^\/blogs/,
+      /^\/post-rfq$/,
+      /^\/seller$/,
+      /^\/private-label$/,
+      /^\/find-verified-b2b-suppliers$/,
+      /^\/ai-procurement-vs-traditional-rfq$/,
+      /^\/ai-b2b-procurement-platform-guide$/,
+      /^\/ar\//,
       /^\/$/,
     ];
     
@@ -213,7 +226,7 @@ const BotAwareRouter = () => {
         <Route path="/category/:categorySlug" element={<CategoryLanding />} />
         <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryLanding />} />
         <Route path="/browseproducts" element={<Browse />} />
-        <Route path="/browse" element={<Navigate to="/browseproducts" replace />} />
+        <Route path="/browse" element={<Browse />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/book-truck" element={<BookTruck />} />
         <Route path="/blogs" element={<Blogs />} />
@@ -294,12 +307,15 @@ const BotAwareRouter = () => {
         <Route path="/buy-packaging" element={<Navigate to="/demand/corrugated-boxes-india" replace />} />
         <Route path="/buy-petroleum" element={<Navigate to="/demand/bulk-diesel-india" replace />} />
         <Route path="/buy-textiles" element={<Navigate to="/demand/cotton-yarn-india" replace />} />
+        <Route path="/buy-chemicals-raw-materials" element={<Navigate to="/demand/caustic-soda-india" replace />} />
+        <Route path="/buy-pharmaceuticals-drugs" element={<Navigate to="/demand/pharma-api-india" replace />} />
         
         {/* /categories/{slug} → redirect to /category/{slug} (canonical normalization) */}
         <Route path="/categories/:slug" element={<CategoriesRedirect />} />
         
         {/* Country-specific signal pages for geo-intelligence */}
         <Route path="/:country/procurement/:slug" element={<ProcurementSignalPage />} />
+        <Route path="/ar/procurement/:slug" element={<ProcurementSignalPage />} />
         
         {/* Steel Comparison & Use-Case SEO Pages */}
         <Route path="/steel-comparisons" element={<SteelComparisonsHub />} />
