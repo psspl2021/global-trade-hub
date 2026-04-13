@@ -146,8 +146,8 @@ function getPageData(pathname: string): PageData | null {
     if (importPage) {
       return {
         type: 'import',
-        title: `Import ${importPage.skuLabel} from ${importPage.bestCountry} to India | ProcureSaathi`,
-        description: `Source ${importPage.skuLabel} from ${importPage.bestCountry}. Get pricing, lead times, duty analysis, and verified supplier connections through ProcureSaathi's managed import desk.`,
+        title: `Import ${importPage.skuLabel} from ${importPage.country} to India | ProcureSaathi`,
+        description: `Source ${importPage.skuLabel} from ${importPage.country}. Get pricing, lead times, duty analysis, and verified supplier connections through ProcureSaathi's managed import desk.`,
         category: importPage.skuLabel,
         slug,
       };
