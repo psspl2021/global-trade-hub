@@ -394,54 +394,13 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
           </div>
         )}
 
-        {/* Multi-item bid table — full width with horizontal scroll on mobile */}
-        <div className="rounded-lg border overflow-x-auto">
-          <table className="w-full text-sm min-w-[540px]">
-            <thead>
-              <tr className="bg-muted/50 border-b">
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item</th>
-                <th className="text-right px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-24">Qty</th>
-                <th className="text-center px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-20">Unit</th>
-                <th className="text-right px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-36">Unit Price (₹)</th>
-                <th className="text-right px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-36">Line Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map(item => {
-                const unitPrice = Number(bidPrices[item.id] || 0);
-                const lineTotal = unitPrice * item.quantity;
-                return (
-                  <tr key={item.id} className="border-b last:border-b-0 hover:bg-muted/20 transition-colors">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-foreground">{item.product_name}</p>
-                      {item.description && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium tabular-nums">{item.quantity.toLocaleString('en-IN')}</td>
-                    <td className="px-4 py-3 text-center text-muted-foreground">{item.unit}</td>
-                    <td className="px-4 py-3 text-right">
-                      <Input
-                        type="number"
-                        inputSize="sm"
-                        placeholder={item.unit_price ? String(item.unit_price) : '0'}
-                        value={bidPrices[item.id] || ''}
-                        onChange={e => setBidPrices(prev => ({ ...prev, [item.id]: e.target.value }))}
-                        className="text-sm text-right w-full max-w-[120px] ml-auto tabular-nums font-semibold border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        min="0"
-                        step="0.01"
-                        disabled={!isLive}
-                      />
-                    </td>
-                    <td className={`px-4 py-3 text-right font-medium tabular-nums ${unitPrice > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {unitPrice > 0 ? `₹${lineTotal.toLocaleString('en-IN')}` : '—'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        {/* Multi-item bid table — virtualized for 50+ SKU performance */}
+        <VirtualizedBidTable
+          items={items}
+          bidPrices={bidPrices}
+          setBidPrices={setBidPrices}
+          isLive={isLive}
+        />
 
         {/* HERO TOTAL — the most important element */}
         <div className={`rounded-xl p-4 flex items-center justify-between ${
