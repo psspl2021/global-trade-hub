@@ -11168,6 +11168,7 @@ export type Database = {
         }
         Returns: Json
       }
+      cleanup_stale_sessions: { Args: never; Returns: number }
       close_expired_auctions: { Args: never; Returns: undefined }
       complete_supplier_reveal: {
         Args: {
@@ -11182,6 +11183,17 @@ export type Database = {
         Returns: undefined
       }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
+      create_auction_with_limit_check: {
+        Args: {
+          p_budget?: number
+          p_buyer_id: string
+          p_category?: string
+          p_end_time?: string
+          p_subcategory?: string
+          p_title: string
+        }
+        Returns: Json
+      }
       create_bid_item_for_auto_bid: {
         Args: {
           p_bid_id: string

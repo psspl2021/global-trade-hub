@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { registerSession } from '@/hooks/useSessionControl';
+import { registerSession, deactivateAllSessions } from '@/hooks/useSessionControl';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAuth = () => {
@@ -20,8 +20,24 @@ export const useAuth = () => {
 
         // Register session on login (soft limit: max 2 concurrent)
         if (event === 'SIGNED_IN' && session?.user) {
-          setTimeout(() => {
-            registerSession(session.user.id).catch(console.error);
+          setTimeout(async () => {
+            try {
+              const result = await registerSession(session.user.id);
+              if (!result.allowed) {
+                // Session limit reached — user decides
+                const proceed = window.confirm(
+                  `You already have ${result.activeCount || 2} active sessions. Continue and close the others?`
+                );
+                if (proceed) {
+                  await deactivateAllSessions(session.user.id);
+                  await registerSession(session.user.id);
+                } else {
+                  await supabase.auth.signOut({ scope: 'local' });
+                }
+              }
+            } catch (err) {
+              console.error('Session registration error:', err);
+            }
           }, 0);
         }
       }
