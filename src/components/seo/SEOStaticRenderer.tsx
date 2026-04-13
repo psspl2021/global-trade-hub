@@ -31,7 +31,24 @@ interface SEOStaticRendererProps {
 /**
  * Get page data from static config based on route
  */
-function getPageData(pathname: string) {
+interface PageData {
+  type: string;
+  title: string;
+  description: string;
+  category: string;
+  slug: string;
+  subcategory?: string | null;
+  subcategories?: string[];
+  h1?: string;
+  subheading?: string;
+  bodyText?: string;
+  useCases?: string[];
+  whatBuyerGets?: string[];
+  intentKeywords?: string[];
+  productName?: string;
+}
+
+function getPageData(pathname: string): PageData | null {
   // Category page: /category/{slug} or /category/{slug}/{subcategorySlug}
   const categoryMatch = pathname.match(/^\/category\/([^/]+)(?:\/(.+))?$/);
   if (categoryMatch) {
