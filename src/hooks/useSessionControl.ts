@@ -46,10 +46,12 @@ export function useSessionHeartbeat(sessionId: string | null) {
     if (!sessionId) return;
 
     const sendHeartbeat = () => {
+      const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
       supabase
         .from("user_sessions" as any)
         .update({ last_seen_at: new Date().toISOString() } as any)
         .eq("id", sessionId)
+        .lt("last_seen_at" as any, twoMinAgo)
         .then(({ error }) => {
           if (error) console.warn("Session heartbeat failed:", error.message);
         });

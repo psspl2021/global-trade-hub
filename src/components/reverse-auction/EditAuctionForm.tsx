@@ -325,8 +325,9 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
       setNewSupplierEmail('');
       toast.success(`Supplier ${email} added`);
     } catch (err: any) {
+      const code = err?.code || '';
       const msg = err?.message || '';
-      if (msg.includes('Supplier limit reached') || msg.includes('maximum 20')) {
+      if (code === 'P0001' || msg.includes('Supplier limit reached') || msg.includes('maximum 20')) {
         toast.error('Maximum 20 suppliers allowed per auction.');
       } else {
         toast.error('Failed to add supplier: ' + msg);
