@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { registerSession } from '@/hooks/useSessionControl';
+import { registerSession, deactivateAllSessions } from '@/hooks/useSessionControl';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAuth = () => {
