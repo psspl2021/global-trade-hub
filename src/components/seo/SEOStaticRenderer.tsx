@@ -341,6 +341,12 @@ function generateSchemas(pageData: NonNullable<ReturnType<typeof getPageData>>) 
   } else if (pageData.type === 'demand') {
     breadcrumbs.push({ name: 'Products', url: 'https://www.procuresaathi.com/categories' });
     breadcrumbs.push({ name: pageData.category, url: `https://www.procuresaathi.com/demand/${pageData.slug}` });
+  } else if (pageData.type === 'import') {
+    breadcrumbs.push({ name: 'Global Sourcing', url: 'https://www.procuresaathi.com/global-sourcing-countries' });
+    breadcrumbs.push({ name: pageData.category, url: `https://www.procuresaathi.com/import/${pageData.slug}` });
+  } else if (pageData.type === 'rfq') {
+    breadcrumbs.push({ name: 'Requirements', url: 'https://www.procuresaathi.com/requirements' });
+    breadcrumbs.push({ name: 'RFQ Detail', url: `https://www.procuresaathi.com/rfq/${pageData.slug}` });
   }
 
   schemas.push({
