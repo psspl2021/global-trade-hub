@@ -5152,6 +5152,44 @@ export type Database = {
           },
         ]
       }
+      po_approval_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          idempotency_key: string | null
+          metadata: Json | null
+          performed_by: string
+          po_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          performed_by: string
+          po_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          performed_by?: string
+          po_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "po_approval_logs_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       po_audit_logs: {
         Row: {
           action: string
@@ -5812,6 +5850,9 @@ export type Database = {
       }
       purchase_orders: {
         Row: {
+          approval_required: boolean | null
+          approval_status: string | null
+          auction_quality_score: number | null
           contract_id: string | null
           created_at: string
           created_by: string | null
@@ -5820,6 +5861,8 @@ export type Database = {
           delivery_delay_notes: string | null
           delivery_delay_reason: string | null
           delivery_due_date: string | null
+          director_approved_at: string | null
+          director_approved_by: string | null
           discount_amount: number
           discount_percent: number | null
           driver_contact: string | null
@@ -5832,6 +5875,8 @@ export type Database = {
           id: string
           immutable_hash: string | null
           legal_hold: boolean | null
+          manager_approved_at: string | null
+          manager_approved_by: string | null
           notes: string | null
           order_date: string
           original_po_value: number | null
@@ -5842,10 +5887,12 @@ export type Database = {
           po_source: string
           po_status: string | null
           po_value: number | null
+          price_drop_pct: number | null
           requirement_id: string | null
           status: Database["public"]["Enums"]["document_status"]
           subtotal: number
           supplier_id: string
+          supplier_verified: boolean | null
           tax_amount: number
           tax_rate: number | null
           terms_and_conditions: string | null
@@ -5862,6 +5909,9 @@ export type Database = {
           vendor_phone: string | null
         }
         Insert: {
+          approval_required?: boolean | null
+          approval_status?: string | null
+          auction_quality_score?: number | null
           contract_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -5870,6 +5920,8 @@ export type Database = {
           delivery_delay_notes?: string | null
           delivery_delay_reason?: string | null
           delivery_due_date?: string | null
+          director_approved_at?: string | null
+          director_approved_by?: string | null
           discount_amount?: number
           discount_percent?: number | null
           driver_contact?: string | null
@@ -5882,6 +5934,8 @@ export type Database = {
           id?: string
           immutable_hash?: string | null
           legal_hold?: boolean | null
+          manager_approved_at?: string | null
+          manager_approved_by?: string | null
           notes?: string | null
           order_date?: string
           original_po_value?: number | null
@@ -5892,10 +5946,12 @@ export type Database = {
           po_source?: string
           po_status?: string | null
           po_value?: number | null
+          price_drop_pct?: number | null
           requirement_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id: string
+          supplier_verified?: boolean | null
           tax_amount?: number
           tax_rate?: number | null
           terms_and_conditions?: string | null
@@ -5912,6 +5968,9 @@ export type Database = {
           vendor_phone?: string | null
         }
         Update: {
+          approval_required?: boolean | null
+          approval_status?: string | null
+          auction_quality_score?: number | null
           contract_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -5920,6 +5979,8 @@ export type Database = {
           delivery_delay_notes?: string | null
           delivery_delay_reason?: string | null
           delivery_due_date?: string | null
+          director_approved_at?: string | null
+          director_approved_by?: string | null
           discount_amount?: number
           discount_percent?: number | null
           driver_contact?: string | null
@@ -5932,6 +5993,8 @@ export type Database = {
           id?: string
           immutable_hash?: string | null
           legal_hold?: boolean | null
+          manager_approved_at?: string | null
+          manager_approved_by?: string | null
           notes?: string | null
           order_date?: string
           original_po_value?: number | null
@@ -5942,10 +6005,12 @@ export type Database = {
           po_source?: string
           po_status?: string | null
           po_value?: number | null
+          price_drop_pct?: number | null
           requirement_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id?: string
+          supplier_verified?: boolean | null
           tax_amount?: number
           tax_rate?: number | null
           terms_and_conditions?: string | null
@@ -10998,6 +11063,15 @@ export type Database = {
           platform_profit: number
         }[]
       }
+      approve_po_step: {
+        Args: {
+          p_idempotency_key: string
+          p_po_id: string
+          p_role: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       auction_competition_score: { Args: never; Returns: number }
       auction_revenue_daily: {
         Args: never
@@ -11230,6 +11304,17 @@ export type Database = {
         Args: { bid_id: string; coverage_percent?: number; req_id: string }
         Returns: string
       }
+      create_po_from_auction: {
+        Args: {
+          p_auction_id: string
+          p_notes?: string
+          p_po_value: number
+          p_supplier_id: string
+          p_user_id: string
+          p_vendor_name: string
+        }
+        Returns: Json
+      }
       deactivate_user_sessions: {
         Args: { p_user_id: string }
         Returns: undefined
@@ -11254,6 +11339,14 @@ export type Database = {
         }[]
       }
       detect_nudge_conversions: { Args: never; Returns: undefined }
+      enforce_single_active_session: {
+        Args: {
+          p_device_info?: string
+          p_session_token: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       ensure_buyer_company: { Args: { _user_id: string }; Returns: Json }
       ensure_requirement_item_exists: {
         Args: {
