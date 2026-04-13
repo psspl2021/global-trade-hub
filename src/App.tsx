@@ -186,6 +186,10 @@ const BotAwareRouter = () => {
       /^\/.+-suppliers$/,
       /^\/category\//,
       /^\/procurement\//,
+      /^\/demand\//,
+      /^\/solutions\//,
+      /^\/source\//,
+      /^\/browse/,
       /^\/$/,
     ];
     
