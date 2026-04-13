@@ -180,6 +180,82 @@ function getPageData(pathname: string): PageData | null {
     };
   }
 
+  // Blogs: /blogs or /blogs/{slug}
+  const blogMatch = pathname.match(/^\/blogs(?:\/(.+))?$/);
+  if (blogMatch) {
+    const blogSlug = blogMatch[1];
+    if (blogSlug) {
+      const title = blogSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return {
+        type: 'blog',
+        title: `${title} | ProcureSaathi Blog`,
+        description: `Read about ${title.toLowerCase()} — insights on B2B procurement, sourcing strategies, and supply chain optimization from ProcureSaathi.`,
+        category: 'Blog',
+        slug: blogSlug,
+      };
+    }
+    return {
+      type: 'blog',
+      title: 'ProcureSaathi Blog | B2B Procurement Insights & Industry News',
+      description: 'Expert articles on B2B procurement, sourcing strategies, supply chain optimization, and industrial market intelligence from ProcureSaathi.',
+      category: 'Blog',
+      slug: 'blogs',
+    };
+  }
+
+  // Static standalone pages
+  const staticPages: Record<string, { title: string; description: string }> = {
+    '/post-rfq': {
+      title: 'Post RFQ Free | Get Quotes from Verified Suppliers | ProcureSaathi',
+      description: 'Post your procurement requirement for free. Receive competitive quotes from verified suppliers within 24-48 hours. AI-powered B2B sourcing platform.',
+    },
+    '/seller': {
+      title: 'Sell on ProcureSaathi | Register as Verified Supplier',
+      description: 'Join ProcureSaathi as a verified supplier. Get matched with real buyer demand, receive RFQs, and grow your B2B business with AI-powered procurement.',
+    },
+    '/private-label': {
+      title: 'Private Label Manufacturing India | Custom OEM Products | ProcureSaathi',
+      description: 'Source private label and OEM manufacturing from verified Indian suppliers. Custom branding, quality-certified products, export-ready across 40+ categories.',
+    },
+    '/find-verified-b2b-suppliers': {
+      title: 'Find Verified B2B Suppliers India | ProcureSaathi',
+      description: 'Discover verified B2B suppliers across India. Quality-certified manufacturers, competitive pricing, and managed procurement for every industrial category.',
+    },
+    '/ai-procurement-vs-traditional-rfq': {
+      title: 'AI Procurement vs Traditional RFQ Process | ProcureSaathi',
+      description: 'Compare AI-powered procurement with traditional RFQ processes. See how automated supplier matching, real-time bidding, and smart analytics reduce costs by 15-30%.',
+    },
+    '/ai-b2b-procurement-platform-guide': {
+      title: 'AI B2B Procurement Platform Guide 2026 | ProcureSaathi',
+      description: 'Complete guide to AI-powered B2B procurement platforms. Learn how AI transforms sourcing, supplier discovery, and cost optimization for enterprises.',
+    },
+  };
+
+  if (staticPages[pathname]) {
+    const page = staticPages[pathname];
+    return {
+      type: 'static',
+      title: page.title,
+      description: page.description,
+      category: '',
+      slug: pathname.replace(/^\//, ''),
+    };
+  }
+
+  // Arabic/locale prefix for procurement pages: /ar/procurement/{slug}
+  const arMatch = pathname.match(/^\/ar\/procurement\/(.+)$/);
+  if (arMatch) {
+    const slug = arMatch[1];
+    const signalPage = signalPagesConfig.find(p => p.slug === slug);
+    return {
+      type: 'signal',
+      title: signalPage?.metaTitle || `${slug.replace(/-/g, ' ')} Procurement | ProcureSaathi`,
+      description: signalPage?.metaDescription || `Source ${slug.replace(/-/g, ' ')} from verified suppliers.`,
+      category: signalPage?.signalMapping?.category || slug.replace(/-/g, ' '),
+      slug,
+    };
+  }
+
   // Homepage
   if (pathname === '/') {
     return {
