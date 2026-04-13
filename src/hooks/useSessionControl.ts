@@ -1,35 +1,14 @@
 /**
  * Session Control — Soft limit of max 2 concurrent sessions per user.
- * Uses register_session RPC which auto-evicts oldest if >= 2.
+ * Backend returns allowed:false if >= 2 active. Frontend decides whether to evict.
  */
 import { supabase } from "@/integrations/supabase/client";
 
-export async function checkSessionLimit(userId: string): Promise<{
-  allowed: boolean;
-  message?: string;
-}> {
-  const { data, error } = await supabase
-    .from("user_sessions")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("active", true);
-
-  if (error) return { allowed: true };
-
-  if ((data || []).length >= 2) {
-    return {
-      allowed: false,
-      message:
-        "You already have 2 active sessions. Continue and close the others?",
-    };
-  }
-
-  return { allowed: true };
-}
-
 export async function registerSession(userId: string): Promise<{
+  allowed: boolean;
   sessionId: string | null;
-  evicted: boolean;
+  reason?: string;
+  activeCount?: number;
 }> {
   const deviceInfo = `${navigator.userAgent.slice(0, 100)}`;
   const { data, error } = await supabase.rpc("register_session", {
@@ -39,12 +18,15 @@ export async function registerSession(userId: string): Promise<{
 
   if (error) {
     console.error("Session registration failed:", error);
-    return { sessionId: null, evicted: false };
+    return { allowed: true, sessionId: null };
   }
 
+  const result = data as any;
   return {
-    sessionId: (data as any)?.session_id ?? null,
-    evicted: (data as any)?.evicted ?? false,
+    allowed: result?.allowed ?? true,
+    sessionId: result?.session_id ?? null,
+    reason: result?.reason,
+    activeCount: result?.active_count,
   };
 }
 
