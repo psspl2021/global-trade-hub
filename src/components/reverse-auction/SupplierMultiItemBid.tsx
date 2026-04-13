@@ -2,7 +2,8 @@
  * Multi-Item Supplier Bidding Table
  * Enterprise-grade: per-item pricing, auto-total, race-safe DB placement, live rank via realtime
  */
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
