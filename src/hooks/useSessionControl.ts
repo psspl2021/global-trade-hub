@@ -45,12 +45,24 @@ export function useSessionHeartbeat(sessionId: string | null) {
       userIdRef.current = data.user?.id ?? null;
     });
 
+    let consecutiveFailures = 0;
+
     const sendHeartbeat = () => {
       if (!userIdRef.current) return;
       supabase
         .rpc("update_session_heartbeat", { p_user_id: userIdRef.current })
         .then(({ error }) => {
-          if (error) console.warn("Session heartbeat failed:", error.message);
+          if (error) {
+            consecutiveFailures++;
+            console.warn("Session heartbeat failed:", error.message);
+            // Force logout after 3 consecutive failures
+            if (consecutiveFailures >= 3) {
+              console.error("Session lost — forcing logout");
+              supabase.auth.signOut();
+            }
+          } else {
+            consecutiveFailures = 0;
+          }
         });
     };
 
