@@ -86,11 +86,11 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, company')
+          .select('contact_person, company_name')
           .eq('id', user.id)
           .single();
-        inviterName = profile?.full_name || user.email || '';
-        companyName = profile?.company || '';
+        inviterName = profile?.contact_person || user.email || '';
+        companyName = profile?.company_name || '';
       }
 
       const { data, error } = await supabase.functions.invoke('send-team-invite', {
