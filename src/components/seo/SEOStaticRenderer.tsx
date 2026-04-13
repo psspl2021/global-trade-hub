@@ -138,6 +138,43 @@ function getPageData(pathname: string): PageData | null {
     };
   }
 
+  // Import corridor page: /import/{slug}
+  const importMatch = pathname.match(/^\/import\/(.+)$/);
+  if (importMatch) {
+    const slug = importMatch[1];
+    const importPage = transactionalImportPages.find(p => p.slug === slug);
+    if (importPage) {
+      return {
+        type: 'import',
+        title: `Import ${importPage.skuLabel} from ${importPage.bestCountry} to India | ProcureSaathi`,
+        description: `Source ${importPage.skuLabel} from ${importPage.bestCountry}. Get pricing, lead times, duty analysis, and verified supplier connections through ProcureSaathi's managed import desk.`,
+        category: importPage.skuLabel,
+        slug,
+      };
+    }
+    // Fallback for unknown import slugs
+    const label = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return {
+      type: 'import',
+      title: `Import ${label} | Cross-Border Sourcing | ProcureSaathi`,
+      description: `Source ${label} through ProcureSaathi's managed import desk. Verified suppliers, duty analysis, quality inspection, and end-to-end logistics.`,
+      category: label,
+      slug,
+    };
+  }
+
+  // RFQ detail page: /rfq/{id}
+  const rfqMatch = pathname.match(/^\/rfq\/(.+)$/);
+  if (rfqMatch) {
+    return {
+      type: 'rfq',
+      title: 'Procurement Requirement | Get Supplier Quotes | ProcureSaathi',
+      description: 'View this procurement requirement on ProcureSaathi. Verified suppliers can submit competitive quotes. AI-powered matching ensures best pricing and quality.',
+      category: 'RFQ',
+      slug: rfqMatch[1],
+    };
+  }
+
   // Buy page: /buy-{slug}
   const buyMatch = pathname.match(/^\/buy-(.+)$/);
   if (buyMatch) {
