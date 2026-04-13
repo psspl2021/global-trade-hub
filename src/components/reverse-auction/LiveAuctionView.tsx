@@ -62,6 +62,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
+  // ── Tab-Level Lock: prevent same auction in multiple tabs ──
+  const { useAuctionTabLock } = require('@/hooks/useAuctionTabLock');
+  useAuctionTabLock(initialAuction.id);
+
   const [auction, setAuction] = useState<ReverseAuction>(initialAuction);
 
   // Real-time subscription on the auction record itself
