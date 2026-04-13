@@ -378,7 +378,7 @@ function generateSchemas(pageData: NonNullable<ReturnType<typeof getPageData>>) 
   }
 
   // Service schema for procurement/signal pages
-  if (pageData.type === 'signal' || pageData.type === 'solutions' || pageData.type === 'demand') {
+  if (pageData.type === 'signal' || pageData.type === 'solutions' || pageData.type === 'demand' || pageData.type === 'import') {
     schemas.push({
       '@context': 'https://schema.org',
       '@type': 'Service',
