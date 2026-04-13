@@ -28,14 +28,17 @@ export const useAuth = () => {
             try {
               const result = await registerSession(session.user.id);
               if (result.sessionId) setActiveSessionId(result.sessionId);
+              if (!result.allowed) {
                 // Session limit reached — user decides
                 const proceed = window.confirm(
                   `You already have ${result.activeCount || 2} active sessions. Continue and close the others?`
                 );
                 if (proceed) {
                   await deactivateAllSessions(session.user.id);
-                  await registerSession(session.user.id);
+                  const newResult = await registerSession(session.user.id);
+                  if (newResult.sessionId) setActiveSessionId(newResult.sessionId);
                 } else {
+                  setActiveSessionId(null);
                   await supabase.auth.signOut({ scope: 'local' });
                 }
               }
