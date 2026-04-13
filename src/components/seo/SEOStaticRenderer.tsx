@@ -59,7 +59,7 @@ function getPageData(pathname: string): PageData | null {
     const subName = subSlug ? subSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : null;
     
     return {
-      type: 'category' as const,
+      type: 'category',
       title: subName 
         ? `${subName} Suppliers India | ${categoryName} | ProcureSaathi`
         : `${categoryName} Suppliers & Manufacturers India | ProcureSaathi B2B`,
@@ -79,7 +79,7 @@ function getPageData(pathname: string): PageData | null {
     const slug = signalMatch[1];
     const signalPage = signalPagesConfig.find(p => p.slug === slug);
     return {
-      type: 'signal' as const,
+      type: 'signal',
       title: signalPage?.metaTitle || signalPage?.h1 || `${slug.replace(/-/g, ' ')} Procurement | ProcureSaathi`,
       description: signalPage?.metaDescription || signalPage?.subheading || `Source ${slug.replace(/-/g, ' ')} from verified suppliers on ProcureSaathi. AI-powered procurement with competitive bidding.`,
       category: signalPage?.signalMapping?.category || slug.replace(/-/g, ' '),
@@ -99,7 +99,7 @@ function getPageData(pathname: string): PageData | null {
     const slug = demandMatch[1];
     const product = demandProducts.find(p => p.slug === slug);
     return {
-      type: 'demand' as const,
+      type: 'demand',
       title: product ? `${product.name} Suppliers India | Buy ${product.category} | ProcureSaathi` : `${slug.replace(/-/g, ' ')} | ProcureSaathi`,
       description: product 
         ? `Source ${product.name} from verified suppliers in India. Get competitive quotes for ${product.category}. AI-powered B2B procurement platform.`
@@ -116,7 +116,7 @@ function getPageData(pathname: string): PageData | null {
     const slug = solutionsMatch[1];
     const signalPage = signalPagesConfig.find(p => p.slug === slug);
     return {
-      type: 'solutions' as const,
+      type: 'solutions',
       title: signalPage?.metaTitle || `${slug.replace(/-/g, ' ')} Solutions | ProcureSaathi`,
       description: signalPage?.metaDescription || `End-to-end ${slug.replace(/-/g, ' ')} procurement solutions. Verified suppliers, competitive bidding, managed fulfillment.`,
       category: signalPage?.signalMapping?.category || slug.replace(/-/g, ' '),
@@ -129,7 +129,7 @@ function getPageData(pathname: string): PageData | null {
   if (sourceMatch) {
     const country = sourceMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     return {
-      type: 'source' as const,
+      type: 'source',
       title: `Source from ${country} | B2B Industrial Sourcing | ProcureSaathi`,
       description: `Source industrial products from ${country} through ProcureSaathi. Verified suppliers, export documentation, managed logistics for cross-border B2B procurement.`,
       category: country,
@@ -143,7 +143,7 @@ function getPageData(pathname: string): PageData | null {
     const slug = buyMatch[1];
     const category = categoryWithSlugs.find(c => c.slug === slug);
     return {
-      type: 'buy' as const,
+      type: 'buy',
       title: category ? `Buy ${category.name} from Verified Suppliers` : `Buy ${slug.replace(/-/g, ' ')} | ProcureSaathi`,
       description: category 
         ? `Source verified ${category.name} suppliers on ProcureSaathi. Post RFQ, receive competitive quotes, and close deals with trusted manufacturers.`
@@ -159,7 +159,7 @@ function getPageData(pathname: string): PageData | null {
     const slug = supplierMatch[1];
     const category = categoryWithSlugs.find(c => c.slug === slug);
     return {
-      type: 'supplier' as const,
+      type: 'supplier',
       title: category ? `${category.name} Suppliers & Manufacturers` : `${slug.replace(/-/g, ' ')} Suppliers | ProcureSaathi`,
       description: category 
         ? `Join ProcureSaathi as a ${category.name} supplier. AI detects buyer demand and matches you with verified procurement opportunities.`
@@ -172,7 +172,7 @@ function getPageData(pathname: string): PageData | null {
   // Browse page: /browse or /browseproducts
   if (pathname.startsWith('/browse')) {
     return {
-      type: 'browse' as const,
+      type: 'browse',
       title: 'Browse Products & Suppliers | ProcureSaathi B2B Marketplace',
       description: 'Browse verified B2B suppliers across 40+ industrial categories. Steel, chemicals, polymers, electronics, food, textiles, and more. AI-powered procurement platform.',
       category: 'All Categories',
@@ -183,7 +183,7 @@ function getPageData(pathname: string): PageData | null {
   // Homepage
   if (pathname === '/') {
     return {
-      type: 'home' as const,
+      type: 'home',
       title: 'ProcureSaathi | AI-Powered B2B Procurement Platform',
       description: 'ProcureSaathi is an AI-powered B2B procurement and sourcing platform helping buyers and suppliers connect across domestic and export-import markets.',
       category: '',
