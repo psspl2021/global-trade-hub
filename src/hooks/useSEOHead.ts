@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 const CANONICAL_DOMAIN = 'https://www.procuresaathi.com';
 
 // Routes that should NOT be indexed
-const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier', '/seller', '/buyer', '/browseproducts', '/browse', '/enterprise', '/affiliate', '/invoice-generator', '/source'];
+const NOINDEX_ROUTES = ['/admin', '/dashboard', '/management', '/control-tower', '/login', '/signup', '/reset-password', '/supplier', '/browseproducts', '/enterprise', '/affiliate', '/invoice-generator'];
 
 // Duplicate page patterns that must be noindexed (authority lives elsewhere)
 const NOINDEX_PATTERNS = [
