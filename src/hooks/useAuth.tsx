@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { registerSession } from '@/hooks/useSessionControl';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAuth = () => {
@@ -12,10 +13,17 @@ export const useAuth = () => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Register session on login (soft limit: max 2 concurrent)
+        if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(() => {
+            registerSession(session.user.id).catch(console.error);
+          }, 0);
+        }
       }
     );
 
