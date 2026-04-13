@@ -26,6 +26,7 @@ import { getSuggestedStartingPrice, getMarketBenchmark, type RFQSignal } from '@
 import { getAuctionFee, formatINR } from '@/utils/auctionPricing';
 import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuctionTitle';
 import { parseAuctionTitle } from '@/utils/parseAuctionTitle';
+import { checkActiveAuctionLimit } from '@/hooks/useAuctionLimits';
 import { useAuth } from '@/hooks/useAuth';
 import { SupplierRecommendationPanel } from './SupplierRecommendationPanel';
 import { PriceIntelligencePanel } from './PriceIntelligencePanel';
@@ -469,6 +470,15 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const handleSubmit = async () => {
     // Double-click protection
     if (isSubmitting) return;
+
+    // ── Active Auction Limit Check (server-enforced) ──
+    if (user) {
+      const limitCheck = await checkActiveAuctionLimit(user.id);
+      if (!limitCheck.allowed) {
+        toast.error(limitCheck.reason || 'You have reached your live auction limit.');
+        return;
+      }
+    }
 
     const validItems = items.filter(i => i.product.trim() && i.quantity.trim());
 

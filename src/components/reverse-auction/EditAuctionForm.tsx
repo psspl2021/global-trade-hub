@@ -291,6 +291,15 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     }
     setIsAddingSupplier(true);
     try {
+      // ── Supplier Limit Check (server-enforced, max 20) ──
+      const { checkSupplierLimit } = await import('@/hooks/useAuctionLimits');
+      const supplierCheck = await checkSupplierLimit(auction.id);
+      if (!supplierCheck.valid) {
+        toast.error(supplierCheck.reason || 'Maximum 20 suppliers per auction.');
+        setIsAddingSupplier(false);
+        return;
+      }
+
       // Resolve supplier_id from profiles if the email matches an existing user
       const { data: profile } = await supabase
         .from('profiles')

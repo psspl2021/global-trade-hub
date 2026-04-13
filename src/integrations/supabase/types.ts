@@ -9750,6 +9750,8 @@ export type Database = {
       }
       user_sessions: {
         Row: {
+          active: boolean
+          device_info: string | null
           id: string
           last_seen_at: string | null
           session_id: string | null
@@ -9757,6 +9759,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          active?: boolean
+          device_info?: string | null
           id?: string
           last_seen_at?: string | null
           session_id?: string | null
@@ -9764,6 +9768,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          active?: boolean
+          device_info?: string | null
           id?: string
           last_seen_at?: string | null
           session_id?: string | null
@@ -11114,6 +11120,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
+      check_active_auction_limit: {
+        Args: { p_buyer_id: string }
+        Returns: Json
+      }
       check_admin_permission: {
         Args: { _action: string; _user_id: string }
         Returns: boolean
@@ -11197,6 +11207,10 @@ export type Database = {
       create_partial_lane: {
         Args: { bid_id: string; coverage_percent?: number; req_id: string }
         Returns: string
+      }
+      deactivate_user_sessions: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
       decay_boosts: { Args: { max_links?: number }; Returns: undefined }
       detect_export_buyers: {
@@ -11662,6 +11676,10 @@ export type Database = {
       }
       recalculate_intent_scores: { Args: never; Returns: number }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
+      register_session: {
+        Args: { p_device_info?: string; p_user_id: string }
+        Returns: Json
+      }
       request_supplier_reveal: {
         Args: {
           p_bid_id: string
@@ -11778,6 +11796,7 @@ export type Database = {
         Args: { p_referred_id: string; p_referrer_id: string }
         Returns: boolean
       }
+      validate_supplier_limit: { Args: { p_auction_id: string }; Returns: Json }
       verify_auction_payments: {
         Args: never
         Returns: {
