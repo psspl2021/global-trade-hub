@@ -679,7 +679,12 @@ const Signup = () => {
                       type="password"
                       placeholder="Min 8 chars, uppercase, lowercase, number"
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => ({ ...prev, password: value }));
+                        setErrors((prev) => ({ ...prev, password: undefined }));
+                        setBreachWarning(null);
+                      }}
                       className={`min-h-[44px] ${errors.password ? 'border-destructive' : ''}`}
                     />
                     {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
