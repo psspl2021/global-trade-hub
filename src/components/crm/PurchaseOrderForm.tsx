@@ -432,6 +432,33 @@ export const PurchaseOrderForm = ({
                     </Select>
                   </div>
                 )}
+                {isGlobal && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Exchange Rate (to INR base) *</Label>
+                      <Input
+                        type="number"
+                        step="0.0001"
+                        min="0.0001"
+                        value={exchangeRate}
+                        onChange={(e) => setExchangeRate(parseFloat(e.target.value) || 1)}
+                        placeholder="e.g. 0.012 for USD→INR"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        1 {userCurrency} = {exchangeRate} INR equivalent factor
+                      </p>
+                    </div>
+                    <div>
+                      <Label>PO Value (INR Equivalent)</Label>
+                      <Input
+                        value={`₹${(total / (exchangeRate || 1)).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`}
+                        disabled
+                        className="bg-muted"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Auto-computed for cross-currency comparison</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
