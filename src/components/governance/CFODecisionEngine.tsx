@@ -1,33 +1,33 @@
 /**
  * CFO Decision Engine (Global, Execution-Ready)
- * Active decision intelligence with confidence scores, supplier priority,
- * simulation projections, and org-level base currency.
+ * Decision → Execution → Feedback Loop
+ * With alert cooldowns, snooze controls, and action execution.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import {
-  AlertTriangle,
-  ArrowRight,
-  Brain,
-  Clock,
-  Flame,
-  Globe,
-  Loader2,
-  Pause,
-  Play,
-  Shield,
-  ShieldAlert,
-  Sparkles,
-  Target,
-  TrendingDown,
-  TrendingUp,
-  Zap,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  AlertTriangle, ArrowRight, BellOff, Brain, Check, Clock, Flame, Globe,
+  Loader2, Pause, Play, Shield, ShieldAlert, Sparkles, Target,
+  TrendingDown, TrendingUp, Zap, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// --- Types ---
 interface RunwayData {
   daily_burn: number;
   pending_payable: number;
@@ -70,6 +70,7 @@ interface Simulation {
   actions_count: number;
 }
 
+// --- Constants ---
 const CURRENCY_SYMBOLS: Record<string, string> = {
   INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼',
   JPY: '¥', CNY: '¥', SGD: 'S$', AUD: 'A$', CAD: 'C$', CHF: 'CHF',
@@ -111,6 +112,7 @@ const priorityConfig: Record<string, { label: string; color: string; icon: typeo
   low: { label: 'Low', color: 'text-emerald-400 border-emerald-600 bg-emerald-500/10', icon: Shield },
 };
 
+// --- Main Component ---
 export function CFODecisionEngine() {
   const [runway, setRunway] = useState<RunwayData | null>(null);
   const [vendors, setVendors] = useState<PriorityVendor[]>([]);
@@ -119,7 +121,18 @@ export function CFODecisionEngine() {
   const [simulation, setSimulation] = useState<Simulation | null>(null);
   const [loading, setLoading] = useState(true);
   const [baseCurrency, setBaseCurrency] = useState('INR');
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [executingAction, setExecutingAction] = useState<number | null>(null);
+  const [executedActions, setExecutedActions] = useState<Set<number>>(new Set());
+  const [snoozingAlert, setSnoozingAlert] = useState<number | null>(null);
+  const [snoozedAlerts, setSnoozedAlerts] = useState<Set<number>>(new Set());
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    actionIndex: number;
+    action: SuggestedAction | null;
+  }>({ open: false, actionIndex: -1, action: null });
 
+  const { toast } = useToast();
   const fmt = (val: number) => formatAmount(val, baseCurrency);
 
   useEffect(() => {
@@ -128,6 +141,20 @@ export function CFODecisionEngine() {
 
   const fetchDecisionData = async () => {
     setLoading(true);
+
+    // Get company_id for execution context
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: membership } = await supabase
+        .from('buyer_company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+      if (membership) setCompanyId(membership.company_id);
+    }
+
     const { data, error } = await supabase.rpc('get_cfo_decision_intelligence' as any);
     if (error || !data) {
       console.error('Decision engine RPC error:', error);
@@ -145,6 +172,80 @@ export function CFODecisionEngine() {
     setLoading(false);
   };
 
+  // --- Execute Action ---
+  const handleExecuteAction = useCallback(async (actionIndex: number, action: SuggestedAction) => {
+    if (!companyId) {
+      toast({ title: 'Error', description: 'Company context not found', variant: 'destructive' });
+      return;
+    }
+
+    setExecutingAction(actionIndex);
+    try {
+      const idempotencyKey = `${companyId}_${action.action_type}_${action.details.vendor_id || 'unknown'}_${Date.now()}`;
+      const params: Record<string, any> = {
+        p_company_id: companyId,
+        p_action_type: action.action_type,
+        p_target_po_id: action.details.po_id || null,
+        p_target_supplier_id: action.details.vendor_id || null,
+        p_params: JSON.stringify({
+          delay_days: action.details.suggested_delay_days || 7,
+          amount: action.details.amount || action.impact_value || 0,
+        }),
+        p_confidence: action.confidence,
+        p_idempotency_key: idempotencyKey,
+      };
+
+      const { data, error } = await supabase.rpc('execute_cfo_action' as any, params);
+
+      if (error) {
+        toast({ title: 'Execution Failed', description: error.message, variant: 'destructive' });
+        return;
+      }
+
+      const result = data as any;
+      if (result?.status === 'duplicate') {
+        toast({ title: 'Already Executed', description: 'This action was already processed.' });
+      } else {
+        toast({
+          title: 'Action Executed',
+          description: `${action.action_type.replace(/_/g, ' ')} completed successfully`,
+        });
+        setExecutedActions(prev => new Set(prev).add(actionIndex));
+        // Refresh data after a short delay
+        setTimeout(fetchDecisionData, 2000);
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'Unexpected error executing action', variant: 'destructive' });
+    } finally {
+      setExecutingAction(null);
+      setConfirmDialog({ open: false, actionIndex: -1, action: null });
+    }
+  }, [companyId, toast]);
+
+  // --- Snooze Alert ---
+  const handleSnoozeAlert = useCallback(async (alertIndex: number, alert: Alert) => {
+    if (!companyId) return;
+    setSnoozingAlert(alertIndex);
+    try {
+      const alertKey = `${alert.alert_type}:${alert.details.vendor_id || alert.details.runway_days || 'global'}`;
+      const { error } = await supabase.rpc('snooze_cfo_alert' as any, {
+        p_company_id: companyId,
+        p_alert_key: alertKey,
+        p_snooze_hours: 24,
+      });
+      if (error) {
+        toast({ title: 'Snooze Failed', description: error.message, variant: 'destructive' });
+      } else {
+        setSnoozedAlerts(prev => new Set(prev).add(alertIndex));
+        toast({ title: 'Alert Snoozed', description: 'Silenced for 24 hours' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Failed to snooze alert', variant: 'destructive' });
+    } finally {
+      setSnoozingAlert(null);
+    }
+  }, [companyId, toast]);
+
   if (loading) {
     return (
       <Card className="bg-slate-800/50 border-slate-700">
@@ -160,14 +261,53 @@ export function CFODecisionEngine() {
   const runwayColor = runwayDays == null ? 'slate' :
     runwayDays < 14 ? 'red' :
     runwayDays < 30 ? 'amber' : 'emerald';
-
-  const runwayLabel = runwayDays == null ? 'No active burn' :
-    `${Math.round(runwayDays)} days`;
-
+  const runwayLabel = runwayDays == null ? 'No active burn' : `${Math.round(runwayDays)} days`;
   const isGlobal = baseCurrency !== 'INR';
 
   return (
     <div className="space-y-6">
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => {
+        if (!open) setConfirmDialog({ open: false, actionIndex: -1, action: null });
+      }}>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Confirm Execution</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              {confirmDialog.action && (
+                <div className="space-y-2 mt-2">
+                  <p><strong className="text-slate-300">Action:</strong> {confirmDialog.action.action_type.replace(/_/g, ' ')}</p>
+                  <p><strong className="text-slate-300">Impact:</strong> {fmt(confirmDialog.action.impact_value || confirmDialog.action.details.amount || 0)}</p>
+                  <p><strong className="text-slate-300">Confidence:</strong> {Math.round((confirmDialog.action.confidence || 0) * 100)}%</p>
+                  {confirmDialog.action.details.vendor_id && (
+                    <p><strong className="text-slate-300">Supplier:</strong> PS-{confirmDialog.action.details.vendor_id.substring(0, 6).toUpperCase()}</p>
+                  )}
+                  <p className="text-amber-400 text-xs mt-3">This action will be logged to the audit trail and cannot be undone.</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={() => {
+                if (confirmDialog.action) {
+                  handleExecuteAction(confirmDialog.actionIndex, confirmDialog.action);
+                }
+              }}
+            >
+              {executingAction === confirmDialog.actionIndex ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-1" />
+              ) : (
+                <Check className="w-4 h-4 mr-1" />
+              )}
+              Execute
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -179,53 +319,80 @@ export function CFODecisionEngine() {
             <p className="text-xs text-slate-400">Predictive cash intelligence — what to do next</p>
           </div>
         </div>
-        {isGlobal && (
-          <Badge variant="outline" className="text-xs border-sky-700 text-sky-400 gap-1">
-            <Globe className="w-3 h-3" />
-            {baseCurrency} Base
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {executedActions.size > 0 && (
+            <Badge variant="outline" className="text-xs border-emerald-700 text-emerald-400 gap-1">
+              <Check className="w-3 h-3" />
+              {executedActions.size} executed
+            </Badge>
+          )}
+          {isGlobal && (
+            <Badge variant="outline" className="text-xs border-sky-700 text-sky-400 gap-1">
+              <Globe className="w-3 h-3" />
+              {baseCurrency} Base
+            </Badge>
+          )}
+        </div>
       </div>
 
-      {/* Smart Alerts */}
+      {/* Smart Alerts (with snooze) */}
       {alerts.length > 0 && (
         <div className="space-y-2">
-          {alerts.map((alert, i) => (
-            <Card key={i} className={cn(
-              "border",
-              alert.severity === 'critical'
-                ? "bg-red-950/30 border-red-800/50"
-                : "bg-amber-950/20 border-amber-800/40"
-            )}>
-              <CardContent className="py-3 px-4 flex items-start gap-3">
-                <div className={cn(
-                  "mt-0.5 p-1 rounded",
-                  alert.severity === 'critical' ? "bg-red-500/20" : "bg-amber-500/20"
-                )}>
-                  {alert.severity === 'critical'
-                    ? <ShieldAlert className="w-4 h-4 text-red-400" />
-                    : <AlertTriangle className="w-4 h-4 text-amber-400" />
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={cn(
-                    "text-sm font-medium",
-                    alert.severity === 'critical' ? "text-red-300" : "text-amber-300"
+          {alerts.map((alert, i) => {
+            const isSnoozed = snoozedAlerts.has(i);
+            if (isSnoozed) return null;
+            return (
+              <Card key={i} className={cn(
+                "border",
+                alert.severity === 'critical'
+                  ? "bg-red-950/30 border-red-800/50"
+                  : "bg-amber-950/20 border-amber-800/40"
+              )}>
+                <CardContent className="py-3 px-4 flex items-start gap-3">
+                  <div className={cn(
+                    "mt-0.5 p-1 rounded",
+                    alert.severity === 'critical' ? "bg-red-500/20" : "bg-amber-500/20"
                   )}>
-                    {formatAlertMessage(alert, baseCurrency)}
-                  </p>
-                </div>
-                <Badge variant="outline" className={cn(
-                  "text-xs shrink-0",
-                  alert.severity === 'critical'
-                    ? "border-red-700 text-red-400"
-                    : "border-amber-700 text-amber-400"
-                )}>
-                  {alert.severity}
-                </Badge>
-              </CardContent>
-            </Card>
-          ))}
+                    {alert.severity === 'critical'
+                      ? <ShieldAlert className="w-4 h-4 text-red-400" />
+                      : <AlertTriangle className="w-4 h-4 text-amber-400" />
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn(
+                      "text-sm font-medium",
+                      alert.severity === 'critical' ? "text-red-300" : "text-amber-300"
+                    )}>
+                      {formatAlertMessage(alert, baseCurrency)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Badge variant="outline" className={cn(
+                      "text-xs",
+                      alert.severity === 'critical'
+                        ? "border-red-700 text-red-400"
+                        : "border-amber-700 text-amber-400"
+                    )}>
+                      {alert.severity}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-slate-500 hover:text-slate-300"
+                      onClick={() => handleSnoozeAlert(i, alert)}
+                      disabled={snoozingAlert === i}
+                    >
+                      {snoozingAlert === i ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <BellOff className="w-3 h-3" />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
@@ -247,9 +414,7 @@ export function CFODecisionEngine() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div>
                 <p className="text-xs text-slate-400 mb-1">Runway</p>
-                <p className={cn("text-2xl font-bold", `text-${runwayColor}-300`)}>
-                  {runwayLabel}
-                </p>
+                <p className={cn("text-2xl font-bold", `text-${runwayColor}-300`)}>{runwayLabel}</p>
                 <p className="text-xs text-slate-500">at current burn rate</p>
               </div>
               <div>
@@ -267,9 +432,7 @@ export function CFODecisionEngine() {
                   <p className="text-xl font-semibold text-slate-200">
                     {runway.burn_ratio_7d_vs_avg > 0 ? `${runway.burn_ratio_7d_vs_avg}x` : '—'}
                   </p>
-                  {runway.burn_ratio_7d_vs_avg > 1.5 && (
-                    <TrendingDown className="w-4 h-4 text-red-400" />
-                  )}
+                  {runway.burn_ratio_7d_vs_avg > 1.5 && <TrendingDown className="w-4 h-4 text-red-400" />}
                 </div>
                 <p className="text-xs text-slate-500">vs 30-day avg</p>
               </div>
@@ -373,18 +536,13 @@ export function CFODecisionEngine() {
                         <div className="text-right">
                           <span className="text-sm font-semibold text-amber-300">{fmt(v.total_exposure)}</span>
                           {v.overdue_amount > 0 && (
-                            <span className="text-xs text-red-400 ml-2">
-                              ({v.max_days_overdue}d late)
-                            </span>
+                            <span className="text-xs text-red-400 ml-2">({v.max_days_overdue}d late)</span>
                           )}
                         </div>
                       </div>
                       <Progress
                         value={riskPct}
-                        className={cn(
-                          "h-1",
-                          i === 0 ? "bg-red-900/20" : "bg-slate-700"
-                        )}
+                        className={cn("h-1", i === 0 ? "bg-red-900/20" : "bg-slate-700")}
                       />
                     </div>
                   );
@@ -394,7 +552,7 @@ export function CFODecisionEngine() {
           </CardContent>
         </Card>
 
-        {/* Suggested Actions */}
+        {/* Suggested Actions (with Execute buttons) */}
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-white text-base flex items-center gap-2">
@@ -402,7 +560,7 @@ export function CFODecisionEngine() {
               Suggested Actions
             </CardTitle>
             <CardDescription className="text-slate-400 text-xs">
-              AI-generated recommendations with confidence scoring
+              AI-generated recommendations — click Execute to action
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -417,37 +575,40 @@ export function CFODecisionEngine() {
                   const confidencePct = Math.round((action.confidence || 0) * 100);
                   const supplierPriority = action.details.supplier_priority || 'standard';
                   const pCfg = priorityConfig[supplierPriority] || priorityConfig.standard;
+                  const isExecuted = executedActions.has(i);
+                  const isExecuting = executingAction === i;
 
                   return (
                     <div key={i} className={cn(
-                      "p-3 rounded-lg border",
-                      isRelease
-                        ? "bg-red-950/20 border-red-800/30"
-                        : "bg-emerald-950/20 border-emerald-800/30"
+                      "p-3 rounded-lg border transition-all",
+                      isExecuted
+                        ? "bg-emerald-950/30 border-emerald-700/50 opacity-70"
+                        : isRelease
+                          ? "bg-red-950/20 border-red-800/30"
+                          : "bg-emerald-950/20 border-emerald-800/30"
                     )}>
                       <div className="flex items-start gap-3">
                         <div className={cn(
                           "mt-0.5 p-1.5 rounded",
+                          isExecuted ? "bg-emerald-500/30" :
                           isRelease ? "bg-red-500/20" : "bg-emerald-500/20"
                         )}>
-                          {isRelease
-                            ? <Play className="w-3.5 h-3.5 text-red-400" />
-                            : <Pause className="w-3.5 h-3.5 text-emerald-400" />
+                          {isExecuted
+                            ? <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            : isRelease
+                              ? <Play className="w-3.5 h-3.5 text-red-400" />
+                              : <Pause className="w-3.5 h-3.5 text-emerald-400" />
                           }
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-200">
                             {formatActionTitle(action, baseCurrency)}
                           </p>
-                          <p className="text-xs text-slate-400 mt-0.5">
-                            {action.details.reason}
-                          </p>
+                          <p className="text-xs text-slate-400 mt-0.5">{action.details.reason}</p>
                           <div className="flex flex-wrap items-center gap-2 mt-2">
-                            {/* Impact */}
                             <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
                               {fmt(action.impact_value || action.details.amount || action.details.overdue_amount || 0)}
                             </Badge>
-                            {/* Confidence */}
                             <Badge variant="outline" className={cn(
                               "text-xs gap-1",
                               confidencePct >= 90 ? "border-emerald-700 text-emerald-400" :
@@ -457,11 +618,9 @@ export function CFODecisionEngine() {
                               <Sparkles className="w-3 h-3" />
                               {confidencePct}% conf
                             </Badge>
-                            {/* Supplier priority */}
                             <Badge variant="outline" className={cn("text-[10px] px-1 py-0", pCfg.color)}>
                               {pCfg.label}
                             </Badge>
-                            {/* Risk reduction */}
                             {action.risk_reduction && (
                               <Badge variant="outline" className={cn(
                                 "text-[10px]",
@@ -472,20 +631,35 @@ export function CFODecisionEngine() {
                                 {action.risk_reduction} risk
                               </Badge>
                             )}
-                            {action.details.suggested_delay_days && (
-                              <Badge variant="outline" className="text-xs border-emerald-700 text-emerald-400">
-                                <Clock className="w-3 h-3 mr-1" />
-                                Delay {action.details.suggested_delay_days}d
-                              </Badge>
-                            )}
-                            {action.details.days_overdue && (
-                              <Badge variant="outline" className="text-xs border-red-700 text-red-400">
-                                {action.details.days_overdue}d overdue
-                              </Badge>
-                            )}
                           </div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-500 mt-1 shrink-0" />
+                        {/* Execute Button */}
+                        {isExecuted ? (
+                          <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-700 shrink-0 mt-1">
+                            <Check className="w-3 h-3 mr-1" />
+                            Done
+                          </Badge>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className={cn(
+                              "shrink-0 mt-1 text-xs h-7",
+                              isRelease
+                                ? "border-red-700 text-red-400 hover:bg-red-950/50"
+                                : "border-emerald-700 text-emerald-400 hover:bg-emerald-950/50"
+                            )}
+                            disabled={isExecuting || !companyId}
+                            onClick={() => setConfirmDialog({ open: true, actionIndex: i, action })}
+                          >
+                            {isExecuting ? (
+                              <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                            ) : (
+                              <ArrowRight className="w-3 h-3 mr-1" />
+                            )}
+                            Execute
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
@@ -499,6 +673,7 @@ export function CFODecisionEngine() {
   );
 }
 
+// --- Helpers ---
 function formatAlertMessage(alert: Alert, baseCurrency: string): string {
   const sym = CURRENCY_SYMBOLS[baseCurrency] || baseCurrency;
   switch (alert.alert_type) {
