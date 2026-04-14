@@ -159,13 +159,13 @@ export function BuyerActionCards({
           {metrics.liveSavings > 0 && (
             <div className="flex flex-col">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Live</span>
-              <span className="text-sm font-semibold text-emerald-600">{formatCurrency(metrics.liveSavings)} ↑</span>
+              <span className="text-sm font-semibold text-emerald-600">{formatVal(metrics.liveSavings)} ↑</span>
             </div>
           )}
           {metrics.realizedSavings > 0 && (
             <div className="flex flex-col">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Realized</span>
-              <span className="text-sm font-semibold text-primary">{formatCurrency(metrics.realizedSavings)} ✓</span>
+              <span className="text-sm font-semibold text-primary">{formatVal(metrics.realizedSavings)} ✓</span>
             </div>
           )}
         </div>
