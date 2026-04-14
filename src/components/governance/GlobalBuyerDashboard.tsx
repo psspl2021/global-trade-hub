@@ -413,6 +413,11 @@ export function GlobalBuyerDashboard() {
                       </div>
                     );
                   })}
+                  {data.active_pos_has_more && (
+                    <p className="text-xs text-muted-foreground text-center pt-2 border-t">
+                      Showing {data.active_pos.length} of {data.active_pos_total} active POs
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>
