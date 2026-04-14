@@ -6276,6 +6276,7 @@ export type Database = {
           auction_quality_score: number | null
           base_currency: string | null
           budget_cap: number | null
+          buyer_company_id: string | null
           ceo_override: boolean | null
           ceo_override_by: string | null
           ceo_override_reason: string | null
@@ -6363,6 +6364,7 @@ export type Database = {
           auction_quality_score?: number | null
           base_currency?: string | null
           budget_cap?: number | null
+          buyer_company_id?: string | null
           ceo_override?: boolean | null
           ceo_override_by?: string | null
           ceo_override_reason?: string | null
@@ -6450,6 +6452,7 @@ export type Database = {
           auction_quality_score?: number | null
           base_currency?: string | null
           budget_cap?: number | null
+          buyer_company_id?: string | null
           ceo_override?: boolean | null
           ceo_override_by?: string | null
           ceo_override_reason?: string | null
@@ -6535,6 +6538,13 @@ export type Database = {
             columns: ["auction_id"]
             isOneToOne: false
             referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_buyer_company_id_fkey"
+            columns: ["buyer_company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
             referencedColumns: ["id"]
           },
           {
@@ -12219,6 +12229,14 @@ export type Database = {
           subscription_expires_at: string
         }[]
       }
+      get_feedback_adjusted_confidence: {
+        Args: {
+          p_action_type: string
+          p_base_confidence: number
+          p_company_id: string
+        }
+        Returns: number
+      }
       get_forecast_demand: {
         Args: { p_category?: string; p_country?: string; p_days?: number }
         Returns: {
@@ -12232,6 +12250,10 @@ export type Database = {
           trend_7d: number
           velocity_score: number
         }[]
+      }
+      get_global_buyer_dashboard: {
+        Args: { p_company_id: string }
+        Returns: Json
       }
       get_logistics_details_internal: {
         Args: { p_bid_id: string }
