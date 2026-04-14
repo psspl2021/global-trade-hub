@@ -1,6 +1,7 @@
 /**
  * PO Payment Lifecycle Hook
- * Manages: approved → payment_initiated → payment_confirmed → payment_failed
+ * Manages: pending → approved_for_payment → payment_initiated → payment_confirmed → payment_failed
+ * Role-locked: Only CFO/Finance roles can transition financial states (enforced server-side)
  */
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,8 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, { label: string; color
   payment_confirmed: { label: "Payment Confirmed", color: "text-emerald-600" },
   payment_failed: { label: "Payment Failed", color: "text-destructive" },
 };
+
+export const FINANCE_ROLES = ["cfo", "finance_manager", "buyer_admin"] as const;
 
 export function usePoPaymentWorkflow() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -44,7 +47,17 @@ export function usePoPaymentWorkflow() {
       });
 
       if (error) {
-        toast({ title: "Payment Error", description: error.message, variant: "destructive" });
+        const msg = error.message;
+        // Surface role-lock errors clearly
+        if (msg.includes("CFO") || msg.includes("Finance")) {
+          toast({ title: "Access Denied", description: "Only CFO or Finance roles can perform this action.", variant: "destructive" });
+        } else if (msg.includes("exceeds PO value")) {
+          toast({ title: "Fraud Check Failed", description: msg, variant: "destructive" });
+        } else if (msg.includes("currency")) {
+          toast({ title: "Currency Mismatch", description: msg, variant: "destructive" });
+        } else {
+          toast({ title: "Payment Error", description: msg, variant: "destructive" });
+        }
         return { success: false };
       }
 
@@ -61,5 +74,5 @@ export function usePoPaymentWorkflow() {
     }
   };
 
-  return { transitionPayment, isProcessing };
+  return { transitionPayment, isProcessing, FINANCE_ROLES };
 }

@@ -6037,6 +6037,8 @@ export type Database = {
           exchange_rate: number | null
           expected_delivery_date: string | null
           external_po_number: string | null
+          fx_source: string | null
+          fx_timestamp: string | null
           id: string
           immutable_hash: string | null
           incoterms: string | null
@@ -6119,6 +6121,8 @@ export type Database = {
           exchange_rate?: number | null
           expected_delivery_date?: string | null
           external_po_number?: string | null
+          fx_source?: string | null
+          fx_timestamp?: string | null
           id?: string
           immutable_hash?: string | null
           incoterms?: string | null
@@ -6201,6 +6205,8 @@ export type Database = {
           exchange_rate?: number | null
           expected_delivery_date?: string | null
           external_po_number?: string | null
+          fx_source?: string | null
+          fx_timestamp?: string | null
           id?: string
           immutable_hash?: string | null
           incoterms?: string | null
@@ -10838,6 +10844,22 @@ export type Database = {
           },
         ]
       }
+      cfo_cashflow_summary: {
+        Row: {
+          active_vendor_exposure_count: number | null
+          burn_rate_30d_base: number | null
+          currency: string | null
+          failed_payments: number | null
+          outstanding_pos: number | null
+          overdue_deliveries: number | null
+          overdue_value: number | null
+          total_paid: number | null
+          total_paid_base: number | null
+          total_payable: number | null
+          total_payable_base: number | null
+        }
+        Relationships: []
+      }
       control_tower_executive_metrics: {
         Row: {
           live_high_risk_rfqs: number | null
@@ -11664,6 +11686,10 @@ export type Database = {
         }
         Returns: Json
       }
+      enforce_supplier_compliance: {
+        Args: { p_region_type: string; p_supplier_id: string }
+        Returns: undefined
+      }
       ensure_buyer_company: { Args: { _user_id: string }; Returns: Json }
       ensure_requirement_item_exists: {
         Args: {
@@ -12139,6 +12165,7 @@ export type Database = {
             }
             Returns: Json
           }
+      refresh_cfo_cashflow: { Args: never; Returns: undefined }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
       register_session: {
         Args: { p_device_info?: string; p_user_id: string }

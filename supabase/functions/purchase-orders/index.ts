@@ -65,7 +65,7 @@ serve(async (req) => {
          CREATE PO
       ============================ */
       case "create_po": {
-        const { contract_id, po_value, delivery_due_date, notes } = params;
+        const { contract_id, po_value, delivery_due_date, notes, exchange_rate, fx_source, supplier_id, region_type } = params;
 
         // Fetch contract
         const { data: contract, error: contractError } = await supabase
@@ -82,6 +82,17 @@ serve(async (req) => {
 
         if (contract.contract_status !== "ACTIVE") {
           throw new Error("PO can be created only for ACTIVE contracts");
+        }
+
+        // STEP 1: Enforce supplier compliance for global POs
+        if (region_type === "global" && supplier_id) {
+          const { error: complianceError } = await supabase.rpc(
+            "enforce_supplier_compliance",
+            { p_supplier_id: supplier_id, p_region_type: region_type }
+          );
+          if (complianceError) {
+            throw new Error(complianceError.message);
+          }
         }
 
         // Calculate already used PO value
@@ -115,6 +126,10 @@ serve(async (req) => {
             delivery_due_date,
             notes,
             created_by: user.id,
+            exchange_rate: exchange_rate || 1,
+            base_currency: "INR",
+            fx_source: fx_source || "manual",
+            fx_timestamp: new Date().toISOString(),
           })
           .select()
           .single();
