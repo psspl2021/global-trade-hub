@@ -2409,6 +2409,63 @@ export type Database = {
         }
         Relationships: []
       }
+      cfo_action_feedback: {
+        Row: {
+          accepted: boolean
+          action_log_id: string
+          actual_impact: number | null
+          company_id: string
+          created_at: string
+          effectiveness_score: number | null
+          feedback_notes: string | null
+          id: string
+          projected_impact: number | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+        }
+        Insert: {
+          accepted?: boolean
+          action_log_id: string
+          actual_impact?: number | null
+          company_id: string
+          created_at?: string
+          effectiveness_score?: number | null
+          feedback_notes?: string | null
+          id?: string
+          projected_impact?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+        }
+        Update: {
+          accepted?: boolean
+          action_log_id?: string
+          actual_impact?: number | null
+          company_id?: string
+          created_at?: string
+          effectiveness_score?: number | null
+          feedback_notes?: string | null
+          id?: string
+          projected_impact?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cfo_action_feedback_action_log_id_fkey"
+            columns: ["action_log_id"]
+            isOneToOne: true
+            referencedRelation: "cfo_action_log"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cfo_action_feedback_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cfo_action_log: {
         Row: {
           action_type: string
@@ -2515,6 +2572,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "cfo_alert_state_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cfo_metrics_snapshots: {
+        Row: {
+          active_po_count: number | null
+          burn_30d: number | null
+          burn_7d: number | null
+          company_id: string
+          created_at: string
+          daily_burn: number | null
+          id: string
+          overdue_amount: number | null
+          pending_payable: number | null
+          runway_days: number | null
+          snapshot_date: string
+          total_exposure: number | null
+        }
+        Insert: {
+          active_po_count?: number | null
+          burn_30d?: number | null
+          burn_7d?: number | null
+          company_id: string
+          created_at?: string
+          daily_burn?: number | null
+          id?: string
+          overdue_amount?: number | null
+          pending_payable?: number | null
+          runway_days?: number | null
+          snapshot_date?: string
+          total_exposure?: number | null
+        }
+        Update: {
+          active_po_count?: number | null
+          burn_30d?: number | null
+          burn_7d?: number | null
+          company_id?: string
+          created_at?: string
+          daily_burn?: number | null
+          id?: string
+          overdue_amount?: number | null
+          pending_payable?: number | null
+          runway_days?: number | null
+          snapshot_date?: string
+          total_exposure?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cfo_metrics_snapshots_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "buyer_companies"

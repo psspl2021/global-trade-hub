@@ -181,8 +181,9 @@ export function CFODecisionEngine() {
 
     setExecutingAction(actionIndex);
     try {
-      // Deterministic idempotency: server generates fallback, but we send a stable key
-      const idempotencyKey = `${companyId}_${action.action_type}_${action.details.vendor_id || 'none'}`;
+      // Deterministic idempotency: company + action + vendor + exact PO set
+      const poKey = action.details.po_ids?.length ? JSON.stringify([...action.details.po_ids].sort()) : 'none';
+      const idempotencyKey = `${companyId}_${action.action_type}_${action.details.vendor_id || 'none'}_${poKey}`;
       const params: Record<string, any> = {
         p_company_id: companyId,
         p_action_type: action.action_type,

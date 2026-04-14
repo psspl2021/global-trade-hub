@@ -12,3 +12,4 @@ export { SavingsSourceOfTruth } from './SavingsSourceOfTruth';
 export { GovernanceLegalArmor } from './GovernanceLegalArmor';
 export { AdminKillSwitch } from './AdminKillSwitch';
 export { GlobalBuyerDashboard } from './GlobalBuyerDashboard';
+export { CFOVisualizationDashboard } from './CFOVisualizationDashboard';
