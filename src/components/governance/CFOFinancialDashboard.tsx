@@ -98,8 +98,9 @@ const formatCompact = (val: number, currency: string = 'INR') => {
   return formatCurrency(val, currency);
 };
 
-/** Base currency (INR) formatting for normalized cross-currency totals */
-const formatBase = (val: number) => formatCompact(val, 'INR');
+/** Base currency formatting for normalized cross-currency totals — uses org setting */
+let _orgBaseCurrency = 'INR';
+const formatBase = (val: number) => formatCompact(val, _orgBaseCurrency);
 
 export function CFOFinancialDashboard() {
   const [payables, setPayables] = useState<PayablesSummary | null>(null);
