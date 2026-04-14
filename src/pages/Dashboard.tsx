@@ -120,6 +120,10 @@ const Dashboard = () => {
   const setShowBookTransport = (show: boolean) => {
     setSearchParams(show ? { view: 'book-transport' } : {}, { replace: true });
   };
+  const showFinancials = activeView === 'financials';
+  const setShowFinancials = (show: boolean) => {
+    setSearchParams(show ? { view: 'financials' } : {}, { replace: true });
+  };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showStock, setShowStock] = useState(false);
