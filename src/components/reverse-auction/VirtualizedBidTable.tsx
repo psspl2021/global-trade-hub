@@ -53,7 +53,7 @@ const BidRow = memo(function BidRow({
         )}
       </div>
       <div className="w-24 px-4 py-2 text-right font-medium tabular-nums shrink-0">
-        {item.quantity.toLocaleString('en-IN')}
+        {item.quantity.toLocaleString(getCurrencyLocale(currency))}
       </div>
       <div className="w-20 px-4 py-2 text-center text-muted-foreground shrink-0">
         {item.unit}
@@ -72,7 +72,7 @@ const BidRow = memo(function BidRow({
         />
       </div>
       <div className={`w-36 px-4 py-2 text-right font-medium tabular-nums shrink-0 ${unitPrice > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
-        {unitPrice > 0 ? `₹${lineTotal.toLocaleString('en-IN')}` : '—'}
+        {unitPrice > 0 ? `${getCurrencySymbol(currency)}${lineTotal.toLocaleString(getCurrencyLocale(currency))}` : '—'}
       </div>
     </div>
   );
@@ -116,7 +116,7 @@ export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: 
           <div className="flex-1 px-4 py-2.5">Item</div>
           <div className="w-24 px-4 py-2.5 text-right">Qty</div>
           <div className="w-20 px-4 py-2.5 text-center">Unit</div>
-          <div className="w-36 px-4 py-2.5 text-right">Unit Price (₹)</div>
+          <div className="w-36 px-4 py-2.5 text-right">Unit Price ({getCurrencySymbol(currency || 'INR')})</div>
           <div className="w-36 px-4 py-2.5 text-right">Line Total</div>
         </div>
 
