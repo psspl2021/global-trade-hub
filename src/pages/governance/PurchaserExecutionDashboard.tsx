@@ -286,6 +286,43 @@ export default function PurchaserExecutionDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {buyerCtx.isGlobal && (
+            <TabsContent value="compliance" className="space-y-4">
+              <Card className="border-dashed border-sky-200">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-sky-600" />
+                    Trade Compliance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between p-3 rounded-lg border">
+                      <span className="text-muted-foreground">{buyerCtx.taxIdLabel}</span>
+                      <Badge variant={buyerCtx.gstin ? 'default' : 'destructive'} className="text-xs">
+                        {buyerCtx.gstin ? 'Registered' : 'Missing'}
+                      </Badge>
+                    </div>
+                    {buyerCtx.complianceFields.requiresIncoterms && (
+                      <div className="flex items-center justify-between p-3 rounded-lg border">
+                        <span className="text-muted-foreground">Incoterms</span>
+                        <Badge variant="outline" className="text-xs">Required for international POs</Badge>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between p-3 rounded-lg border">
+                      <span className="text-muted-foreground">ERP Sync</span>
+                      <Badge variant="outline" className="text-xs">{buyerCtx.erpSyncPolicy}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg border">
+                      <span className="text-muted-foreground">Region Type</span>
+                      <Badge variant="secondary" className="text-xs">{buyerCtx.regionType}</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
 
         {/* RFQ Form Dialog */}
