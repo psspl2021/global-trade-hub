@@ -23,17 +23,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction, getRankedBids, ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { differenceInSeconds, formatDistanceToNow } from 'date-fns';
+import { formatCompact as formatCompactUtil } from '@/lib/currency';
 
 interface AuctionWarRoomProps {
   onBack: () => void;
   onSelectAuction: (auction: ReverseAuction) => void;
 }
 
-function formatCurrency(value: number | null) {
+function formatCurrency(value: number | null, currency: string = 'INR') {
   if (value === null || value === undefined) return '—';
-  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${Math.round(value)}`;
+  return formatCompactUtil(value, currency);
 }
 
 function getTimeRemaining(endDate: string | null) {
