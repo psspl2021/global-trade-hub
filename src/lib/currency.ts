@@ -79,7 +79,7 @@ export function getCurrencySymbol(currencyCode: string): string {
 // ── Global Buyer Plan FX ────────────────────────────
 const PLAN_BASE_INR = 700000;
 
-/** Indicative FX rates (replace with live API feed) */
+/** Indicative FX rates: 1 INR = X foreign currency (replace with live API feed) */
 export const FX_RATES: Record<string, number> = {
   INR: 1,
   USD: 0.012,
@@ -96,6 +96,24 @@ export const FX_RATES: Record<string, number> = {
   AUD: 0.018,
   QAR: 0.044,
 };
+
+/**
+ * Get the exchange rate factor for converting a currency amount to INR base.
+ * Returns how many INR 1 unit of the given currency equals.
+ */
+export function getExchangeRateToBase(currency: string): number {
+  const rate = FX_RATES[currency];
+  if (!rate || rate === 0) return 1;
+  // FX_RATES stores INR→foreign, so invert for foreign→INR
+  return currency === 'INR' ? 1 : 1 / rate;
+}
+
+/**
+ * Convert a value from one currency to INR base
+ */
+export function convertToBaseCurrency(value: number, currency: string): number {
+  return Math.round(value * getExchangeRateToBase(currency));
+}
 
 /**
  * Convert the 6-month plan price to a target currency
