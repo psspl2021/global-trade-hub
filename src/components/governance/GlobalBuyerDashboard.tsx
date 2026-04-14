@@ -56,6 +56,8 @@ interface DashboardData {
     payment_due_date: string | null;
     is_overdue: boolean;
   }>;
+  active_pos_total: number;
+  active_pos_has_more: boolean;
   overdue_pos: Array<{
     id: string;
     po_number: string;
@@ -66,13 +68,14 @@ interface DashboardData {
     due_date: string;
     days_overdue: number;
   }>;
+  overdue_pos_total: number;
+  overdue_pos_has_more: boolean;
   compliance: {
     missing_incoterms: number;
     missing_payment_terms: number;
     total_active: number;
   };
 }
-
 export function GlobalBuyerDashboard() {
   const ctx = useGlobalBuyerContext();
   const [activeTab, setActiveTab] = useState('overview');
@@ -342,6 +345,11 @@ export function GlobalBuyerDashboard() {
                       </span>
                     </div>
                   ))}
+                  {data.overdue_pos_has_more && (
+                    <p className="text-xs text-muted-foreground text-center pt-2 border-t">
+                      Showing {data.overdue_pos.length} of {data.overdue_pos_total} overdue POs
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -377,7 +385,7 @@ export function GlobalBuyerDashboard() {
                           <div className={cn(
                             "w-2 h-2 rounded-full shrink-0",
                             po.is_overdue ? "bg-destructive" :
-                            po.status === 'payment_confirmed' ? "bg-primary" :
+                            po.status === 'payment_done' ? "bg-primary" :
                             "bg-amber-500"
                           )} />
                           <div className="min-w-0">
@@ -410,6 +418,11 @@ export function GlobalBuyerDashboard() {
                       </div>
                     );
                   })}
+                  {data.active_pos_has_more && (
+                    <p className="text-xs text-muted-foreground text-center pt-2 border-t">
+                      Showing {data.active_pos.length} of {data.active_pos_total} active POs
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>

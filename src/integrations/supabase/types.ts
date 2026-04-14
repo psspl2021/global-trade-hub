@@ -12170,6 +12170,10 @@ export type Database = {
           total_intent: number
         }[]
       }
+      get_dashboard_kpi_summary: {
+        Args: { p_company_id: string }
+        Returns: Json
+      }
       get_default_landing_route: {
         Args: { p_user_id: string }
         Returns: string
@@ -12254,10 +12258,18 @@ export type Database = {
           velocity_score: number
         }[]
       }
-      get_global_buyer_dashboard: {
-        Args: { p_company_id: string }
-        Returns: Json
-      }
+      get_global_buyer_dashboard:
+        | { Args: { p_company_id: string }; Returns: Json }
+        | {
+            Args: {
+              p_active_limit?: number
+              p_active_offset?: number
+              p_company_id: string
+              p_overdue_limit?: number
+              p_overdue_offset?: number
+            }
+            Returns: Json
+          }
       get_logistics_details_internal: {
         Args: { p_bid_id: string }
         Returns: {
