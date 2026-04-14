@@ -28,7 +28,7 @@ import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuct
 import { parseAuctionTitle } from '@/utils/parseAuctionTitle';
 import { checkActiveAuctionLimit } from '@/hooks/useAuctionLimits';
 import { useAuth } from '@/hooks/useAuth';
-import { useCurrencyFormatter } from '@/lib/currency';
+import { useCurrencyFormatter, getCurrencySymbol } from '@/lib/currency';
 import { SupplierRecommendationPanel } from './SupplierRecommendationPanel';
 import { PriceIntelligencePanel } from './PriceIntelligencePanel';
 import { RfqTemplateSelector } from './RfqTemplateSelector';
