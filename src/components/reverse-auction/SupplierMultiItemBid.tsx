@@ -475,7 +475,6 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
                     <span className="block text-[10px] text-muted-foreground mt-0.5">
                       Total → {formatCurrency(target, auction.currency)}
                     </span>
-                    </span>
                   </button>
                 );
               })}
