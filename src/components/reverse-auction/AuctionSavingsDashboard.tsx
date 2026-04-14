@@ -10,6 +10,7 @@ import { TrendingDown, TrendingUp, Trophy, IndianRupee, BarChart3, Users } from 
 import { ReverseAuction, ReverseAuctionBid, getRankedBids, RankedBid } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
 import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
+import { formatCompact as sharedFormatCompact, getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 
 interface AuctionSavingsDashboardProps {
   auction: ReverseAuction;
@@ -18,24 +19,26 @@ interface AuctionSavingsDashboardProps {
 
 function formatINR(value: number | null, currency = 'INR') {
   if (value === null || value === undefined) return '—';
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.floor(value));
+  const locale = currency === 'INR' ? 'en-IN' : 'en-US';
+  try {
+    return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.floor(value));
+  } catch {
+    return `${currency} ${Math.floor(value).toLocaleString()}`;
+  }
 }
 
 function formatINROneDecimal(value: number | null, currency = 'INR') {
   if (value === null || value === undefined) return '—';
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(value);
+  const locale = currency === 'INR' ? 'en-IN' : 'en-US';
+  try {
+    return new Intl.NumberFormat(locale, { style: 'currency', currency, minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
+  } catch {
+    return `${currency} ${value.toFixed(1)}`;
+  }
 }
 
-function formatCompact(value: number) {
-  if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)}Cr`;
-  if (value >= 100000) return `₹${(value / 100000).toFixed(2)}L`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${Math.round(value)}`;
+function formatCompact(value: number, currency: string = 'INR') {
+  return sharedFormatCompact(value, currency);
 }
 
 const RANK_CONFIG: Record<number, { icon: string; bg: string; text: string; ring: string }> = {

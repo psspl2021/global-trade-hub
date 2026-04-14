@@ -895,7 +895,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                   />
                   {item.quantity && item.price && (
                     <p className="text-xs text-muted-foreground text-right">
-                      Line total: ₹{(parseFloat(item.quantity || '0') * parseFloat(item.price || '0')).toLocaleString('en-IN')}
+                      Line total: {(parseFloat(item.quantity || '0') * parseFloat(item.price || '0')).toLocaleString()}
                     </p>
                   )}
                 </div>
@@ -1088,7 +1088,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 </p>
               </div>
               <p className={`text-2xl font-bold ${calculatedTotal > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'}`}>
-                ₹{calculatedTotal.toLocaleString('en-IN')}
+                {getCurrencySymbol(auctionCurrency)}{calculatedTotal.toLocaleString()}
               </p>
             </div>
           </div>
