@@ -5428,7 +5428,9 @@ export type Database = {
           currency: string | null
           from_status: string | null
           id: string
+          idempotency_key: string | null
           notes: string | null
+          payment_exchange_rate: number | null
           payment_method: string | null
           payment_reference: string | null
           performed_by: string | null
@@ -5441,7 +5443,9 @@ export type Database = {
           currency?: string | null
           from_status?: string | null
           id?: string
+          idempotency_key?: string | null
           notes?: string | null
+          payment_exchange_rate?: number | null
           payment_method?: string | null
           payment_reference?: string | null
           performed_by?: string | null
@@ -5454,7 +5458,9 @@ export type Database = {
           currency?: string | null
           from_status?: string | null
           id?: string
+          idempotency_key?: string | null
           notes?: string | null
+          payment_exchange_rate?: number | null
           payment_method?: string | null
           payment_reference?: string | null
           performed_by?: string | null
@@ -12231,19 +12237,35 @@ export type Database = {
           supplier_count: number
         }[]
       }
-      transition_po_payment: {
-        Args: {
-          p_amount?: number
-          p_currency?: string
-          p_notes?: string
-          p_payment_method?: string
-          p_payment_reference?: string
-          p_po_id: string
-          p_target_status: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      transition_po_payment:
+        | {
+            Args: {
+              p_amount?: number
+              p_currency?: string
+              p_notes?: string
+              p_payment_method?: string
+              p_payment_reference?: string
+              p_po_id: string
+              p_target_status: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_amount?: number
+              p_currency?: string
+              p_exchange_rate?: number
+              p_idempotency_key?: string
+              p_notes?: string
+              p_payment_method?: string
+              p_payment_reference?: string
+              p_po_id: string
+              p_target_status: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       transition_po_status:
         | {
             Args: {
