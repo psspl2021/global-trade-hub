@@ -68,6 +68,7 @@ export const PurchaseOrderForm = ({
   const [notes, setNotes] = useState('');
   const [terms, setTerms] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
+  const [exchangeRate, setExchangeRate] = useState(1.0);
   const [items, setItems] = useState<POItem[]>([
     { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: isGlobal ? 0 : 18, tax_amount: 0, total: 0 },
   ]);
