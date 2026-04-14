@@ -117,109 +117,66 @@ export function CFOFinancialDashboard() {
     setLoading(true);
     try {
       await Promise.all([
-        fetchPayablesSummary(),
-        fetchVendorExposure(),
+        fetchServerSummary(),
         fetchDelayedPayments(),
-        fetchCashBurn(),
       ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchPayablesSummary = async () => {
-    const now = new Date();
-    const in7Days = new Date(now.getTime() + 7 * 86400000).toISOString();
-    const in30Days = new Date(now.getTime() + 30 * 86400000).toISOString();
+  /** Primary aggregation — server-side RPC (currency-normalized, FX-safe) */
+  const fetchServerSummary = async () => {
+    const { data, error } = await supabase.rpc('get_cfo_financial_summary' as any);
 
-    const { data: pos } = await supabase
-      .from('purchase_orders')
-      .select('id, po_value, po_value_base_currency, payment_workflow_status, expected_delivery_date, currency, base_currency, region_type')
-      .in('po_status', ['approved', 'in_transit', 'delivered', 'quality_check']);
+    if (error || !data) {
+      console.error('CFO summary RPC error:', error);
+      return;
+    }
 
-    if (!pos) return;
+    const d = data as any;
 
-    // Use base_currency value for normalized totals
-    const getVal = (p: any) => p.po_value_base_currency || p.po_value || 0;
-
-    const unpaid = pos.filter(p => p.payment_workflow_status !== 'payment_confirmed');
-    const paid = pos.filter(p => p.payment_workflow_status === 'payment_confirmed');
-
-    const totalPayable = unpaid.reduce((s, p) => s + getVal(p), 0);
-    const totalPaid = paid.reduce((s, p) => s + getVal(p), 0);
-
-    const overdue = unpaid.filter(p =>
-      p.expected_delivery_date && new Date(p.expected_delivery_date) < now
-    );
-    const totalOverdue = overdue.reduce((s, p) => s + getVal(p), 0);
-
-    const next7 = unpaid.filter(p =>
-      p.expected_delivery_date &&
-      new Date(p.expected_delivery_date) <= new Date(in7Days) &&
-      new Date(p.expected_delivery_date) >= now
-    ).reduce((s, p) => s + getVal(p), 0);
-
-    const next30 = unpaid.filter(p =>
-      p.expected_delivery_date &&
-      new Date(p.expected_delivery_date) <= new Date(in30Days) &&
-      new Date(p.expected_delivery_date) >= now
-    ).reduce((s, p) => s + getVal(p), 0);
-
-    setPayables({ totalPayable, totalPaid, totalOverdue, payableNext7Days: next7, payableNext30Days: next30 });
-
-    // Currency breakdown
-    const currMap = new Map<string, CurrencyBreakdown>();
-    pos.forEach(po => {
-      const cur = po.currency || 'INR';
-      const existing = currMap.get(cur) || { currency: cur, payable: 0, paid: 0, poCount: 0 };
-      existing.poCount += 1;
-      if (po.payment_workflow_status === 'payment_confirmed') {
-        existing.paid += po.po_value || 0;
-      } else {
-        existing.payable += po.po_value || 0;
-      }
-      currMap.set(cur, existing);
-    });
-    setCurrencyBreakdown(Array.from(currMap.values()).sort((a, b) => b.payable - a.payable));
-  };
-
-  const fetchVendorExposure = async () => {
-    const { data: pos } = await supabase
-      .from('purchase_orders')
-      .select('id, supplier_id, po_value, po_value_base_currency, payment_workflow_status, currency, region_type')
-      .in('po_status', ['approved', 'in_transit', 'delivered', 'quality_check', 'closed']);
-
-    if (!pos || pos.length === 0) { setVendors([]); return; }
-
-    const supplierMap = new Map<string, VendorExposure>();
-    pos.forEach(po => {
-      const sid = po.supplier_id || 'unknown';
-      const baseVal = po.po_value_base_currency || po.po_value || 0;
-      const existing = supplierMap.get(sid) || {
-        supplierId: sid,
-        supplierName: `PS-${sid.substring(0, 6).toUpperCase()}`,
-        totalPoValue: 0,
-        totalPaid: 0,
-        openPayables: 0,
-        poCount: 0,
-        currency: po.currency || 'INR',
-        baseCurrencyValue: 0,
-      };
-      existing.totalPoValue += baseVal;
-      existing.baseCurrencyValue += baseVal;
-      existing.poCount += 1;
-      if (po.payment_workflow_status === 'payment_confirmed') {
-        existing.totalPaid += baseVal;
-      } else {
-        existing.openPayables += baseVal;
-      }
-      supplierMap.set(sid, existing);
+    // Payables
+    setPayables({
+      totalPayable: d.payables?.total_payable_base || 0,
+      totalPaid: d.payables?.total_paid_base || 0,
+      totalOverdue: d.aging?.overdue_base || 0,
+      payableNext7Days: d.aging?.due_7d_base || 0,
+      payableNext30Days: d.aging?.due_30d_base || 0,
     });
 
-    const sorted = Array.from(supplierMap.values())
-      .sort((a, b) => b.openPayables - a.openPayables)
-      .slice(0, 5);
-    setVendors(sorted);
+    // Currency breakdown from server
+    const byCurrency = (d.payables?.by_currency || []) as Array<{ currency: string; payable: number; paid: number }>;
+    setCurrencyBreakdown(byCurrency.map(c => ({
+      currency: c.currency,
+      payable: c.payable,
+      paid: c.paid,
+      poCount: 0,
+    })).sort((a, b) => b.payable - a.payable));
+
+    // Cash burn (from server, FX-normalized)
+    setCashBurn({
+      dailyBurn: (d.burn_rate?.burn_30d || 0) / 30,
+      weeklyBurn: (d.burn_rate?.burn_7d || 0),
+      monthlyBurn: d.burn_rate?.burn_30d || 0,
+      confirmedPayments30d: d.burn_rate?.burn_30d || 0,
+      pendingPayables: d.payables?.total_payable_base || 0,
+    });
+
+    // Vendor exposure from server
+    const vendorData = (d.vendor_exposure || []) as Array<{
+      contract_id: string; total_exposure_base: number; po_count: number; currencies: string[];
+    }>;
+    setVendors(vendorData.map((v, i) => ({
+      supplierId: v.contract_id || `vendor-${i}`,
+      supplierName: `Contract-${(v.contract_id || '').substring(0, 8).toUpperCase()}`,
+      totalPoValue: v.total_exposure_base,
+      totalPaid: 0,
+      openPayables: v.total_exposure_base,
+      poCount: v.po_count,
+      currency: v.currencies?.[0] || 'INR',
+      baseCurrencyValue: v.total_exposure_base,
+    })));
   };
 
   const fetchDelayedPayments = async () => {
@@ -245,36 +202,6 @@ export function CFOFinancialDashboard() {
       currency: po.currency || 'INR',
       regionType: po.region_type || 'domestic',
     })));
-  };
-
-  const fetchCashBurn = async () => {
-    const now = new Date();
-    const d30Ago = new Date(now.getTime() - 30 * 86400000).toISOString();
-
-    // Use base currency values for normalized burn
-    const { data: logs } = await supabase
-      .from('po_payment_audit_logs')
-      .select('amount, created_at')
-      .eq('to_status', 'payment_confirmed')
-      .gte('created_at', d30Ago);
-
-    const total30d = logs?.reduce((s, l) => s + (l.amount || 0), 0) || 0;
-
-    const { data: pendingPos } = await supabase
-      .from('purchase_orders')
-      .select('po_value, po_value_base_currency, payment_workflow_status')
-      .neq('payment_workflow_status', 'payment_confirmed')
-      .in('po_status', ['approved', 'in_transit', 'delivered', 'quality_check']);
-
-    const pending = pendingPos?.reduce((s, p) => s + (p.po_value_base_currency || p.po_value || 0), 0) || 0;
-
-    setCashBurn({
-      dailyBurn: total30d / 30,
-      weeklyBurn: total30d / 4.3,
-      monthlyBurn: total30d,
-      confirmedPayments30d: total30d,
-      pendingPayables: pending,
-    });
   };
 
   if (loading) {
