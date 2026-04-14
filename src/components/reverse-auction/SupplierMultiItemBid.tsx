@@ -315,7 +315,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Your Bid Amount (₹)</label>
+            <label className="text-sm font-medium text-foreground">Your Bid Amount ({getCurrencySymbol(auction.currency || 'INR')})</label>
             <Input
               type="number"
               placeholder={`Enter below ${formatCurrency(currentLowest)}`}
