@@ -1941,6 +1941,8 @@ export type Database = {
           gstin: string | null
           id: string
           industry: string | null
+          org_timezone: string | null
+          region_type: string | null
           state: string | null
           updated_at: string | null
         }
@@ -1954,6 +1956,8 @@ export type Database = {
           gstin?: string | null
           id?: string
           industry?: string | null
+          org_timezone?: string | null
+          region_type?: string | null
           state?: string | null
           updated_at?: string | null
         }
@@ -1967,6 +1971,8 @@ export type Database = {
           gstin?: string | null
           id?: string
           industry?: string | null
+          org_timezone?: string | null
+          region_type?: string | null
           state?: string | null
           updated_at?: string | null
         }
@@ -5326,6 +5332,7 @@ export type Database = {
           action: string
           amount: number | null
           created_at: string | null
+          currency: string | null
           id: string
           metadata: Json | null
           payment_reference: string | null
@@ -5336,6 +5343,7 @@ export type Database = {
           action: string
           amount?: number | null
           created_at?: string | null
+          currency?: string | null
           id?: string
           metadata?: Json | null
           payment_reference?: string | null
@@ -5346,6 +5354,7 @@ export type Database = {
           action?: string
           amount?: number | null
           created_at?: string | null
+          currency?: string | null
           id?: string
           metadata?: Json | null
           payment_reference?: string | null
@@ -5975,6 +5984,7 @@ export type Database = {
           external_po_number: string | null
           id: string
           immutable_hash: string | null
+          incoterms: string | null
           legal_hold: boolean | null
           manager_approved_at: string | null
           manager_approved_by: string | null
@@ -5992,6 +6002,7 @@ export type Database = {
           po_status: string | null
           po_value: number | null
           price_drop_pct: number | null
+          region_type: string | null
           rejected_at: string | null
           rejected_by: string | null
           rejection_reason: string | null
@@ -6015,6 +6026,7 @@ export type Database = {
           vendor_gstin: string | null
           vendor_name: string
           vendor_phone: string | null
+          vendor_tax_id: string | null
         }
         Insert: {
           approval_escalated?: boolean | null
@@ -6050,6 +6062,7 @@ export type Database = {
           external_po_number?: string | null
           id?: string
           immutable_hash?: string | null
+          incoterms?: string | null
           legal_hold?: boolean | null
           manager_approved_at?: string | null
           manager_approved_by?: string | null
@@ -6067,6 +6080,7 @@ export type Database = {
           po_status?: string | null
           po_value?: number | null
           price_drop_pct?: number | null
+          region_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -6090,6 +6104,7 @@ export type Database = {
           vendor_gstin?: string | null
           vendor_name: string
           vendor_phone?: string | null
+          vendor_tax_id?: string | null
         }
         Update: {
           approval_escalated?: boolean | null
@@ -6125,6 +6140,7 @@ export type Database = {
           external_po_number?: string | null
           id?: string
           immutable_hash?: string | null
+          incoterms?: string | null
           legal_hold?: boolean | null
           manager_approved_at?: string | null
           manager_approved_by?: string | null
@@ -6142,6 +6158,7 @@ export type Database = {
           po_status?: string | null
           po_value?: number | null
           price_drop_pct?: number | null
+          region_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -6165,6 +6182,7 @@ export type Database = {
           vendor_gstin?: string | null
           vendor_name?: string
           vendor_phone?: string | null
+          vendor_tax_id?: string | null
         }
         Relationships: [
           {
@@ -11438,6 +11456,16 @@ export type Database = {
             }
             Returns: Json
           }
+      create_auction_with_session: {
+        Args: {
+          p_end_time: string
+          p_requirement_id: string
+          p_reserve_price?: number
+          p_title: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       create_bid_item_for_auto_bid: {
         Args: {
           p_bid_id: string
@@ -11926,6 +11954,15 @@ export type Database = {
         Args: { _metadata?: Json; _target_role: string; _user_id: string }
         Returns: string
       }
+      place_bid_with_session: {
+        Args: {
+          p_auction_id: string
+          p_bid_price: number
+          p_notes?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       proceed_po_step:
         | {
             Args: {
@@ -11951,16 +11988,28 @@ export type Database = {
         Returns: undefined
       }
       recalculate_intent_scores: { Args: never; Returns: number }
-      record_po_payment: {
-        Args: {
-          p_amount: number
-          p_idempotency_key: string
-          p_payment_reference: string
-          p_po_id: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      record_po_payment:
+        | {
+            Args: {
+              p_amount: number
+              p_idempotency_key: string
+              p_payment_reference: string
+              p_po_id: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_amount: number
+              p_currency?: string
+              p_idempotency_key: string
+              p_payment_reference: string
+              p_po_id: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
       register_session: {
         Args: { p_device_info?: string; p_user_id: string }
@@ -12005,6 +12054,18 @@ export type Database = {
       }
       set_role_pin: {
         Args: { _pin: string; _role: string; _user_id: string }
+        Returns: Json
+      }
+      submit_rfq_with_session: {
+        Args: {
+          p_category: string
+          p_delivery_location?: string
+          p_description: string
+          p_quantity?: number
+          p_subcategory: string
+          p_unit?: string
+          p_user_id: string
+        }
         Returns: Json
       }
       supplier_bid_activity: {
