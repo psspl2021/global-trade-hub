@@ -48,11 +48,14 @@ export function usePoPaymentWorkflow() {
 
       if (error) {
         const msg = error.message;
-        // Surface role-lock errors clearly
-        if (msg.includes("CFO") || msg.includes("Finance")) {
+        if (msg.includes("session") || msg.includes("Session")) {
+          toast({ title: "Session Expired", description: "Your session has expired. Please log in again.", variant: "destructive" });
+        } else if (msg.includes("approved before payment") || msg.includes("rejected after approval")) {
+          toast({ title: "Approval Required", description: msg, variant: "destructive" });
+        } else if (msg.includes("CFO") || msg.includes("Finance")) {
           toast({ title: "Access Denied", description: "Only CFO or Finance roles can perform this action.", variant: "destructive" });
-        } else if (msg.includes("exceeds PO value")) {
-          toast({ title: "Fraud Check Failed", description: msg, variant: "destructive" });
+        } else if (msg.includes("Cumulative payments") || msg.includes("exceeds PO value")) {
+          toast({ title: "Payment Limit Exceeded", description: msg, variant: "destructive" });
         } else if (msg.includes("currency")) {
           toast({ title: "Currency Mismatch", description: msg, variant: "destructive" });
         } else {
