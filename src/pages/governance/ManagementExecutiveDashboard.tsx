@@ -43,12 +43,14 @@ import {
   Building2,
   Calculator,
   Briefcase,
-  Home
+  Home,
+  IndianRupee
 } from 'lucide-react';
 import { AccessDenied } from '@/components/purchaser';
 import { GovernanceLegalArmor } from '@/components/governance';
 import { CFOIncentiveManagement } from '@/components/purchaser/CFOIncentiveManagement';
 import { SavingsSourceOfTruth } from '@/components/governance/SavingsSourceOfTruth';
+import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
 import { NotificationBell } from '@/components/NotificationBell';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
@@ -283,6 +285,12 @@ export default function ManagementExecutiveDashboard() {
               <BarChart3 className="w-4 h-4 mr-2" />
               Savings Overview
             </TabsTrigger>
+            {['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo'].includes(primaryRole) && (
+              <TabsTrigger value="financials" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+                <IndianRupee className="w-4 h-4 mr-2" />
+                CFO Dashboard
+              </TabsTrigger>
+            )}
             {canEditIncentives && (
               <TabsTrigger value="incentives" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
                 <Gift className="w-4 h-4 mr-2" />
@@ -311,6 +319,12 @@ export default function ManagementExecutiveDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo'].includes(primaryRole) && (
+            <TabsContent value="financials" className="space-y-4">
+              <CFOFinancialDashboard />
+            </TabsContent>
+          )}
 
           {canEditIncentives && (
             <TabsContent value="incentives" className="space-y-4">

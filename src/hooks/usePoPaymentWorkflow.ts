@@ -32,6 +32,8 @@ export function usePoPaymentWorkflow() {
     amount?: number;
     currency?: string;
     notes?: string;
+    idempotencyKey?: string;
+    exchangeRate?: number;
   }) => {
     setIsProcessing(true);
     try {
@@ -44,6 +46,8 @@ export function usePoPaymentWorkflow() {
         p_amount: params.amount || null,
         p_currency: params.currency || null,
         p_notes: params.notes || null,
+        p_idempotency_key: params.idempotencyKey || null,
+        p_exchange_rate: params.exchangeRate || null,
       });
 
       if (error) {
