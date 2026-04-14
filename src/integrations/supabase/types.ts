@@ -2741,6 +2741,39 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_job_monitor: {
+        Row: {
+          completed_at: string | null
+          error_message: string | null
+          id: string
+          job_name: string
+          metadata: Json | null
+          rows_affected: number | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_name: string
+          metadata?: Json | null
+          rows_affected?: number | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_name?: string
+          metadata?: Json | null
+          rows_affected?: number | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       demand_alerts: {
         Row: {
           actioned_at: string | null
@@ -5433,9 +5466,9 @@ export type Database = {
           payment_exchange_rate: number | null
           payment_method: string | null
           payment_reference: string | null
-          performed_by: string | null
           po_id: string
           to_status: string
+          transitioned_by: string | null
         }
         Insert: {
           amount?: number | null
@@ -5448,9 +5481,9 @@ export type Database = {
           payment_exchange_rate?: number | null
           payment_method?: string | null
           payment_reference?: string | null
-          performed_by?: string | null
           po_id: string
           to_status: string
+          transitioned_by?: string | null
         }
         Update: {
           amount?: number | null
@@ -5463,9 +5496,9 @@ export type Database = {
           payment_exchange_rate?: number | null
           payment_method?: string | null
           payment_reference?: string | null
-          performed_by?: string | null
           po_id?: string
           to_status?: string
+          transitioned_by?: string | null
         }
         Relationships: [
           {
@@ -11791,6 +11824,7 @@ export type Database = {
         Args: { p_buyer_id: string; p_days?: number }
         Returns: Json
       }
+      get_cfo_financial_summary: { Args: never; Returns: Json }
       get_company_erp_policy: {
         Args: { p_company_id: string }
         Returns: string
@@ -12242,6 +12276,21 @@ export type Database = {
             Args: {
               p_amount?: number
               p_currency?: string
+              p_notes?: string
+              p_payment_method?: string
+              p_payment_reference?: string
+              p_po_id: string
+              p_target_status: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_amount?: number
+              p_currency?: string
+              p_exchange_rate?: number
+              p_idempotency_key?: string
               p_notes?: string
               p_payment_method?: string
               p_payment_reference?: string
