@@ -36,6 +36,7 @@ import {
   DollarSign, 
   Users, 
   Gift,
+  Globe,
   LogOut, 
   Loader2,
   Shield,
