@@ -192,7 +192,7 @@ export function CFOFinancialDashboard() {
     // Server-side filter: only fetch actually overdue POs
     const { data: pos } = await supabase
       .from('purchase_orders')
-      .select('id, po_number, supplier_id, supplier_name, po_value, po_value_base_currency, expected_delivery_date, payment_due_date, currency, payment_workflow_status, region_type')
+      .select('id, po_number, supplier_id, po_value, po_value_base_currency, expected_delivery_date, payment_due_date, currency, payment_workflow_status, region_type')
       .neq('payment_workflow_status', 'payment_confirmed')
       .neq('status', 'cancelled')
       .lt('payment_due_date', now.toISOString())
@@ -202,7 +202,7 @@ export function CFOFinancialDashboard() {
     // Also fetch POs where payment_due_date is null but expected_delivery_date is overdue
     const { data: fallbackPos } = await supabase
       .from('purchase_orders')
-      .select('id, po_number, supplier_id, supplier_name, po_value, po_value_base_currency, expected_delivery_date, payment_due_date, currency, payment_workflow_status, region_type')
+      .select('id, po_number, supplier_id, po_value, po_value_base_currency, expected_delivery_date, payment_due_date, currency, payment_workflow_status, region_type')
       .neq('payment_workflow_status', 'payment_confirmed')
       .neq('status', 'cancelled')
       .is('payment_due_date', null)
