@@ -38,6 +38,7 @@ export function BuyerActionCards({
   onOpenCRM,
   onTrackShipments,
 }: BuyerActionCardsProps) {
+  const { fmtCompact } = useCurrencyFormatter();
   const [metrics, setMetrics] = useState<LiveMetrics>({
     openRFQs: 0,
     totalQuotes: 0,
@@ -117,11 +118,7 @@ export function BuyerActionCards({
     return () => clearInterval(interval);
   }, [userId]);
 
-  const formatCurrency = (val: number) => {
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${(val / 1000).toFixed(1)}K`;
-    return `₹${Math.round(val)}`;
-  };
+  const formatVal = (val: number) => fmtCompact(val);
 
   const cards: {
     title: string;
