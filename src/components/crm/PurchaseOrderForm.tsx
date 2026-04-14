@@ -11,6 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2, Save, Download } from 'lucide-react';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
 import { generateDocumentPDF } from '@/lib/pdfGenerator';
+import { useRegionFeatures } from '@/hooks/useRegionFeatures';
+
+const INCOTERMS_OPTIONS = ['EXW', 'FCA', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP', 'FAS', 'FOB', 'CFR', 'CIF'];
+const TAX_RATES_GLOBAL = [0, 5, 10, 15, 20, 25];
+const CURRENCY_SYMBOLS: Record<string, string> = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'AED ', SAR: 'SAR ', JPY: '¥' };
 
 interface POItem {
   id?: string;
@@ -45,13 +50,18 @@ export const PurchaseOrderForm = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { isGlobal, isIndia, showGSTFields, showTaxIdFields, showIncoterms, userCurrency } = useRegionFeatures();
+  const currencySymbol = CURRENCY_SYMBOLS[userCurrency] || userCurrency + ' ';
+  const taxRates = isGlobal ? TAX_RATES_GLOBAL : GST_RATES;
 
   const [poNumber, setPoNumber] = useState('');
   const [vendorName, setVendorName] = useState('');
   const [vendorAddress, setVendorAddress] = useState('');
   const [vendorGstin, setVendorGstin] = useState('');
+  const [vendorTaxId, setVendorTaxId] = useState('');
   const [vendorEmail, setVendorEmail] = useState('');
   const [vendorPhone, setVendorPhone] = useState('');
+  const [incoterms, setIncoterms] = useState('');
   const [orderDate, setOrderDate] = useState(new Date().toISOString().split('T')[0]);
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -59,7 +69,7 @@ export const PurchaseOrderForm = ({
   const [terms, setTerms] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [items, setItems] = useState<POItem[]>([
-    { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: 18, tax_amount: 0, total: 0 },
+    { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: isGlobal ? 0 : 18, tax_amount: 0, total: 0 },
   ]);
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
   const [savedTerms, setSavedTerms] = useState<string[]>([]);
@@ -239,9 +249,13 @@ export const PurchaseOrderForm = ({
             po_number: poNumber,
             vendor_name: vendorName,
             vendor_address: vendorAddress || null,
-            vendor_gstin: vendorGstin || null,
+            vendor_gstin: isIndia ? (vendorGstin || null) : null,
+            vendor_tax_id: isGlobal ? (vendorTaxId || null) : null,
             vendor_email: vendorEmail || null,
             vendor_phone: vendorPhone || null,
+            incoterms: isGlobal ? (incoterms || null) : null,
+            currency: userCurrency,
+            region_type: isGlobal ? 'global' : 'india',
             order_date: orderDate,
             expected_delivery_date: expectedDeliveryDate || null,
             delivery_address: deliveryAddress || null,
@@ -252,7 +266,7 @@ export const PurchaseOrderForm = ({
             total_amount: total,
             notes: notes || null,
             terms_and_conditions: terms || null,
-          })
+          } as any)
           .eq('id', editId);
 
         if (updateError) throw updateError;
@@ -281,9 +295,13 @@ export const PurchaseOrderForm = ({
             supplier_id: userId,
             vendor_name: vendorName,
             vendor_address: vendorAddress || null,
-            vendor_gstin: vendorGstin || null,
+            vendor_gstin: isIndia ? (vendorGstin || null) : null,
+            vendor_tax_id: isGlobal ? (vendorTaxId || null) : null,
             vendor_email: vendorEmail || null,
             vendor_phone: vendorPhone || null,
+            incoterms: isGlobal ? (incoterms || null) : null,
+            currency: userCurrency,
+            region_type: isGlobal ? 'global' : 'india',
             order_date: orderDate,
             expected_delivery_date: expectedDeliveryDate || null,
             delivery_address: deliveryAddress || null,
@@ -294,7 +312,7 @@ export const PurchaseOrderForm = ({
             total_amount: total,
             notes: notes || null,
             terms_and_conditions: terms || null,
-          })
+          } as any)
           .select('id')
           .single();
 
@@ -361,7 +379,7 @@ export const PurchaseOrderForm = ({
             </div>
 
             {/* Vendor Details */}
-            <Card>
+             <Card>
               <CardContent className="pt-4 space-y-4">
                 <h3 className="font-semibold">Vendor Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -369,10 +387,18 @@ export const PurchaseOrderForm = ({
                     <Label>Name *</Label>
                     <Input value={vendorName} onChange={(e) => setVendorName(e.target.value)} placeholder="Vendor/Supplier name" />
                   </div>
-                  <div>
-                    <Label>GSTIN *</Label>
-                    <Input value={vendorGstin} onChange={(e) => setVendorGstin(e.target.value)} placeholder="22AAAAA0000A1Z5" />
-                  </div>
+                  {showGSTFields && (
+                    <div>
+                      <Label>GSTIN *</Label>
+                      <Input value={vendorGstin} onChange={(e) => setVendorGstin(e.target.value)} placeholder="22AAAAA0000A1Z5" />
+                    </div>
+                  )}
+                  {showTaxIdFields && (
+                    <div>
+                      <Label>Tax ID / VAT Number *</Label>
+                      <Input value={vendorTaxId} onChange={(e) => setVendorTaxId(e.target.value)} placeholder="Tax identification number" />
+                    </div>
+                  )}
                   <div>
                     <Label>Email</Label>
                     <Input type="email" value={vendorEmail} onChange={(e) => setVendorEmail(e.target.value)} />
@@ -386,6 +412,21 @@ export const PurchaseOrderForm = ({
                     <Textarea value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} rows={2} />
                   </div>
                 </div>
+                {showIncoterms && (
+                  <div>
+                    <Label>Incoterms *</Label>
+                    <Select value={incoterms} onValueChange={setIncoterms}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Incoterms" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INCOTERMS_OPTIONS.map((term) => (
+                          <SelectItem key={term} value={term}>{term}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -459,7 +500,7 @@ export const PurchaseOrderForm = ({
                           </Select>
                         </div>
                         <div>
-                          <Label className="text-xs">Unit Price (₹)</Label>
+                          <Label className="text-xs">Unit Price ({currencySymbol.trim()})</Label>
                           <Input
                             type="number"
                             min="0"
@@ -468,7 +509,7 @@ export const PurchaseOrderForm = ({
                           />
                         </div>
                         <div>
-                          <Label className="text-xs">GST %</Label>
+                          <Label className="text-xs">{isGlobal ? 'Tax' : 'GST'} %</Label>
                           <Select
                             value={String(item.tax_rate)}
                             onValueChange={(val) => updateItem(index, 'tax_rate', parseInt(val))}
@@ -477,7 +518,7 @@ export const PurchaseOrderForm = ({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {GST_RATES.map((rate) => (
+                              {taxRates.map((rate) => (
                                 <SelectItem key={rate} value={String(rate)}>
                                   {rate}%
                                 </SelectItem>
@@ -487,7 +528,7 @@ export const PurchaseOrderForm = ({
                         </div>
                         <div>
                           <Label className="text-xs">Total</Label>
-                          <Input value={`₹${item.total.toLocaleString()}`} disabled />
+                          <Input value={`${currencySymbol}${item.total.toLocaleString()}`} disabled />
                         </div>
                       </div>
                     </div>
@@ -549,21 +590,21 @@ export const PurchaseOrderForm = ({
               <CardContent className="pt-4 space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>₹{subtotal.toLocaleString()}</span>
+                  <span>{currencySymbol}{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>GST:</span>
-                  <span>₹{taxAmount.toLocaleString()}</span>
+                  <span>{isGlobal ? 'Tax' : 'GST'}:</span>
+                  <span>{currencySymbol}{taxAmount.toLocaleString()}</span>
                 </div>
                 {discountPercent > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount ({discountPercent}%):</span>
-                    <span>-₹{discountAmount.toLocaleString()}</span>
+                    <span>-{currencySymbol}{discountAmount.toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
-                  <span>₹{total.toLocaleString()}</span>
+                  <span>{currencySymbol}{total.toLocaleString()}</span>
                 </div>
               </CardContent>
             </Card>
