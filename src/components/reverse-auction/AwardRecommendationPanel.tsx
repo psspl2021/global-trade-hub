@@ -29,7 +29,12 @@ const RECOMMENDATION_CONFIG = {
 };
 
 function formatCurrency(value: number, currency: string = 'INR') {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+  const locale = currency === 'INR' ? 'en-IN' : 'en-US';
+  try {
+    return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+  } catch {
+    return `${currency} ${value.toLocaleString()}`;
+  }
 }
 
 export function AwardRecommendationPanel({ bids, startingPrice, currency = 'INR', onAward, marketAvgPrice }: AwardRecommendationPanelProps) {
