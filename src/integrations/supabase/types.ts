@@ -6204,11 +6204,13 @@ export type Database = {
           order_date: string
           original_po_value: number | null
           payment_confirmed_at: string | null
+          payment_due_date: string | null
           payment_initiated_at: string | null
           payment_mode: string | null
           payment_proof_url: string | null
           payment_reference: string | null
           payment_status: string | null
+          payment_terms_override_days: number | null
           payment_workflow_status: string | null
           po_number: string
           po_source: string
@@ -6289,11 +6291,13 @@ export type Database = {
           order_date?: string
           original_po_value?: number | null
           payment_confirmed_at?: string | null
+          payment_due_date?: string | null
           payment_initiated_at?: string | null
           payment_mode?: string | null
           payment_proof_url?: string | null
           payment_reference?: string | null
           payment_status?: string | null
+          payment_terms_override_days?: number | null
           payment_workflow_status?: string | null
           po_number: string
           po_source?: string
@@ -6374,11 +6378,13 @@ export type Database = {
           order_date?: string
           original_po_value?: number | null
           payment_confirmed_at?: string | null
+          payment_due_date?: string | null
           payment_initiated_at?: string | null
           payment_mode?: string | null
           payment_proof_url?: string | null
           payment_reference?: string | null
           payment_status?: string | null
+          payment_terms_override_days?: number | null
           payment_workflow_status?: string | null
           po_number?: string
           po_source?: string
@@ -11917,7 +11923,7 @@ export type Database = {
           p_confidence?: number
           p_idempotency_key?: string
           p_params?: Json
-          p_target_po_id: string
+          p_target_po_id?: string
           p_target_supplier_id?: string
         }
         Returns: Json
