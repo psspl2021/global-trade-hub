@@ -471,9 +471,10 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
                         : 'border-border hover:bg-muted'
                     }`}
                   >
-                    <span className="font-semibold">Save ₹{reduction.toLocaleString('en-IN')}</span>
+                    <span className="font-semibold">Save {getCurrencySymbol(auction.currency || 'INR')}{reduction.toLocaleString(getCurrencyLocale(auction.currency || 'INR'))}</span>
                     <span className="block text-[10px] text-muted-foreground mt-0.5">
-                      Total → {formatCurrency(target)}
+                      Total → {formatCurrency(target, auction.currency)}
+                    </span>
                     </span>
                   </button>
                 );
