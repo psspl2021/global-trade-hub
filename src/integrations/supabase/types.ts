@@ -5421,6 +5421,56 @@ export type Database = {
           },
         ]
       }
+      po_payment_audit_logs: {
+        Row: {
+          amount: number | null
+          created_at: string
+          currency: string | null
+          from_status: string | null
+          id: string
+          notes: string | null
+          payment_method: string | null
+          payment_reference: string | null
+          performed_by: string | null
+          po_id: string
+          to_status: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          from_status?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          performed_by?: string | null
+          po_id: string
+          to_status: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          from_status?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          performed_by?: string | null
+          po_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "po_payment_audit_logs_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       po_status_history: {
         Row: {
           changed_by: string | null
@@ -5849,6 +5899,7 @@ export type Database = {
             | null
           office_address: string | null
           phone: string
+          preferred_locale: string | null
           referred_by_name: string | null
           referred_by_phone: string | null
           region_type: string | null
@@ -5892,6 +5943,7 @@ export type Database = {
             | null
           office_address?: string | null
           phone: string
+          preferred_locale?: string | null
           referred_by_name?: string | null
           referred_by_phone?: string | null
           region_type?: string | null
@@ -5935,6 +5987,7 @@ export type Database = {
             | null
           office_address?: string | null
           phone?: string
+          preferred_locale?: string | null
           referred_by_name?: string | null
           referred_by_phone?: string | null
           region_type?: string | null
@@ -5956,6 +6009,7 @@ export type Database = {
           approval_status: string | null
           auction_id: string | null
           auction_quality_score: number | null
+          base_currency: string | null
           budget_cap: number | null
           ceo_override: boolean | null
           ceo_override_by: string | null
@@ -5980,6 +6034,7 @@ export type Database = {
           erp_sync_enabled: boolean
           erp_sync_status: string | null
           escalated_at: string | null
+          exchange_rate: number | null
           expected_delivery_date: string | null
           external_po_number: string | null
           id: string
@@ -5997,10 +6052,12 @@ export type Database = {
           payment_proof_url: string | null
           payment_reference: string | null
           payment_status: string | null
+          payment_workflow_status: string | null
           po_number: string
           po_source: string
           po_status: string | null
           po_value: number | null
+          po_value_base_currency: number | null
           price_drop_pct: number | null
           region_type: string | null
           rejected_at: string | null
@@ -6034,6 +6091,7 @@ export type Database = {
           approval_status?: string | null
           auction_id?: string | null
           auction_quality_score?: number | null
+          base_currency?: string | null
           budget_cap?: number | null
           ceo_override?: boolean | null
           ceo_override_by?: string | null
@@ -6058,6 +6116,7 @@ export type Database = {
           erp_sync_enabled?: boolean
           erp_sync_status?: string | null
           escalated_at?: string | null
+          exchange_rate?: number | null
           expected_delivery_date?: string | null
           external_po_number?: string | null
           id?: string
@@ -6075,10 +6134,12 @@ export type Database = {
           payment_proof_url?: string | null
           payment_reference?: string | null
           payment_status?: string | null
+          payment_workflow_status?: string | null
           po_number: string
           po_source?: string
           po_status?: string | null
           po_value?: number | null
+          po_value_base_currency?: number | null
           price_drop_pct?: number | null
           region_type?: string | null
           rejected_at?: string | null
@@ -6112,6 +6173,7 @@ export type Database = {
           approval_status?: string | null
           auction_id?: string | null
           auction_quality_score?: number | null
+          base_currency?: string | null
           budget_cap?: number | null
           ceo_override?: boolean | null
           ceo_override_by?: string | null
@@ -6136,6 +6198,7 @@ export type Database = {
           erp_sync_enabled?: boolean
           erp_sync_status?: string | null
           escalated_at?: string | null
+          exchange_rate?: number | null
           expected_delivery_date?: string | null
           external_po_number?: string | null
           id?: string
@@ -6153,10 +6216,12 @@ export type Database = {
           payment_proof_url?: string | null
           payment_reference?: string | null
           payment_status?: string | null
+          payment_workflow_status?: string | null
           po_number?: string
           po_source?: string
           po_status?: string | null
           po_value?: number | null
+          po_value_base_currency?: number | null
           price_drop_pct?: number | null
           region_type?: string | null
           rejected_at?: string | null
@@ -8987,6 +9052,66 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_compliance: {
+        Row: {
+          blacklist_screened: boolean | null
+          blacklist_screened_at: string | null
+          buyer_id: string | null
+          compliance_expires_at: string | null
+          compliance_notes: string | null
+          compliance_status: string
+          country_code: string
+          created_at: string
+          export_license_verified: boolean | null
+          id: string
+          import_license_verified: boolean | null
+          risk_level: string | null
+          supplier_id: string
+          trade_restriction_check: boolean | null
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          blacklist_screened?: boolean | null
+          blacklist_screened_at?: string | null
+          buyer_id?: string | null
+          compliance_expires_at?: string | null
+          compliance_notes?: string | null
+          compliance_status?: string
+          country_code: string
+          created_at?: string
+          export_license_verified?: boolean | null
+          id?: string
+          import_license_verified?: boolean | null
+          risk_level?: string | null
+          supplier_id: string
+          trade_restriction_check?: boolean | null
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          blacklist_screened?: boolean | null
+          blacklist_screened_at?: string | null
+          buyer_id?: string | null
+          compliance_expires_at?: string | null
+          compliance_notes?: string | null
+          compliance_status?: string
+          country_code?: string
+          created_at?: string
+          export_license_verified?: boolean | null
+          id?: string
+          import_license_verified?: boolean | null
+          risk_level?: string | null
+          supplier_id?: string
+          trade_restriction_check?: boolean | null
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
       supplier_customers: {
         Row: {
           address: string | null
@@ -11419,6 +11544,10 @@ export type Database = {
         }
         Returns: Json
       }
+      check_supplier_compliance: {
+        Args: { p_region_type: string; p_supplier_id: string }
+        Returns: boolean
+      }
       cleanup_dead_sessions: { Args: never; Returns: number }
       cleanup_stale_sessions: { Args: never; Returns: number }
       close_expired_auctions: { Args: never; Returns: undefined }
@@ -12074,6 +12203,19 @@ export type Database = {
           auction_id: string
           supplier_count: number
         }[]
+      }
+      transition_po_payment: {
+        Args: {
+          p_amount?: number
+          p_currency?: string
+          p_notes?: string
+          p_payment_method?: string
+          p_payment_reference?: string
+          p_po_id: string
+          p_target_status: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       transition_po_status:
         | {
