@@ -277,24 +277,6 @@ const Signup = () => {
       return;
     }
 
-    // Check password breach before signing up (non-blocking warning)
-    if (!breachWarning) {
-      setCheckingPassword(true);
-      try {
-        const breachResult = await checkPasswordBreach(formData.password);
-        if (breachResult.isBreached && breachResult.breachCount) {
-          setBreachWarning(
-            `⚠️ This password has been exposed in ${formatBreachCount(breachResult.breachCount)} data breaches. We recommend choosing a different password, but you can click "Join Now" again to continue.`
-          );
-          setCheckingPassword(false);
-          return;
-        }
-      } catch (error) {
-        console.error('Password breach check failed:', error);
-      }
-      setCheckingPassword(false);
-    }
-
     setLoading(true);
     const { error } = await signUp(formData.email, formData.password, {
       company_name: formData.companyName,
@@ -689,6 +671,7 @@ const Signup = () => {
                       }}
                       className={`min-h-[44px] ${errors.password ? 'border-destructive' : ''}`}
                     />
+                    <p className="text-xs text-muted-foreground">Use a high-security password for better protection</p>
                     {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
 
@@ -743,20 +726,9 @@ const Signup = () => {
                     )}
                   </div>
 
-                  {breachWarning && (
-                    <Alert variant="destructive">
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>{breachWarning}</AlertDescription>
-                    </Alert>
-                  )}
 
-                  <Button type="submit" className="w-full min-h-[48px] text-base font-semibold" disabled={loading || checkingPassword}>
-                    {checkingPassword ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Checking password security...
-                      </>
-                    ) : loading ? (
+                  <Button type="submit" className="w-full min-h-[48px] text-base font-semibold" disabled={loading}>
+                    {loading ? (
                       'Creating account...'
                     ) : formData.role === 'buyer' ? (
                       'Join Now'
