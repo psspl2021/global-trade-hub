@@ -98,8 +98,9 @@ const formatCompact = (val: number, currency: string = 'INR') => {
   return formatCurrency(val, currency);
 };
 
-/** Base currency (INR) formatting for normalized cross-currency totals */
-const formatBase = (val: number) => formatCompact(val, 'INR');
+/** Base currency formatting for normalized cross-currency totals — uses org setting */
+let _orgBaseCurrency = 'INR';
+const formatBase = (val: number) => formatCompact(val, _orgBaseCurrency);
 
 export function CFOFinancialDashboard() {
   const [payables, setPayables] = useState<PayablesSummary | null>(null);
@@ -136,6 +137,10 @@ export function CFOFinancialDashboard() {
     }
 
     const d = data as any;
+
+    // Set org base currency from server
+    const orgBase = d.org_base_currency || d.payables?.org_base_currency || 'INR';
+    _orgBaseCurrency = orgBase;
 
     // Payables
     setPayables({
@@ -230,13 +235,13 @@ export function CFOFinancialDashboard() {
           <div className="flex items-center gap-2">
             <Globe className="w-4 h-4 text-sky-400" />
             <span className="text-sm text-slate-400">
-              {currencyBreakdown.length} currencies active — totals normalized to INR (base currency)
+              {currencyBreakdown.length} currencies active — totals normalized to {_orgBaseCurrency} (base currency)
             </span>
           </div>
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="w-auto">
             <TabsList className="bg-slate-700 h-8">
               <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
-                <IndianRupee className="w-3 h-3 mr-1" /> Normalized
+                Normalized
               </TabsTrigger>
               <TabsTrigger value="by-currency" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
                 <Globe className="w-3 h-3 mr-1" /> By Currency
@@ -256,7 +261,7 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-2xl font-bold text-amber-300">{formatBase(payables?.totalPayable || 0)}</p>
             <p className="text-xs text-slate-500 mt-1">
-              {isMultiCurrency ? 'INR-normalized across all currencies' : 'Across all active POs'}
+              {isMultiCurrency ? `${_orgBaseCurrency}-normalized across all currencies` : 'Across all active POs'}
             </p>
           </CardContent>
         </Card>
@@ -296,7 +301,7 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-2xl font-bold text-sky-300">{formatBase(cashBurn?.monthlyBurn || 0)}</p>
             <p className="text-xs text-slate-500 mt-1">
-              ~{formatCurrency(cashBurn?.dailyBurn || 0, 'INR')}/day
+              ~{formatCurrency(cashBurn?.dailyBurn || 0, _orgBaseCurrency)}/day
             </p>
           </CardContent>
         </Card>
@@ -347,7 +352,7 @@ export function CFOFinancialDashboard() {
               Cash Burn vs Budget Outlook
               {isMultiCurrency && (
                 <Badge variant="outline" className="text-xs border-slate-600 text-slate-400 ml-2">
-                  INR Normalized
+                  {_orgBaseCurrency} Normalized
                 </Badge>
               )}
             </CardTitle>
@@ -400,7 +405,7 @@ export function CFOFinancialDashboard() {
               Top 5 Vendor Exposure
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Highest open payables by supplier (INR normalized)
+              Highest open payables by supplier ({_orgBaseCurrency} normalized)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -495,7 +500,7 @@ export function CFOFinancialDashboard() {
             <div>
               <p className="text-sm font-medium text-slate-200">
                 Total Procurement Exposure: <span className="text-emerald-300">{formatBase(totalExposure)}</span>
-                {isMultiCurrency && <span className="text-slate-500 text-xs ml-1">(INR base)</span>}
+                {isMultiCurrency && <span className="text-slate-500 text-xs ml-1">({_orgBaseCurrency} base)</span>}
               </p>
               <p className="text-xs text-slate-400">
                 Paid: {formatBase(payables?.totalPaid || 0)} • Open: {formatBase(payables?.totalPayable || 0)} •
