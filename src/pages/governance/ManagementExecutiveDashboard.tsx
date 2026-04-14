@@ -49,6 +49,7 @@ import { AccessDenied } from '@/components/purchaser';
 import { GovernanceLegalArmor } from '@/components/governance';
 import { CFOIncentiveManagement } from '@/components/purchaser/CFOIncentiveManagement';
 import { SavingsSourceOfTruth } from '@/components/governance/SavingsSourceOfTruth';
+import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
 import { NotificationBell } from '@/components/NotificationBell';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
