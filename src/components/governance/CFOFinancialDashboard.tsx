@@ -138,6 +138,10 @@ export function CFOFinancialDashboard() {
 
     const d = data as any;
 
+    // Set org base currency from server
+    const orgBase = d.org_base_currency || d.payables?.org_base_currency || 'INR';
+    _orgBaseCurrency = orgBase;
+
     // Payables
     setPayables({
       totalPayable: d.payables?.total_payable_base || 0,
