@@ -28,6 +28,7 @@ import { generateAuctionTitle, type AuctionLineItem } from '@/utils/generateAuct
 import { parseAuctionTitle } from '@/utils/parseAuctionTitle';
 import { checkActiveAuctionLimit } from '@/hooks/useAuctionLimits';
 import { useAuth } from '@/hooks/useAuth';
+import { useCurrencyFormatter } from '@/lib/currency';
 import { SupplierRecommendationPanel } from './SupplierRecommendationPanel';
 import { PriceIntelligencePanel } from './PriceIntelligencePanel';
 import { RfqTemplateSelector } from './RfqTemplateSelector';
@@ -515,7 +516,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
     if (validItems.some(i => Number(i.price) > 1e8)) {
-      toast.error('Price per item cannot exceed ₹10,00,00,000.');
+      toast.error('Price per item exceeds maximum allowed value.');
       return;
     }
     const invalidQty = validItems.some(i => Number(i.quantity) <= 0);
@@ -867,7 +868,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                       </Select>
                     </div>
                     <div>
-                      {i === 0 && <span className="text-xs text-muted-foreground">Price (₹)</span>}
+                      {i === 0 && <span className="text-xs text-muted-foreground">Price</span>}
                       <Input
                         type="number"
                         placeholder="61000"
