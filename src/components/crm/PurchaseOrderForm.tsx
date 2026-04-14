@@ -492,7 +492,7 @@ export const PurchaseOrderForm = ({
                           </Select>
                         </div>
                         <div>
-                          <Label className="text-xs">Unit Price (₹)</Label>
+                          <Label className="text-xs">Unit Price ({currencySymbol.trim()})</Label>
                           <Input
                             type="number"
                             min="0"
@@ -501,7 +501,7 @@ export const PurchaseOrderForm = ({
                           />
                         </div>
                         <div>
-                          <Label className="text-xs">GST %</Label>
+                          <Label className="text-xs">{isGlobal ? 'Tax' : 'GST'} %</Label>
                           <Select
                             value={String(item.tax_rate)}
                             onValueChange={(val) => updateItem(index, 'tax_rate', parseInt(val))}
@@ -510,7 +510,7 @@ export const PurchaseOrderForm = ({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {GST_RATES.map((rate) => (
+                              {taxRates.map((rate) => (
                                 <SelectItem key={rate} value={String(rate)}>
                                   {rate}%
                                 </SelectItem>
@@ -520,7 +520,7 @@ export const PurchaseOrderForm = ({
                         </div>
                         <div>
                           <Label className="text-xs">Total</Label>
-                          <Input value={`₹${item.total.toLocaleString()}`} disabled />
+                          <Input value={`${currencySymbol}${item.total.toLocaleString()}`} disabled />
                         </div>
                       </div>
                     </div>
@@ -582,21 +582,21 @@ export const PurchaseOrderForm = ({
               <CardContent className="pt-4 space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>₹{subtotal.toLocaleString()}</span>
+                  <span>{currencySymbol}{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>GST:</span>
-                  <span>₹{taxAmount.toLocaleString()}</span>
+                  <span>{isGlobal ? 'Tax' : 'GST'}:</span>
+                  <span>{currencySymbol}{taxAmount.toLocaleString()}</span>
                 </div>
                 {discountPercent > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount ({discountPercent}%):</span>
-                    <span>-₹{discountAmount.toLocaleString()}</span>
+                    <span>-{currencySymbol}{discountAmount.toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
-                  <span>₹{total.toLocaleString()}</span>
+                  <span>{currencySymbol}{total.toLocaleString()}</span>
                 </div>
               </CardContent>
             </Card>
