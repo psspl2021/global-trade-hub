@@ -68,6 +68,7 @@ export const PurchaseOrderForm = ({
   const [notes, setNotes] = useState('');
   const [terms, setTerms] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
+  const [exchangeRate, setExchangeRate] = useState(1.0);
   const [items, setItems] = useState<POItem[]>([
     { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: isGlobal ? 0 : 18, tax_amount: 0, total: 0 },
   ]);
@@ -256,6 +257,8 @@ export const PurchaseOrderForm = ({
             incoterms: isGlobal ? (incoterms || null) : null,
             currency: userCurrency,
             region_type: isGlobal ? 'global' : 'india',
+            exchange_rate: isGlobal ? exchangeRate : 1.0,
+            base_currency: 'INR',
             order_date: orderDate,
             expected_delivery_date: expectedDeliveryDate || null,
             delivery_address: deliveryAddress || null,
@@ -302,6 +305,8 @@ export const PurchaseOrderForm = ({
             incoterms: isGlobal ? (incoterms || null) : null,
             currency: userCurrency,
             region_type: isGlobal ? 'global' : 'india',
+            exchange_rate: isGlobal ? exchangeRate : 1.0,
+            base_currency: 'INR',
             order_date: orderDate,
             expected_delivery_date: expectedDeliveryDate || null,
             delivery_address: deliveryAddress || null,
@@ -425,6 +430,33 @@ export const PurchaseOrderForm = ({
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                )}
+                {isGlobal && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Exchange Rate (to INR base) *</Label>
+                      <Input
+                        type="number"
+                        step="0.0001"
+                        min="0.0001"
+                        value={exchangeRate}
+                        onChange={(e) => setExchangeRate(parseFloat(e.target.value) || 1)}
+                        placeholder="e.g. 0.012 for USD→INR"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        1 {userCurrency} = {exchangeRate} INR equivalent factor
+                      </p>
+                    </div>
+                    <div>
+                      <Label>PO Value (INR Equivalent)</Label>
+                      <Input
+                        value={`₹${(total / (exchangeRate || 1)).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`}
+                        disabled
+                        className="bg-muted"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Auto-computed for cross-currency comparison</p>
+                    </div>
                   </div>
                 )}
               </CardContent>
