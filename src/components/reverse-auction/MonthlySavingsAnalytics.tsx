@@ -48,6 +48,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function MonthlySavingsAnalytics() {
+  const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [allAuctions, setAllAuctions] = useState<any[]>([]);
@@ -314,7 +315,7 @@ export function MonthlySavingsAnalytics() {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-emerald-600" />
               Sourcing Savings from Auctions
-              <span className="text-[10px] text-muted-foreground font-normal ml-auto">in ₹</span>
+               <span className="text-[10px] text-muted-foreground font-normal ml-auto">in {orgSymbol}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -363,7 +364,7 @@ export function MonthlySavingsAnalytics() {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <IndianRupee className="w-4 h-4 text-primary" />
               Addressable Spend Under Management
-              <span className="text-[10px] text-muted-foreground font-normal ml-auto">in ₹</span>
+              <span className="text-[10px] text-muted-foreground font-normal ml-auto">in {orgSymbol}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
