@@ -51,6 +51,7 @@ import { GovernanceLegalArmor } from '@/components/governance';
 import { CFOIncentiveManagement } from '@/components/purchaser/CFOIncentiveManagement';
 import { SavingsSourceOfTruth } from '@/components/governance/SavingsSourceOfTruth';
 import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
+import { GlobalBuyerDashboard } from '@/components/governance/GlobalBuyerDashboard';
 import { NotificationBell } from '@/components/NotificationBell';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
@@ -280,10 +281,14 @@ export default function ManagementExecutiveDashboard() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="bg-slate-800 border border-slate-700">
+          <TabsList className="bg-slate-800 border border-slate-700 flex-wrap">
             <TabsTrigger value="overview" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
               <BarChart3 className="w-4 h-4 mr-2" />
               Savings Overview
+            </TabsTrigger>
+            <TabsTrigger value="procurement" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+              <Globe className="w-4 h-4 mr-2" />
+              Procurement
             </TabsTrigger>
             {['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo'].includes(primaryRole) && (
               <TabsTrigger value="financials" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
@@ -318,6 +323,10 @@ export default function ManagementExecutiveDashboard() {
                 <SavingsSourceOfTruth />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="procurement" className="space-y-4">
+            <GlobalBuyerDashboard />
           </TabsContent>
 
           {['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo'].includes(primaryRole) && (
