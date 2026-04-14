@@ -25,6 +25,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 import { usePurchaserIncentives } from '@/hooks/usePurchaserIncentives';
+import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,9 +34,11 @@ import {
   FileText, 
   TrendingUp, 
   Gift, 
+  Globe,
   LogOut, 
   Loader2,
   Shield,
+  ShieldCheck,
   Eye,
   ClipboardList,
   Bot,
@@ -45,6 +48,7 @@ import { AccessDenied } from '@/components/purchaser';
 import { GovernanceLegalArmor } from '@/components/governance';
 import { SavingsTracker } from '@/components/purchaser/SavingsTracker';
 import { PurchaserIncentiveCard } from '@/components/purchaser/PurchaserIncentiveCard';
+import { GlobalBuyerDashboard } from '@/components/governance/GlobalBuyerDashboard';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
@@ -56,6 +60,7 @@ export default function PurchaserExecutionDashboard() {
   const { user, signOut, loading: authLoading } = useAuth();
   const { primaryRole, isLoading: accessLoading, isAccessDenied } = useGovernanceAccess();
   const { summary, isLoading: incentiveLoading } = usePurchaserIncentives(user?.id);
+  const buyerCtx = useGlobalBuyerContext();
   const [activeTab, setActiveTab] = useState('requirements');
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   const [aiGeneratedRFQ, setAIGeneratedRFQ] = useState<any>(null);
@@ -127,6 +132,12 @@ export default function PurchaserExecutionDashboard() {
               <ClipboardList className="w-3 h-3 mr-1" />
               Execution Dashboard
             </Badge>
+            {buyerCtx.isGlobal && (
+              <Badge variant="outline" className="text-xs gap-1">
+                <Globe className="w-3 h-3" />
+                {buyerCtx.baseCurrency}
+              </Badge>
+            )}
             <NotificationBell />
             <Button 
               variant="outline" 
@@ -156,7 +167,10 @@ export default function PurchaserExecutionDashboard() {
         <div className="container mx-auto">
           <p className="text-sm text-center font-medium">
             <Shield className="w-4 h-4 inline mr-2" />
-            This is an execution dashboard. Savings are tracked by AI. Incentives are declared by management.
+            {buyerCtx.isGlobal 
+              ? `Global execution dashboard — ${buyerCtx.baseCurrency} base • ${buyerCtx.complianceFields.requiresIncoterms ? 'Incoterms required' : 'Domestic trade'}`
+              : 'This is an execution dashboard. Savings are tracked by AI. Incentives are declared by management.'
+            }
           </p>
         </div>
       </div>
@@ -169,7 +183,8 @@ export default function PurchaserExecutionDashboard() {
               Welcome, {user?.user_metadata?.contact_person || 'Purchaser'}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {user?.user_metadata?.company_name}
+              {buyerCtx.companyName || user?.user_metadata?.company_name}
+              {buyerCtx.isGlobal && ` • ${buyerCtx.country || 'Global'}`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -198,10 +213,14 @@ export default function PurchaserExecutionDashboard() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="bg-sky-100/50 border border-sky-200">
+          <TabsList className="bg-sky-100/50 border border-sky-200 flex-wrap">
             <TabsTrigger value="requirements" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">
               <FileText className="w-4 h-4 mr-2" />
               My Requirements
+            </TabsTrigger>
+            <TabsTrigger value="procurement" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">
+              <Globe className="w-4 h-4 mr-2" />
+              Procurement
             </TabsTrigger>
             <TabsTrigger value="savings" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">
               <TrendingUp className="w-4 h-4 mr-2" />
@@ -211,10 +230,20 @@ export default function PurchaserExecutionDashboard() {
               <Gift className="w-4 h-4 mr-2" />
               My Incentives
             </TabsTrigger>
+            {buyerCtx.isGlobal && (
+              <TabsTrigger value="compliance" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">
+                <ShieldCheck className="w-4 h-4 mr-2" />
+                Compliance
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="requirements" className="space-y-4">
             <BuyerRequirementsList userId={user?.id || ''} />
+          </TabsContent>
+
+          <TabsContent value="procurement" className="space-y-4">
+            <GlobalBuyerDashboard />
           </TabsContent>
 
           <TabsContent value="savings" className="space-y-4">
