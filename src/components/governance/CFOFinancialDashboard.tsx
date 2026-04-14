@@ -25,6 +25,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CFODecisionEngine } from './CFODecisionEngine';
 
 interface PayablesSummary {
   totalPayable: number;
