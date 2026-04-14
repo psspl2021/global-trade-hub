@@ -6295,6 +6295,7 @@ export type Database = {
           discount_amount: number
           discount_percent: number | null
           driver_contact: string | null
+          effective_due_date: string | null
           erp_reference_id: string | null
           erp_response: Json | null
           erp_sync_enabled: boolean
@@ -6383,6 +6384,7 @@ export type Database = {
           discount_amount?: number
           discount_percent?: number | null
           driver_contact?: string | null
+          effective_due_date?: string | null
           erp_reference_id?: string | null
           erp_response?: Json | null
           erp_sync_enabled?: boolean
@@ -6471,6 +6473,7 @@ export type Database = {
           discount_amount?: number
           discount_percent?: number | null
           driver_contact?: string | null
+          effective_due_date?: string | null
           erp_reference_id?: string | null
           erp_response?: Json | null
           erp_sync_enabled?: boolean
