@@ -240,8 +240,8 @@ export function CFOFinancialDashboard() {
           </div>
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="w-auto">
             <TabsList className="bg-slate-700 h-8">
-              <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">Normalized</TabsTrigger>
-                <IndianRupee className="w-3 h-3 mr-1" /> Normalized
+              <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+                Normalized
               </TabsTrigger>
               <TabsTrigger value="by-currency" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
                 <Globe className="w-3 h-3 mr-1" /> By Currency
