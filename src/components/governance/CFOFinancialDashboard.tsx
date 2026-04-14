@@ -217,7 +217,7 @@ export function CFOFinancialDashboard() {
       return {
         poId: po.id,
         poNumber: po.po_number || `PO-${po.id.substring(0, 6)}`,
-        supplierName: (po as any).supplier_name || `Vendor-${(po.supplier_id || '').substring(0, 8).toUpperCase()}`,
+        supplierName: `Vendor-${(po.supplier_id || '').substring(0, 8).toUpperCase()}`,
         amount: po.po_value || 0,
         dueDate,
         daysOverdue: Math.floor((now.getTime() - new Date(dueDate).getTime()) / 86400000),
