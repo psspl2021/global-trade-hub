@@ -18,17 +18,15 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
+import { formatCompact as sharedFormatCompact, formatCurrency as sharedFormatCurrency, useCurrencyFormatter } from '@/lib/currency';
 
 /* ─── helpers ─── */
-function formatCompact(v: number) {
-  if (v >= 10000000) return `₹${(v / 10000000).toFixed(1)}Cr`;
-  if (v >= 100000) return `₹${(v / 100000).toFixed(1)}L`;
-  if (v >= 1000) return `₹${(v / 1000).toFixed(1)}K`;
-  return `₹${Math.round(v).toLocaleString('en-IN')}`;
+function formatCompact(v: number, currency: string = 'INR') {
+  return sharedFormatCompact(v, currency);
 }
 
-function formatINR(v: number) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+function formatINR(v: number, currency: string = 'INR') {
+  return sharedFormatCurrency(v, currency);
 }
 
 interface Props {

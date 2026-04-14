@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { IndianRupee, Gavel, AlertTriangle, Trophy, Target, CheckCircle2 } from 'lucide-react';
 import { getWinningBid } from '@/utils/auctionPricing';
+import { getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ReverseAuction, ReverseAuctionBid, getRankedBids } from '@/hooks/useReverseAuction';
@@ -34,7 +35,12 @@ interface SupplierMultiItemBidProps {
 }
 
 function formatCurrency(value: number, currency: string = 'INR') {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+  const locale = currency === 'INR' ? 'en-IN' : 'en-US';
+  try {
+    return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+  } catch {
+    return `${currency} ${value.toLocaleString()}`;
+  }
 }
 
 export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: SupplierMultiItemBidProps) {
@@ -310,7 +316,7 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Your Bid Amount (₹)</label>
+            <label className="text-sm font-medium text-foreground">Your Bid Amount ({getCurrencySymbol(auction.currency || 'INR')})</label>
             <Input
               type="number"
               placeholder={`Enter below ${formatCurrency(currentLowest)}`}
@@ -465,9 +471,9 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
                         : 'border-border hover:bg-muted'
                     }`}
                   >
-                    <span className="font-semibold">Save ₹{reduction.toLocaleString('en-IN')}</span>
+                    <span className="font-semibold">Save {getCurrencySymbol(auction.currency || 'INR')}{reduction.toLocaleString(getCurrencyLocale(auction.currency || 'INR'))}</span>
                     <span className="block text-[10px] text-muted-foreground mt-0.5">
-                      Total → {formatCurrency(target)}
+                      Total → {formatCurrency(target, auction.currency)}
                     </span>
                   </button>
                 );

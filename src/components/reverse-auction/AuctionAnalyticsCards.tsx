@@ -3,6 +3,8 @@
  */
 import { Card } from '@/components/ui/card';
 import { TrendingDown, Activity, Trophy, IndianRupee } from 'lucide-react';
+import { formatCompact as sharedFormatCompact } from '@/lib/currency';
+import { useCurrencyFormatter } from '@/lib/currency';
 
 interface AuctionAnalyticsProps {
   totalAuctions: number;
@@ -12,14 +14,8 @@ interface AuctionAnalyticsProps {
   avgBidReduction: number;
 }
 
-function formatCurrency(value: number) {
-  if (value >= 100000) {
-    return `₹${(value / 100000).toFixed(1)}L`;
-  }
-  if (value >= 1000) {
-    return `₹${(value / 1000).toFixed(1)}K`;
-  }
-  return `₹${Math.round(value)}`;
+function formatCurrency(value: number, currency: string = 'INR') {
+  return sharedFormatCompact(value, currency);
 }
 
 export function AuctionAnalyticsCards({ totalAuctions, liveCount, completedCount, totalSavings, avgBidReduction }: AuctionAnalyticsProps) {

@@ -14,6 +14,7 @@ import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Tro
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
+import { formatCompact as sharedFormatCompact, formatCurrency as sharedFormatCurrency, useCurrencyFormatter } from '@/lib/currency';
 
 interface MonthlyData {
   month: string;
@@ -23,19 +24,12 @@ interface MonthlyData {
   auctionCount: number;
 }
 
-function formatCompact(value: number) {
-  if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
-  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${Math.round(value)}`;
+function formatCompact(value: number, currency: string = 'INR') {
+  return sharedFormatCompact(value, currency);
 }
 
-function formatINR(value: number) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(value);
+function formatINR(value: number, currency: string = 'INR') {
+  return sharedFormatCurrency(value, currency);
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -54,6 +48,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function MonthlySavingsAnalytics() {
+  const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [allAuctions, setAllAuctions] = useState<any[]>([]);
@@ -320,7 +315,7 @@ export function MonthlySavingsAnalytics() {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-emerald-600" />
               Sourcing Savings from Auctions
-              <span className="text-[10px] text-muted-foreground font-normal ml-auto">in ₹</span>
+               <span className="text-[10px] text-muted-foreground font-normal ml-auto">in {orgSymbol}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -369,7 +364,7 @@ export function MonthlySavingsAnalytics() {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <IndianRupee className="w-4 h-4 text-primary" />
               Addressable Spend Under Management
-              <span className="text-[10px] text-muted-foreground font-normal ml-auto">in ₹</span>
+              <span className="text-[10px] text-muted-foreground font-normal ml-auto">in {orgSymbol}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">

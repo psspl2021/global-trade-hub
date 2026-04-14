@@ -15,6 +15,7 @@ import { Pencil, Plus, Trash2, Package, Save, Users, UserPlus, Mail, X, Sparkles
 import { supabase } from '@/integrations/supabase/client';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { toast } from 'sonner';
+import { getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 
 const UNIT_OPTIONS = [
   { label: 'MT', value: 'MT' },

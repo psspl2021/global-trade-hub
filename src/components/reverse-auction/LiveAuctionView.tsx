@@ -26,6 +26,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { useReverseAuctionBids, useReverseAuction, ReverseAuction, ReverseAuctionBid, getRankedBids } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { formatCompact as sharedFmtCompact, getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 import { SupplierMultiItemBid } from './SupplierMultiItemBid';
 import { LiveInviteSupplier } from './LiveInviteSupplier';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';

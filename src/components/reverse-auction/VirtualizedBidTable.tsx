@@ -1,6 +1,7 @@
 import { useRef, memo, useCallback, useMemo, useReducer } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Input } from '@/components/ui/input';
+import { getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 
 interface AuctionItem {
   id: string;
@@ -16,6 +17,7 @@ interface VirtualizedBidTableProps {
   bidPrices: Record<string, string>;
   setBidPrices: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   isLive: boolean;
+  currency?: string;
 }
 
 const ROW_HEIGHT = 64;
@@ -28,11 +30,13 @@ const BidRow = memo(function BidRow({
   value,
   onChange,
   isLive,
+  currency = 'INR',
 }: {
   item: AuctionItem;
   value: string;
   onChange: (val: string) => void;
   isLive: boolean;
+  currency?: string;
 }) {
   const unitPrice = Number(value || 0);
   const lineTotal = useMemo(
@@ -49,7 +53,7 @@ const BidRow = memo(function BidRow({
         )}
       </div>
       <div className="w-24 px-4 py-2 text-right font-medium tabular-nums shrink-0">
-        {item.quantity.toLocaleString('en-IN')}
+        {item.quantity.toLocaleString(getCurrencyLocale(currency))}
       </div>
       <div className="w-20 px-4 py-2 text-center text-muted-foreground shrink-0">
         {item.unit}
@@ -68,13 +72,13 @@ const BidRow = memo(function BidRow({
         />
       </div>
       <div className={`w-36 px-4 py-2 text-right font-medium tabular-nums shrink-0 ${unitPrice > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
-        {unitPrice > 0 ? `₹${lineTotal.toLocaleString('en-IN')}` : '—'}
+        {unitPrice > 0 ? `${getCurrencySymbol(currency)}${lineTotal.toLocaleString(getCurrencyLocale(currency))}` : '—'}
       </div>
     </div>
   );
 });
 
-export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: VirtualizedBidTableProps) {
+export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive, currency = 'INR' }: VirtualizedBidTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const useVirtual = items.length > VIRTUALIZATION_THRESHOLD;
 
@@ -112,7 +116,7 @@ export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: 
           <div className="flex-1 px-4 py-2.5">Item</div>
           <div className="w-24 px-4 py-2.5 text-right">Qty</div>
           <div className="w-20 px-4 py-2.5 text-center">Unit</div>
-          <div className="w-36 px-4 py-2.5 text-right">Unit Price (₹)</div>
+          <div className="w-36 px-4 py-2.5 text-right">Unit Price ({getCurrencySymbol(currency || 'INR')})</div>
           <div className="w-36 px-4 py-2.5 text-right">Line Total</div>
         </div>
 
