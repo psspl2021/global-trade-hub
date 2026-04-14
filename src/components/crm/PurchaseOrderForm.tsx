@@ -11,6 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2, Save, Download } from 'lucide-react';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
 import { generateDocumentPDF } from '@/lib/pdfGenerator';
+import { useRegionFeatures } from '@/hooks/useRegionFeatures';
+
+const INCOTERMS_OPTIONS = ['EXW', 'FCA', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP', 'FAS', 'FOB', 'CFR', 'CIF'];
+const TAX_RATES_GLOBAL = [0, 5, 10, 15, 20, 25];
+const CURRENCY_SYMBOLS: Record<string, string> = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'AED ', SAR: 'SAR ', JPY: '¥' };
 
 interface POItem {
   id?: string;
