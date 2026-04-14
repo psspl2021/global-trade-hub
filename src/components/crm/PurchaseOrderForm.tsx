@@ -34,6 +34,7 @@ interface PurchaseOrderFormProps {
 
 const GST_RATES = [0, 5, 12, 18, 28];
 const UNIT_OPTIONS = ['units', 'kg', 'g', 'ton', 'mt', 'quintal', 'ltr', 'ml', 'pcs', 'box', 'carton', 'bag', 'roll', 'mtr', 'sqft', 'sqm', 'dozen', 'pair', 'set'];
+const CURRENCY_SYMBOLS: Record<string, string> = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'AED ', SAR: 'SAR ', JPY: '¥' };
 
 export const PurchaseOrderForm = ({
   open,
