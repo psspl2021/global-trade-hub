@@ -31,12 +31,12 @@ const BidRow = memo(function BidRow({
   onChange,
   isLive,
   currency = 'INR',
-}: { item: AuctionItem; value: string; onChange: (v: string) => void; isLive: boolean; currency?: string }) {
 }: {
   item: AuctionItem;
   value: string;
   onChange: (val: string) => void;
   isLive: boolean;
+  currency?: string;
 }) {
   const unitPrice = Number(value || 0);
   const lineTotal = useMemo(
