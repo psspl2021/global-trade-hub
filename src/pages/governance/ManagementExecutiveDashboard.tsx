@@ -43,7 +43,8 @@ import {
   Building2,
   Calculator,
   Briefcase,
-  Home
+  Home,
+  IndianRupee
 } from 'lucide-react';
 import { AccessDenied } from '@/components/purchaser';
 import { GovernanceLegalArmor } from '@/components/governance';
