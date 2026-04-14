@@ -377,7 +377,7 @@ export function GlobalBuyerDashboard() {
                           <div className={cn(
                             "w-2 h-2 rounded-full shrink-0",
                             po.is_overdue ? "bg-destructive" :
-                            po.status === 'payment_confirmed' ? "bg-primary" :
+                            po.status === 'payment_done' ? "bg-primary" :
                             "bg-amber-500"
                           )} />
                           <div className="min-w-0">
