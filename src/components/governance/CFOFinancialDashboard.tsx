@@ -506,6 +506,9 @@ export function CFOFinancialDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* CFO Decision Engine */}
+      <CFODecisionEngine />
     </div>
   );
 }
