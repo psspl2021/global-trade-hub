@@ -78,7 +78,7 @@ const BidRow = memo(function BidRow({
   );
 });
 
-export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive }: VirtualizedBidTableProps) {
+export function VirtualizedBidTable({ items, bidPrices, setBidPrices, isLive, currency = 'INR' }: VirtualizedBidTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const useVirtual = items.length > VIRTUALIZATION_THRESHOLD;
 
