@@ -1933,6 +1933,7 @@ export type Database = {
       buyer_companies: {
         Row: {
           address: string | null
+          base_currency: string
           city: string | null
           company_name: string
           country: string | null
@@ -1948,6 +1949,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          base_currency?: string
           city?: string | null
           company_name: string
           country?: string | null
@@ -1963,6 +1965,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          base_currency?: string
           city?: string | null
           company_name?: string
           country?: string | null
@@ -6109,6 +6112,7 @@ export type Database = {
           status: Database["public"]["Enums"]["document_status"]
           subtotal: number
           supplier_id: string
+          supplier_priority: Database["public"]["Enums"]["supplier_priority"]
           supplier_verified: boolean | null
           tax_amount: number
           tax_rate: number | null
@@ -6193,6 +6197,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id: string
+          supplier_priority?: Database["public"]["Enums"]["supplier_priority"]
           supplier_verified?: boolean | null
           tax_amount?: number
           tax_rate?: number | null
@@ -6277,6 +6282,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["document_status"]
           subtotal?: number
           supplier_id?: string
+          supplier_priority?: Database["public"]["Enums"]["supplier_priority"]
           supplier_verified?: boolean | null
           tax_amount?: number
           tax_rate?: number | null
@@ -12483,6 +12489,7 @@ export type Database = {
         | "delayed"
         | "cancelled"
       subscription_tier: "free" | "premium"
+      supplier_priority: "critical" | "standard" | "low"
       vehicle_type:
         | "truck"
         | "trailer"
@@ -12691,6 +12698,7 @@ export const Constants = {
         "cancelled",
       ],
       subscription_tier: ["free", "premium"],
+      supplier_priority: ["critical", "standard", "low"],
       vehicle_type: [
         "truck",
         "trailer",
