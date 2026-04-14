@@ -186,31 +186,38 @@ export function CFOFinancialDashboard() {
     })));
   };
 
-  /** Delayed payments — uses payment_due_date (financial), falls back to expected_delivery_date (supply chain) */
+  /** Delayed payments — server-side overdue filter using COALESCE(payment_due_date, expected_delivery_date) */
   const fetchDelayedPayments = async () => {
     const now = new Date();
-    // Query POs with payment_due_date first, then fall back
+    // Server-side filter: only fetch actually overdue POs
     const { data: pos } = await supabase
       .from('purchase_orders')
       .select('id, po_number, supplier_id, po_value, po_value_base_currency, expected_delivery_date, payment_due_date, currency, payment_workflow_status, region_type')
       .neq('payment_workflow_status', 'payment_confirmed')
-      .order('payment_due_date', { ascending: true, nullsFirst: false })
-      .limit(20);
+      .neq('status', 'cancelled')
+      .lt('payment_due_date', now.toISOString())
+      .order('payment_due_date', { ascending: true })
+      .limit(15);
 
-    if (!pos) { setDelayed([]); return; }
+    // Also fetch POs where payment_due_date is null but expected_delivery_date is overdue
+    const { data: fallbackPos } = await supabase
+      .from('purchase_orders')
+      .select('id, po_number, supplier_id, po_value, po_value_base_currency, expected_delivery_date, payment_due_date, currency, payment_workflow_status, region_type')
+      .neq('payment_workflow_status', 'payment_confirmed')
+      .neq('status', 'cancelled')
+      .is('payment_due_date', null)
+      .lt('expected_delivery_date', now.toISOString())
+      .order('expected_delivery_date', { ascending: true })
+      .limit(10);
 
-    // Filter to overdue based on payment_due_date (priority) or expected_delivery_date (fallback)
-    const overdue = pos.filter(po => {
-      const dueDate = po.payment_due_date || po.expected_delivery_date;
-      return dueDate && new Date(dueDate) < now;
-    }).slice(0, 10);
+    const allOverdue = [...(pos || []), ...(fallbackPos || [])].slice(0, 15);
 
-    setDelayed(overdue.map(po => {
+    setDelayed(allOverdue.map(po => {
       const dueDate = po.payment_due_date || po.expected_delivery_date || '';
       return {
         poId: po.id,
         poNumber: po.po_number || `PO-${po.id.substring(0, 6)}`,
-        supplierName: `PS-${(po.supplier_id || '').substring(0, 6).toUpperCase()}`,
+        supplierName: `Vendor-${(po.supplier_id || '').substring(0, 8).toUpperCase()}`,
         amount: po.po_value || 0,
         dueDate,
         daysOverdue: Math.floor((now.getTime() - new Date(dueDate).getTime()) / 86400000),
