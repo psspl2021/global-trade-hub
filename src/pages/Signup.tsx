@@ -277,21 +277,23 @@ const Signup = () => {
       return;
     }
 
-    // Check password breach before signing up
-    setCheckingPassword(true);
-    try {
-      const breachResult = await checkPasswordBreach(formData.password);
-      if (breachResult.isBreached && breachResult.breachCount) {
-        setBreachWarning(
-          `⚠️ This password has been exposed in ${formatBreachCount(breachResult.breachCount)} data breaches. Please choose a more secure password for your account safety.`
-        );
-        setCheckingPassword(false);
-        return;
+    // Check password breach before signing up (non-blocking warning)
+    if (!breachWarning) {
+      setCheckingPassword(true);
+      try {
+        const breachResult = await checkPasswordBreach(formData.password);
+        if (breachResult.isBreached && breachResult.breachCount) {
+          setBreachWarning(
+            `⚠️ This password has been exposed in ${formatBreachCount(breachResult.breachCount)} data breaches. We recommend choosing a different password, but you can click "Join Now" again to continue.`
+          );
+          setCheckingPassword(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Password breach check failed:', error);
       }
-    } catch (error) {
-      console.error('Password breach check failed:', error);
+      setCheckingPassword(false);
     }
-    setCheckingPassword(false);
 
     setLoading(true);
     const { error } = await signUp(formData.email, formData.password, {
