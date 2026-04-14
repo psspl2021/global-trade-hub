@@ -249,9 +249,13 @@ export const PurchaseOrderForm = ({
             po_number: poNumber,
             vendor_name: vendorName,
             vendor_address: vendorAddress || null,
-            vendor_gstin: vendorGstin || null,
+            vendor_gstin: isIndia ? (vendorGstin || null) : null,
+            vendor_tax_id: isGlobal ? (vendorTaxId || null) : null,
             vendor_email: vendorEmail || null,
             vendor_phone: vendorPhone || null,
+            incoterms: isGlobal ? (incoterms || null) : null,
+            currency: userCurrency,
+            region_type: isGlobal ? 'global' : 'india',
             order_date: orderDate,
             expected_delivery_date: expectedDeliveryDate || null,
             delivery_address: deliveryAddress || null,
@@ -262,7 +266,7 @@ export const PurchaseOrderForm = ({
             total_amount: total,
             notes: notes || null,
             terms_and_conditions: terms || null,
-          })
+          } as any)
           .eq('id', editId);
 
         if (updateError) throw updateError;
@@ -291,9 +295,13 @@ export const PurchaseOrderForm = ({
             supplier_id: userId,
             vendor_name: vendorName,
             vendor_address: vendorAddress || null,
-            vendor_gstin: vendorGstin || null,
+            vendor_gstin: isIndia ? (vendorGstin || null) : null,
+            vendor_tax_id: isGlobal ? (vendorTaxId || null) : null,
             vendor_email: vendorEmail || null,
             vendor_phone: vendorPhone || null,
+            incoterms: isGlobal ? (incoterms || null) : null,
+            currency: userCurrency,
+            region_type: isGlobal ? 'global' : 'india',
             order_date: orderDate,
             expected_delivery_date: expectedDeliveryDate || null,
             delivery_address: deliveryAddress || null,
@@ -304,7 +312,7 @@ export const PurchaseOrderForm = ({
             total_amount: total,
             notes: notes || null,
             terms_and_conditions: terms || null,
-          })
+          } as any)
           .select('id')
           .single();
 
