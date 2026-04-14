@@ -176,7 +176,7 @@ export function CFOFinancialDashboard() {
     }>;
     setVendors(vendorData.map((v, i) => ({
       supplierId: v.contract_id || `vendor-${i}`,
-      supplierName: `Contract-${(v.contract_id || '').substring(0, 8).toUpperCase()}`,
+      supplierName: (v as any).supplier_name || `Contract-${(v.contract_id || '').substring(0, 8).toUpperCase()}`,
       totalPoValue: v.total_exposure_base,
       totalPaid: 0,
       openPayables: v.total_exposure_base,
