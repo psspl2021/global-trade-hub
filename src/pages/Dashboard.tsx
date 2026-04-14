@@ -29,7 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel, ArrowLeft, ShoppingCart, BarChart3, Users } from 'lucide-react';
+import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel, ArrowLeft, ShoppingCart, BarChart3, Users, Wallet } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateRequirementForm } from '@/components/CreateRequirementForm';
@@ -71,6 +71,7 @@ import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuc
 
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
+import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -118,6 +119,10 @@ const Dashboard = () => {
   const showBookTransport = activeView === 'book-transport';
   const setShowBookTransport = (show: boolean) => {
     setSearchParams(show ? { view: 'book-transport' } : {}, { replace: true });
+  };
+  const showFinancials = activeView === 'financials';
+  const setShowFinancials = (show: boolean) => {
+    setSearchParams(show ? { view: 'financials' } : {}, { replace: true });
   };
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
@@ -433,6 +438,14 @@ const Dashboard = () => {
                  {/* My Logistics Requirements */}
                  {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
                </div>
+             ) : showFinancials ? (
+               /* ── Sub-View: CFO Financial Dashboard ── */
+               <div className="space-y-4">
+                 <Button variant="ghost" size="sm" onClick={() => setShowFinancials(false)} className="gap-2">
+                   <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                 </Button>
+                 <CFOFinancialDashboard />
+               </div>
              ) : (
                <>
                 {/* ── Section: Quick Actions ── */}
@@ -500,19 +513,37 @@ const Dashboard = () => {
 
                 {/* ── Section: Tools & Insights ── */}
                 <div className="space-y-1.5 mb-6">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tools & Insights</h2>
-                  <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-sm">
-                        <BarChart3 className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground">CRM & Inventory</p>
-                        <p className="text-[11px] text-muted-foreground">Invoices & purchase orders</p>
-                      </div>
-                      <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-sky-500 transition-colors" />
-                    </div>
-                  </Card>
+                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tools & Insights</h2>
+                   <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                     <Card variant="interactive" className="p-4 group hover:shadow-md transition-all" onClick={() => setShowCRM(true)}>
+                       <div className="flex items-center gap-3">
+                         <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-sm">
+                           <BarChart3 className="w-4 h-4 text-white" />
+                         </div>
+                         <div className="flex-1 min-w-0">
+                           <p className="text-sm font-semibold text-foreground">CRM & Inventory</p>
+                           <p className="text-[11px] text-muted-foreground">Invoices & purchase orders</p>
+                         </div>
+                         <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-sky-500 transition-colors" />
+                       </div>
+                     </Card>
+
+                     {/* CFO Financial Dashboard — only for management roles */}
+                     {role && ['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'buyer_manager', 'manager'].includes(role) && (
+                       <Card variant="interactive" className="p-4 group hover:shadow-md transition-all border-l-4 border-l-violet-500" onClick={() => setShowFinancials(true)}>
+                         <div className="flex items-center gap-3">
+                           <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
+                             <Wallet className="w-4 h-4 text-white" />
+                           </div>
+                           <div className="flex-1 min-w-0">
+                             <p className="text-sm font-semibold text-foreground">CFO Dashboard</p>
+                             <p className="text-[11px] text-muted-foreground">Financial intelligence & decision engine</p>
+                           </div>
+                           <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-violet-500 transition-colors" />
+                         </div>
+                       </Card>
+                     )}
+                   </div>
                 </div>
 
                 {/* ── Section: Grow Your Network ── */}
