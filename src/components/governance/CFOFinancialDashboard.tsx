@@ -1,6 +1,7 @@
 /**
- * CFO Financial Intelligence Dashboard
- * Decision-grade data: payables, vendor exposure, delayed payments, cash burn
+ * CFO Financial Intelligence Dashboard (Global)
+ * Multi-currency decision-grade data using base_currency normalization
+ * Supports INR domestic + global currencies (USD, AED, EUR, etc.)
  * ACCESS: CFO, CEO roles only
  */
 import { useState, useEffect } from 'react';
@@ -8,20 +9,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertTriangle,
   ArrowUpRight,
   ArrowDownRight,
   Banknote,
   Building2,
-  Calendar,
   Clock,
+  Globe,
   IndianRupee,
   Loader2,
   ShieldAlert,
   TrendingDown,
-  TrendingUp,
   Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -34,6 +34,13 @@ interface PayablesSummary {
   payableNext30Days: number;
 }
 
+interface CurrencyBreakdown {
+  currency: string;
+  payable: number;
+  paid: number;
+  poCount: number;
+}
+
 interface VendorExposure {
   supplierId: string;
   supplierName: string;
@@ -41,6 +48,8 @@ interface VendorExposure {
   totalPaid: number;
   openPayables: number;
   poCount: number;
+  currency: string;
+  baseCurrencyValue: number;
 }
 
 interface DelayedPayment {
@@ -51,6 +60,7 @@ interface DelayedPayment {
   dueDate: string;
   daysOverdue: number;
   currency: string;
+  regionType: string;
 }
 
 interface CashBurnMetrics {
@@ -61,21 +71,43 @@ interface CashBurnMetrics {
   pendingPayables: number;
 }
 
-const formatINR = (val: number) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
-
-const formatLakh = (val: number) => {
-  if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
-  if (val >= 100000) return `₹${(val / 100000).toFixed(1)} L`;
-  return formatINR(val);
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼',
+  JPY: '¥', CNY: '¥', SGD: 'S$', AUD: 'A$', CAD: 'C$', CHF: 'CHF',
 };
+
+const formatCurrency = (val: number, currency: string = 'INR') => {
+  try {
+    return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : 'en-US', {
+      style: 'currency', currency, maximumFractionDigits: 0,
+    }).format(val);
+  } catch {
+    return `${CURRENCY_SYMBOLS[currency] || currency} ${val.toLocaleString()}`;
+  }
+};
+
+const formatCompact = (val: number, currency: string = 'INR') => {
+  if (currency === 'INR') {
+    if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)} L`;
+  } else {
+    if (val >= 1000000) return `${CURRENCY_SYMBOLS[currency] || currency}${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `${CURRENCY_SYMBOLS[currency] || currency}${(val / 1000).toFixed(0)}K`;
+  }
+  return formatCurrency(val, currency);
+};
+
+/** Base currency (INR) formatting for normalized cross-currency totals */
+const formatBase = (val: number) => formatCompact(val, 'INR');
 
 export function CFOFinancialDashboard() {
   const [payables, setPayables] = useState<PayablesSummary | null>(null);
+  const [currencyBreakdown, setCurrencyBreakdown] = useState<CurrencyBreakdown[]>([]);
   const [vendors, setVendors] = useState<VendorExposure[]>([]);
   const [delayed, setDelayed] = useState<DelayedPayment[]>([]);
   const [cashBurn, setCashBurn] = useState<CashBurnMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'normalized' | 'by-currency'>('normalized');
 
   useEffect(() => {
     fetchDashboardData();
@@ -102,47 +134,59 @@ export function CFOFinancialDashboard() {
 
     const { data: pos } = await supabase
       .from('purchase_orders')
-      .select('id, po_value, payment_workflow_status, expected_delivery_date, currency')
+      .select('id, po_value, po_value_base_currency, payment_workflow_status, expected_delivery_date, currency, base_currency, region_type')
       .in('po_status', ['approved', 'in_transit', 'delivered', 'quality_check']);
 
     if (!pos) return;
 
-    const totalPayable = pos
-      .filter(p => p.payment_workflow_status !== 'payment_confirmed')
-      .reduce((s, p) => s + (p.po_value || 0), 0);
+    // Use base_currency value for normalized totals
+    const getVal = (p: any) => p.po_value_base_currency || p.po_value || 0;
 
-    const totalPaid = pos
-      .filter(p => p.payment_workflow_status === 'payment_confirmed')
-      .reduce((s, p) => s + (p.po_value || 0), 0);
+    const unpaid = pos.filter(p => p.payment_workflow_status !== 'payment_confirmed');
+    const paid = pos.filter(p => p.payment_workflow_status === 'payment_confirmed');
 
-    const overdue = pos.filter(p => 
-      p.payment_workflow_status !== 'payment_confirmed' &&
-      p.expected_delivery_date &&
-      new Date(p.expected_delivery_date) < now
+    const totalPayable = unpaid.reduce((s, p) => s + getVal(p), 0);
+    const totalPaid = paid.reduce((s, p) => s + getVal(p), 0);
+
+    const overdue = unpaid.filter(p =>
+      p.expected_delivery_date && new Date(p.expected_delivery_date) < now
     );
-    const totalOverdue = overdue.reduce((s, p) => s + (p.po_value || 0), 0);
+    const totalOverdue = overdue.reduce((s, p) => s + getVal(p), 0);
 
-    const next7 = pos.filter(p =>
-      p.payment_workflow_status !== 'payment_confirmed' &&
+    const next7 = unpaid.filter(p =>
       p.expected_delivery_date &&
       new Date(p.expected_delivery_date) <= new Date(in7Days) &&
       new Date(p.expected_delivery_date) >= now
-    ).reduce((s, p) => s + (p.po_value || 0), 0);
+    ).reduce((s, p) => s + getVal(p), 0);
 
-    const next30 = pos.filter(p =>
-      p.payment_workflow_status !== 'payment_confirmed' &&
+    const next30 = unpaid.filter(p =>
       p.expected_delivery_date &&
       new Date(p.expected_delivery_date) <= new Date(in30Days) &&
       new Date(p.expected_delivery_date) >= now
-    ).reduce((s, p) => s + (p.po_value || 0), 0);
+    ).reduce((s, p) => s + getVal(p), 0);
 
     setPayables({ totalPayable, totalPaid, totalOverdue, payableNext7Days: next7, payableNext30Days: next30 });
+
+    // Currency breakdown
+    const currMap = new Map<string, CurrencyBreakdown>();
+    pos.forEach(po => {
+      const cur = po.currency || 'INR';
+      const existing = currMap.get(cur) || { currency: cur, payable: 0, paid: 0, poCount: 0 };
+      existing.poCount += 1;
+      if (po.payment_workflow_status === 'payment_confirmed') {
+        existing.paid += po.po_value || 0;
+      } else {
+        existing.payable += po.po_value || 0;
+      }
+      currMap.set(cur, existing);
+    });
+    setCurrencyBreakdown(Array.from(currMap.values()).sort((a, b) => b.payable - a.payable));
   };
 
   const fetchVendorExposure = async () => {
     const { data: pos } = await supabase
       .from('purchase_orders')
-      .select('id, supplier_id, po_value, payment_workflow_status')
+      .select('id, supplier_id, po_value, po_value_base_currency, payment_workflow_status, currency, region_type')
       .in('po_status', ['approved', 'in_transit', 'delivered', 'quality_check', 'closed']);
 
     if (!pos || pos.length === 0) { setVendors([]); return; }
@@ -150,6 +194,7 @@ export function CFOFinancialDashboard() {
     const supplierMap = new Map<string, VendorExposure>();
     pos.forEach(po => {
       const sid = po.supplier_id || 'unknown';
+      const baseVal = po.po_value_base_currency || po.po_value || 0;
       const existing = supplierMap.get(sid) || {
         supplierId: sid,
         supplierName: `PS-${sid.substring(0, 6).toUpperCase()}`,
@@ -157,13 +202,16 @@ export function CFOFinancialDashboard() {
         totalPaid: 0,
         openPayables: 0,
         poCount: 0,
+        currency: po.currency || 'INR',
+        baseCurrencyValue: 0,
       };
-      existing.totalPoValue += po.po_value || 0;
+      existing.totalPoValue += baseVal;
+      existing.baseCurrencyValue += baseVal;
       existing.poCount += 1;
       if (po.payment_workflow_status === 'payment_confirmed') {
-        existing.totalPaid += po.po_value || 0;
+        existing.totalPaid += baseVal;
       } else {
-        existing.openPayables += po.po_value || 0;
+        existing.openPayables += baseVal;
       }
       supplierMap.set(sid, existing);
     });
@@ -178,7 +226,7 @@ export function CFOFinancialDashboard() {
     const now = new Date();
     const { data: pos } = await supabase
       .from('purchase_orders')
-      .select('id, po_number, supplier_id, po_value, expected_delivery_date, currency, payment_workflow_status')
+      .select('id, po_number, supplier_id, po_value, po_value_base_currency, expected_delivery_date, currency, payment_workflow_status, region_type')
       .neq('payment_workflow_status', 'payment_confirmed')
       .not('expected_delivery_date', 'is', null)
       .lt('expected_delivery_date', now.toISOString())
@@ -195,6 +243,7 @@ export function CFOFinancialDashboard() {
       dueDate: po.expected_delivery_date || '',
       daysOverdue: Math.floor((now.getTime() - new Date(po.expected_delivery_date!).getTime()) / 86400000),
       currency: po.currency || 'INR',
+      regionType: po.region_type || 'domestic',
     })));
   };
 
@@ -202,6 +251,7 @@ export function CFOFinancialDashboard() {
     const now = new Date();
     const d30Ago = new Date(now.getTime() - 30 * 86400000).toISOString();
 
+    // Use base currency values for normalized burn
     const { data: logs } = await supabase
       .from('po_payment_audit_logs')
       .select('amount, created_at')
@@ -212,11 +262,11 @@ export function CFOFinancialDashboard() {
 
     const { data: pendingPos } = await supabase
       .from('purchase_orders')
-      .select('po_value, payment_workflow_status')
+      .select('po_value, po_value_base_currency, payment_workflow_status')
       .neq('payment_workflow_status', 'payment_confirmed')
       .in('po_status', ['approved', 'in_transit', 'delivered', 'quality_check']);
 
-    const pending = pendingPos?.reduce((s, p) => s + (p.po_value || 0), 0) || 0;
+    const pending = pendingPos?.reduce((s, p) => s + (p.po_value_base_currency || p.po_value || 0), 0) || 0;
 
     setCashBurn({
       dailyBurn: total30d / 30,
@@ -239,12 +289,35 @@ export function CFOFinancialDashboard() {
   }
 
   const totalExposure = payables ? payables.totalPayable + payables.totalPaid : 0;
-  const overdueRatio = payables && payables.totalPayable > 0 
-    ? (payables.totalOverdue / payables.totalPayable) * 100 
+  const overdueRatio = payables && payables.totalPayable > 0
+    ? (payables.totalOverdue / payables.totalPayable) * 100
     : 0;
+  const isMultiCurrency = currencyBreakdown.length > 1;
 
   return (
     <div className="space-y-6">
+      {/* Multi-currency indicator */}
+      {isMultiCurrency && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-sky-400" />
+            <span className="text-sm text-slate-400">
+              {currencyBreakdown.length} currencies active — totals normalized to INR (base currency)
+            </span>
+          </div>
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="w-auto">
+            <TabsList className="bg-slate-700 h-8">
+              <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+                <IndianRupee className="w-3 h-3 mr-1" /> Normalized
+              </TabsTrigger>
+              <TabsTrigger value="by-currency" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+                <Globe className="w-3 h-3 mr-1" /> By Currency
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
+
       {/* Top-line Decision Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-slate-800/50 border-slate-700">
@@ -253,8 +326,10 @@ export function CFOFinancialDashboard() {
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Payable (Open)</p>
               <Wallet className="w-5 h-5 text-amber-400" />
             </div>
-            <p className="text-2xl font-bold text-amber-300">{formatLakh(payables?.totalPayable || 0)}</p>
-            <p className="text-xs text-slate-500 mt-1">Across all active POs</p>
+            <p className="text-2xl font-bold text-amber-300">{formatBase(payables?.totalPayable || 0)}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {isMultiCurrency ? 'INR-normalized across all currencies' : 'Across all active POs'}
+            </p>
           </CardContent>
         </Card>
 
@@ -264,7 +339,7 @@ export function CFOFinancialDashboard() {
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Due in 7 Days</p>
               <Clock className="w-5 h-5 text-red-400" />
             </div>
-            <p className="text-2xl font-bold text-red-300">{formatLakh(payables?.payableNext7Days || 0)}</p>
+            <p className="text-2xl font-bold text-red-300">{formatBase(payables?.payableNext7Days || 0)}</p>
             <p className="text-xs text-slate-500 mt-1">Immediate action required</p>
           </CardContent>
         </Card>
@@ -275,7 +350,7 @@ export function CFOFinancialDashboard() {
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Overdue</p>
               <AlertTriangle className="w-5 h-5 text-destructive" />
             </div>
-            <p className="text-2xl font-bold text-destructive">{formatLakh(payables?.totalOverdue || 0)}</p>
+            <p className="text-2xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
             <Badge variant="outline" className={cn(
               "mt-1 text-xs",
               overdueRatio > 20 ? "border-destructive text-destructive" : "border-slate-600 text-slate-400"
@@ -291,42 +366,83 @@ export function CFOFinancialDashboard() {
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">30-Day Burn</p>
               <TrendingDown className="w-5 h-5 text-sky-400" />
             </div>
-            <p className="text-2xl font-bold text-sky-300">{formatLakh(cashBurn?.monthlyBurn || 0)}</p>
+            <p className="text-2xl font-bold text-sky-300">{formatBase(cashBurn?.monthlyBurn || 0)}</p>
             <p className="text-xs text-slate-500 mt-1">
-              ~{formatINR(cashBurn?.dailyBurn || 0)}/day
+              ~{formatCurrency(cashBurn?.dailyBurn || 0, 'INR')}/day
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Cash Burn vs Pending Payables */}
+      {/* Currency Breakdown (shown in by-currency mode or when multi-currency) */}
+      {isMultiCurrency && viewMode === 'by-currency' && (
+        <Card className="bg-slate-800/50 border-slate-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white text-lg flex items-center gap-2">
+              <Globe className="w-5 h-5 text-sky-400" />
+              Currency-wise Exposure
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {currencyBreakdown.map(cb => (
+                <div key={cb.currency} className="p-4 rounded-lg bg-slate-700/50 border border-slate-600">
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge className="bg-slate-600 text-white text-sm font-mono">
+                      {CURRENCY_SYMBOLS[cb.currency] || ''} {cb.currency}
+                    </Badge>
+                    <span className="text-xs text-slate-400">{cb.poCount} POs</span>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Open</span>
+                      <span className="text-amber-300 font-semibold">{formatCompact(cb.payable, cb.currency)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Paid</span>
+                      <span className="text-emerald-300 font-semibold">{formatCompact(cb.paid, cb.currency)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Cash Burn vs Budget Outlook */}
       {cashBurn && (
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-white text-lg flex items-center gap-2">
               <Banknote className="w-5 h-5 text-emerald-400" />
               Cash Burn vs Budget Outlook
+              {isMultiCurrency && (
+                <Badge variant="outline" className="text-xs border-slate-600 text-slate-400 ml-2">
+                  INR Normalized
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <p className="text-sm text-slate-400 mb-1">Confirmed Outflow (30d)</p>
-                <p className="text-xl font-semibold text-emerald-300">{formatLakh(cashBurn.confirmedPayments30d)}</p>
+                <p className="text-xl font-semibold text-emerald-300">{formatBase(cashBurn.confirmedPayments30d)}</p>
                 <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
                   <ArrowDownRight className="w-3 h-3" /> Already paid out
                 </div>
               </div>
               <div>
                 <p className="text-sm text-slate-400 mb-1">Pending Payables</p>
-                <p className="text-xl font-semibold text-amber-300">{formatLakh(cashBurn.pendingPayables)}</p>
+                <p className="text-xl font-semibold text-amber-300">{formatBase(cashBurn.pendingPayables)}</p>
                 <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
                   <ArrowUpRight className="w-3 h-3" /> Upcoming outflow
                 </div>
               </div>
               <div>
                 <p className="text-sm text-slate-400 mb-1">Weekly Burn Rate</p>
-                <p className="text-xl font-semibold text-sky-300">{formatLakh(cashBurn.weeklyBurn)}</p>
+                <p className="text-xl font-semibold text-sky-300">{formatBase(cashBurn.weeklyBurn)}</p>
                 <p className="text-xs text-slate-500 mt-1">Based on last 30 days</p>
               </div>
             </div>
@@ -336,8 +452,8 @@ export function CFOFinancialDashboard() {
                   <span>Paid vs Payable</span>
                   <span>{((cashBurn.confirmedPayments30d / (cashBurn.confirmedPayments30d + cashBurn.pendingPayables)) * 100).toFixed(0)}%</span>
                 </div>
-                <Progress 
-                  value={(cashBurn.confirmedPayments30d / (cashBurn.confirmedPayments30d + cashBurn.pendingPayables)) * 100} 
+                <Progress
+                  value={(cashBurn.confirmedPayments30d / (cashBurn.confirmedPayments30d + cashBurn.pendingPayables)) * 100}
                   className="h-2 bg-slate-700"
                 />
               </div>
@@ -356,7 +472,7 @@ export function CFOFinancialDashboard() {
               Top 5 Vendor Exposure
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Highest open payables by supplier
+              Highest open payables by supplier (INR normalized)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -377,7 +493,7 @@ export function CFOFinancialDashboard() {
                           <span className="text-xs text-slate-500">({v.poCount} POs)</span>
                         </div>
                         <span className="text-sm font-semibold text-amber-300">
-                          {formatLakh(v.openPayables)}
+                          {formatBase(v.openPayables)}
                         </span>
                       </div>
                       <Progress
@@ -411,13 +527,20 @@ export function CFOFinancialDashboard() {
                 {delayed.map(d => (
                   <div key={d.poId} className="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0">
                     <div>
-                      <p className="text-sm font-medium text-slate-200">{d.poNumber}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-slate-200">{d.poNumber}</p>
+                        {d.regionType === 'global' && (
+                          <Globe className="w-3 h-3 text-sky-400" />
+                        )}
+                      </div>
                       <p className="text-xs text-slate-500">{d.supplierName}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-red-300">{formatLakh(d.amount)}</p>
-                      <Badge 
-                        variant="outline" 
+                      <p className="text-sm font-semibold text-red-300">
+                        {formatCompact(d.amount, d.currency)}
+                      </p>
+                      <Badge
+                        variant="outline"
                         className={cn(
                           "text-xs",
                           d.daysOverdue > 14 ? "border-destructive text-destructive" :
@@ -443,11 +566,13 @@ export function CFOFinancialDashboard() {
             <IndianRupee className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
               <p className="text-sm font-medium text-slate-200">
-                Total Procurement Exposure: <span className="text-emerald-300">{formatLakh(totalExposure)}</span>
+                Total Procurement Exposure: <span className="text-emerald-300">{formatBase(totalExposure)}</span>
+                {isMultiCurrency && <span className="text-slate-500 text-xs ml-1">(INR base)</span>}
               </p>
               <p className="text-xs text-slate-400">
-                Paid: {formatLakh(payables?.totalPaid || 0)} • Open: {formatLakh(payables?.totalPayable || 0)} • 
-                Overdue: {formatLakh(payables?.totalOverdue || 0)}
+                Paid: {formatBase(payables?.totalPaid || 0)} • Open: {formatBase(payables?.totalPayable || 0)} •
+                Overdue: {formatBase(payables?.totalOverdue || 0)}
+                {isMultiCurrency && ` • ${currencyBreakdown.length} currencies`}
               </p>
             </div>
           </div>
