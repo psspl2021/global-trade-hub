@@ -1,6 +1,7 @@
 import { useRef, memo, useCallback, useMemo, useReducer } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Input } from '@/components/ui/input';
+import { getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 
 interface AuctionItem {
   id: string;
@@ -16,6 +17,7 @@ interface VirtualizedBidTableProps {
   bidPrices: Record<string, string>;
   setBidPrices: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   isLive: boolean;
+  currency?: string;
 }
 
 const ROW_HEIGHT = 64;
@@ -28,6 +30,8 @@ const BidRow = memo(function BidRow({
   value,
   onChange,
   isLive,
+  currency = 'INR',
+}: { item: AuctionItem; value: string; onChange: (v: string) => void; isLive: boolean; currency?: string }) {
 }: {
   item: AuctionItem;
   value: string;
