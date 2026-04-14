@@ -726,20 +726,9 @@ const Signup = () => {
                     )}
                   </div>
 
-                  {breachWarning && (
-                    <Alert variant="destructive">
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>{breachWarning}</AlertDescription>
-                    </Alert>
-                  )}
 
-                  <Button type="submit" className="w-full min-h-[48px] text-base font-semibold" disabled={loading || checkingPassword}>
-                    {checkingPassword ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Checking password security...
-                      </>
-                    ) : loading ? (
+                  <Button type="submit" className="w-full min-h-[48px] text-base font-semibold" disabled={loading}>
+                    {loading ? (
                       'Creating account...'
                     ) : formData.role === 'buyer' ? (
                       'Join Now'
