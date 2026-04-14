@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CFODecisionEngine } from './CFODecisionEngine';
+import { CFOVisualizationDashboard } from './CFOVisualizationDashboard';
 
 interface PayablesSummary {
   totalPayable: number;
@@ -523,6 +524,9 @@ export function CFOFinancialDashboard() {
 
       {/* CFO Decision Engine */}
       <CFODecisionEngine />
+
+      {/* Financial Intelligence Visualization */}
+      <CFOVisualizationDashboard />
     </div>
   );
 }
