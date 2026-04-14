@@ -320,6 +320,12 @@ export default function ManagementExecutiveDashboard() {
             </Card>
           </TabsContent>
 
+          {['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo'].includes(primaryRole) && (
+            <TabsContent value="financials" className="space-y-4">
+              <CFOFinancialDashboard />
+            </TabsContent>
+          )}
+
           {canEditIncentives && (
             <TabsContent value="incentives" className="space-y-4">
               <Card className="bg-slate-800/50 border-slate-700">
