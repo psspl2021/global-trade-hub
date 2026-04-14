@@ -56,6 +56,8 @@ interface DashboardData {
     payment_due_date: string | null;
     is_overdue: boolean;
   }>;
+  active_pos_total: number;
+  active_pos_has_more: boolean;
   overdue_pos: Array<{
     id: string;
     po_number: string;
@@ -66,13 +68,14 @@ interface DashboardData {
     due_date: string;
     days_overdue: number;
   }>;
+  overdue_pos_total: number;
+  overdue_pos_has_more: boolean;
   compliance: {
     missing_incoterms: number;
     missing_payment_terms: number;
     total_active: number;
   };
 }
-
 export function GlobalBuyerDashboard() {
   const ctx = useGlobalBuyerContext();
   const [activeTab, setActiveTab] = useState('overview');
