@@ -438,6 +438,14 @@ const Dashboard = () => {
                  {/* My Logistics Requirements */}
                  {user && <BuyerLogisticsRequirements key={logisticsRequirementsKey} userId={user.id} />}
                </div>
+             ) : showFinancials ? (
+               /* ── Sub-View: CFO Financial Dashboard ── */
+               <div className="space-y-4">
+                 <Button variant="ghost" size="sm" onClick={() => setShowFinancials(false)} className="gap-2">
+                   <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                 </Button>
+                 <CFOFinancialDashboard />
+               </div>
              ) : (
                <>
                 {/* ── Section: Quick Actions ── */}
