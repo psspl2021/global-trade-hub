@@ -50,13 +50,18 @@ export const PurchaseOrderForm = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { isGlobal, isIndia, showGSTFields, showTaxIdFields, showIncoterms, userCurrency } = useRegionFeatures();
+  const currencySymbol = CURRENCY_SYMBOLS[userCurrency] || userCurrency + ' ';
+  const taxRates = isGlobal ? TAX_RATES_GLOBAL : GST_RATES;
 
   const [poNumber, setPoNumber] = useState('');
   const [vendorName, setVendorName] = useState('');
   const [vendorAddress, setVendorAddress] = useState('');
   const [vendorGstin, setVendorGstin] = useState('');
+  const [vendorTaxId, setVendorTaxId] = useState('');
   const [vendorEmail, setVendorEmail] = useState('');
   const [vendorPhone, setVendorPhone] = useState('');
+  const [incoterms, setIncoterms] = useState('');
   const [orderDate, setOrderDate] = useState(new Date().toISOString().split('T')[0]);
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -64,7 +69,7 @@ export const PurchaseOrderForm = ({
   const [terms, setTerms] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [items, setItems] = useState<POItem[]>([
-    { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: 18, tax_amount: 0, total: 0 },
+    { description: '', hsn_code: '', quantity: 1, unit: 'units', unit_price: 0, tax_rate: isGlobal ? 0 : 18, tax_amount: 0, total: 0 },
   ]);
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
   const [savedTerms, setSavedTerms] = useState<string[]>([]);
