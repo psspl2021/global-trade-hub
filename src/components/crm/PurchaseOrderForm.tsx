@@ -371,7 +371,7 @@ export const PurchaseOrderForm = ({
             </div>
 
             {/* Vendor Details */}
-            <Card>
+             <Card>
               <CardContent className="pt-4 space-y-4">
                 <h3 className="font-semibold">Vendor Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -379,10 +379,18 @@ export const PurchaseOrderForm = ({
                     <Label>Name *</Label>
                     <Input value={vendorName} onChange={(e) => setVendorName(e.target.value)} placeholder="Vendor/Supplier name" />
                   </div>
-                  <div>
-                    <Label>GSTIN *</Label>
-                    <Input value={vendorGstin} onChange={(e) => setVendorGstin(e.target.value)} placeholder="22AAAAA0000A1Z5" />
-                  </div>
+                  {showGSTFields && (
+                    <div>
+                      <Label>GSTIN *</Label>
+                      <Input value={vendorGstin} onChange={(e) => setVendorGstin(e.target.value)} placeholder="22AAAAA0000A1Z5" />
+                    </div>
+                  )}
+                  {showTaxIdFields && (
+                    <div>
+                      <Label>Tax ID / VAT Number *</Label>
+                      <Input value={vendorTaxId} onChange={(e) => setVendorTaxId(e.target.value)} placeholder="Tax identification number" />
+                    </div>
+                  )}
                   <div>
                     <Label>Email</Label>
                     <Input type="email" value={vendorEmail} onChange={(e) => setVendorEmail(e.target.value)} />
@@ -396,6 +404,21 @@ export const PurchaseOrderForm = ({
                     <Textarea value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} rows={2} />
                   </div>
                 </div>
+                {showIncoterms && (
+                  <div>
+                    <Label>Incoterms *</Label>
+                    <Select value={incoterms} onValueChange={setIncoterms}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Incoterms" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INCOTERMS_OPTIONS.map((term) => (
+                          <SelectItem key={term} value={term}>{term}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
