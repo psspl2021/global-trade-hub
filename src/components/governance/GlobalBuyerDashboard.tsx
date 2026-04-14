@@ -345,6 +345,11 @@ export function GlobalBuyerDashboard() {
                       </span>
                     </div>
                   ))}
+                  {data.overdue_pos_has_more && (
+                    <p className="text-xs text-muted-foreground text-center pt-2 border-t">
+                      Showing {data.overdue_pos.length} of {data.overdue_pos_total} overdue POs
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
