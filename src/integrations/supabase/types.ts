@@ -2409,6 +2409,119 @@ export type Database = {
         }
         Relationships: []
       }
+      cfo_action_log: {
+        Row: {
+          action_type: string
+          company_id: string
+          completed_at: string | null
+          confidence_at_execution: number | null
+          created_at: string
+          executed_by: string
+          execution_params: Json | null
+          id: string
+          idempotency_key: string | null
+          impact_realized: number | null
+          outcome: string | null
+          outcome_details: Json | null
+          target_po_id: string | null
+          target_supplier_id: string | null
+        }
+        Insert: {
+          action_type: string
+          company_id: string
+          completed_at?: string | null
+          confidence_at_execution?: number | null
+          created_at?: string
+          executed_by: string
+          execution_params?: Json | null
+          id?: string
+          idempotency_key?: string | null
+          impact_realized?: number | null
+          outcome?: string | null
+          outcome_details?: Json | null
+          target_po_id?: string | null
+          target_supplier_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          company_id?: string
+          completed_at?: string | null
+          confidence_at_execution?: number | null
+          created_at?: string
+          executed_by?: string
+          execution_params?: Json | null
+          id?: string
+          idempotency_key?: string | null
+          impact_realized?: number | null
+          outcome?: string | null
+          outcome_details?: Json | null
+          target_po_id?: string | null
+          target_supplier_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cfo_action_log_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cfo_action_log_target_po_id_fkey"
+            columns: ["target_po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cfo_alert_state: {
+        Row: {
+          alert_key: string
+          alert_type: string
+          company_id: string
+          cooldown_minutes: number
+          created_at: string
+          id: string
+          last_triggered_at: string
+          snoozed_by: string | null
+          snoozed_until: string | null
+          trigger_count: number
+        }
+        Insert: {
+          alert_key: string
+          alert_type: string
+          company_id: string
+          cooldown_minutes?: number
+          created_at?: string
+          id?: string
+          last_triggered_at?: string
+          snoozed_by?: string | null
+          snoozed_until?: string | null
+          trigger_count?: number
+        }
+        Update: {
+          alert_key?: string
+          alert_type?: string
+          company_id?: string
+          cooldown_minutes?: number
+          created_at?: string
+          id?: string
+          last_triggered_at?: string
+          snoozed_by?: string | null
+          snoozed_until?: string | null
+          trigger_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cfo_alert_state_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contract_audit_logs: {
         Row: {
           action: string
@@ -9665,6 +9778,47 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_priority_profiles: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          priority: string
+          rationale: string | null
+          supplier_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          priority?: string
+          rationale?: string | null
+          supplier_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          priority?: string
+          rationale?: string | null
+          supplier_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_priority_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_sale_items: {
         Row: {
           created_at: string
@@ -11571,6 +11725,15 @@ export type Database = {
         Args: { _action: string; _user_id: string }
         Returns: boolean
       }
+      check_alert_cooldown: {
+        Args: {
+          p_alert_key: string
+          p_alert_type: string
+          p_company_id: string
+          p_cooldown_minutes?: number
+        }
+        Returns: Json
+      }
       check_and_create_demand_alerts: { Args: never; Returns: number }
       check_and_create_forecast_alerts: { Args: never; Returns: number }
       check_and_increment_email_quota: {
@@ -11747,6 +11910,18 @@ export type Database = {
         Returns: string
       }
       escalate_stale_approvals: { Args: never; Returns: number }
+      execute_cfo_action: {
+        Args: {
+          p_action_type: string
+          p_company_id: string
+          p_confidence?: number
+          p_idempotency_key?: string
+          p_params?: Json
+          p_target_po_id: string
+          p_target_supplier_id?: string
+        }
+        Returns: Json
+      }
       export_lane_audit: { Args: { p_signal_id: string }; Returns: Json }
       generate_audit_hash: {
         Args: {
@@ -12258,6 +12433,14 @@ export type Database = {
       }
       set_role_pin: {
         Args: { _pin: string; _role: string; _user_id: string }
+        Returns: Json
+      }
+      snooze_cfo_alert: {
+        Args: {
+          p_alert_key: string
+          p_company_id: string
+          p_snooze_hours?: number
+        }
         Returns: Json
       }
       submit_rfq_with_session: {
