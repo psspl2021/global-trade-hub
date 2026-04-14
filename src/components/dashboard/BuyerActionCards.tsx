@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { useCurrencyFormatter } from '@/lib/currency';
 import { FileText, Gavel, Truck, Package, BarChart3, MapPin, ArrowRight, TrendingUp } from 'lucide-react';
 
 interface BuyerActionCardsProps {
@@ -37,6 +38,7 @@ export function BuyerActionCards({
   onOpenCRM,
   onTrackShipments,
 }: BuyerActionCardsProps) {
+  const { fmtCompact } = useCurrencyFormatter();
   const [metrics, setMetrics] = useState<LiveMetrics>({
     openRFQs: 0,
     totalQuotes: 0,
@@ -116,11 +118,7 @@ export function BuyerActionCards({
     return () => clearInterval(interval);
   }, [userId]);
 
-  const formatCurrency = (val: number) => {
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${(val / 1000).toFixed(1)}K`;
-    return `₹${Math.round(val)}`;
-  };
+  const formatVal = (val: number) => fmtCompact(val);
 
   const cards: {
     title: string;
@@ -161,13 +159,13 @@ export function BuyerActionCards({
           {metrics.liveSavings > 0 && (
             <div className="flex flex-col">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Live</span>
-              <span className="text-sm font-semibold text-emerald-600">{formatCurrency(metrics.liveSavings)} ↑</span>
+              <span className="text-sm font-semibold text-emerald-600">{formatVal(metrics.liveSavings)} ↑</span>
             </div>
           )}
           {metrics.realizedSavings > 0 && (
             <div className="flex flex-col">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Realized</span>
-              <span className="text-sm font-semibold text-primary">{formatCurrency(metrics.realizedSavings)} ✓</span>
+              <span className="text-sm font-semibold text-primary">{formatVal(metrics.realizedSavings)} ✓</span>
             </div>
           )}
         </div>

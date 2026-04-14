@@ -136,3 +136,143 @@ export function formatPlanPrice(currency: string): { price: string; note: string
     note: `Billed as ₹7,00,000 equivalent`,
   };
 }
+
+// ── Compact Formatting ────────────────────────────
+
+/**
+ * Compact currency format:
+ * - INR: ₹15L, ₹1.2Cr
+ * - Others: $1.5M, $150K
+ */
+export function formatCompact(val: number, currency: string = 'INR'): string {
+  const sym = getCurrencySymbol(currency);
+
+  if (currency === 'INR') {
+    if (val >= 10000000) return `${sym}${(val / 10000000).toFixed(1)}Cr`;
+    if (val >= 100000) return `${sym}${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `${sym}${(val / 1000).toFixed(0)}K`;
+    return `${sym}${Math.round(val).toLocaleString('en-IN')}`;
+  }
+
+  if (val >= 1000000) return `${sym}${(val / 1000000).toFixed(1)}M`;
+  if (val >= 1000) return `${sym}${(val / 1000).toFixed(0)}K`;
+  return formatCurrency(val, currency);
+}
+
+/**
+ * Compact number (no symbol)
+ */
+export function formatCompactNumber(val: number, currency: string = 'INR'): string {
+  if (currency === 'INR') {
+    if (val >= 10000000) return `${(val / 10000000).toFixed(1)}Cr`;
+    if (val >= 100000) return `${(val / 100000).toFixed(1)}L`;
+    return Math.round(val).toLocaleString('en-IN');
+  }
+  if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
+  if (val >= 1000) return `${(val / 1000).toFixed(0)}K`;
+  return Math.round(val).toLocaleString();
+}
+
+/**
+ * Format number with locale grouping (no currency symbol)
+ */
+export function formatNumber(val: number, currency: string = 'INR'): string {
+  const locale = currency === 'INR' ? 'en-IN' : 'en-US';
+  return Math.round(val).toLocaleString(locale);
+}
+
+/**
+ * Get locale for number formatting
+ */
+export function getCurrencyLocale(currency: string): string {
+  return currency === 'INR' ? 'en-IN' : 'en-US';
+}
+
+// ── React Hook ────────────────────────────
+
+import { useState, useEffect, useMemo } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+
+/**
+ * React hook: auto-resolves user's org currency and provides bound formatters.
+ * Resolution: buyer_companies.base_currency → region_type fallback → INR default.
+ */
+export function useCurrencyFormatter() {
+  const { user } = useAuth();
+  const [currency, setCurrency] = useState<string>('INR');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchCurrency = async () => {
+      try {
+        // Try company base currency first
+        const { data: membership } = await supabase
+          .from('buyer_company_members')
+          .select('company_id')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .limit(1)
+          .single();
+
+        if (membership?.company_id) {
+          const { data: company } = await supabase
+            .from('buyer_companies')
+            .select('base_currency, region_type')
+            .eq('id', membership.company_id)
+            .single();
+
+          if ((company as any)?.base_currency) {
+            setCurrency((company as any).base_currency);
+            setIsLoading(false);
+            return;
+          }
+          if ((company as any)?.region_type === 'global') {
+            setCurrency('USD');
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Profile fallback
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('region_type')
+          .eq('id', user.id)
+          .single();
+
+        if ((profile as any)?.region_type === 'global') {
+          setCurrency('USD');
+        }
+      } catch (err) {
+        console.error('[useCurrencyFormatter] Error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCurrency();
+  }, [user?.id]);
+
+  const symbol = getCurrencySymbol(currency);
+  const locale = getCurrencyLocale(currency);
+
+  const fmt = useMemo(() => (val: number) => formatCurrency(val, currency), [currency]);
+  const fmtCompact = useMemo(() => (val: number) => formatCompact(val, currency), [currency]);
+  const fmtNumber = useMemo(() => (val: number) => formatNumber(val, currency), [currency]);
+
+  return {
+    currency,
+    symbol,
+    locale,
+    isLoading,
+    fmt,
+    fmtCompact,
+    fmtNumber,
+  };
+}
