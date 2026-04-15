@@ -73,6 +73,7 @@ import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuc
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
+import { ManagementDashboard } from '@/components/governance/ManagementDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
