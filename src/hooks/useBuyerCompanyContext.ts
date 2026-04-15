@@ -76,9 +76,9 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Role-based permissions
+  // All buyer roles can access management views (secured by PIN verification)
   const canSelectPurchaser = [...MANAGEMENT_ROLES, ...HR_ROLES, ...PURCHASER_ROLES].includes(role);
-  const canViewManagement = [...MANAGEMENT_ROLES, ...HR_ROLES].includes(role);
+  const canViewManagement = canSelectPurchaser; // Any buyer role can access management views
   const isManagementMode = managementView !== null;
   const isReadOnly = canViewManagement && isManagementMode;
 
