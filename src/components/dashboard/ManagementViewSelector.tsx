@@ -2,10 +2,6 @@
  * ============================================================
  * MANAGEMENT VIEW SELECTOR DROPDOWN (SECURED)
  * ============================================================
- * 
- * Allows management roles to switch between analytics views.
- * Shows contextual status: Unlocked / Setup Required / Locked
- * based on role assignment and PIN configuration state.
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -22,6 +18,8 @@ import { Badge } from '@/components/ui/badge';
 import { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { RoleVerificationModal } from './RoleVerificationModal';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ManagementViewSelectorProps {
   selectedView: ManagementViewType;
@@ -31,10 +29,10 @@ interface ManagementViewSelectorProps {
 }
 
 const MANAGEMENT_VIEWS = [
-  { value: 'cfo' as ManagementViewType, label: 'CFO View', description: 'Financial analytics, ROI & savings', icon: TrendingUp },
-  { value: 'ceo' as ManagementViewType, label: 'CEO View', description: 'Executive summary & KPIs', icon: Briefcase },
-  { value: 'hr' as ManagementViewType, label: 'HR / Management View', description: 'Team performance & incentives', icon: Users },
-  { value: 'manager' as ManagementViewType, label: 'Manager View', description: 'Operational oversight', icon: BarChart3 },
+  { value: 'cfo' as ManagementViewType, label: 'CFO View', description: 'Financial analytics, ROI & savings', icon: TrendingUp, dbRole: 'buyer_cfo' },
+  { value: 'ceo' as ManagementViewType, label: 'CEO View', description: 'Executive summary & KPIs', icon: Briefcase, dbRole: 'buyer_ceo' },
+  { value: 'hr' as ManagementViewType, label: 'HR / Management View', description: 'Team performance & incentives', icon: Users, dbRole: 'buyer_hr' },
+  { value: 'manager' as ManagementViewType, label: 'Manager View', description: 'Operational oversight', icon: BarChart3, dbRole: 'buyer_manager' },
 ];
 
 export function ManagementViewSelector({
@@ -43,10 +41,28 @@ export function ManagementViewSelector({
   className = '',
   isLocked = false,
 }: ManagementViewSelectorProps) {
+  const { user } = useAuth();
   const { isRoleVerified, requiresVerification, clearVerification, hasPinConfigured } = useRoleSecurity();
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [pinStates, setPinStates] = useState<Record<string, boolean | null>>({});
+  const [assignedRoles, setAssignedRoles] = useState<Set<string>>(new Set());
+
+  // Fetch user's assigned roles from buyer_company_members
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchRoles = async () => {
+      const { data } = await supabase
+        .from('buyer_company_members')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      if (data) {
+        setAssignedRoles(new Set(data.map(d => d.role)));
+      }
+    };
+    fetchRoles();
+  }, [user?.id]);
 
   // Check PIN states for all management views on mount
   useEffect(() => {
@@ -65,13 +81,30 @@ export function ManagementViewSelector({
   const selectedOption = MANAGEMENT_VIEWS.find(v => v.value === selectedView);
   const isCurrentViewVerified = selectedView ? isRoleVerified(selectedView) : false;
 
+  // Correct 3-tier status logic:
+  // 1. No role assigned → locked (user can't access this view at all)
+  // 2. Role assigned but no PIN → setup_required (first-time setup)
+  // 3. Role assigned + PIN exists but not verified this session → locked (needs PIN)
+  // 4. Role assigned + PIN verified → unlocked
   const getViewStatus = useCallback((viewValue: ManagementViewType): 'unlocked' | 'setup_required' | 'locked' => {
     if (!viewValue) return 'locked';
+    
+    const view = MANAGEMENT_VIEWS.find(v => v.value === viewValue);
+    const hasRole = view ? assignedRoles.has(view.dbRole) : false;
+    
+    // If user doesn't have this role assigned, it's locked
+    if (!hasRole) return 'locked';
+    
+    // Role assigned — check if verified this session
     if (isRoleVerified(viewValue)) return 'unlocked';
+    
+    // Role assigned but PIN not configured yet → setup required
     const hasPinState = pinStates[viewValue];
     if (hasPinState === false) return 'setup_required';
+    
+    // PIN exists but not verified → locked (session-level)
     return 'locked';
-  }, [isRoleVerified, pinStates]);
+  }, [isRoleVerified, pinStates, assignedRoles]);
 
   const handleViewChange = (value: string) => {
     if (value === 'none') {

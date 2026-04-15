@@ -144,11 +144,11 @@ serve(async (req) => {
          </p>`;
 
     const recipientName = fullName || existingProfile?.contact_person || '';
-    const dashboardLink = `https://procuresaathi.lovable.app/dashboard`;
-    // NEW: tokenized invite link instead of generic signup
+    const dashboardLink = `https://www.procuresaathi.com/dashboard`;
+    // Tokenized invite link — NEVER fall back to /signup
     const inviteLink = inviteId 
-      ? `https://procuresaathi.lovable.app/invite/${inviteId}`
-      : `https://procuresaathi.lovable.app/signup`;
+      ? `https://www.procuresaathi.com/invite/${inviteId}`
+      : `https://www.procuresaathi.com/login`;
 
     let htmlContent: string;
     let subject: string;
