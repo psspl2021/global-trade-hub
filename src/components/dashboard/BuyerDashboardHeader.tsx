@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
 import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
+import { useSharedBuyerCompanyContext } from '@/contexts/BuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
