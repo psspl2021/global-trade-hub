@@ -48,27 +48,6 @@ export function ManagementViewSelector({
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [pinStates, setPinStates] = useState<Record<string, boolean | null>>({});
-  const [assignedRoles, setAssignedRoles] = useState<Set<string>>(new Set());
-
-  // Fetch user's assigned roles from buyer_company_members
-  useEffect(() => {
-    if (!user?.id) return;
-    const fetchRoles = async () => {
-      let query = supabase
-        .from('buyer_company_members')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('is_active', true);
-      if (activeCompanyId) {
-        query = query.eq('company_id', activeCompanyId);
-      }
-      const { data } = await query;
-      if (data) {
-        setAssignedRoles(new Set(data.map(d => d.role)));
-      }
-    };
-    fetchRoles();
-  }, [user?.id, activeCompanyId]);
 
   // Check PIN states for all management views on mount
   useEffect(() => {
