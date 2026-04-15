@@ -40,12 +40,31 @@ serve(async (req) => {
       ? categories.map((c: string) => `<li style="padding:2px 0;">${c}</li>`).join('')
       : '';
 
-    // Check if user already exists
-    const { data: existingProfile } = await supabaseAdmin
+    // Check if user already exists — try profiles.email first, then auth.users
+    const normalizedEmail = email.trim().toLowerCase();
+    let existingProfile: { id: string; contact_person: string | null; email: string | null } | null = null;
+
+    const { data: profileByEmail } = await supabaseAdmin
       .from('profiles')
       .select('id, contact_person, email')
-      .eq('email', email.trim().toLowerCase())
+      .eq('email', normalizedEmail)
       .maybeSingle();
+
+    if (profileByEmail) {
+      existingProfile = profileByEmail;
+    } else {
+      // Fallback: check auth.users (profiles.email may be null)
+      const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
+      const authUser = users?.find((u: any) => u.email?.toLowerCase() === normalizedEmail);
+      if (authUser) {
+        const { data: profileById } = await supabaseAdmin
+          .from('profiles')
+          .select('id, contact_person, email')
+          .eq('id', authUser.id)
+          .maybeSingle();
+        existingProfile = profileById || { id: authUser.id, contact_person: null, email: null };
+      }
+    }
 
     let userAlreadyExists = false;
     let alreadyMember = false;
