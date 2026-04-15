@@ -272,56 +272,29 @@ const Dashboard = () => {
   ];
   const isBuyerRole = role ? BUYER_DASHBOARD_ROLES.includes(role) : false;
 
+  if (!isBuyerRole) {
+    return <DashboardNonBuyer 
+      user={user} signOut={signOut} navigate={navigate} role={role}
+      showProfileSettings={showProfileSettings} setShowProfileSettings={setShowProfileSettings}
+      showForwardRFQ={showForwardRFQ} setShowForwardRFQ={setShowForwardRFQ}
+      showReverseAuction={showReverseAuction} setShowReverseAuction={setShowReverseAuction}
+      showSupplierForwardBids={showSupplierForwardBids} setShowSupplierForwardBids={setShowSupplierForwardBids}
+      showSupplierReverseBids={showSupplierReverseBids} setShowSupplierReverseBids={setShowSupplierReverseBids}
+      showSupplierSubscription={showSupplierSubscription} setShowSupplierSubscription={setShowSupplierSubscription}
+      showSupplierReferral={showSupplierReferral} setShowSupplierReferral={setShowSupplierReferral}
+      showSupplierAIPerformance={showSupplierAIPerformance} setShowSupplierAIPerformance={setShowSupplierAIPerformance}
+      subscription={subscription} fetchSubscription={fetchSubscription}
+      logisticsSubscription={logisticsSubscription} logisticsAssets={logisticsAssets}
+      partnerVerification={partnerVerification}
+      {...restProps}
+    />;
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Profile Completion Modal - blocks until mandatory fields are filled */}
-      <ProfileCompletionModal userId={user?.id} onComplete={() => setProfileComplete(true)} />
-      
-      {/* Buyer Dashboard with shared context provider */}
-      {isBuyerRole && (
-        <BuyerCompanyProvider>
-          <BuyerDashboardHeader onOpenSettings={() => setShowProfileSettings(true)} />
-          <BuyerDashboardContent
-            user={user}
-            role={role}
-            navigate={navigate}
-            showForwardRFQ={showForwardRFQ}
-            setShowForwardRFQ={setShowForwardRFQ}
-            showReverseAuction={showReverseAuction}
-            setShowReverseAuction={setShowReverseAuction}
-            showBuyerReferral={showBuyerReferral}
-            setShowBuyerReferral={setShowBuyerReferral}
-            showBookTransport={showBookTransport}
-            setShowBookTransport={setShowBookTransport}
-            showFinancials={showFinancials}
-            setShowFinancials={setShowFinancials}
-            showRequirementForm={showRequirementForm}
-            setShowRequirementForm={setShowRequirementForm}
-            showLiveStock={showLiveStock}
-            setShowLiveStock={setShowLiveStock}
-            showStock={showStock}
-            setShowStock={setShowStock}
-            showCRM={showCRM}
-            setShowCRM={setShowCRM}
-            showPlatformInvoices={showPlatformInvoices}
-            setShowPlatformInvoices={setShowPlatformInvoices}
-            showLogisticsRequirementForm={showLogisticsRequirementForm}
-            setShowLogisticsRequirementForm={setShowLogisticsRequirementForm}
-            showCustomerShipmentTracking={showCustomerShipmentTracking}
-            setShowCustomerShipmentTracking={setShowCustomerShipmentTracking}
-            refreshKey={refreshKey}
-            setRefreshKey={setRefreshKey}
-            aiGeneratedRFQ={aiGeneratedRFQ}
-            setAIGeneratedRFQ={setAIGeneratedRFQ}
-            showPostRFQInventory={showPostRFQInventory}
-            setShowPostRFQInventory={setShowPostRFQInventory}
-            lastRFQData={lastRFQData}
-            setLastRFQData={setLastRFQData}
-            logisticsRequirementsKey={logisticsRequirementsKey}
-            setLogisticsRequirementsKey={setLogisticsRequirementsKey}
-          />
-        </BuyerCompanyProvider>
-      )}
+    <BuyerCompanyProvider>
+      <DashboardInner />
+    </BuyerCompanyProvider>
+  );
       
       {/* Standard Header for non-buyer roles */}
       {!isBuyerRole && (
