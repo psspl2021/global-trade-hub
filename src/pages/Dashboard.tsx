@@ -341,52 +341,64 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-4 sm:py-8">
-        <div className="mb-4 sm:mb-8">
-          <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
-            Welcome back, {user?.user_metadata?.contact_person || 'User'}!
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {user?.user_metadata?.company_name} • {role?.toUpperCase()}
-          </p>
-        </div>
+        {/* Welcome + context — adapts to management view */}
+        {isBuyerRole && activeManagementView ? (
+          <div className="mb-6">
+            <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
+              <span>Dashboard</span>
+              <span className="text-muted-foreground/40">›</span>
+              <span className="font-medium text-foreground/80">
+                {activeManagementView === 'cfo' ? 'CFO View' :
+                 activeManagementView === 'ceo' ? 'CEO View' :
+                 activeManagementView === 'hr' ? 'HR View' :
+                 'Manager View'}
+              </span>
+            </p>
+            <h1 className="text-xl sm:text-2xl font-bold mb-0.5">
+              {activeManagementView === 'cfo' ? 'Financial Overview' :
+               activeManagementView === 'ceo' ? 'Executive Summary' :
+               activeManagementView === 'hr' ? 'Team & HR Insights' :
+               'Operations Overview'}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {activeManagementView === 'cfo' ? 'Payables, savings verification & financial analytics' :
+               activeManagementView === 'ceo' ? 'Company KPIs, performance & strategic insights' :
+               activeManagementView === 'hr' ? 'Team performance, incentive tracking & HR metrics' :
+               'Procurement execution, team activity & operational monitoring'}
+            </p>
+          </div>
+        ) : (
+          <div className="mb-4 sm:mb-8">
+            <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
+              Welcome back, {user?.user_metadata?.contact_person || 'User'}!
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {user?.user_metadata?.company_name} • {role?.toUpperCase()}
+            </p>
+          </div>
+        )}
+
+        {/* Non-buyer welcome header */}
+        {!isBuyerRole && (
+          <div className="mb-4 sm:mb-8">
+            <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
+              Welcome back, {user?.user_metadata?.contact_person || 'User'}!
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {user?.user_metadata?.company_name} • {role?.toUpperCase()}
+            </p>
+          </div>
+        )}
 
         {/* Admin section removed - admin roles redirect to /admin route */}
 
-        {/* Buyer roles: buyer, buyer_purchaser, purchaser + management roles */}
+        {/* Management View content — clean, no duplicate headers */}
         {isBuyerRole && activeManagementView && (
-          <div className="space-y-4 sm:space-y-6">
-            {/* Management View Header */}
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-md">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-foreground">
-                  {activeManagementView === 'cfo' ? 'CFO Financial Dashboard' :
-                   activeManagementView === 'ceo' ? 'CEO Executive Dashboard' :
-                   activeManagementView === 'hr' ? 'HR & Management Dashboard' :
-                   'Manager Operations Dashboard'}
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  {activeManagementView === 'cfo' ? 'Financial analytics, savings verification & ROI tracking' :
-                   activeManagementView === 'ceo' ? 'Executive KPIs, company performance & strategic insights' :
-                   activeManagementView === 'hr' ? 'Team performance, incentive tracking & HR metrics' :
-                   'Operational oversight, team execution & procurement monitoring'}
-                </p>
-              </div>
-            </div>
-
-            {/* Render the appropriate management dashboard */}
+          <div className="space-y-6">
             {activeManagementView === 'cfo' && <CFOFinancialDashboard />}
-            {activeManagementView === 'ceo' && (
-              <ManagementDashboard />
-            )}
-            {activeManagementView === 'hr' && (
-              <ManagementDashboard />
-            )}
-            {activeManagementView === 'manager' && (
-              <ManagementDashboard />
-            )}
+            {activeManagementView === 'ceo' && <ManagementDashboard />}
+            {activeManagementView === 'hr' && <ManagementDashboard />}
+            {activeManagementView === 'manager' && <ManagementDashboard />}
           </div>
         )}
 
