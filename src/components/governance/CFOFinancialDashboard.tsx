@@ -217,10 +217,10 @@ export function CFOFinancialDashboard() {
 
   if (loading) {
     return (
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-card border-border">
         <CardContent className="py-12 text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-emerald-400" />
-          <p className="text-slate-400">Loading financial intelligence...</p>
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-primary" />
+          <p className="text-muted-foreground">Loading financial intelligence...</p>
         </CardContent>
       </Card>
     );
@@ -238,17 +238,17 @@ export function CFOFinancialDashboard() {
       {isMultiCurrency && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-sky-400" />
-            <span className="text-sm text-slate-400">
+            <Globe className="w-4 h-4 text-primary" />
+            <span className="text-sm text-muted-foreground">
               {currencyBreakdown.length} currencies active — totals normalized to {_orgBaseCurrency} (base currency)
             </span>
           </div>
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="w-auto">
-            <TabsList className="bg-slate-700 h-8">
-              <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+            <TabsList className="bg-muted h-8">
+              <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">
                 Normalized
               </TabsTrigger>
-              <TabsTrigger value="by-currency" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+              <TabsTrigger value="by-currency" className="text-xs h-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">
                 <Globe className="w-3 h-3 mr-1" /> By Currency
               </TabsTrigger>
             </TabsList>
@@ -258,54 +258,54 @@ export function CFOFinancialDashboard() {
 
       {/* Top-line Decision Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Payable (Open)</p>
-              <Wallet className="w-5 h-5 text-amber-400" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Payable (Open)</p>
+              <Wallet className="w-5 h-5 text-amber-500" />
             </div>
-            <p className="text-2xl font-bold text-amber-300">{formatBase(payables?.totalPayable || 0)}</p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-2xl font-bold text-foreground">{formatBase(payables?.totalPayable || 0)}</p>
+            <p className="text-xs text-muted-foreground mt-1">
               {isMultiCurrency ? `${_orgBaseCurrency}-normalized across all currencies` : 'Across all active POs'}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Due in 7 Days</p>
-              <Clock className="w-5 h-5 text-red-400" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Due in 7 Days</p>
+              <Clock className="w-5 h-5 text-red-500" />
             </div>
-            <p className="text-2xl font-bold text-red-300">{formatBase(payables?.payableNext7Days || 0)}</p>
-            <p className="text-xs text-slate-500 mt-1">Immediate action required</p>
+            <p className="text-2xl font-bold text-destructive">{formatBase(payables?.payableNext7Days || 0)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Immediate action required</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Overdue</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Overdue</p>
               <AlertTriangle className="w-5 h-5 text-destructive" />
             </div>
             <p className="text-2xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
             <Badge variant="outline" className={cn(
               "mt-1 text-xs",
-              overdueRatio > 20 ? "border-destructive text-destructive" : "border-slate-600 text-slate-400"
+              overdueRatio > 20 ? "border-destructive text-destructive" : "border-muted text-muted-foreground"
             )}>
               {overdueRatio.toFixed(0)}% of payables
             </Badge>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">30-Day Burn</p>
-              <TrendingDown className="w-5 h-5 text-sky-400" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">30-Day Burn</p>
+              <TrendingDown className="w-5 h-5 text-primary" />
             </div>
-            <p className="text-2xl font-bold text-sky-300">{formatBase(cashBurn?.monthlyBurn || 0)}</p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-2xl font-bold text-primary">{formatBase(cashBurn?.monthlyBurn || 0)}</p>
+            <p className="text-xs text-muted-foreground mt-1">
               ~{formatCurrency(cashBurn?.dailyBurn || 0, _orgBaseCurrency)}/day
             </p>
           </CardContent>
@@ -314,31 +314,31 @@ export function CFOFinancialDashboard() {
 
       {/* Currency Breakdown (shown in by-currency mode or when multi-currency) */}
       {isMultiCurrency && viewMode === 'by-currency' && (
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <Globe className="w-5 h-5 text-sky-400" />
+            <CardTitle className="text-foreground text-lg flex items-center gap-2">
+              <Globe className="w-5 h-5 text-primary" />
               Currency-wise Exposure
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {currencyBreakdown.map(cb => (
-                <div key={cb.currency} className="p-4 rounded-lg bg-slate-700/50 border border-slate-600">
+                <div key={cb.currency} className="p-4 rounded-lg bg-muted/50 border border-border">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge className="bg-slate-600 text-white text-sm font-mono">
+                    <Badge className="bg-secondary text-secondary-foreground text-sm font-mono">
                       {CURRENCY_SYMBOLS[cb.currency] || ''} {cb.currency}
                     </Badge>
-                    <span className="text-xs text-slate-400">{cb.poCount} POs</span>
+                    <span className="text-xs text-muted-foreground">{cb.poCount} POs</span>
                   </div>
                   <div className="space-y-1">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Open</span>
-                      <span className="text-amber-300 font-semibold">{formatCompact(cb.payable, cb.currency)}</span>
+                      <span className="text-muted-foreground">Open</span>
+                      <span className="text-amber-600 font-semibold dark:text-amber-400">{formatCompact(cb.payable, cb.currency)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Paid</span>
-                      <span className="text-emerald-300 font-semibold">{formatCompact(cb.paid, cb.currency)}</span>
+                      <span className="text-muted-foreground">Paid</span>
+                      <span className="text-emerald-600 font-semibold dark:text-emerald-400">{formatCompact(cb.paid, cb.currency)}</span>
                     </div>
                   </div>
                 </div>
@@ -350,13 +350,13 @@ export function CFOFinancialDashboard() {
 
       {/* Cash Burn vs Budget Outlook */}
       {cashBurn && (
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <Banknote className="w-5 h-5 text-emerald-400" />
+            <CardTitle className="text-foreground text-lg flex items-center gap-2">
+              <Banknote className="w-5 h-5 text-emerald-500" />
               Cash Burn vs Budget Outlook
               {isMultiCurrency && (
-                <Badge variant="outline" className="text-xs border-slate-600 text-slate-400 ml-2">
+                <Badge variant="outline" className="text-xs border-muted text-muted-foreground ml-2">
                   {_orgBaseCurrency} Normalized
                 </Badge>
               )}
@@ -365,34 +365,34 @@ export function CFOFinancialDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <p className="text-sm text-slate-400 mb-1">Confirmed Outflow (30d)</p>
-                <p className="text-xl font-semibold text-emerald-300">{formatBase(cashBurn.confirmedPayments30d)}</p>
-                <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+                <p className="text-sm text-muted-foreground mb-1">Confirmed Outflow (30d)</p>
+                <p className="text-xl font-semibold text-emerald-600 dark:text-emerald-400">{formatBase(cashBurn.confirmedPayments30d)}</p>
+                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                   <ArrowDownRight className="w-3 h-3" /> Already paid out
                 </div>
               </div>
               <div>
-                <p className="text-sm text-slate-400 mb-1">Pending Payables</p>
-                <p className="text-xl font-semibold text-amber-300">{formatBase(cashBurn.pendingPayables)}</p>
-                <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+                <p className="text-sm text-muted-foreground mb-1">Pending Payables</p>
+                <p className="text-xl font-semibold text-amber-600 dark:text-amber-400">{formatBase(cashBurn.pendingPayables)}</p>
+                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                   <ArrowUpRight className="w-3 h-3" /> Upcoming outflow
                 </div>
               </div>
               <div>
-                <p className="text-sm text-slate-400 mb-1">Weekly Burn Rate</p>
-                <p className="text-xl font-semibold text-sky-300">{formatBase(cashBurn.weeklyBurn)}</p>
-                <p className="text-xs text-slate-500 mt-1">Based on last 30 days</p>
+                <p className="text-sm text-muted-foreground mb-1">Weekly Burn Rate</p>
+                <p className="text-xl font-semibold text-primary">{formatBase(cashBurn.weeklyBurn)}</p>
+                <p className="text-xs text-muted-foreground mt-1">Based on last 30 days</p>
               </div>
             </div>
             {cashBurn.pendingPayables > 0 && (
               <div className="mt-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                   <span>Paid vs Payable</span>
                   <span>{((cashBurn.confirmedPayments30d / (cashBurn.confirmedPayments30d + cashBurn.pendingPayables)) * 100).toFixed(0)}%</span>
                 </div>
                 <Progress
                   value={(cashBurn.confirmedPayments30d / (cashBurn.confirmedPayments30d + cashBurn.pendingPayables)) * 100}
-                  className="h-2 bg-slate-700"
+                  className="h-2 bg-muted"
                 />
               </div>
             )}
@@ -403,19 +403,19 @@ export function CFOFinancialDashboard() {
       {/* Two-column: Vendor Exposure + Delayed Payments */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top 5 Vendor Exposure */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-purple-400" />
+            <CardTitle className="text-foreground text-lg flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-purple-500" />
               Top 5 Vendor Exposure
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               Highest open payables by supplier ({_orgBaseCurrency} normalized)
             </CardDescription>
           </CardHeader>
           <CardContent>
             {vendors.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">No vendor exposure data</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No vendor exposure data</p>
             ) : (
               <div className="space-y-3">
                 {vendors.map((v, i) => {
@@ -424,19 +424,19 @@ export function CFOFinancialDashboard() {
                     <div key={v.supplierId}>
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="border-slate-600 text-slate-300 text-xs">
+                          <Badge variant="outline" className="border-muted text-muted-foreground text-xs">
                             #{i + 1}
                           </Badge>
-                          <span className="text-sm text-slate-300 font-medium">{v.supplierName}</span>
-                          <span className="text-xs text-slate-500">({v.poCount} POs)</span>
+                          <span className="text-sm text-foreground font-medium">{v.supplierName}</span>
+                          <span className="text-xs text-muted-foreground">({v.poCount} POs)</span>
                         </div>
-                        <span className="text-sm font-semibold text-amber-300">
+                        <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                           {formatBase(v.openPayables)}
                         </span>
                       </div>
                       <Progress
                         value={(v.openPayables / maxExposure) * 100}
-                        className="h-1.5 bg-slate-700"
+                        className="h-1.5 bg-muted"
                       />
                     </div>
                   );
@@ -447,34 +447,34 @@ export function CFOFinancialDashboard() {
         </Card>
 
         {/* Delayed Payments Risk */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-red-400" />
+            <CardTitle className="text-foreground text-lg flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-red-500" />
               Delayed Payments Risk
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               POs past expected delivery with unpaid balances
             </CardDescription>
           </CardHeader>
           <CardContent>
             {delayed.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">No overdue payments — all clear ✓</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No overdue payments — all clear ✓</p>
             ) : (
               <div className="space-y-2">
                 {delayed.map(d => (
-                  <div key={d.poId} className="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0">
+                  <div key={d.poId} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-slate-200">{d.poNumber}</p>
+                        <p className="text-sm font-medium text-foreground">{d.poNumber}</p>
                         {d.regionType === 'global' && (
-                          <Globe className="w-3 h-3 text-sky-400" />
+                          <Globe className="w-3 h-3 text-primary" />
                         )}
                       </div>
-                      <p className="text-xs text-slate-500">{d.supplierName}</p>
+                      <p className="text-xs text-muted-foreground">{d.supplierName}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-red-300">
+                      <p className="text-sm font-semibold text-red-600 dark:text-red-400">
                         {formatCompact(d.amount, d.currency)}
                       </p>
                       <Badge
@@ -482,8 +482,8 @@ export function CFOFinancialDashboard() {
                         className={cn(
                           "text-xs",
                           d.daysOverdue > 14 ? "border-destructive text-destructive" :
-                          d.daysOverdue > 7 ? "border-amber-500 text-amber-400" :
-                          "border-slate-600 text-slate-400"
+                          d.daysOverdue > 7 ? "border-amber-500 text-amber-500" :
+                          "border-muted text-muted-foreground"
                         )}
                       >
                         {d.daysOverdue}d overdue
@@ -498,16 +498,16 @@ export function CFOFinancialDashboard() {
       </div>
 
       {/* Decision Summary */}
-      <Card className="bg-gradient-to-r from-slate-800/80 to-slate-700/50 border-slate-600">
+      <Card className="bg-gradient-to-r from-muted/80 to-muted/50 border-border">
         <CardContent className="py-4">
           <div className="flex items-center gap-3">
-            <IndianRupee className="w-5 h-5 text-emerald-400 shrink-0" />
+            <IndianRupee className="w-5 h-5 text-emerald-500 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-slate-200">
-                Total Procurement Exposure: <span className="text-emerald-300">{formatBase(totalExposure)}</span>
-                {isMultiCurrency && <span className="text-slate-500 text-xs ml-1">({_orgBaseCurrency} base)</span>}
+              <p className="text-sm font-medium text-foreground">
+                Total Procurement Exposure: <span className="text-emerald-600 dark:text-emerald-400">{formatBase(totalExposure)}</span>
+                {isMultiCurrency && <span className="text-muted-foreground text-xs ml-1">({_orgBaseCurrency} base)</span>}
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 Paid: {formatBase(payables?.totalPaid || 0)} • Open: {formatBase(payables?.totalPayable || 0)} •
                 Overdue: {formatBase(payables?.totalOverdue || 0)}
                 {isMultiCurrency && ` • ${currencyBreakdown.length} currencies`}

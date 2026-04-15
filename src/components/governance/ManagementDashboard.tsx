@@ -97,7 +97,7 @@ export function ManagementDashboard() {
 
       {/* Role-based Notice */}
       {!canEditIncentives && (
-        <Card className="bg-muted/30 border-dashed">
+        <Card className="bg-muted/30 border-border border-dashed">
           <CardContent className="py-3">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-muted-foreground" />
