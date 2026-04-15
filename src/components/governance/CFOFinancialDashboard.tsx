@@ -258,54 +258,54 @@ export function CFOFinancialDashboard() {
 
       {/* Top-line Decision Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Payable (Open)</p>
-              <Wallet className="w-5 h-5 text-amber-400" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Payable (Open)</p>
+              <Wallet className="w-5 h-5 text-amber-500" />
             </div>
-            <p className="text-2xl font-bold text-amber-300">{formatBase(payables?.totalPayable || 0)}</p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-2xl font-bold text-foreground">{formatBase(payables?.totalPayable || 0)}</p>
+            <p className="text-xs text-muted-foreground mt-1">
               {isMultiCurrency ? `${_orgBaseCurrency}-normalized across all currencies` : 'Across all active POs'}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Due in 7 Days</p>
-              <Clock className="w-5 h-5 text-red-400" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Due in 7 Days</p>
+              <Clock className="w-5 h-5 text-red-500" />
             </div>
-            <p className="text-2xl font-bold text-red-300">{formatBase(payables?.payableNext7Days || 0)}</p>
-            <p className="text-xs text-slate-500 mt-1">Immediate action required</p>
+            <p className="text-2xl font-bold text-destructive">{formatBase(payables?.payableNext7Days || 0)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Immediate action required</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Overdue</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Overdue</p>
               <AlertTriangle className="w-5 h-5 text-destructive" />
             </div>
             <p className="text-2xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
             <Badge variant="outline" className={cn(
               "mt-1 text-xs",
-              overdueRatio > 20 ? "border-destructive text-destructive" : "border-slate-600 text-slate-400"
+              overdueRatio > 20 ? "border-destructive text-destructive" : "border-muted text-muted-foreground"
             )}>
               {overdueRatio.toFixed(0)}% of payables
             </Badge>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">30-Day Burn</p>
-              <TrendingDown className="w-5 h-5 text-sky-400" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">30-Day Burn</p>
+              <TrendingDown className="w-5 h-5 text-primary" />
             </div>
-            <p className="text-2xl font-bold text-sky-300">{formatBase(cashBurn?.monthlyBurn || 0)}</p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-2xl font-bold text-primary">{formatBase(cashBurn?.monthlyBurn || 0)}</p>
+            <p className="text-xs text-muted-foreground mt-1">
               ~{formatCurrency(cashBurn?.dailyBurn || 0, _orgBaseCurrency)}/day
             </p>
           </CardContent>
