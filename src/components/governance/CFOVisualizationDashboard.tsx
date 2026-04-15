@@ -155,10 +155,10 @@ export function CFOVisualizationDashboard() {
 
   if (loading) {
     return (
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-card border-border">
         <CardContent className="py-12 text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-violet-400" />
-          <p className="text-slate-400">Loading financial intelligence...</p>
+          <p className="text-muted-foreground">Loading financial intelligence...</p>
         </CardContent>
       </Card>
     );
@@ -193,8 +193,8 @@ export function CFOVisualizationDashboard() {
           <BarChart3 className="w-5 h-5 text-indigo-400" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-white">Financial Intelligence</h3>
-          <p className="text-xs text-slate-400">
+          <h3 className="text-lg font-semibold text-foreground">Financial Intelligence</h3>
+          <p className="text-xs text-muted-foreground">
             {hasSnapshots ? `${snapshots.length}-day trend · ` : ''}
             Learning from {Object.keys(feedbackMap).length} action outcomes
           </p>
@@ -238,10 +238,10 @@ export function CFOVisualizationDashboard() {
       {hasSnapshots && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Runway Trend */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm">Runway Trend</CardTitle>
-              <CardDescription className="text-slate-400 text-xs">Days of cash remaining over time</CardDescription>
+              <CardTitle className="text-foreground text-sm">Runway Trend</CardTitle>
+              <CardDescription className="text-muted-foreground text-xs">Days of cash remaining over time</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={220}>
@@ -252,12 +252,12 @@ export function CFOVisualizationDashboard() {
                       <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                  <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                  <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8, fontSize: 12 }}
-                    labelStyle={{ color: '#94a3b8' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }}
+                    labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
                   />
                   <Area type="monotone" dataKey="runway" stroke="#34d399" fill="url(#runwayGrad)" strokeWidth={2} name="Runway (days)" />
                 </AreaChart>
@@ -266,22 +266,22 @@ export function CFOVisualizationDashboard() {
           </Card>
 
           {/* Burn Rate Trend */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm">Burn & Exposure</CardTitle>
-              <CardDescription className="text-slate-400 text-xs">Daily burn vs total exposure</CardDescription>
+              <CardTitle className="text-foreground text-sm">Burn & Exposure</CardTitle>
+              <CardDescription className="text-muted-foreground text-xs">Daily burn vs total exposure</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                  <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                  <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8, fontSize: 12 }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }}
                     formatter={(val: number) => fmtCompact(val, baseCurrency)}
                   />
-                  <Legend wrapperStyle={{ fontSize: 11, color: '#94a3b8' }} />
+                  <Legend wrapperStyle={{ fontSize: 11, color: 'hsl(var(--muted-foreground))' }} />
                   <Line type="monotone" dataKey="burn" stroke="#f59e0b" strokeWidth={2} dot={false} name="Daily Burn" />
                   <Line type="monotone" dataKey="overdue" stroke="#ef4444" strokeWidth={2} dot={false} name="Overdue" />
                 </LineChart>
@@ -293,13 +293,13 @@ export function CFOVisualizationDashboard() {
 
       {/* Action Effectiveness & Feedback Loop */}
       {actionLogs.length > 0 && (
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-base flex items-center gap-2">
+            <CardTitle className="text-foreground text-base flex items-center gap-2">
               <Brain className="w-5 h-5 text-violet-400" />
               Action History & Learning Loop
             </CardTitle>
-            <CardDescription className="text-slate-400 text-xs">
+            <CardDescription className="text-muted-foreground text-xs">
               Rate past actions to improve future recommendations
             </CardDescription>
           </CardHeader>
@@ -314,12 +314,12 @@ export function CFOVisualizationDashboard() {
                     "p-3 rounded-lg border",
                     hasFeedback
                       ? fb.accepted ? "bg-emerald-950/20 border-emerald-800/30" : "bg-red-950/20 border-red-800/30"
-                      : "bg-slate-900/50 border-slate-700/50"
+                      : "bg-muted/30 border-border/50"
                   )}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-slate-200">
+                          <span className="text-sm font-medium text-foreground">
                             {log.action_type.replace(/_/g, ' ')}
                           </span>
                           {log.outcome && (
@@ -333,12 +333,12 @@ export function CFOVisualizationDashboard() {
                             </Badge>
                           )}
                           {log.confidence_at_execution != null && (
-                            <Badge variant="outline" className="text-[10px] border-slate-600 text-slate-400">
+                            <Badge variant="outline" className="text-[10px] border-muted text-muted-foreground">
                               {Math.round(log.confidence_at_execution * 100)}% conf
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                           {new Date(log.created_at).toLocaleDateString()} ·
                           {log.target_supplier_id ? ` PS-${log.target_supplier_id.substring(0, 6).toUpperCase()}` : ' Global'}
                           {log.impact_realized ? ` · Impact: ${fmtCompact(log.impact_realized, baseCurrency)}` : ''}
@@ -360,7 +360,7 @@ export function CFOVisualizationDashboard() {
                                     "w-3 h-3",
                                     s <= (fb.effectiveness_score || 0) * 5
                                       ? "text-amber-400 fill-amber-400"
-                                      : "text-slate-600"
+                                      : "text-muted-foreground/60"
                                   )} />
                                 ))}
                               </div>
@@ -398,11 +398,11 @@ export function CFOVisualizationDashboard() {
 
       {/* Empty State */}
       {!hasSnapshots && actionLogs.length === 0 && (
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardContent className="py-10 text-center">
-            <BarChart3 className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-sm text-slate-400">Financial intelligence builds over time.</p>
-            <p className="text-xs text-slate-500 mt-1">Snapshots and action data will appear as the system operates.</p>
+            <BarChart3 className="w-10 h-10 text-muted-foreground/60 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">Financial intelligence builds over time.</p>
+            <p className="text-xs text-muted-foreground mt-1">Snapshots and action data will appear as the system operates.</p>
           </CardContent>
         </Card>
       )}
@@ -423,14 +423,14 @@ function KPICard({ label, value, delta, deltaLabel, positive, icon, alert: isAle
   return (
     <Card className={cn(
       "border",
-      isAlert ? "bg-red-950/20 border-red-800/30" : "bg-slate-800/50 border-slate-700"
+      isAlert ? "bg-red-950/20 border-red-800/30" : "bg-card border-border"
     )}>
       <CardContent className="py-3 px-4">
         <div className="flex items-center gap-2 mb-1">
-          <span className={cn("text-slate-400", isAlert && "text-red-400")}>{icon}</span>
-          <span className="text-xs text-slate-400">{label}</span>
+          <span className={cn("text-muted-foreground", isAlert && "text-red-400")}>{icon}</span>
+          <span className="text-xs text-muted-foreground">{label}</span>
         </div>
-        <p className={cn("text-xl font-bold", isAlert ? "text-red-300" : "text-white")}>{value}</p>
+        <p className={cn("text-xl font-bold", isAlert ? "text-red-600 dark:text-red-400" : "text-foreground")}>{value}</p>
         {deltaLabel && delta !== undefined && delta !== 0 && (
           <div className="flex items-center gap-1 mt-1">
             {positive

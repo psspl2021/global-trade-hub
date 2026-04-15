@@ -108,7 +108,7 @@ const formatCompactNum = (val: number, baseCurrency: string = 'INR') => {
 
 const priorityConfig: Record<string, { label: string; color: string; icon: typeof Shield }> = {
   critical: { label: 'Critical', color: 'text-red-400 border-red-600 bg-red-500/10', icon: ShieldAlert },
-  standard: { label: 'Standard', color: 'text-slate-400 border-slate-600 bg-slate-500/10', icon: Shield },
+  standard: { label: 'Standard', color: 'text-muted-foreground border-muted bg-secondary/50', icon: Shield },
   low: { label: 'Low', color: 'text-emerald-400 border-emerald-600 bg-emerald-500/10', icon: Shield },
 };
 
@@ -251,17 +251,17 @@ export function CFODecisionEngine() {
 
   if (loading) {
     return (
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-card border-border">
         <CardContent className="py-12 text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-emerald-400" />
-          <p className="text-slate-400">Loading decision intelligence...</p>
+          <p className="text-muted-foreground">Loading decision intelligence...</p>
         </CardContent>
       </Card>
     );
   }
 
   const runwayDays = runway?.runway_days;
-  const runwayColor = runwayDays == null ? 'slate' :
+  const runwayColor = runwayDays == null ? 'muted' :
     runwayDays < 14 ? 'red' :
     runwayDays < 30 ? 'amber' : 'emerald';
   const runwayLabel = runwayDays == null ? 'No active burn' : `${Math.round(runwayDays)} days`;
@@ -273,17 +273,17 @@ export function CFODecisionEngine() {
       <AlertDialog open={confirmDialog.open} onOpenChange={(open) => {
         if (!open) setConfirmDialog({ open: false, actionIndex: -1, action: null });
       }}>
-        <AlertDialogContent className="bg-slate-800 border-slate-700">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Confirm Execution</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-400">
+            <AlertDialogTitle className="text-foreground">Confirm Execution</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               {confirmDialog.action && (
                 <div className="space-y-2 mt-2">
-                  <p><strong className="text-slate-300">Action:</strong> {confirmDialog.action.action_type.replace(/_/g, ' ')}</p>
-                  <p><strong className="text-slate-300">Impact:</strong> {fmt(confirmDialog.action.impact_value || confirmDialog.action.details.amount || 0)}</p>
-                  <p><strong className="text-slate-300">Confidence:</strong> {Math.round((confirmDialog.action.confidence || 0) * 100)}%</p>
+                  <p><strong className="text-foreground">Action:</strong> {confirmDialog.action.action_type.replace(/_/g, ' ')}</p>
+                  <p><strong className="text-foreground">Impact:</strong> {fmt(confirmDialog.action.impact_value || confirmDialog.action.details.amount || 0)}</p>
+                  <p><strong className="text-foreground">Confidence:</strong> {Math.round((confirmDialog.action.confidence || 0) * 100)}%</p>
                   {confirmDialog.action.details.vendor_id && (
-                    <p><strong className="text-slate-300">Supplier:</strong> PS-{confirmDialog.action.details.vendor_id.substring(0, 6).toUpperCase()}</p>
+                    <p><strong className="text-foreground">Supplier:</strong> PS-{confirmDialog.action.details.vendor_id.substring(0, 6).toUpperCase()}</p>
                   )}
                   <p className="text-amber-400 text-xs mt-3">This action will be logged to the audit trail and cannot be undone.</p>
                 </div>
@@ -291,9 +291,9 @@ export function CFODecisionEngine() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-muted text-foreground border-muted hover:bg-muted/80">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-emerald-600 hover:bg-emerald-700 text-foreground"
               onClick={() => {
                 if (confirmDialog.action) {
                   handleExecuteAction(confirmDialog.actionIndex, confirmDialog.action);
@@ -318,8 +318,8 @@ export function CFODecisionEngine() {
             <Brain className="w-5 h-5 text-violet-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">Decision Engine</h3>
-            <p className="text-xs text-slate-400">Predictive cash intelligence — what to do next</p>
+            <h3 className="text-lg font-semibold text-foreground">Decision Engine</h3>
+            <p className="text-xs text-muted-foreground">Predictive cash intelligence — what to do next</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export function CFODecisionEngine() {
                   <div className="flex-1 min-w-0">
                     <p className={cn(
                       "text-sm font-medium",
-                      alert.severity === 'critical' ? "text-red-300" : "text-amber-300"
+                      alert.severity === 'critical' ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"
                     )}>
                       {formatAlertMessage(alert, baseCurrency)}
                     </p>
@@ -381,7 +381,7 @@ export function CFODecisionEngine() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-slate-500 hover:text-slate-300"
+                      className="h-6 w-6 text-muted-foreground hover:text-foreground"
                       onClick={() => handleSnoozeAlert(i, alert)}
                       disabled={snoozingAlert === i}
                     >
@@ -401,13 +401,13 @@ export function CFODecisionEngine() {
 
       {/* Cash Runway Projection */}
       {runway && (
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-base flex items-center gap-2">
+            <CardTitle className="text-foreground text-base flex items-center gap-2">
               <Flame className={cn("w-5 h-5", `text-${runwayColor}-400`)} />
               Cash Runway Projection
               {isGlobal && (
-                <Badge variant="outline" className="text-xs border-slate-600 text-slate-400 ml-2">
+                <Badge variant="outline" className="text-xs border-muted text-muted-foreground ml-2">
                   {baseCurrency} Normalized
                 </Badge>
               )}
@@ -416,39 +416,39 @@ export function CFODecisionEngine() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div>
-                <p className="text-xs text-slate-400 mb-1">Runway</p>
+                <p className="text-xs text-muted-foreground mb-1">Runway</p>
                 <p className={cn("text-2xl font-bold", `text-${runwayColor}-300`)}>{runwayLabel}</p>
-                <p className="text-xs text-slate-500">at current burn rate</p>
+                <p className="text-xs text-muted-foreground">at current burn rate</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400 mb-1">Daily Burn</p>
-                <p className="text-xl font-semibold text-sky-300">{fmt(runway.daily_burn)}</p>
-                <p className="text-xs text-slate-500">30-day average</p>
+                <p className="text-xs text-muted-foreground mb-1">Daily Burn</p>
+                <p className="text-xl font-semibold text-primary">{fmt(runway.daily_burn)}</p>
+                <p className="text-xs text-muted-foreground">30-day average</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400 mb-1">Open Payables</p>
-                <p className="text-xl font-semibold text-amber-300">{fmt(runway.pending_payable)}</p>
+                <p className="text-xs text-muted-foreground mb-1">Open Payables</p>
+                <p className="text-xl font-semibold text-amber-600 dark:text-amber-400">{fmt(runway.pending_payable)}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400 mb-1">7-Day Trend</p>
+                <p className="text-xs text-muted-foreground mb-1">7-Day Trend</p>
                 <div className="flex items-center gap-1">
-                  <p className="text-xl font-semibold text-slate-200">
+                  <p className="text-xl font-semibold text-foreground">
                     {runway.burn_ratio_7d_vs_avg > 0 ? `${runway.burn_ratio_7d_vs_avg}x` : '—'}
                   </p>
                   {runway.burn_ratio_7d_vs_avg > 1.5 && <TrendingDown className="w-4 h-4 text-red-400" />}
                 </div>
-                <p className="text-xs text-slate-500">vs 30-day avg</p>
+                <p className="text-xs text-muted-foreground">vs 30-day avg</p>
               </div>
             </div>
             {runway.pending_payable > 0 && runwayDays != null && (
               <div>
-                <div className="flex justify-between text-xs text-slate-400 mb-1">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>Burn progress</span>
                   <span>{Math.min(100, Math.round((1 - runwayDays / Math.max(runwayDays + 30, 60)) * 100))}%</span>
                 </div>
                 <Progress
                   value={Math.min(100, Math.max(5, (1 - runwayDays / Math.max(runwayDays + 30, 60)) * 100))}
-                  className={cn("h-2", runwayDays < 14 ? "bg-red-900/30" : "bg-slate-700")}
+                  className={cn("h-2", runwayDays < 14 ? "bg-red-900/30" : "bg-muted")}
                 />
               </div>
             )}
@@ -462,21 +462,21 @@ export function CFODecisionEngine() {
           <CardContent className="py-4 px-5">
             <div className="flex items-center gap-3 mb-3">
               <Sparkles className="w-5 h-5 text-violet-400" />
-              <p className="text-sm font-semibold text-violet-200">
+              <p className="text-sm font-semibold text-foreground">
                 Simulation: If all {simulation.actions_count} actions are followed
               </p>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <p className="text-xs text-slate-400 mb-1">Current Runway</p>
-                <p className="text-lg font-bold text-amber-300">
+                <p className="text-xs text-muted-foreground mb-1">Current Runway</p>
+                <p className="text-lg font-bold text-amber-600 dark:text-amber-400">
                   {simulation.current_runway_days != null ? `${Math.round(simulation.current_runway_days)}d` : 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-400 mb-1">Projected Runway</p>
+                <p className="text-xs text-muted-foreground mb-1">Projected Runway</p>
                 <div className="flex items-center gap-1">
-                  <p className="text-lg font-bold text-emerald-300">
+                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                     {simulation.projected_runway_days != null ? `${Math.round(simulation.projected_runway_days)}d` : 'N/A'}
                   </p>
                   {simulation.projected_runway_days != null && simulation.current_runway_days != null &&
@@ -486,8 +486,8 @@ export function CFODecisionEngine() {
                 </div>
               </div>
               <div>
-                <p className="text-xs text-slate-400 mb-1">Cash Freed</p>
-                <p className="text-lg font-bold text-sky-300">{fmt(simulation.freed_by_actions)}</p>
+                <p className="text-xs text-muted-foreground mb-1">Cash Freed</p>
+                <p className="text-lg font-bold text-primary">{fmt(simulation.freed_by_actions)}</p>
               </div>
             </div>
           </CardContent>
@@ -497,19 +497,19 @@ export function CFODecisionEngine() {
       {/* Two columns: Priority Vendors + Suggested Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Payment Prioritization */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-base flex items-center gap-2">
+            <CardTitle className="text-foreground text-base flex items-center gap-2">
               <Target className="w-5 h-5 text-orange-400" />
               Payment Priority Queue
             </CardTitle>
-            <CardDescription className="text-slate-400 text-xs">
+            <CardDescription className="text-muted-foreground text-xs">
               Normalized risk: overdue (50%) × exposure (40%) × dependency (10%)
             </CardDescription>
           </CardHeader>
           <CardContent>
             {vendors.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">No outstanding vendor payments</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No outstanding vendor payments</p>
             ) : (
               <div className="space-y-3">
                 {vendors.slice(0, 7).map((v, i) => {
@@ -524,20 +524,20 @@ export function CFODecisionEngine() {
                             "text-xs w-6 justify-center",
                             i === 0 ? "border-red-600 text-red-400" :
                             i < 3 ? "border-amber-600 text-amber-400" :
-                            "border-slate-600 text-slate-400"
+                            "border-muted text-muted-foreground"
                           )}>
                             {i + 1}
                           </Badge>
-                          <span className="text-sm text-slate-300 font-mono">
+                          <span className="text-sm text-foreground font-mono">
                             PS-{v.supplier_id.substring(0, 6).toUpperCase()}
                           </span>
                           <Badge variant="outline" className={cn("text-[10px] px-1 py-0", pCfg.color)}>
                             {pCfg.label}
                           </Badge>
-                          <span className="text-xs text-slate-500">({v.po_count} POs)</span>
+                          <span className="text-xs text-muted-foreground">({v.po_count} POs)</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-sm font-semibold text-amber-300">{fmt(v.total_exposure)}</span>
+                          <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{fmt(v.total_exposure)}</span>
                           {v.overdue_amount > 0 && (
                             <span className="text-xs text-red-400 ml-2">({v.max_days_overdue}d late)</span>
                           )}
@@ -545,7 +545,7 @@ export function CFODecisionEngine() {
                       </div>
                       <Progress
                         value={riskPct}
-                        className={cn("h-1", i === 0 ? "bg-red-900/20" : "bg-slate-700")}
+                        className={cn("h-1", i === 0 ? "bg-red-900/20" : "bg-muted")}
                       />
                     </div>
                   );
@@ -556,20 +556,20 @@ export function CFODecisionEngine() {
         </Card>
 
         {/* Suggested Actions (with Execute buttons) */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-base flex items-center gap-2">
+            <CardTitle className="text-foreground text-base flex items-center gap-2">
               <Zap className="w-5 h-5 text-emerald-400" />
               Suggested Actions
             </CardTitle>
-            <CardDescription className="text-slate-400 text-xs">
+            <CardDescription className="text-muted-foreground text-xs">
               AI-generated recommendations — click Execute to action
             </CardDescription>
           </CardHeader>
           <CardContent>
             {actions.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-sm text-slate-500">No actions needed — finances look healthy ✓</p>
+                <p className="text-sm text-muted-foreground">No actions needed — finances look healthy ✓</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -604,12 +604,12 @@ export function CFODecisionEngine() {
                           }
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-200">
+                          <p className="text-sm font-medium text-foreground">
                             {formatActionTitle(action, baseCurrency)}
                           </p>
-                          <p className="text-xs text-slate-400 mt-0.5">{action.details.reason}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{action.details.reason}</p>
                           <div className="flex flex-wrap items-center gap-2 mt-2">
-                            <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
+                            <Badge variant="outline" className="text-xs border-muted text-foreground">
                               {fmt(action.impact_value || action.details.amount || action.details.overdue_amount || 0)}
                             </Badge>
                             <Badge variant="outline" className={cn(
@@ -629,7 +629,7 @@ export function CFODecisionEngine() {
                                 "text-[10px]",
                                 action.risk_reduction === 'critical' ? "border-red-700 text-red-400" :
                                 action.risk_reduction === 'high' ? "border-amber-700 text-amber-400" :
-                                "border-slate-600 text-slate-400"
+                                "border-muted text-muted-foreground"
                               )}>
                                 {action.risk_reduction} risk
                               </Badge>
