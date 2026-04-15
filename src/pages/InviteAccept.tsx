@@ -140,7 +140,7 @@ const InviteAccept = () => {
         <Card className="max-w-md w-full">
           <CardContent className="p-8 text-center space-y-4">
             <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-16 mx-auto" />
-            <CheckCircle className="h-12 w-12 text-green-600 mx-auto" />
+            <CheckCircle className="h-12 w-12 text-primary mx-auto" />
             <h2 className="text-xl font-semibold">You've joined the team!</h2>
             <p className="text-muted-foreground">Redirecting to your dashboard...</p>
           </CardContent>
