@@ -98,11 +98,11 @@ const InviteAccept = () => {
     joinCompany();
   }, [authLoading, invite, user, navigate]);
 
-  // If not logged in and invite loaded, redirect to signup with invite_id
+  // If not logged in and invite loaded, redirect to LOGIN (not signup)
   useEffect(() => {
     if (authLoading || loading || !invite) return;
     if (!user) {
-      navigate(`/signup?invite_id=${id}&email=${encodeURIComponent(invite.email)}`);
+      navigate(`/login?invite_id=${id}&email=${encodeURIComponent(invite.email)}`);
     }
   }, [authLoading, loading, invite, user, navigate, id]);
 

@@ -232,7 +232,7 @@ serve(async (req) => {
             </div>
 
             <p style="color: #6b7280; font-size: 13px;">
-              Click the button above to create your account and automatically join <strong>${companyName || 'the team'}</strong>.
+              Click the button above to join your team on <strong>${companyName || 'ProcureSaathi'}</strong>. You'll be prompted to log in or create an account.
             </p>
           </div>
           <p style="color: #9ca3af; font-size: 11px; text-align: center; margin-top: 16px;">
