@@ -1,6 +1,7 @@
 /**
  * Auction Chat & Negotiation Panel
  * WhatsApp-style real-time chat with counter-offer support
+ * and reply-to-specific-supplier threading for buyers.
  */
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   MessageSquare, Send, IndianRupee, Check, X,
   ArrowRightLeft, ChevronDown, ChevronUp, Zap,
+  Reply, XCircle,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,6 +30,8 @@ interface AuctionMessage {
   is_read: boolean;
   seen_by_buyer: boolean;
   created_at: string;
+  reply_to_supplier_id: string | null;
+  reply_to_message_id: string | null;
 }
 
 interface CounterOffer {
@@ -67,6 +71,10 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
   const [senderNames, setSenderNames] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSentRef = useRef(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Reply-to state: buyer selects a message to reply to a specific supplier
+  const [replyTo, setReplyTo] = useState<AuctionMessage | null>(null);
 
   // Resolve sender IDs to company names via security-definer RPC
   useEffect(() => {
@@ -95,12 +103,15 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
       .order('created_at', { ascending: true });
     if (data) {
       // Suppliers should only see their own messages + buyer/system messages (privacy)
+      // For targeted buyer replies, suppliers only see replies directed to them
       const filtered = isBuyer
         ? data
         : data.filter((m: any) =>
             m.sender_id === user?.id ||
-            m.sender_role === 'buyer' ||
-            m.sender_role === 'system'
+            m.sender_role === 'system' ||
+            (m.sender_role === 'buyer' && (
+              !m.reply_to_supplier_id || m.reply_to_supplier_id === user?.id
+            ))
           );
       setMessages(filtered as unknown as AuctionMessage[]);
     }
@@ -144,8 +155,14 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
   useAuctionRealtime(auctionId, {
     onMessage: (msg) => {
       // Privacy: suppliers only see their own + buyer/system messages
-      if (!isBuyer && msg.sender_id !== user?.id && msg.sender_role !== 'buyer' && msg.sender_role !== 'system') {
-        return;
+      if (!isBuyer && msg.sender_id !== user?.id && msg.sender_role !== 'system') {
+        // For buyer messages, only show if directed to this supplier or broadcast
+        if (msg.sender_role === 'buyer') {
+          const replyTarget = (msg as any).reply_to_supplier_id;
+          if (replyTarget && replyTarget !== user?.id) return;
+        } else {
+          return;
+        }
       }
       setMessages((prev) => {
         if (prev.some(m => m.id === msg.id)) return prev;
@@ -171,6 +188,15 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
     ];
   }, [currentL1]);
 
+  // Handle clicking a supplier message to set reply context (buyer only)
+  const handleSelectReply = (msg: AuctionMessage) => {
+    if (!isBuyer || msg.sender_role !== 'supplier') return;
+    setReplyTo(msg);
+    inputRef.current?.focus();
+  };
+
+  const clearReply = () => setReplyTo(null);
+
   const sendMessage = async () => {
     if (!input.trim() || !user || isSending) return;
     // Rate limit: 1 msg per second
@@ -181,15 +207,24 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
     lastSentRef.current = Date.now();
     setIsSending(true);
     try {
-      const { error } = await supabase.from('auction_messages').insert({
+      const insertData: any = {
         auction_id: auctionId,
         sender_id: user.id,
         sender_role: isBuyer ? 'buyer' : 'supplier',
         message: input.trim(),
         message_type: 'text',
-      } as any);
+      };
+
+      // If buyer is replying to a specific supplier message
+      if (isBuyer && replyTo) {
+        insertData.reply_to_supplier_id = replyTo.sender_id;
+        insertData.reply_to_message_id = replyTo.id;
+      }
+
+      const { error } = await supabase.from('auction_messages').insert(insertData);
       if (error) throw error;
       setInput('');
+      setReplyTo(null);
     } catch {
       toast.error('Failed to send message');
     } finally {
@@ -211,10 +246,10 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
     lastSentRef.current = Date.now();
     setIsSending(true);
     try {
-      // Insert counter offer — FIX: correct supplier_id assignment
+      // Insert counter offer
       await supabase.from('auction_counter_offers').insert({
         auction_id: auctionId,
-        supplier_id: isBuyer ? '' : user.id,  // Only supplier sets their ID
+        supplier_id: isBuyer ? '' : user.id,
         buyer_id: buyerId,
         counter_price: price,
         status: 'pending',
@@ -264,6 +299,12 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
     } catch {
       toast.error('Failed to respond');
     }
+  };
+
+  // Find the original message for a reply reference
+  const getReplyReference = (msg: AuctionMessage): AuctionMessage | undefined => {
+    if (!msg.reply_to_message_id) return undefined;
+    return messages.find(m => m.id === msg.reply_to_message_id);
   };
 
   const pendingOffers = counterOffers.filter(o => o.status === 'pending');
@@ -349,6 +390,9 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
                 const isMe = msg.sender_id === user?.id;
                 const isSystem = msg.sender_role === 'system';
                 const isCounter = msg.message_type === 'counter_offer';
+                const isSupplierMsg = msg.sender_role === 'supplier';
+                const replyRef = getReplyReference(msg);
+                const isTargetedReply = msg.sender_role === 'buyer' && msg.reply_to_supplier_id;
 
                 if (isSystem) {
                   return (
@@ -363,15 +407,38 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
                 return (
                   <div
                     key={msg.id}
-                    className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-2xl px-3 py-2 ${
+                      className={`max-w-[80%] rounded-2xl px-3 py-2 relative ${
                         isMe
                           ? 'bg-primary text-primary-foreground rounded-br-md'
                           : 'bg-card border rounded-bl-md'
-                      }`}
+                      } ${isBuyer && isSupplierMsg ? 'cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all' : ''}`}
+                      onClick={() => handleSelectReply(msg)}
                     >
+                      {/* Reply reference bubble */}
+                      {replyRef && (
+                        <div className={`text-xs rounded px-2 py-1 mb-1.5 border-l-2 ${
+                          isMe 
+                            ? 'bg-primary-foreground/10 border-primary-foreground/40 text-primary-foreground/80' 
+                            : 'bg-muted border-primary/40 text-muted-foreground'
+                        }`}>
+                          <span className="font-medium">
+                            ↩ {senderNames[replyRef.sender_id] || `PS-${replyRef.sender_id.slice(0, 4).toUpperCase()}`}
+                          </span>
+                          <p className="truncate">{replyRef.message}</p>
+                        </div>
+                      )}
+
+                      {/* Targeted reply indicator (buyer side) */}
+                      {isTargetedReply && isBuyer && (
+                        <div className="text-xs flex items-center gap-1 mb-1 opacity-70">
+                          <Reply className="w-3 h-3" />
+                          To: {senderNames[msg.reply_to_supplier_id!] || `PS-${msg.reply_to_supplier_id!.slice(0, 4).toUpperCase()}`}
+                        </div>
+                      )}
+
                       {!isMe && (
                         <p className="text-xs font-medium text-muted-foreground mb-0.5 capitalize">
                           {msg.sender_role} • {senderNames[msg.sender_id] || `PS-${msg.sender_id.slice(0, 4).toUpperCase()}`}
@@ -387,9 +454,20 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
                       ) : (
                         <p className="text-sm">{msg.message}</p>
                       )}
-                      <p className={`text-xs mt-1 ${isMe ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
-                        {format(new Date(msg.created_at), 'HH:mm')}
-                      </p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className={`text-xs mt-1 ${isMe ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+                          {format(new Date(msg.created_at), 'HH:mm')}
+                        </p>
+                        {/* Reply button on hover (buyer only, supplier messages) */}
+                        {isBuyer && isSupplierMsg && (
+                          <button
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-xs flex items-center gap-0.5 text-muted-foreground hover:text-primary"
+                            onClick={(e) => { e.stopPropagation(); handleSelectReply(msg); }}
+                          >
+                            <Reply className="w-3 h-3" /> Reply
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -405,14 +483,40 @@ export function AuctionChat({ auctionId, buyerId, isBuyer, isLive, currentL1 }: 
             </div>
           )}
 
+          {/* Reply-to indicator */}
+          {isBuyer && replyTo && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20">
+              <Reply className="w-4 h-4 text-primary shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-primary">
+                  Replying to {senderNames[replyTo.sender_id] || `PS-${replyTo.sender_id.slice(0, 4).toUpperCase()}`}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">{replyTo.message}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 shrink-0"
+                onClick={clearReply}
+              >
+                <XCircle className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </div>
+          )}
+
           {/* Input area */}
           {isLive && (
             <div className="space-y-2">
               <div className="flex gap-2">
                 <Input
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type a message..."
+                  placeholder={
+                    replyTo
+                      ? `Reply to ${senderNames[replyTo.sender_id] || 'supplier'}...`
+                      : 'Type a message...'
+                  }
                   className="flex-1"
                   onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                   disabled={isSending}
