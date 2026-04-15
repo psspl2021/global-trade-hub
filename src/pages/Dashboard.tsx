@@ -25,7 +25,6 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useSEO } from '@/hooks/useSEO';
 import { usePartnerVerification } from '@/hooks/usePartnerVerification';
 import { supabase } from '@/integrations/supabase/client';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
