@@ -48,27 +48,6 @@ export function ManagementViewSelector({
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [pinStates, setPinStates] = useState<Record<string, boolean | null>>({});
-  const [assignedRoles, setAssignedRoles] = useState<Set<string>>(new Set());
-
-  // Fetch user's assigned roles from buyer_company_members
-  useEffect(() => {
-    if (!user?.id) return;
-    const fetchRoles = async () => {
-      let query = supabase
-        .from('buyer_company_members')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('is_active', true);
-      if (activeCompanyId) {
-        query = query.eq('company_id', activeCompanyId);
-      }
-      const { data } = await query;
-      if (data) {
-        setAssignedRoles(new Set(data.map(d => d.role)));
-      }
-    };
-    fetchRoles();
-  }, [user?.id, activeCompanyId]);
 
   // Check PIN states for all management views on mount
   useEffect(() => {
@@ -87,30 +66,24 @@ export function ManagementViewSelector({
   const selectedOption = MANAGEMENT_VIEWS.find(v => v.value === selectedView);
   const isCurrentViewVerified = selectedView ? isRoleVerified(selectedView) : false;
 
-  // Correct 3-tier status logic:
-  // 1. No role assigned → locked (user can't access this view at all)
-  // 2. Role assigned but no PIN → setup_required (first-time setup)
-  // 3. Role assigned + PIN exists but not verified this session → locked (needs PIN)
-  // 4. Role assigned + PIN verified → unlocked
+  // Simplified status logic: Any buyer can access any management view
+  // Status is based only on PIN verification state:
+  // 1. PIN verified this session → unlocked
+  // 2. PIN exists but not verified → locked (needs PIN)
+  // 3. No PIN configured yet → setup_required (first-time setup)
   const getViewStatus = useCallback((viewValue: ManagementViewType): 'unlocked' | 'setup_required' | 'locked' => {
     if (!viewValue) return 'locked';
     
-    const view = MANAGEMENT_VIEWS.find(v => v.value === viewValue);
-    const hasRole = view ? assignedRoles.has(view.dbRole) : false;
-    
-    // If user doesn't have this role assigned, it's locked
-    if (!hasRole) return 'locked';
-    
-    // Role assigned — check if verified this session
+    // If already verified this session → unlocked
     if (isRoleVerified(viewValue)) return 'unlocked';
     
-    // Role assigned but PIN not configured yet → setup required
+    // Check PIN state
     const hasPinState = pinStates[viewValue];
     if (hasPinState === false) return 'setup_required';
     
     // PIN exists but not verified → locked (session-level)
     return 'locked';
-  }, [isRoleVerified, pinStates, assignedRoles]);
+  }, [isRoleVerified, pinStates]);
 
   const handleViewChange = (value: string) => {
     if (value === 'none') {
