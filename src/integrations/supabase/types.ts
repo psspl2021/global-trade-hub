@@ -10354,6 +10354,50 @@ export type Database = {
         }
         Relationships: []
       }
+      team_invites: {
+        Row: {
+          categories: string[] | null
+          company_id: string | null
+          created_at: string | null
+          email: string
+          id: string
+          invited_by: string | null
+          role: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          categories?: string[] | null
+          company_id?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          invited_by?: string | null
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          categories?: string[] | null
+          company_id?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          invited_by?: string | null
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invites_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trade_corridors: {
         Row: {
           category: string | null

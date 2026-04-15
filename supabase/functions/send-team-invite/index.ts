@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,8 +40,9 @@ serve(async (req) => {
       ? categories.map((c: string) => `<li style="padding:2px 0;">${c}</li>`).join('')
       : '';
 
-    // Check if user already exists — try profiles.email first, then auth.users
     const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if user already exists
     let existingProfile: { id: string; contact_person: string | null; email: string | null } | null = null;
 
     const { data: profileByEmail } = await supabaseAdmin
@@ -53,7 +54,6 @@ serve(async (req) => {
     if (profileByEmail) {
       existingProfile = profileByEmail;
     } else {
-      // Fallback: check auth.users (profiles.email may be null)
       const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
       const authUser = users?.find((u: any) => u.email?.toLowerCase() === normalizedEmail);
       if (authUser) {
@@ -72,7 +72,6 @@ serve(async (req) => {
     if (existingProfile && companyId) {
       userAlreadyExists = true;
 
-      // Check if already a member
       const { data: existing } = await supabaseAdmin
         .from('buyer_company_members')
         .select('id')
@@ -83,7 +82,6 @@ serve(async (req) => {
       if (existing) {
         alreadyMember = true;
       } else {
-        // Auto-add to company
         await supabaseAdmin
           .from('buyer_company_members')
           .insert({
@@ -107,7 +105,35 @@ serve(async (req) => {
       });
     }
 
-    // Build role-specific capabilities
+    // ===== STEP: Create team_invite record for NEW users =====
+    let inviteId: string | null = null;
+    if (!userAlreadyExists && companyId) {
+      // Get the inviter's user ID from the auth header
+      const authHeader = req.headers.get('authorization');
+      let inviterId: string | null = null;
+      if (authHeader) {
+        const token = authHeader.replace('Bearer ', '');
+        const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+        inviterId = user?.id || null;
+      }
+
+      const { data: inviteData } = await supabaseAdmin
+        .from('team_invites')
+        .insert({
+          email: normalizedEmail,
+          role: role || 'buyer_purchaser',
+          company_id: companyId,
+          invited_by: inviterId,
+          categories: categories?.length ? categories : [],
+          status: 'pending',
+        })
+        .select('id')
+        .single();
+
+      inviteId = inviteData?.id || null;
+    }
+
+    // Build email
     const isManagement = ['buyer_cfo', 'buyer_ceo', 'buyer_manager'].includes(role);
     const capabilitiesHtml = isManagement
       ? `<p style="color: #166534; font-size: 13px; margin: 0;">
@@ -119,13 +145,15 @@ serve(async (req) => {
 
     const recipientName = fullName || existingProfile?.contact_person || '';
     const dashboardLink = `https://procuresaathi.lovable.app/dashboard`;
-    const signupLink = `https://procuresaathi.lovable.app/signup`;
+    // NEW: tokenized invite link instead of generic signup
+    const inviteLink = inviteId 
+      ? `https://procuresaathi.lovable.app/invite/${inviteId}`
+      : `https://procuresaathi.lovable.app/signup`;
 
     let htmlContent: string;
     let subject: string;
 
     if (userAlreadyExists) {
-      // User exists → "You've been added" notification (no signup needed)
       subject = `You've been added to ${companyName || 'a team'} as ${roleLabel} on ProcureSaathi`;
       htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -170,7 +198,7 @@ serve(async (req) => {
           </p>
         </div>`;
     } else {
-      // User doesn't exist → Signup invite
+      // New user — send tokenized invite link
       subject = `You're invited to join ${companyName || 'a team'} on ProcureSaathi`;
       htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -198,13 +226,13 @@ serve(async (req) => {
             </div>
 
             <div style="text-align: center; margin: 24px 0;">
-              <a href="${signupLink}" style="background: linear-gradient(135deg, #1e40af, #2563eb); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
+              <a href="${inviteLink}" style="background: linear-gradient(135deg, #1e40af, #2563eb); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
                 Accept Invitation & Join →
               </a>
             </div>
 
             <p style="color: #6b7280; font-size: 13px;">
-              Sign up using this email address (<strong>${email}</strong>) to be automatically linked to the team.
+              Click the button above to create your account and automatically join <strong>${companyName || 'the team'}</strong>.
             </p>
           </div>
           <p style="color: #9ca3af; font-size: 11px; text-align: center; margin-top: 16px;">
@@ -241,6 +269,7 @@ serve(async (req) => {
       success: true, 
       userAlreadyExists,
       autoAdded: userAlreadyExists && !alreadyMember,
+      inviteId,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
