@@ -190,6 +190,24 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       
       // If no purchasers found, create fallback with current user
       if (purchaserList.length === 0) {
+        // No membership found — try auto-provision as last resort
+        await ensureBuyerCompany();
+        
+        // Retry fetch after provisioning
+        const { data: retryData } = await supabase.rpc(
+          'get_company_purchasers' as any,
+          { _user_id: user.id }
+        );
+        
+        const retryList = (retryData || []) as CompanyPurchaser[];
+        if (retryList.length > 0) {
+          setPurchasers(retryList);
+          const currentUser = retryList.find(p => p.is_current_user);
+          setSelectedPurchaserIdState((currentUser || retryList[0]).user_id);
+          return;
+        }
+
+        // Still nothing — fallback to profile
         const { data: profile } = await supabase
           .from('profiles')
           .select('contact_person, company_name')
