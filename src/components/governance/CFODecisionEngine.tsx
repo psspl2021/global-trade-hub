@@ -108,7 +108,7 @@ const formatCompactNum = (val: number, baseCurrency: string = 'INR') => {
 
 const priorityConfig: Record<string, { label: string; color: string; icon: typeof Shield }> = {
   critical: { label: 'Critical', color: 'text-red-400 border-red-600 bg-red-500/10', icon: ShieldAlert },
-  standard: { label: 'Standard', color: 'text-muted-foreground border-muted bg-slate-500/10', icon: Shield },
+  standard: { label: 'Standard', color: 'text-muted-foreground border-muted bg-secondary/50', icon: Shield },
   low: { label: 'Low', color: 'text-emerald-400 border-emerald-600 bg-emerald-500/10', icon: Shield },
 };
 
@@ -261,7 +261,7 @@ export function CFODecisionEngine() {
   }
 
   const runwayDays = runway?.runway_days;
-  const runwayColor = runwayDays == null ? 'slate' :
+  const runwayColor = runwayDays == null ? 'muted' :
     runwayDays < 14 ? 'red' :
     runwayDays < 30 ? 'amber' : 'emerald';
   const runwayLabel = runwayDays == null ? 'No active burn' : `${Math.round(runwayDays)} days`;
@@ -291,7 +291,7 @@ export function CFODecisionEngine() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-muted text-foreground border-muted hover:bg-slate-600">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-muted text-foreground border-muted hover:bg-muted/80">Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-emerald-600 hover:bg-emerald-700 text-foreground"
               onClick={() => {
