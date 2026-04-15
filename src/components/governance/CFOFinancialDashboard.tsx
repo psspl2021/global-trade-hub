@@ -217,10 +217,10 @@ export function CFOFinancialDashboard() {
 
   if (loading) {
     return (
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-card border-border">
         <CardContent className="py-12 text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-emerald-400" />
-          <p className="text-slate-400">Loading financial intelligence...</p>
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-primary" />
+          <p className="text-muted-foreground">Loading financial intelligence...</p>
         </CardContent>
       </Card>
     );
@@ -238,17 +238,17 @@ export function CFOFinancialDashboard() {
       {isMultiCurrency && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-sky-400" />
-            <span className="text-sm text-slate-400">
+            <Globe className="w-4 h-4 text-primary" />
+            <span className="text-sm text-muted-foreground">
               {currencyBreakdown.length} currencies active — totals normalized to {_orgBaseCurrency} (base currency)
             </span>
           </div>
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="w-auto">
-            <TabsList className="bg-slate-700 h-8">
-              <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+            <TabsList className="bg-muted h-8">
+              <TabsTrigger value="normalized" className="text-xs h-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">
                 Normalized
               </TabsTrigger>
-              <TabsTrigger value="by-currency" className="text-xs h-6 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-slate-300">
+              <TabsTrigger value="by-currency" className="text-xs h-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">
                 <Globe className="w-3 h-3 mr-1" /> By Currency
               </TabsTrigger>
             </TabsList>
