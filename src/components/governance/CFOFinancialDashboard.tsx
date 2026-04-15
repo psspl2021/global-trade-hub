@@ -245,6 +245,21 @@ export function CFOFinancialDashboard() {
   const totalExposure = payables ? payables.totalPayable + payables.totalPaid : 0;
   const overdueRatio = payables && payables.totalPayable > 0 ? (payables.totalOverdue / payables.totalPayable) * 100 : 0;
 
+  // ── Derived insights for card subtitles ──
+  const topVendor = vendors.length > 0 ? vendors[0] : null;
+  const topVendorShare = topVendor && payables && payables.totalPayable > 0
+    ? Math.round((topVendor.openPayables / payables.totalPayable) * 100) : 0;
+
+  const due7POs = openPOs.filter(po => {
+    if (!po.expected_delivery_date) return false;
+    const diff = (new Date(po.expected_delivery_date).getTime() - Date.now()) / 86400000;
+    return diff >= 0 && diff <= 7;
+  });
+  const due7VendorCount = new Set(due7POs.map(p => p.vendor_name)).size;
+
+  const worstOverdue = delayed.length > 0 ? delayed.reduce((a, b) => a.daysOverdue > b.daysOverdue ? a : b) : null;
+  const overdueVendorCount = new Set(delayed.map(d => d.supplierName)).size;
+
   const statusColor = (status: string) => {
     switch (status) {
       case 'payment_confirmed': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
@@ -272,7 +287,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{formatBase(payables?.totalPayable || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{openPOs.length} active POs</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {openPOs.length} POs{topVendor ? ` · ${topVendorShare}% from ${topVendor.supplierName.substring(0, 20)}` : ''}
+            </p>
           </CardContent>
         </Card>
 
@@ -290,7 +307,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.payableNext7Days || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Immediate action</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {due7POs.length > 0 ? `${due7POs.length} POs · ${due7VendorCount} vendor${due7VendorCount !== 1 ? 's' : ''}` : 'No immediate dues ✓'}
+            </p>
           </CardContent>
         </Card>
 
@@ -308,7 +327,11 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{overdueRatio.toFixed(0)}% of payables</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {delayed.length > 0
+                ? `↑ ${overdueVendorCount} vendor${overdueVendorCount !== 1 ? 's' : ''} · worst ${worstOverdue?.daysOverdue}d late`
+                : 'All clear ✓'}
+            </p>
           </CardContent>
         </Card>
 
@@ -509,7 +532,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{vendors.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Active vendors</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {topVendor ? `Top: ${topVendor.supplierName.substring(0, 18)} (${formatBase(topVendor.openPayables)})` : 'No vendors'}
+            </p>
           </CardContent>
         </Card>
 
@@ -527,7 +552,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{delayed.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{delayed.length === 0 ? 'All clear ✓' : 'POs overdue'}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {delayed.length === 0 ? 'All clear ✓' : `⚠ ${formatBase(delayed.reduce((s, d) => s + d.amount, 0))} at risk`}
+            </p>
           </CardContent>
         </Card>
 
@@ -638,7 +665,13 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-sm font-medium text-foreground">Predictive cash intelligence</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Runway, priority queue, actions</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {delayed.length > 0
+                ? `Top action: Clear ${formatBase(delayed[0]?.amount || 0)} overdue to ${delayed[0]?.supplierName?.substring(0, 15)}`
+                : cashBurn && cashBurn.pendingPayables > 0
+                  ? `${formatBase(cashBurn.pendingPayables)} pending — review priority`
+                  : 'Runway, priority queue, actions'}
+            </p>
           </CardContent>
         </Card>
 
@@ -655,7 +688,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-sm font-medium text-foreground">Visualization & Trends</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Burn trend, risk heatmap, feedback</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {vendors.length > 0 ? `Tracking ${vendors.length} vendor${vendors.length !== 1 ? 's' : ''} · ${openPOs.length} open POs` : 'Burn trend, risk heatmap, feedback'}
+            </p>
           </CardContent>
         </Card>
       </div>
