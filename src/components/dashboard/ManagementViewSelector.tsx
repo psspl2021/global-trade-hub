@@ -19,6 +19,7 @@ import { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { RoleVerificationModal } from './RoleVerificationModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ManagementViewSelectorProps {
@@ -42,6 +43,7 @@ export function ManagementViewSelector({
   isLocked = false,
 }: ManagementViewSelectorProps) {
   const { user } = useAuth();
+  const { companyId: activeCompanyId } = useGlobalBuyerContext();
   const { isRoleVerified, requiresVerification, clearVerification, hasPinConfigured } = useRoleSecurity();
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -52,17 +54,21 @@ export function ManagementViewSelector({
   useEffect(() => {
     if (!user?.id) return;
     const fetchRoles = async () => {
-      const { data } = await supabase
+      let query = supabase
         .from('buyer_company_members')
         .select('role')
         .eq('user_id', user.id)
         .eq('is_active', true);
+      if (activeCompanyId) {
+        query = query.eq('company_id', activeCompanyId);
+      }
+      const { data } = await query;
       if (data) {
         setAssignedRoles(new Set(data.map(d => d.role)));
       }
     };
     fetchRoles();
-  }, [user?.id]);
+  }, [user?.id, activeCompanyId]);
 
   // Check PIN states for all management views on mount
   useEffect(() => {
@@ -127,14 +133,11 @@ export function ManagementViewSelector({
 
   const handleVerified = () => {
     if (pendingView) {
+      // PIN verification already sets role as verified in useRoleSecurity state
+      // Update local PIN state so dropdown instantly shows "Unlocked"
+      setPinStates(prev => ({ ...prev, [pendingView]: true }));
       onSelect(pendingView);
       setPendingView(null);
-      // Refresh PIN states after setup
-      if (pendingView) {
-        hasPinConfigured(pendingView).then(has => {
-          setPinStates(prev => ({ ...prev, [pendingView]: has }));
-        });
-      }
     }
   };
 
