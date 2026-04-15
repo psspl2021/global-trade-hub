@@ -24,7 +24,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useSEO } from '@/hooks/useSEO';
 import { usePartnerVerification } from '@/hooks/usePartnerVerification';
-import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,6 +71,7 @@ import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuc
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
+import { ManagementDashboard } from '@/components/governance/ManagementDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -80,6 +80,20 @@ const Dashboard = () => {
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
+  
+  // Management view state — synced via custom event from BuyerDashboardHeader's ManagementViewSelector
+  const [activeManagementView, setActiveManagementView] = useState<'cfo' | 'ceo' | 'hr' | 'manager' | null>(() => {
+    return (localStorage.getItem('ps_management_view') as any) || null;
+  });
+  
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setActiveManagementView(detail?.view || null);
+    };
+    window.addEventListener('ps-management-view-change', handler);
+    return () => window.removeEventListener('ps-management-view-change', handler);
+  }, []);
 
   // Derive sub-view state from URL search params so it survives refresh
   const activeView = searchParams.get('view') || '';
@@ -338,8 +352,46 @@ const Dashboard = () => {
 
         {/* Admin section removed - admin roles redirect to /admin route */}
 
-        {/* Buyer roles: buyer, buyer_purchaser, purchaser + management roles - OPERATIONAL DASHBOARD */}
-        {isBuyerRole && (
+        {/* Buyer roles: buyer, buyer_purchaser, purchaser + management roles */}
+        {isBuyerRole && activeManagementView && (
+          <div className="space-y-4 sm:space-y-6">
+            {/* Management View Header */}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-md">
+                <BarChart3 className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-foreground">
+                  {activeManagementView === 'cfo' ? 'CFO Financial Dashboard' :
+                   activeManagementView === 'ceo' ? 'CEO Executive Dashboard' :
+                   activeManagementView === 'hr' ? 'HR & Management Dashboard' :
+                   'Manager Operations Dashboard'}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {activeManagementView === 'cfo' ? 'Financial analytics, savings verification & ROI tracking' :
+                   activeManagementView === 'ceo' ? 'Executive KPIs, company performance & strategic insights' :
+                   activeManagementView === 'hr' ? 'Team performance, incentive tracking & HR metrics' :
+                   'Operational oversight, team execution & procurement monitoring'}
+                </p>
+              </div>
+            </div>
+
+            {/* Render the appropriate management dashboard */}
+            {activeManagementView === 'cfo' && <CFOFinancialDashboard />}
+            {activeManagementView === 'ceo' && (
+              <ManagementDashboard />
+            )}
+            {activeManagementView === 'hr' && (
+              <ManagementDashboard />
+            )}
+            {activeManagementView === 'manager' && (
+              <ManagementDashboard />
+            )}
+          </div>
+        )}
+
+        {/* Buyer EXECUTION dashboard — only when NO management view is active */}
+        {isBuyerRole && !activeManagementView && (
            <div className="space-y-4 sm:space-y-6">
             {/* Governance Banner */}
             <div className="bg-sky-600 text-white py-2 px-4 rounded-lg">

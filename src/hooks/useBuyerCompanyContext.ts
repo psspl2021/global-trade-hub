@@ -95,7 +95,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     }
   }, []);
 
-  // Persist management view selection
+  // Persist management view selection + dispatch custom event for cross-component sync
   const setManagementView = useCallback((view: ManagementViewType) => {
     setManagementViewState(view);
     if (view) {
@@ -103,6 +103,8 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     } else {
       localStorage.removeItem(STORAGE_KEY_MGMT_VIEW);
     }
+    // Dispatch custom event so Dashboard.tsx can react
+    window.dispatchEvent(new CustomEvent('ps-management-view-change', { detail: { view } }));
   }, []);
 
   // Ensure buyer company exists (auto-provision if needed)
