@@ -245,6 +245,21 @@ export function CFOFinancialDashboard() {
   const totalExposure = payables ? payables.totalPayable + payables.totalPaid : 0;
   const overdueRatio = payables && payables.totalPayable > 0 ? (payables.totalOverdue / payables.totalPayable) * 100 : 0;
 
+  // ── Derived insights for card subtitles ──
+  const topVendor = vendors.length > 0 ? vendors[0] : null;
+  const topVendorShare = topVendor && payables && payables.totalPayable > 0
+    ? Math.round((topVendor.openPayables / payables.totalPayable) * 100) : 0;
+
+  const due7POs = openPOs.filter(po => {
+    if (!po.expected_delivery_date) return false;
+    const diff = (new Date(po.expected_delivery_date).getTime() - Date.now()) / 86400000;
+    return diff >= 0 && diff <= 7;
+  });
+  const due7VendorCount = new Set(due7POs.map(p => p.vendor_name)).size;
+
+  const worstOverdue = delayed.length > 0 ? delayed.reduce((a, b) => a.daysOverdue > b.daysOverdue ? a : b) : null;
+  const overdueVendorCount = new Set(delayed.map(d => d.supplierName)).size;
+
   const statusColor = (status: string) => {
     switch (status) {
       case 'payment_confirmed': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
