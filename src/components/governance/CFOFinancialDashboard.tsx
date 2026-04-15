@@ -403,19 +403,19 @@ export function CFOFinancialDashboard() {
       {/* Two-column: Vendor Exposure + Delayed Payments */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top 5 Vendor Exposure */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-purple-400" />
+            <CardTitle className="text-foreground text-lg flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-purple-500" />
               Top 5 Vendor Exposure
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               Highest open payables by supplier ({_orgBaseCurrency} normalized)
             </CardDescription>
           </CardHeader>
           <CardContent>
             {vendors.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">No vendor exposure data</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No vendor exposure data</p>
             ) : (
               <div className="space-y-3">
                 {vendors.map((v, i) => {
@@ -424,19 +424,19 @@ export function CFOFinancialDashboard() {
                     <div key={v.supplierId}>
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="border-slate-600 text-slate-300 text-xs">
+                          <Badge variant="outline" className="border-muted text-muted-foreground text-xs">
                             #{i + 1}
                           </Badge>
-                          <span className="text-sm text-slate-300 font-medium">{v.supplierName}</span>
-                          <span className="text-xs text-slate-500">({v.poCount} POs)</span>
+                          <span className="text-sm text-foreground font-medium">{v.supplierName}</span>
+                          <span className="text-xs text-muted-foreground">({v.poCount} POs)</span>
                         </div>
-                        <span className="text-sm font-semibold text-amber-300">
+                        <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                           {formatBase(v.openPayables)}
                         </span>
                       </div>
                       <Progress
                         value={(v.openPayables / maxExposure) * 100}
-                        className="h-1.5 bg-slate-700"
+                        className="h-1.5 bg-muted"
                       />
                     </div>
                   );
@@ -447,34 +447,34 @@ export function CFOFinancialDashboard() {
         </Card>
 
         {/* Delayed Payments Risk */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-red-400" />
+            <CardTitle className="text-foreground text-lg flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-red-500" />
               Delayed Payments Risk
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               POs past expected delivery with unpaid balances
             </CardDescription>
           </CardHeader>
           <CardContent>
             {delayed.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">No overdue payments — all clear ✓</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No overdue payments — all clear ✓</p>
             ) : (
               <div className="space-y-2">
                 {delayed.map(d => (
-                  <div key={d.poId} className="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0">
+                  <div key={d.poId} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-slate-200">{d.poNumber}</p>
+                        <p className="text-sm font-medium text-foreground">{d.poNumber}</p>
                         {d.regionType === 'global' && (
-                          <Globe className="w-3 h-3 text-sky-400" />
+                          <Globe className="w-3 h-3 text-primary" />
                         )}
                       </div>
-                      <p className="text-xs text-slate-500">{d.supplierName}</p>
+                      <p className="text-xs text-muted-foreground">{d.supplierName}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-red-300">
+                      <p className="text-sm font-semibold text-red-600 dark:text-red-400">
                         {formatCompact(d.amount, d.currency)}
                       </p>
                       <Badge
@@ -482,8 +482,8 @@ export function CFOFinancialDashboard() {
                         className={cn(
                           "text-xs",
                           d.daysOverdue > 14 ? "border-destructive text-destructive" :
-                          d.daysOverdue > 7 ? "border-amber-500 text-amber-400" :
-                          "border-slate-600 text-slate-400"
+                          d.daysOverdue > 7 ? "border-amber-500 text-amber-500" :
+                          "border-muted text-muted-foreground"
                         )}
                       >
                         {d.daysOverdue}d overdue
@@ -498,16 +498,16 @@ export function CFOFinancialDashboard() {
       </div>
 
       {/* Decision Summary */}
-      <Card className="bg-gradient-to-r from-slate-800/80 to-slate-700/50 border-slate-600">
+      <Card className="bg-gradient-to-r from-muted/80 to-muted/50 border-border">
         <CardContent className="py-4">
           <div className="flex items-center gap-3">
-            <IndianRupee className="w-5 h-5 text-emerald-400 shrink-0" />
+            <IndianRupee className="w-5 h-5 text-emerald-500 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-slate-200">
-                Total Procurement Exposure: <span className="text-emerald-300">{formatBase(totalExposure)}</span>
-                {isMultiCurrency && <span className="text-slate-500 text-xs ml-1">({_orgBaseCurrency} base)</span>}
+              <p className="text-sm font-medium text-foreground">
+                Total Procurement Exposure: <span className="text-emerald-600 dark:text-emerald-400">{formatBase(totalExposure)}</span>
+                {isMultiCurrency && <span className="text-muted-foreground text-xs ml-1">({_orgBaseCurrency} base)</span>}
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 Paid: {formatBase(payables?.totalPaid || 0)} • Open: {formatBase(payables?.totalPayable || 0)} •
                 Overdue: {formatBase(payables?.totalOverdue || 0)}
                 {isMultiCurrency && ` • ${currencyBreakdown.length} currencies`}
