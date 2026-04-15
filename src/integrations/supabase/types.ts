@@ -1198,6 +1198,8 @@ export type Database = {
           is_read: boolean | null
           message: string
           message_type: string
+          reply_to_message_id: string | null
+          reply_to_supplier_id: string | null
           seen_by_buyer: boolean | null
           sender_id: string
           sender_role: string
@@ -1210,6 +1212,8 @@ export type Database = {
           is_read?: boolean | null
           message?: string
           message_type?: string
+          reply_to_message_id?: string | null
+          reply_to_supplier_id?: string | null
           seen_by_buyer?: boolean | null
           sender_id: string
           sender_role: string
@@ -1222,6 +1226,8 @@ export type Database = {
           is_read?: boolean | null
           message?: string
           message_type?: string
+          reply_to_message_id?: string | null
+          reply_to_supplier_id?: string | null
           seen_by_buyer?: boolean | null
           sender_id?: string
           sender_role?: string
@@ -1232,6 +1238,13 @@ export type Database = {
             columns: ["auction_id"]
             isOneToOne: false
             referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "auction_messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "auction_messages"
             referencedColumns: ["id"]
           },
         ]
