@@ -154,9 +154,6 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       setIsLoading(true);
       setError(null);
 
-      // First, ensure buyer company exists (auto-provision)
-      await ensureBuyerCompany();
-
       // Call the RPC function to get purchasers in same company
       const { data, error: rpcError } = await supabase.rpc(
         'get_company_purchasers' as any,
