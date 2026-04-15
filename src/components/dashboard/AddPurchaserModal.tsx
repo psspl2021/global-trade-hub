@@ -78,10 +78,11 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
     setIsSubmitting(true);
     
     try {
-      // Fetch inviter context
+      // Fetch inviter context + company ID
       const { data: { user } } = await supabase.auth.getUser();
       let inviterName = '';
       let companyName = '';
+      let companyId = '';
 
       if (user) {
         const { data: profile } = await supabase
@@ -91,6 +92,13 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
           .single();
         inviterName = profile?.contact_person || user.email || '';
         companyName = profile?.company_name || '';
+
+        const { data: membership } = await supabase
+          .from('buyer_company_members')
+          .select('company_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        companyId = membership?.company_id || '';
       }
 
       const { data, error } = await supabase.functions.invoke('send-team-invite', {
@@ -101,15 +109,29 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
           categories: selectedCategories.length > 0 ? selectedCategories : undefined,
           inviterName,
           companyName,
+          companyId,
         },
       });
 
       if (error) throw error;
 
-      toast({
-        title: 'Invitation Sent',
-        description: `An invitation email has been sent to ${email}.`,
-      });
+      // Smart toast based on response
+      if (data?.alreadyMember) {
+        toast({
+          title: 'Already a Member',
+          description: `${email} is already part of your team.`,
+        });
+      } else if (data?.autoAdded) {
+        toast({
+          title: 'Member Added',
+          description: `${email} has been added to your team and notified. No signup needed.`,
+        });
+      } else {
+        toast({
+          title: 'Invitation Sent',
+          description: `A signup invitation has been sent to ${email}.`,
+        });
+      }
       
       // Reset form
       setEmail('');
