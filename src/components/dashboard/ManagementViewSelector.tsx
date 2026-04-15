@@ -44,7 +44,7 @@ export function ManagementViewSelector({
 }: ManagementViewSelectorProps) {
   const { user } = useAuth();
   const { companyId: activeCompanyId } = useGlobalBuyerContext();
-  const { isRoleVerified, requiresVerification, clearVerification, hasPinConfigured, setRoleVerified } = useRoleSecurity();
+  const { isRoleVerified, requiresVerification, clearVerification, hasPinConfigured } = useRoleSecurity();
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [pinStates, setPinStates] = useState<Record<string, boolean | null>>({});
@@ -133,8 +133,8 @@ export function ManagementViewSelector({
 
   const handleVerified = () => {
     if (pendingView) {
-      // Instantly mark as verified + unlocked — no re-click needed
-      setRoleVerified(pendingView, true);
+      // PIN verification already sets role as verified in useRoleSecurity state
+      // Update local PIN state so dropdown instantly shows "Unlocked"
       setPinStates(prev => ({ ...prev, [pendingView]: true }));
       onSelect(pendingView);
       setPendingView(null);
