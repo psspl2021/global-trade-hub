@@ -272,29 +272,20 @@ const Dashboard = () => {
   ];
   const isBuyerRole = role ? BUYER_DASHBOARD_ROLES.includes(role) : false;
 
-  if (!isBuyerRole) {
-    return <DashboardNonBuyer 
-      user={user} signOut={signOut} navigate={navigate} role={role}
-      showProfileSettings={showProfileSettings} setShowProfileSettings={setShowProfileSettings}
-      showForwardRFQ={showForwardRFQ} setShowForwardRFQ={setShowForwardRFQ}
-      showReverseAuction={showReverseAuction} setShowReverseAuction={setShowReverseAuction}
-      showSupplierForwardBids={showSupplierForwardBids} setShowSupplierForwardBids={setShowSupplierForwardBids}
-      showSupplierReverseBids={showSupplierReverseBids} setShowSupplierReverseBids={setShowSupplierReverseBids}
-      showSupplierSubscription={showSupplierSubscription} setShowSupplierSubscription={setShowSupplierSubscription}
-      showSupplierReferral={showSupplierReferral} setShowSupplierReferral={setShowSupplierReferral}
-      showSupplierAIPerformance={showSupplierAIPerformance} setShowSupplierAIPerformance={setShowSupplierAIPerformance}
-      subscription={subscription} fetchSubscription={fetchSubscription}
-      logisticsSubscription={logisticsSubscription} logisticsAssets={logisticsAssets}
-      partnerVerification={partnerVerification}
-      {...restProps}
-    />;
-  }
-
   return (
     <BuyerCompanyProvider>
-      <DashboardInner />
-    </BuyerCompanyProvider>
-  );
+      <DashboardWithManagementView
+        isBuyerRole={isBuyerRole}
+        user={user}
+        role={role}
+        navigate={navigate}
+        signOut={signOut}
+        showProfileSettings={showProfileSettings}
+        setShowProfileSettings={setShowProfileSettings}
+        profileComplete={profileComplete}
+        setProfileComplete={setProfileComplete}
+      >
+        {/* Original dashboard content starts here */}
       
       {/* Standard Header for non-buyer roles */}
       {!isBuyerRole && (
