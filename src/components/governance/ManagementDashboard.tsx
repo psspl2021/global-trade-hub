@@ -84,7 +84,7 @@ export function ManagementDashboard() {
             "text-white",
             primaryRole === 'ceo' ? "bg-purple-600" :
             primaryRole === 'cfo' ? "bg-blue-600" :
-            "bg-slate-600"
+            "bg-secondary"
           )}>
             <Lock className="w-3 h-3 mr-1" />
             {primaryRole.toUpperCase()} Access
