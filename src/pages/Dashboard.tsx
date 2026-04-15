@@ -273,19 +273,14 @@ const Dashboard = () => {
   const isBuyerRole = role ? BUYER_DASHBOARD_ROLES.includes(role) : false;
 
   return (
-    <BuyerCompanyProvider>
-      <DashboardWithManagementView
-        isBuyerRole={isBuyerRole}
-        user={user}
-        role={role}
-        navigate={navigate}
-        signOut={signOut}
-        showProfileSettings={showProfileSettings}
-        setShowProfileSettings={setShowProfileSettings}
-        profileComplete={profileComplete}
-        setProfileComplete={setProfileComplete}
-      >
-        {/* Original dashboard content starts here */}
+    <div className="min-h-screen bg-background">
+      {/* Profile Completion Modal - blocks until mandatory fields are filled */}
+      <ProfileCompletionModal userId={user?.id} onComplete={() => setProfileComplete(true)} />
+      
+      {/* Buyer Dashboard Header with Context Selectors */}
+      {isBuyerRole && (
+        <BuyerDashboardHeader onOpenSettings={() => setShowProfileSettings(true)} />
+      )}
       
       {/* Standard Header for non-buyer roles */}
       {!isBuyerRole && (
