@@ -26,7 +26,8 @@ import {
   Gift, 
   DollarSign,
   Shield,
-  Lock
+  Lock,
+  Users
 } from 'lucide-react';
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 import { AccessDenied } from '@/components/purchaser/AccessDenied';
@@ -35,6 +36,7 @@ import { SavingsVisualization } from './SavingsVisualization';
 import { CFOIncentiveManagement } from '@/components/purchaser/CFOIncentiveManagement';
 import { EnterpriseBillingDashboard } from '@/components/enterprise/EnterpriseBillingDashboard';
 import { GovernanceLegalArmor } from './GovernanceLegalArmor';
+import { TeamManagement } from './TeamManagement';
 import { cn } from '@/lib/utils';
 
 export function ManagementDashboard() {
@@ -109,7 +111,7 @@ export function ManagementDashboard() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
+        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
           <TabsTrigger value="savings" className="gap-2">
             <TrendingUp className="w-4 h-4" />
             <span className="hidden sm:inline">AI-Verified Savings</span>
@@ -125,6 +127,11 @@ export function ManagementDashboard() {
             <span className="hidden sm:inline">Enterprise Billing</span>
             <span className="sm:hidden">Billing</span>
           </TabsTrigger>
+          <TabsTrigger value="team" className="gap-2">
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">Team & Roles</span>
+            <span className="sm:hidden">Team</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="savings" className="space-y-6">
@@ -138,6 +145,10 @@ export function ManagementDashboard() {
 
         <TabsContent value="billing" className="space-y-6">
           <EnterpriseBillingDashboard />
+        </TabsContent>
+
+        <TabsContent value="team" className="space-y-6">
+          <TeamManagement />
         </TabsContent>
       </Tabs>
 
