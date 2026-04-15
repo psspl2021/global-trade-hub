@@ -4,20 +4,11 @@
  * ============================================================
  * 
  * Allows management roles to switch between analytics views.
- * When a management view is selected, the dashboard switches
- * to read-only analytics mode.
- * 
- * SECURITY:
- * - Locked by default for all management views
- * - Requires PIN or password verification before switching
- * - Verification state stored in memory only (not localStorage)
- * - Expires after 15 minutes or on logout
- * 
- * Visible to: buyer_cfo, buyer_ceo, buyer_hr, buyer_manager
- * Hidden from: buyer_purchaser, purchaser, buyer
+ * Shows contextual status: Unlocked / Setup Required / Locked
+ * based on role assignment and PIN configuration state.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Select,
   SelectContent,
@@ -25,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Eye, TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck } from 'lucide-react';
+import { TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
@@ -36,35 +27,14 @@ interface ManagementViewSelectorProps {
   selectedView: ManagementViewType;
   onSelect: (view: ManagementViewType) => void;
   className?: string;
-  /** If true, the entire selector is disabled (for non-authorized roles) */
   isLocked?: boolean;
 }
 
 const MANAGEMENT_VIEWS = [
-  {
-    value: 'cfo' as ManagementViewType,
-    label: 'CFO View',
-    description: 'Financial analytics, ROI & savings',
-    icon: TrendingUp,
-  },
-  {
-    value: 'ceo' as ManagementViewType,
-    label: 'CEO View',
-    description: 'Executive summary & KPIs',
-    icon: Briefcase,
-  },
-  {
-    value: 'hr' as ManagementViewType,
-    label: 'HR / Management View',
-    description: 'Team performance & incentives',
-    icon: Users,
-  },
-  {
-    value: 'manager' as ManagementViewType,
-    label: 'Manager View',
-    description: 'Operational oversight',
-    icon: BarChart3,
-  },
+  { value: 'cfo' as ManagementViewType, label: 'CFO View', description: 'Financial analytics, ROI & savings', icon: TrendingUp },
+  { value: 'ceo' as ManagementViewType, label: 'CEO View', description: 'Executive summary & KPIs', icon: Briefcase },
+  { value: 'hr' as ManagementViewType, label: 'HR / Management View', description: 'Team performance & incentives', icon: Users },
+  { value: 'manager' as ManagementViewType, label: 'Manager View', description: 'Operational oversight', icon: BarChart3 },
 ];
 
 export function ManagementViewSelector({
@@ -73,67 +43,102 @@ export function ManagementViewSelector({
   className = '',
   isLocked = false,
 }: ManagementViewSelectorProps) {
-  const { isRoleVerified, requiresVerification, clearVerification } = useRoleSecurity();
+  const { isRoleVerified, requiresVerification, clearVerification, hasPinConfigured } = useRoleSecurity();
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [pinStates, setPinStates] = useState<Record<string, boolean | null>>({});
+
+  // Check PIN states for all management views on mount
+  useEffect(() => {
+    const checkPins = async () => {
+      const states: Record<string, boolean | null> = {};
+      for (const view of MANAGEMENT_VIEWS) {
+        if (view.value) {
+          states[view.value] = await hasPinConfigured(view.value);
+        }
+      }
+      setPinStates(states);
+    };
+    checkPins();
+  }, [hasPinConfigured]);
 
   const selectedOption = MANAGEMENT_VIEWS.find(v => v.value === selectedView);
   const isCurrentViewVerified = selectedView ? isRoleVerified(selectedView) : false;
 
-  // Handle view selection - check if verification is needed
+  const getViewStatus = useCallback((viewValue: ManagementViewType): 'unlocked' | 'setup_required' | 'locked' => {
+    if (!viewValue) return 'locked';
+    if (isRoleVerified(viewValue)) return 'unlocked';
+    const hasPinState = pinStates[viewValue];
+    if (hasPinState === false) return 'setup_required';
+    return 'locked';
+  }, [isRoleVerified, pinStates]);
+
   const handleViewChange = (value: string) => {
     if (value === 'none') {
-      // Switching to execution mode - clear any active verification
-      if (selectedView) {
-        clearVerification(selectedView);
-      }
+      if (selectedView) clearVerification(selectedView);
       onSelect(null);
       return;
     }
-
     const targetView = value as ManagementViewType;
-    
-    // Check if this view is already verified
     if (isRoleVerified(targetView)) {
       onSelect(targetView);
       return;
     }
-
-    // Requires verification - show modal
     if (requiresVerification(targetView)) {
       setPendingView(targetView);
       setShowVerificationModal(true);
       return;
     }
-
-    // No verification needed (shouldn't happen for management views)
     onSelect(targetView);
   };
 
-  // Handle successful verification
   const handleVerified = () => {
     if (pendingView) {
       onSelect(pendingView);
       setPendingView(null);
+      // Refresh PIN states after setup
+      if (pendingView) {
+        hasPinConfigured(pendingView).then(has => {
+          setPinStates(prev => ({ ...prev, [pendingView]: has }));
+        });
+      }
     }
   };
 
-  // Handle modal close without verification
   const handleModalClose = () => {
     setShowVerificationModal(false);
     setPendingView(null);
   };
 
-  // Handle exit from management mode
   const handleExit = () => {
-    if (selectedView) {
-      clearVerification(selectedView);
-    }
+    if (selectedView) clearVerification(selectedView);
     onSelect(null);
   };
 
-  // Always show the selector - remove locked state display
-  // Non-management roles can still see the dropdown but won't be able to verify
+  const renderStatusBadge = (status: 'unlocked' | 'setup_required' | 'locked') => {
+    switch (status) {
+      case 'unlocked':
+        return (
+          <Badge variant="outline" className="text-[10px] py-0 px-1 text-green-600 border-green-200">
+            Unlocked
+          </Badge>
+        );
+      case 'setup_required':
+        return (
+          <Badge variant="outline" className="text-[10px] py-0 px-1 text-blue-600 border-blue-200">
+            <Settings className="h-2 w-2 mr-0.5" />
+            Setup Required
+          </Badge>
+        );
+      case 'locked':
+        return (
+          <Badge variant="outline" className="text-[10px] py-0 px-1 text-amber-600 border-amber-200">
+            <Lock className="h-2 w-2 mr-0.5" />
+            Locked
+          </Badge>
+        );
+    }
+  };
 
   return (
     <>
@@ -143,10 +148,7 @@ export function ManagementViewSelector({
           Management View
         </label>
         <div className="flex items-center gap-2">
-          <Select
-            value={selectedView || 'none'}
-            onValueChange={handleViewChange}
-          >
+          <Select value={selectedView || 'none'} onValueChange={handleViewChange}>
             <SelectTrigger className="w-full sm:w-[280px] bg-background border-border">
               <div className="flex items-center gap-2">
                 {selectedView && isCurrentViewVerified ? (
@@ -165,9 +167,8 @@ export function ManagementViewSelector({
                       )}
                     </span>
                   ) : (
-                    <span className="text-muted-foreground flex items-center gap-2">
-                      <Lock className="h-3 w-3" />
-                      Locked – Verification Required
+                    <span className="text-muted-foreground">
+                      Switch to Analytics
                     </span>
                   )}
                 </SelectValue>
@@ -179,46 +180,26 @@ export function ManagementViewSelector({
                   <X className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <div className="flex flex-col gap-0.5">
                     <span className="font-medium">Execution Mode</span>
-                    <span className="text-xs text-muted-foreground">
-                      Normal dashboard with actions
-                    </span>
+                    <span className="text-xs text-muted-foreground">Normal dashboard with actions</span>
                   </div>
                 </div>
               </SelectItem>
               {MANAGEMENT_VIEWS.map((view) => {
                 const Icon = view.icon;
                 const viewValue = view.value as string;
-                const isVerified = isRoleVerified(view.value);
+                const status = getViewStatus(view.value);
                 return (
-                  <SelectItem 
-                    key={viewValue} 
-                    value={viewValue}
-                    className="cursor-pointer"
-                  >
+                  <SelectItem key={viewValue} value={viewValue} className="cursor-pointer">
                     <div className="flex items-center gap-2 py-1">
                       <div className="relative flex-shrink-0">
                         <Icon className="h-4 w-4 text-amber-500" />
-                        {!isVerified && (
-                          <Lock className="h-2.5 w-2.5 absolute -bottom-0.5 -right-0.5 text-amber-600" />
-                        )}
                       </div>
                       <div className="flex flex-col gap-0.5">
                         <span className="font-medium flex items-center gap-2">
                           {view.label}
-                          {isVerified ? (
-                            <Badge variant="outline" className="text-[10px] py-0 px-1 text-green-600 border-green-200">
-                              Unlocked
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-[10px] py-0 px-1 text-amber-600 border-amber-200">
-                              <Lock className="h-2 w-2 mr-0.5" />
-                              Locked
-                            </Badge>
-                          )}
+                          {renderStatusBadge(status)}
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          {view.description}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{view.description}</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -227,7 +208,6 @@ export function ManagementViewSelector({
             </SelectContent>
           </Select>
           
-          {/* Quick exit button when in management mode */}
           {selectedView && (
             <Button
               variant="ghost"
@@ -242,7 +222,6 @@ export function ManagementViewSelector({
         </div>
       </div>
 
-      {/* Verification Modal */}
       <RoleVerificationModal
         isOpen={showVerificationModal}
         onClose={handleModalClose}
