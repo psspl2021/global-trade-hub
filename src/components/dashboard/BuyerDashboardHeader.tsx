@@ -49,7 +49,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
     isManagementMode,
     isLoading,
     error,
-  } = useBuyerCompanyContext();
+  } = useSharedBuyerCompanyContext();
   
   const { isRoleVerified } = useRoleSecurity();
   const isCurrentViewVerified = managementView ? isRoleVerified(managementView) : false;
