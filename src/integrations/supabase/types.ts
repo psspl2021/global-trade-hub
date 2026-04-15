@@ -5736,6 +5736,48 @@ export type Database = {
           },
         ]
       }
+      po_pending_notifications: {
+        Row: {
+          auction_id: string
+          buyer_company_id: string
+          id: string
+          last_notified_at: string
+          notification_count: number
+          notified_at: string
+        }
+        Insert: {
+          auction_id: string
+          buyer_company_id: string
+          id?: string
+          last_notified_at?: string
+          notification_count?: number
+          notified_at?: string
+        }
+        Update: {
+          auction_id?: string
+          buyer_company_id?: string
+          id?: string
+          last_notified_at?: string
+          notification_count?: number
+          notified_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "po_pending_notifications_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: true
+            referencedRelation: "reverse_auctions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "po_pending_notifications_buyer_company_id_fkey"
+            columns: ["buyer_company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       po_status_history: {
         Row: {
           changed_by: string | null
@@ -12315,6 +12357,18 @@ export type Database = {
         Returns: {
           bid_count: number
           lowest_bid_amount: number
+        }[]
+      }
+      get_pending_po_auctions: {
+        Args: never
+        Returns: {
+          approver_emails: Json
+          auction_end: string
+          auction_id: string
+          auction_title: string
+          buyer_company_id: string
+          buyer_id: string
+          winning_price: number
         }[]
       }
       get_po_amount: {
