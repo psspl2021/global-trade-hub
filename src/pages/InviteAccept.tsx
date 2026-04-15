@@ -1,0 +1,166 @@
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
+
+const InviteAccept = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const [invite, setInvite] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [joining, setJoining] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Fetch invite details
+  useEffect(() => {
+    if (!id) return;
+    const fetchInvite = async () => {
+      const { data, error } = await supabase
+        .from('team_invites')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error || !data) {
+        setError('This invite link is invalid or has expired.');
+        setLoading(false);
+        return;
+      }
+
+      if (data.status === 'accepted') {
+        setError('This invitation has already been accepted.');
+        setLoading(false);
+        return;
+      }
+
+      setInvite(data);
+      setLoading(false);
+    };
+    fetchInvite();
+  }, [id]);
+
+  // If user is logged in and invite is loaded, auto-join
+  useEffect(() => {
+    if (authLoading || !invite || !user) return;
+
+    const joinCompany = async () => {
+      setJoining(true);
+
+      // Check if already a member
+      const { data: existing } = await supabase
+        .from('buyer_company_members')
+        .select('id')
+        .eq('company_id', invite.company_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existing) {
+        setSuccess(true);
+        setJoining(false);
+        setTimeout(() => navigate('/dashboard'), 1500);
+        return;
+      }
+
+      // Join the company
+      const { error: insertError } = await supabase
+        .from('buyer_company_members')
+        .insert({
+          company_id: invite.company_id,
+          user_id: user.id,
+          role: invite.role || 'purchaser',
+          is_active: true,
+          assigned_categories: invite.categories || [],
+        });
+
+      if (insertError) {
+        setError('Failed to join the team. Please try again.');
+        setJoining(false);
+        return;
+      }
+
+      // Mark invite as accepted
+      await supabase
+        .from('team_invites')
+        .update({ status: 'accepted', updated_at: new Date().toISOString() })
+        .eq('id', invite.id);
+
+      setSuccess(true);
+      setJoining(false);
+      setTimeout(() => navigate('/dashboard'), 1500);
+    };
+
+    joinCompany();
+  }, [authLoading, invite, user, navigate]);
+
+  // If not logged in and invite loaded, redirect to signup with invite_id
+  useEffect(() => {
+    if (authLoading || loading || !invite) return;
+    if (!user) {
+      navigate(`/signup?invite_id=${id}&email=${encodeURIComponent(invite.email)}`);
+    }
+  }, [authLoading, loading, invite, user, navigate, id]);
+
+  if (loading || authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-muted/30 to-background">
+        <div className="text-center space-y-4">
+          <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-16 mx-auto" />
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading invitation...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-muted/30 to-background p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center space-y-4">
+            <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-16 mx-auto" />
+            <XCircle className="h-12 w-12 text-destructive mx-auto" />
+            <h2 className="text-xl font-semibold">Invitation Error</h2>
+            <p className="text-muted-foreground">{error}</p>
+            <Button onClick={() => navigate('/login')}>Go to Login</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-muted/30 to-background p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center space-y-4">
+            <img src={procureSaathiLogo} alt="ProcureSaathi" className="h-16 mx-auto" />
+            <CheckCircle className="h-12 w-12 text-green-600 mx-auto" />
+            <h2 className="text-xl font-semibold">You've joined the team!</h2>
+            <p className="text-muted-foreground">Redirecting to your dashboard...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (joining) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-muted/30 to-background">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Joining team...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+export default InviteAccept;
