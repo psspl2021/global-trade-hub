@@ -81,6 +81,20 @@ const Dashboard = () => {
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
+  
+  // Management view state — synced via custom event from BuyerDashboardHeader's ManagementViewSelector
+  const [activeManagementView, setActiveManagementView] = useState<'cfo' | 'ceo' | 'hr' | 'manager' | null>(() => {
+    return (localStorage.getItem('ps_management_view') as any) || null;
+  });
+  
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setActiveManagementView(detail?.view || null);
+    };
+    window.addEventListener('ps-management-view-change', handler);
+    return () => window.removeEventListener('ps-management-view-change', handler);
+  }, []);
 
   // Derive sub-view state from URL search params so it survives refresh
   const activeView = searchParams.get('view') || '';
