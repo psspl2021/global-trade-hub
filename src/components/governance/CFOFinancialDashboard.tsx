@@ -287,7 +287,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{formatBase(payables?.totalPayable || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{openPOs.length} active POs</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {openPOs.length} POs{topVendor ? ` · ${topVendorShare}% from ${topVendor.supplierName.substring(0, 20)}` : ''}
+            </p>
           </CardContent>
         </Card>
 
@@ -305,7 +307,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.payableNext7Days || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Immediate action</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {due7POs.length > 0 ? `${due7POs.length} POs · ${due7VendorCount} vendor${due7VendorCount !== 1 ? 's' : ''}` : 'No immediate dues ✓'}
+            </p>
           </CardContent>
         </Card>
 
@@ -323,7 +327,11 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{overdueRatio.toFixed(0)}% of payables</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {delayed.length > 0
+                ? `↑ ${overdueVendorCount} vendor${overdueVendorCount !== 1 ? 's' : ''} · worst ${worstOverdue?.daysOverdue}d late`
+                : 'All clear ✓'}
+            </p>
           </CardContent>
         </Card>
 
@@ -524,7 +532,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{vendors.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Active vendors</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {topVendor ? `Top: ${topVendor.supplierName.substring(0, 18)} (${formatBase(topVendor.openPayables)})` : 'No vendors'}
+            </p>
           </CardContent>
         </Card>
 
@@ -542,7 +552,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{delayed.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{delayed.length === 0 ? 'All clear ✓' : 'POs overdue'}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {delayed.length === 0 ? 'All clear ✓' : `⚠ ${formatBase(delayed.reduce((s, d) => s + d.amount, 0))} at risk`}
+            </p>
           </CardContent>
         </Card>
 
@@ -653,7 +665,13 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-sm font-medium text-foreground">Predictive cash intelligence</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Runway, priority queue, actions</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {delayed.length > 0
+                ? `Top action: Clear ${formatBase(delayed[0]?.amount || 0)} overdue to ${delayed[0]?.supplierName?.substring(0, 15)}`
+                : cashBurn && cashBurn.pendingPayables > 0
+                  ? `${formatBase(cashBurn.pendingPayables)} pending — review priority`
+                  : 'Runway, priority queue, actions'}
+            </p>
           </CardContent>
         </Card>
 
@@ -670,7 +688,9 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-sm font-medium text-foreground">Visualization & Trends</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Burn trend, risk heatmap, feedback</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {vendors.length > 0 ? `Tracking ${vendors.length} vendor${vendors.length !== 1 ? 's' : ''} · ${openPOs.length} open POs` : 'Burn trend, risk heatmap, feedback'}
+            </p>
           </CardContent>
         </Card>
       </div>
