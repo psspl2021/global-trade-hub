@@ -32,40 +32,41 @@ import { CFODecisionEngine } from './CFODecisionEngine';
 import { CFOVisualizationDashboard } from './CFOVisualizationDashboard';
 
 /* ── Types from consolidated RPC ── */
+interface StructuredAlert {
+  type: string;
+  severity: string;
+  metric: number;
+  message: string;
+}
+
 interface ConsolidatedIntelligence {
   summary: {
     total_payable: number;
-    due_next_7_days: number;
-    due_7_count: number;
+    payable_7d: number;
     overdue: number;
-    overdue_count: number;
-    burn_7d: number;
+    overdue_worst_days: number;
     burn_30d: number;
     avg_daily_burn: number;
-    payable_clearance_days: number;
-    top_vendor_name: string;
+    clearance_days: number;
+    top_vendor: string;
     top_vendor_amount: number;
     top_vendor_share: number;
-    vendor_count: number;
-    worst_overdue_days: number;
-    worst_overdue_vendor: string;
+    total_vendors: number;
   };
   insights: {
-    payable: { severity: string; concentration_risk: boolean; top_vendor_share: number; clearance_days: number; reason: string };
+    payable: { severity: string; concentration_risk: boolean; top_vendor: string; top_vendor_share: number; clearance_days: number; clearance_label: string };
     due7: { severity: string; burn_multiplier: number; clearance_impact_days: number; consequence: string };
-    overdue: { severity: string; worst_days: number; worst_vendor: string; consequence: string };
-    decision: { top_action: string; top_impact: string | null; inaction_consequence: string | null };
+    overdue: { severity: string; worst_days: number; vendor_count: number; consequence: string };
   };
-  actions: Array<{ action: string; impact: string; consequence: string; priority_score: number; category: string }>;
-  alerts: string[];
+  actions: Array<{ action: string; impact: string; priority_score: number; category: string; confidence: number }>;
+  alerts: StructuredAlert[];
   headline: string;
   trends: {
     burn_7d_vs_prev_pct: number;
-    burn_7d: number;
-    burn_prev_7d: number;
-    payable_clearance_days: number;
-    avg_daily_burn: number;
+    overdue_change_pct: number;
+    payable_growth_pct: number;
   };
+  system_confidence: number;
 }
 
 interface OpenPO {
