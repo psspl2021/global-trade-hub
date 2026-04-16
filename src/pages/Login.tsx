@@ -84,11 +84,22 @@ const Login = () => {
 
       if (roleData && roleData.length > 0) {
         const roles = roleData.map(r => r.role as string);
+        const managementRoleToView: Record<string, 'ceo' | 'cfo' | 'manager' | 'hr'> = {
+          ceo: 'ceo',
+          buyer_ceo: 'ceo',
+          cfo: 'cfo',
+          buyer_cfo: 'cfo',
+          manager: 'manager',
+          buyer_manager: 'manager',
+          hr: 'hr',
+          buyer_hr: 'hr',
+        };
         
         // Check for management roles (highest priority)
-        const managementRoles = ['ceo', 'buyer_ceo', 'cfo', 'buyer_cfo', 'manager', 'buyer_manager'];
-        if (roles.some(r => managementRoles.includes(r))) {
-          navigate('/management');
+        const matchedManagementRole = roles.find(r => managementRoleToView[r]);
+        if (matchedManagementRole) {
+          localStorage.setItem('ps_management_view', managementRoleToView[matchedManagementRole]);
+          navigate('/dashboard');
           return;
         }
         
