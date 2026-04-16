@@ -68,10 +68,12 @@ serve(async (req) => {
 
     let userAlreadyExists = false;
     let alreadyMember = false;
+    let ownsAnotherCompany = false;
 
     if (existingProfile && companyId) {
       userAlreadyExists = true;
 
+      // Check if already a member of THIS company
       const { data: existing } = await supabaseAdmin
         .from('buyer_company_members')
         .select('id')
@@ -82,15 +84,32 @@ serve(async (req) => {
       if (existing) {
         alreadyMember = true;
       } else {
-        await supabaseAdmin
+        // SAFETY: Check if user already belongs to ANY other buyer company.
+        // If so, they MUST explicitly accept the invite via tokenized link —
+        // never silently merge an independent buyer into another company.
+        const { data: otherMemberships } = await supabaseAdmin
           .from('buyer_company_members')
-          .insert({
-            company_id: companyId,
-            user_id: existingProfile.id,
-            role: role || 'buyer_purchaser',
-            is_active: true,
-            assigned_categories: categories?.length ? categories : null,
-          });
+          .select('id')
+          .eq('user_id', existingProfile.id)
+          .neq('company_id', companyId)
+          .limit(1);
+
+        if (otherMemberships && otherMemberships.length > 0) {
+          ownsAnotherCompany = true;
+          // Do NOT auto-insert. Force tokenized invite flow below.
+          userAlreadyExists = false;
+        } else {
+          // Safe to auto-add: user has no other company affiliation.
+          await supabaseAdmin
+            .from('buyer_company_members')
+            .insert({
+              company_id: companyId,
+              user_id: existingProfile.id,
+              role: role || 'buyer_purchaser',
+              is_active: true,
+              assigned_categories: categories?.length ? categories : null,
+            });
+        }
       }
     }
 

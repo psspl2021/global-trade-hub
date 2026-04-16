@@ -52,7 +52,7 @@ const InviteAccept = () => {
     const joinCompany = async () => {
       setJoining(true);
 
-      // Check if already a member
+      // Check if already a member of THIS company
       const { data: existing } = await supabase
         .from('buyer_company_members')
         .select('id')
@@ -64,6 +64,26 @@ const InviteAccept = () => {
         setSuccess(true);
         setJoining(false);
         setTimeout(() => navigate('/dashboard'), 1500);
+        return;
+      }
+
+      // SAFETY: Block if user already belongs to ANOTHER buyer company.
+      // Independent buyer accounts must not be silently absorbed into another org.
+      const { data: otherMemberships } = await supabase
+        .from('buyer_company_members')
+        .select('id, buyer_companies(company_name)')
+        .eq('user_id', user.id)
+        .neq('company_id', invite.company_id)
+        .limit(1);
+
+      if (otherMemberships && otherMemberships.length > 0) {
+        const otherCo = (otherMemberships[0] as any)?.buyer_companies?.company_name || 'another company';
+        setError(
+          `Your account already belongs to ${otherCo}. ` +
+          `An account can only be part of one buyer organization. ` +
+          `Please contact support if you need to switch organizations.`
+        );
+        setJoining(false);
         return;
       }
 
