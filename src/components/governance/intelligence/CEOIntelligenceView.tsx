@@ -3,13 +3,17 @@
  */
 import { Wallet, AlertTriangle, CalendarClock, FileText } from 'lucide-react';
 import { IntelligenceMetricCard, formatBaseAmount } from './IntelligenceMetricCard';
+import { CEOInsightsPanel } from './CEOInsightsPanel';
 import type { CompanyIntelligenceData } from '@/hooks/useCompanyIntelligence';
 
 export function CEOIntelligenceView({ data }: { data: CompanyIntelligenceData }) {
   const base = data.base_currency || 'INR';
   const s = data.summary || {};
+  const insights = (data as any).insights ?? null;
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-4">
+      <CEOInsightsPanel insights={insights} baseCurrency={base} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <IntelligenceMetricCard
         title="Total Payable"
         value={formatBaseAmount(s.total_payable ?? 0, base)}
