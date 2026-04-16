@@ -285,11 +285,11 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-foreground">{formatBase(s?.total_payable || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(ins?.payable?.severity || 'normal')}
+              {severityBadge(intel?.severity || 'normal')}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{ins?.payable?.clearance_label || 'Loading...'}</p>
-            {(ins?.payable?.clearance_days ?? 0) > 0 && (
-              <p className="text-[10px] text-primary font-medium mt-0.5">= {ins!.payable.clearance_days}d payable clearance</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{(s?.clearance_days ?? 0) > 0 ? `~${s!.clearance_days}d payable clearance` : 'Loading...'}</p>
+            {(s?.clearance_days ?? 0) > 0 && (
+              <p className="text-[10px] text-primary font-medium mt-0.5">= {s!.clearance_days}d at current burn</p>
             )}
           </CardContent>
         </Card>
