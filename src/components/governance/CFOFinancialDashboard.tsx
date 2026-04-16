@@ -133,7 +133,7 @@ type SectionId = 'payable' | 'due7' | 'overdue' | 'burn' | 'vendors' | 'delayed'
 
 /* ── Main Component ── */
 export function CFOFinancialDashboard() {
-  const [intel, setIntel] = useState<ConsolidatedIntelligence | null>(null);
+  const [intel, setIntel] = useState<RpcIntelligence | null>(null);
   const [openPOs, setOpenPOs] = useState<OpenPO[]>([]);
   const [delayed, setDelayed] = useState<DelayedPayment[]>([]);
   const [loading, setLoading] = useState(true);
