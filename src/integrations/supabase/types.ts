@@ -12341,7 +12341,7 @@ export type Database = {
         Returns: Json
       }
       get_company_intelligence_v2: {
-        Args: { p_company_id: string }
+        Args: { p_user_id: string }
         Returns: Json
       }
       get_company_names: {
