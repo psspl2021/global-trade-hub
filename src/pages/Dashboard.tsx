@@ -73,6 +73,17 @@ import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
 import { CompanyIntelligenceRouter } from '@/components/governance/intelligence';
 
+const ROLE_DEFAULT_MANAGEMENT_VIEW: Partial<Record<string, 'cfo' | 'ceo' | 'hr' | 'manager'>> = {
+  cfo: 'cfo',
+  buyer_cfo: 'cfo',
+  ceo: 'ceo',
+  buyer_ceo: 'ceo',
+  hr: 'hr',
+  buyer_hr: 'hr',
+  manager: 'manager',
+  buyer_manager: 'manager',
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -257,16 +268,25 @@ const Dashboard = () => {
     if (!authLoading && !roleLoading && role === 'affiliate') {
       navigate('/affiliate');
     }
-    // ROLE-BASED DASHBOARD SEPARATION:
-    // Redirect management roles (buyer_cfo, buyer_ceo, buyer_manager, cfo, ceo, manager) to /management
-    if (!authLoading && !roleLoading && ['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager'].includes(role || '')) {
-      navigate('/management');
-    }
     // Redirect admin roles to /admin
     if (!authLoading && !roleLoading && (role === 'ps_admin' || role === 'admin')) {
       navigate('/admin');
     }
   }, [user, authLoading, roleLoading, role, navigate]);
+
+  useEffect(() => {
+    if (authLoading || roleLoading) return;
+
+    const defaultManagementView = role ? ROLE_DEFAULT_MANAGEMENT_VIEW[role] : null;
+    if (!defaultManagementView) return;
+
+    setActiveManagementView((current) => current ?? defaultManagementView);
+
+    if (typeof window !== 'undefined' && !localStorage.getItem('ps_management_view')) {
+      localStorage.setItem('ps_management_view', defaultManagementView);
+      window.dispatchEvent(new CustomEvent('ps-management-view-change', { detail: { view: defaultManagementView } }));
+    }
+  }, [authLoading, roleLoading, role]);
 
   if (authLoading || roleLoading) {
     return (

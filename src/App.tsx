@@ -267,8 +267,8 @@ const BotAwareRouter = () => {
         {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}
         <Route path="/dashboard" element={<Dashboard />} />
         
-        {/* Management Dashboard: buyer_cfo, buyer_ceo, buyer_manager, cfo, ceo, manager */}
-        <Route path="/management" element={<ManagementExecutiveDashboard />} />
+        {/* Legacy management route now resolves into the unified dashboard */}
+        <Route path="/management" element={<Navigate to="/dashboard" replace />} />
         
         {/* Admin Audit Dashboard: ps_admin, admin */}
         <Route path="/admin" element={<AdminAuditDashboard />} />
@@ -292,7 +292,7 @@ const BotAwareRouter = () => {
         <Route path="/admin/demand-gaps" element={<Navigate to="/admin" replace />} />
         
         {/* Legacy routes - redirect to new structure */}
-        <Route path="/management-dashboard" element={<Navigate to="/management" replace />} />
+        <Route path="/management-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/purchaser-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
         
