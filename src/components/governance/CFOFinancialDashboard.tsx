@@ -543,7 +543,7 @@ export function CFOFinancialDashboard() {
               </Badge>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              {s?.top_vendor_name ? `${s.top_vendor_name}: ${s.top_vendor_share}% exposure` : 'No vendors'}
+              {s?.top_vendor_name ? `${s?.top_vendor}: ${s.top_vendor_share}% exposure` : 'No vendors'}
             </p>
           </CardContent>
         </Card>
@@ -592,7 +592,7 @@ export function CFOFinancialDashboard() {
               <div className="space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-foreground font-medium">{s.top_vendor_name}</span>
+                    <span className="text-sm text-foreground font-medium">{s?.top_vendor}</span>
                     <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{formatBase(s.top_vendor_amount)}</span>
                   </div>
                   <Progress value={s.top_vendor_share} className="h-1.5 bg-muted" />
@@ -657,8 +657,8 @@ export function CFOFinancialDashboard() {
               <>
                 <p className="text-sm font-semibold text-foreground">{topAction.action}</p>
                 <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.impact}</p>
-                {topAction.consequence && (
-                  <p className="text-[10px] text-destructive/70 mt-1 italic">⚠ If no action: {topAction.consequence}</p>
+                {topAction?.impact && (
+                  <p className="text-[10px] text-destructive/70 mt-1 italic">⚠ If no action: {topAction?.impact}</p>
                 )}
                 <Badge variant="outline" className="text-[9px] mt-1 border-emerald-500/30 text-emerald-600">
                   Priority: {topAction.priority_score}/100
@@ -706,7 +706,7 @@ export function CFOFinancialDashboard() {
                       <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority_score}/100</Badge>
                     </div>
                     <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.impact}</p>
-                    {a.consequence && <p className="text-[10px] text-destructive/60 italic mt-0.5">⚠ {a.consequence}</p>}
+                    {a?.impact && <p className="text-[10px] text-destructive/60 italic mt-0.5">⚠ {a?.impact}</p>}
                   </div>
                 ))}
               </CardContent>
