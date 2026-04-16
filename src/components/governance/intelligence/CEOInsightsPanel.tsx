@@ -22,12 +22,22 @@ interface SupplierRisk {
   concentration_pct?: number;
 }
 
+interface ActionItem {
+  type: string;
+  title: string;
+  impact: number;
+  description: string;
+}
+
 interface Insights {
   overdue_ratio?: number;
   risk_level?: 'NORMAL' | 'HIGH' | string;
   avg_payment_delay_days?: number;
   supplier_risk?: SupplierRisk;
   upcoming_payments?: UpcomingPayment[];
+  cash_pressure_score?: number;
+  priority?: 'STABLE' | 'WARNING' | 'CRITICAL' | string;
+  actions?: ActionItem[];
 }
 
 export function CEOInsightsPanel({
