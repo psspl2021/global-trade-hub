@@ -40,29 +40,20 @@ interface StructuredAlert {
 }
 
 interface ConsolidatedIntelligence {
-  summary: {
-    total_payable: number;
-    payable_7d: number;
-    overdue: number;
-    overdue_worst_days: number;
-    burn_30d: number;
-    avg_daily_burn: number;
-    clearance_days: number;
-    top_vendor: string;
-    top_vendor_amount: number;
-    top_vendor_share: number;
-    total_vendors: number;
-  };
-  insights: {
-    payable: { severity: string; concentration_risk: boolean; top_vendor: string; top_vendor_share: number; clearance_days: number; clearance_label: string };
-    burn: { multiplier: number; severity: string; avg_daily: number };
-  };
-  actions: Array<{ action: string; label: string; impact: string; priority_score: number; category: string; confidence: number }>;
-  alerts: StructuredAlert[];
   headline: string;
-  trends: Array<{ metric: string; value: number; direction: string }>;
-  system_confidence: number;
+  severity: string;
   health_score: number;
+  pressure_score: number;
+  confidence: number;
+  insights: {
+    payable: { total_payable: number; payable_7d: number; overdue: number; overdue_worst_days: number };
+    burn: { burn_30d: number; avg_daily_burn: number; burn_multiplier: number; clearance_days: number };
+    concentration: { top_vendor: string; top_vendor_amount: number; top_vendor_share: number; total_vendors: number; concentration_risk: boolean };
+  };
+  trends: Array<{ metric: string; value: number; direction: string; impact: string }>;
+  alerts: StructuredAlert[];
+  actions: Array<{ action: string; priority: number; severity: string; description: string }>;
+  meta: { company_id: string; currency: string; fx_rate: number; computed_at: string };
 }
 
 interface OpenPO {
