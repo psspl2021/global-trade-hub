@@ -12700,6 +12700,10 @@ export type Database = {
         Args: { _metadata?: Json; _target_role: string; _user_id: string }
         Returns: string
       }
+      map_buyer_role_to_intel: {
+        Args: { _buyer_role: string }
+        Returns: string
+      }
       place_bid_with_session: {
         Args: {
           p_auction_id: string
