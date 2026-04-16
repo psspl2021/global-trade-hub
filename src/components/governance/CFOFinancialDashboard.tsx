@@ -1,7 +1,7 @@
 /**
  * CFO Financial Intelligence Dashboard (Global)
- * Executive-style expandable cards — backend-driven insights
- * Frontend is render layer only — all intelligence from get_cfo_decision_intelligence()
+ * Single-RPC architecture — all data from get_cfo_decision_intelligence()
+ * Frontend is render layer only
  */
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +23,7 @@ import {
   Loader2,
   ShieldAlert,
   TrendingDown,
+  TrendingUp,
   Wallet,
   Zap,
 } from 'lucide-react';
@@ -30,50 +31,41 @@ import { cn } from '@/lib/utils';
 import { CFODecisionEngine } from './CFODecisionEngine';
 import { CFOVisualizationDashboard } from './CFOVisualizationDashboard';
 
-/* ── Interfaces ── */
-interface PayablesSummary {
-  totalPayable: number;
-  totalPaid: number;
-  totalOverdue: number;
-  payableNext7Days: number;
-  payableNext30Days: number;
-}
-
-interface CurrencyBreakdown {
-  currency: string;
-  payable: number;
-  paid: number;
-  poCount: number;
-}
-
-interface VendorExposure {
-  supplierId: string;
-  supplierName: string;
-  totalPoValue: number;
-  totalPaid: number;
-  openPayables: number;
-  poCount: number;
-  currency: string;
-  baseCurrencyValue: number;
-}
-
-interface DelayedPayment {
-  poId: string;
-  poNumber: string;
-  supplierName: string;
-  amount: number;
-  dueDate: string;
-  daysOverdue: number;
-  currency: string;
-  regionType: string;
-}
-
-interface CashBurnMetrics {
-  dailyBurn: number;
-  weeklyBurn: number;
-  monthlyBurn: number;
-  confirmedPayments30d: number;
-  pendingPayables: number;
+/* ── Types from consolidated RPC ── */
+interface ConsolidatedIntelligence {
+  summary: {
+    total_payable: number;
+    due_next_7_days: number;
+    due_7_count: number;
+    overdue: number;
+    overdue_count: number;
+    burn_7d: number;
+    burn_30d: number;
+    avg_daily_burn: number;
+    payable_clearance_days: number;
+    top_vendor_name: string;
+    top_vendor_amount: number;
+    top_vendor_share: number;
+    vendor_count: number;
+    worst_overdue_days: number;
+    worst_overdue_vendor: string;
+  };
+  insights: {
+    payable: { severity: string; concentration_risk: boolean; top_vendor_share: number; clearance_days: number; reason: string };
+    due7: { severity: string; burn_multiplier: number; clearance_impact_days: number; consequence: string };
+    overdue: { severity: string; worst_days: number; worst_vendor: string; consequence: string };
+    decision: { top_action: string; top_impact: string | null; inaction_consequence: string | null };
+  };
+  actions: Array<{ action: string; impact: string; consequence: string; priority_score: number; category: string }>;
+  alerts: string[];
+  headline: string;
+  trends: {
+    burn_7d_vs_prev_pct: number;
+    burn_7d: number;
+    burn_prev_7d: number;
+    payable_clearance_days: number;
+    avg_daily_burn: number;
+  };
 }
 
 interface OpenPO {
@@ -88,46 +80,15 @@ interface OpenPO {
   order_date: string;
 }
 
-interface BackendInsights {
-  payable: {
-    severity: string;
-    concentration_risk: boolean;
-    top_vendor_share: number;
-    vendor_count: number;
-    po_count: number;
-    runway_equivalent_days: number | null;
-    consequence: string;
-  };
-  due7: {
-    severity: string;
-    burn_multiplier: number;
-    total: number;
-    po_count: number;
-    vendor_count: number;
-    runway_impact_days: number | null;
-    consequence: string;
-  };
-  overdue: {
-    severity: string;
-    worst_days: number;
-    total: number;
-    vendor_count: number;
-    consequence: string;
-  };
-  vendor: {
-    concentration_pct: number;
-    risk_level: string;
-  };
-  decision?: {
-    top_action: string | null;
-    top_action_amount: number;
-    top_action_type: string;
-    confidence: number;
-    runway_impact_days: number | null;
-    inaction_consequence: string;
-    action_count: number;
-  };
-  stacked_alerts: string[];
+interface DelayedPayment {
+  poId: string;
+  poNumber: string;
+  supplierName: string;
+  amount: number;
+  dueDate: string;
+  daysOverdue: number;
+  currency: string;
+  regionType: string;
 }
 
 /* ── Formatting ── */
@@ -135,6 +96,8 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼',
   JPY: '¥', CNY: '¥', SGD: 'S$', AUD: 'A$', CAD: 'C$', CHF: 'CHF',
 };
+
+let _orgBaseCurrency = 'INR';
 
 const formatCurrency = (val: number, currency: string = 'INR') => {
   try {
@@ -157,103 +120,57 @@ const formatCompact = (val: number, currency: string = 'INR') => {
   return formatCurrency(val, currency);
 };
 
-let _orgBaseCurrency = 'INR';
 const formatBase = (val: number) => formatCompact(val, _orgBaseCurrency);
 
-/* ── Expandable Section Type ── */
-type SectionId = 'payable' | 'due7' | 'overdue' | 'burn' | 'cashburn' | 'vendors' | 'delayed' | 'decision' | 'intelligence';
-
-/* ── Default insights (before backend loads) ── */
-const DEFAULT_INSIGHTS: BackendInsights = {
-  payable: { severity: 'normal', concentration_risk: false, top_vendor_share: 0, vendor_count: 0, po_count: 0, runway_equivalent_days: null, consequence: 'Loading...' },
-  due7: { severity: 'clear', burn_multiplier: 0, total: 0, po_count: 0, vendor_count: 0, runway_impact_days: null, consequence: 'Loading...' },
-  overdue: { severity: 'clear', worst_days: 0, total: 0, vendor_count: 0, consequence: 'Loading...' },
-  vendor: { concentration_pct: 0, risk_level: 'diversified' },
-  stacked_alerts: [],
-};
+/* ── Section IDs ── */
+type SectionId = 'payable' | 'due7' | 'overdue' | 'burn' | 'vendors' | 'delayed' | 'decision' | 'intelligence';
 
 /* ── Main Component ── */
 export function CFOFinancialDashboard() {
-  const [payables, setPayables] = useState<PayablesSummary | null>(null);
-  const [currencyBreakdown, setCurrencyBreakdown] = useState<CurrencyBreakdown[]>([]);
-  const [vendors, setVendors] = useState<VendorExposure[]>([]);
-  const [delayed, setDelayed] = useState<DelayedPayment[]>([]);
-  const [cashBurn, setCashBurn] = useState<CashBurnMetrics | null>(null);
+  const [intel, setIntel] = useState<ConsolidatedIntelligence | null>(null);
   const [openPOs, setOpenPOs] = useState<OpenPO[]>([]);
+  const [delayed, setDelayed] = useState<DelayedPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Set<SectionId>>(new Set());
-  const [insights, setInsights] = useState<BackendInsights>(DEFAULT_INSIGHTS);
 
   const toggle = (id: SectionId) => {
-    setExpanded(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    setExpanded(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   };
   const isOpen = (id: SectionId) => expanded.has(id);
 
-  useEffect(() => { fetchDashboardData(); }, []);
+  useEffect(() => { fetchAll(); }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchAll = async () => {
     setLoading(true);
     try {
-      await Promise.all([
-        fetchServerSummary(),
-        fetchDecisionInsights(),
-        fetchDelayedPayments(),
-        fetchOpenPOs(),
-      ]);
+      await Promise.all([fetchIntelligence(), fetchOpenPOs(), fetchDelayedPayments()]);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchServerSummary = async () => {
-    const { data, error } = await supabase.rpc('get_cfo_financial_summary' as any);
-    if (error || !data) { console.error('CFO summary RPC error:', error); return; }
-    const d = data as any;
-    const orgBase = d.org_base_currency || d.payables?.org_base_currency || 'INR';
-    _orgBaseCurrency = orgBase;
-    setPayables({
-      totalPayable: d.payables?.total_payable_base || 0,
-      totalPaid: d.payables?.total_paid_base || 0,
-      totalOverdue: d.aging?.overdue_base || 0,
-      payableNext7Days: d.aging?.due_7d_base || 0,
-      payableNext30Days: d.aging?.due_30d_base || 0,
-    });
-    const byCurrency = (d.payables?.by_currency || []) as Array<{ currency: string; payable: number; paid: number }>;
-    setCurrencyBreakdown(byCurrency.map(c => ({ currency: c.currency, payable: c.payable, paid: c.paid, poCount: 0 })).sort((a, b) => b.payable - a.payable));
-    setCashBurn({
-      dailyBurn: (d.burn_rate?.burn_30d || 0) / 30,
-      weeklyBurn: d.burn_rate?.burn_7d || 0,
-      monthlyBurn: d.burn_rate?.burn_30d || 0,
-      confirmedPayments30d: d.burn_rate?.burn_30d || 0,
-      pendingPayables: d.payables?.total_payable_base || 0,
-    });
-    const vendorData = (d.vendor_exposure || []) as Array<{ contract_id: string; total_exposure_base: number; po_count: number; currencies: string[] }>;
-    setVendors(vendorData.map((v, i) => ({
-      supplierId: v.contract_id || `vendor-${i}`,
-      supplierName: (v as any).supplier_name || `Contract-${(v.contract_id || '').substring(0, 8).toUpperCase()}`,
-      totalPoValue: v.total_exposure_base, totalPaid: 0, openPayables: v.total_exposure_base,
-      poCount: v.po_count, currency: v.currencies?.[0] || 'INR', baseCurrencyValue: v.total_exposure_base,
-    })));
+  /* Single source of truth RPC */
+  const fetchIntelligence = async () => {
+    const { data, error } = await supabase.rpc('get_cfo_decision_intelligence' as any);
+    if (error || !data) { console.error('CFO intelligence RPC error:', error); return; }
+    setIntel(data as any);
   };
 
-  const fetchDecisionInsights = async () => {
-    const { data, error } = await supabase.rpc('get_cfo_decision_intelligence' as any);
-    if (error || !data) { console.error('Decision insights RPC error:', error); return; }
-    const d = data as any;
-    if (d.insights) {
-      setInsights({
-        payable: d.insights.payable || DEFAULT_INSIGHTS.payable,
-        due7: d.insights.due7 || DEFAULT_INSIGHTS.due7,
-        overdue: d.insights.overdue || DEFAULT_INSIGHTS.overdue,
-        vendor: d.insights.vendor || DEFAULT_INSIGHTS.vendor,
-        decision: d.insights.decision || undefined,
-        stacked_alerts: d.insights.stacked_alerts || [],
-      });
-    }
+  /* PO list for drill-down (render only) */
+  const fetchOpenPOs = async () => {
+    const { data } = await supabase
+      .from('purchase_orders')
+      .select('id, po_number, vendor_name, po_value, currency, status, payment_workflow_status, expected_delivery_date, order_date')
+      .neq('payment_workflow_status', 'payment_confirmed')
+      .neq('status', 'cancelled')
+      .order('order_date', { ascending: false })
+      .limit(20);
+    setOpenPOs((data || []).map(po => ({
+      id: po.id, po_number: po.po_number, vendor_name: po.vendor_name,
+      po_value: po.po_value || 0, currency: po.currency || 'INR',
+      status: po.status || 'draft', payment_workflow_status: po.payment_workflow_status || 'pending',
+      expected_delivery_date: (po as any).expected_delivery_date, order_date: po.order_date,
+    })));
   };
 
   const fetchDelayedPayments = async () => {
@@ -280,27 +197,6 @@ export function CFOFinancialDashboard() {
     }));
   };
 
-  const fetchOpenPOs = async () => {
-    const { data } = await supabase
-      .from('purchase_orders')
-      .select('id, po_number, vendor_name, po_value, currency, status, payment_workflow_status, expected_delivery_date, order_date')
-      .neq('payment_workflow_status', 'payment_confirmed')
-      .neq('status', 'cancelled')
-      .order('order_date', { ascending: false })
-      .limit(20);
-    setOpenPOs((data || []).map(po => ({
-      id: po.id,
-      po_number: po.po_number,
-      vendor_name: po.vendor_name,
-      po_value: po.po_value || 0,
-      currency: po.currency || 'INR',
-      status: po.status || 'draft',
-      payment_workflow_status: po.payment_workflow_status || 'pending',
-      expected_delivery_date: (po as any).expected_delivery_date,
-      order_date: po.order_date,
-    })));
-  };
-
   if (loading) {
     return (
       <Card className="bg-card border-border">
@@ -312,7 +208,10 @@ export function CFOFinancialDashboard() {
     );
   }
 
-  const totalExposure = payables ? payables.totalPayable + payables.totalPaid : 0;
+  const s = intel?.summary;
+  const ins = intel?.insights;
+  const actions = (intel?.actions || []).sort((a, b) => (b.priority_score || 0) - (a.priority_score || 0));
+  const topAction = actions[0];
 
   const severityBadge = (severity: string) => {
     const map: Record<string, { label: string; className: string }> = {
@@ -322,8 +221,8 @@ export function CFOFinancialDashboard() {
       clear: { label: '✓ Clear', className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' },
       normal: { label: '✓ OK', className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' },
     };
-    const s = map[severity] || map.normal;
-    return <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium", s.className)}>{s.label}</Badge>;
+    const sv = map[severity] || map.normal;
+    return <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium", sv.className)}>{sv.label}</Badge>;
   };
 
   const statusColor = (status: string) => {
@@ -335,26 +234,31 @@ export function CFOFinancialDashboard() {
     }
   };
 
-  // Decision card preview from backend
-  const decisionPreview = insights.decision;
-  const topActionText = decisionPreview?.top_action
-    ? `Clear ${formatBase(Number(decisionPreview.top_action_amount))} — ${decisionPreview.top_action}`
-    : 'No urgent actions';
-  const topActionImpact = decisionPreview?.runway_impact_days
-    ? `+${decisionPreview.runway_impact_days}d runway · ${decisionPreview.confidence}% confidence`
-    : decisionPreview?.inaction_consequence || 'All payments on track';
+  const burnTrendPct = intel?.trends?.burn_7d_vs_prev_pct || 0;
 
   return (
     <div className="space-y-3">
-      {/* ─── Stacked Alerts Banner ─── */}
-      {insights.stacked_alerts.length > 0 && (
+      {/* ─── CFO Headline Banner ─── */}
+      {intel?.headline && (
+        <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+          <CardContent className="p-3">
+            <div className="flex items-start gap-2">
+              <Zap className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <p className="text-xs font-medium text-foreground leading-relaxed">{intel.headline}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ─── Stacked Alerts ─── */}
+      {(intel?.alerts || []).filter(Boolean).length > 0 && (
         <Card className="bg-destructive/5 border-destructive/20">
           <CardContent className="p-3">
             <div className="flex items-start gap-2">
-              <Zap className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-semibold text-destructive mb-1">Active Signals ({insights.stacked_alerts.length})</p>
-                {insights.stacked_alerts.map((alert, i) => (
+                <p className="text-xs font-semibold text-destructive mb-1">Active Signals ({intel!.alerts.filter(Boolean).length})</p>
+                {intel!.alerts.filter(Boolean).map((alert, i) => (
                   <p key={i} className="text-[11px] text-destructive/80">• {alert}</p>
                 ))}
               </div>
@@ -363,13 +267,10 @@ export function CFOFinancialDashboard() {
         </Card>
       )}
 
-      {/* ─── KPI Summary Cards (always visible, clickable) ─── */}
+      {/* ─── KPI Cards ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Payable (Open) */}
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('payable') && "ring-2 ring-primary/20")}
-          onClick={() => toggle('payable')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('payable') && "ring-2 ring-primary/20")} onClick={() => toggle('payable')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Payable (Open)</p>
@@ -378,22 +279,19 @@ export function CFOFinancialDashboard() {
                 {isOpen('payable') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-xl font-bold text-foreground">{formatBase(payables?.totalPayable || 0)}</p>
+            <p className="text-xl font-bold text-foreground">{formatBase(s?.total_payable || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(insights.payable.severity)}
+              {severityBadge(ins?.payable?.severity || 'normal')}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{insights.payable.consequence}</p>
-            {insights.payable.runway_equivalent_days != null && (
-              <p className="text-[10px] text-primary font-medium mt-0.5">= {insights.payable.runway_equivalent_days}d runway</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{ins?.payable?.reason || 'Loading...'}</p>
+            {(ins?.payable?.clearance_days ?? 0) > 0 && (
+              <p className="text-[10px] text-primary font-medium mt-0.5">= {ins!.payable.clearance_days}d payable clearance</p>
             )}
           </CardContent>
         </Card>
 
         {/* Due in 7 Days */}
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('due7') && "ring-2 ring-destructive/20")}
-          onClick={() => toggle('due7')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('due7') && "ring-2 ring-destructive/20")} onClick={() => toggle('due7')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Due in 7 Days</p>
@@ -402,22 +300,19 @@ export function CFOFinancialDashboard() {
                 {isOpen('due7') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-xl font-bold text-destructive">{formatBase(payables?.payableNext7Days || 0)}</p>
+            <p className="text-xl font-bold text-destructive">{formatBase(s?.due_next_7_days || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(insights.due7.severity)}
+              {severityBadge(ins?.due7?.severity || 'normal')}
+              {(ins?.due7?.burn_multiplier ?? 0) >= 1.5 && (
+                <span className="text-[9px] text-destructive font-medium">{ins!.due7.burn_multiplier}x burn</span>
+              )}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{insights.due7.consequence}</p>
-            {insights.due7.runway_impact_days != null && (
-              <p className="text-[10px] text-destructive font-medium mt-0.5">→ -{insights.due7.runway_impact_days}d runway</p>
-            )}
+            <p className="text-[10px] text-muted-foreground mt-1">{ins?.due7?.consequence || 'No immediate dues'}</p>
           </CardContent>
         </Card>
 
         {/* Overdue */}
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('overdue') && "ring-2 ring-destructive/20")}
-          onClick={() => toggle('overdue')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('overdue') && "ring-2 ring-destructive/20")} onClick={() => toggle('overdue')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Overdue</p>
@@ -426,23 +321,16 @@ export function CFOFinancialDashboard() {
                 {isOpen('overdue') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
+            <p className="text-xl font-bold text-destructive">{formatBase(s?.overdue || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(insights.overdue.severity)}
+              {severityBadge(ins?.overdue?.severity || 'normal')}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              {insights.overdue.total > 0
-                ? `${formatBase(insights.overdue.total)} stuck → blocking vendor cycle`
-                : insights.overdue.consequence}
-            </p>
+            <p className="text-[10px] text-muted-foreground mt-1">{ins?.overdue?.consequence || 'No overdue payments'}</p>
           </CardContent>
         </Card>
 
         {/* 30-Day Burn */}
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('burn') && "ring-2 ring-primary/20")}
-          onClick={() => toggle('burn')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('burn') && "ring-2 ring-primary/20")} onClick={() => toggle('burn')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">30-Day Burn</p>
@@ -451,8 +339,16 @@ export function CFOFinancialDashboard() {
                 {isOpen('burn') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-xl font-bold text-primary">{formatBase(cashBurn?.monthlyBurn || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">~{formatCurrency(cashBurn?.dailyBurn || 0, _orgBaseCurrency)}/day</p>
+            <p className="text-xl font-bold text-primary">{formatBase(s?.burn_30d || 0)}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">~{formatCurrency(s?.avg_daily_burn || 0, _orgBaseCurrency)}/day</p>
+            {burnTrendPct !== 0 && (
+              <div className="flex items-center gap-1 mt-0.5">
+                {burnTrendPct > 0 ? <TrendingUp className="w-3 h-3 text-destructive" /> : <TrendingDown className="w-3 h-3 text-emerald-500" />}
+                <span className={cn("text-[10px] font-medium", burnTrendPct > 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400")}>
+                  {burnTrendPct > 0 ? '↑' : '↓'} {Math.abs(burnTrendPct)}% vs prev week
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -462,12 +358,9 @@ export function CFOFinancialDashboard() {
         <Card className="bg-card border-border border-l-4 border-l-amber-500 animate-in slide-in-from-top-2 duration-200">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <FileText className="w-4 h-4 text-amber-500" />
-              Open Purchase Orders
+              <FileText className="w-4 h-4 text-amber-500" /> Open Purchase Orders
             </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">
-              All active POs contributing to open payables
-            </CardDescription>
+            <CardDescription className="text-xs text-muted-foreground">All active POs contributing to open payables</CardDescription>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {openPOs.length === 0 ? (
@@ -504,8 +397,7 @@ export function CFOFinancialDashboard() {
         <Card className="bg-card border-border border-l-4 border-l-red-500 animate-in slide-in-from-top-2 duration-200">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Clock className="w-4 h-4 text-red-500" />
-              Payments Due Within 7 Days
+              <Clock className="w-4 h-4 text-red-500" /> Payments Due Within 7 Days
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -546,8 +438,7 @@ export function CFOFinancialDashboard() {
         <Card className="bg-card border-border border-l-4 border-l-destructive animate-in slide-in-from-top-2 duration-200">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-destructive" />
-              Overdue Payments
+              <AlertTriangle className="w-4 h-4 text-destructive" /> Overdue Payments
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -575,57 +466,61 @@ export function CFOFinancialDashboard() {
         </Card>
       )}
 
-      {/* ─── Expanded: 30-Day Burn Details ─── */}
+      {/* ─── Expanded: 30-Day Burn ─── */}
       {isOpen('burn') && (
         <Card className="bg-card border-border border-l-4 border-l-primary animate-in slide-in-from-top-2 duration-200">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Banknote className="w-4 h-4 text-primary" />
-              Cash Burn Breakdown
+              <Banknote className="w-4 h-4 text-primary" /> Cash Burn Breakdown
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Confirmed Outflow (30d)</p>
-                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatBase(cashBurn?.confirmedPayments30d || 0)}</p>
+                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatBase(s?.burn_30d || 0)}</p>
                 <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground">
                   <ArrowDownRight className="w-3 h-3" /> Already paid out
                 </div>
               </div>
               <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Pending Payables</p>
-                <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{formatBase(cashBurn?.pendingPayables || 0)}</p>
+                <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{formatBase(s?.total_payable || 0)}</p>
                 <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground">
                   <ArrowUpRight className="w-3 h-3" /> Upcoming outflow
                 </div>
               </div>
               <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Weekly Burn Rate</p>
-                <p className="text-lg font-bold text-primary">{formatBase(cashBurn?.weeklyBurn || 0)}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Based on last 30 days</p>
+                <p className="text-lg font-bold text-primary">{formatBase(s?.burn_7d || 0)}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {burnTrendPct !== 0 ? `${burnTrendPct > 0 ? '↑' : '↓'} ${Math.abs(burnTrendPct)}% vs prev week` : 'Based on last 30 days'}
+                </p>
               </div>
             </div>
-            {cashBurn && cashBurn.pendingPayables > 0 && (
+            {(s?.total_payable || 0) > 0 && (s?.burn_30d || 0) > 0 && (
               <div className="mt-4">
                 <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                   <span>Paid vs Payable</span>
-                  <span>{((cashBurn.confirmedPayments30d / (cashBurn.confirmedPayments30d + cashBurn.pendingPayables)) * 100).toFixed(0)}%</span>
+                  <span>{(((s?.burn_30d || 0) / ((s?.burn_30d || 0) + (s?.total_payable || 0))) * 100).toFixed(0)}%</span>
                 </div>
-                <Progress value={(cashBurn.confirmedPayments30d / (cashBurn.confirmedPayments30d + cashBurn.pendingPayables)) * 100} className="h-2 bg-muted" />
+                <Progress value={((s?.burn_30d || 0) / ((s?.burn_30d || 0) + (s?.total_payable || 0))) * 100} className="h-2 bg-muted" />
+              </div>
+            )}
+            {(s?.payable_clearance_days ?? 0) > 0 && (
+              <div className="mt-3 p-2 rounded bg-primary/5 border border-primary/10">
+                <p className="text-[11px] text-primary font-medium">
+                  ⏱ Payable clearance: ~{s!.payable_clearance_days} days at current burn rate
+                </p>
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* ─── Second Row: Section Cards ─── */}
+      {/* ─── Second Row: Vendor, Delayed, Exposure ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        {/* Vendor Exposure */}
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('vendors') && "ring-2 ring-purple-500/20")}
-          onClick={() => toggle('vendors')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('vendors') && "ring-2 ring-purple-500/20")} onClick={() => toggle('vendors')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Vendor Exposure</p>
@@ -634,27 +529,23 @@ export function CFOFinancialDashboard() {
                 {isOpen('vendors') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-xl font-bold text-foreground">{vendors.length}</p>
+            <p className="text-xl font-bold text-foreground">{s?.vendor_count || 0}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium",
-                insights.vendor.risk_level === 'high' ? 'bg-destructive/10 text-destructive border-destructive/30' :
-                insights.vendor.risk_level === 'moderate' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' :
+                (s?.top_vendor_share ?? 0) >= 60 ? 'bg-destructive/10 text-destructive border-destructive/30' :
+                (s?.top_vendor_share ?? 0) >= 40 ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' :
                 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
               )}>
-                {insights.vendor.risk_level === 'high' ? '⚠ Concentrated' : insights.vendor.risk_level === 'moderate' ? 'Moderate' : '✓ Diversified'}
+                {(s?.top_vendor_share ?? 0) >= 60 ? '⚠ Concentrated' : (s?.top_vendor_share ?? 0) >= 40 ? 'Moderate' : '✓ Diversified'}
               </Badge>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              {vendors.length > 0 ? `Top vendor: ${insights.vendor.concentration_pct}% exposure` : 'No vendors'}
+              {s?.top_vendor_name ? `${s.top_vendor_name}: ${s.top_vendor_share}% exposure` : 'No vendors'}
             </p>
           </CardContent>
         </Card>
 
-        {/* Delayed Payments */}
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('delayed') && "ring-2 ring-red-500/20")}
-          onClick={() => toggle('delayed')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('delayed') && "ring-2 ring-red-500/20")} onClick={() => toggle('delayed')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Delayed Risk</p>
@@ -665,74 +556,60 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-foreground">{delayed.length}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              {delayed.length === 0 ? 'All clear ✓' : `⚠ ${formatBase(delayed.reduce((s, d) => s + d.amount, 0))} at risk`}
+              {delayed.length === 0 ? 'All clear ✓' : `⚠ ${formatBase(delayed.reduce((sum, d) => sum + d.amount, 0))} at risk`}
             </p>
           </CardContent>
         </Card>
 
-        {/* Total Exposure */}
         <Card className="bg-gradient-to-r from-muted/80 to-muted/50 border-border col-span-2 lg:col-span-1">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <IndianRupee className="w-4 h-4 text-emerald-500" />
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Exposure</p>
             </div>
-            <p className="text-xl font-bold text-foreground">{formatBase(totalExposure)}</p>
+            <p className="text-xl font-bold text-foreground">{formatBase(s?.total_payable || 0)}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              Paid: {formatBase(payables?.totalPaid || 0)} • Open: {formatBase(payables?.totalPayable || 0)}
+              {s?.vendor_count || 0} vendors · {openPOs.length} open POs
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* ─── Expanded: Vendor Exposure ─── */}
+      {/* ─── Expanded: Vendors ─── */}
       {isOpen('vendors') && (
         <Card className="bg-card border-border border-l-4 border-l-purple-500 animate-in slide-in-from-top-2 duration-200">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-purple-500" />
-              Top 5 Vendor Exposure
+              <Building2 className="w-4 h-4 text-purple-500" /> Vendor Concentration
             </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">
-              Highest open payables by supplier ({_orgBaseCurrency} normalized)
-            </CardDescription>
+            <CardDescription className="text-xs text-muted-foreground">Top vendor: {s?.top_vendor_name || 'N/A'} ({s?.top_vendor_share || 0}%)</CardDescription>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            {vendors.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No vendor exposure data</p>
-            ) : (
+            {s?.top_vendor_name ? (
               <div className="space-y-3">
-                {vendors.map((v, i) => {
-                  const maxExposure = vendors[0]?.openPayables || 1;
-                  return (
-                    <div key={v.supplierId}>
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="border-muted text-muted-foreground text-xs">#{i + 1}</Badge>
-                          <span className="text-sm text-foreground font-medium">{v.supplierName}</span>
-                          <span className="text-[10px] text-muted-foreground">({v.poCount} POs)</span>
-                        </div>
-                        <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{formatBase(v.openPayables)}</span>
-                      </div>
-                      <Progress value={(v.openPayables / maxExposure) * 100} className="h-1.5 bg-muted" />
-                    </div>
-                  );
-                })}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-foreground font-medium">{s.top_vendor_name}</span>
+                    <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{formatBase(s.top_vendor_amount)}</span>
+                  </div>
+                  <Progress value={s.top_vendor_share} className="h-1.5 bg-muted" />
+                  <p className="text-[10px] text-muted-foreground mt-1">{s.top_vendor_share}% of total payable</p>
+                </div>
               </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">No vendor exposure data</p>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* ─── Expanded: Delayed Payments Risk ─── */}
+      {/* ─── Expanded: Delayed ─── */}
       {isOpen('delayed') && (
         <Card className="bg-card border-border border-l-4 border-l-red-500 animate-in slide-in-from-top-2 duration-200">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-red-500" />
-              Delayed Payments Risk
+              <ShieldAlert className="w-4 h-4 text-red-500" /> Delayed Payments Risk
             </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">POs past expected delivery with unpaid balances</CardDescription>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {delayed.length === 0 ? (
@@ -762,12 +639,9 @@ export function CFOFinancialDashboard() {
         </Card>
       )}
 
-      {/* ─── Third Row: Decision Engine & Intelligence Cards ─── */}
+      {/* ─── Decision Engine & Intelligence ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('decision') && "ring-2 ring-emerald-500/20")}
-          onClick={() => toggle('decision')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('decision') && "ring-2 ring-emerald-500/20")} onClick={() => toggle('decision')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Decision Engine</p>
@@ -776,22 +650,27 @@ export function CFOFinancialDashboard() {
                 {isOpen('decision') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-sm font-semibold text-foreground">{topActionText}</p>
-            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">
-              → {topActionImpact}
-            </p>
-            {decisionPreview?.inaction_consequence && decisionPreview.top_action && (
-              <p className="text-[10px] text-destructive/70 mt-1 italic">
-                ⚠ If no action: {decisionPreview.inaction_consequence}
-              </p>
+            {topAction ? (
+              <>
+                <p className="text-sm font-semibold text-foreground">{topAction.action}</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.impact}</p>
+                {topAction.consequence && (
+                  <p className="text-[10px] text-destructive/70 mt-1 italic">⚠ If no action: {topAction.consequence}</p>
+                )}
+                <Badge variant="outline" className="text-[9px] mt-1 border-emerald-500/30 text-emerald-600">
+                  Priority: {topAction.priority_score}/100
+                </Badge>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-foreground">No urgent actions</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">All payments on track</p>
+              </>
             )}
           </CardContent>
         </Card>
 
-        <Card
-          className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('intelligence') && "ring-2 ring-primary/20")}
-          onClick={() => toggle('intelligence')}
-        >
+        <Card className={cn("bg-card border-border cursor-pointer transition-all hover:shadow-md", isOpen('intelligence') && "ring-2 ring-primary/20")} onClick={() => toggle('intelligence')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Financial Intelligence</p>
@@ -802,20 +681,38 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-sm font-medium text-foreground">Visualization & Trends</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              {vendors.length > 0 ? `Tracking ${vendors.length} vendor${vendors.length !== 1 ? 's' : ''} · ${openPOs.length} open POs` : 'Burn trend, risk heatmap, feedback'}
+              {openPOs.length > 0 ? `Tracking ${s?.vendor_count || 0} vendors · ${openPOs.length} open POs` : 'Burn trend, risk heatmap, feedback'}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* ─── Expanded: Decision Engine ─── */}
+      {/* ─── Expanded: Decision Engine (full actions list) ─── */}
       {isOpen('decision') && (
-        <div className="animate-in slide-in-from-top-2 duration-200">
+        <div className="animate-in slide-in-from-top-2 duration-200 space-y-2">
+          {actions.length > 1 && (
+            <Card className="bg-card border-border border-l-4 border-l-emerald-500">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-semibold text-foreground">All Actions (Priority Ranked)</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-2">
+                {actions.map((a, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-medium text-foreground">{a.action}</p>
+                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority_score}/100</Badge>
+                    </div>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.impact}</p>
+                    {a.consequence && <p className="text-[10px] text-destructive/60 italic mt-0.5">⚠ {a.consequence}</p>}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
           <CFODecisionEngine />
         </div>
       )}
 
-      {/* ─── Expanded: Financial Intelligence ─── */}
       {isOpen('intelligence') && (
         <div className="animate-in slide-in-from-top-2 duration-200">
           <CFOVisualizationDashboard />
