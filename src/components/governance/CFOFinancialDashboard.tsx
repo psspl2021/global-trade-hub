@@ -303,7 +303,7 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-foreground">{formatBase(s?.total_payable || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(intel?.severity || 'normal')}
+              {severityBadge(intel?.insights?.payable?.severity || 'normal')}
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">{(s?.clearance_days ?? 0) > 0 ? `~${s!.clearance_days}d payable clearance` : 'Loading...'}</p>
             {(s?.clearance_days ?? 0) > 0 && (
@@ -679,9 +679,9 @@ export function CFOFinancialDashboard() {
             {topAction ? (
               <>
                 <p className="text-sm font-semibold text-foreground">{topAction.action}</p>
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.description}</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.impact}</p>
                 <Badge variant="outline" className="text-[9px] mt-1 border-emerald-500/30 text-emerald-600">
-                  Priority: {topAction.priority}/100
+                  Priority: {topAction.priority_score}/100
                 </Badge>
               </>
             ) : (
@@ -723,9 +723,9 @@ export function CFOFinancialDashboard() {
                   <div key={i} className="p-3 rounded-lg bg-muted/40 border border-border/50">
                     <div className="flex items-center justify-between mb-1">
                       <p className="text-sm font-medium text-foreground">{a.action}</p>
-                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority}/100</Badge>
+                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority_score}/100</Badge>
                     </div>
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.description}</p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.impact}</p>
                   </div>
                 ))}
               </CardContent>
