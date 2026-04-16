@@ -39,7 +39,7 @@ export function CEOIntelligenceView({ data }: { data: CompanyIntelligenceData })
         value={(s as any).po_count ?? 0}
         icon={FileText}
         hint="All purchase orders"
-      />
+      </div>
     </div>
   );
 }
