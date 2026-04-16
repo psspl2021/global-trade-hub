@@ -37,6 +37,8 @@ import { CFOIncentiveManagement } from '@/components/purchaser/CFOIncentiveManag
 import { EnterpriseBillingDashboard } from '@/components/enterprise/EnterpriseBillingDashboard';
 import { GovernanceLegalArmor } from './GovernanceLegalArmor';
 import { TeamManagement } from './TeamManagement';
+import { CompanyIntelligenceRouter } from './intelligence';
+import { Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function ManagementDashboard() {
@@ -111,7 +113,12 @@ export function ManagementDashboard() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
+          <TabsTrigger value="intelligence" className="gap-2">
+            <Brain className="w-4 h-4" />
+            <span className="hidden sm:inline">Intelligence</span>
+            <span className="sm:hidden">Intel</span>
+          </TabsTrigger>
           <TabsTrigger value="savings" className="gap-2">
             <TrendingUp className="w-4 h-4" />
             <span className="hidden sm:inline">AI-Verified Savings</span>
@@ -133,6 +140,10 @@ export function ManagementDashboard() {
             <span className="sm:hidden">Team</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="intelligence" className="space-y-6">
+          <CompanyIntelligenceRouter />
+        </TabsContent>
 
         <TabsContent value="savings" className="space-y-6">
           <SavingsVisualization />
