@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { CFODecisionEngine } from './CFODecisionEngine';
 import { CFOVisualizationDashboard } from './CFOVisualizationDashboard';
 
-/* ── Types from consolidated RPC ── */
+/* ── Types from RPC output ── */
 interface StructuredAlert {
   type: string;
   severity: string;
@@ -39,21 +39,39 @@ interface StructuredAlert {
   message: string;
 }
 
-interface ConsolidatedIntelligence {
+interface RpcAction {
+  action: string;
+  impact: string;
+  priority_score: number;
+  category: string;
+  confidence: number;
+}
+
+interface RpcTrend {
+  metric: string;
+  value: number;
+  direction: string;
+  impact: string; // 'positive' | 'negative' | 'neutral'
+}
+
+interface RpcIntelligence {
+  summary: {
+    total_payable: number; payable_7d: number; overdue: number; overdue_worst_days: number;
+    burn_30d: number; avg_daily_burn: number; clearance_days: number;
+    top_vendor: string; top_vendor_amount: number; top_vendor_share: number; total_vendors: number;
+  };
+  insights: {
+    payable: { severity: string; concentration_risk: boolean; top_vendor: string; top_vendor_share: number; clearance_days: number; clearance_label: string };
+    due7: { severity: string; burn_multiplier: number; clearance_impact_days: number; consequence: string };
+    overdue: { severity: string; worst_days: number; vendor_count: number; consequence: string };
+  };
+  actions: RpcAction[];
+  alerts: StructuredAlert[];
   headline: string;
-  severity: string;
+  trends: RpcTrend[];
+  system_confidence: number;
   health_score: number;
   pressure_score: number;
-  confidence: number;
-  insights: {
-    payable: { total_payable: number; payable_7d: number; overdue: number; overdue_worst_days: number };
-    burn: { burn_30d: number; avg_daily_burn: number; burn_multiplier: number; clearance_days: number };
-    concentration: { top_vendor: string; top_vendor_amount: number; top_vendor_share: number; total_vendors: number; concentration_risk: boolean };
-  };
-  trends: Array<{ metric: string; value: number; direction: string; impact: string }>;
-  alerts: StructuredAlert[];
-  actions: Array<{ action: string; priority: number; severity: string; description: string }>;
-  meta: { company_id: string; currency: string; fx_rate: number; computed_at: string };
 }
 
 interface OpenPO {
@@ -115,7 +133,7 @@ type SectionId = 'payable' | 'due7' | 'overdue' | 'burn' | 'vendors' | 'delayed'
 
 /* ── Main Component ── */
 export function CFOFinancialDashboard() {
-  const [intel, setIntel] = useState<ConsolidatedIntelligence | null>(null);
+  const [intel, setIntel] = useState<RpcIntelligence | null>(null);
   const [openPOs, setOpenPOs] = useState<OpenPO[]>([]);
   const [delayed, setDelayed] = useState<DelayedPayment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -196,22 +214,22 @@ export function CFOFinancialDashboard() {
     );
   }
 
-  const s = intel ? { 
-    total_payable: intel.insights?.payable?.total_payable || 0,
-    payable_7d: intel.insights?.payable?.payable_7d || 0,
-    overdue: intel.insights?.payable?.overdue || 0,
-    overdue_worst_days: intel.insights?.payable?.overdue_worst_days || 0,
-    burn_30d: intel.insights?.burn?.burn_30d || 0,
-    avg_daily_burn: intel.insights?.burn?.avg_daily_burn || 0,
-    clearance_days: intel.insights?.burn?.clearance_days || 0,
-    burn_multiplier: intel.insights?.burn?.burn_multiplier || 0,
-    top_vendor: intel.insights?.concentration?.top_vendor || '',
-    top_vendor_amount: intel.insights?.concentration?.top_vendor_amount || 0,
-    top_vendor_share: intel.insights?.concentration?.top_vendor_share || 0,
-    total_vendors: intel.insights?.concentration?.total_vendors || 0,
+  const s = intel ? {
+    total_payable: intel.summary?.total_payable || 0,
+    payable_7d: intel.summary?.payable_7d || 0,
+    overdue: intel.summary?.overdue || 0,
+    overdue_worst_days: intel.summary?.overdue_worst_days || 0,
+    burn_30d: intel.summary?.burn_30d || 0,
+    avg_daily_burn: intel.summary?.avg_daily_burn || 0,
+    clearance_days: intel.summary?.clearance_days || 0,
+    burn_multiplier: intel.insights?.due7?.burn_multiplier || 0,
+    top_vendor: intel.summary?.top_vendor || '',
+    top_vendor_amount: intel.summary?.top_vendor_amount || 0,
+    top_vendor_share: intel.summary?.top_vendor_share || 0,
+    total_vendors: intel.summary?.total_vendors || 0,
   } : null;
   const ins = intel?.insights;
-  const actions = (intel?.actions || []).sort((a, b) => (b.priority || 0) - (a.priority || 0));
+  const actions = (intel?.actions || []).sort((a, b) => (b.priority_score || 0) - (a.priority_score || 0));
   const topAction = actions[0];
 
   const severityBadge = (severity: string) => {
@@ -285,7 +303,7 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-foreground">{formatBase(s?.total_payable || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(intel?.severity || 'normal')}
+              {severityBadge(intel?.insights?.payable?.severity || 'normal')}
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">{(s?.clearance_days ?? 0) > 0 ? `~${s!.clearance_days}d payable clearance` : 'Loading...'}</p>
             {(s?.clearance_days ?? 0) > 0 && (
@@ -661,9 +679,9 @@ export function CFOFinancialDashboard() {
             {topAction ? (
               <>
                 <p className="text-sm font-semibold text-foreground">{topAction.action}</p>
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.description}</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.impact}</p>
                 <Badge variant="outline" className="text-[9px] mt-1 border-emerald-500/30 text-emerald-600">
-                  Priority: {topAction.priority}/100
+                  Priority: {topAction.priority_score}/100
                 </Badge>
               </>
             ) : (
@@ -705,9 +723,9 @@ export function CFOFinancialDashboard() {
                   <div key={i} className="p-3 rounded-lg bg-muted/40 border border-border/50">
                     <div className="flex items-center justify-between mb-1">
                       <p className="text-sm font-medium text-foreground">{a.action}</p>
-                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority}/100</Badge>
+                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority_score}/100</Badge>
                     </div>
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.description}</p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.impact}</p>
                   </div>
                 ))}
               </CardContent>
