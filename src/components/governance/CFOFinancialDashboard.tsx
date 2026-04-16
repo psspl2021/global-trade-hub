@@ -231,9 +231,10 @@ export function CFOFinancialDashboard() {
     }
   };
 
-  const burnTrendPct = intel?.trends?.burn_7d_vs_prev_pct || 0;
-  const overdueTrendPct = intel?.trends?.overdue_change_pct || 0;
-  const payableTrendPct = intel?.trends?.payable_growth_pct || 0;
+  const getTrend = (metric: string) => (intel?.trends || []).find(t => t.metric === metric)?.value || 0;
+  const burnTrendPct = getTrend('burn_30d_vs_prev_pct');
+  const overdueTrendPct = getTrend('overdue_change_pct');
+  const payableTrendPct = getTrend('payable_growth_pct');
 
   return (
     <div className="space-y-3">
