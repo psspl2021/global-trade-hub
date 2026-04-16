@@ -57,7 +57,20 @@ export function CompanyIntelligenceRouter(_props: {
     );
   }
 
-  switch (String(data.role).toLowerCase()) {
+  const poCount = (data.summary as any)?.po_count ?? 0;
+  const role = String(data.role).toLowerCase();
+  // HR is non-financial; show empty-state only when there's truly nothing to count.
+  if (poCount === 0) {
+    return (
+      <Card>
+        <CardContent className="py-10 text-center text-sm text-muted-foreground">
+          No procurement activity yet
+        </CardContent>
+      </Card>
+    );
+  }
+
+  switch (role) {
     case 'ceo':
     case 'cfo':
       return <CEOIntelligenceView data={data} />;
