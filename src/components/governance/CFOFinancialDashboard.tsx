@@ -55,18 +55,14 @@ interface ConsolidatedIntelligence {
   };
   insights: {
     payable: { severity: string; concentration_risk: boolean; top_vendor: string; top_vendor_share: number; clearance_days: number; clearance_label: string };
-    due7: { severity: string; burn_multiplier: number; clearance_impact_days: number; consequence: string };
-    overdue: { severity: string; worst_days: number; vendor_count: number; consequence: string };
+    burn: { multiplier: number; severity: string; avg_daily: number };
   };
-  actions: Array<{ action: string; impact: string; priority_score: number; category: string; confidence: number }>;
+  actions: Array<{ action: string; label: string; impact: string; priority_score: number; category: string; confidence: number }>;
   alerts: StructuredAlert[];
   headline: string;
-  trends: {
-    burn_7d_vs_prev_pct: number;
-    overdue_change_pct: number;
-    payable_growth_pct: number;
-  };
+  trends: Array<{ metric: string; value: number; direction: string }>;
   system_confidence: number;
+  health_score: number;
 }
 
 interface OpenPO {
