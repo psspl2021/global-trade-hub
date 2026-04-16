@@ -39,54 +39,74 @@ import { PurchaserIntelligenceView } from './PurchaserIntelligenceView';
 
 const STORAGE_KEY = 'ps_intelligence_view';
 
-export function CompanyIntelligenceRouter() {
+interface CompanyIntelligenceRouterProps {
+  forcedView?: CompanyIntelligenceView;
+  hideViewSelector?: boolean;
+}
+
+export function CompanyIntelligenceRouter({
+  forcedView,
+  hideViewSelector = false,
+}: CompanyIntelligenceRouterProps) {
   const { user } = useAuth();
   const { companyId, isLoading: ctxLoading } = useGlobalBuyerContext();
 
-  const initialView = useMemo<CompanyIntelligenceView>(() => {
+  const persistedView = useMemo<CompanyIntelligenceView>(() => {
     const saved = (typeof window !== 'undefined'
       ? localStorage.getItem(STORAGE_KEY)
       : null) as CompanyIntelligenceView | null;
     return saved && ['CEO', 'MANAGER', 'HR'].includes(saved) ? saved : 'CEO';
   }, []);
 
-  const [view, setView] = useState<CompanyIntelligenceView>(initialView);
+  const [view, setView] = useState<CompanyIntelligenceView>(forcedView ?? persistedView);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, view);
-  }, [view]);
+    if (forcedView && view !== forcedView) {
+      setView(forcedView);
+    }
+  }, [forcedView, view]);
+
+  useEffect(() => {
+    if (!forcedView && typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, view);
+    }
+  }, [forcedView, view]);
+
+  const effectiveView = forcedView ?? view;
 
   const { data, loading, error } = useCompanyIntelligence({
     companyId,
     userId: user?.id,
-    view,
+    view: effectiveView,
   });
 
   const isLoading = ctxLoading || loading;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Eye className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">View as</span>
-          <Select value={view} onValueChange={(v) => setView(v as CompanyIntelligenceView)}>
-            <SelectTrigger className="w-[180px] h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="CEO">CEO View</SelectItem>
-              <SelectItem value="MANAGER">Manager View</SelectItem>
-              <SelectItem value="HR">HR View</SelectItem>
-            </SelectContent>
-          </Select>
+      {!hideViewSelector && (
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">View as</span>
+            <Select value={effectiveView} onValueChange={(v) => setView(v as CompanyIntelligenceView)}>
+              <SelectTrigger className="w-[180px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CEO">CEO View</SelectItem>
+                <SelectItem value="MANAGER">Manager View</SelectItem>
+                <SelectItem value="HR">HR View</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {data?.role ? (
+            <Badge variant="secondary" className="uppercase tracking-wide">
+              Resolved role: {String(data.role)}
+            </Badge>
+          ) : null}
         </div>
-        {data?.role ? (
-          <Badge variant="secondary" className="uppercase tracking-wide">
-            Resolved role: {String(data.role)}
-          </Badge>
-        ) : null}
-      </div>
+      )}
 
       {isLoading ? (
         <Card>

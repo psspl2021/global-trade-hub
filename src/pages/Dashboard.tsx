@@ -71,7 +71,7 @@ import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuc
 import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
-import { ManagementDashboard } from '@/components/governance/ManagementDashboard';
+import { CompanyIntelligenceRouter } from '@/components/governance/intelligence';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -387,13 +387,19 @@ const Dashboard = () => {
 
         {/* Admin section removed - admin roles redirect to /admin route */}
 
-        {/* Management View content — clean, no duplicate headers */}
+        {/* Management View content — backend-scoped, no duplicate access gates */}
         {isBuyerRole && activeManagementView && (
           <div className="space-y-6">
             {activeManagementView === 'cfo' && <CFOFinancialDashboard />}
-            {activeManagementView === 'ceo' && <ManagementDashboard />}
-            {activeManagementView === 'hr' && <ManagementDashboard />}
-            {activeManagementView === 'manager' && <ManagementDashboard />}
+            {activeManagementView === 'ceo' && (
+              <CompanyIntelligenceRouter forcedView="CEO" hideViewSelector />
+            )}
+            {activeManagementView === 'hr' && (
+              <CompanyIntelligenceRouter forcedView="HR" hideViewSelector />
+            )}
+            {activeManagementView === 'manager' && (
+              <CompanyIntelligenceRouter forcedView="MANAGER" hideViewSelector />
+            )}
           </div>
         )}
 
