@@ -336,9 +336,14 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{formatBase(payables?.totalPayable || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {openPOs.length} POs{topVendor ? ` · ${topVendorShare}% from ${topVendor.supplierName.substring(0, 20)}` : ''}
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {severityBadge(insights.payable.severity)}
+              <p className="text-[10px] text-muted-foreground">
+                {insights.payable.concentrationRisk
+                  ? `⚠ ${topVendorShare}% concentration risk (${insights.payable.vendorCount === 1 ? '1 vendor' : `${insights.payable.vendorCount} vendors`})`
+                  : `${openPOs.length} POs · ${insights.payable.vendorCount} vendors`}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -356,9 +361,18 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.payableNext7Days || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {due7POs.length > 0 ? `${due7POs.length} POs · ${due7VendorCount} vendor${due7VendorCount !== 1 ? 's' : ''}` : 'No immediate dues ✓'}
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {severityBadge(insights.due7.severity)}
+              <p className="text-[10px] text-muted-foreground">
+                {insights.due7.severity === 'critical'
+                  ? `⚠ High outflow week (${insights.due7.burnMultiplier}x normal burn)`
+                  : insights.due7.severity === 'high'
+                    ? `${due7POs.length} POs · ${insights.due7.burnMultiplier}x avg burn`
+                    : due7POs.length > 0
+                      ? `${due7POs.length} POs · ${due7VendorCount} vendor${due7VendorCount !== 1 ? 's' : ''}`
+                      : 'No immediate dues'}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -376,11 +390,18 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {delayed.length > 0
-                ? `↑ ${overdueVendorCount} vendor${overdueVendorCount !== 1 ? 's' : ''} · worst ${worstOverdue?.daysOverdue}d late`
-                : 'All clear ✓'}
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {severityBadge(insights.overdue.severity)}
+              <p className="text-[10px] text-muted-foreground">
+                {insights.overdue.severity === 'critical'
+                  ? `${insights.overdue.worstDays}d delay impacting cash cycle`
+                  : insights.overdue.severity === 'high'
+                    ? `${overdueVendorCount} vendor${overdueVendorCount !== 1 ? 's' : ''} · worst ${insights.overdue.worstDays}d late`
+                    : delayed.length > 0
+                      ? `${delayed.length} payment${delayed.length !== 1 ? 's' : ''} past due`
+                      : 'All payments on schedule'}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -581,9 +602,18 @@ export function CFOFinancialDashboard() {
               </div>
             </div>
             <p className="text-xl font-bold text-foreground">{vendors.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {topVendor ? `Top: ${topVendor.supplierName.substring(0, 18)} (${formatBase(topVendor.openPayables)})` : 'No vendors'}
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium",
+                insights.vendor.riskLevel === 'high' ? 'bg-destructive/10 text-destructive border-destructive/30' :
+                insights.vendor.riskLevel === 'moderate' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' :
+                'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
+              )}>
+                {insights.vendor.riskLevel === 'high' ? '⚠ Concentrated' : insights.vendor.riskLevel === 'moderate' ? 'Moderate' : '✓ Diversified'}
+              </Badge>
+              <p className="text-[10px] text-muted-foreground">
+                {topVendor ? `${topVendor.supplierName.substring(0, 15)} (${insights.vendor.concentrationPct}%)` : 'No vendors'}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -713,13 +743,9 @@ export function CFOFinancialDashboard() {
                 {isOpen('decision') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-sm font-medium text-foreground">Predictive cash intelligence</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {delayed.length > 0
-                ? `Top action: Clear ${formatBase(delayed[0]?.amount || 0)} overdue to ${delayed[0]?.supplierName?.substring(0, 15)}`
-                : cashBurn && cashBurn.pendingPayables > 0
-                  ? `${formatBase(cashBurn.pendingPayables)} pending — review priority`
-                  : 'Runway, priority queue, actions'}
+            <p className="text-sm font-semibold text-foreground">{insights.decision.topAction.action}</p>
+            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">
+              → {insights.decision.topAction.impact}
             </p>
           </CardContent>
         </Card>
