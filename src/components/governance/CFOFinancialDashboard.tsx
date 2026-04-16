@@ -1,7 +1,7 @@
 /**
  * CFO Financial Intelligence Dashboard (Global)
- * Executive-style expandable cards — click to expand inline
- * Multi-currency decision-grade data using base_currency normalization
+ * Executive-style expandable cards — backend-driven insights
+ * Frontend is render layer only — all intelligence from get_cfo_decision_intelligence()
  */
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +24,7 @@ import {
   ShieldAlert,
   TrendingDown,
   Wallet,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CFODecisionEngine } from './CFODecisionEngine';
@@ -87,6 +88,48 @@ interface OpenPO {
   order_date: string;
 }
 
+interface BackendInsights {
+  payable: {
+    severity: string;
+    concentration_risk: boolean;
+    top_vendor_share: number;
+    vendor_count: number;
+    po_count: number;
+    runway_equivalent_days: number | null;
+    consequence: string;
+  };
+  due7: {
+    severity: string;
+    burn_multiplier: number;
+    total: number;
+    po_count: number;
+    vendor_count: number;
+    runway_impact_days: number | null;
+    consequence: string;
+  };
+  overdue: {
+    severity: string;
+    worst_days: number;
+    total: number;
+    vendor_count: number;
+    consequence: string;
+  };
+  vendor: {
+    concentration_pct: number;
+    risk_level: string;
+  };
+  decision?: {
+    top_action: string | null;
+    top_action_amount: number;
+    top_action_type: string;
+    confidence: number;
+    runway_impact_days: number | null;
+    inaction_consequence: string;
+    action_count: number;
+  };
+  stacked_alerts: string[];
+}
+
 /* ── Formatting ── */
 const CURRENCY_SYMBOLS: Record<string, string> = {
   INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼',
@@ -120,6 +163,15 @@ const formatBase = (val: number) => formatCompact(val, _orgBaseCurrency);
 /* ── Expandable Section Type ── */
 type SectionId = 'payable' | 'due7' | 'overdue' | 'burn' | 'cashburn' | 'vendors' | 'delayed' | 'decision' | 'intelligence';
 
+/* ── Default insights (before backend loads) ── */
+const DEFAULT_INSIGHTS: BackendInsights = {
+  payable: { severity: 'normal', concentration_risk: false, top_vendor_share: 0, vendor_count: 0, po_count: 0, runway_equivalent_days: null, consequence: 'Loading...' },
+  due7: { severity: 'clear', burn_multiplier: 0, total: 0, po_count: 0, vendor_count: 0, runway_impact_days: null, consequence: 'Loading...' },
+  overdue: { severity: 'clear', worst_days: 0, total: 0, vendor_count: 0, consequence: 'Loading...' },
+  vendor: { concentration_pct: 0, risk_level: 'diversified' },
+  stacked_alerts: [],
+};
+
 /* ── Main Component ── */
 export function CFOFinancialDashboard() {
   const [payables, setPayables] = useState<PayablesSummary | null>(null);
@@ -130,6 +182,7 @@ export function CFOFinancialDashboard() {
   const [openPOs, setOpenPOs] = useState<OpenPO[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Set<SectionId>>(new Set());
+  const [insights, setInsights] = useState<BackendInsights>(DEFAULT_INSIGHTS);
 
   const toggle = (id: SectionId) => {
     setExpanded(prev => {
@@ -147,6 +200,7 @@ export function CFOFinancialDashboard() {
     try {
       await Promise.all([
         fetchServerSummary(),
+        fetchDecisionInsights(),
         fetchDelayedPayments(),
         fetchOpenPOs(),
       ]);
@@ -184,6 +238,22 @@ export function CFOFinancialDashboard() {
       totalPoValue: v.total_exposure_base, totalPaid: 0, openPayables: v.total_exposure_base,
       poCount: v.po_count, currency: v.currencies?.[0] || 'INR', baseCurrencyValue: v.total_exposure_base,
     })));
+  };
+
+  const fetchDecisionInsights = async () => {
+    const { data, error } = await supabase.rpc('get_cfo_decision_intelligence' as any);
+    if (error || !data) { console.error('Decision insights RPC error:', error); return; }
+    const d = data as any;
+    if (d.insights) {
+      setInsights({
+        payable: d.insights.payable || DEFAULT_INSIGHTS.payable,
+        due7: d.insights.due7 || DEFAULT_INSIGHTS.due7,
+        overdue: d.insights.overdue || DEFAULT_INSIGHTS.overdue,
+        vendor: d.insights.vendor || DEFAULT_INSIGHTS.vendor,
+        decision: d.insights.decision || undefined,
+        stacked_alerts: d.insights.stacked_alerts || [],
+      });
+    }
   };
 
   const fetchDelayedPayments = async () => {
@@ -243,69 +313,16 @@ export function CFOFinancialDashboard() {
   }
 
   const totalExposure = payables ? payables.totalPayable + payables.totalPaid : 0;
-  const overdueRatio = payables && payables.totalPayable > 0 ? (payables.totalOverdue / payables.totalPayable) * 100 : 0;
 
-  // ── Centralized Insight Engine ──
-  const topVendor = vendors.length > 0 ? vendors[0] : null;
-  const topVendorShare = topVendor && payables && payables.totalPayable > 0
-    ? Math.round((topVendor.openPayables / payables.totalPayable) * 100) : 0;
-
-  const due7POs = openPOs.filter(po => {
-    if (!po.expected_delivery_date) return false;
-    const diff = (new Date(po.expected_delivery_date).getTime() - Date.now()) / 86400000;
-    return diff >= 0 && diff <= 7;
-  });
-  const due7VendorCount = new Set(due7POs.map(p => p.vendor_name)).size;
-  const due7Total = due7POs.reduce((s, po) => s + po.po_value, 0);
-
-  const worstOverdue = delayed.length > 0 ? delayed.reduce((a, b) => a.daysOverdue > b.daysOverdue ? a : b) : null;
-  const overdueVendorCount = new Set(delayed.map(d => d.supplierName)).size;
-  const overdueTotal = delayed.reduce((s, d) => s + d.amount, 0);
-
-  const avgDailyBurn = cashBurn?.dailyBurn || 0;
-  const burnMultiplier = avgDailyBurn > 0 && due7Total > 0 ? +(due7Total / (avgDailyBurn * 7)).toFixed(1) : 0;
-
-  const insights = {
-    payable: {
-      concentrationRisk: topVendorShare >= 60,
-      topVendorShare,
-      vendorCount: new Set(openPOs.map(p => p.vendor_name)).size,
-      severity: topVendorShare >= 80 ? 'critical' as const : topVendorShare >= 60 ? 'high' as const : 'normal' as const,
-    },
-    due7: {
-      burnMultiplier,
-      severity: burnMultiplier >= 2 ? 'critical' as const : burnMultiplier >= 1.5 ? 'high' as const : due7POs.length > 0 ? 'moderate' as const : 'clear' as const,
-      total: due7Total,
-    },
-    overdue: {
-      severity: (worstOverdue?.daysOverdue || 0) > 14 ? 'critical' as const : (worstOverdue?.daysOverdue || 0) > 7 ? 'high' as const : delayed.length > 0 ? 'moderate' as const : 'clear' as const,
-      worstDays: worstOverdue?.daysOverdue || 0,
-      total: overdueTotal,
-    },
-    decision: {
-      topAction: delayed.length > 0
-        ? { action: `Clear ${formatBase(delayed[0].amount)} to ${delayed[0].supplierName.substring(0, 15)}`, impact: `Reduce overdue by ${Math.round((delayed[0].amount / (overdueTotal || 1)) * 100)}%` }
-        : due7Total > 0
-          ? { action: `Prepare ${formatBase(due7Total)} for 7d outflow`, impact: `${due7POs.length} POs due this week` }
-          : cashBurn && cashBurn.pendingPayables > 0
-            ? { action: `Review ${formatBase(cashBurn.pendingPayables)} pending`, impact: 'Optimize payment timing' }
-            : { action: 'No urgent actions', impact: 'All payments on track' },
-    },
-    vendor: {
-      concentrationPct: topVendorShare,
-      riskLevel: topVendorShare >= 70 ? 'high' as const : topVendorShare >= 40 ? 'moderate' as const : 'diversified' as const,
-    },
-  };
-
-  const severityBadge = (severity: 'critical' | 'high' | 'moderate' | 'clear' | 'normal') => {
-    const map = {
+  const severityBadge = (severity: string) => {
+    const map: Record<string, { label: string; className: string }> = {
       critical: { label: '🔴 Critical', className: 'bg-destructive/10 text-destructive border-destructive/30' },
       high: { label: '🟠 High', className: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30' },
       moderate: { label: '🟡 Monitor', className: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/30' },
       clear: { label: '✓ Clear', className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' },
       normal: { label: '✓ OK', className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' },
     };
-    const s = map[severity];
+    const s = map[severity] || map.normal;
     return <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium", s.className)}>{s.label}</Badge>;
   };
 
@@ -318,8 +335,34 @@ export function CFOFinancialDashboard() {
     }
   };
 
+  // Decision card preview from backend
+  const decisionPreview = insights.decision;
+  const topActionText = decisionPreview?.top_action
+    ? `Clear ${formatBase(Number(decisionPreview.top_action_amount))} — ${decisionPreview.top_action}`
+    : 'No urgent actions';
+  const topActionImpact = decisionPreview?.runway_impact_days
+    ? `+${decisionPreview.runway_impact_days}d runway · ${decisionPreview.confidence}% confidence`
+    : decisionPreview?.inaction_consequence || 'All payments on track';
+
   return (
     <div className="space-y-3">
+      {/* ─── Stacked Alerts Banner ─── */}
+      {insights.stacked_alerts.length > 0 && (
+        <Card className="bg-destructive/5 border-destructive/20">
+          <CardContent className="p-3">
+            <div className="flex items-start gap-2">
+              <Zap className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-destructive mb-1">Active Signals ({insights.stacked_alerts.length})</p>
+                {insights.stacked_alerts.map((alert, i) => (
+                  <p key={i} className="text-[11px] text-destructive/80">• {alert}</p>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* ─── KPI Summary Cards (always visible, clickable) ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Payable (Open) */}
@@ -338,12 +381,11 @@ export function CFOFinancialDashboard() {
             <p className="text-xl font-bold text-foreground">{formatBase(payables?.totalPayable || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               {severityBadge(insights.payable.severity)}
-              <p className="text-[10px] text-muted-foreground">
-                {insights.payable.concentrationRisk
-                  ? `⚠ ${topVendorShare}% concentration risk (${insights.payable.vendorCount === 1 ? '1 vendor' : `${insights.payable.vendorCount} vendors`})`
-                  : `${openPOs.length} POs · ${insights.payable.vendorCount} vendors`}
-              </p>
             </div>
+            <p className="text-[10px] text-muted-foreground mt-1">{insights.payable.consequence}</p>
+            {insights.payable.runway_equivalent_days != null && (
+              <p className="text-[10px] text-primary font-medium mt-0.5">= {insights.payable.runway_equivalent_days}d runway</p>
+            )}
           </CardContent>
         </Card>
 
@@ -363,16 +405,11 @@ export function CFOFinancialDashboard() {
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.payableNext7Days || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               {severityBadge(insights.due7.severity)}
-              <p className="text-[10px] text-muted-foreground">
-                {insights.due7.severity === 'critical'
-                  ? `⚠ High outflow week (${insights.due7.burnMultiplier}x normal burn)`
-                  : insights.due7.severity === 'high'
-                    ? `${due7POs.length} POs · ${insights.due7.burnMultiplier}x avg burn`
-                    : due7POs.length > 0
-                      ? `${due7POs.length} POs · ${due7VendorCount} vendor${due7VendorCount !== 1 ? 's' : ''}`
-                      : 'No immediate dues'}
-              </p>
             </div>
+            <p className="text-[10px] text-muted-foreground mt-1">{insights.due7.consequence}</p>
+            {insights.due7.runway_impact_days != null && (
+              <p className="text-[10px] text-destructive font-medium mt-0.5">→ -{insights.due7.runway_impact_days}d runway</p>
+            )}
           </CardContent>
         </Card>
 
@@ -392,16 +429,12 @@ export function CFOFinancialDashboard() {
             <p className="text-xl font-bold text-destructive">{formatBase(payables?.totalOverdue || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               {severityBadge(insights.overdue.severity)}
-              <p className="text-[10px] text-muted-foreground">
-                {insights.overdue.severity === 'critical'
-                  ? `${insights.overdue.worstDays}d delay impacting cash cycle`
-                  : insights.overdue.severity === 'high'
-                    ? `${overdueVendorCount} vendor${overdueVendorCount !== 1 ? 's' : ''} · worst ${insights.overdue.worstDays}d late`
-                    : delayed.length > 0
-                      ? `${delayed.length} payment${delayed.length !== 1 ? 's' : ''} past due`
-                      : 'All payments on schedule'}
-              </p>
             </div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {insights.overdue.total > 0
+                ? `${formatBase(insights.overdue.total)} stuck → blocking vendor cycle`
+                : insights.overdue.consequence}
+            </p>
           </CardContent>
         </Card>
 
@@ -604,16 +637,16 @@ export function CFOFinancialDashboard() {
             <p className="text-xl font-bold text-foreground">{vendors.length}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium",
-                insights.vendor.riskLevel === 'high' ? 'bg-destructive/10 text-destructive border-destructive/30' :
-                insights.vendor.riskLevel === 'moderate' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' :
+                insights.vendor.risk_level === 'high' ? 'bg-destructive/10 text-destructive border-destructive/30' :
+                insights.vendor.risk_level === 'moderate' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' :
                 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
               )}>
-                {insights.vendor.riskLevel === 'high' ? '⚠ Concentrated' : insights.vendor.riskLevel === 'moderate' ? 'Moderate' : '✓ Diversified'}
+                {insights.vendor.risk_level === 'high' ? '⚠ Concentrated' : insights.vendor.risk_level === 'moderate' ? 'Moderate' : '✓ Diversified'}
               </Badge>
-              <p className="text-[10px] text-muted-foreground">
-                {topVendor ? `${topVendor.supplierName.substring(0, 15)} (${insights.vendor.concentrationPct}%)` : 'No vendors'}
-              </p>
             </div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {vendors.length > 0 ? `Top vendor: ${insights.vendor.concentration_pct}% exposure` : 'No vendors'}
+            </p>
           </CardContent>
         </Card>
 
@@ -743,10 +776,15 @@ export function CFOFinancialDashboard() {
                 {isOpen('decision') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-sm font-semibold text-foreground">{insights.decision.topAction.action}</p>
+            <p className="text-sm font-semibold text-foreground">{topActionText}</p>
             <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">
-              → {insights.decision.topAction.impact}
+              → {topActionImpact}
             </p>
+            {decisionPreview?.inaction_consequence && decisionPreview.top_action && (
+              <p className="text-[10px] text-destructive/70 mt-1 italic">
+                ⚠ If no action: {decisionPreview.inaction_consequence}
+              </p>
+            )}
           </CardContent>
         </Card>
 
