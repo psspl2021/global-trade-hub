@@ -345,8 +345,6 @@ const Dashboard = () => {
         {isBuyerRole && activeManagementView ? (
           <div className="mb-6">
             <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
-              <span>Dashboard</span>
-              <span className="text-muted-foreground/40">›</span>
               <span className="font-medium text-foreground/80">
                 {activeManagementView === 'cfo' ? 'CFO View' :
                  activeManagementView === 'ceo' ? 'CEO View' :
@@ -367,7 +365,7 @@ const Dashboard = () => {
                'Procurement execution, team activity & operational monitoring'}
             </p>
           </div>
-        ) : (
+        ) : isBuyerRole ? (
           <div className="mb-4 sm:mb-8">
             <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
               Welcome back, {user?.user_metadata?.contact_person || 'User'}!
@@ -376,10 +374,7 @@ const Dashboard = () => {
               {user?.user_metadata?.company_name} • {role?.toUpperCase()}
             </p>
           </div>
-        )}
-
-        {/* Non-buyer welcome header */}
-        {!isBuyerRole && (
+        ) : (
           <div className="mb-4 sm:mb-8">
             <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
               Welcome back, {user?.user_metadata?.contact_person || 'User'}!
