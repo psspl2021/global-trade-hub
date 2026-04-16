@@ -302,12 +302,14 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(s?.payable_7d || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(ins?.due7?.severity || 'normal')}
-              {(ins?.due7?.burn_multiplier ?? 0) >= 1.5 && (
-                <span className="text-[9px] text-destructive font-medium">{ins!.due7.burn_multiplier}x burn</span>
+              {severityBadge(ins?.burn?.severity || 'normal')}
+              {(ins?.burn?.multiplier ?? 0) >= 1.5 && (
+                <span className="text-[9px] text-destructive font-medium">{ins!.burn.multiplier}x burn</span>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{ins?.due7?.consequence || 'No immediate dues'}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {(ins?.burn?.multiplier ?? 0) >= 1.5 ? `${ins!.burn.multiplier}x weekly burn — review outflow` : 'No immediate dues'}
+            </p>
           </CardContent>
         </Card>
 
@@ -323,9 +325,11 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(s?.overdue || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(ins?.overdue?.severity || 'normal')}
+              {severityBadge(s?.overdue_worst_days && s.overdue_worst_days >= 7 ? 'critical' : s?.overdue ? 'high' : 'normal')}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{ins?.overdue?.consequence || 'No overdue payments'}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {(s?.overdue_worst_days ?? 0) > 0 ? `Worst: ${s!.overdue_worst_days}d overdue` : 'No overdue payments'}
+            </p>
           </CardContent>
         </Card>
 
