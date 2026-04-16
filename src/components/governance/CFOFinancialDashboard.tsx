@@ -661,12 +661,9 @@ export function CFOFinancialDashboard() {
             {topAction ? (
               <>
                 <p className="text-sm font-semibold text-foreground">{topAction.action}</p>
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.impact}</p>
-                {topAction?.impact && (
-                  <p className="text-[10px] text-destructive/70 mt-1 italic">⚠ If no action: {topAction?.impact}</p>
-                )}
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.description}</p>
                 <Badge variant="outline" className="text-[9px] mt-1 border-emerald-500/30 text-emerald-600">
-                  Priority: {topAction.priority_score}/100
+                  Priority: {topAction.priority}/100
                 </Badge>
               </>
             ) : (
