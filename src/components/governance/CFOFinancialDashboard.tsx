@@ -32,40 +32,41 @@ import { CFODecisionEngine } from './CFODecisionEngine';
 import { CFOVisualizationDashboard } from './CFOVisualizationDashboard';
 
 /* ── Types from consolidated RPC ── */
+interface StructuredAlert {
+  type: string;
+  severity: string;
+  metric: number;
+  message: string;
+}
+
 interface ConsolidatedIntelligence {
   summary: {
     total_payable: number;
-    due_next_7_days: number;
-    due_7_count: number;
+    payable_7d: number;
     overdue: number;
-    overdue_count: number;
-    burn_7d: number;
+    overdue_worst_days: number;
     burn_30d: number;
     avg_daily_burn: number;
-    payable_clearance_days: number;
-    top_vendor_name: string;
+    clearance_days: number;
+    top_vendor: string;
     top_vendor_amount: number;
     top_vendor_share: number;
-    vendor_count: number;
-    worst_overdue_days: number;
-    worst_overdue_vendor: string;
+    total_vendors: number;
   };
   insights: {
-    payable: { severity: string; concentration_risk: boolean; top_vendor_share: number; clearance_days: number; reason: string };
+    payable: { severity: string; concentration_risk: boolean; top_vendor: string; top_vendor_share: number; clearance_days: number; clearance_label: string };
     due7: { severity: string; burn_multiplier: number; clearance_impact_days: number; consequence: string };
-    overdue: { severity: string; worst_days: number; worst_vendor: string; consequence: string };
-    decision: { top_action: string; top_impact: string | null; inaction_consequence: string | null };
+    overdue: { severity: string; worst_days: number; vendor_count: number; consequence: string };
   };
-  actions: Array<{ action: string; impact: string; consequence: string; priority_score: number; category: string }>;
-  alerts: string[];
+  actions: Array<{ action: string; impact: string; priority_score: number; category: string; confidence: number }>;
+  alerts: StructuredAlert[];
   headline: string;
   trends: {
     burn_7d_vs_prev_pct: number;
-    burn_7d: number;
-    burn_prev_7d: number;
-    payable_clearance_days: number;
-    avg_daily_burn: number;
+    overdue_change_pct: number;
+    payable_growth_pct: number;
   };
+  system_confidence: number;
 }
 
 interface OpenPO {
@@ -234,7 +235,9 @@ export function CFOFinancialDashboard() {
     }
   };
 
-  const burnTrendPct = intel?.trends?.burn_7d_vs_prev_pct || 0;
+  const burnTrendPct = intel?.trends?.burn_30d_vs_prev_pct || 0;
+  const overdueTrendPct = intel?.trends?.overdue_change_pct || 0;
+  const payableTrendPct = intel?.trends?.payable_growth_pct || 0;
 
   return (
     <div className="space-y-3">
@@ -257,9 +260,9 @@ export function CFOFinancialDashboard() {
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-semibold text-destructive mb-1">Active Signals ({intel!.alerts.filter(Boolean).length})</p>
-                {intel!.alerts.filter(Boolean).map((alert, i) => (
-                  <p key={i} className="text-[11px] text-destructive/80">• {alert}</p>
+                <p className="text-xs font-semibold text-destructive mb-1">Active Signals ({intel!.alerts.length})</p>
+                {intel!.alerts.map((alert: StructuredAlert, i: number) => (
+                  <p key={i} className="text-[11px] text-destructive/80">• {alert.message}</p>
                 ))}
               </div>
             </div>
@@ -283,7 +286,7 @@ export function CFOFinancialDashboard() {
             <div className="flex items-center gap-1.5 mt-0.5">
               {severityBadge(ins?.payable?.severity || 'normal')}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{ins?.payable?.reason || 'Loading...'}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{ins?.payable?.clearance_label || 'Loading...'}</p>
             {(ins?.payable?.clearance_days ?? 0) > 0 && (
               <p className="text-[10px] text-primary font-medium mt-0.5">= {ins!.payable.clearance_days}d payable clearance</p>
             )}
@@ -300,7 +303,7 @@ export function CFOFinancialDashboard() {
                 {isOpen('due7') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-xl font-bold text-destructive">{formatBase(s?.due_next_7_days || 0)}</p>
+            <p className="text-xl font-bold text-destructive">{formatBase(s?.payable_7d || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               {severityBadge(ins?.due7?.severity || 'normal')}
               {(ins?.due7?.burn_multiplier ?? 0) >= 1.5 && (
@@ -492,7 +495,7 @@ export function CFOFinancialDashboard() {
               </div>
               <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Weekly Burn Rate</p>
-                <p className="text-lg font-bold text-primary">{formatBase(s?.burn_7d || 0)}</p>
+                <p className="text-lg font-bold text-primary">{formatBase(s?.burn_30d || 0)}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">
                   {burnTrendPct !== 0 ? `${burnTrendPct > 0 ? '↑' : '↓'} ${Math.abs(burnTrendPct)}% vs prev week` : 'Based on last 30 days'}
                 </p>
@@ -507,10 +510,10 @@ export function CFOFinancialDashboard() {
                 <Progress value={((s?.burn_30d || 0) / ((s?.burn_30d || 0) + (s?.total_payable || 0))) * 100} className="h-2 bg-muted" />
               </div>
             )}
-            {(s?.payable_clearance_days ?? 0) > 0 && (
+            {(s?.clearance_days ?? 0) > 0 && (
               <div className="mt-3 p-2 rounded bg-primary/5 border border-primary/10">
                 <p className="text-[11px] text-primary font-medium">
-                  ⏱ Payable clearance: ~{s!.payable_clearance_days} days at current burn rate
+                  ⏱ Payable clearance: ~{s!.clearance_days} days at current burn rate
                 </p>
               </div>
             )}
@@ -529,7 +532,7 @@ export function CFOFinancialDashboard() {
                 {isOpen('vendors') ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </div>
-            <p className="text-xl font-bold text-foreground">{s?.vendor_count || 0}</p>
+            <p className="text-xl font-bold text-foreground">{s?.total_vendors || 0}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium",
                 (s?.top_vendor_share ?? 0) >= 60 ? 'bg-destructive/10 text-destructive border-destructive/30' :
@@ -540,7 +543,7 @@ export function CFOFinancialDashboard() {
               </Badge>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              {s?.top_vendor_name ? `${s.top_vendor_name}: ${s.top_vendor_share}% exposure` : 'No vendors'}
+              {s?.top_vendor ? `${s?.top_vendor}: ${s.top_vendor_share}% exposure` : 'No vendors'}
             </p>
           </CardContent>
         </Card>
@@ -569,7 +572,7 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-foreground">{formatBase(s?.total_payable || 0)}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              {s?.vendor_count || 0} vendors · {openPOs.length} open POs
+              {s?.total_vendors || 0} vendors · {openPOs.length} open POs
             </p>
           </CardContent>
         </Card>
@@ -582,14 +585,14 @@ export function CFOFinancialDashboard() {
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Building2 className="w-4 h-4 text-purple-500" /> Vendor Concentration
             </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">Top vendor: {s?.top_vendor_name || 'N/A'} ({s?.top_vendor_share || 0}%)</CardDescription>
+            <CardDescription className="text-xs text-muted-foreground">Top vendor: {s?.top_vendor || 'N/A'} ({s?.top_vendor_share || 0}%)</CardDescription>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            {s?.top_vendor_name ? (
+            {s?.top_vendor ? (
               <div className="space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-foreground font-medium">{s.top_vendor_name}</span>
+                    <span className="text-sm text-foreground font-medium">{s?.top_vendor}</span>
                     <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{formatBase(s.top_vendor_amount)}</span>
                   </div>
                   <Progress value={s.top_vendor_share} className="h-1.5 bg-muted" />
@@ -654,8 +657,8 @@ export function CFOFinancialDashboard() {
               <>
                 <p className="text-sm font-semibold text-foreground">{topAction.action}</p>
                 <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">→ {topAction.impact}</p>
-                {topAction.consequence && (
-                  <p className="text-[10px] text-destructive/70 mt-1 italic">⚠ If no action: {topAction.consequence}</p>
+                {topAction?.impact && (
+                  <p className="text-[10px] text-destructive/70 mt-1 italic">⚠ If no action: {topAction?.impact}</p>
                 )}
                 <Badge variant="outline" className="text-[9px] mt-1 border-emerald-500/30 text-emerald-600">
                   Priority: {topAction.priority_score}/100
@@ -681,7 +684,7 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-sm font-medium text-foreground">Visualization & Trends</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              {openPOs.length > 0 ? `Tracking ${s?.vendor_count || 0} vendors · ${openPOs.length} open POs` : 'Burn trend, risk heatmap, feedback'}
+              {openPOs.length > 0 ? `Tracking ${s?.total_vendors || 0} vendors · ${openPOs.length} open POs` : 'Burn trend, risk heatmap, feedback'}
             </p>
           </CardContent>
         </Card>
@@ -703,7 +706,7 @@ export function CFOFinancialDashboard() {
                       <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority_score}/100</Badge>
                     </div>
                     <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.impact}</p>
-                    {a.consequence && <p className="text-[10px] text-destructive/60 italic mt-0.5">⚠ {a.consequence}</p>}
+                    {a?.impact && <p className="text-[10px] text-destructive/60 italic mt-0.5">⚠ {a?.impact}</p>}
                   </div>
                 ))}
               </CardContent>

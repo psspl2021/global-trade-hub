@@ -12270,7 +12270,7 @@ export type Database = {
       }
       get_cfo_decision_intelligence:
         | { Args: never; Returns: Json }
-        | { Args: { p_company_id: string }; Returns: Json }
+        | { Args: { p_user_id: string }; Returns: Json }
       get_cfo_financial_summary: { Args: never; Returns: Json }
       get_company_erp_policy: {
         Args: { p_company_id: string }
