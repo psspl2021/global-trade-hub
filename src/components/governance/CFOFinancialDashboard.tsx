@@ -705,10 +705,9 @@ export function CFOFinancialDashboard() {
                   <div key={i} className="p-3 rounded-lg bg-muted/40 border border-border/50">
                     <div className="flex items-center justify-between mb-1">
                       <p className="text-sm font-medium text-foreground">{a.action}</p>
-                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority_score}/100</Badge>
+                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">{a.priority}/100</Badge>
                     </div>
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.impact}</p>
-                    {a?.impact && <p className="text-[10px] text-destructive/60 italic mt-0.5">⚠ {a?.impact}</p>}
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">→ {a.description}</p>
                   </div>
                 ))}
               </CardContent>
