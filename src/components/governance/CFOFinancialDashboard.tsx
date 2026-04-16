@@ -306,13 +306,13 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(s?.payable_7d || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(ins?.burn?.severity || 'normal')}
-              {(ins?.burn?.multiplier ?? 0) >= 1.5 && (
-                <span className="text-[9px] text-destructive font-medium">{ins!.burn.multiplier}x burn</span>
+              {severityBadge(s?.burn_multiplier && s.burn_multiplier >= 2 ? 'critical' : s?.burn_multiplier && s.burn_multiplier >= 1.5 ? 'high' : 'normal')}
+              {(s?.burn_multiplier ?? 0) >= 1.5 && (
+                <span className="text-[9px] text-destructive font-medium">{s!.burn_multiplier}x burn</span>
               )}
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              {(ins?.burn?.multiplier ?? 0) >= 1.5 ? `${ins!.burn.multiplier}x weekly burn — review outflow` : 'No immediate dues'}
+              {(s?.burn_multiplier ?? 0) >= 1.5 ? `${s!.burn_multiplier}x weekly burn — review outflow` : 'No immediate dues'}
             </p>
           </CardContent>
         </Card>
