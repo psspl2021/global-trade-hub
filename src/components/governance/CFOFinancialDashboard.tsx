@@ -260,9 +260,9 @@ export function CFOFinancialDashboard() {
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-semibold text-destructive mb-1">Active Signals ({intel!.alerts.filter(Boolean).length})</p>
-                {intel!.alerts.filter(Boolean).map((alert, i) => (
-                  <p key={i} className="text-[11px] text-destructive/80">• {alert}</p>
+                <p className="text-xs font-semibold text-destructive mb-1">Active Signals ({intel!.alerts.length})</p>
+                {intel!.alerts.map((alert: StructuredAlert, i: number) => (
+                  <p key={i} className="text-[11px] text-destructive/80">• {alert.message}</p>
                 ))}
               </div>
             </div>
