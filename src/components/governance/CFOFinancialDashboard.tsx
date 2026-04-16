@@ -245,7 +245,7 @@ export function CFOFinancialDashboard() {
   const totalExposure = payables ? payables.totalPayable + payables.totalPaid : 0;
   const overdueRatio = payables && payables.totalPayable > 0 ? (payables.totalOverdue / payables.totalPayable) * 100 : 0;
 
-  // ── Derived insights for card subtitles ──
+  // ── Centralized Insight Engine ──
   const topVendor = vendors.length > 0 ? vendors[0] : null;
   const topVendorShare = topVendor && payables && payables.totalPayable > 0
     ? Math.round((topVendor.openPayables / payables.totalPayable) * 100) : 0;
@@ -256,9 +256,58 @@ export function CFOFinancialDashboard() {
     return diff >= 0 && diff <= 7;
   });
   const due7VendorCount = new Set(due7POs.map(p => p.vendor_name)).size;
+  const due7Total = due7POs.reduce((s, po) => s + po.po_value, 0);
 
   const worstOverdue = delayed.length > 0 ? delayed.reduce((a, b) => a.daysOverdue > b.daysOverdue ? a : b) : null;
   const overdueVendorCount = new Set(delayed.map(d => d.supplierName)).size;
+  const overdueTotal = delayed.reduce((s, d) => s + d.amount, 0);
+
+  const avgDailyBurn = cashBurn?.dailyBurn || 0;
+  const burnMultiplier = avgDailyBurn > 0 && due7Total > 0 ? +(due7Total / (avgDailyBurn * 7)).toFixed(1) : 0;
+
+  const insights = {
+    payable: {
+      concentrationRisk: topVendorShare >= 60,
+      topVendorShare,
+      vendorCount: new Set(openPOs.map(p => p.vendor_name)).size,
+      severity: topVendorShare >= 80 ? 'critical' as const : topVendorShare >= 60 ? 'high' as const : 'normal' as const,
+    },
+    due7: {
+      burnMultiplier,
+      severity: burnMultiplier >= 2 ? 'critical' as const : burnMultiplier >= 1.5 ? 'high' as const : due7POs.length > 0 ? 'moderate' as const : 'clear' as const,
+      total: due7Total,
+    },
+    overdue: {
+      severity: (worstOverdue?.daysOverdue || 0) > 14 ? 'critical' as const : (worstOverdue?.daysOverdue || 0) > 7 ? 'high' as const : delayed.length > 0 ? 'moderate' as const : 'clear' as const,
+      worstDays: worstOverdue?.daysOverdue || 0,
+      total: overdueTotal,
+    },
+    decision: {
+      topAction: delayed.length > 0
+        ? { action: `Clear ${formatBase(delayed[0].amount)} to ${delayed[0].supplierName.substring(0, 15)}`, impact: `Reduce overdue by ${Math.round((delayed[0].amount / (overdueTotal || 1)) * 100)}%` }
+        : due7Total > 0
+          ? { action: `Prepare ${formatBase(due7Total)} for 7d outflow`, impact: `${due7POs.length} POs due this week` }
+          : cashBurn && cashBurn.pendingPayables > 0
+            ? { action: `Review ${formatBase(cashBurn.pendingPayables)} pending`, impact: 'Optimize payment timing' }
+            : { action: 'No urgent actions', impact: 'All payments on track' },
+    },
+    vendor: {
+      concentrationPct: topVendorShare,
+      riskLevel: topVendorShare >= 70 ? 'high' as const : topVendorShare >= 40 ? 'moderate' as const : 'diversified' as const,
+    },
+  };
+
+  const severityBadge = (severity: 'critical' | 'high' | 'moderate' | 'clear' | 'normal') => {
+    const map = {
+      critical: { label: '🔴 Critical', className: 'bg-destructive/10 text-destructive border-destructive/30' },
+      high: { label: '🟠 High', className: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30' },
+      moderate: { label: '🟡 Monitor', className: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/30' },
+      clear: { label: '✓ Clear', className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' },
+      normal: { label: '✓ OK', className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' },
+    };
+    const s = map[severity];
+    return <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 font-medium", s.className)}>{s.label}</Badge>;
+  };
 
   const statusColor = (status: string) => {
     switch (status) {
