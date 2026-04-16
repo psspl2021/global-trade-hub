@@ -235,7 +235,7 @@ export function CFOFinancialDashboard() {
     }
   };
 
-  const burnTrendPct = intel?.trends?.burn_30d_vs_prev_pct || 0;
+  const burnTrendPct = intel?.trends?.burn_7d_vs_prev_pct || 0;
   const overdueTrendPct = intel?.trends?.overdue_change_pct || 0;
   const payableTrendPct = intel?.trends?.payable_growth_pct || 0;
 
