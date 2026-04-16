@@ -196,9 +196,22 @@ export function CFOFinancialDashboard() {
     );
   }
 
-  const s = intel?.summary;
+  const s = intel ? { 
+    total_payable: intel.insights?.payable?.total_payable || 0,
+    payable_7d: intel.insights?.payable?.payable_7d || 0,
+    overdue: intel.insights?.payable?.overdue || 0,
+    overdue_worst_days: intel.insights?.payable?.overdue_worst_days || 0,
+    burn_30d: intel.insights?.burn?.burn_30d || 0,
+    avg_daily_burn: intel.insights?.burn?.avg_daily_burn || 0,
+    clearance_days: intel.insights?.burn?.clearance_days || 0,
+    burn_multiplier: intel.insights?.burn?.burn_multiplier || 0,
+    top_vendor: intel.insights?.concentration?.top_vendor || '',
+    top_vendor_amount: intel.insights?.concentration?.top_vendor_amount || 0,
+    top_vendor_share: intel.insights?.concentration?.top_vendor_share || 0,
+    total_vendors: intel.insights?.concentration?.total_vendors || 0,
+  } : null;
   const ins = intel?.insights;
-  const actions = (intel?.actions || []).sort((a, b) => (b.priority_score || 0) - (a.priority_score || 0));
+  const actions = (intel?.actions || []).sort((a, b) => (b.priority || 0) - (a.priority || 0));
   const topAction = actions[0];
 
   const severityBadge = (severity: string) => {
