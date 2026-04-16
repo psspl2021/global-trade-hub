@@ -1,43 +1,33 @@
 /**
- * Manager View — scoped to assigned team + categories (backend-enforced).
+ * Manager View — scoped to assigned team (backend-enforced via manager_team_mapping).
  */
-import { Wallet, AlertTriangle, Users, Tags } from 'lucide-react';
+import { Wallet, AlertTriangle, FileText } from 'lucide-react';
 import { IntelligenceMetricCard, formatBaseAmount } from './IntelligenceMetricCard';
 import type { CompanyIntelligenceData } from '@/hooks/useCompanyIntelligence';
 
 export function ManagerIntelligenceView({ data }: { data: CompanyIntelligenceData }) {
   const base = data.base_currency || 'INR';
   const s = data.summary || {};
-  const scope = data.access_scope || {};
-  const categoryCount = Array.isArray(scope.categories) ? scope.categories.length : 0;
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <IntelligenceMetricCard
-          title="Team Payable"
-          value={formatBaseAmount(s.total_payable ?? 0, base)}
-          icon={Wallet}
-          hint="Scoped to your team & categories"
-        />
-        <IntelligenceMetricCard
-          title="Overdue"
-          value={formatBaseAmount(s.overdue ?? 0, base)}
-          icon={AlertTriangle}
-          tone={(s.overdue ?? 0) > 0 ? 'danger' : 'default'}
-        />
-        <IntelligenceMetricCard
-          title="Team Size"
-          value={scope.team_size ?? 0}
-          icon={Users}
-          hint="Direct purchasers"
-        />
-        <IntelligenceMetricCard
-          title="Categories"
-          value={categoryCount}
-          icon={Tags}
-          hint="Assigned scope"
-        />
-      </div>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <IntelligenceMetricCard
+        title="Team Payable"
+        value={formatBaseAmount(s.total_payable ?? 0, base)}
+        icon={Wallet}
+        hint="POs created by your team"
+      />
+      <IntelligenceMetricCard
+        title="Team Overdue"
+        value={formatBaseAmount(s.overdue ?? 0, base)}
+        icon={AlertTriangle}
+        tone={(s.overdue ?? 0) > 0 ? 'danger' : 'default'}
+      />
+      <IntelligenceMetricCard
+        title="Team POs"
+        value={(s as any).po_count ?? 0}
+        icon={FileText}
+        hint="Purchase orders by team"
+      />
     </div>
   );
 }

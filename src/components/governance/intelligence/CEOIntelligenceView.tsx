@@ -1,8 +1,7 @@
 /**
- * CEO View — full company financial aggregates (FX-normalized).
- * Renders backend-scoped data only. No simulation, no fallback.
+ * CEO / CFO View — full company financial aggregates (FX-normalized).
  */
-import { Wallet, AlertTriangle, CalendarClock } from 'lucide-react';
+import { Wallet, AlertTriangle, CalendarClock, FileText } from 'lucide-react';
 import { IntelligenceMetricCard, formatBaseAmount } from './IntelligenceMetricCard';
 import type { CompanyIntelligenceData } from '@/hooks/useCompanyIntelligence';
 
@@ -10,12 +9,12 @@ export function CEOIntelligenceView({ data }: { data: CompanyIntelligenceData })
   const base = data.base_currency || 'INR';
   const s = data.summary || {};
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <IntelligenceMetricCard
-        title="Total Payable (Company-wide)"
+        title="Total Payable"
         value={formatBaseAmount(s.total_payable ?? 0, base)}
         icon={Wallet}
-        hint="All open POs, FX-normalized"
+        hint="Company-wide, FX-normalized"
       />
       <IntelligenceMetricCard
         title="Overdue"
@@ -30,6 +29,12 @@ export function CEOIntelligenceView({ data }: { data: CompanyIntelligenceData })
         icon={CalendarClock}
         tone={(s.payable_7d ?? 0) > 0 ? 'warning' : 'default'}
         hint="Upcoming cash outflow"
+      />
+      <IntelligenceMetricCard
+        title="Total POs"
+        value={(s as any).po_count ?? 0}
+        icon={FileText}
+        hint="All purchase orders"
       />
     </div>
   );
