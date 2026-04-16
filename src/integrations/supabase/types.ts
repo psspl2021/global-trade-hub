@@ -5121,6 +5121,38 @@ export type Database = {
           },
         ]
       }
+      manager_team_mapping: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          manager_id: string
+          purchaser_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          manager_id: string
+          purchaser_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          manager_id?: string
+          purchaser_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_team_mapping_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       margin_settings: {
         Row: {
           base_margin_percent: number
@@ -12279,6 +12311,10 @@ export type Database = {
       get_company_erp_policy: {
         Args: { p_company_id: string }
         Returns: string
+      }
+      get_company_intelligence: {
+        Args: { p_company_id: string; p_user_id: string; p_view?: string }
+        Returns: Json
       }
       get_company_names: {
         Args: { user_ids: string[] }
