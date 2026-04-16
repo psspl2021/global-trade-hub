@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { CFODecisionEngine } from './CFODecisionEngine';
 import { CFOVisualizationDashboard } from './CFOVisualizationDashboard';
 
-/* ── Types from consolidated RPC ── */
+/* ── Types from RPC output ── */
 interface StructuredAlert {
   type: string;
   severity: string;
@@ -39,21 +39,39 @@ interface StructuredAlert {
   message: string;
 }
 
-interface ConsolidatedIntelligence {
+interface RpcAction {
+  action: string;
+  impact: string;
+  priority_score: number;
+  category: string;
+  confidence: number;
+}
+
+interface RpcTrend {
+  metric: string;
+  value: number;
+  direction: string;
+  impact: string; // 'positive' | 'negative' | 'neutral'
+}
+
+interface RpcIntelligence {
+  summary: {
+    total_payable: number; payable_7d: number; overdue: number; overdue_worst_days: number;
+    burn_30d: number; avg_daily_burn: number; clearance_days: number;
+    top_vendor: string; top_vendor_amount: number; top_vendor_share: number; total_vendors: number;
+  };
+  insights: {
+    payable: { severity: string; concentration_risk: boolean; top_vendor: string; top_vendor_share: number; clearance_days: number; clearance_label: string };
+    due7: { severity: string; burn_multiplier: number; clearance_impact_days: number; consequence: string };
+    overdue: { severity: string; worst_days: number; vendor_count: number; consequence: string };
+  };
+  actions: RpcAction[];
+  alerts: StructuredAlert[];
   headline: string;
-  severity: string;
+  trends: RpcTrend[];
+  system_confidence: number;
   health_score: number;
   pressure_score: number;
-  confidence: number;
-  insights: {
-    payable: { total_payable: number; payable_7d: number; overdue: number; overdue_worst_days: number };
-    burn: { burn_30d: number; avg_daily_burn: number; burn_multiplier: number; clearance_days: number };
-    concentration: { top_vendor: string; top_vendor_amount: number; top_vendor_share: number; total_vendors: number; concentration_risk: boolean };
-  };
-  trends: Array<{ metric: string; value: number; direction: string; impact: string }>;
-  alerts: StructuredAlert[];
-  actions: Array<{ action: string; priority: number; severity: string; description: string }>;
-  meta: { company_id: string; currency: string; fx_rate: number; computed_at: string };
 }
 
 interface OpenPO {
