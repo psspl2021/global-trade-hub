@@ -49,6 +49,7 @@ const EarnWithProcureSaathi = lazy(() => import("./pages/EarnWithProcureSaathi")
 const Contact = lazy(() => import("./pages/Contact"));
 const InviteAccept = lazy(() => import("./pages/InviteAccept"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
+const IntelligenceActionPage = lazy(() => import("./pages/governance/IntelligenceActionPage"));
 
 
 // Hub & Spoke Directory Pages
@@ -266,6 +267,7 @@ const BotAwareRouter = () => {
         {/* Role-Based Dashboard Routes - STRICT SEPARATION */}
         {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/governance/intelligence/action/:actionType" element={<IntelligenceActionPage />} />
         
         {/* Legacy management route now resolves into the unified dashboard */}
         <Route path="/management" element={<Navigate to="/dashboard" replace />} />

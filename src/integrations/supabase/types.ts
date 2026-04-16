@@ -12474,6 +12474,10 @@ export type Database = {
             }
             Returns: Json
           }
+      get_intelligence_action_details: {
+        Args: { p_action_type: string; p_user_id: string }
+        Returns: Json
+      }
       get_logistics_details_internal: {
         Args: { p_bid_id: string }
         Returns: {

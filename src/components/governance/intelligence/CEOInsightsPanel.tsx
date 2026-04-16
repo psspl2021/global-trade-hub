@@ -4,7 +4,8 @@
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, ShieldCheck, TrendingUp, CalendarClock } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, TrendingUp, CalendarClock, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { formatBaseAmount } from './IntelligenceMetricCard';
 
 interface UpcomingPayment {
@@ -47,6 +48,7 @@ export function CEOInsightsPanel({
   insights: Insights | null | undefined;
   baseCurrency?: string;
 }) {
+  const navigate = useNavigate();
   if (!insights) return null;
 
   const isHighRisk = insights.risk_level === 'HIGH';
@@ -126,13 +128,16 @@ export function CEOInsightsPanel({
             <div className="text-xs font-medium text-muted-foreground">Recommended Actions</div>
             <div className="space-y-2">
               {actions.map((a, i) => (
-                <div
+                <button
                   key={a.type}
-                  className={`rounded-md border p-3 text-sm flex items-start gap-3 ${
+                  type="button"
+                  onClick={() => navigate(`/governance/intelligence/action/${a.type}`)}
+                  className={`w-full text-left rounded-md border p-3 text-sm flex items-start gap-3 transition-colors hover:bg-accent/50 hover:border-primary/40 cursor-pointer ${
                     i === 0 && priority === 'CRITICAL'
                       ? 'bg-destructive/10 border-destructive/20'
                       : 'bg-muted/30'
                   }`}
+                  aria-label={`Open details for ${a.title}`}
                 >
                   <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center">
                     {i + 1}
@@ -145,7 +150,8 @@ export function CEOInsightsPanel({
                     {a.impact}
                     {a.type === 'PLAN_CASHFLOW' ? '' : '%'}
                   </Badge>
-                </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                </button>
               ))}
             </div>
           </div>
