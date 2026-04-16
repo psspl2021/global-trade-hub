@@ -55,18 +55,14 @@ interface ConsolidatedIntelligence {
   };
   insights: {
     payable: { severity: string; concentration_risk: boolean; top_vendor: string; top_vendor_share: number; clearance_days: number; clearance_label: string };
-    due7: { severity: string; burn_multiplier: number; clearance_impact_days: number; consequence: string };
-    overdue: { severity: string; worst_days: number; vendor_count: number; consequence: string };
+    burn: { multiplier: number; severity: string; avg_daily: number };
   };
-  actions: Array<{ action: string; impact: string; priority_score: number; category: string; confidence: number }>;
+  actions: Array<{ action: string; label: string; impact: string; priority_score: number; category: string; confidence: number }>;
   alerts: StructuredAlert[];
   headline: string;
-  trends: {
-    burn_7d_vs_prev_pct: number;
-    overdue_change_pct: number;
-    payable_growth_pct: number;
-  };
+  trends: Array<{ metric: string; value: number; direction: string }>;
   system_confidence: number;
+  health_score: number;
 }
 
 interface OpenPO {
@@ -235,9 +231,10 @@ export function CFOFinancialDashboard() {
     }
   };
 
-  const burnTrendPct = intel?.trends?.burn_7d_vs_prev_pct || 0;
-  const overdueTrendPct = intel?.trends?.overdue_change_pct || 0;
-  const payableTrendPct = intel?.trends?.payable_growth_pct || 0;
+  const getTrend = (metric: string) => (intel?.trends || []).find(t => t.metric === metric)?.value || 0;
+  const burnTrendPct = getTrend('burn_30d_vs_prev_pct');
+  const overdueTrendPct = getTrend('overdue_change_pct');
+  const payableTrendPct = getTrend('payable_growth_pct');
 
   return (
     <div className="space-y-3">
@@ -305,12 +302,14 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(s?.payable_7d || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(ins?.due7?.severity || 'normal')}
-              {(ins?.due7?.burn_multiplier ?? 0) >= 1.5 && (
-                <span className="text-[9px] text-destructive font-medium">{ins!.due7.burn_multiplier}x burn</span>
+              {severityBadge(ins?.burn?.severity || 'normal')}
+              {(ins?.burn?.multiplier ?? 0) >= 1.5 && (
+                <span className="text-[9px] text-destructive font-medium">{ins!.burn.multiplier}x burn</span>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{ins?.due7?.consequence || 'No immediate dues'}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {(ins?.burn?.multiplier ?? 0) >= 1.5 ? `${ins!.burn.multiplier}x weekly burn — review outflow` : 'No immediate dues'}
+            </p>
           </CardContent>
         </Card>
 
@@ -326,9 +325,11 @@ export function CFOFinancialDashboard() {
             </div>
             <p className="text-xl font-bold text-destructive">{formatBase(s?.overdue || 0)}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {severityBadge(ins?.overdue?.severity || 'normal')}
+              {severityBadge(s?.overdue_worst_days && s.overdue_worst_days >= 7 ? 'critical' : s?.overdue ? 'high' : 'normal')}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{ins?.overdue?.consequence || 'No overdue payments'}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {(s?.overdue_worst_days ?? 0) > 0 ? `Worst: ${s!.overdue_worst_days}d overdue` : 'No overdue payments'}
+            </p>
           </CardContent>
         </Card>
 
