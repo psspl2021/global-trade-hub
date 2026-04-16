@@ -10585,6 +10585,30 @@ export type Database = {
           },
         ]
       }
+      user_company_access: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -12316,6 +12340,10 @@ export type Database = {
         Args: { p_company_id: string; p_user_id: string; p_view?: string }
         Returns: Json
       }
+      get_company_intelligence_v2: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       get_company_names: {
         Args: { user_ids: string[] }
         Returns: {
@@ -12905,6 +12933,10 @@ export type Database = {
       upsert_demand_gap: {
         Args: { p_category?: string; p_slug: string }
         Returns: undefined
+      }
+      user_has_company_role: {
+        Args: { _company_id: string; _roles: string[]; _user_id: string }
+        Returns: boolean
       }
       validate_active_session: { Args: { p_user_id: string }; Returns: boolean }
       validate_and_proceed_po: {
