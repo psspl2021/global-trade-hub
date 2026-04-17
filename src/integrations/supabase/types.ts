@@ -12216,6 +12216,7 @@ export type Database = {
         Returns: boolean
       }
       cleanup_dead_sessions: { Args: never; Returns: number }
+      cleanup_old_governance_notifications: { Args: never; Returns: Json }
       cleanup_stale_sessions: { Args: never; Returns: number }
       close_expired_auctions: { Args: never; Returns: undefined }
       complete_supplier_reveal: {
@@ -12975,6 +12976,10 @@ export type Database = {
         Returns: string
       }
       manager_acknowledge_override: { Args: { p_po_id: string }; Returns: Json }
+      manager_flag_override: {
+        Args: { p_po_id: string; p_reason: string }
+        Returns: Json
+      }
       map_buyer_role_to_intel: {
         Args: { _buyer_role: string }
         Returns: string

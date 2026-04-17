@@ -58,7 +58,12 @@ export function useGovernanceNotifications() {
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const next = payload.new as GovNotification;
-            setItems((cur) => (cur.some((n) => n.id === next.id) ? cur : [next, ...cur]));
+            setItems((cur) => {
+              if (cur.some((n) => n.id === next.id)) return cur;
+              return [next, ...cur]
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .slice(0, 50);
+            });
           } else if (payload.eventType === 'UPDATE') {
             const next = payload.new as GovNotification;
             setItems((cur) => cur.map((n) => (n.id === next.id ? next : n)));
