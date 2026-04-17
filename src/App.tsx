@@ -124,6 +124,7 @@ const CEOPurchaseOrders = lazy(() => import("./pages/governance/ceo/CEOPurchaseO
 const CEOAuctions = lazy(() => import("./pages/governance/ceo/CEOAuctions"));
 const CEORFQs = lazy(() => import("./pages/governance/ceo/CEORFQs"));
 const CEOAuditLog = lazy(() => import("./pages/governance/ceo/CEOAuditLog"));
+const ManagerAcknowledgementsPage = lazy(() => import("./pages/governance/manager/ManagerAcknowledgementsPage"));
 const EnterpriseControlCenterPage = lazy(() => import("./pages/EnterpriseControlCenter"));
 const AdminSEOMonitor = lazy(() => import("./pages/AdminSEOMonitor"));
 const SeoRevenueDashboard = lazy(() => import("./pages/admin/SeoRevenueDashboard"));
