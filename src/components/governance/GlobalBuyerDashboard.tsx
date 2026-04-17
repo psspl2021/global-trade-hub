@@ -80,6 +80,7 @@ interface DashboardData {
 }
 export function GlobalBuyerDashboard() {
   const ctx = useGlobalBuyerContext();
+  const companyCtx = useBuyerCompanyContext();
   const [activeTab, setActiveTab] = useState('overview');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
