@@ -4150,6 +4150,42 @@ export type Database = {
         }
         Relationships: []
       }
+      governance_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          actor_role: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          actor_role?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          actor_role?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json
+          reason?: string | null
+        }
+        Relationships: []
+      }
       governance_rules: {
         Row: {
           buyer_id: string | null
@@ -8441,6 +8477,33 @@ export type Database = {
         }
         Relationships: []
       }
+      role_capabilities: {
+        Row: {
+          capability: string
+          created_at: string
+          granted: boolean
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          capability: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          capability?: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           created_at: string | null
@@ -12525,6 +12588,7 @@ export type Database = {
           lowest_bid_amount: number
         }[]
       }
+      get_my_capabilities: { Args: never; Returns: string[] }
       get_pending_po_auctions: {
         Args: never
         Returns: {
@@ -12726,6 +12790,10 @@ export type Database = {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean
       }
+      has_capability: {
+        Args: { p_capability: string; p_user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -12795,6 +12863,16 @@ export type Database = {
           p_requirement_id: string
           p_subject: string
           p_supplier_id: string
+        }
+        Returns: string
+      }
+      log_governance_action: {
+        Args: {
+          p_action: string
+          p_entity_id?: string
+          p_entity_type?: string
+          p_metadata?: Json
+          p_reason?: string
         }
         Returns: string
       }
