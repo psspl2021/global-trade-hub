@@ -117,6 +117,13 @@ const PurchaserExecutionDashboard = lazy(() => import("./pages/governance/Purcha
 const ManagementExecutiveDashboard = lazy(() => import("./pages/governance/ManagementExecutiveDashboard"));
 const AdminAuditDashboard = lazy(() => import("./pages/governance/AdminAuditDashboard"));
 const ControlTowerPage = lazy(() => import("./pages/ControlTower"));
+// CEO Control Layer
+const CEOControlLayout = lazy(() => import("./pages/governance/ceo/CEOControlLayout"));
+const CEOOverview = lazy(() => import("./pages/governance/ceo/CEOOverview"));
+const CEOPurchaseOrders = lazy(() => import("./pages/governance/ceo/CEOPurchaseOrders"));
+const CEOAuctions = lazy(() => import("./pages/governance/ceo/CEOAuctions"));
+const CEORFQs = lazy(() => import("./pages/governance/ceo/CEORFQs"));
+const CEOAuditLog = lazy(() => import("./pages/governance/ceo/CEOAuditLog"));
 const EnterpriseControlCenterPage = lazy(() => import("./pages/EnterpriseControlCenter"));
 const AdminSEOMonitor = lazy(() => import("./pages/AdminSEOMonitor"));
 const SeoRevenueDashboard = lazy(() => import("./pages/admin/SeoRevenueDashboard"));
@@ -268,6 +275,15 @@ const BotAwareRouter = () => {
         {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/governance/intelligence/action/:actionType" element={<IntelligenceActionPage />} />
+
+        {/* CEO Control Layer */}
+        <Route path="/governance/ceo" element={<CEOControlLayout />}>
+          <Route index element={<CEOOverview />} />
+          <Route path="purchase-orders" element={<CEOPurchaseOrders />} />
+          <Route path="auctions" element={<CEOAuctions />} />
+          <Route path="rfq" element={<CEORFQs />} />
+          <Route path="audit-log" element={<CEOAuditLog />} />
+        </Route>
         
         {/* Legacy management route now resolves into the unified dashboard */}
         <Route path="/management" element={<Navigate to="/dashboard" replace />} />
