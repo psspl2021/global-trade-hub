@@ -6436,6 +6436,7 @@ export type Database = {
           budget_cap: number | null
           buyer_company_id: string | null
           ceo_override: boolean | null
+          ceo_override_at: string | null
           ceo_override_by: string | null
           ceo_override_reason: string | null
           cfo_approved_at: string | null
@@ -6468,6 +6469,8 @@ export type Database = {
           immutable_hash: string | null
           incoterms: string | null
           legal_hold: boolean | null
+          manager_ack_at: string | null
+          manager_ack_by: string | null
           manager_approved_at: string | null
           manager_approved_by: string | null
           notes: string | null
@@ -6525,6 +6528,7 @@ export type Database = {
           budget_cap?: number | null
           buyer_company_id?: string | null
           ceo_override?: boolean | null
+          ceo_override_at?: string | null
           ceo_override_by?: string | null
           ceo_override_reason?: string | null
           cfo_approved_at?: string | null
@@ -6557,6 +6561,8 @@ export type Database = {
           immutable_hash?: string | null
           incoterms?: string | null
           legal_hold?: boolean | null
+          manager_ack_at?: string | null
+          manager_ack_by?: string | null
           manager_approved_at?: string | null
           manager_approved_by?: string | null
           notes?: string | null
@@ -6614,6 +6620,7 @@ export type Database = {
           budget_cap?: number | null
           buyer_company_id?: string | null
           ceo_override?: boolean | null
+          ceo_override_at?: string | null
           ceo_override_by?: string | null
           ceo_override_reason?: string | null
           cfo_approved_at?: string | null
@@ -6646,6 +6653,8 @@ export type Database = {
           immutable_hash?: string | null
           incoterms?: string | null
           legal_hold?: boolean | null
+          manager_ack_at?: string | null
+          manager_ack_by?: string | null
           manager_approved_at?: string | null
           manager_approved_by?: string | null
           notes?: string | null
@@ -12099,6 +12108,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_full_profile: { Args: { _profile_id: string }; Returns: boolean }
+      ceo_override_approve_po: {
+        Args: { p_po_id: string; p_reason: string }
+        Returns: Json
+      }
       check_active_auction_limit: {
         Args: { p_buyer_id: string }
         Returns: Json
@@ -12637,6 +12650,7 @@ export type Database = {
           budget_cap: number | null
           buyer_company_id: string | null
           ceo_override: boolean | null
+          ceo_override_at: string | null
           ceo_override_by: string | null
           ceo_override_reason: string | null
           cfo_approved_at: string | null
@@ -12669,6 +12683,8 @@ export type Database = {
           immutable_hash: string | null
           incoterms: string | null
           legal_hold: boolean | null
+          manager_ack_at: string | null
+          manager_ack_by: string | null
           manager_approved_at: string | null
           manager_approved_by: string | null
           notes: string | null
@@ -12880,6 +12896,7 @@ export type Database = {
         Args: { _metadata?: Json; _target_role: string; _user_id: string }
         Returns: string
       }
+      manager_acknowledge_override: { Args: { p_po_id: string }; Returns: Json }
       map_buyer_role_to_intel: {
         Args: { _buyer_role: string }
         Returns: string
