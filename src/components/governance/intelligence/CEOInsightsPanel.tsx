@@ -51,6 +51,11 @@ export function CEOInsightsPanel({
   baseCurrency?: string;
 }) {
   const navigate = useNavigate();
+
+  // Null-safe array guards - ensure we always work with arrays
+  const actionsSafe = Array.isArray(actions) ? actions : [];
+  const upcomingSafe = Array.isArray(upcoming) ? upcoming : [];
+
   if (!insights) return null;
 
   const isHighRisk = insights.risk_level === 'HIGH';
@@ -123,11 +128,11 @@ export function CEOInsightsPanel({
           </div>
         </div>
 
-        {actions.length > 0 && (
+        {actionsSafe.length > 0 && (
           <div className="space-y-2">
             <div className="text-xs font-medium text-muted-foreground">Recommended Actions</div>
             <div className="space-y-2">
-              {actions.map((a, i) => (
+              {actionsSafe.map((a, i) => (
                 <button
                   key={a.type}
                   type="button"
@@ -157,11 +162,11 @@ export function CEOInsightsPanel({
           </div>
         )}
 
-        {upcoming.length > 0 && (
+        {upcomingSafe.length > 0 && (
           <div className="space-y-1">
             <div className="text-xs font-medium text-muted-foreground">Next 7 Days</div>
             <div className="divide-y rounded-md border">
-              {upcoming.slice(0, 5).map((p) => (
+              {upcomingSafe.slice(0, 5).map((p) => (
                 <div key={p.po_id} className="flex items-center justify-between px-3 py-2 text-sm">
                   <div className="min-w-0">
                     <div className="font-medium truncate">{p.supplier_name ?? '—'}</div>
