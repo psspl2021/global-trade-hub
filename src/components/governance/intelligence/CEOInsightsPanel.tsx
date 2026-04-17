@@ -103,7 +103,7 @@ export function CEOInsightsPanel({
 
   const isHighRisk = insights.risk_level === 'HIGH';
   const isDependencyRisk = insights.supplier_risk?.level === 'DEPENDENCY_RISK';
-  const overduePct = ((insights.overdue_ratio ?? 0) * 100).toFixed(1);
+  const overduePct = (insights.overdue_ratio ?? 0).toFixed(1);
   const concentrationPct = insights.supplier_risk?.concentration_pct ?? 0;
   const priority = insights.priority ?? 'STABLE';
   const cashPressure = insights.cash_pressure_score ?? 0;
@@ -249,7 +249,7 @@ export function CEOInsightsPanel({
                             <span className="font-medium">{r.name}</span>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <Badge variant="outline">{Number(r.share_pct ?? 0).toFixed(1)}% of overdue</Badge>
+                            <Badge variant="outline">{Number(r.share_pct ?? 0).toFixed(1)}% of overdue exposure</Badge>
                             <span className="tabular-nums text-xs text-muted-foreground">
                               {formatBaseAmount(safeAmount(r.amount), baseCurrency)}
                             </span>
