@@ -6470,6 +6470,41 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_order_purchasers: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          id: string
+          po_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          id?: string
+          po_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          id?: string
+          po_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_purchasers_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchase_orders: {
         Row: {
           approval_escalated: boolean | null
@@ -11983,6 +12018,10 @@ export type Database = {
         Args: { bid_id: string; req_id: string }
         Returns: string
       }
+      add_po_purchasers: {
+        Args: { p_po_id: string; p_user_ids: string[] }
+        Returns: number
+      }
       admin_adjust_supplier_quota: {
         Args: {
           p_daily_adjustment?: number
@@ -12710,6 +12749,7 @@ export type Database = {
         }
         Returns: string
       }
+      get_po_purchasers: { Args: { p_po_id: string }; Returns: Json }
       get_price_intelligence: {
         Args: { p_city?: string; p_product: string }
         Returns: Json
@@ -13067,6 +13107,10 @@ export type Database = {
       register_session: {
         Args: { p_device_info?: string; p_user_id: string }
         Returns: Json
+      }
+      remove_po_purchaser: {
+        Args: { p_po_id: string; p_user_id: string }
+        Returns: boolean
       }
       request_supplier_reveal: {
         Args: {
