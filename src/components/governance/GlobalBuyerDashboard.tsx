@@ -12,6 +12,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
+import { PurchaserSelector } from '@/components/dashboard/PurchaserSelector';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
