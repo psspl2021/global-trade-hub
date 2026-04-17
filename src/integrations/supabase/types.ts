@@ -12701,6 +12701,15 @@ export type Database = {
           source: string
         }[]
       }
+      get_po_lifecycle_stage: {
+        Args: {
+          p_approval_status: string
+          p_ceo_override: boolean
+          p_manager_ack_at: string
+          p_payment_status: string
+        }
+        Returns: string
+      }
       get_price_intelligence: {
         Args: { p_city?: string; p_product: string }
         Returns: Json
