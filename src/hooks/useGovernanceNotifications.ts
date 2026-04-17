@@ -42,7 +42,7 @@ export function useGovernanceNotifications() {
     load();
   }, [load]);
 
-  // Realtime subscription for new notifications
+  // Realtime subscription — apply deltas instead of refetching
   useEffect(() => {
     if (!user?.id) return;
     const channel = supabase
@@ -55,13 +55,24 @@ export function useGovernanceNotifications() {
           table: 'governance_notifications',
           filter: `user_id=eq.${user.id}`,
         },
-        () => load()
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const next = payload.new as GovNotification;
+            setItems((cur) => (cur.some((n) => n.id === next.id) ? cur : [next, ...cur]));
+          } else if (payload.eventType === 'UPDATE') {
+            const next = payload.new as GovNotification;
+            setItems((cur) => cur.map((n) => (n.id === next.id ? next : n)));
+          } else if (payload.eventType === 'DELETE') {
+            const old = payload.old as { id: string };
+            setItems((cur) => cur.filter((n) => n.id !== old.id));
+          }
+        }
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, load]);
+  }, [user?.id]);
 
   const markRead = async (id: string) => {
     await supabase.rpc('mark_governance_notification_read' as any, { p_id: id } as any);
