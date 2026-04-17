@@ -12358,6 +12358,7 @@ export type Database = {
         }
         Returns: string
       }
+      escalate_overdue_override_acks: { Args: never; Returns: Json }
       escalate_stale_approvals: { Args: never; Returns: number }
       execute_cfo_action: {
         Args: {
@@ -12660,6 +12661,18 @@ export type Database = {
       }
       get_my_capabilities: { Args: never; Returns: string[] }
       get_my_pending_override_acks: { Args: never; Returns: Json }
+      get_overdue_override_acks: {
+        Args: { p_hours?: number }
+        Returns: {
+          approver_id: string
+          buyer_company_id: string
+          ceo_override_at: string
+          hours_overdue: number
+          po_id: string
+          po_number: string
+          po_value: number
+        }[]
+      }
       get_pending_po_auctions: {
         Args: never
         Returns: {
@@ -12675,6 +12688,13 @@ export type Database = {
       get_po_amount: {
         Args: { po: Database["public"]["Tables"]["purchase_orders"]["Row"] }
         Returns: number
+      }
+      get_po_approver: {
+        Args: { p_po_id: string }
+        Returns: {
+          approver_id: string
+          source: string
+        }[]
       }
       get_price_intelligence: {
         Args: { p_city?: string; p_product: string }
