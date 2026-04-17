@@ -63,8 +63,10 @@ export function CEOInsightsPanel({
     typeof id === 'string' ? id.slice(0, 8) : '—';
 
   const formatImpact = (a: ActionItem) => {
-    if (a.type === 'PLAN_CASHFLOW') return `${a.impact} POs`;
-    return `${a.impact}%`;
+    const n = Number(a?.impact);
+    if (!Number.isFinite(n)) return '—';
+    if (a.type === 'PLAN_CASHFLOW') return `${Math.round(n)} POs`;
+    return `${n.toFixed(1)}%`;
   };
 
   // Null-safe array guards - ensure we always work with arrays
