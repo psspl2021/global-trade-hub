@@ -224,6 +224,45 @@ export function CEOInsightsPanel({
             </div>
           </div>
         )}
+
+        {(() => {
+          const rc = insights.root_causes ?? {};
+          const groups: Array<{ key: string; label: string; rows: RootCauseEntry[] }> = [
+            { key: 'purchasers', label: 'Top Purchasers Driving Overdue', rows: Array.isArray(rc.purchasers) ? rc.purchasers : [] },
+            { key: 'suppliers', label: 'Top Suppliers Driving Overdue', rows: Array.isArray(rc.suppliers) ? rc.suppliers : [] },
+            { key: 'categories', label: 'Top Categories Driving Overdue', rows: Array.isArray(rc.categories) ? rc.categories : [] },
+          ].filter((g) => g.rows.length > 0);
+
+          if (groups.length === 0) return null;
+
+          return (
+            <div className="space-y-3">
+              <div className="text-xs font-medium text-muted-foreground">Why is overdue happening?</div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {groups.map((g) => (
+                  <div key={g.key} className="rounded-md border p-3 space-y-2">
+                    <div className="text-xs font-medium">{g.label}</div>
+                    <div className="space-y-1">
+                      {g.rows.map((r) => (
+                        <div key={`${g.key}-${r.id}`} className="flex items-center justify-between gap-2 text-sm">
+                          <div className="min-w-0 truncate">
+                            <span className="font-medium">{r.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Badge variant="outline">{Number(r.share_pct ?? 0).toFixed(1)}%</Badge>
+                            <span className="tabular-nums text-xs text-muted-foreground">
+                              {formatBaseAmount(safeAmount(r.amount), baseCurrency)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );
