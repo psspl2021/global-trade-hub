@@ -32,6 +32,7 @@ export function useGovernanceNotifications() {
     const { data, error } = await supabase
       .from('governance_notifications' as any)
       .select('*')
+      .is('archived_at', null)
       .order('created_at', { ascending: false })
       .limit(50);
     if (!error) setItems((data as any) ?? []);
@@ -66,7 +67,13 @@ export function useGovernanceNotifications() {
             });
           } else if (payload.eventType === 'UPDATE') {
             const next = payload.new as GovNotification;
-            setItems((cur) => cur.map((n) => (n.id === next.id ? next : n)));
+            setItems((cur) => {
+              // Drop if archived
+              if ((next as any).archived_at) return cur.filter((n) => n.id !== next.id);
+              return cur
+                .map((n) => (n.id === next.id ? next : n))
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            });
           } else if (payload.eventType === 'DELETE') {
             const old = payload.old as { id: string };
             setItems((cur) => cur.filter((n) => n.id !== old.id));
