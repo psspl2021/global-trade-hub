@@ -12063,6 +12063,7 @@ export type Database = {
       }
       auto_award_expired_auctions: { Args: never; Returns: number }
       auto_expire_requirements: { Args: never; Returns: undefined }
+      auto_expire_stale_flagged_pos: { Args: never; Returns: Json }
       boost_category_links: { Args: { max_links?: number }; Returns: number }
       boost_internal_links: {
         Args: { boost_slugs: string[]; max_links?: number }
@@ -12362,7 +12363,7 @@ export type Database = {
         }
         Returns: string
       }
-      escalate_overdue_override_acks: { Args: never; Returns: undefined }
+      escalate_overdue_override_acks: { Args: never; Returns: Json }
       escalate_stale_approvals: { Args: never; Returns: number }
       execute_cfo_action: {
         Args: {
