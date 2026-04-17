@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Check, Loader2, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, Check, Flag, Loader2, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -28,6 +28,35 @@ export default function ManagerAcknowledgementsPage() {
   const [items, setItems] = useState<PendingAck[]>([]);
   const [loading, setLoading] = useState(true);
   const [acking, setAcking] = useState<string | null>(null);
+  const [flagging, setFlagging] = useState<string | null>(null);
+
+  const flagForReview = async (po: PendingAck) => {
+    const reason = window.prompt(
+      `Flag override on ${po.po_number} for review.\n\nProvide a reason (min 10 chars). PO will remain open.`,
+      ''
+    );
+    if (!reason || reason.trim().length < 10) {
+      if (reason !== null) toast.error('Reason must be at least 10 characters');
+      return;
+    }
+    setFlagging(po.id);
+    const { data, error } = await supabase.rpc('manager_flag_override' as any, {
+      p_po_id: po.id,
+      p_reason: reason.trim(),
+    } as any);
+    setFlagging(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const result = data as any;
+    if (result?.success) {
+      toast.success('Flagged for review. CEO has been notified.');
+      load();
+    } else {
+      toast.error(result?.error ?? 'Flag failed');
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -139,8 +168,23 @@ export default function ManagerAcknowledgementsPage() {
                   <div className="text-xs font-medium text-yellow-900 mb-1">Reason given</div>
                   <div className="text-sm text-foreground">{po.ceo_override_reason}</div>
                 </div>
-                <div className="flex justify-end pt-1">
-                  <Button onClick={() => acknowledge(po)} disabled={acking === po.id}>
+                <div className="flex justify-end gap-2 pt-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => flagForReview(po)}
+                    disabled={flagging === po.id || acking === po.id}
+                  >
+                    {flagging === po.id ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Flagging…
+                      </>
+                    ) : (
+                      <>
+                        <Flag className="h-4 w-4 mr-2" /> Flag for Review
+                      </>
+                    )}
+                  </Button>
+                  <Button onClick={() => acknowledge(po)} disabled={acking === po.id || flagging === po.id}>
                     {acking === po.id ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Acknowledging…
