@@ -178,6 +178,15 @@ export function GlobalBuyerDashboard() {
         </div>
       </div>
 
+      {/* Purchaser Selector + Add Team Member */}
+      {!companyCtx.isLoading && companyCtx.purchasers.length > 0 && (
+        <PurchaserSelector
+          purchasers={companyCtx.purchasers}
+          selectedPurchaserId={companyCtx.selectedPurchaserId}
+          onSelect={companyCtx.setSelectedPurchaserId}
+        />
+      )}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
