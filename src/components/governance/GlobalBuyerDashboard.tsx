@@ -12,6 +12,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
+import { PurchaserSelector } from '@/components/dashboard/PurchaserSelector';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -78,6 +80,7 @@ interface DashboardData {
 }
 export function GlobalBuyerDashboard() {
   const ctx = useGlobalBuyerContext();
+  const companyCtx = useBuyerCompanyContext();
   const [activeTab, setActiveTab] = useState('overview');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -174,6 +177,15 @@ export function GlobalBuyerDashboard() {
           )}
         </div>
       </div>
+
+      {/* Purchaser Selector + Add Team Member */}
+      {!companyCtx.isLoading && companyCtx.purchasers.length > 0 && (
+        <PurchaserSelector
+          purchasers={companyCtx.purchasers}
+          selectedPurchaserId={companyCtx.selectedPurchaserId}
+          onSelect={companyCtx.setSelectedPurchaserId}
+        />
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
