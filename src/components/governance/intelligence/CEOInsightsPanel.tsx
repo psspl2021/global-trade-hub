@@ -63,8 +63,10 @@ export function CEOInsightsPanel({
     typeof id === 'string' ? id.slice(0, 8) : '—';
 
   const formatImpact = (a: ActionItem) => {
-    if (a.type === 'PLAN_CASHFLOW') return `${a.impact} POs`;
-    return `${a.impact}%`;
+    const n = Number(a?.impact);
+    if (!Number.isFinite(n)) return '—';
+    if (a.type === 'PLAN_CASHFLOW') return `${Math.round(n)} POs`;
+    return `${n.toFixed(1)}%`;
   };
 
   // Null-safe array guards - ensure we always work with arrays
@@ -149,7 +151,7 @@ export function CEOInsightsPanel({
             <div className="space-y-2">
               {actionsSafe.map((a, i) => (
                 <button
-                  key={a.type}
+                  key={`${a.type}-${i}`}
                   type="button"
                   onClick={() => navigate(`/governance/intelligence/action/${a.type}`)}
                   className={`w-full text-left rounded-md border p-3 text-sm flex items-start gap-3 transition-colors hover:bg-accent/50 hover:border-primary/40 cursor-pointer ${
