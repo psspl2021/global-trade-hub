@@ -120,14 +120,15 @@ export function PurchaserSelector({
             </SelectContent>
           </Select>
           
-          {/* Add Purchaser Button */}
+          {/* Add Team Member Button (purchasers, management, heads) */}
           {canAddPurchasers && (
             <Button
               variant="outline"
               size="icon"
               className="h-10 w-10 flex-shrink-0"
               onClick={() => setShowAddModal(true)}
-              title="Add Purchaser"
+              title="Add Team Member"
+              aria-label="Add Team Member"
             >
               <UserPlus className="h-4 w-4" />
             </Button>
