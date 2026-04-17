@@ -230,7 +230,14 @@ export function CEOInsightsPanel({
         )}
 
         {(() => {
-          const rc = insights.root_causes ?? {};
+          const rc = (insights.root_causes ?? {}) as RootCauses & {
+            sufficient_sample?: boolean;
+            sample_size?: number;
+            min_sample_required?: number;
+          };
+          // Suppress noisy attribution when sample is too small to be meaningful
+          if (rc.sufficient_sample === false) return null;
+
           const groups: Array<{ key: string; label: string; rows: RootCauseEntry[] }> = [
             { key: 'purchasers', label: 'Top Purchasers Driving Overdue', rows: Array.isArray(rc.purchasers) ? rc.purchasers : [] },
             { key: 'suppliers', label: 'Top Suppliers Driving Overdue', rows: Array.isArray(rc.suppliers) ? rc.suppliers : [] },
@@ -247,19 +254,24 @@ export function CEOInsightsPanel({
                   <div key={g.key} className="rounded-md border p-3 space-y-2">
                     <div className="text-xs font-medium">{g.label}</div>
                     <div className="space-y-1">
-                      {g.rows.map((r) => (
-                        <div key={`${g.key}-${r.id}`} className="flex items-center justify-between gap-2 text-sm">
-                          <div className="min-w-0 truncate">
-                            <span className="font-medium">{r.name}</span>
+                      {g.rows.map((r) => {
+                        const cnt = Number(r.count ?? 0);
+                        return (
+                          <div key={`${g.key}-${r.id}`} className="flex items-center justify-between gap-2 text-sm">
+                            <div className="min-w-0 truncate">
+                              <span className="font-medium">{r.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <Badge variant="outline">
+                                {Number(r.share_pct ?? 0).toFixed(1)}% of overdue{cnt > 0 ? ` (${cnt} PO${cnt === 1 ? '' : 's'})` : ''}
+                              </Badge>
+                              <span className="tabular-nums text-xs text-muted-foreground">
+                                {formatBaseAmount(safeAmount(r.amount), baseCurrency)}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <Badge variant="outline">{Number(r.share_pct ?? 0).toFixed(1)}% of overdue exposure</Badge>
-                            <span className="tabular-nums text-xs text-muted-foreground">
-                              {formatBaseAmount(safeAmount(r.amount), baseCurrency)}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
