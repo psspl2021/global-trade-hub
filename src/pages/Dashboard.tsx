@@ -412,7 +412,17 @@ const Dashboard = () => {
           <div className="space-y-6">
             {activeManagementView === 'cfo' && <CFOFinancialDashboard />}
             {activeManagementView === 'ceo' && (
-              <CompanyIntelligenceRouter forcedView="CEO" hideViewSelector />
+              <>
+                <div className="flex justify-end">
+                  <a
+                    href="/governance/ceo"
+                    className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 transition"
+                  >
+                    Open CEO Control Layer →
+                  </a>
+                </div>
+                <CompanyIntelligenceRouter forcedView="CEO" hideViewSelector />
+              </>
             )}
             {activeManagementView === 'hr' && (
               <CompanyIntelligenceRouter forcedView="HR" hideViewSelector />
