@@ -47,7 +47,8 @@ export function CompanyIntelligenceRouter(_props: {
     );
   }
 
-  if (!data || !data.role) {
+  // NO_ROLE: authorization-level empty state (user has no active company access)
+  if (!data || !data.role || (data as any).error === 'NO_ROLE') {
     return (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
@@ -57,10 +58,11 @@ export function CompanyIntelligenceRouter(_props: {
     );
   }
 
-  const poCount = (data.summary as any)?.po_count ?? 0;
   const role = String(data.role).toLowerCase();
-  // HR is non-financial; show empty-state only when there's truly nothing to count.
-  if (poCount === 0) {
+  const isEmpty = (data as any).empty === true || ((data.summary as any)?.po_count ?? 0) === 0;
+
+  // Valid role, but no procurement data yet — semantically distinct from NO_ROLE
+  if (isEmpty) {
     return (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
