@@ -51,6 +51,11 @@ export function CEOInsightsPanel({
   baseCurrency?: string;
 }) {
   const navigate = useNavigate();
+
+  // Null-safe array guards - ensure we always work with arrays
+  const actionsSafe = Array.isArray(actions) ? actions : [];
+  const upcomingSafe = Array.isArray(upcoming) ? upcoming : [];
+
   if (!insights) return null;
 
   const isHighRisk = insights.risk_level === 'HIGH';
