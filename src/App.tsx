@@ -124,6 +124,7 @@ const CEOPurchaseOrders = lazy(() => import("./pages/governance/ceo/CEOPurchaseO
 const CEOAuctions = lazy(() => import("./pages/governance/ceo/CEOAuctions"));
 const CEORFQs = lazy(() => import("./pages/governance/ceo/CEORFQs"));
 const CEOAuditLog = lazy(() => import("./pages/governance/ceo/CEOAuditLog"));
+const ManagerAcknowledgementsPage = lazy(() => import("./pages/governance/manager/ManagerAcknowledgementsPage"));
 const EnterpriseControlCenterPage = lazy(() => import("./pages/EnterpriseControlCenter"));
 const AdminSEOMonitor = lazy(() => import("./pages/AdminSEOMonitor"));
 const SeoRevenueDashboard = lazy(() => import("./pages/admin/SeoRevenueDashboard"));
@@ -284,6 +285,12 @@ const BotAwareRouter = () => {
           <Route path="rfq" element={<CEORFQs />} />
           <Route path="audit-log" element={<CEOAuditLog />} />
         </Route>
+
+        {/* Manager Acknowledgements queue */}
+        <Route
+          path="/governance/manager/acknowledgements"
+          element={<ManagerAcknowledgementsPage />}
+        />
         
         {/* Legacy management route now resolves into the unified dashboard */}
         <Route path="/management" element={<Navigate to="/dashboard" replace />} />

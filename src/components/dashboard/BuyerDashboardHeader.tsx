@@ -22,6 +22,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
+import { GovernanceNotificationBell } from '@/components/governance/GovernanceNotificationBell';
 import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
@@ -122,6 +123,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               </div>
             )}
             <NotificationBell />
+            <GovernanceNotificationBell />
             <Button 
               variant="outline" 
               size="sm" 

@@ -4186,6 +4186,48 @@ export type Database = {
         }
         Relationships: []
       }
+      governance_notifications: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          message: string | null
+          metadata: Json
+          read: boolean
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message?: string | null
+          metadata?: Json
+          read?: boolean
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message?: string | null
+          metadata?: Json
+          read?: boolean
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       governance_rules: {
         Row: {
           buyer_id: string | null
@@ -12242,6 +12284,18 @@ export type Database = {
         }
         Returns: string
       }
+      create_governance_notification: {
+        Args: {
+          p_entity_id: string
+          p_entity_type: string
+          p_message: string
+          p_metadata?: Json
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       create_partial_lane: {
         Args: { bid_id: string; coverage_percent?: number; req_id: string }
         Returns: string
@@ -12605,6 +12659,7 @@ export type Database = {
         }[]
       }
       get_my_capabilities: { Args: never; Returns: string[] }
+      get_my_pending_override_acks: { Args: never; Returns: Json }
       get_pending_po_auctions: {
         Args: never
         Returns: {
@@ -12903,6 +12958,14 @@ export type Database = {
       map_buyer_role_to_intel: {
         Args: { _buyer_role: string }
         Returns: string
+      }
+      mark_all_governance_notifications_read: {
+        Args: never
+        Returns: undefined
+      }
+      mark_governance_notification_read: {
+        Args: { p_id: string }
+        Returns: undefined
       }
       place_bid_with_session: {
         Args: {
