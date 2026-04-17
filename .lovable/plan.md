@@ -1,41 +1,108 @@
+# CEO Control Layer — Implementation Plan
 
+## Design principles
+- **Override, never bypass.** Every elevated action is explicit, reasoned, and audited.
+- **Capabilities, not role checks.** No `if role === 'ceo'` scattered in code.
+- **Audit is non-optional.** Sensitive views and overrides write a ledger entry.
+- **UI separation.** Supervisory layer lives under `/governance/ceo`, not mixed into operational screens.
 
-## Demo Polish: Language Switch, Auto-Scroll, Pause-on-Interaction, Savings Narration
+---
 
-### What we're building
-Six enhancements to make the guided demo investor-grade:
+## Phase 1 — Backend foundation (capabilities + audit)
 
-1. **Language Switcher** — Dropdown in demo controls to switch voiceover language (en/hi/ar/vi/zh). Subtitle bar will also show text in the selected language.
+### 1.1 `role_capabilities` table
+Editable role→capability mapping (not hardcoded). Columns: `role`, `capability`, `granted` (default true), unique `(role, capability)`.
 
-2. **Auto-Scroll to Highlighted Section** — When `highlightSection` changes, auto-scroll that element into view with smooth behavior.
+Seed CEO with: `can_view_all_auctions`, `can_view_all_quotes`, `can_override_po_approval`, `can_view_full_supplier_identity`, `can_view_all_pos`.
 
-3. **Pause on User Interaction** — Click/scroll/input during full-demo auto-play stops the demo and voiceover, giving the user control.
+RLS: read for authenticated, writes via admin only.
 
-4. **Savings Narration Step** — New `savings` step in the voiceover script, triggered after auction completion, highlighting ROI ("8–12% savings").
+### 1.2 `has_capability(user_id, capability)` RPC
+SECURITY DEFINER. Resolves user's role via `user_company_access`, joins `role_capabilities`. Single source of truth for all permission checks.
 
-5. **Demo Mode Toggle (sales/deep)** — `sales` mode shows simplified flow; `deep` mode (default for admins) shows full technical details like transport info and reliability scores.
+### 1.3 `governance_audit_log` table
+Columns: `actor_id`, `actor_role`, `action` (`override_po`, `view_auction_live`, `view_quotes_full`, `view_po_full`), `entity_type`, `entity_id`, `reason`, `metadata`, `created_at`.
+RLS: insert via SECURITY DEFINER RPCs only; read for admins + the actor.
 
-6. **Demo Entry Screen** — Before the demo starts, show a selection screen: "Buyer Flow", "Supplier Experience", or "Full Walkthrough" (only Full Walkthrough implemented initially, others as placeholders).
+### 1.4 `log_governance_action(...)` RPC
+Wrapper called by every elevated RPC below.
 
-### Technical changes
+---
 
-**`src/lib/demo-voiceover-script.ts`**
-- Add `savings` step with en/hi text
-- Add to `DemoNarrationStep` type
+## Phase 2 — PO Override Flow (highest priority)
 
-**`src/components/demo/DemoGuidedFlow.tsx`**
-- Add `language` state + `<Select>` dropdown using existing UI select component
-- Pass `language` to `useDemoVoiceover(language)`
-- Update subtitle bar to show text in selected language
-- Add `useEffect` for auto-scroll: `document.getElementById(section)?.scrollIntoView({ behavior: 'smooth', block: 'center' })`
-- Add `id` attributes to auction-card and po-timeline sections
-- Add pause-on-interaction: attach click/scroll listeners during `fullDemoRunning` that stop auto-play + voiceover
-- Add `demoDepth` state (`'sales' | 'deep'`); hide transport details and reliability info in `sales` mode
-- Trigger `speak('savings')` after `auction_complete` narration ends
-- Add entry screen state (`showEntryScreen`) rendered before demo begins, with 3 scenario buttons
+### 2.1 Schema
+- `purchase_orders.approval_state` enum: `draft → manager_approved → ceo_override_approved → manager_acknowledged → finalized`
+- New columns: `override_by`, `override_reason`, `override_at`, `manager_ack_by`, `manager_ack_at`.
 
-### Files modified
-- `src/lib/demo-voiceover-script.ts` — add `savings` step
-- `src/components/demo/DemoGuidedFlow.tsx` — all UI/logic changes
-- `src/hooks/useDemoVoiceover.ts` — no changes needed (already accepts language param)
+### 2.2 RPC `ceo_override_approve_po(po_id, reason)`
+Requires `can_override_po_approval`. Reason mandatory (≥10 chars). Sets state → `ceo_override_approved`. Writes audit log + manager notification.
 
+### 2.3 RPC `manager_acknowledge_override(po_id)`
+Manager moves state → `manager_acknowledged → finalized`. Writes audit log.
+
+### 2.4 UI
+- **CEO PO list** (`/governance/ceo/purchase-orders`): "Override & Approve" button → modal with mandatory reason.
+- **Manager queue**: overridden POs show yellow banner "⚠ Approved by CEO override — acknowledge required" + ack button.
+- PO detail badge: `Approved by CEO override (manager pending)` until acknowledged.
+
+---
+
+## Phase 3 — Reverse Auction Leaderboard (live, audited)
+
+### 3.1 RPC `get_ceo_auction_leaderboard(auction_id)`
+Requires `can_view_all_auctions`. Returns supplier name, rank, bid_price, bid_time, delta vs L1. Read-only. Writes one audit entry per session per auction (debounced).
+
+### 3.2 UI `/governance/ceo/auctions`
+List + drill-in (full leaderboard, savings vs baseline, spread chart). Banner: "Executive View — read-only, this access is logged". No bid controls.
+
+---
+
+## Phase 4 — Forward RFQ Full Visibility
+
+### 4.1 RPC `get_ceo_rfq_quotes(requirement_id)`
+Requires `can_view_all_quotes`. Returns all supplier quotes un-masked, variance, selection justification, linked PO id. Audited.
+
+### 4.2 UI `/governance/ceo/rfq`
+Company-wide RFQ list. Detail: supplier-wise quote table, variance chart, awarded supplier highlight, "View Linked PO" link.
+
+---
+
+## Phase 5 — Routes, navigation, scoped queries
+
+### 5.1 Routes
+- `/governance/ceo` — landing (existing CEO Insights stays).
+- `/governance/ceo/auctions`, `/governance/ceo/rfq`, `/governance/ceo/purchase-orders`, `/governance/ceo/audit-log`.
+All gated by `has_capability` (client nav + server RPC).
+
+### 5.2 Extend `get_scoped_purchase_orders`
+If caller has `can_view_all_pos`, return company-wide rows. No supplier masking when `can_view_full_supplier_identity`.
+
+### 5.3 Frontend hooks
+- `useCapabilities()` — fetch caller's capability set once, cached.
+- `<RequireCapability cap="..." />` guard component.
+
+---
+
+## Phase 6 — Guardrails & polish
+- Override modal: reason field with char counter + confirm dialog.
+- Manager notification: in-app + notifications table entry.
+- Audit log viewer: filterable by actor, action, entity, date range.
+- Empty/loading states.
+
+---
+
+## Out of scope (this pass)
+- Email/SMS notifications (in-app only).
+- Per-user capability overrides (table supports it later).
+- Multi-CEO approval quorum.
+
+---
+
+## Sequence
+1. Phase 1 (foundation) — must land first.
+2. Phase 2 (PO override) — highest-priority capability.
+3. Phase 5.1+5.3 (routes + hooks) — required before 3/4 UI.
+4. Phase 3 (auctions).
+5. Phase 4 (RFQ).
+6. Phase 6 (guardrails).
