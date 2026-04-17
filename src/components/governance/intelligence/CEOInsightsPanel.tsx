@@ -30,6 +30,20 @@ interface ActionItem {
   description: string;
 }
 
+interface RootCauseEntry {
+  id: string;
+  name: string;
+  amount: number;
+  share_pct: number;
+  count: number;
+}
+
+interface RootCauses {
+  purchasers?: RootCauseEntry[];
+  suppliers?: RootCauseEntry[];
+  categories?: RootCauseEntry[];
+}
+
 interface Insights {
   overdue_ratio?: number;
   risk_level?: 'NORMAL' | 'HIGH' | string;
@@ -37,6 +51,7 @@ interface Insights {
   supplier_risk?: SupplierRisk;
   cash_pressure_score?: number;
   priority?: 'STABLE' | 'WARNING' | 'CRITICAL' | string;
+  root_causes?: RootCauses;
 }
 
 export function CEOInsightsPanel({
