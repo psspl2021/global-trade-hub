@@ -9,7 +9,10 @@ import type { CompanyIntelligenceData } from '@/hooks/useCompanyIntelligence';
 export function CEOIntelligenceView({ data }: { data: CompanyIntelligenceData }) {
   const base = data.base_currency || 'INR';
   const s = data.summary || {};
-  const insights = (data as any).insights ?? null;
+  const d: any = data ?? {};
+  const insights = d.insights
+    ? { ...d.insights, actions: d.actions ?? [], upcoming_payments: d.upcoming_payments ?? [] }
+    : null;
   return (
     <div className="space-y-4">
       <CEOInsightsPanel insights={insights} baseCurrency={base} />
