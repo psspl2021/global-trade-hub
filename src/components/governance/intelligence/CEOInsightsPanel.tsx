@@ -69,9 +69,20 @@ export function CEOInsightsPanel({
     return `${n.toFixed(1)}%`;
   };
 
+  const safeAmount = (v: any) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+
   // Null-safe array guards - ensure we always work with arrays
   const actionsSafe = Array.isArray(actions) ? actions : [];
   const upcomingSafe = Array.isArray(upcoming) ? upcoming : [];
+
+  const upcomingSorted = [...upcomingSafe].sort((a, b) => {
+    const da = new Date(a?.due_date).getTime();
+    const db = new Date(b?.due_date).getTime();
+    return (isNaN(da) ? Infinity : da) - (isNaN(db) ? Infinity : db);
+  });
 
   if (!insights) return null;
 
@@ -182,8 +193,8 @@ export function CEOInsightsPanel({
           <div className="space-y-1">
             <div className="text-xs font-medium text-muted-foreground">Next 7 Days</div>
             <div className="divide-y rounded-md border">
-              {upcomingSafe.slice(0, 5).map((p) => (
-                <div key={p.po_id} className="flex items-center justify-between px-3 py-2 text-sm">
+              {upcomingSorted.slice(0, 5).map((p) => (
+                <div key={p.po_id ?? `${p.po_number}-${p.due_date}`} className="flex items-center justify-between px-3 py-2 text-sm">
                   <div className="min-w-0">
                     <div className="font-medium truncate">{p.supplier_name ?? '—'}</div>
                     <div className="text-xs text-muted-foreground truncate">
@@ -191,7 +202,7 @@ export function CEOInsightsPanel({
                     </div>
                   </div>
                   <div className="font-semibold tabular-nums">
-                    {formatBaseAmount(p.amount ?? 0, baseCurrency)}
+                    {formatBaseAmount(safeAmount(p.amount), baseCurrency)}
                   </div>
                 </div>
               ))}
