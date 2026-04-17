@@ -4188,6 +4188,7 @@ export type Database = {
       }
       governance_notifications: {
         Row: {
+          archived_at: string | null
           created_at: string
           entity_id: string | null
           entity_type: string | null
@@ -4201,6 +4202,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string
           entity_id?: string | null
           entity_type?: string | null
@@ -4214,6 +4216,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          archived_at?: string | null
           created_at?: string
           entity_id?: string | null
           entity_type?: string | null
@@ -12216,7 +12219,7 @@ export type Database = {
         Returns: boolean
       }
       cleanup_dead_sessions: { Args: never; Returns: number }
-      cleanup_old_governance_notifications: { Args: never; Returns: Json }
+      cleanup_old_governance_notifications: { Args: never; Returns: undefined }
       cleanup_stale_sessions: { Args: never; Returns: number }
       close_expired_auctions: { Args: never; Returns: undefined }
       complete_supplier_reveal: {
