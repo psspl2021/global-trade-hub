@@ -103,7 +103,7 @@ export function CEOInsightsPanel({
 
   const isHighRisk = insights.risk_level === 'HIGH';
   const isDependencyRisk = insights.supplier_risk?.level === 'DEPENDENCY_RISK';
-  const overduePct = ((insights.overdue_ratio ?? 0) * 100).toFixed(1);
+  const overduePct = (insights.overdue_ratio ?? 0).toFixed(1);
   const concentrationPct = insights.supplier_risk?.concentration_pct ?? 0;
   const priority = insights.priority ?? 'STABLE';
   const cashPressure = insights.cash_pressure_score ?? 0;
