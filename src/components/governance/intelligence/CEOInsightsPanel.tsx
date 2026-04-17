@@ -35,17 +35,19 @@ interface Insights {
   risk_level?: 'NORMAL' | 'HIGH' | string;
   avg_payment_delay_days?: number;
   supplier_risk?: SupplierRisk;
-  upcoming_payments?: UpcomingPayment[];
   cash_pressure_score?: number;
   priority?: 'STABLE' | 'WARNING' | 'CRITICAL' | string;
-  actions?: ActionItem[];
 }
 
 export function CEOInsightsPanel({
   insights,
+  actions = [],
+  upcoming = [],
   baseCurrency = 'INR',
 }: {
   insights: Insights | null | undefined;
+  actions?: ActionItem[];
+  upcoming?: UpcomingPayment[];
   baseCurrency?: string;
 }) {
   const navigate = useNavigate();
@@ -55,10 +57,8 @@ export function CEOInsightsPanel({
   const isDependencyRisk = insights.supplier_risk?.level === 'DEPENDENCY_RISK';
   const overduePct = ((insights.overdue_ratio ?? 0) * 100).toFixed(1);
   const concentrationPct = insights.supplier_risk?.concentration_pct ?? 0;
-  const upcoming = insights.upcoming_payments ?? [];
   const priority = insights.priority ?? 'STABLE';
   const cashPressure = insights.cash_pressure_score ?? 0;
-  const actions = insights.actions ?? [];
 
   const priorityVariant: 'destructive' | 'secondary' | 'default' =
     priority === 'CRITICAL' ? 'destructive' : priority === 'WARNING' ? 'default' : 'secondary';
