@@ -12362,7 +12362,7 @@ export type Database = {
         }
         Returns: string
       }
-      escalate_overdue_override_acks: { Args: never; Returns: Json }
+      escalate_overdue_override_acks: { Args: never; Returns: undefined }
       escalate_stale_approvals: { Args: never; Returns: number }
       execute_cfo_action: {
         Args: {
