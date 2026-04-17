@@ -122,6 +122,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               </div>
             )}
             <NotificationBell />
+            <GovernanceNotificationBell />
             <Button 
               variant="outline" 
               size="sm" 

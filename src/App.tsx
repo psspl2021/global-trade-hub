@@ -284,6 +284,12 @@ const BotAwareRouter = () => {
           <Route path="rfq" element={<CEORFQs />} />
           <Route path="audit-log" element={<CEOAuditLog />} />
         </Route>
+
+        {/* Manager Acknowledgements queue */}
+        <Route
+          path="/governance/manager/acknowledgements"
+          element={<ManagerAcknowledgementsPage />}
+        />
         
         {/* Legacy management route now resolves into the unified dashboard */}
         <Route path="/management" element={<Navigate to="/dashboard" replace />} />
