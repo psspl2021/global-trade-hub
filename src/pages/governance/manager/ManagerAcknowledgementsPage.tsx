@@ -42,13 +42,21 @@ export default function ManagerAcknowledgementsPage() {
   }, []);
 
   const acknowledge = async (po: PendingAck) => {
-    if (
-      !confirm(
-        `Acknowledge CEO override on ${po.po_number}?\n\nThis finalizes the PO and is permanently logged in the audit trail.`
-      )
-    ) {
-      return;
-    }
+    const ageHours = Math.round(
+      (Date.now() - new Date(po.ceo_override_at).getTime()) / 36e5
+    );
+    const confirmMsg = [
+      `Acknowledge CEO override on ${po.po_number}?`,
+      ``,
+      `Supplier: ${po.supplier_name}`,
+      `Value:    ${fmtINR(po.po_value)}`,
+      `Overridden by: ${po.ceo_name} (${ageHours}h ago)`,
+      `Reason: "${po.ceo_override_reason}"`,
+      ``,
+      `This finalizes the PO and is permanently logged in the audit trail.`,
+    ].join('\n');
+    if (!confirm(confirmMsg)) return;
+
     setAcking(po.id);
     const { data, error } = await supabase.rpc('manager_acknowledge_override' as any, {
       p_po_id: po.id,
