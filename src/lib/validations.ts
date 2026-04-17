@@ -36,7 +36,7 @@ export const signupSchema = z.object({
   phone: z.string()
     .trim()
     .regex(/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number (10-15 digits)'),
-  role: z.enum(['buyer', 'supplier', 'logistics_partner', 'affiliate']),
+  role: z.enum(['buyer', 'supplier', 'logistics_partner', 'transporter', 'affiliate']),
   referredByName: z.string()
     .trim()
     .min(2, 'Referrer name must be at least 2 characters')
