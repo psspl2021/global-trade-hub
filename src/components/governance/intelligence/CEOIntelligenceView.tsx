@@ -10,12 +10,17 @@ export function CEOIntelligenceView({ data }: { data: CompanyIntelligenceData })
   const base = data.base_currency || 'INR';
   const s = data.summary || {};
   const d: any = data ?? {};
-  const insights = d.insights
-    ? { ...d.insights, actions: d.actions ?? [], upcoming_payments: d.upcoming_payments ?? [] }
-    : null;
+  const insights = d.insights ?? null;
+  const actions = d.actions ?? [];
+  const upcoming = d.upcoming_payments ?? [];
   return (
     <div className="space-y-4">
-      <CEOInsightsPanel insights={insights} baseCurrency={base} />
+      <CEOInsightsPanel
+        insights={insights}
+        actions={actions}
+        upcoming={upcoming}
+        baseCurrency={base}
+      />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <IntelligenceMetricCard
         title="Total Payable"
