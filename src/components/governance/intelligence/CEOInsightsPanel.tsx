@@ -52,6 +52,21 @@ export function CEOInsightsPanel({
 }) {
   const navigate = useNavigate();
 
+  // Safe formatting helpers
+  const formatDate = (d: any) => {
+    if (!d) return '—';
+    const dt = new Date(d);
+    return isNaN(dt.getTime()) ? '—' : dt.toLocaleDateString();
+  };
+
+  const shortId = (id: any) =>
+    typeof id === 'string' ? id.slice(0, 8) : '—';
+
+  const formatImpact = (a: ActionItem) => {
+    if (a.type === 'PLAN_CASHFLOW') return `${a.impact} POs`;
+    return `${a.impact}%`;
+  };
+
   // Null-safe array guards - ensure we always work with arrays
   const actionsSafe = Array.isArray(actions) ? actions : [];
   const upcomingSafe = Array.isArray(upcoming) ? upcoming : [];
@@ -152,8 +167,7 @@ export function CEOInsightsPanel({
                     <div className="text-xs text-muted-foreground">{a.description}</div>
                   </div>
                   <Badge variant="outline" className="flex-shrink-0">
-                    {a.impact}
-                    {a.type === 'PLAN_CASHFLOW' ? '' : '%'}
+                    {formatImpact(a)}
                   </Badge>
                   <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                 </button>
@@ -171,7 +185,7 @@ export function CEOInsightsPanel({
                   <div className="min-w-0">
                     <div className="font-medium truncate">{p.supplier_name ?? '—'}</div>
                     <div className="text-xs text-muted-foreground truncate">
-                      {p.po_number ?? p.po_id.slice(0, 8)} · due {new Date(p.due_date).toLocaleDateString()}
+                      {p.po_number ?? shortId(p.po_id)} · due {formatDate(p.due_date)}
                     </div>
                   </div>
                   <div className="font-semibold tabular-nums">
