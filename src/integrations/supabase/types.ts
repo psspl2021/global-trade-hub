@@ -12400,6 +12400,9 @@ export type Database = {
         Args: { p_buyer_id: string; p_days?: number }
         Returns: Json
       }
+      get_ceo_auctions: { Args: never; Returns: Json }
+      get_ceo_purchase_orders: { Args: never; Returns: Json }
+      get_ceo_rfqs: { Args: never; Returns: Json }
       get_cfo_decision_intelligence:
         | { Args: never; Returns: Json }
         | { Args: { p_company_id: string }; Returns: Json }
