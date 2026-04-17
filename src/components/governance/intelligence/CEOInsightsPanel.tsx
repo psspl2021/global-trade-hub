@@ -249,7 +249,7 @@ export function CEOInsightsPanel({
                             <span className="font-medium">{r.name}</span>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <Badge variant="outline">{Number(r.share_pct ?? 0).toFixed(1)}%</Badge>
+                            <Badge variant="outline">{Number(r.share_pct ?? 0).toFixed(1)}% of overdue</Badge>
                             <span className="tabular-nums text-xs text-muted-foreground">
                               {formatBaseAmount(safeAmount(r.amount), baseCurrency)}
                             </span>
