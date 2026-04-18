@@ -18,6 +18,7 @@ import { UsageProgressMeter } from './UsageProgressMeter';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DASHBOARD_LOCKIN_COPY } from '@/lib/global-positioning';
@@ -39,16 +40,19 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+  const { selectedPurchaserId } = useBuyerCompanyContext();
 
-  // Fetch auction count for usage meter
+  // Fetch auction count for usage meter — scoped to acting purchaser via RPC.
+  // DB enforces purchaser hard-override (cannot impersonate others).
   useEffect(() => {
     if (!user || isSupplier) return;
-    supabase
-      .from('reverse_auctions')
-      .select('id', { count: 'exact', head: true })
-      .eq('buyer_id', user.id)
-      .then(({ count }) => setAuctionCount(count ?? 0));
-  }, [user, isSupplier]);
+    (supabase as any)
+      .rpc('get_scoped_auctions_by_purchaser', {
+        p_user_id: user.id,
+        p_selected_purchaser: selectedPurchaserId,
+      })
+      .then(({ data }: any) => setAuctionCount((data || []).length));
+  }, [user, isSupplier, selectedPurchaserId]);
 
   // Persist selected auction ID in URL
   const selectAuction = (auction: ReverseAuction | null) => {

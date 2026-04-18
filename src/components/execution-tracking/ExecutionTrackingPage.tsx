@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Truck, CheckCircle2, FileText, Package, CreditCard, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 
 interface ExecutionTrackingPageProps {
   userId: string;
@@ -25,20 +26,20 @@ const STAGE_CONFIG = [
 export function ExecutionTrackingPage({ userId, onBack }: ExecutionTrackingPageProps) {
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { selectedPurchaserId } = useBuyerCompanyContext();
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from('reverse_auctions')
-        .select('id, title, status, winning_bid, winning_price, quantity, currency, winner_supplier_id, created_at')
-        .eq('buyer_id', userId)
-        .eq('status', 'completed')
-        .not('winner_supplier_id', 'is', null)
-        .order('created_at', { ascending: false });
+      // Scoped via RPC — DB enforces purchaser isolation. Filter completed+winner client-side.
+      const { data: scoped } = await (supabase as any).rpc(
+        'get_scoped_auctions_by_purchaser',
+        { p_user_id: userId, p_selected_purchaser: selectedPurchaserId }
+      );
+      const data = (scoped || []).filter((a: any) => a.status === 'completed' && a.winner_supplier_id);
 
       // Enrich with supplier company names
       const enriched = await Promise.all(
-        (data || []).map(async (a) => {
+        (data || []).map(async (a: any) => {
           const { data: sup } = await supabase
             .from('reverse_auction_suppliers')
             .select('supplier_company_name')
@@ -52,7 +53,7 @@ export function ExecutionTrackingPage({ userId, onBack }: ExecutionTrackingPageP
       setLoading(false);
     };
     load();
-  }, [userId]);
+  }, [userId, selectedPurchaserId]);
 
   const stageCounts = useMemo(() => {
     const counts: Record<string, number> = {};
