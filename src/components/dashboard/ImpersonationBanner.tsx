@@ -36,14 +36,14 @@ export function ImpersonationBanner() {
   };
 
   return (
-    <div className="w-full bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900/50">
+    <div className="w-full bg-warning/10 border-b border-warning/30">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-amber-900 dark:text-amber-200 min-w-0">
-          <Eye className="h-4 w-4 flex-shrink-0" />
+        <div className="flex items-center gap-2 text-sm text-warning-foreground min-w-0">
+          <Eye className="h-4 w-4 flex-shrink-0 text-warning" />
           <span className="truncate">
             Viewing as{' '}
             <span className="font-semibold">{selectedPurchaser.display_name}</span>
-            <span className="text-amber-700 dark:text-amber-400">
+            <span className="text-muted-foreground">
               {' '}
               ({selectedPurchaser.role})
             </span>
@@ -53,7 +53,7 @@ export function ImpersonationBanner() {
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 text-xs flex-shrink-0 border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40"
+          className="h-7 px-2 text-xs flex-shrink-0 border-warning/40 hover:bg-warning/20"
           onClick={handleExit}
         >
           <X className="h-3 w-3 mr-1" />
