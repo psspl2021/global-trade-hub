@@ -162,9 +162,14 @@ export function useReverseAuction(supplierMode: boolean = false) {
         if (error) throw error;
         setAuctions((data as unknown as ReverseAuction[]) || []);
       } else {
+        // Scope to the acting purchaser. Management views pass selectedPurchaserId;
+        // purchasers/buyers default to themselves. DB-side scoping (purchaser_id) is
+        // the authoritative leak-prevention boundary.
+        const effectivePurchaserId = selectedPurchaserId || user.id;
         let query = supabase
           .from('reverse_auctions')
-          .select('*');
+          .select('*')
+          .eq('purchaser_id', effectivePurchaserId);
 
         // Apply server-side filters only for cancelled (completed is time-derived, handled client-side)
         if (filters?.status === 'cancelled') {
