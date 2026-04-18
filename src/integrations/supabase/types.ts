@@ -12884,6 +12884,40 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_scoped_logistics_by_purchaser: {
+        Args: { p_selected_purchaser?: string; p_user_id: string }
+        Returns: {
+          award_locked: boolean | null
+          bidding_deadline_at: string | null
+          budget_max: number | null
+          buyer_closure_status: string | null
+          created_at: string
+          customer_id: string
+          delivery_deadline: string
+          delivery_location: string
+          effective_state: string | null
+          id: string
+          material_description: string | null
+          material_type: string
+          pickup_date: string
+          pickup_location: string
+          quantity: number
+          special_requirements: string | null
+          status: Database["public"]["Enums"]["logistics_requirement_status"]
+          title: string
+          unit: string
+          updated_at: string
+          vehicle_type_preference:
+            | Database["public"]["Enums"]["vehicle_type"]
+            | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "logistics_requirements"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_scoped_pos_by_purchaser: {
         Args: { p_selected_purchaser?: string; p_user_id: string }
         Returns: {
