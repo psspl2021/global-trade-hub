@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, Mail, User, Briefcase, X } from 'lucide-react';
+import { UserPlus, Mail, User, Briefcase, X, Copy, KeyRound, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { categoriesData } from '@/data/categories';
