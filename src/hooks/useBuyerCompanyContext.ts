@@ -63,8 +63,12 @@ const HR_ROLES: UserRole[] = ['buyer_hr', 'hr'];
 // Purchaser/Buyer roles that can see purchaser dropdown
 const PURCHASER_ROLES: UserRole[] = ['buyer_purchaser', 'purchaser', 'buyer'];
 
-const STORAGE_KEY_PURCHASER = 'ps_selected_purchaser';
+const STORAGE_KEY_PURCHASER_BASE = 'ps_selected_purchaser';
 const STORAGE_KEY_MGMT_VIEW = 'ps_management_view';
+// Per-user namespacing prevents cross-account leakage on shared browsers:
+// without this, User A's saved "view as" ID is briefly applied to User B
+// on first render after login, producing the illusion of seeing A's data.
+const purchaserStorageKey = (userId: string) => `${STORAGE_KEY_PURCHASER_BASE}:${userId}`;
 
 export function useBuyerCompanyContext(): BuyerCompanyContext {
   const { user } = useAuth();
