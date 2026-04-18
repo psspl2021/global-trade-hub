@@ -80,8 +80,12 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // All buyer roles can access management views (secured by PIN verification)
-  const canSelectPurchaser = [...MANAGEMENT_ROLES, ...HR_ROLES, ...PURCHASER_ROLES].includes(role);
+  // Company-membership role (from buyer_company_members) is the source of
+  // truth for company-scoped governance. Auth role (user_roles) is only a
+  // fallback when membership data hasn't loaded yet.
+  const companyRole = (purchasers.find(p => p.user_id === user?.id)?.role || role) as UserRole;
+
+  const canSelectPurchaser = [...MANAGEMENT_ROLES, ...HR_ROLES, ...PURCHASER_ROLES].includes(companyRole);
   const canViewManagement = canSelectPurchaser; // Any buyer role can access management views
   const isManagementMode = managementView !== null;
   const isReadOnly = canViewManagement && isManagementMode;
@@ -200,10 +204,13 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       let purchaserList = (data || []) as CompanyPurchaser[];
 
       // SECURITY/UX: purchaser & buyer_purchaser roles are hard-scoped to self
-      // by the DB (RPC ignores p_selected_purchaser). Filtering the list here
-      // keeps the UI consistent with that contract — no misleading "view as"
-      // option that would silently fall back to the caller's own data.
-      const isSelfOnlyRole = role === 'purchaser' || role === 'buyer_purchaser';
+      // by the DB (RPC ignores p_selected_purchaser). Use the company-membership
+      // role (authoritative) rather than auth role to decide self-only filtering.
+      const callerCompanyRole = purchaserList.find(p => p.user_id === user.id)?.role;
+      const isSelfOnlyRole =
+        callerCompanyRole === 'purchaser' ||
+        callerCompanyRole === 'buyer_purchaser' ||
+        (!callerCompanyRole && (role === 'purchaser' || role === 'buyer_purchaser'));
       if (isSelfOnlyRole) {
         purchaserList = purchaserList.filter(p => p.is_current_user || p.user_id === user.id);
       }
