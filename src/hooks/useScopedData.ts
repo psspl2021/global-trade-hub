@@ -36,6 +36,8 @@ interface UseScopedDataOptions {
   from?: string;
   /** ISO timestamp upper bound on created_at. */
   to?: string;
+  /** DB-side winner filter (auctions only). true = has winner, false = no winner. */
+  hasWinner?: boolean;
   /** Page size. Default 200. */
   limit?: number;
   /** Pagination offset. Default 0. */
