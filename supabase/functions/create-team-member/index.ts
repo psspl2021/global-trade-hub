@@ -16,8 +16,17 @@ const ALLOWED_ROLES = [
   "buyer_ceo",
 ];
 
-// Roles allowed to create team members
-const ADMIN_ROLES = ["buyer_ceo", "buyer_cfo", "buyer_manager", "buyer_hr"];
+// Roles allowed to create team members (matches UI canAddPurchasers)
+const ADMIN_ROLES = [
+  "buyer_ceo",
+  "buyer_cfo",
+  "buyer_manager",
+  "buyer_hr",
+  "buyer_purchaser",
+  "buyer_purchase_head",
+  "buyer_director",
+  "buyer_operations_manager",
+];
 
 function genPassword(): string {
   const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
