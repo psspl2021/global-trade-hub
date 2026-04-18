@@ -492,10 +492,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     try {
       const currentEnd = new Date(auction.auction_end);
       const newEnd = new Date(currentEnd.getTime() + extendMinutes * 60000);
-      const { error } = await supabase
-        .from('reverse_auctions')
-        .update({ auction_end: newEnd.toISOString(), updated_at: new Date().toISOString() } as any)
-        .eq('id', auction.id);
+      const { error } = await (supabase as any).rpc('extend_auction_end', {
+        p_auction_id: auction.id,
+        p_new_end: newEnd.toISOString(),
+      });
       if (error) throw error;
       setAuction(prev => ({ ...prev, auction_end: newEnd.toISOString() }));
       toast({ title: '⏱️ Time Extended', description: `Auction extended by ${extendMinutes} minutes` });
