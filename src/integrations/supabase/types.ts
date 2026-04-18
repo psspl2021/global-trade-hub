@@ -6571,6 +6571,7 @@ export type Database = {
           po_value: number | null
           po_value_base_currency: number | null
           price_drop_pct: number | null
+          purchaser_id: string | null
           region_type: string | null
           rejected_at: string | null
           rejected_by: string | null
@@ -6663,6 +6664,7 @@ export type Database = {
           po_value?: number | null
           po_value_base_currency?: number | null
           price_drop_pct?: number | null
+          purchaser_id?: string | null
           region_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
@@ -6755,6 +6757,7 @@ export type Database = {
           po_value?: number | null
           po_value_base_currency?: number | null
           price_drop_pct?: number | null
+          purchaser_id?: string | null
           region_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
@@ -7778,6 +7781,7 @@ export type Database = {
           identity_revealed_by: string | null
           payment_terms: string | null
           product_category: string
+          purchaser_id: string | null
           quality_standards: string | null
           quantity: number
           reveal_fee: number | null
@@ -7824,6 +7828,7 @@ export type Database = {
           identity_revealed_by?: string | null
           payment_terms?: string | null
           product_category: string
+          purchaser_id?: string | null
           quality_standards?: string | null
           quantity: number
           reveal_fee?: number | null
@@ -7870,6 +7875,7 @@ export type Database = {
           identity_revealed_by?: string | null
           payment_terms?: string | null
           product_category?: string
+          purchaser_id?: string | null
           quality_standards?: string | null
           quantity?: number
           reveal_fee?: number | null
@@ -12540,6 +12546,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_company_team_members: { Args: { p_user_id: string }; Returns: Json }
       get_country_intent_metrics: {
         Args: never
         Returns: {
@@ -12770,6 +12777,108 @@ export type Database = {
           supplier_phone: string
         }[]
       }
+      get_scoped_pos_by_purchaser: {
+        Args: { p_selected_purchaser?: string; p_user_id: string }
+        Returns: {
+          approval_escalated: boolean | null
+          approval_required: boolean | null
+          approval_status: string | null
+          auction_id: string | null
+          auction_quality_score: number | null
+          base_currency: string | null
+          budget_cap: number | null
+          buyer_company_id: string | null
+          ceo_override: boolean | null
+          ceo_override_at: string | null
+          ceo_override_by: string | null
+          ceo_override_reason: string | null
+          cfo_approved_at: string | null
+          cfo_approved_by: string | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          delivery_address: string | null
+          delivery_delay_notes: string | null
+          delivery_delay_reason: string | null
+          delivery_due_date: string | null
+          director_approved_at: string | null
+          director_approved_by: string | null
+          discount_amount: number
+          discount_percent: number | null
+          driver_contact: string | null
+          effective_due_date: string | null
+          erp_reference_id: string | null
+          erp_response: Json | null
+          erp_sync_enabled: boolean
+          erp_sync_status: string | null
+          escalated_at: string | null
+          exchange_rate: number | null
+          expected_delivery_date: string | null
+          external_po_number: string | null
+          fx_source: string | null
+          fx_timestamp: string | null
+          id: string
+          immutable_hash: string | null
+          incoterms: string | null
+          legal_hold: boolean | null
+          manager_ack_at: string | null
+          manager_ack_by: string | null
+          manager_approved_at: string | null
+          manager_approved_by: string | null
+          notes: string | null
+          order_date: string
+          original_po_value: number | null
+          payment_confirmed_at: string | null
+          payment_due_date: string | null
+          payment_initiated_at: string | null
+          payment_mode: string | null
+          payment_proof_url: string | null
+          payment_reference: string | null
+          payment_status: string | null
+          payment_terms_override_days: number | null
+          payment_workflow_status: string | null
+          po_number: string
+          po_source: string
+          po_status: string | null
+          po_value: number | null
+          po_value_base_currency: number | null
+          price_drop_pct: number | null
+          purchaser_id: string | null
+          region_type: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          requirement_id: string | null
+          spend_category: string | null
+          status: Database["public"]["Enums"]["document_status"]
+          subtotal: number
+          supplier_id: string
+          supplier_priority: Database["public"]["Enums"]["supplier_priority"]
+          supplier_verified: boolean | null
+          tax_amount: number
+          tax_rate: number | null
+          terms_and_conditions: string | null
+          total_amount: number
+          transport_source: string | null
+          transporter_name: string | null
+          updated_at: string
+          value_locked_at: string | null
+          vehicle_number: string | null
+          vendor_address: string | null
+          vendor_email: string | null
+          vendor_gstin: string | null
+          vendor_name: string
+          vendor_phone: string | null
+          vendor_tax_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "purchase_orders"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_scoped_purchase_orders: {
         Args: { p_user_id: string }
         Returns: {
@@ -12837,6 +12946,7 @@ export type Database = {
           po_value: number | null
           po_value_base_currency: number | null
           price_drop_pct: number | null
+          purchaser_id: string | null
           region_type: string | null
           rejected_at: string | null
           rejected_by: string | null
