@@ -125,6 +125,25 @@ Deno.serve(async (req) => {
     if (existing) {
       userId = existing.id;
     } else {
+      // IMPORTANT: Insert team_invites row BEFORE createUser so the
+      // auto_provision_buyer_company trigger joins the existing company
+      // instead of creating a new one for this user.
+      await admin.from("team_invites").insert({
+        email,
+        role,
+        company_id: companyId,
+        invited_by: caller.id,
+        status: "pending",
+        categories: categories.length ? categories : null,
+      });
+
+      // Look up caller's company to copy company_name into the new user's profile
+      const { data: callerCompany } = await admin
+        .from("buyer_companies")
+        .select("company_name, city, state, country")
+        .eq("id", companyId)
+        .maybeSingle();
+
       tempPassword = genPassword();
       const { data: created, error: createErr } = await admin.auth.admin
         .createUser({
@@ -133,6 +152,9 @@ Deno.serve(async (req) => {
           email_confirm: true,
           user_metadata: {
             full_name: fullName || undefined,
+            contact_person: fullName || email.split("@")[0],
+            company_name: callerCompany?.company_name ?? "Company",
+            role,
             created_by_admin: caller.id,
           },
         });
