@@ -89,15 +89,17 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   // Get selected purchaser object
   const selectedPurchaser = purchasers.find(p => p.user_id === selectedPurchaserId) || null;
 
-  // Persist purchaser selection
+  // Persist purchaser selection (per-user namespaced)
   const setSelectedPurchaserId = useCallback((id: string | null) => {
     setSelectedPurchaserIdState(id);
+    if (!user?.id) return;
+    const key = purchaserStorageKey(user.id);
     if (id) {
-      localStorage.setItem(STORAGE_KEY_PURCHASER, id);
+      localStorage.setItem(key, id);
     } else {
-      localStorage.removeItem(STORAGE_KEY_PURCHASER);
+      localStorage.removeItem(key);
     }
-  }, []);
+  }, [user?.id]);
 
   // Persist management view selection + dispatch custom event for cross-component sync
   const setManagementView = useCallback((view: ManagementViewType) => {
