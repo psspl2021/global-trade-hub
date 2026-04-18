@@ -322,15 +322,62 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="sm:mr-auto">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button
+            variant="secondary"
+            onClick={handleCreateAccount}
+            disabled={isCreating || isSubmitting}
+          >
+            <KeyRound className="h-4 w-4 mr-1" />
+            {isCreating ? 'Creating...' : 'Add Account'}
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting || isCreating}>
+            <Mail className="h-4 w-4 mr-1" />
             {isSubmitting ? 'Sending...' : 'Send Invitation'}
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Credentials display dialog */}
+      <Dialog open={!!createdCreds} onOpenChange={(o) => !o && setCreatedCreds(null)}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-primary" />
+              Account Created
+            </DialogTitle>
+            <DialogDescription>
+              Share these credentials securely with the team member. The password is shown only once — copy it now.
+            </DialogDescription>
+          </DialogHeader>
+          {createdCreds && (
+            <div className="space-y-3 py-2">
+              <div className="rounded-md border bg-muted/40 p-3 space-y-2 font-mono text-sm">
+                <div>
+                  <div className="text-xs text-muted-foreground font-sans">Email</div>
+                  <div className="break-all">{createdCreds.email}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground font-sans">Temporary Password</div>
+                  <div className="break-all">{createdCreds.password}</div>
+                </div>
+              </div>
+              <Button onClick={copyCredentials} variant="outline" className="w-full">
+                {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                {copied ? 'Copied!' : 'Copy Credentials'}
+              </Button>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => { setCreatedCreds(null); onOpenChange(false); }}>
+              Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
