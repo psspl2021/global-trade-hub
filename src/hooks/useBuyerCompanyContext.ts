@@ -80,8 +80,12 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // All buyer roles can access management views (secured by PIN verification)
-  const canSelectPurchaser = [...MANAGEMENT_ROLES, ...HR_ROLES, ...PURCHASER_ROLES].includes(role);
+  // Company-membership role (from buyer_company_members) is the source of
+  // truth for company-scoped governance. Auth role (user_roles) is only a
+  // fallback when membership data hasn't loaded yet.
+  const companyRole = (purchasers.find(p => p.user_id === user?.id)?.role || role) as UserRole;
+
+  const canSelectPurchaser = [...MANAGEMENT_ROLES, ...HR_ROLES, ...PURCHASER_ROLES].includes(companyRole);
   const canViewManagement = canSelectPurchaser; // Any buyer role can access management views
   const isManagementMode = managementView !== null;
   const isReadOnly = canViewManagement && isManagementMode;
