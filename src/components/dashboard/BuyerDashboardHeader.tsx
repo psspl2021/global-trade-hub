@@ -29,6 +29,7 @@ import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
+import { ImpersonationBanner } from './ImpersonationBanner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
@@ -97,6 +98,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
 
   return (
     <header className="border-b bg-card">
+      <ImpersonationBanner />
       <div className="container mx-auto px-4 py-3 sm:py-4">
         {/* Top row: Logo and actions */}
         <div className="flex items-center justify-between mb-3">
