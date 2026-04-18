@@ -585,7 +585,9 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(req.deadline), 'MMM d, yyyy')}
+                          {req.deadline && !isNaN(new Date(req.deadline).getTime())
+                            ? format(new Date(req.deadline), 'MMM d, yyyy')
+                            : 'No deadline'}
                         </span>
                       </div>
                     </div>
