@@ -27,7 +27,6 @@ export interface CompanyPurchaser {
   role: string;
   assigned_categories: string[];
   is_current_user: boolean;
-  temp_credentials?: { email: string; password: string } | null;
 }
 
 interface BuyerCompanyContext {
@@ -231,26 +230,8 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         return;
       }
 
-      // Enrich with temp credentials the current user is allowed to see
-      // (only those they created, for users who haven't signed in yet).
-      try {
-        const { data: credsData } = await (supabase as any).rpc(
-          'get_visible_temp_credentials',
-          { p_user_id: user.id }
-        );
-        const credsMap = new Map<string, { email: string; password: string }>();
-        (credsData || []).forEach((c: any) => {
-          credsMap.set(c.target_user_id, { email: c.email, password: c.temp_password });
-        });
-        if (credsMap.size > 0) {
-          for (const p of purchaserList) {
-            const c = credsMap.get(p.user_id);
-            if (c) p.temp_credentials = c;
-          }
-        }
-      } catch (credsErr) {
-        console.warn('[useBuyerCompanyContext] temp creds fetch failed:', credsErr);
-      }
+      // Note: temp passwords are NOT persisted server-side (security policy).
+      // They are shown only once, in the AddPurchaserModal, at creation time.
 
       setPurchasers(purchaserList);
 

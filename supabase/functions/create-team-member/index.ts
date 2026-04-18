@@ -243,20 +243,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Persist temp credentials so the creator can copy/share the login
-    // later from the Purchaser dropdown — auto-deleted on first sign-in.
-    if (createdNew && tempPassword) {
-      await admin.from("purchaser_temp_credentials").upsert(
-        {
-          user_id: userId!,
-          company_id: companyId,
-          created_by: caller.id,
-          email,
-          temp_password: tempPassword,
-        },
-        { onConflict: "user_id" },
-      );
-    }
+    // SECURITY: temp passwords are returned to the creator ONCE in this response
+    // and never persisted server-side. There is no retrieval API.
 
     return new Response(
       JSON.stringify({
