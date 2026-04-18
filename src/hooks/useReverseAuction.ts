@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { toast } from 'sonner';
 import { logAuctionEvent } from '@/utils/auctionAuditLogger';
 
