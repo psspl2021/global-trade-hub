@@ -203,19 +203,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       // by the DB (RPC ignores p_selected_purchaser). Filtering the list here
       // keeps the UI consistent with that contract — no misleading "view as"
       // option that would silently fall back to the caller's own data.
-      //
-      // IMPORTANT: check BOTH the auth-level role (useUserRole) AND the
-      // company-membership role (from RPC result). The auth role is often
-      // generic 'buyer' while the company role is 'buyer_purchaser' — and
-      // the DB enforces self-scope on the company role, so the UI must
-      // mirror that or users see a non-functional "view as" dropdown.
-      const selfRow = purchaserList.find(p => p.user_id === user.id);
-      const companyRole = selfRow?.role;
-      const isSelfOnlyRole =
-        role === 'purchaser' ||
-        role === 'buyer_purchaser' ||
-        companyRole === 'purchaser' ||
-        companyRole === 'buyer_purchaser';
+      const isSelfOnlyRole = role === 'purchaser' || role === 'buyer_purchaser';
       if (isSelfOnlyRole) {
         purchaserList = purchaserList.filter(p => p.is_current_user || p.user_id === user.id);
       }
