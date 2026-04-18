@@ -65,6 +65,34 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
       }
       
       setLoading(true);
+
+      // Skip the modal entirely for invited team members — their company info
+      // is owned by the buyer_companies row, not by the user's profile.
+      const { data: membership } = await supabase
+        .from('buyer_company_members')
+        .select('id, created_at, company_id')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (membership) {
+        // Is this user the company owner (oldest active member) or an invitee?
+        const { data: oldest } = await supabase
+          .from('buyer_company_members')
+          .select('user_id')
+          .eq('company_id', membership.company_id)
+          .eq('is_active', true)
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        if (oldest && oldest.user_id !== userId) {
+          // Invited team member — no profile completion required.
+          setLoading(false);
+          onComplete();
+          return;
+        }
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('company_name, contact_person, phone, gstin, city, state, address, is_test_account, supplier_categories, buyer_industry')
