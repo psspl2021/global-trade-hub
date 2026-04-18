@@ -12157,6 +12157,68 @@ export type Database = {
       auto_award_expired_auctions: { Args: never; Returns: number }
       auto_expire_requirements: { Args: never; Returns: undefined }
       auto_expire_stale_flagged_pos: { Args: never; Returns: Json }
+      award_reverse_auction: {
+        Args: { p_auction_id: string; p_winner_supplier_id: string }
+        Returns: {
+          anti_snipe_seconds: number
+          anti_snipe_threshold_seconds: number
+          auction_end: string | null
+          auction_start: string | null
+          auto_extensions_used: number | null
+          buyer_edit_count: number
+          buyer_id: string
+          category: string
+          certifications: string | null
+          company_id: string | null
+          created_at: string
+          currency: string
+          current_price: number | null
+          deadline: string | null
+          delivery_address: string | null
+          description: string | null
+          destination_country: string | null
+          destination_state: string | null
+          enable_erp_sync: boolean
+          enable_po_generation: boolean
+          id: string
+          incoterm: string | null
+          max_auto_extensions: number | null
+          max_bid_frequency_per_supplier: number | null
+          max_bids_per_supplier: number | null
+          min_decrement_value: number | null
+          minimum_bid_step_pct: number
+          origin_country: string | null
+          payment_terms: string | null
+          product_slug: string
+          purchaser_id: string
+          quality_standards: string | null
+          quantity: number
+          requirement_id: string | null
+          reserve_price: number | null
+          result_notified: boolean | null
+          rfq_type: string | null
+          shipment_mode: string | null
+          show_exact_prices: boolean | null
+          show_rank_only: boolean | null
+          soft_close_seconds: number | null
+          starting_price: number
+          status: string
+          target_savings_pct: number | null
+          title: string
+          transaction_type: string
+          unit: string
+          updated_at: string
+          winner_supplier_id: string | null
+          winning_bid: number | null
+          winning_price: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "reverse_auctions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       boost_category_links: { Args: { max_links?: number }; Returns: number }
       boost_internal_links: {
         Args: { boost_slugs: string[]; max_links?: number }
