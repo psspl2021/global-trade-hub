@@ -30,15 +30,16 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const { selectedPurchaserId } = useBuyerCompanyContext();
 
   const loadData = useCallback(async () => {
-    // Auctions are scoped via RPC — DB enforces purchaser-level isolation.
-    // Filter to completed-with-winner client-side (small set).
+    // Auctions are scoped via RPC — DB filters by status; we only keep rows with a winner.
     const { data: scopedAuctions } = await (supabase as any).rpc(
       'get_scoped_auctions_by_purchaser',
-      { p_user_id: userId, p_selected_purchaser: selectedPurchaserId }
+      {
+        p_user_id: userId,
+        p_selected_purchaser: selectedPurchaserId,
+        p_status: 'completed',
+      }
     );
-    const auctionData = (scopedAuctions || []).filter(
-      (a: any) => a.status === 'completed' && a.winner_supplier_id
-    );
+    const auctionData = (scopedAuctions || []).filter((a: any) => a.winner_supplier_id);
 
     const enriched = await Promise.all(
       (auctionData || []).map(async (a: any) => {

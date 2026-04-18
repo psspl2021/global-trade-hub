@@ -62,9 +62,14 @@ export function MonthlySavingsAnalytics() {
     if (!user?.id) return;
 
     const fetchData = async () => {
-      const sixMonthsAgoMs = subMonths(new Date(), 6).getTime();
-      // Scoped via RPC — DB enforces purchaser isolation. Window-filter client-side.
-      const [scopedRes, supplierRes] = await Promise.all([
+      const sixMonthsAgoIso = subMonths(new Date(), 6).toISOString();
+      // DB-side window filter for the recent set; full set fetched once for all-time KPIs.
+      const [recentRes, allRes, supplierRes] = await Promise.all([
+        (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+          p_user_id: user.id,
+          p_selected_purchaser: selectedPurchaserId,
+          p_from: sixMonthsAgoIso,
+        }),
         (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
           p_user_id: user.id,
           p_selected_purchaser: selectedPurchaserId,
@@ -75,13 +80,12 @@ export function MonthlySavingsAnalytics() {
           .eq('buyer_id', user.id),
       ]);
 
-      const all = (scopedRes.data || []) as any[];
-      const recent = all
-        .filter((a) => new Date(a.created_at).getTime() >= sixMonthsAgoMs)
+      const recent = ((recentRes.data || []) as any[])
+        .slice()
         .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
       setAuctions(recent);
-      setAllAuctions(all);
+      setAllAuctions((allRes.data || []) as any[]);
       setSupplierCount((supplierRes.data || []).length);
       setLoading(false);
     };

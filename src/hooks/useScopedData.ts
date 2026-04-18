@@ -30,13 +30,23 @@ interface UseScopedDataOptions {
   pollMs?: number;
   /** Skip fetching (e.g., entity is gated by another condition). */
   enabled?: boolean;
+  /** DB-side status filter (e.g. 'completed', 'live'). */
+  status?: string;
+  /** ISO timestamp lower bound on created_at. */
+  from?: string;
+  /** ISO timestamp upper bound on created_at. */
+  to?: string;
+  /** Page size. Default 200. */
+  limit?: number;
+  /** Pagination offset. Default 0. */
+  offset?: number;
 }
 
 export function useScopedData<T = any>(
   entity: ScopedEntity,
   options: UseScopedDataOptions = {}
 ) {
-  const { pollMs = 0, enabled = true } = options;
+  const { pollMs = 0, enabled = true, status, from, to, limit, offset } = options;
   const { user } = useAuth();
   const { selectedPurchaserId } = useBuyerCompanyContext();
 
@@ -45,11 +55,11 @@ export function useScopedData<T = any>(
   const [error, setError] = useState<Error | null>(null);
 
   // Latest-args ref defeats stale-closure bugs in polling intervals.
-  const argsRef = useRef({ userId: user?.id, selectedPurchaserId });
-  argsRef.current = { userId: user?.id, selectedPurchaserId };
+  const argsRef = useRef({ userId: user?.id, selectedPurchaserId, status, from, to, limit, offset });
+  argsRef.current = { userId: user?.id, selectedPurchaserId, status, from, to, limit, offset };
 
   const fetchData = useCallback(async () => {
-    const { userId, selectedPurchaserId: spid } = argsRef.current;
+    const { userId, selectedPurchaserId: spid, status: s, from: f, to: t, limit: l, offset: o } = argsRef.current;
     if (!userId) {
       setData([]);
       setLoading(false);
@@ -58,7 +68,15 @@ export function useScopedData<T = any>(
     try {
       const { data: rows, error: rpcErr } = await (supabase as any).rpc(
         RPC_BY_ENTITY[entity],
-        { p_user_id: userId, p_selected_purchaser: spid }
+        {
+          p_user_id: userId,
+          p_selected_purchaser: spid,
+          p_status: s ?? null,
+          p_from: f ?? null,
+          p_to: t ?? null,
+          p_limit: l ?? 200,
+          p_offset: o ?? 0,
+        }
       );
       if (rpcErr) throw rpcErr;
       setData((rows || []) as T[]);
@@ -80,7 +98,7 @@ export function useScopedData<T = any>(
       const id = setInterval(fetchData, pollMs);
       return () => clearInterval(id);
     }
-  }, [enabled, pollMs, fetchData, user?.id, selectedPurchaserId]);
+  }, [enabled, pollMs, fetchData, user?.id, selectedPurchaserId, status, from, to, limit, offset]);
 
   return { data, loading, error, refetch: fetchData };
 }
