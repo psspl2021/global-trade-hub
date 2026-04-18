@@ -162,40 +162,46 @@ export function useReverseAuction(supplierMode: boolean = false) {
         if (error) throw error;
         setAuctions((data as unknown as ReverseAuction[]) || []);
       } else {
-        // Scope to the acting purchaser. Management views pass selectedPurchaserId;
-        // purchasers/buyers default to themselves. DB-side scoping (purchaser_id) is
-        // the authoritative leak-prevention boundary.
-        const effectivePurchaserId = selectedPurchaserId || user.id;
-        let query = supabase
-          .from('reverse_auctions')
-          .select('*')
-          .eq('purchaser_id', effectivePurchaserId);
+        // ARCHITECTURAL CONTRACT: UI = intent, DB = enforcement.
+        // All buyer-side auction reads go through the scoped RPC.
+        // The RPC hard-overrides p_selected_purchaser for purchaser roles
+        // (DB self-scopes). Never query reverse_auctions directly here.
+        const { data, error } = await (supabase as any).rpc(
+          'get_scoped_auctions_by_purchaser',
+          {
+            p_user_id: user.id,
+            p_selected_purchaser: selectedPurchaserId,
+            p_status: filters?.status === 'cancelled' ? 'cancelled' : null,
+            p_from: null,
+            p_to: null,
+            p_has_winner: null,
+            p_limit: 200,
+            p_offset: 0,
+          }
+        );
+        if (error) throw error;
 
-        // Apply server-side filters only for cancelled (completed is time-derived, handled client-side)
-        if (filters?.status === 'cancelled') {
-          query = query.eq('status', filters.status);
-        }
+        // Client-side filters that the RPC doesn't accept
+        let rows = ((data as any[]) || []) as ReverseAuction[];
         if (filters?.category && filters.category !== 'all') {
-          query = query.eq('category', filters.category);
+          rows = rows.filter((a) => a.category === filters.category);
         }
         if (filters?.search) {
-          query = query.or(`title.ilike.%${filters.search}%,product_slug.ilike.%${filters.search}%,category.ilike.%${filters.search}%`);
+          const q = filters.search.toLowerCase();
+          rows = rows.filter((a) =>
+            a.title?.toLowerCase().includes(q) ||
+            a.product_slug?.toLowerCase().includes(q) ||
+            a.category?.toLowerCase().includes(q)
+          );
         }
-
-        // Sort
         if (filters?.sortBy === 'price_low') {
-          query = query.order('starting_price', { ascending: true });
+          rows = [...rows].sort((a, b) => a.starting_price - b.starting_price);
         } else if (filters?.sortBy === 'price_high') {
-          query = query.order('starting_price', { ascending: false });
+          rows = [...rows].sort((a, b) => b.starting_price - a.starting_price);
         } else if (filters?.sortBy === 'oldest') {
-          query = query.order('created_at', { ascending: true });
-        } else {
-          query = query.order('created_at', { ascending: false });
+          rows = [...rows].sort((a, b) => a.created_at.localeCompare(b.created_at));
         }
-
-        const { data, error } = await query;
-        if (error) throw error;
-        setAuctions((data as unknown as ReverseAuction[]) || []);
+        setAuctions(rows);
       }
     } catch (err: any) {
       console.error('Error fetching reverse auctions:', err);
