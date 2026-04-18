@@ -195,31 +195,14 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
       // Never filter by buyer_id on the client — the RPC honours
       // selectedPurchaserId for management roles and hard-overrides
       // it for purchaser roles (self-only).
+      // RPC already returns has_accepted_bid — no secondary roundtrip needed.
       const { data: scopedReqs, error: rpcErr } = await (supabase as any).rpc(
         'get_scoped_rfqs_by_purchaser',
         { p_user_id: userId, p_selected_purchaser: selectedPurchaserId }
       );
       if (rpcErr) throw rpcErr;
 
-      const reqIds = (scopedReqs || []).map((r: any) => r.id);
-
-      // Fetch accepted-bid markers only for the scoped set
-      let acceptedSet = new Set<string>();
-      if (reqIds.length > 0) {
-        const { data: bidsData } = await supabase
-          .from('bids')
-          .select('requirement_id, status')
-          .in('requirement_id', reqIds)
-          .eq('status', 'accepted');
-        acceptedSet = new Set((bidsData || []).map((b: any) => b.requirement_id));
-      }
-
-      const enrichedReqs = (scopedReqs || []).map((req: any) => ({
-        ...req,
-        has_accepted_bid: acceptedSet.has(req.id),
-      }));
-
-      setRequirements(enrichedReqs as Requirement[]);
+      setRequirements((scopedReqs || []) as Requirement[]);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Error fetching requirements:', error);
       toast.error('Failed to load requirements');
