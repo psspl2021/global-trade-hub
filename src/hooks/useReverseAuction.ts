@@ -202,7 +202,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
     } finally {
       setIsLoading(false);
     }
-  }, [user, supplierMode]);
+  }, [user, supplierMode, selectedPurchaserId, contextLoading]);
 
   useEffect(() => {
     fetchAuctions();
