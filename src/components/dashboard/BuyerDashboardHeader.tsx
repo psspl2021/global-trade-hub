@@ -61,34 +61,22 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
   useEffect(() => {
     if (!user) return;
     const fetchCredits = async () => {
-      const { data } = await supabase
-        .from('buyer_auction_credits')
-        .select('total_credits, used_credits, plan_id')
-        .eq('buyer_id', user.id)
-        .limit(1)
-        .single();
-      if (data) {
-        setRemainingCredits(data.total_credits - data.used_credits);
-        setIsTrial(!data.plan_id && data.total_credits === 5);
+      const { data } = await supabase.rpc('get_company_auction_credits', { p_user_id: user.id });
+      const row = Array.isArray(data) ? data[0] : null;
+      if (row) {
+        setRemainingCredits(row.total_credits - row.used_credits);
+        setIsTrial(!row.plan_id && row.total_credits === 5);
       }
     };
     fetchCredits();
 
-    // Real-time credits update
+    // Real-time updates on the underlying credits table — refetch on any change
     const channel = supabase
-      .channel('credits')
+      .channel('credits-shared')
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'buyer_auction_credits',
-          filter: `buyer_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const d = payload.new as { total_credits: number; used_credits: number };
-          setRemainingCredits(d.total_credits - d.used_credits);
-        }
+        { event: '*', schema: 'public', table: 'buyer_auction_credits' },
+        () => { fetchCredits(); }
       )
       .subscribe();
 
