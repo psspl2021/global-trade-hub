@@ -244,15 +244,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         return;
       }
       const nowISO = new Date().toISOString();
-      const { error } = await supabase
-        .from('reverse_auctions')
-        .update({
-          winner_supplier_id: supplierId,
-          winning_price: winningBid.bid_price,
-          status: 'completed',
-          auction_end: nowISO,
-        })
-        .eq('id', auction.id);
+      const { error } = await (supabase as any).rpc('award_reverse_auction', {
+        p_auction_id: auction.id,
+        p_winner_supplier_id: supplierId,
+      });
       if (error) throw error;
       // Immediately update local state so UI reflects award without waiting for realtime
       setAuction(prev => ({
