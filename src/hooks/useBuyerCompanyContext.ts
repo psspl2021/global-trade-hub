@@ -89,15 +89,26 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   // Get selected purchaser object
   const selectedPurchaser = purchasers.find(p => p.user_id === selectedPurchaserId) || null;
 
-  // Persist purchaser selection (per-user namespaced)
+  // Persist purchaser selection (per-user namespaced).
+  // On an actual user-initiated change, trigger a full page refresh so every
+  // scoped query (RFQs, auctions, POs, dashboards) re-fetches against the
+  // newly selected purchaser context — no stale UI from cached state.
   const setSelectedPurchaserId = useCallback((id: string | null) => {
-    setSelectedPurchaserIdState(id);
-    if (!user?.id) return;
+    if (!user?.id) {
+      setSelectedPurchaserIdState(id);
+      return;
+    }
     const key = purchaserStorageKey(user.id);
+    const prev = localStorage.getItem(key);
+    setSelectedPurchaserIdState(id);
     if (id) {
       localStorage.setItem(key, id);
     } else {
       localStorage.removeItem(key);
+    }
+    // Only reload if this is a real change (avoids reload loop on initial hydration)
+    if (id && prev && id !== prev && typeof window !== 'undefined') {
+      window.location.reload();
     }
   }, [user?.id]);
 
