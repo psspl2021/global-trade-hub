@@ -12848,6 +12848,20 @@ export type Database = {
               total_savings: number
             }[]
           }
+        | {
+            Args: {
+              p_selected_purchaser?: string
+              p_user_id: string
+              p_window?: string
+            }
+            Returns: {
+              avg_savings_pct: number
+              recent_auctions: number
+              recent_savings: number
+              total_auctions: number
+              total_savings: number
+            }[]
+          }
       get_scoped_auctions_by_purchaser: {
         Args: {
           p_from?: string
