@@ -253,10 +253,10 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       // For self-only roles, always force selection to self regardless of saved value
       if (isSelfOnlyRole) {
         setSelectedPurchaserIdState(user.id);
-        localStorage.setItem(STORAGE_KEY_PURCHASER, user.id);
+        localStorage.setItem(purchaserStorageKey(user.id), user.id);
       } else {
-        // Restore saved selection or default to current user
-        const savedPurchaserId = localStorage.getItem(STORAGE_KEY_PURCHASER);
+        // Restore saved selection (per-user) or default to current user
+        const savedPurchaserId = localStorage.getItem(purchaserStorageKey(user.id));
         const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
 
         if (validSavedSelection) {
