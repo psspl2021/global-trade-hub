@@ -10,6 +10,7 @@ import { PurchaseOrderExecutionCard } from './PurchaseOrderExecutionCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useCanCreatePO } from '@/hooks/useCanCreatePO';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 
 interface PurchaseOrdersPageProps {
   userId: string;
@@ -26,19 +27,21 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const [manualPOs, setManualPOs] = useState<any[]>([]);
   const { role } = useUserRole(userId);
   const { allowed: canCreatePO, blocking_po_id, blocking_po_title, message: blockMessage } = useCanCreatePO(userId);
+  const { selectedPurchaserId } = useBuyerCompanyContext();
 
   const loadData = useCallback(async () => {
-    // Load auction-based POs (completed auctions with winners)
-    const { data: auctionData } = await supabase
-      .from('reverse_auctions')
-      .select('id, title, status, winning_bid, winning_price, quantity, currency, winner_supplier_id')
-      .eq('buyer_id', userId)
-      .eq('status', 'completed')
-      .not('winner_supplier_id', 'is', null)
-      .order('created_at', { ascending: false });
+    // Auctions are scoped via RPC — DB enforces purchaser-level isolation.
+    // Filter to completed-with-winner client-side (small set).
+    const { data: scopedAuctions } = await (supabase as any).rpc(
+      'get_scoped_auctions_by_purchaser',
+      { p_user_id: userId, p_selected_purchaser: selectedPurchaserId }
+    );
+    const auctionData = (scopedAuctions || []).filter(
+      (a: any) => a.status === 'completed' && a.winner_supplier_id
+    );
 
     const enriched = await Promise.all(
-      (auctionData || []).map(async (a) => {
+      (auctionData || []).map(async (a: any) => {
         const { data: sup } = await supabase
           .from('reverse_auction_suppliers')
           .select('supplier_company_name')
@@ -57,7 +60,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
       .eq('supplier_id', userId)
       .order('created_at', { ascending: false });
     setManualPOs(poData || []);
-  }, [userId]);
+  }, [userId, selectedPurchaserId]);
 
   useEffect(() => { loadData(); }, [loadData, refreshKey]);
 
