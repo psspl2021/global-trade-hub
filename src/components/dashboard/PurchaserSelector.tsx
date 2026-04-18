@@ -21,9 +21,10 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, Package, UserPlus } from 'lucide-react';
+import { User, Package, UserPlus, KeyRound, Copy, Check } from 'lucide-react';
 import { CompanyPurchaser } from '@/hooks/useBuyerCompanyContext';
 import { AddPurchaserModal } from './AddPurchaserModal';
+import { useToast } from '@/hooks/use-toast';
 
 interface PurchaserSelectorProps {
   purchasers: CompanyPurchaser[];
@@ -43,6 +44,31 @@ export function PurchaserSelector({
   canAddPurchasers = true,
 }: PurchaserSelectorProps) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [copiedUserId, setCopiedUserId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleCopyLogin = async (e: React.MouseEvent, p: CompanyPurchaser) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!p.temp_credentials) return;
+    const text = `Email: ${p.temp_credentials.email}\nTemporary Password: ${p.temp_credentials.password}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedUserId(p.user_id);
+      toast({
+        title: 'Login copied',
+        description: `Share these credentials with ${p.display_name}. They disappear after first sign-in.`,
+      });
+      setTimeout(() => setCopiedUserId(null), 2000);
+    } catch {
+      toast({
+        title: 'Copy failed',
+        description: 'Please copy manually.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Format purchaser display with category badges
   const formatPurchaserLabel = (purchaser: CompanyPurchaser) => {
     const categories = purchaser.assigned_categories || [];
