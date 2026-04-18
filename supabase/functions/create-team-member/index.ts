@@ -137,9 +137,19 @@ Deno.serve(async (req) => {
           },
         });
       if (createErr || !created.user) {
+        console.error("createUser failed", {
+          message: createErr?.message,
+          status: (createErr as any)?.status,
+          name: createErr?.name,
+          code: (createErr as any)?.code,
+        });
         return new Response(
           JSON.stringify({
             error: createErr?.message ?? "Failed to create user",
+            details: {
+              status: (createErr as any)?.status,
+              code: (createErr as any)?.code,
+            },
           }),
           {
             status: 400,
