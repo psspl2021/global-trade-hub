@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, Mail, User, Briefcase, X } from 'lucide-react';
+import { UserPlus, Mail, User, Briefcase, X, Copy, KeyRound, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { categoriesData } from '@/data/categories';
@@ -54,6 +54,9 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
   const [role, setRole] = useState('buyer_purchaser');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createdCreds, setCreatedCreds] = useState<{ email: string; password: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleAddCategory = (category: string) => {
     if (!selectedCategories.includes(category)) {
@@ -150,6 +153,72 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setFullName('');
+    setRole('buyer_purchaser');
+    setSelectedCategories([]);
+  };
+
+  const handleCreateAccount = async () => {
+    if (!email.trim()) {
+      toast({
+        title: 'Email Required',
+        description: 'Please enter the team member\'s email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-team-member', {
+        body: {
+          email: email.trim(),
+          fullName: fullName.trim() || undefined,
+          role,
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.tempPassword) {
+        // Show credentials dialog
+        setCreatedCreds({ email: email.trim(), password: data.tempPassword });
+        resetForm();
+        onSuccess?.();
+      } else {
+        // Existing user — just added to company
+        toast({
+          title: data?.alreadyMember ? 'Already a Member' : 'Member Added',
+          description: data?.alreadyMember
+            ? `${email} was already part of your team.`
+            : `${email} has been added to your team. They can sign in with their existing password.`,
+        });
+        resetForm();
+        onOpenChange(false);
+        onSuccess?.();
+      }
+    } catch (err: any) {
+      console.error('Create account error:', err);
+      toast({
+        title: 'Error',
+        description: err?.message || 'Failed to create account. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const copyCredentials = async () => {
+    if (!createdCreds) return;
+    const text = `Email: ${createdCreds.email}\nTemporary Password: ${createdCreds.password}`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -253,15 +322,62 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="sm:mr-auto">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button
+            variant="secondary"
+            onClick={handleCreateAccount}
+            disabled={isCreating || isSubmitting}
+          >
+            <KeyRound className="h-4 w-4 mr-1" />
+            {isCreating ? 'Creating...' : 'Add Account'}
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting || isCreating}>
+            <Mail className="h-4 w-4 mr-1" />
             {isSubmitting ? 'Sending...' : 'Send Invitation'}
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Credentials display dialog */}
+      <Dialog open={!!createdCreds} onOpenChange={(o) => !o && setCreatedCreds(null)}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-primary" />
+              Account Created
+            </DialogTitle>
+            <DialogDescription>
+              Share these credentials securely with the team member. The password is shown only once — copy it now.
+            </DialogDescription>
+          </DialogHeader>
+          {createdCreds && (
+            <div className="space-y-3 py-2">
+              <div className="rounded-md border bg-muted/40 p-3 space-y-2 font-mono text-sm">
+                <div>
+                  <div className="text-xs text-muted-foreground font-sans">Email</div>
+                  <div className="break-all">{createdCreds.email}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground font-sans">Temporary Password</div>
+                  <div className="break-all">{createdCreds.password}</div>
+                </div>
+              </div>
+              <Button onClick={copyCredentials} variant="outline" className="w-full">
+                {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                {copied ? 'Copied!' : 'Copy Credentials'}
+              </Button>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => { setCreatedCreds(null); onOpenChange(false); }}>
+              Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
