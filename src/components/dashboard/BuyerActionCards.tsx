@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrencyFormatter } from '@/lib/currency';
 import { FileText, Gavel, Truck, Package, BarChart3, MapPin, ArrowRight, TrendingUp } from 'lucide-react';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 
 interface BuyerActionCardsProps {
   userId: string;
@@ -39,6 +40,7 @@ export function BuyerActionCards({
   onTrackShipments,
 }: BuyerActionCardsProps) {
   const { fmtCompact } = useCurrencyFormatter();
+  const { selectedPurchaserId } = useBuyerCompanyContext();
   const [metrics, setMetrics] = useState<LiveMetrics>({
     openRFQs: 0,
     totalQuotes: 0,
@@ -52,16 +54,25 @@ export function BuyerActionCards({
     if (!userId) return;
 
     const fetchMetrics = async () => {
-      const rfqRes = await supabase
-        .from('requirements')
-        .select('id', { count: 'exact', head: true })
-        .eq('buyer_id', userId)
-        .eq('status', 'active');
+      // Scoped via DB RPC: hard-enforces purchaser self-only;
+      // honors selectedPurchaserId only for management roles.
+      const [scopedRfqsRes, scopedAuctionsRes] = await Promise.all([
+        (supabase as any).rpc('get_scoped_rfqs_by_purchaser', {
+          p_user_id: userId,
+          p_selected_purchaser: selectedPurchaserId,
+        }),
+        (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+          p_user_id: userId,
+          p_selected_purchaser: selectedPurchaserId,
+        }),
+      ]);
 
-      const auctionRes = await supabase
-        .from('reverse_auctions')
-        .select('id, status, starting_price, current_price, winning_bid, quantity')
-        .eq('buyer_id', userId);
+      const allRfqs = (scopedRfqsRes.data || []) as any[];
+      const activeRfqsCount = allRfqs.filter(r => r.status === 'active').length;
+      const reqIds = allRfqs.map(r => ({ id: r.id }));
+
+      const auctionRes = { data: scopedAuctionsRes.data || [] };
+      const rfqRes = { count: activeRfqsCount };
 
       const logisticsRes: { count: number | null } = await (supabase as any)
         .from('logistics_requirements')
@@ -69,12 +80,6 @@ export function BuyerActionCards({
         .eq('buyer_id', userId)
         .eq('status', 'active');
 
-      // Count quotes: get buyer's requirement IDs first, then count bids
-      const { data: reqIds } = await supabase
-        .from('requirements')
-        .select('id')
-        .eq('buyer_id', userId);
-      
       let quotesCount = 0;
       if (reqIds && reqIds.length > 0) {
         const ids = reqIds.map(r => r.id);
@@ -116,7 +121,7 @@ export function BuyerActionCards({
     fetchMetrics();
     const interval = setInterval(fetchMetrics, 15000);
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [userId, selectedPurchaserId]);
 
   const formatVal = (val: number) => fmtCompact(val);
 

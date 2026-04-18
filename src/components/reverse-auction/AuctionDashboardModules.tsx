@@ -413,18 +413,18 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
     if (!user?.id) return;
 
     const load = async () => {
-      const { data } = await supabase
-        .from('reverse_auctions')
-        .select('id, title, status, starting_price, current_price, winning_bid, winning_price, quantity, currency, winner_supplier_id, auction_end, created_at')
-        .eq('buyer_id', user.id)
-        .order('created_at', { ascending: false });
+      // Scoped via DB RPC for purchaser-aware filtering
+      const { data } = await (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+        p_user_id: user.id,
+        p_selected_purchaser: selectedPurchaserId,
+      });
 
       setAuctions(data || []);
       setLoading(false);
     };
 
     load();
-  }, [user?.id]);
+  }, [user?.id, selectedPurchaserId]);
 
   if (loading || auctions.length === 0) return null;
 
