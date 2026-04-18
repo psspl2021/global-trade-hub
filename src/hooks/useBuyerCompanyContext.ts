@@ -188,8 +188,17 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         return;
       }
 
-      const purchaserList = (data || []) as CompanyPurchaser[];
-      
+      let purchaserList = (data || []) as CompanyPurchaser[];
+
+      // SECURITY/UX: purchaser & buyer_purchaser roles are hard-scoped to self
+      // by the DB (RPC ignores p_selected_purchaser). Filtering the list here
+      // keeps the UI consistent with that contract — no misleading "view as"
+      // option that would silently fall back to the caller's own data.
+      const isSelfOnlyRole = role === 'purchaser' || role === 'buyer_purchaser';
+      if (isSelfOnlyRole) {
+        purchaserList = purchaserList.filter(p => p.is_current_user || p.user_id === user.id);
+      }
+
       // If no purchasers found, create fallback with current user
       if (purchaserList.length === 0) {
         // No membership found — try auto-provision as last resort
@@ -201,7 +210,10 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
           { _user_id: user.id }
         );
         
-        const retryList = (retryData || []) as CompanyPurchaser[];
+        let retryList = (retryData || []) as CompanyPurchaser[];
+        if (isSelfOnlyRole) {
+          retryList = retryList.filter(p => p.is_current_user || p.user_id === user.id);
+        }
         if (retryList.length > 0) {
           setPurchasers(retryList);
           const currentUser = retryList.find(p => p.is_current_user);
@@ -230,23 +242,26 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         return;
       }
 
-      // Note: temp passwords are NOT persisted server-side (security policy).
-      // They are shown only once, in the AddPurchaserModal, at creation time.
-
       setPurchasers(purchaserList);
 
-      // Restore saved selection or default to current user
-      const savedPurchaserId = localStorage.getItem(STORAGE_KEY_PURCHASER);
-      const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
-      
-      if (validSavedSelection) {
-        setSelectedPurchaserIdState(savedPurchaserId);
+      // For self-only roles, always force selection to self regardless of saved value
+      if (isSelfOnlyRole) {
+        setSelectedPurchaserIdState(user.id);
+        localStorage.setItem(STORAGE_KEY_PURCHASER, user.id);
       } else {
-        // Default to current user if they're a purchaser, otherwise first purchaser
-        const currentUser = purchaserList.find(p => p.is_current_user);
-        const defaultPurchaser = currentUser || purchaserList[0];
-        if (defaultPurchaser) {
-          setSelectedPurchaserIdState(defaultPurchaser.user_id);
+        // Restore saved selection or default to current user
+        const savedPurchaserId = localStorage.getItem(STORAGE_KEY_PURCHASER);
+        const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
+
+        if (validSavedSelection) {
+          setSelectedPurchaserIdState(savedPurchaserId);
+        } else {
+          // Default to current user if they're a purchaser, otherwise first purchaser
+          const currentUser = purchaserList.find(p => p.is_current_user);
+          const defaultPurchaser = currentUser || purchaserList[0];
+          if (defaultPurchaser) {
+            setSelectedPurchaserIdState(defaultPurchaser.user_id);
+          }
         }
       }
 
