@@ -12595,6 +12595,7 @@ export type Database = {
         }
         Returns: Json
       }
+      create_reverse_auction: { Args: { payload: Json }; Returns: string }
       deactivate_user_sessions: {
         Args: { p_user_id: string }
         Returns: undefined
@@ -12718,6 +12719,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      extend_auction_if_needed: {
+        Args: {
+          p_auction_id: string
+          p_extend_seconds?: number
+          p_threshold_seconds?: number
+        }
+        Returns: Json
       }
       generate_audit_hash: {
         Args: {
@@ -13650,6 +13659,15 @@ export type Database = {
       mark_governance_notification_read: {
         Args: { p_id: string }
         Returns: undefined
+      }
+      place_bid_atomic: {
+        Args: {
+          p_anti_snipe_extend_seconds?: number
+          p_anti_snipe_threshold_seconds?: number
+          p_auction_id: string
+          p_bid_price: number
+        }
+        Returns: Json
       }
       place_bid_with_session: {
         Args: {
