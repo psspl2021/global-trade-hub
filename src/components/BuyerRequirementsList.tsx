@@ -49,6 +49,7 @@ import { toast } from 'sonner';
 import { EditRequirementForm } from './EditRequirementForm';
 import { LineItemL1View } from './LineItemL1View';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { DispatchQuantityModal } from './DispatchQuantityModal';
 
 interface Requirement {
@@ -153,6 +154,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [bidsLoading, setBidsLoading] = useState(false);
   const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
   const { role } = useUserRole(userId);
+  const { selectedPurchaserId } = useBuyerCompanyContext();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
@@ -173,39 +175,38 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
   useEffect(() => {
     fetchRequirements();
-  }, [userId]);
+    // Re-fetch when acting purchaser switches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, selectedPurchaserId]);
 
   const fetchRequirements = async () => {
     try {
-      // Fetch requirements with accepted bids info
-      const { data, error } = await supabase
-        .from('requirements')
-        .select(`
-          *,
-          bids!inner(id, status)
-        `)
-        .eq('buyer_id', userId)
-        .order('created_at', { ascending: false });
-
-      // Also fetch requirements without bids
-      const { data: allReqs, error: allError } = await supabase
-        .from('requirements')
-        .select('*')
-        .eq('buyer_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (allError) throw allError;
-
-      // Mark requirements that have accepted bids
-      const reqsWithAcceptedBids = new Set(
-        (data || [])
-          .filter((r: any) => r.bids?.some((b: any) => b.status === 'accepted'))
-          .map((r: any) => r.id)
+      // SCOPED FETCH: DB enforces tenant + purchaser visibility.
+      // Never filter by buyer_id on the client — the RPC honours
+      // selectedPurchaserId for management roles and hard-overrides
+      // it for purchaser roles (self-only).
+      const { data: scopedReqs, error: rpcErr } = await (supabase as any).rpc(
+        'get_scoped_rfqs_by_purchaser',
+        { p_user_id: userId, p_selected_purchaser: selectedPurchaserId }
       );
+      if (rpcErr) throw rpcErr;
 
-      const enrichedReqs = (allReqs || []).map(req => ({
+      const reqIds = (scopedReqs || []).map((r: any) => r.id);
+
+      // Fetch accepted-bid markers only for the scoped set
+      let acceptedSet = new Set<string>();
+      if (reqIds.length > 0) {
+        const { data: bidsData } = await supabase
+          .from('bids')
+          .select('requirement_id, status')
+          .in('requirement_id', reqIds)
+          .eq('status', 'accepted');
+        acceptedSet = new Set((bidsData || []).map((b: any) => b.requirement_id));
+      }
+
+      const enrichedReqs = (scopedReqs || []).map((req: any) => ({
         ...req,
-        has_accepted_bid: reqsWithAcceptedBids.has(req.id)
+        has_accepted_bid: acceptedSet.has(req.id),
       }));
 
       setRequirements(enrichedReqs as Requirement[]);
