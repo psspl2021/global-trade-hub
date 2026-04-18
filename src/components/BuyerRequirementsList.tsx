@@ -595,9 +595,12 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {req.deadline && !isNaN(new Date(req.deadline).getTime())
-                            ? format(new Date(req.deadline), 'MMM d, yyyy')
-                            : 'No deadline'}
+                          {(() => {
+                            const d = (req as any).bidding_deadline_at || req.deadline;
+                            return d && !isNaN(new Date(d).getTime())
+                              ? format(new Date(d), 'MMM d, yyyy')
+                              : 'No deadline';
+                          })()}
                         </span>
                       </div>
                     </div>
