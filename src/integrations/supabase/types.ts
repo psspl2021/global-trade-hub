@@ -13290,6 +13290,10 @@ export type Database = {
           supplier_count: number
         }[]
       }
+      transfer_po_purchaser: {
+        Args: { p_new_user: string; p_po_id: string }
+        Returns: boolean
+      }
       transition_po_payment:
         | {
             Args: {
