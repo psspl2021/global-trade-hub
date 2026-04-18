@@ -12516,16 +12516,6 @@ export type Database = {
             Returns: Json
           }
       get_cfo_financial_summary: { Args: never; Returns: Json }
-      get_company_auction_credits: {
-        Args: { p_user_id: string }
-        Returns: {
-          buyer_id: string
-          id: string
-          plan_id: string
-          total_credits: number
-          used_credits: number
-        }[]
-      }
       get_company_erp_policy: {
         Args: { p_company_id: string }
         Returns: string

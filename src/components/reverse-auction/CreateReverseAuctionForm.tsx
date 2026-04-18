@@ -446,16 +446,14 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   useEffect(() => {
     if (!user) return;
     const fetchCredits = async () => {
-      const { data } = await supabase.rpc('get_company_auction_credits', { p_user_id: user.id });
-      const row = Array.isArray(data) ? data[0] : null;
-      if (row) {
-        setBuyerCredits({
-          id: row.id,
-          total: row.total_credits,
-          used: row.used_credits,
-          isTrial: !row.plan_id && row.total_credits === 5,
-        });
-      }
+      const { data } = await supabase
+        .from('buyer_auction_credits')
+        .select('id, total_credits, used_credits, plan_id')
+        .eq('buyer_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits, isTrial: !(data as any).plan_id && (data as any).total_credits === 5 });
     };
     fetchCredits();
   }, [user]);
