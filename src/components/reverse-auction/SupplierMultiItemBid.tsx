@@ -210,15 +210,12 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         line_total: Math.round(Number(bidPrices[item.id] || 0) * item.quantity * 100) / 100,
       }));
 
-      const { data: newBid, error } = await supabase
-        .from('reverse_auction_bids')
-        .insert({
-          auction_id: auction.id,
-          supplier_id: user.id,
-          bid_price: Math.round(bidTotal * 100) / 100,
-        } as any)
-        .select()
-        .single();
+      // Stage 2: atomic bid placement + price update + anti-snipe via RPC.
+      const { data: rpcResult, error } = await supabase.rpc('place_bid_atomic' as any, {
+        p_auction_id: auction.id,
+        p_bid_price: Math.round(bidTotal * 100) / 100,
+      });
+      const newBid: any = rpcResult ? { id: (rpcResult as any).bid_id } : null;
 
       if (error) {
         if (error.message?.includes('Rate limit')) {
@@ -232,18 +229,8 @@ export function SupplierMultiItemBid({ auction, bids, onBidPlaced, isLive }: Sup
         throw error;
       }
 
-      // Update current price + mark supplier as bidding (parallel)
-      await Promise.all([
-        supabase
-          .from('reverse_auctions')
-          .update({ current_price: Math.round(bidTotal * 100) / 100, updated_at: new Date().toISOString() } as any)
-          .eq('id', auction.id),
-        supabase
-          .from('reverse_auction_suppliers')
-          .update({ invite_status: 'bid_submitted' } as any)
-          .eq('auction_id', auction.id)
-          .or(`supplier_id.eq.${user.id},supplier_email.eq.${user.email}`),
-      ]);
+      // current_price + invite_status are updated atomically server-side by place_bid_atomic.
+
 
       logAuctionEvent({
         auction_id: auction.id,

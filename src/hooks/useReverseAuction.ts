@@ -734,15 +734,12 @@ export function useReverseAuctionBids(auctionId: string | null) {
   const placeBid = async (supplierId: string, bidPrice: number, auctionData?: ReverseAuction) => {
     if (!auctionId) return false;
     try {
-      const { data: newBid, error } = await supabase
-        .from('reverse_auction_bids')
-        .insert({
-          auction_id: auctionId,
-          supplier_id: supplierId,
-          bid_price: bidPrice,
-        } as any)
-        .select()
-        .single();
+      // Stage 2: atomic bid + price update + anti-snipe via SECURITY DEFINER RPC.
+      const { data: rpcResult, error } = await supabase.rpc('place_bid_atomic' as any, {
+        p_auction_id: auctionId,
+        p_bid_price: bidPrice,
+      });
+      const newBid: any = rpcResult ? { id: (rpcResult as any).bid_id } : null;
       if (error) {
         // Handle rate-limit error from DB trigger
         if (error.message?.includes('Rate limit')) {
@@ -752,14 +749,9 @@ export function useReverseAuctionBids(auctionId: string | null) {
         throw error;
       }
 
-      // Update current price on auction
-      await supabase
-        .from('reverse_auctions')
-        .update({ current_price: bidPrice, updated_at: new Date().toISOString() } as any)
-        .eq('id', auctionId);
+      // current_price update + anti-snipe extension are handled atomically
+      // server-side inside place_bid_atomic — no client follow-up needed.
 
-      // Anti-sniping + fraud detection handled server-side via DB triggers
-      // No client-side logic needed — prevents race conditions & manipulation
 
       // Audit log
       logAuctionEvent({
