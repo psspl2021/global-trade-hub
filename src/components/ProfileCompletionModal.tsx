@@ -63,7 +63,21 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
         onComplete();
         return;
       }
-      
+
+      // Skip modal entirely for invited team members (they belong to an existing company)
+      const { data: membership } = await supabase
+        .from('buyer_company_members')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (membership) {
+        setLoading(false);
+        onComplete();
+        return;
+      }
+
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
