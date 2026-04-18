@@ -30,12 +30,16 @@ export function ExecutionTrackingPage({ userId, onBack }: ExecutionTrackingPageP
 
   useEffect(() => {
     const load = async () => {
-      // Scoped via RPC — DB enforces purchaser isolation. Filter completed+winner client-side.
+      // Scoped + status-filtered at DB layer. Only winner-bearing rows remain client-side.
       const { data: scoped } = await (supabase as any).rpc(
         'get_scoped_auctions_by_purchaser',
-        { p_user_id: userId, p_selected_purchaser: selectedPurchaserId }
+        {
+          p_user_id: userId,
+          p_selected_purchaser: selectedPurchaserId,
+          p_status: 'completed',
+        }
       );
-      const data = (scoped || []).filter((a: any) => a.status === 'completed' && a.winner_supplier_id);
+      const data = (scoped || []).filter((a: any) => a.winner_supplier_id);
 
       // Enrich with supplier company names
       const enriched = await Promise.all(

@@ -342,12 +342,12 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     };
 
     const fetchAuctionCount = async () => {
-      // Scoped count — RPC enforces purchaser isolation at DB layer.
-      const { data } = await (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+      // Scoped O(1) count — DB enforces purchaser isolation, no row payload transferred.
+      const { data } = await (supabase as any).rpc('get_scoped_auctions_count', {
         p_user_id: user.id,
-        p_selected_purchaser: null, // count own auctions; admin total handled separately if needed
+        p_selected_purchaser: null,
       });
-      setBuyerAuctionCount((data || []).length);
+      setBuyerAuctionCount(Number(data) || 0);
     };
 
     fetchSuppliers();
