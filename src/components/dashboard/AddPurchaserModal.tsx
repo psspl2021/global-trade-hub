@@ -155,6 +155,72 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
     }
   };
 
+  const resetForm = () => {
+    setEmail('');
+    setFullName('');
+    setRole('buyer_purchaser');
+    setSelectedCategories([]);
+  };
+
+  const handleCreateAccount = async () => {
+    if (!email.trim()) {
+      toast({
+        title: 'Email Required',
+        description: 'Please enter the team member\'s email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-team-member', {
+        body: {
+          email: email.trim(),
+          fullName: fullName.trim() || undefined,
+          role,
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.tempPassword) {
+        // Show credentials dialog
+        setCreatedCreds({ email: email.trim(), password: data.tempPassword });
+        resetForm();
+        onSuccess?.();
+      } else {
+        // Existing user — just added to company
+        toast({
+          title: data?.alreadyMember ? 'Already a Member' : 'Member Added',
+          description: data?.alreadyMember
+            ? `${email} was already part of your team.`
+            : `${email} has been added to your team. They can sign in with their existing password.`,
+        });
+        resetForm();
+        onOpenChange(false);
+        onSuccess?.();
+      }
+    } catch (err: any) {
+      console.error('Create account error:', err);
+      toast({
+        title: 'Error',
+        description: err?.message || 'Failed to create account. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const copyCredentials = async () => {
+    if (!createdCreds) return;
+    const text = `Email: ${createdCreds.email}\nTemporary Password: ${createdCreds.password}`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
