@@ -154,7 +154,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [bidsLoading, setBidsLoading] = useState(false);
   const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
   const { role } = useUserRole(userId);
-  const { selectedPurchaserId } = useBuyerCompanyContext();
+  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
