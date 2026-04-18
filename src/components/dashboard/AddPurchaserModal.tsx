@@ -54,6 +54,9 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
   const [role, setRole] = useState('buyer_purchaser');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createdCreds, setCreatedCreds] = useState<{ email: string; password: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleAddCategory = (category: string) => {
     if (!selectedCategories.includes(category)) {
