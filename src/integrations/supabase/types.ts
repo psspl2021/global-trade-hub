@@ -7242,6 +7242,44 @@ export type Database = {
         }
         Relationships: []
       }
+      purchaser_temp_credentials: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          email: string
+          id: string
+          temp_password: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          email: string
+          id?: string
+          temp_password: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          email?: string
+          id?: string
+          temp_password?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchaser_temp_credentials_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       query_history: {
         Row: {
           clicks: number | null
@@ -13169,6 +13207,15 @@ export type Database = {
               source: string
             }[]
           }
+      get_visible_temp_credentials: {
+        Args: { p_user_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          target_user_id: string
+          temp_password: string
+        }[]
+      }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean

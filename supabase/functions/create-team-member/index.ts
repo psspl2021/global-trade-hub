@@ -243,6 +243,21 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Persist temp credentials so the creator can copy/share the login
+    // later from the Purchaser dropdown — auto-deleted on first sign-in.
+    if (createdNew && tempPassword) {
+      await admin.from("purchaser_temp_credentials").upsert(
+        {
+          user_id: userId!,
+          company_id: companyId,
+          created_by: caller.id,
+          email,
+          temp_password: tempPassword,
+        },
+        { onConflict: "user_id" },
+      );
+    }
+
     return new Response(
       JSON.stringify({
         success: true,

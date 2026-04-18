@@ -21,9 +21,10 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, Package, UserPlus } from 'lucide-react';
+import { User, Package, UserPlus, KeyRound, Copy, Check } from 'lucide-react';
 import { CompanyPurchaser } from '@/hooks/useBuyerCompanyContext';
 import { AddPurchaserModal } from './AddPurchaserModal';
+import { useToast } from '@/hooks/use-toast';
 
 interface PurchaserSelectorProps {
   purchasers: CompanyPurchaser[];
@@ -43,6 +44,31 @@ export function PurchaserSelector({
   canAddPurchasers = true,
 }: PurchaserSelectorProps) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [copiedUserId, setCopiedUserId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleCopyLogin = async (e: React.MouseEvent, p: CompanyPurchaser) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!p.temp_credentials) return;
+    const text = `Email: ${p.temp_credentials.email}\nTemporary Password: ${p.temp_credentials.password}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedUserId(p.user_id);
+      toast({
+        title: 'Login copied',
+        description: `Share these credentials with ${p.display_name}. They disappear after first sign-in.`,
+      });
+      setTimeout(() => setCopiedUserId(null), 2000);
+    } catch {
+      toast({
+        title: 'Copy failed',
+        description: 'Please copy manually.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Format purchaser display with category badges
   const formatPurchaserLabel = (purchaser: CompanyPurchaser) => {
     const categories = purchaser.assigned_categories || [];
@@ -97,13 +123,19 @@ export function PurchaserSelector({
                   value={purchaser.user_id}
                   className="cursor-pointer"
                 >
-                  <div className="flex items-center gap-2 py-1">
+                  <div className="flex items-center gap-2 py-1 w-full">
                     <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <div className="flex flex-col gap-0.5">
+                    <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                       <span className="font-medium">
                         {purchaser.display_name}
                         {purchaser.is_current_user && (
                           <span className="text-primary ml-1">(You)</span>
+                        )}
+                        {purchaser.temp_credentials && !purchaser.is_current_user && (
+                          <Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0 border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+                            <KeyRound className="h-2.5 w-2.5 mr-0.5" />
+                            Login pending
+                          </Badge>
                         )}
                       </span>
                       {purchaser.assigned_categories?.length > 0 && (
@@ -113,7 +145,29 @@ export function PurchaserSelector({
                           {purchaser.assigned_categories.length > 3 && '...'}
                         </div>
                       )}
+                      {purchaser.temp_credentials && !purchaser.is_current_user && (
+                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono truncate">
+                          <span className="truncate">{purchaser.temp_credentials.email}</span>
+                        </div>
+                      )}
                     </div>
+                    {purchaser.temp_credentials && !purchaser.is_current_user && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs flex-shrink-0"
+                        onClick={(e) => handleCopyLogin(e, purchaser)}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        title="Copy login credentials"
+                      >
+                        {copiedUserId === purchaser.user_id ? (
+                          <><Check className="h-3 w-3 mr-1" /> Copied</>
+                        ) : (
+                          <><Copy className="h-3 w-3 mr-1" /> Copy login</>
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </SelectItem>
               ))}
