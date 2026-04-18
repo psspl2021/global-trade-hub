@@ -74,11 +74,15 @@ export function BuyerActionCards({
       const auctionRes = { data: scopedAuctionsRes.data || [] };
       const rfqRes = { count: activeRfqsCount };
 
-      const logisticsRes: { count: number | null } = await (supabase as any)
-        .from('logistics_requirements')
-        .select('id', { count: 'exact', head: true })
-        .eq('buyer_id', userId)
-        .eq('status', 'active');
+      // Scoped via DB RPC: same purchaser-aware enforcement as RFQs/auctions.
+      // Purchaser role is hard-overridden in the DB to self-only.
+      const { data: logisticsRows } = await (supabase as any).rpc(
+        'get_scoped_logistics_by_purchaser',
+        { p_user_id: userId, p_selected_purchaser: selectedPurchaserId }
+      );
+      const activeLogisticsCount = ((logisticsRows || []) as any[])
+        .filter(l => l.status === 'active').length;
+      const logisticsRes: { count: number | null } = { count: activeLogisticsCount };
 
       let quotesCount = 0;
       if (reqIds && reqIds.length > 0) {
