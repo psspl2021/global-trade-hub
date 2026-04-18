@@ -108,11 +108,14 @@ export interface AuctionFilters {
 
 export function useReverseAuction(supplierMode: boolean = false) {
   const { user } = useAuth();
+  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchAuctions = useCallback(async (filters?: AuctionFilters) => {
     if (!user) return;
+    // Wait for purchaser context to resolve to avoid leaking other purchasers' auctions
+    if (!supplierMode && contextLoading) return;
     setIsLoading(true);
     try {
       if (supplierMode) {
