@@ -510,36 +510,15 @@ export function useReverseAuction(supplierMode: boolean = false) {
   }) => {
     if (!user) return;
     try {
-      const updates: any = {
-        status: 'scheduled',
-        winner_supplier_id: null,
-        winning_bid: null,
-        winning_price: null,
-        current_price: null,
-        buyer_edit_count: 0,
-      };
-      if (newSchedule) {
-        updates.auction_start = newSchedule.auction_start;
-        updates.auction_end = newSchedule.auction_end;
-        if (newSchedule.starting_price) {
-          updates.starting_price = newSchedule.starting_price;
-          updates.current_price = newSchedule.starting_price;
-        }
-        if (newSchedule.quantity) updates.quantity = newSchedule.quantity;
-        if (newSchedule.unit) updates.unit = newSchedule.unit;
-      }
-
-      const { error } = await supabase
-        .from('reverse_auctions')
-        .update(updates)
-        .eq('id', auctionId);
+      const { error } = await (supabase as any).rpc('republish_reverse_auction', {
+        p_auction_id: auctionId,
+        p_auction_start: newSchedule?.auction_start ?? null,
+        p_auction_end: newSchedule?.auction_end ?? null,
+        p_starting_price: newSchedule?.starting_price ?? null,
+        p_quantity: newSchedule?.quantity ?? null,
+        p_unit: newSchedule?.unit ?? null,
+      });
       if (error) throw error;
-
-      const { error: bidDeleteError } = await supabase
-        .from('reverse_auction_bids')
-        .delete()
-        .eq('auction_id', auctionId);
-      if (bidDeleteError) throw bidDeleteError;
 
       const [auctionRes, suppliersRes] = await Promise.all([
         supabase
