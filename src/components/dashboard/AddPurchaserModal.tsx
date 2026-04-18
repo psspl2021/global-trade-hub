@@ -227,10 +227,10 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
-            Add Team Member
+            Add Company User
           </DialogTitle>
           <DialogDescription>
-            Invite a teammate — purchaser, category head, manager, CFO or CEO. They'll get an email invitation to join your company workspace.
+            Add a user to your company workspace — purchaser, category head, manager, CFO or CEO. They'll get an email invitation and join the same dashboard, scoped by their role.
           </DialogDescription>
         </DialogHeader>
 

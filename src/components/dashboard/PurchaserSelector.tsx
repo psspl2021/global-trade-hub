@@ -69,7 +69,7 @@ export function PurchaserSelector({
     <>
       <div className={`flex flex-col gap-1 ${className}`}>
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Select Purchaser
+          Select Acting Purchaser
         </label>
         <div className="flex items-center gap-2">
           <Select
@@ -80,7 +80,7 @@ export function PurchaserSelector({
             <SelectTrigger className="w-full sm:w-[240px] bg-background border-border">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-primary" />
-                <SelectValue placeholder="Select Purchaser">
+                <SelectValue placeholder="Select Acting Purchaser">
                   {selectedPurchaser && (
                     <span className="truncate">
                       {selectedPurchaser.display_name}
@@ -120,20 +120,23 @@ export function PurchaserSelector({
             </SelectContent>
           </Select>
           
-          {/* Add Team Member Button (purchasers, management, heads) */}
+          {/* Add Company User (purchasers, management, heads) */}
           {canAddPurchasers && (
             <Button
               variant="outline"
               size="icon"
               className="h-10 w-10 flex-shrink-0"
               onClick={() => setShowAddModal(true)}
-              title="Add Team Member"
-              aria-label="Add Team Member"
+              title="Add Company User"
+              aria-label="Add Company User"
             >
               <UserPlus className="h-4 w-4" />
             </Button>
           )}
         </div>
+        <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+          1 RFQ → 1 Purchaser → 1 PO
+        </p>
       </div>
       
       {/* Add Purchaser Modal */}
