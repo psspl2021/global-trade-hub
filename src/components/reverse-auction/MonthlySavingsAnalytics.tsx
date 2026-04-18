@@ -13,6 +13,7 @@ import {
 import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Trophy, Gauge, Zap, ChevronDown, Flame, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
 import { formatCompact as sharedFormatCompact, formatCurrency as sharedFormatCurrency, useCurrencyFormatter } from '@/lib/currency';
 
@@ -50,6 +51,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function MonthlySavingsAnalytics() {
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
+  const { selectedPurchaserId } = useBuyerCompanyContext();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [allAuctions, setAllAuctions] = useState<any[]>([]);
   const [supplierCount, setSupplierCount] = useState(0);
@@ -60,32 +62,32 @@ export function MonthlySavingsAnalytics() {
     if (!user?.id) return;
 
     const fetchData = async () => {
-      const sixMonthsAgo = subMonths(new Date(), 6).toISOString();
-      const [auctionRes, allAuctionRes, supplierRes] = await Promise.all([
-        supabase
-          .from('reverse_auctions')
-          .select('id, status, starting_price, current_price, winning_bid, quantity, auction_end, created_at, currency')
-          .eq('buyer_id', user.id)
-          .gte('created_at', sixMonthsAgo)
-          .order('created_at', { ascending: true }),
-        supabase
-          .from('reverse_auctions')
-          .select('id, status, starting_price, current_price, winning_bid, quantity')
-          .eq('buyer_id', user.id),
+      const sixMonthsAgoMs = subMonths(new Date(), 6).getTime();
+      // Scoped via RPC — DB enforces purchaser isolation. Window-filter client-side.
+      const [scopedRes, supplierRes] = await Promise.all([
+        (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+          p_user_id: user.id,
+          p_selected_purchaser: selectedPurchaserId,
+        }),
         supabase
           .from('buyer_suppliers')
           .select('id')
           .eq('buyer_id', user.id),
       ]);
 
-      setAuctions(auctionRes.data || []);
-      setAllAuctions(allAuctionRes.data || []);
+      const all = (scopedRes.data || []) as any[];
+      const recent = all
+        .filter((a) => new Date(a.created_at).getTime() >= sixMonthsAgoMs)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+      setAuctions(recent);
+      setAllAuctions(all);
       setSupplierCount((supplierRes.data || []).length);
       setLoading(false);
     };
 
     fetchData();
-  }, [user?.id]);
+  }, [user?.id, selectedPurchaserId]);
 
   // All-time stats from allAuctions
   const { activeCount, allTimeSavings, allTimeSpend } = useMemo(() => {
