@@ -587,7 +587,9 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                       <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Package className="h-3 w-3" />
-                          {Number(req.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {req.unit}
+                          {Number.isFinite(Number(req.quantity))
+                            ? `${Number(req.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })} ${req.unit ?? ''}`.trim()
+                            : '—'}
                         </span>
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
@@ -595,9 +597,12 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {req.deadline && !isNaN(new Date(req.deadline).getTime())
-                            ? format(new Date(req.deadline), 'MMM d, yyyy')
-                            : 'No deadline'}
+                          {(() => {
+                            const d = (req as any).bidding_deadline_at || req.deadline;
+                            return d && !isNaN(new Date(d).getTime())
+                              ? format(new Date(d), 'MMM d, yyyy')
+                              : 'No deadline';
+                          })()}
                         </span>
                       </div>
                     </div>

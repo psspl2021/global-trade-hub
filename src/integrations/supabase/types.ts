@@ -13450,15 +13450,31 @@ export type Database = {
           p_user_id: string
         }
         Returns: {
+          auction_type: string
+          bidding_deadline_at: string
+          budget_max: number
+          budget_min: number
           buyer_id: string
           category: string
           created_at: string
+          current_lowest_bid: number
+          customer_name: string
+          deadline: string
+          delivery_location: string
           description: string
+          destination_country: string
+          destination_state: string
           has_accepted_bid: boolean
           id: string
+          product_category: string
           purchaser_id: string
+          quantity: number
           status: string
+          target_price: number
           title: string
+          total_bidders: number
+          trade_type: string
+          unit: string
           updated_at: string
         }[]
       }
