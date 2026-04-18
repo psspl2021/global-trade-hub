@@ -378,10 +378,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
   const startAuction = async (auctionId: string) => {
     if (!user) return;
     try {
-      const { error } = await supabase
-        .from('reverse_auctions')
-        .update({ status: 'live', auction_start: new Date().toISOString() } as any)
-        .eq('id', auctionId);
+      const { error } = await (supabase as any).rpc('start_reverse_auction', { p_auction_id: auctionId });
       if (error) throw error;
       logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_STARTED', actor_id: user.id, actor_role: 'buyer' });
       toast.success('Auction is now LIVE!');
