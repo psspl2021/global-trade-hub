@@ -326,8 +326,13 @@ export function AIInventoryRFQModal({
       const deadline = new Date(now.getTime() + deadlineDays * 24 * 60 * 60 * 1000);
 
       // Create the RFQ - cast to any to handle new columns not yet in types
+      // Acting purchaser (set via PurchaserSelector dropdown). Falls back to buyer_id via DB trigger.
+      const actingPurchaserId = (typeof window !== 'undefined'
+        ? localStorage.getItem('ps_selected_purchaser')
+        : null) || userId;
       const insertData = {
         buyer_id: userId,
+        purchaser_id: actingPurchaserId,
         title: `Request for ${stock.productName}`,
         product_category: stock.category,
         description: `AI-matched request for verified available stock.\n\nProduct: ${stock.productName}\nCategory: ${stock.category}\nRequested Quantity: ${qty} ${stock.unit}\n\n${notes ? `Additional Notes: ${notes}` : ''}`,

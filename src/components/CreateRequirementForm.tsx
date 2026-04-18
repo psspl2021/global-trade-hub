@@ -318,8 +318,13 @@ export function CreateRequirementForm({
 
       // Insert main requirement
       // Build insert payload with attribution tracking
+      // Acting purchaser (set via PurchaserSelector dropdown). Falls back to buyer_id via DB trigger.
+      const actingPurchaserId = (typeof window !== 'undefined'
+        ? localStorage.getItem('ps_selected_purchaser')
+        : null) || userId;
       const insertPayload: Record<string, unknown> = {
         buyer_id: userId,
+        purchaser_id: actingPurchaserId,
         title: data.title,
         description: data.description,
         product_category: primaryCategory,
