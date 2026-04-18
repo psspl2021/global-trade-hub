@@ -154,7 +154,7 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [bidsLoading, setBidsLoading] = useState(false);
   const [requirementItems, setRequirementItems] = useState<RequirementItem[]>([]);
   const { role } = useUserRole(userId);
-  const { selectedPurchaserId } = useBuyerCompanyContext();
+  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
@@ -174,10 +174,20 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait for purchaser context to resolve before fetching.
+    // Without this gate, the first render fires with selectedPurchaserId=null,
+    // which makes the RPC return all company RFQs (a visibility leak that
+    // briefly flashes other purchasers' data before the impersonation scope
+    // takes effect).
+    if (contextLoading) return;
+    if (!selectedPurchaserId) {
+      setRequirements([]);
+      setLoading(false);
+      return;
+    }
     fetchRequirements();
-    // Re-fetch when acting purchaser switches.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, selectedPurchaserId]);
+  }, [userId, selectedPurchaserId, contextLoading]);
 
   const fetchRequirements = async () => {
     try {
