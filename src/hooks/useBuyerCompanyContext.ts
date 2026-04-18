@@ -63,8 +63,12 @@ const HR_ROLES: UserRole[] = ['buyer_hr', 'hr'];
 // Purchaser/Buyer roles that can see purchaser dropdown
 const PURCHASER_ROLES: UserRole[] = ['buyer_purchaser', 'purchaser', 'buyer'];
 
-const STORAGE_KEY_PURCHASER = 'ps_selected_purchaser';
+const STORAGE_KEY_PURCHASER_BASE = 'ps_selected_purchaser';
 const STORAGE_KEY_MGMT_VIEW = 'ps_management_view';
+// Per-user namespacing prevents cross-account leakage on shared browsers:
+// without this, User A's saved "view as" ID is briefly applied to User B
+// on first render after login, producing the illusion of seeing A's data.
+const purchaserStorageKey = (userId: string) => `${STORAGE_KEY_PURCHASER_BASE}:${userId}`;
 
 export function useBuyerCompanyContext(): BuyerCompanyContext {
   const { user } = useAuth();
@@ -85,15 +89,17 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   // Get selected purchaser object
   const selectedPurchaser = purchasers.find(p => p.user_id === selectedPurchaserId) || null;
 
-  // Persist purchaser selection
+  // Persist purchaser selection (per-user namespaced)
   const setSelectedPurchaserId = useCallback((id: string | null) => {
     setSelectedPurchaserIdState(id);
+    if (!user?.id) return;
+    const key = purchaserStorageKey(user.id);
     if (id) {
-      localStorage.setItem(STORAGE_KEY_PURCHASER, id);
+      localStorage.setItem(key, id);
     } else {
-      localStorage.removeItem(STORAGE_KEY_PURCHASER);
+      localStorage.removeItem(key);
     }
-  }, []);
+  }, [user?.id]);
 
   // Persist management view selection + dispatch custom event for cross-component sync
   const setManagementView = useCallback((view: ManagementViewType) => {
@@ -247,10 +253,10 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       // For self-only roles, always force selection to self regardless of saved value
       if (isSelfOnlyRole) {
         setSelectedPurchaserIdState(user.id);
-        localStorage.setItem(STORAGE_KEY_PURCHASER, user.id);
+        localStorage.setItem(purchaserStorageKey(user.id), user.id);
       } else {
-        // Restore saved selection or default to current user
-        const savedPurchaserId = localStorage.getItem(STORAGE_KEY_PURCHASER);
+        // Restore saved selection (per-user) or default to current user
+        const savedPurchaserId = localStorage.getItem(purchaserStorageKey(user.id));
         const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
 
         if (validSavedSelection) {
