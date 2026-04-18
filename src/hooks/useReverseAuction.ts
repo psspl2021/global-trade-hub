@@ -217,24 +217,22 @@ export function useReverseAuction(supplierMode: boolean = false) {
   const createAuction = async (input: CreateAuctionInput) => {
     if (!user) return null;
     try {
-      const { data: auction, error } = await supabase
-        .from('reverse_auctions')
-        .insert({
-          buyer_id: user.id,
+      // Stage 2: route base insert through SECURITY DEFINER RPC.
+      // Client retains orchestration for line items + supplier invites.
+      const { data: newAuctionId, error } = await supabase.rpc('create_reverse_auction' as any, {
+        payload: {
           title: input.title,
           product_slug: input.product_slug,
           category: input.category,
           quantity: input.quantity,
           unit: input.unit,
           starting_price: input.starting_price,
-          current_price: input.starting_price,
           reserve_price: input.reserve_price || null,
           currency: input.currency || 'INR',
           minimum_bid_step_pct: input.minimum_bid_step_pct || 0.25,
           auction_start: input.auction_start,
           auction_end: input.auction_end,
           transaction_type: input.transaction_type || 'domestic',
-          status: 'scheduled',
           description: input.description || null,
           rfq_type: input.rfq_type || 'domestic',
           destination_country: input.destination_country || 'India',
@@ -247,13 +245,14 @@ export function useReverseAuction(supplierMode: boolean = false) {
           incoterm: input.incoterm || null,
           origin_country: input.origin_country || null,
           shipment_mode: input.shipment_mode || null,
-        } as any)
-        .select()
-        .single();
+        },
+      });
 
       if (error) throw error;
 
-      const auctionId = (auction as any).id;
+      const auctionId = newAuctionId as unknown as string;
+      // Hydrate auction object for downstream code that expects the row
+      const auction: any = { id: auctionId };
 
       // Insert line items if provided
       if (input.line_items && input.line_items.length > 0) {
