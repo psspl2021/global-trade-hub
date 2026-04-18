@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { toast } from 'sonner';
 import { logAuctionEvent } from '@/utils/auctionAuditLogger';
 
@@ -107,11 +108,14 @@ export interface AuctionFilters {
 
 export function useReverseAuction(supplierMode: boolean = false) {
   const { user } = useAuth();
+  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchAuctions = useCallback(async (filters?: AuctionFilters) => {
     if (!user) return;
+    // Wait for purchaser context to resolve to avoid leaking other purchasers' auctions
+    if (!supplierMode && contextLoading) return;
     setIsLoading(true);
     try {
       if (supplierMode) {
@@ -158,9 +162,14 @@ export function useReverseAuction(supplierMode: boolean = false) {
         if (error) throw error;
         setAuctions((data as unknown as ReverseAuction[]) || []);
       } else {
+        // Scope to the acting purchaser. Management views pass selectedPurchaserId;
+        // purchasers/buyers default to themselves. DB-side scoping (purchaser_id) is
+        // the authoritative leak-prevention boundary.
+        const effectivePurchaserId = selectedPurchaserId || user.id;
         let query = supabase
           .from('reverse_auctions')
-          .select('*');
+          .select('*')
+          .eq('purchaser_id', effectivePurchaserId);
 
         // Apply server-side filters only for cancelled (completed is time-derived, handled client-side)
         if (filters?.status === 'cancelled') {
@@ -193,7 +202,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
     } finally {
       setIsLoading(false);
     }
-  }, [user, supplierMode]);
+  }, [user, supplierMode, selectedPurchaserId, contextLoading]);
 
   useEffect(() => {
     fetchAuctions();
