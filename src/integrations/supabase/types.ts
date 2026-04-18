@@ -13241,6 +13241,7 @@ export type Database = {
               source: string
             }[]
           }
+      get_user_company_ids: { Args: { p_user_id: string }; Returns: string[] }
       get_visible_temp_credentials: {
         Args: { p_user_id: string }
         Returns: {
@@ -13302,6 +13303,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_buyer_management: { Args: { _user_id: string }; Returns: boolean }
       is_buyer_purchaser: { Args: { _user_id: string }; Returns: boolean }
+      is_company_manager: {
+        Args: { p_company_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_enterprise_onboarding: {
         Args: { p_enterprise_id: string }
         Returns: boolean
