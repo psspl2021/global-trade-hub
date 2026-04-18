@@ -7808,7 +7808,7 @@ export type Database = {
           identity_revealed_by: string | null
           payment_terms: string | null
           product_category: string
-          purchaser_id: string | null
+          purchaser_id: string
           quality_standards: string | null
           quantity: number
           reveal_fee: number | null
@@ -7855,7 +7855,7 @@ export type Database = {
           identity_revealed_by?: string | null
           payment_terms?: string | null
           product_category: string
-          purchaser_id?: string | null
+          purchaser_id: string
           quality_standards?: string | null
           quantity: number
           reveal_fee?: number | null
@@ -7902,7 +7902,7 @@ export type Database = {
           identity_revealed_by?: string | null
           payment_terms?: string | null
           product_category?: string
-          purchaser_id?: string | null
+          purchaser_id?: string
           quality_standards?: string | null
           quantity?: number
           reveal_fee?: number | null
@@ -8206,8 +8206,10 @@ export type Database = {
           origin_country: string | null
           payment_terms: string | null
           product_slug: string
+          purchaser_id: string
           quality_standards: string | null
           quantity: number
+          requirement_id: string | null
           reserve_price: number | null
           result_notified: boolean | null
           rfq_type: string | null
@@ -8257,8 +8259,10 @@ export type Database = {
           origin_country?: string | null
           payment_terms?: string | null
           product_slug: string
+          purchaser_id: string
           quality_standards?: string | null
           quantity: number
+          requirement_id?: string | null
           reserve_price?: number | null
           result_notified?: boolean | null
           rfq_type?: string | null
@@ -8308,8 +8312,10 @@ export type Database = {
           origin_country?: string | null
           payment_terms?: string | null
           product_slug?: string
+          purchaser_id?: string
           quality_standards?: string | null
           quantity?: number
+          requirement_id?: string | null
           reserve_price?: number | null
           result_notified?: boolean | null
           rfq_type?: string | null
@@ -8328,7 +8334,15 @@ export type Database = {
           winning_bid?: number | null
           winning_price?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reverse_auctions_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rfq_analytics: {
         Row: {
@@ -12817,51 +12831,22 @@ export type Database = {
           supplier_phone: string
         }[]
       }
-      get_scoped_auction_metrics:
-        | {
-            Args: {
-              p_recent_months?: number
-              p_selected_purchaser?: string
-              p_user_id: string
-            }
-            Returns: {
-              avg_savings_pct: number
-              completed_auctions: number
-              recent_auctions: number
-              recent_completed: number
-              recent_savings: number
-              total_auctions: number
-              total_savings: number
-            }[]
-          }
-        | {
-            Args: {
-              p_from?: string
-              p_selected_purchaser?: string
-              p_status?: string
-              p_to?: string
-              p_user_id: string
-            }
-            Returns: {
-              avg_savings: number
-              total_auctions: number
-              total_savings: number
-            }[]
-          }
-        | {
-            Args: {
-              p_selected_purchaser?: string
-              p_user_id: string
-              p_window?: string
-            }
-            Returns: {
-              avg_savings_pct: number
-              recent_auctions: number
-              recent_savings: number
-              total_auctions: number
-              total_savings: number
-            }[]
-          }
+      get_scoped_auction_metrics: {
+        Args: {
+          p_recent_months?: number
+          p_selected_purchaser?: string
+          p_user_id: string
+        }
+        Returns: {
+          avg_savings_pct: number
+          completed_auctions: number
+          recent_auctions: number
+          recent_completed: number
+          recent_savings: number
+          total_auctions: number
+          total_savings: number
+        }[]
+      }
       get_scoped_auctions_by_purchaser: {
         Args: {
           p_from?: string
@@ -12904,8 +12889,10 @@ export type Database = {
           origin_country: string | null
           payment_terms: string | null
           product_slug: string
+          purchaser_id: string
           quality_standards: string | null
           quantity: number
+          requirement_id: string | null
           reserve_price: number | null
           result_notified: boolean | null
           rfq_type: string | null
