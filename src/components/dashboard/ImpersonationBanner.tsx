@@ -38,12 +38,12 @@ export function ImpersonationBanner() {
   return (
     <div className="w-full bg-warning/10 border-b border-warning/30">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-warning-foreground min-w-0">
+        <div className="flex items-center gap-2 text-sm text-foreground min-w-0">
           <Eye className="h-4 w-4 flex-shrink-0 text-warning" />
           <span className="truncate">
             Viewing as{' '}
             <span className="font-semibold">{selectedPurchaser.display_name}</span>
-            <span className="text-muted-foreground">
+            <span className="text-foreground/70">
               {' '}
               ({selectedPurchaser.role})
             </span>
