@@ -93,8 +93,11 @@ export function useScopedData<T = any>(
     const rpcName = RPC_BY_ENTITY[entity];
     const key = cacheKey(rpcName, params);
 
-    // Serve cached rows immediately if fresh — switching back to a
-    // previously-viewed purchaser feels instant. Then revalidate.
+    // Serve cached rows immediately if present — switching back to a
+    // previously-viewed purchaser feels instant. If NO cache exists for this
+    // exact key, we MUST clear stale rows from the previous purchaser
+    // immediately, otherwise another purchaser's data flashes before the
+    // fresh fetch returns ("dikha phir gayab" bug).
     const cached = scopedCache.get(key);
     const now = Date.now();
     if (cached) {
@@ -104,6 +107,9 @@ export function useScopedData<T = any>(
         // Fresh enough — skip refetch entirely
         return;
       }
+    } else {
+      setData([]);
+      setLoading(true);
     }
 
     try {

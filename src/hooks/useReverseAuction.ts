@@ -124,7 +124,11 @@ export function useReverseAuction(supplierMode: boolean = false) {
     // Wait for purchaser context to resolve to avoid leaking other purchasers' auctions
     if (!supplierMode && contextLoading) return;
 
-    // Serve cache instantly for the buyer path so re-selecting a purchaser feels instant
+    // Serve cache instantly for the buyer path so re-selecting a purchaser feels instant.
+    // CRITICAL: When switching purchasers, if no cache exists for the new key,
+    // we MUST clear stale rows from the previous purchaser immediately —
+    // otherwise the user sees another purchaser's auctions flash before the
+    // fresh fetch returns (the "dikha phir gayab" bug).
     const cKey = !supplierMode ? auctionCacheKey(user.id, selectedPurchaserId, filters) : null;
     if (cKey) {
       const cached = auctionCache.get(cKey);
@@ -135,9 +139,12 @@ export function useReverseAuction(supplierMode: boolean = false) {
           return; // fresh enough — skip refetch
         }
       } else {
+        // No cache for THIS purchaser — wipe stale rows from previous context
+        setAuctions([]);
         setIsLoading(true);
       }
     } else {
+      setAuctions([]);
       setIsLoading(true);
     }
     try {
