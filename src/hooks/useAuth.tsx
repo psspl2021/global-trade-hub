@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { registerSession, useSessionHeartbeat } from '@/hooks/useSessionControl';
 import { useToast } from '@/hooks/use-toast';
+import { clearUserScopeCache } from '@/hooks/useUserScope';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -203,7 +204,10 @@ export const useAuth = () => {
       // Clear local state first
       setUser(null);
       setSession(null);
-      
+      // Drop the cached governance scope so the next user can't briefly
+      // inherit the previous user's permissions on first render.
+      clearUserScopeCache();
+
       // Then sign out from Supabase (use local scope to avoid session_not_found errors)
       await supabase.auth.signOut({ scope: 'local' });
 
