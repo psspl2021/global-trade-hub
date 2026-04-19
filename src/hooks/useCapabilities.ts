@@ -16,6 +16,9 @@ export type Capability =
   | 'can_override_po_approval'
   | 'can_view_full_supplier_identity'
   | 'can_view_all_pos'
+  | 'can_view_purchaser_leaderboard'
+  | 'can_switch_purchaser'
+  | 'can_view_management_dashboard'
   | string;
 
 let _cache: { userId: string; caps: Set<string>; at: number } | null = null;
