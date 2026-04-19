@@ -50,14 +50,25 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
 
   // Fetch auction count for usage meter — scoped to acting purchaser via RPC.
   // DB enforces purchaser hard-override (cannot impersonate others).
+  // Hardening: reset count immediately on scope change so the previous
+  // purchaser's number never bleeds into the new purchaser's view, and
+  // explicitly zero on RPC error (e.g. user_not_in_company guard).
   useEffect(() => {
     if (!user || isSupplier) return;
+    setAuctionCount(0);
     (supabase as any)
       .rpc('get_scoped_auctions_by_purchaser', {
         p_user_id: user.id,
         p_selected_purchaser: selectedPurchaserId,
       })
-      .then(({ data }: any) => setAuctionCount((data || []).length));
+      .then(({ data, error }: any) => {
+        if (error) {
+          console.warn('[ReverseAuctionDashboard] auction count RPC error:', error);
+          setAuctionCount(0);
+          return;
+        }
+        setAuctionCount((data || []).length);
+      });
   }, [user, isSupplier, selectedPurchaserId]);
 
   // Scope boundary hardening: selected auction must never survive an acting purchaser switch.
