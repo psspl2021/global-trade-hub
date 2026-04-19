@@ -62,6 +62,7 @@ interface BuyerCompanyContext {
 
 const STORAGE_KEY_PURCHASER_BASE = 'ps_selected_purchaser';
 const STORAGE_KEY_MGMT_VIEW = 'ps_management_view';
+const PURCHASER_CHANGE_EVENT = 'ps-purchaser-change';
 // Per-user namespacing prevents cross-account leakage on shared browsers:
 // without this, User A's saved "view as" ID is briefly applied to User B
 // on first render after login, producing the illusion of seeing A's data.
@@ -91,6 +92,45 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   // Get selected purchaser object
   const selectedPurchaser = purchasers.find(p => p.user_id === selectedPurchaserId) || null;
 
+  // Hydrate saved purchaser immediately for this hook instance so sibling
+  // components don't briefly render self/default scope before fetchPurchasers
+  // finishes restoring the persisted acting purchaser.
+  useEffect(() => {
+    if (!user?.id) {
+      setSelectedPurchaserIdState(null);
+      return;
+    }
+    const saved = localStorage.getItem(purchaserStorageKey(user.id));
+    if (saved) {
+      setSelectedPurchaserIdState(saved);
+    }
+  }, [user?.id]);
+
+  // Keep all hook instances on the page in sync. This hook is used directly
+  // from multiple components, so local state must broadcast purchaser changes
+  // immediately instead of waiting for an async refetch/localStorage restore.
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const handlePurchaserChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ userId?: string; purchaserId: string | null }>;
+      if (customEvent.detail?.userId !== user.id) return;
+      setSelectedPurchaserIdState(customEvent.detail?.purchaserId ?? null);
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== purchaserStorageKey(user.id)) return;
+      setSelectedPurchaserIdState(event.newValue ?? null);
+    };
+
+    window.addEventListener(PURCHASER_CHANGE_EVENT, handlePurchaserChange as EventListener);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener(PURCHASER_CHANGE_EVENT, handlePurchaserChange as EventListener);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [user?.id]);
+
   // Persist purchaser selection (per-user namespaced).
   // No page reload — every scoped hook (useScopedData, etc.) already keys its
   // queries on selectedPurchaserId, so changing this state instantly triggers
@@ -104,6 +144,9 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     } else {
       localStorage.removeItem(key);
     }
+    window.dispatchEvent(new CustomEvent(PURCHASER_CHANGE_EVENT, {
+      detail: { userId: user.id, purchaserId: id ?? null },
+    }));
   }, [user?.id]);
 
   // Persist management view selection + dispatch custom event for cross-component sync
