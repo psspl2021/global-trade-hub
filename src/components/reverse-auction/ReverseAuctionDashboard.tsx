@@ -42,6 +42,12 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const { user } = useAuth();
   const { selectedPurchaserId } = useBuyerCompanyContext();
 
+  const updateSearchParams = (updater: (params: URLSearchParams) => void) => {
+    const next = new URLSearchParams(searchParams);
+    updater(next);
+    setSearchParams(next, { replace: true });
+  };
+
   // Fetch auction count for usage meter — scoped to acting purchaser via RPC.
   // DB enforces purchaser hard-override (cannot impersonate others).
   useEffect(() => {
@@ -54,16 +60,27 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
       .then(({ data }: any) => setAuctionCount((data || []).length));
   }, [user, isSupplier, selectedPurchaserId]);
 
+  // Scope boundary hardening: selected auction must never survive an acting purchaser switch.
+  useEffect(() => {
+    if (isSupplier) return;
+    setSelectedAuction(null);
+    setIsRestoringAuction(false);
+    updateSearchParams((params) => {
+      params.delete('auction');
+    });
+  }, [selectedPurchaserId, isSupplier]);
+
   // Persist selected auction ID in URL
   const selectAuction = (auction: ReverseAuction | null) => {
     setSelectedAuction(auction);
-    if (auction) {
-      searchParams.set('auction', auction.id);
-      searchParams.delete('auctionView');
-    } else {
-      searchParams.delete('auction');
-    }
-    setSearchParams(searchParams, { replace: true });
+    updateSearchParams((params) => {
+      if (auction) {
+        params.set('auction', auction.id);
+        params.delete('auctionView');
+      } else {
+        params.delete('auction');
+      }
+    });
   };
 
   // URL-based sub-view for supplier network & purchase orders
@@ -76,35 +93,61 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   }, [searchParams]);
 
   const setAuctionView = (view: string | null) => {
-    if (view) {
-      searchParams.set('auctionView', view);
-    } else {
-      searchParams.delete('auctionView');
-    }
-    setSearchParams(searchParams, { replace: true });
+    updateSearchParams((params) => {
+      if (view) {
+        params.set('auctionView', view);
+      } else {
+        params.delete('auctionView');
+      }
+    });
   };
 
-  // Restore selected auction from URL on mount
+  // Restore selected auction only if it belongs to the current scoped purchaser context.
   useEffect(() => {
     const auctionId = searchParams.get('auction');
-    if (auctionId && !selectedAuction) {
+    if (!auctionId || selectedAuction || !user) return;
+
+    const restoreAuction = async () => {
       setIsRestoringAuction(true);
-      supabase
-        .from('reverse_auctions')
-        .select('*')
-        .eq('id', auctionId)
-        .single()
-        .then(({ data, error }) => {
+      try {
+        if (isSupplier) {
+          const { data, error } = await supabase
+            .from('reverse_auctions')
+            .select('*')
+            .eq('id', auctionId)
+            .single();
+
           if (data && !error) {
             setSelectedAuction(data as unknown as ReverseAuction);
-          } else {
-            searchParams.delete('auction');
-            setSearchParams(searchParams, { replace: true });
+            return;
           }
-          setIsRestoringAuction(false);
+        } else {
+          const { data, error } = await (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+            p_user_id: user.id,
+            p_selected_purchaser: selectedPurchaserId,
+            p_limit: 200,
+            p_offset: 0,
+          });
+
+          if (!error) {
+            const scopedAuction = ((data || []) as ReverseAuction[]).find((auction) => auction.id === auctionId);
+            if (scopedAuction) {
+              setSelectedAuction(scopedAuction);
+              return;
+            }
+          }
+        }
+
+        updateSearchParams((params) => {
+          params.delete('auction');
         });
-    }
-  }, []); // Only on mount
+      } finally {
+        setIsRestoringAuction(false);
+      }
+    };
+
+    void restoreAuction();
+  }, [searchParams, selectedAuction, user, isSupplier, selectedPurchaserId]);
 
   if (isRestoringAuction) {
     return (

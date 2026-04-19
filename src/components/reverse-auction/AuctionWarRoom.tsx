@@ -21,6 +21,7 @@ import {
 } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { ReverseAuction, getRankedBids, ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { differenceInSeconds, formatDistanceToNow } from 'date-fns';
 import { formatCompact as formatCompactUtil } from '@/lib/currency';
@@ -382,6 +383,7 @@ const MEDAL_ICONS = ['🥇', '🥈', '🥉'];
 
 export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps) {
   const { user } = useAuth();
+  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
   const [bidsMap, setBidsMap] = useState<Record<string, ReverseAuctionBid[]>>({});
   const [loading, setLoading] = useState(true);
@@ -393,58 +395,88 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || contextLoading) return;
+
     const fetchData = async () => {
-      const { data: auctionData } = await supabase
-        .from('reverse_auctions')
-        .select('*')
-        .eq('buyer_id', user.id)
-        .in('status', ['live', 'scheduled', 'ended'])
-        .order('auction_start', { ascending: false })
-        .limit(20);
+      setLoading(true);
+      setAuctions([]);
+      setBidsMap({});
 
-      if (auctionData) {
-        setAuctions(auctionData as unknown as ReverseAuction[]);
-        const liveIds = auctionData.filter(a => a.status === 'live').map(a => a.id);
-        if (liveIds.length > 0) {
-          const { data: bidData } = await supabase
-            .from('reverse_auction_bids')
-            .select('*')
-            .in('auction_id', liveIds)
-            .order('bid_price', { ascending: true });
+      const { data: auctionData } = await (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+        p_user_id: user.id,
+        p_selected_purchaser: selectedPurchaserId,
+        p_limit: 20,
+        p_offset: 0,
+      });
 
-          if (bidData) {
-            const grouped: Record<string, ReverseAuctionBid[]> = {};
-            for (const bid of bidData as unknown as ReverseAuctionBid[]) {
-              if (!grouped[bid.auction_id]) grouped[bid.auction_id] = [];
-              grouped[bid.auction_id].push(bid);
-            }
-            setBidsMap(grouped);
+      const scopedAuctions = ((auctionData || []) as ReverseAuction[])
+        .filter((auction) => ['live', 'scheduled', 'ended'].includes(auction.status))
+        .sort((a, b) => (b.auction_start || '').localeCompare(a.auction_start || ''));
+
+      setAuctions(scopedAuctions);
+
+      const liveIds = scopedAuctions.filter(a => a.status === 'live').map(a => a.id);
+      if (liveIds.length > 0) {
+        const { data: bidData } = await supabase
+          .from('reverse_auction_bids')
+          .select('*')
+          .in('auction_id', liveIds)
+          .order('bid_price', { ascending: true });
+
+        if (bidData) {
+          const grouped: Record<string, ReverseAuctionBid[]> = {};
+          for (const bid of bidData as unknown as ReverseAuctionBid[]) {
+            if (!grouped[bid.auction_id]) grouped[bid.auction_id] = [];
+            grouped[bid.auction_id].push(bid);
           }
+          setBidsMap(grouped);
         }
       }
+
       setLoading(false);
     };
-    fetchData();
-  }, [user]);
+
+    void fetchData();
+  }, [user, selectedPurchaserId, contextLoading]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || contextLoading) return;
+
     const channel = supabase
-      .channel('war-room-live')
+      .channel(`war-room-live-${selectedPurchaserId ?? user.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reverse_auctions' }, (payload) => {
-        const updated = payload.new as unknown as ReverseAuction;
-        if (updated.buyer_id === user.id) {
-          setAuctions(prev => {
-            const idx = prev.findIndex(a => a.id === updated.id);
-            if (idx >= 0) {
-              const next = [...prev];
-              next[idx] = updated;
-              return next;
-            }
-            return [updated, ...prev];
+        const updated = payload.new as ReverseAuction & { purchaser_id?: string | null };
+        const effectivePurchaserId = selectedPurchaserId ?? user.id;
+
+        if (updated.purchaser_id !== effectivePurchaserId) {
+          setAuctions(prev => prev.filter(a => a.id !== updated.id));
+          setBidsMap(prev => {
+            const next = { ...prev };
+            delete next[updated.id];
+            return next;
           });
+          return;
         }
+
+        if (!['live', 'scheduled', 'ended'].includes(updated.status)) {
+          setAuctions(prev => prev.filter(a => a.id !== updated.id));
+          setBidsMap(prev => {
+            const next = { ...prev };
+            delete next[updated.id];
+            return next;
+          });
+          return;
+        }
+
+        setAuctions(prev => {
+          const idx = prev.findIndex(a => a.id === updated.id);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = updated;
+            return next.sort((a, b) => (b.auction_start || '').localeCompare(a.auction_start || ''));
+          }
+          return [updated, ...prev].sort((a, b) => (b.auction_start || '').localeCompare(a.auction_start || ''));
+        });
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reverse_auction_bids' }, (payload) => {
         const newBid = payload.new as unknown as ReverseAuctionBid;
@@ -456,7 +488,7 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, selectedPurchaserId, contextLoading]);
 
   const liveAuctions = useMemo(() => auctions.filter(a => a.status === 'live'), [auctions]);
   const scheduledAuctions = useMemo(() => auctions.filter(a => a.status === 'scheduled'), [auctions]);
