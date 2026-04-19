@@ -1,42 +1,24 @@
 /**
  * ============================================================
- * BUYER DASHBOARD ACCESS HOOK
+ * BUYER DASHBOARD ACCESS HOOK (capability-driven)
  * ============================================================
- * 
- * Determines which dashboard a buyer user should access:
- * - buyer_purchaser, purchaser, buyer → /dashboard (Operational)
- * - buyer_cfo, buyer_ceo, buyer_manager, cfo, ceo, manager → /management (Analytics)
- * 
- * This hook is the source of truth for buyer-side role routing.
+ *
+ * Determines which dashboard a buyer user lands on:
+ *  - Management capability → /management (Analytics)
+ *  - Otherwise (purchaser/buyer)        → /dashboard (Operational)
+ *
+ * Authorization is sourced from `useUserScope` + `useCapabilities`,
+ * which mirror the DB's `get_user_scope()` + `get_my_capabilities()`.
+ * No role-string arrays are kept here.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useUserScope } from '@/hooks/useUserScope';
 
 export type BuyerDashboardType = 'purchaser' | 'management' | 'none';
-export type BuyerRole = 
-  | 'buyer_purchaser' 
-  | 'buyer_cfo' 
-  | 'buyer_ceo'
-  | 'buyer_hr' 
-  | 'buyer_manager'
-  | 'purchaser'
-  | 'buyer'
-  | 'cfo'
-  | 'ceo'
-  | 'manager'
-  | null;
-
-// Management roles get analytics dashboard
-const MANAGEMENT_ROLES = ['buyer_cfo', 'buyer_ceo', 'buyer_hr', 'buyer_manager', 'cfo', 'ceo', 'manager'];
-
-// Purchaser roles get execution dashboard
-const PURCHASER_ROLES = ['buyer_purchaser', 'purchaser', 'buyer'];
 
 interface BuyerDashboardAccess {
   dashboardType: BuyerDashboardType;
-  primaryRole: BuyerRole;
+  primaryRole: string | null;
   isManagement: boolean;
   isPurchaser: boolean;
   canEditIncentives: boolean;
@@ -46,92 +28,31 @@ interface BuyerDashboardAccess {
 }
 
 export function useBuyerDashboardAccess(): BuyerDashboardAccess {
-  const { user } = useAuth();
-  const [dashboardType, setDashboardType] = useState<BuyerDashboardType>('none');
-  const [primaryRole, setPrimaryRole] = useState<BuyerRole>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const scope = useUserScope();
 
-  const fetchAccess = useCallback(async () => {
-    if (!user?.id) {
-      setDashboardType('none');
-      setPrimaryRole(null);
-      setIsLoading(false);
-      return;
-    }
+  const isManagement = scope.isManagement || scope.isExecutive;
+  const isPurchaser = scope.isSelfOnly;
 
-    try {
-      // Try RPC first for buyer dashboard type
-      const { data: rpcData, error: rpcError } = await supabase.rpc(
-        'get_buyer_dashboard_type' as any,
-        { _user_id: user.id }
-      );
-
-      if (!rpcError && rpcData) {
-        setDashboardType(rpcData as BuyerDashboardType);
-      }
-
-      // Get the primary role
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id);
-
-      if (!roleError && roleData && roleData.length > 0) {
-        // Sort by priority and get highest
-        const sortedRoles = roleData.map(r => r.role as string).sort((a, b) => {
-          const priority: Record<string, number> = {
-            'buyer_ceo': 1, 'ceo': 1,
-            'buyer_cfo': 2, 'cfo': 2,
-            'buyer_manager': 3, 'manager': 3,
-            'buyer_purchaser': 4, 'purchaser': 4,
-            'buyer': 5,
-          };
-          return (priority[a] || 99) - (priority[b] || 99);
-        });
-
-        const topRole = sortedRoles[0] as BuyerRole;
-        setPrimaryRole(topRole);
-
-        // Set dashboard type based on role
-        if (MANAGEMENT_ROLES.includes(topRole || '')) {
-          setDashboardType('management');
-        } else if (PURCHASER_ROLES.includes(topRole || '')) {
-          setDashboardType('purchaser');
-        }
-      }
-    } catch (err) {
-      console.error('[useBuyerDashboardAccess] Error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    fetchAccess();
-  }, [fetchAccess]);
-
-  const isManagement = MANAGEMENT_ROLES.includes(primaryRole || '');
-  const isPurchaser = PURCHASER_ROLES.includes(primaryRole || '');
-  const canEditIncentives = ['buyer_cfo', 'buyer_ceo', 'cfo', 'ceo'].includes(primaryRole || '');
-  const canViewSavings = isManagement || isPurchaser;
-
-  // Default route based on dashboard type
+  let dashboardType: BuyerDashboardType = 'none';
   let defaultRoute = '/';
-  if (dashboardType === 'management') {
+  if (isManagement) {
+    dashboardType = 'management';
     defaultRoute = '/management';
-  } else if (dashboardType === 'purchaser') {
+  } else if (isPurchaser) {
+    dashboardType = 'purchaser';
     defaultRoute = '/dashboard';
   }
 
   return {
     dashboardType,
-    primaryRole,
+    primaryRole: scope.role,
     isManagement,
     isPurchaser,
-    canEditIncentives,
-    canViewSavings,
+    // Executive-only edit rights for incentives (capability-gated upstream).
+    canEditIncentives: scope.isExecutive,
+    canViewSavings: isManagement || isPurchaser,
     defaultRoute,
-    isLoading,
+    isLoading: scope.loading,
   };
 }
 

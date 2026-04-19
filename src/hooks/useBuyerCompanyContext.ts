@@ -55,14 +55,12 @@ interface BuyerCompanyContext {
   refetch: () => Promise<void>;
 }
 
-// Management roles that can see both dropdowns
-const MANAGEMENT_ROLES: UserRole[] = ['buyer_cfo', 'buyer_ceo', 'buyer_manager', 'cfo', 'ceo', 'manager'];
-
-// HR role also sees management view
-const HR_ROLES: UserRole[] = ['buyer_hr', 'hr'];
-
-// Purchaser/Buyer roles that can see purchaser dropdown
-const PURCHASER_ROLES: UserRole[] = ['buyer_purchaser', 'purchaser', 'buyer'];
+// NOTE: Role-array gating has been removed. Authorization is now driven
+// entirely by capabilities (see useCapabilities) and scope flags from the
+// DB (see useUserScope). The arrays below are retained ONLY as a tiny
+// helper to detect "self-only" purchaser identity for the data-loading
+// fallback path — they MUST NOT be used for permission decisions.
+const SELF_ONLY_COMPANY_ROLES = new Set(['buyer_purchaser', 'purchaser', 'buyer']);
 
 const STORAGE_KEY_PURCHASER_BASE = 'ps_selected_purchaser';
 const STORAGE_KEY_MGMT_VIEW = 'ps_management_view';
@@ -87,11 +85,13 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   // fallback when membership data hasn't loaded yet.
   const companyRole = (purchasers.find(p => p.user_id === user?.id)?.role || role) as UserRole;
 
-  // Phase 2: capability-driven gating. DB has already normalized roles via
-  // get_user_scope; the UI must NOT re-fragment that logic with role arrays.
-  // `can_switch_purchaser` is granted to management/executive/HR roles only.
-  const canSelectPurchaser = hasCapability('can_switch_purchaser') || PURCHASER_ROLES.includes(companyRole);
-  const canViewManagement = hasCapability('can_view_management_dashboard') || canSelectPurchaser;
+  // Phase 2: PURE capability-driven gating. DB has already normalized roles via
+  // get_user_scope and seeded role_capabilities; the UI must NOT re-fragment
+  // that logic with role arrays. Self-only users (purchasers) are identified
+  // by their company-membership role for the data-loading fallback only.
+  const isSelfOnly = SELF_ONLY_COMPANY_ROLES.has(String(companyRole || ''));
+  const canSelectPurchaser = hasCapability('can_switch_purchaser');
+  const canViewManagement = hasCapability('can_view_management_dashboard');
   const isManagementMode = managementView !== null;
   const isReadOnly = canViewManagement && isManagementMode;
 
