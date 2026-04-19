@@ -12,10 +12,20 @@ const tabs = [
 ];
 
 export default function CEOControlLayout() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container max-w-7xl mx-auto px-4 py-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="mb-2 -ml-2 h-8 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Button>
           <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider">
             <ShieldCheck className="h-3.5 w-3.5" />
             Executive Control Layer
