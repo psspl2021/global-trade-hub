@@ -79,6 +79,13 @@ export function useScopedAuctionMetrics(recentMonths = 6, enabled = true) {
     }
   }, []);
 
+  // Hardening: scope change must immediately invalidate metrics so the
+  // dashboard never shows the previous purchaser's counters next to the
+  // new purchaser's (empty) auction list. Mirrors useScopedData/useReverseAuction.
+  useEffect(() => {
+    setMetrics(ZERO);
+  }, [selectedPurchaserId, user?.id]);
+
   useEffect(() => {
     if (!enabled) return;
     setLoading(true);
