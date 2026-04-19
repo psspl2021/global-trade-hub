@@ -1,5 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import { ShieldCheck, Gavel, FileText, ClipboardCheck, ScrollText } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { ShieldCheck, Gavel, FileText, ClipboardCheck, ScrollText, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const tabs = [
