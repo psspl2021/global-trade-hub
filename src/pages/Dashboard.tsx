@@ -18,7 +18,7 @@
  * NEW: Management view selector for CFO/CEO/HR oversight
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -31,47 +31,48 @@ import { Badge } from '@/components/ui/badge';
 import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel, ArrowLeft, ShoppingCart, BarChart3, Users, Wallet } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CreateRequirementForm } from '@/components/CreateRequirementForm';
 import { NotificationBell } from '@/components/NotificationBell';
 import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
-import { SupplierCatalog } from '@/components/SupplierCatalog';
-import { StockManagement } from '@/components/StockManagement';
-import { BrowseRequirements } from '@/components/BrowseRequirements';
-import { SupplierCRM } from '@/components/crm/SupplierCRM';
-import { BuyerCRM } from '@/components/crm/BuyerCRM';
-import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
-import { SupplierMyBids } from '@/components/SupplierMyBids';
-import { LiveSupplierStock } from '@/components/LiveSupplierStock';
-import { PlatformInvoices } from '@/components/PlatformInvoices';
-import { FleetManagement } from '@/components/logistics/FleetManagement';
-import { WarehouseManagement } from '@/components/logistics/WarehouseManagement';
-import { LogisticsOnboarding } from '@/components/logistics/LogisticsOnboarding';
-import { CreateLogisticsRequirementForm } from '@/components/logistics/CreateLogisticsRequirementForm';
-import { BuyerLogisticsRequirements } from '@/components/logistics/BuyerLogisticsRequirements';
-import { BrowseLogisticsRequirements } from '@/components/logistics/BrowseLogisticsRequirements';
-import { TransporterMyBids } from '@/components/logistics/TransporterMyBids';
-import { ActiveShipments } from '@/components/logistics/ActiveShipments';
-import { ActiveRoutePlanning } from '@/components/logistics/ActiveRoutePlanning';
-import { CustomerShipmentTracking } from '@/components/logistics/CustomerShipmentTracking';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
-import { ReferralSection } from '@/components/ReferralSection';
-import { ProfileSettings } from '@/components/ProfileSettings';
-import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
-import { SupplierEmailQuotaCard } from '@/components/SupplierEmailQuotaCard';
-import { PremiumPackPurchase } from '@/components/PremiumPackPurchase';
-import { SubscriptionInvoices } from '@/components/SubscriptionInvoices';
-import { SupplierAIPerformanceCard } from '@/components/SupplierAIPerformanceCard';
-import { AIInventoryDiscoveryCard } from '@/components/AIInventoryDiscoveryCard';
-import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
-import { PostRFQAIInventoryModal } from '@/components/PostRFQAIInventoryModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
-import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
-
-import { ForwardRFQCenter } from '@/components/forward-rfq/ForwardRFQCenter';
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
-import { CFOFinancialDashboard } from '@/components/governance/CFOFinancialDashboard';
-import { CompanyIntelligenceRouter } from '@/components/governance/intelligence';
+import { AIRFQGenerator } from '@/components/AIRFQGenerator';
+import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
+
+// Lazy-loaded sub-views (only fetched when the user opens them)
+const SupplierCatalog = lazy(() => import('@/components/SupplierCatalog').then(m => ({ default: m.SupplierCatalog })));
+const StockManagement = lazy(() => import('@/components/StockManagement').then(m => ({ default: m.StockManagement })));
+const BrowseRequirements = lazy(() => import('@/components/BrowseRequirements').then(m => ({ default: m.BrowseRequirements })));
+const SupplierCRM = lazy(() => import('@/components/crm/SupplierCRM').then(m => ({ default: m.SupplierCRM })));
+const BuyerCRM = lazy(() => import('@/components/crm/BuyerCRM').then(m => ({ default: m.BuyerCRM })));
+const SupplierAcceptedBids = lazy(() => import('@/components/SupplierAcceptedBids').then(m => ({ default: m.SupplierAcceptedBids })));
+const SupplierMyBids = lazy(() => import('@/components/SupplierMyBids').then(m => ({ default: m.SupplierMyBids })));
+const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
+const PlatformInvoices = lazy(() => import('@/components/PlatformInvoices').then(m => ({ default: m.PlatformInvoices })));
+const FleetManagement = lazy(() => import('@/components/logistics/FleetManagement').then(m => ({ default: m.FleetManagement })));
+const WarehouseManagement = lazy(() => import('@/components/logistics/WarehouseManagement').then(m => ({ default: m.WarehouseManagement })));
+const LogisticsOnboarding = lazy(() => import('@/components/logistics/LogisticsOnboarding').then(m => ({ default: m.LogisticsOnboarding })));
+const CreateLogisticsRequirementForm = lazy(() => import('@/components/logistics/CreateLogisticsRequirementForm').then(m => ({ default: m.CreateLogisticsRequirementForm })));
+const BuyerLogisticsRequirements = lazy(() => import('@/components/logistics/BuyerLogisticsRequirements').then(m => ({ default: m.BuyerLogisticsRequirements })));
+const BrowseLogisticsRequirements = lazy(() => import('@/components/logistics/BrowseLogisticsRequirements').then(m => ({ default: m.BrowseLogisticsRequirements })));
+const TransporterMyBids = lazy(() => import('@/components/logistics/TransporterMyBids').then(m => ({ default: m.TransporterMyBids })));
+const ActiveShipments = lazy(() => import('@/components/logistics/ActiveShipments').then(m => ({ default: m.ActiveShipments })));
+const ActiveRoutePlanning = lazy(() => import('@/components/logistics/ActiveRoutePlanning').then(m => ({ default: m.ActiveRoutePlanning })));
+const CustomerShipmentTracking = lazy(() => import('@/components/logistics/CustomerShipmentTracking').then(m => ({ default: m.CustomerShipmentTracking })));
+const ReferralSection = lazy(() => import('@/components/ReferralSection').then(m => ({ default: m.ReferralSection })));
+const ProfileSettings = lazy(() => import('@/components/ProfileSettings').then(m => ({ default: m.ProfileSettings })));
+const SupplierEmailQuotaCard = lazy(() => import('@/components/SupplierEmailQuotaCard').then(m => ({ default: m.SupplierEmailQuotaCard })));
+const PremiumPackPurchase = lazy(() => import('@/components/PremiumPackPurchase').then(m => ({ default: m.PremiumPackPurchase })));
+const SubscriptionInvoices = lazy(() => import('@/components/SubscriptionInvoices').then(m => ({ default: m.SubscriptionInvoices })));
+const SupplierAIPerformanceCard = lazy(() => import('@/components/SupplierAIPerformanceCard').then(m => ({ default: m.SupplierAIPerformanceCard })));
+const AIInventoryDiscoveryCard = lazy(() => import('@/components/AIInventoryDiscoveryCard').then(m => ({ default: m.AIInventoryDiscoveryCard })));
+const PostRFQAIInventoryModal = lazy(() => import('@/components/PostRFQAIInventoryModal').then(m => ({ default: m.PostRFQAIInventoryModal })));
+const ReverseAuctionDashboard = lazy(() => import('@/components/reverse-auction/ReverseAuctionDashboard').then(m => ({ default: m.ReverseAuctionDashboard })));
+const ForwardRFQCenter = lazy(() => import('@/components/forward-rfq/ForwardRFQCenter').then(m => ({ default: m.ForwardRFQCenter })));
+const CreateRequirementForm = lazy(() => import('@/components/CreateRequirementForm').then(m => ({ default: m.CreateRequirementForm })));
+const CFOFinancialDashboard = lazy(() => import('@/components/governance/CFOFinancialDashboard').then(m => ({ default: m.CFOFinancialDashboard })));
+const CompanyIntelligenceRouter = lazy(() => import('@/components/governance/intelligence').then(m => ({ default: m.CompanyIntelligenceRouter })));
 
 const ROLE_DEFAULT_MANAGEMENT_VIEW: Partial<Record<string, 'cfo' | 'ceo' | 'hr' | 'manager'>> = {
   cfo: 'cfo',
@@ -305,7 +306,14 @@ const Dashboard = () => {
   ];
   const isBuyerRole = role ? BUYER_DASHBOARD_ROLES.includes(role) : false;
 
+  const SuspenseFallback = (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+    </div>
+  );
+
   return (
+    <Suspense fallback={SuspenseFallback}>
     <div className="min-h-screen bg-background">
       {/* Profile Completion Modal - blocks until mandatory fields are filled */}
       <ProfileCompletionModal userId={user?.id} onComplete={() => setProfileComplete(true)} />
@@ -1389,6 +1397,7 @@ const Dashboard = () => {
         )}
       </main>
     </div>
+    </Suspense>
   );
 };
 
