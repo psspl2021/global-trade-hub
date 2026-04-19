@@ -36,11 +36,16 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [showExecutionTracking, setShowExecutionTracking] = useState(false);
   const [showAuctionCredits, setShowAuctionCredits] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
-  const [auctionCount, setAuctionCount] = useState(0);
+  const [auctionCountByScope, setAuctionCountByScope] = useState<Record<string, number>>({});
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { selectedPurchaserId } = useBuyerCompanyContext();
+  // Scope-keyed count avoids flash-of-stale-count when switching purchasers:
+  // the value is read by current scope key, so a switch instantly shows 0
+  // (or the cached count for that scope) even before the fetch resolves.
+  const scopeKey = `${user?.id ?? 'anon'}:${selectedPurchaserId ?? 'self'}`;
+  const auctionCount = auctionCountByScope[scopeKey] ?? 0;
 
   const updateSearchParams = (updater: (params: URLSearchParams) => void) => {
     const next = new URLSearchParams(searchParams);
@@ -55,7 +60,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   // explicitly zero on RPC error (e.g. user_not_in_company guard).
   useEffect(() => {
     if (!user || isSupplier) return;
-    setAuctionCount(0);
+    const key = scopeKey;
     (supabase as any)
       .rpc('get_scoped_auctions_by_purchaser', {
         p_user_id: user.id,
@@ -64,12 +69,12 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
       .then(({ data, error }: any) => {
         if (error) {
           console.warn('[ReverseAuctionDashboard] auction count RPC error:', error);
-          setAuctionCount(0);
+          setAuctionCountByScope((prev) => ({ ...prev, [key]: 0 }));
           return;
         }
-        setAuctionCount((data || []).length);
+        setAuctionCountByScope((prev) => ({ ...prev, [key]: (data || []).length }));
       });
-  }, [user, isSupplier, selectedPurchaserId]);
+  }, [user, isSupplier, selectedPurchaserId, scopeKey]);
 
   // Scope boundary hardening: selected auction must never survive an acting purchaser switch.
   useEffect(() => {
