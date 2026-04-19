@@ -599,9 +599,41 @@ function BuyerAuctionRow({
                 </>
               )}
               {canRepublish && (
-                <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
-                  <Pencil className="w-3 h-3" /> Edit & Republish
-                </Button>
+                <>
+                  <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                    <Pencil className="w-3 h-3" /> Edit & Republish
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    onClick={async () => {
+                      const url = `${window.location.origin}/dashboard?view=reverse-auction&auction=${auction.id}`;
+                      try {
+                        await navigator.clipboard.writeText(url);
+                        toast.success('Supplier invite link copied');
+                      } catch {
+                        toast.error('Failed to copy link');
+                      }
+                    }}
+                  >
+                    <Share2 className="w-3 h-3" /> Share
+                  </Button>
+                  {!isCancelled && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 text-destructive hover:text-destructive"
+                      onClick={() => {
+                        if (confirm('Cancel this RFQ? Suppliers will be notified.')) {
+                          cancelAuction(auction.id);
+                        }
+                      }}
+                    >
+                      <XCircle className="w-3 h-3" /> Cancel
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </div>
