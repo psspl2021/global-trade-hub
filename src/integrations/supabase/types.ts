@@ -12066,6 +12066,10 @@ export type Database = {
         Args: { p_auction_id: string; p_user_id: string }
         Returns: undefined
       }
+      _resolve_supplier_name: {
+        Args: { p_supplier_id: string }
+        Returns: string
+      }
       activate_affiliate_fifo: {
         Args: { p_affiliate_id: string }
         Returns: string
