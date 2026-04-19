@@ -414,12 +414,17 @@ const Dashboard = () => {
             {activeManagementView === 'ceo' && (
               <>
                 <div className="flex justify-end">
-                  <a
-                    href="/governance/ceo"
+                  <Link
+                    to="/governance/ceo"
+                    onMouseEnter={() => {
+                      // Prefetch CEO chunks on hover for instant navigation
+                      import("./governance/ceo/CEOControlLayout");
+                      import("./governance/ceo/CEOOverview");
+                    }}
                     className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 transition"
                   >
                     Open CEO Control Layer →
-                  </a>
+                  </Link>
                 </div>
                 <CompanyIntelligenceRouter forcedView="CEO" hideViewSelector />
               </>
