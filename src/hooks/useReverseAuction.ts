@@ -106,6 +106,13 @@ export interface AuctionFilters {
   sortBy?: string;
 }
 
+// Module-level cache so switching the Acting Purchaser dropdown
+// shows previously-loaded data instantly while a fresh fetch runs.
+const auctionCache = new Map<string, { ts: number; rows: ReverseAuction[] }>();
+const AUCTION_CACHE_TTL_MS = 60_000;
+const auctionCacheKey = (userId: string, purchaserId: string | null, filters?: AuctionFilters) =>
+  `${userId}|${purchaserId ?? 'self'}|${JSON.stringify(filters ?? {})}`;
+
 export function useReverseAuction(supplierMode: boolean = false) {
   const { user } = useAuth();
   const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
@@ -116,7 +123,23 @@ export function useReverseAuction(supplierMode: boolean = false) {
     if (!user) return;
     // Wait for purchaser context to resolve to avoid leaking other purchasers' auctions
     if (!supplierMode && contextLoading) return;
-    setIsLoading(true);
+
+    // Serve cache instantly for the buyer path so re-selecting a purchaser feels instant
+    const cKey = !supplierMode ? auctionCacheKey(user.id, selectedPurchaserId, filters) : null;
+    if (cKey) {
+      const cached = auctionCache.get(cKey);
+      if (cached) {
+        setAuctions(cached.rows);
+        setIsLoading(false);
+        if (Date.now() - cached.ts < AUCTION_CACHE_TTL_MS) {
+          return; // fresh enough — skip refetch
+        }
+      } else {
+        setIsLoading(true);
+      }
+    } else {
+      setIsLoading(true);
+    }
     try {
       if (supplierMode) {
         const { data: invites, error: invErr } = await supabase
