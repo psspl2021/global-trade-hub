@@ -46,7 +46,7 @@ export default function PurchaserLeaderboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { has, loading: capsLoading } = useCapabilities();
-  const fmt = useCurrencyFormatter();
+  const { fmt } = useCurrencyFormatter();
 
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
