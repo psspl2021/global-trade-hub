@@ -18,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole, UserRole } from '@/hooks/useUserRole';
 import { useCapabilities } from '@/hooks/useCapabilities';
+import { useUserScope } from '@/hooks/useUserScope';
 
 export type ManagementViewType = 'cfo' | 'ceo' | 'hr' | 'manager' | null;
 
@@ -55,12 +56,9 @@ interface BuyerCompanyContext {
   refetch: () => Promise<void>;
 }
 
-// NOTE: Role-array gating has been removed. Authorization is now driven
-// entirely by capabilities (see useCapabilities) and scope flags from the
-// DB (see useUserScope). The arrays below are retained ONLY as a tiny
-// helper to detect "self-only" purchaser identity for the data-loading
-// fallback path — they MUST NOT be used for permission decisions.
-const SELF_ONLY_COMPANY_ROLES = new Set(['buyer_purchaser', 'purchaser', 'buyer']);
+// Authorization is driven entirely by capabilities (useCapabilities) and
+// scope flags from the DB (useUserScope). No role-string arrays remain in
+// this file — `is_self_only` comes straight from get_user_scope().
 
 const STORAGE_KEY_PURCHASER_BASE = 'ps_selected_purchaser';
 const STORAGE_KEY_MGMT_VIEW = 'ps_management_view';
@@ -73,6 +71,8 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const { user } = useAuth();
   const { role } = useUserRole(user?.id);
   const { has: hasCapability } = useCapabilities();
+  // get_user_scope() is the single source of truth for self-only identity.
+  const { isSelfOnly } = useUserScope();
 
   const [purchasers, setPurchasers] = useState<CompanyPurchaser[]>([]);
   const [selectedPurchaserId, setSelectedPurchaserIdState] = useState<string | null>(null);
@@ -80,16 +80,9 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Company-membership role (from buyer_company_members) is the source of
-  // truth for company-scoped governance. Auth role (user_roles) is only a
-  // fallback when membership data hasn't loaded yet.
-  const companyRole = (purchasers.find(p => p.user_id === user?.id)?.role || role) as UserRole;
-
-  // Phase 2: PURE capability-driven gating. DB has already normalized roles via
-  // get_user_scope and seeded role_capabilities; the UI must NOT re-fragment
-  // that logic with role arrays. Self-only users (purchasers) are identified
-  // by their company-membership role for the data-loading fallback only.
-  const isSelfOnly = SELF_ONLY_COMPANY_ROLES.has(String(companyRole || ''));
+  // Pure capability-driven gating. The DB has normalized roles via
+  // get_user_scope and seeded role_capabilities; the UI must NOT
+  // re-fragment that logic with role arrays.
   const canSelectPurchaser = hasCapability('can_switch_purchaser');
   const canViewManagement = hasCapability('can_view_management_dashboard');
   const isManagementMode = managementView !== null;
@@ -208,14 +201,11 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
 
       let purchaserList = (data || []) as CompanyPurchaser[];
 
-      // SECURITY/UX: purchaser & buyer_purchaser roles are hard-scoped to self
-      // by the DB (RPC ignores p_selected_purchaser). Use the company-membership
-      // role (authoritative) rather than auth role to decide self-only filtering.
-      const callerCompanyRole = purchaserList.find(p => p.user_id === user.id)?.role;
-      const isSelfOnlyRole =
-        callerCompanyRole === 'purchaser' ||
-        callerCompanyRole === 'buyer_purchaser' ||
-        (!callerCompanyRole && (role === 'purchaser' || role === 'buyer_purchaser'));
+      // SECURITY/UX: self-only users (e.g. purchasers) are hard-scoped to self
+      // by the DB (RPC ignores p_selected_purchaser). The is_self_only flag
+      // from get_user_scope() is the authoritative signal — no role-string
+      // matching here.
+      const isSelfOnlyRole = isSelfOnly;
       if (isSelfOnlyRole) {
         purchaserList = purchaserList.filter(p => p.is_current_user || p.user_id === user.id);
       }
@@ -292,7 +282,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, role, ensureBuyerCompany]);
+  }, [user?.id, role, ensureBuyerCompany, isSelfOnly]);
 
   // Initial fetch
   useEffect(() => {

@@ -10,25 +10,29 @@
  */
 
 import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
+import { useUserScope } from '@/hooks/useUserScope';
 import { ControlTowerExecutive } from '@/components/ai-enforcement';
 import { AdminControlTower } from '@/components/admin/AdminControlTower';
 import { AccessDenied } from '@/components/purchaser/AccessDenied';
 import { Card, CardContent } from '@/components/ui/card';
 import { Footer } from '@/components/landing/Footer';
 
+// Admin identity is a top-level persona (not a company-governance role) and
+// remains a primaryRole check. Executive vs purchaser scope, however, is
+// driven entirely by get_user_scope() — no role-string arrays.
 const ADMIN_ROLES = ['ps_admin', 'admin'];
-const EXECUTIVE_ROLES = ['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager'];
 
 export function ControlTowerPage() {
-  const { 
-    canViewControlTower, 
-    primaryRole, 
-    isLoading, 
-    isAccessDenied 
+  const {
+    canViewControlTower,
+    primaryRole,
+    isLoading,
+    isAccessDenied
   } = useGovernanceAccess();
+  const { isExecutive, isManagement, loading: scopeLoading } = useUserScope();
 
-  // STEP 1: Loading guard — never render 404 until role is resolved
-  if (isLoading) {
+  // STEP 1: Loading guard — never render 404 until role + scope are resolved
+  if (isLoading || scopeLoading) {
     return (
       <main className="min-h-screen pt-20 pb-16 px-4">
         <div className="container mx-auto max-w-7xl">
@@ -53,16 +57,16 @@ export function ControlTowerPage() {
     );
   }
 
-  // STEP 3: Role-based rendering — single route, two modes
+  // STEP 3: Rendering mode — admin persona OR executive/management scope.
   const isAdmin = ADMIN_ROLES.includes(primaryRole);
-  const isExecutive = EXECUTIVE_ROLES.includes(primaryRole);
+  const showExecutive = isExecutive || isManagement;
 
   return (
     <main className="min-h-screen pt-20 pb-16 px-4">
       <div className="container mx-auto max-w-7xl">
         {isAdmin ? (
           <AdminControlTower />
-        ) : isExecutive ? (
+        ) : showExecutive ? (
           <ControlTowerExecutive />
         ) : (
           <AccessDenied variant="404" />
