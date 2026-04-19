@@ -445,8 +445,10 @@ export function AuctionWarRoom({ onBack, onSelectAuction }: AuctionWarRoomProps)
     const channel = supabase
       .channel(`war-room-live-${selectedPurchaserId ?? user.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reverse_auctions' }, (payload) => {
-        const updated = payload.new as unknown as ReverseAuction;
-        if (updated.purchaser_id !== selectedPurchaserId) {
+        const updated = payload.new as ReverseAuction & { purchaser_id?: string | null };
+        const effectivePurchaserId = selectedPurchaserId ?? user.id;
+
+        if (updated.purchaser_id !== effectivePurchaserId) {
           setAuctions(prev => prev.filter(a => a.id !== updated.id));
           setBidsMap(prev => {
             const next = { ...prev };
