@@ -21,9 +21,7 @@ export default function CreateReverseAuctionPage() {
 
   const confirmLeave = () => {
     setShowExitConfirm(false);
-    // Always navigate to a known safe destination to avoid history quirks
-    // (e.g. previous entry being this same page or an external referrer).
-    navigate("/buyer", { replace: true });
+    navigate("/dashboard", { replace: true });
   };
 
   return (
