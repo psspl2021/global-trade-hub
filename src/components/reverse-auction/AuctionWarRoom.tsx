@@ -21,6 +21,7 @@ import {
 } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { ReverseAuction, getRankedBids, ReverseAuctionBid } from '@/hooks/useReverseAuction';
 import { differenceInSeconds, formatDistanceToNow } from 'date-fns';
 import { formatCompact as formatCompactUtil } from '@/lib/currency';
