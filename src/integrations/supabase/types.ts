@@ -4401,6 +4401,30 @@ export type Database = {
         }
         Relationships: []
       }
+      impersonation_read_logs: {
+        Row: {
+          caller_id: string
+          entity: string
+          id: string
+          read_at: string
+          viewed_user_id: string
+        }
+        Insert: {
+          caller_id: string
+          entity: string
+          id?: string
+          read_at?: string
+          viewed_user_id: string
+        }
+        Update: {
+          caller_id?: string
+          entity?: string
+          id?: string
+          read_at?: string
+          viewed_user_id?: string
+        }
+        Relationships: []
+      }
       indexed_pages: {
         Row: {
           indexed: boolean
@@ -13646,15 +13670,20 @@ export type Database = {
         }
         Returns: string
       }
-      log_impersonation_read: {
-        Args: {
-          p_actor: string
-          p_company: string
-          p_entity: string
-          p_viewed_purchaser: string
-        }
-        Returns: undefined
-      }
+      log_impersonation_read:
+        | {
+            Args: {
+              p_actor: string
+              p_company: string
+              p_entity: string
+              p_viewed_purchaser: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: { p_caller: string; p_entity: string; p_viewed: string }
+            Returns: undefined
+          }
       log_role_switch: {
         Args: { _metadata?: Json; _target_role: string; _user_id: string }
         Returns: string
