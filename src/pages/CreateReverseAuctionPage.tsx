@@ -20,11 +20,10 @@ export default function CreateReverseAuctionPage() {
   };
 
   const confirmLeave = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/buyer");
-    }
+    setShowExitConfirm(false);
+    // Always navigate to a known safe destination to avoid history quirks
+    // (e.g. previous entry being this same page or an external referrer).
+    navigate("/buyer", { replace: true });
   };
 
   return (
