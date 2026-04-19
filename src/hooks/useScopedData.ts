@@ -25,6 +25,18 @@ const RPC_BY_ENTITY: Record<ScopedEntity, string> = {
   logistics: 'get_scoped_logistics_by_purchaser',
 };
 
+/**
+ * Module-level in-memory cache keyed by RPC + arg signature.
+ * Lets re-selecting a previously-viewed purchaser render instantly
+ * (data shown immediately, fresh fetch happens in background).
+ * TTL keeps memory bounded; cache is cleared on auth change naturally
+ * because userId is part of the key.
+ */
+const CACHE_TTL_MS = 60_000;
+const scopedCache = new Map<string, { ts: number; rows: any[] }>();
+const cacheKey = (rpc: string, args: Record<string, any>) =>
+  `${rpc}|${JSON.stringify(args)}`;
+
 interface UseScopedDataOptions {
   /** Auto-refresh interval in ms. 0 disables polling. */
   pollMs?: number;
