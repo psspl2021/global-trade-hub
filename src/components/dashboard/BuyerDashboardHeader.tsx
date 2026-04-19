@@ -23,10 +23,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
 import { GovernanceNotificationBell } from '@/components/governance/GovernanceNotificationBell';
-import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins, Trophy } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
+import { useCapabilities } from '@/hooks/useCapabilities';
 import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
 import { ImpersonationBanner } from './ImpersonationBanner';
@@ -54,7 +55,9 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
   } = useBuyerCompanyContext();
   
   const { isRoleVerified } = useRoleSecurity();
+  const { has: hasCapability } = useCapabilities();
   const isCurrentViewVerified = managementView ? isRoleVerified(managementView) : false;
+  const canViewLeaderboard = hasCapability('can_view_purchaser_leaderboard');
 
   const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
   const [isTrial, setIsTrial] = useState(false);
@@ -126,6 +129,17 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
             )}
             <NotificationBell />
             <GovernanceNotificationBell />
+            {canViewLeaderboard && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden md:flex"
+                onClick={() => navigate('/management/leaderboard')}
+              >
+                <Trophy className="h-4 w-4 mr-2" />
+                Management
+              </Button>
+            )}
             <Button 
               variant="outline" 
               size="sm" 

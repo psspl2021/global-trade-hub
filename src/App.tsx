@@ -117,6 +117,7 @@ const PurchaserExecutionDashboard = lazy(() => import("./pages/governance/Purcha
 const ManagementExecutiveDashboard = lazy(() => import("./pages/governance/ManagementExecutiveDashboard"));
 const AdminAuditDashboard = lazy(() => import("./pages/governance/AdminAuditDashboard"));
 const ControlTowerPage = lazy(() => import("./pages/ControlTower"));
+const PurchaserLeaderboardPage = lazy(() => import("./pages/governance/management/PurchaserLeaderboardPage"));
 // CEO Control Layer
 const CEOControlLayout = lazy(() => import("./pages/governance/ceo/CEOControlLayout"));
 const CEOOverview = lazy(() => import("./pages/governance/ceo/CEOOverview"));
@@ -294,6 +295,9 @@ const BotAwareRouter = () => {
         
         {/* Legacy management route now resolves into the unified dashboard */}
         <Route path="/management" element={<Navigate to="/dashboard" replace />} />
+
+        {/* Phase 2: Management → Leaderboard (capability-gated inside the page) */}
+        <Route path="/management/leaderboard" element={<PurchaserLeaderboardPage />} />
         
         {/* Admin Audit Dashboard: ps_admin, admin */}
         <Route path="/admin" element={<AdminAuditDashboard />} />
