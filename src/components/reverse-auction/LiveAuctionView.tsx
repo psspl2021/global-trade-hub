@@ -659,7 +659,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   const totalSavedAmount = Math.max(0, totalSavedRaw);
   const auctionOutcome: 'excellent' | 'good' | 'neutral' | 'bad' =
     savingsPctRaw > 2 ? 'excellent' : savingsPctRaw > 0 ? 'good' : savingsPctRaw === 0 ? 'neutral' : 'bad';
-  const formatPct = (n: number) => `${Math.abs(n).toFixed(1)}%`;
+  const formatPct = (n: number) => `${Math.abs(n).toFixed(2)}%`;
   const outcomeColor = auctionOutcome === 'excellent' || auctionOutcome === 'good'
     ? 'text-emerald-600' : auctionOutcome === 'bad' ? 'text-destructive' : 'text-muted-foreground';
   const uniqueSuppliers = useMemo(() => new Set(bids.map(b => b.supplier_id)).size, [bids]);
@@ -1035,7 +1035,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                       </Badge>
                     )}
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {((auction.starting_price - bid.bid_price) / auction.starting_price * 100).toFixed(1)}% off
+                      {((auction.starting_price - bid.bid_price) / auction.starting_price * 100).toFixed(2)}% off
                     </p>
                   </div>
                 </div>

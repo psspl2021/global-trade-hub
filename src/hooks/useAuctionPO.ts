@@ -23,7 +23,8 @@ export function calculatePOTotals(items: POLineItem[], freight: number) {
     taxTotal += lineTax;
   }
 
-  const grandTotal = subtotal + taxTotal + freight;
+  // Round grand total to nearest whole rupee to eliminate per-line rounding drift (e.g. ₹0.59)
+  const grandTotal = Math.round(subtotal + taxTotal + freight);
   return { subtotal, taxTotal, grandTotal };
 }
 
