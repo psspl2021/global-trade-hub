@@ -306,7 +306,14 @@ const Dashboard = () => {
   ];
   const isBuyerRole = role ? BUYER_DASHBOARD_ROLES.includes(role) : false;
 
+  const SuspenseFallback = (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+    </div>
+  );
+
   return (
+    <Suspense fallback={SuspenseFallback}>
     <div className="min-h-screen bg-background">
       {/* Profile Completion Modal - blocks until mandatory fields are filled */}
       <ProfileCompletionModal userId={user?.id} onComplete={() => setProfileComplete(true)} />
